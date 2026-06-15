@@ -310,7 +310,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         <>
           <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
             <label>
-              Event type{" "}
+              Action (event type){" "}
               <select
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value)}
@@ -324,6 +324,15 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                   </option>
                 ))}
               </select>
+            </label>
+            <label>
+              Actor (user id){" "}
+              <input
+                value={actorUserId}
+                onChange={(e) => setActorUserId(e.target.value)}
+                className="mt-1 w-full"
+                placeholder="Filter by operator or service principal"
+              />
             </label>
             <>
               <label>
@@ -364,7 +373,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               type="button"
               className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
             >
-              Advanced filters
+              More filters (correlation ID)
               <ChevronDown
                 className={cn(
                   "h-4 w-4 shrink-0 transition-transform",
@@ -380,14 +389,6 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                   <input
                     value={correlationId}
                     onChange={(e) => setCorrelationId(e.target.value)}
-                    className="mt-1 w-full"
-                  />
-                </label>
-                <label>
-                  Actor user id{" "}
-                  <input
-                    value={actorUserId}
-                    onChange={(e) => setActorUserId(e.target.value)}
                     className="mt-1 w-full"
                   />
                 </label>

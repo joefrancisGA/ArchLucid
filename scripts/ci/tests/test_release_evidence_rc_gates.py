@@ -52,6 +52,18 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "release-smoke-live-ui-sql-result.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.release-smoke-live-ui-sql-result.v1",
+                    "profile": "LiveUiSql",
+                    "status": "PASS",
+                    "generatedUtc": "2026-06-07T00:00:00+00:00",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         return bundle
 
     def test_strict_rc_fails_when_blocking_lane_missing(self) -> None:
@@ -75,6 +87,44 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         payload = json.loads(json_out.read_text(encoding="utf-8"))
         self.assertEqual(payload["strictDisposition"], "HOLD")
         self.assertTrue(len(payload["strictBlockingReasons"]) > 0)
+
+    def test_strict_rc_fails_when_live_ui_sql_parity_missing(self) -> None:
+        bundle = self._bundle_from_pass_fixture()
+        (bundle / "release-smoke-live-ui-sql-result.json").unlink()
+        json_out = self.temp_dir / "rollup-missing-live.json"
+        md_out = self.temp_dir / "rollup-missing-live.md"
+        result = run_py(
+            "build_release_confidence_rollup.py",
+            "--repo-root",
+            str(self.temp_dir),
+            "--bundle-dir",
+            str(bundle),
+            "--json-out",
+            str(json_out),
+            "--markdown-out",
+            str(md_out),
+            "--strict-rc",
+        )
+        payload = json.loads(json_out.read_text(encoding="utf-8"))
+        self.assertEqual(payload["strictDisposition"], "HOLD")
+        self.assertTrue(
+            any("Live UI-SQL parity" in reason for reason in payload["strictBlockingReasons"]),
+            msg=payload["strictBlockingReasons"],
+        )
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
+
+    def test_strict_buyer_rc_fails_without_packet_artifacts(self) -> None:
+        bundle = self._bundle_from_pass_fixture()
+        result = run_py(
+            "release_evidence_bundle.py",
+            "validate",
+            "--dir",
+            str(bundle),
+            "--profile",
+            "release-readiness",
+            "--strict-buyer-rc",
+        )
+        self.assertEqual(result.returncode, 2, msg=result.stderr or result.stdout)
 
     def test_strict_rc_passes_with_complete_fixture(self) -> None:
         bundle = self._bundle_from_pass_fixture()
@@ -123,6 +173,17 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "saq-release-gate.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.saq-release-gate.v1",
+                    "disposition": "HOLD",
+                    "blockingReasons": ["SAQ-001 is open P0 and has no release waiver"],
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         verdict_json = self.temp_dir / "verdict.json"
         verdict_md = self.temp_dir / "verdict.md"
         run_py(
@@ -138,6 +199,8 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         )
         verdict = json.loads(verdict_json.read_text(encoding="utf-8"))
         self.assertEqual(verdict["schema"], "archlucid.rc-go-no-go-verdict.v1")
+        self.assertEqual(verdict["saqReleaseGateDisposition"], "HOLD")
+        self.assertIn("SAQ release gate: HOLD", verdict["blockers"])
         handoff_json = self.temp_dir / "handoff.json"
         handoff_md = self.temp_dir / "handoff.md"
         run_py(
@@ -216,6 +279,8 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
             "azure-iac-parity-proof.json",
             "managed-identity-verification.json",
             "real-mode-claim-gate.json",
+            "saq-release-gate.json",
+            "saq-release-gate.md",
         ):
             self.assertIn(name, optional)
 

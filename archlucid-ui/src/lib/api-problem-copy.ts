@@ -62,13 +62,13 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   GRAPH_TOO_LARGE_FOR_FULL_RESPONSE:
     "The graph for this review exceeds the single-response size limit. Use a narrower mode (decision focus or node neighborhood), reduce depth, or ask support about paging options.",
   GRAPH_RESOLUTION_FAILED:
-    "The server could not resolve graph data for this run. Confirm the review finished ingestion, then retry. If it persists, check admin health and correlation id with support.",
+    "The server could not resolve graph data for this review. Confirm the review finished ingestion, then retry. If it persists, check admin health and correlation id with support.",
   LLM_TOKEN_QUOTA_EXCEEDED:
     "This workspace hit an AI token budget. Wait for the next billing window or ask an administrator to raise the cap.",
   COST_LIMIT_EXCEEDED:
     "A configured cost guardrail blocked this action. Review tenant usage settings and retry with a smaller scope or after limits reset.",
   TRIAL_LIMIT_EXCEEDED:
-    "This trial tenant exceeded a published limit (runs, seats, or similar). Upgrade or contact sales to continue.",
+    "This trial tenant exceeded a published limit (reviews, seats, or similar). Upgrade or contact sales to continue.",
   REQUEST_PAYLOAD_TOO_LARGE:
     "The request body is too large. Shorten free-text fields, drop heavy attachments from the brief, or split the work across reviews.",
   EXPORT_FAILED:

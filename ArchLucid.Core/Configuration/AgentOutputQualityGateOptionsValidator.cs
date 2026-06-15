@@ -38,6 +38,12 @@ public sealed class AgentOutputQualityGateOptionsValidator : IValidateOptions<Ag
                 + $"{nameof(AgentOutputQualityGateOptions.PilotStrictMinEvidenceRefCount)} > 0.");
         }
 
+        if (options.MaxAutoRetries < 0)
+        {
+            return ValidateOptionsResult.Fail(
+                $"{AgentOutputQualityGateOptions.SectionPath}: {nameof(AgentOutputQualityGateOptions.MaxAutoRetries)} must be >= 0.");
+        }
+
         return ValidateOptionsResult.Success;
     }
 }

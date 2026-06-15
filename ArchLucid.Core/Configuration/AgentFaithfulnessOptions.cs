@@ -37,4 +37,22 @@ public sealed class AgentFaithfulnessOptions
         get;
         set;
     } = 0.30;
+
+    /// <summary>
+    ///     When a claim cites explicit evidence refs, require at least this overlap density on the cited blob only (TB-324).
+    /// </summary>
+    public double MinCitationFidelityDensityRatio
+    {
+        get;
+        set;
+    } = 0.45;
+
+    /// <summary>
+    ///     Max allowed gap between package-wide overlap and cited-chunk overlap before flagging a hallucinated citation (TB-324).
+    /// </summary>
+    public double MaxCitationVsPackageOverlapGap
+    {
+        get;
+        set;
+    } = 0.20;
 }

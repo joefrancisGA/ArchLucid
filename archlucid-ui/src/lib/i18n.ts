@@ -25,7 +25,7 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Your review packages",
+  buyerPolished: "Architecture reviews",
   fullOperator: "Architecture Reviews",
 } as const;
 
@@ -72,7 +72,7 @@ export const RUNS_DASHBOARD_LABELS = {
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
   archivedListUnsupported:
-    "Archived requests are not returned by the runs list yet. When the API adds isArchived or includeArchived, rows will appear here.",
+    "Archived requests are not returned by the reviews list yet. When the API adds isArchived or includeArchived, rows will appear here.",
 } as const;
 
 export const RUN_PACKAGE_EXPORT_LABELS = {
@@ -107,8 +107,10 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
 export const OPERATOR_NAV_LINK_LABELS = {
   home: "Home",
+  /** Operator-shell ROI dashboard — distinct from the executive route group. */
+  portfolioOverview: "Portfolio overview",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Review packages",
+  reviewPackage: "Architecture reviews",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   capture: "Evidence intake",
   onboarding: "Onboarding",

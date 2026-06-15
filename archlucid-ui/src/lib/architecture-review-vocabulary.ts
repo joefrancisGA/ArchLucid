@@ -5,6 +5,14 @@
 export const ARCHITECTURE_REVIEW_VOCABULARY = {
   singular: "Architecture review",
   plural: "Architecture reviews",
+  /**
+   * One-time bridge for first-session / diagnostics copy where URLs and payloads still expose `runId`
+   * (see `docs/library/PRODUCT_PACKAGING.md` §3).
+   */
+  runIdBridgeSentence:
+    "Each architecture review is tracked as one run in APIs and support bundles (runId).",
+  /** Inline label when showing the raw identifier next to review vocabulary. */
+  correlationIdFieldBridge: "Review ID (API field: runId)",
   /** Support / diagnostics correlation label (value remains the API run id). */
   correlationIdLabel: "Review ID",
   pipelineStatusAriaPrefix: "Architecture review pipeline status",

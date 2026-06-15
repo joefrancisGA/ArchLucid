@@ -5,7 +5,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-06-08
+**Last reviewed:** 2026-06-14
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
@@ -57,6 +57,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0050](0050-feasibility-classification-transparency-trail.md) | Feasibility classification (hard vs soft; hard is citation-gated) + **mandatory transparency trail** (**Status: Accepted**; debate R4/R5/R6) |
 | [0051](0051-question-selection-engine.md) | Question selection engine — deterministic-first, LLM as **bounded selector**, packs own questions, k-anon learning (**Status: Accepted**; L0/L1 shipped, L2/VoI OPEN per O1-remainder; debate R7–R10) |
 | [0052](0052-monetization-posture-decision-as-product.md) | Monetization posture — **decision-as-product**, seat license for the expert operator (**Status: Accepted**; debate R6/R13) |
+| [0053](0053-enterprise-diagnostic-logging-observability-posture.md) | Enterprise diagnostic logging and observability posture — near-perfect structured, correlated, privacy-safe telemetry for V1 supportability (**Status: Accepted**; enforcement **TB-329–TB-336**) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

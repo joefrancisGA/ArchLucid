@@ -17,4 +17,10 @@ public static class AgentExecutionTraceFailureReasonCodes
 
     /// <summary>Run-level token or USD cap (per-execute batch) was exceeded after one or more completions.</summary>
     public const string RunCostLimitExceeded = nameof(RunCostLimitExceeded);
+
+    /// <summary>Run-level token budget was exceeded after one or more completions (TB-327).</summary>
+    public const string TokenBudgetExceeded = nameof(TokenBudgetExceeded);
+
+    /// <summary>Request content failed the deterministic prompt-injection precheck before execute (TB-325).</summary>
+    public const string PromptInjectionDetected = nameof(PromptInjectionDetected);
 }

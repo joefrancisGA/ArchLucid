@@ -1,5 +1,7 @@
 "use client";
 
+import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
+
 import { ScorecardMetricCard } from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";
 
@@ -24,6 +26,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <ValueReportOutcomesNav />
       <header>
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Pilot scorecard</h1>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">

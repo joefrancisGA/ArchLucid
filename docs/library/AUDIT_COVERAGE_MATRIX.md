@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:268 -->
+<!-- audit-core-const-count:270 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -71,6 +71,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Authority run completed | `AuthorityRunOrchestrator` | `AuditEventTypes.RunCompleted` | RunId, ManifestId | `{ goldenManifestId, artifactBundleId, decisionTraceId }` |
 | Authority replay executed | `AuthorityReplayController` | `AuditEventTypes.ReplayExecuted` | RunId | `{ mode, rebuilt manifest id? }` |
 | Architecture run pin / unpin | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) | `AuditEventTypes.RunPinStateChanged` | RunId | `{ isPinned }` |
+| Operator saved view create | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) | `AuditEventTypes.OperatorSavedViewCreated` | Tenant/Workspace/Project from ambient scope | `{ viewId, surface, name, isShared }` — filter JSON not duplicated (may contain operator query terms) |
+| Operator saved view delete | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) | `AuditEventTypes.OperatorSavedViewDeleted` | Tenant/Workspace/Project from ambient scope | `{ viewId }` |
 | Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/authority/runs/{runId}/disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
@@ -229,7 +231,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ### Mutating / lifecycle — verified
 
-**No core gaps.** (UI state endpoints `POST /v1/operator/saved-views` and `DELETE /v1/operator/saved-views/{viewId}` modify user presets without emitting system audit trails.) `ManifestSuperseded` durable emission shipped **2026-05-15**: after manifest finalization wires the committing run to the new golden manifest, `IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync` transitions **Active** rows in scope that are **not referenced** by any non-archived run (`dbo.Runs.GoldenManifestId`), and `ManifestFinalizationService` emits one **`IAuditService`** row per superseded manifest id (**repository mutation only** — audit semantics stay in the application service per matrix policy).
+**No core gaps.** `ManifestSuperseded` durable emission shipped **2026-05-15**: after manifest finalization wires the committing run to the new golden manifest, `IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync` transitions **Active** rows in scope that are **not referenced** by any non-archived run (`dbo.Runs.GoldenManifestId`), and `ManifestFinalizationService` emits one **`IAuditService`** row per superseded manifest id (**repository mutation only** — audit semantics stay in the application service per matrix policy).
 
 ### Read-path / reserved observability (not an append-only weakness)
 
@@ -312,6 +314,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |
+| `OperatorSavedViewCreated` | `OperatorSavedView.Created` | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) |
+| `OperatorSavedViewDeleted` | `OperatorSavedView.Deleted` | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) |
 | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionService` (`AuthorityQueryController` `POST /v1/authority/runs/{runId}/disposition`) |
 | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
 | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |

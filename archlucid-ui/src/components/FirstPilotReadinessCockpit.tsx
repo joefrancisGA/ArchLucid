@@ -374,6 +374,10 @@ export function FirstPilotReadinessCockpit() {
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta)}>{commandCenter.headline}</p>
             )}
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{commandCenter.summary}</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.meta)} data-testid="first-pilot-command-center-evidence-note">
+              Buyer-facing RC requires real-mode evidence; simulator or fallback outputs stay labeled in exports and sponsor
+              materials.
+            </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Button variant="primary" size="sm" asChild>
                 <Link href={commandCenter.href} data-testid="first-pilot-command-center-next-action">

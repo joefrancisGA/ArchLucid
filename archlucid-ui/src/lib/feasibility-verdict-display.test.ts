@@ -4,8 +4,8 @@ import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "./feasibili
 
 describe("feasibilityVerdictDisplay", () => {
   it("maps kinds to operator-facing labels and tones", () => {
-    expect(feasibilityVerdictKindLabel("Feasible")).toBe("Feasible");
-    expect(feasibilityVerdictKindLabel("SoftInfeasible")).toBe("Soft infeasible");
+    expect(feasibilityVerdictKindLabel("Feasible")).toBe("Proceed");
+    expect(feasibilityVerdictKindLabel("SoftInfeasible")).toBe("Remediate");
     expect(feasibilityVerdictTone("HardInfeasible")).toBe("danger");
   });
 });

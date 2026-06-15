@@ -1,7 +1,9 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Resilience;
@@ -97,6 +99,27 @@ public sealed class AgentExecutionFailureSummaryFactoryTests
 
         summary.FailureClass.Should().Be(AgentExecutionFailureClasses.Dependency);
         summary.AgentTypeKey.Should().BeNull();
+    }
+
+    [Fact]
+    public void FromException_when_content_safety_rejected_sets_prompt_injection_reason_code()
+    {
+        RequestContentSafetyRejectedException inner = new(["Field Description matches blocked phrase \"ignore previous instructions\"."]);
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.ContentSafety);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.PromptInjectionDetected);
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.ContentSafetyRejection);
+    }
+
+    [Fact]
+    public void FromException_when_token_budget_exceeded_sets_token_budget_reason_code()
+    {
+        CostLimitExceededException inner = new("tokens", CostLimitExceededKind.RunTokenBudget);
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.CostBudget);
+        summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.TokenBudgetExceeded);
     }
 
     [Fact]

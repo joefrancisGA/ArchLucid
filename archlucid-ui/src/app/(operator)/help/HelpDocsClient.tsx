@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+
 export type DocIndexEntry = {
   title: string;
   summary: string;
@@ -163,7 +165,7 @@ export function HelpDocsClient() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={OPERATOR_LAYOUT.sectionStack}>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <strong>Shortcuts</strong> — Use the command palette or search in the shell header where available; shortcut hints appear
         on nav items when configured.
@@ -203,7 +205,7 @@ export function HelpDocsClient() {
         }
 
         return (
-          <section key={cat} aria-labelledby={`help-cat-${cat}`} className="space-y-2">
+          <section key={cat} aria-labelledby={`help-cat-${cat}`} className={OPERATOR_LAYOUT.sectionHeadingStack}>
             <h2
               id={`help-cat-${cat}`}
               className="text-sm font-semibold text-al-text-primary"

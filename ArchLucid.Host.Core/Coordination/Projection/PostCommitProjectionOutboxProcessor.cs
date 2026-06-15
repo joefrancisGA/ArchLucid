@@ -88,14 +88,16 @@ public sealed class PostCommitProjectionOutboxProcessor(
         if (entry.RunId is Guid runIdTag)
             activity?.SetTag("archlucid.run_id", runIdTag.ToString("D"));
 
-        using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
-
         ScopeContext jobScope = new()
         {
             TenantId = entry.TenantId,
             WorkspaceId = entry.WorkspaceId,
             ProjectId = entry.ProjectId
         };
+
+        ActivityScopeTags.ApplyTenantWorkspace(activity, jobScope);
+
+        using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 
         using IDisposable ambient = AmbientScopeContext.Push(jobScope);
 

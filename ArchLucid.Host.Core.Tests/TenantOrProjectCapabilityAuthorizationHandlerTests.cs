@@ -149,6 +149,38 @@ public sealed class TenantOrProjectCapabilityAuthorizationHandlerTests
     }
 
     [Fact]
+    public async Task HandleRequirementAsync_project_reader_fails_execute_when_jwt_lacks_execute_roles()
+    {
+        Mock<IScimUserRepository> scimMock = new();
+        scimMock
+            .Setup(r => r.GetByExternalIdAsync(TenantId, DirectoryOid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ScimUserRecord
+            {
+                Id = ScimUserId,
+                TenantId = TenantId,
+                ExternalId = DirectoryOid,
+                UserName = "reader@example.com",
+                Active = true
+            });
+
+        Mock<IProjectRoleAssignmentRepository> projectMock = new();
+        projectMock
+            .Setup(r => r.GetHighestRoleAsync(TenantId, WorkspaceId, ProjectId, ScimUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ProjectScopedEffectiveRole.Reader);
+
+        TenantOrProjectCapabilityAuthorizationHandler handler = CreateHandler(scimMock, projectMock);
+
+        ClaimsPrincipal user = AuthenticatedUser(new Claim("oid", DirectoryOid));
+
+        AuthorizationHandlerContext context = await InvokeAsync(
+            handler,
+            user,
+            new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.Execute));
+
+        context.HasSucceeded.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task HandleRequirementAsync_commit_run_permission_claim_succeeds_without_project_role()
     {
         TenantOrProjectCapabilityAuthorizationHandler handler = CreateHandler(

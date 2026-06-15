@@ -145,7 +145,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
                 />
               </div>
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>{step.shortBody}</p>
-              <div className="mt-2 flex items-center gap-2">
+              <div className="mt-2 flex flex-wrap items-center gap-3">
                 <input
                   id={checkboxId}
                   type="checkbox"
@@ -162,6 +162,18 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
                 <label htmlFor={checkboxId} className="text-sm text-neutral-800 dark:text-neutral-200">
                   Mark complete
                 </label>
+                <button
+                  type="button"
+                  className="text-xs font-medium text-neutral-600 underline dark:text-neutral-400"
+                  onClick={() => {
+                    const nextSteps = stepsDone.map((v, i) => (i === index ? false : v));
+
+                    setStepsDone(nextSteps);
+                    persist(nextSteps);
+                  }}
+                >
+                  Skip for now
+                </button>
               </div>
             </li>
           );

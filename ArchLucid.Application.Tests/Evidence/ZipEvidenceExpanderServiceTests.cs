@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Evidence;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
@@ -48,5 +50,43 @@ public sealed class ZipEvidenceExpanderServiceTests
             if (File.Exists(zipPath))
                 File.Delete(zipPath);
         }
+    }
+
+    [Fact]
+    public void Expand_sets_evidence_package_id_activity_tag_when_provided()
+    {
+        List<Activity> stopped = [];
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.EvidenceZipExpansionActivitySource;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = stopped.Add;
+        ActivitySource.AddActivityListener(listener);
+
+        Guid packageId = Guid.NewGuid();
+        byte[] zipBytes = CreateSingleFileZip("sample.txt", "content");
+
+        using MemoryStream zipStream = new(zipBytes);
+        ZipEvidenceExpanderService sut = new(
+            Options.Create(new ZipEvidenceExpanderOptions()),
+            NullLogger<ZipEvidenceExpanderService>.Instance);
+
+        sut.Expand(zipStream, "evidence.zip", packageId);
+
+        stopped.Should().ContainSingle();
+        stopped[0].GetTagItem(ActivityScopeTags.EvidencePackageIdTag).Should().Be(packageId.ToString("D"));
+    }
+
+    private static byte[] CreateSingleFileZip(string entryName, string content)
+    {
+        using MemoryStream zipStream = new();
+        using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry entry = archive.CreateEntry(entryName);
+            using Stream writer = entry.Open();
+            using StreamWriter textWriter = new(writer);
+            textWriter.Write(content);
+        }
+
+        return zipStream.ToArray();
     }
 }

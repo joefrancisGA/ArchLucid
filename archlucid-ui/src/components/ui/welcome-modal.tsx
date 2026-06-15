@@ -14,6 +14,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type WelcomeModalProps = {
@@ -40,7 +41,7 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Define your architecture",
     description:
-      "Start with a short brief: system identity, goals, and constraints. Each architecture review is tracked as one run — the new review wizard submits the pipeline job and keeps you on the path to a finalized package.",
+      `Start with a short brief: system identity, goals, and constraints. ${ARCHITECTURE_REVIEW_VOCABULARY.runIdBridgeSentence} The new review wizard submits the pipeline job and keeps you on the path to a finalized package.`,
     Icon: FileText,
   },
   {

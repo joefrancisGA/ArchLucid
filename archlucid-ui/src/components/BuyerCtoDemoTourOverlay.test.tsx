@@ -6,23 +6,36 @@ import {
   BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY,
   BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY,
 } from "@/lib/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_COMPARE_HREF } from "@/lib/buyer-golden-journey-nav";
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator-static-demo";
 
 const replaceMock = vi.fn();
+const prefetchMock = vi.fn();
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => true,
-}));
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => true,
+  };
+});
+
+const pathnameMock = vi.fn(() => getShowcaseExecutiveHref());
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => getShowcaseExecutiveHref(),
-  useRouter: () => ({ replace: replaceMock }),
+  usePathname: () => pathnameMock(),
+  useRouter: () => ({ replace: replaceMock, prefetch: prefetchMock }),
   useSearchParams: () => new URLSearchParams(""),
 }));
 
 describe("BuyerCtoDemoTourOverlay", () => {
   beforeEach(() => {
     replaceMock.mockReset();
+    prefetchMock.mockReset();
+    pathnameMock.mockReturnValue(getShowcaseExecutiveHref());
     localStorage.clear();
     sessionStorage.clear();
     localStorage.setItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY, "1");
@@ -33,7 +46,19 @@ describe("BuyerCtoDemoTourOverlay", () => {
     sessionStorage.clear();
   });
 
+  it("shows preflight gate before the tour controls", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cto-demo-preflight-gate")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("buyer-cto-demo-tour-next")).toBeNull();
+  });
+
   it("renders expanded overlay with back disabled and next to signed manifest on step 1", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+
     render(<BuyerCtoDemoTourOverlay />);
 
     await waitFor(() => {
@@ -80,5 +105,64 @@ describe("BuyerCtoDemoTourOverlay", () => {
       expect(screen.queryByTestId("buyer-cto-demo-tour-overlay")).toBeNull();
     });
     expect(localStorage.getItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("shows compare drift link on evidence trail step", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+    pathnameMock.mockReturnValue(`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cto-demo-presenter-layer-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cto-demo-compare-drift-link")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("cto-demo-compare-drift-link")).toHaveAttribute("href", BUYER_CTO_DEMO_COMPARE_HREF);
+  });
+
+  it("shows step budget timer only in presenter layer", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("buyer-cto-demo-tour-step-timer")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("cto-demo-presenter-layer-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-step-budget")).toBeInTheDocument();
+      expect(screen.getByTestId("buyer-cto-demo-tour-step-timer")).toBeInTheDocument();
+    });
+  });
+
+  it("enables offline fallback from panic script section", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cto-demo-presenter-layer-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cto-demo-panic-script-section")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cto-demo-panic-enable-btn"));
+
+    expect(localStorage.getItem(OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY)).toBe("1");
+    expect(screen.getByText("Offline fallback active")).toBeInTheDocument();
   });
 });

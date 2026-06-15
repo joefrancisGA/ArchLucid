@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { enterpriseStatusTagClass, operatorSemanticSurface } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  formatProofConfidenceLabelFromTrustStatus,
+  PROOF_CONFIDENCE_FIELD_LABEL,
+} from "@/lib/proof-confidence-taxonomy";
 import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 function proxyApiPath(path: string): string {
@@ -191,7 +195,15 @@ export function RunTrustEvidenceCardSection(props: {
   const trimmedAskRun =
     buyerPolishedShell && typeof evidenceAskRunId === "string" ? evidenceAskRunId.trim() : "";
 
+  const proofConfidenceLabel = formatProofConfidenceLabelFromTrustStatus(card.executionMode.status);
+
   const rows: ReactElement[] = [
+    <FieldRow
+      key="proof-confidence"
+      title={PROOF_CONFIDENCE_FIELD_LABEL}
+      status={proofConfidenceLabel}
+      detail={card.executionMode.detail}
+    />,
     <FieldRow
       key="execution"
       title={card.executionMode.title}

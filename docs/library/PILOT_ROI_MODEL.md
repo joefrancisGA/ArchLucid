@@ -11,7 +11,7 @@
 
 **Narrative of record for sponsors:** **[EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)**. This ROI model is the measurement companion; keep headline buyer claims in the brief.
 
-**Related:** [README.md](../REPOSITORY_README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams*, *Four UI shaping surfaces*, *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances — shell metrics are **shaped**, **API** responses remain **authoritative**; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** for cross-module seam locks; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** for the **Execute** nav vs mutation floor; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** for catalog **`ExecuteAuthority`** nav rows vs rank; **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** for read-tier Enterprise page layout) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
+**Related:** [README.md](../REPOSITORY_README.md) · [CORE_PILOT.md](../CORE_PILOT.md) · [PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md](../go-to-market/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md) · [GENERIC_AI_BAKEOFF_PROTOCOL.md](../go-to-market/GENERIC_AI_BAKEOFF_PROTOCOL.md) · [PMF_VALIDATION_TRACKER.md](../archive/gtm-internal/PMF_VALIDATION_TRACKER.md) · [PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](../go-to-market/PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md) · [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams*, *Four UI shaping surfaces*, *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances — shell metrics are **shaped**, **API** responses remain **authoritative**; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** for cross-module seam locks; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** for the **Execute** nav vs mutation floor; **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** for catalog **`ExecuteAuthority`** nav rows vs rank; **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** for read-tier Enterprise page layout) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
 
 ---
 
@@ -99,6 +99,16 @@ These are the most useful V1 measures.
 ### 4.1.1 How to read the demo numbers
 
 The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the `…/first-value-report.pdf` companion) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. **Baseline confidence appendix:** Markdown and PDF append **`## ROI evidence completeness`** (from `RoiEvidenceCompletenessMarkdownFormatter`) so sponsors see whether dollar narratives rely on tenant-captured baselines (**Strong / Partial**) or illustrative defaults (**Low confidence**).
+
+**Baseline input basis labels** (sponsor outputs and proof-package badges — do not conflate):
+
+| Label | Meaning | External ROI claim |
+| --- | --- | --- |
+| **buyer-provided** | Tenant supplied baseline at signup or via settings | Allowed when freshness is current |
+| **measured** | Computed from committed manifests in-window | Strongest cycle-time delta narrative |
+| **defaulted** | Conservative value from `PILOT_ROI_MODEL.md` options | Partial confidence — label as model default |
+| **demo-derived** | Contoso / demo tenant markers | Block external quotes; walkthrough only |
+| **not-collected** | `NoMeasurementYet` — no baseline captured | Low confidence — no sponsor-safe dollar savings |
 
 Every first-value report also includes a **Buyer-safe proof package contract**. Treat that table as the send/no-send checklist before a sponsor email: architecture review identity, support run id, time to committed manifest, findings by severity, top finding evidence-chain pointer, audit-row count or lower bound, LLM-call count, ROI evidence confidence, and demo-data warning when applicable. Do not hand-edit missing fields into the report; either rerun the check, explain the gap, or mark the proof package incomplete.
 

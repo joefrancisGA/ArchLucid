@@ -10,6 +10,38 @@
 
 ## What is available now (V1)
 
+**Target segment:** Mid-market CTO, fractional CTO, cloud consulting buyer, regulated startup — not Fortune 500 rigid RFP.
+
+### Required before paid pilot
+
+| Artifact | What it proves |
+| --- | --- |
+| DPA template | Contractual data-processing terms (legal review required) |
+| Subprocessor list | Third-party processors |
+| Trust Center narrative | Security, privacy, data handling posture |
+| Tenant isolation summary | Design intent for paying-client isolation |
+| Security architecture overview | Controls map for reviewers |
+| SOC 2 self-assessment + roadmap | **Not CPA attestation** — honest readiness narrative |
+| CAIQ Lite / SIG-style responses | Standard questionnaire answers (self-attested) |
+| Support policy | Escalation and response expectations |
+| SLA/SLO target summary | **Targets**, not contractual SLA unless executed |
+| Incident communications policy | Breach / outage comms posture |
+| AI output limits / decision-support disclaimer | Human-review boundaries |
+| Pilot evidence bundle | Real or clearly labeled controlled run |
+| Order form / paid pilot SOW | Commercial terms |
+
+### Acceptable as deferred-scope disclosures
+
+| Item | Label |
+| --- | --- |
+| CPA-issued SOC 2 Type I/II | **DEFERRED / (B)** — V1.1 TB-135 |
+| Third-party penetration test publication | **DEFERRED / (B)** — V1.1 TB-136 |
+| ISO 27001 certification | **DEFERRED / (B)** |
+| Named public reference customer | **DEFERRED / (B)** |
+| Live Marketplace / Stripe checkout | **DEFERRED / (B)** |
+| PGP security contact key | Deferred unless buyer asks |
+| First-party ITSM/chat/docs connectors, MCP, multi-cloud AWS/GCP | **DEFERRED V1.1/V2** |
+
 | Artifact | What it proves | Link |
 | --- | --- | --- |
 | Trust Center narrative | Security, privacy, subprocessors, data handling posture | [`TRUST_CENTER.md`](TRUST_CENTER.md) |

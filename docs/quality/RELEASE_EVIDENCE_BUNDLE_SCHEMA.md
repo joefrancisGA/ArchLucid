@@ -106,6 +106,8 @@ Missing optional sources are explicit and do not become PASS by inference.
 
 **Authoritative live environment:** **Staging** is contract-authoritative for RC drill, live API probes, and sponsor proof attachment. Repo-local `-Environment Production` on the emitter labels **appsettings** reports only. See [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../library/RC_TARGET_ENVIRONMENT_MATRIX.md) and [`scripts/ci/data/rc_target_environment_matrix.v1.json`](../../scripts/ci/data/rc_target_environment_matrix.v1.json).
 | `rc-test-evidence-manifest.json` | `archlucid.rc-test-evidence-manifest.v1` | Suite/gate status snapshot for RC audit |
+| `rc-evidence-signoff-bundle.json` | `archlucid.rc-evidence-signoff-bundle.v1` | Unified per-gate RC signoff (**PASS/WARN/HOLD/SKIPPED**) for release-smoke, live parity, config lint, OpenAPI, data consistency, AI readiness, and claim boundary |
+| `pilot-critical-performance-evidence.json` | `archlucid.pilot-critical-performance-evidence.v1` | Pilot-critical flow timings (not a load test) |
 | `real-mode-claim-gate.json` | `archlucid.real-mode-claim-gate.v1` | Claim boundary + `claimWordingClass` |
 | `azure-iac-parity-proof.json` | `archlucid.azure-iac-parity-proof.v1` | IaC/config parity proof for hosted Azure |
 | `managed-identity-verification.json` | `archlucid.managed-identity-verification.v1` | Hosted MI posture verification |

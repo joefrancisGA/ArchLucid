@@ -155,6 +155,48 @@ def build_rollup(root: Path, bundle_dir: Path, *, strict_rc: bool = False) -> di
         ),
     }
 
+    real_mode_path, _ = find_status_file(
+        root,
+        bundle_dir,
+        [
+            "real-mode-claim-gate.json",
+            "artifacts/release/real-mode-claim-gate.json",
+        ],
+    )
+    real_mode_payload = load_json(real_mode_path) if real_mode_path else None
+
+    if real_mode_payload is not None:
+        payload["realModeClaim"] = {
+            "claimWordingClass": real_mode_payload.get("claimWordingClass"),
+            "disposition": real_mode_payload.get("disposition"),
+            "realModeMandatoryForBuyerFacingRc": real_mode_payload.get(
+                "realModeMandatoryForBuyerFacingRc",
+                True,
+            ),
+            "canonicalEvidenceSource": real_mode_payload.get(
+                "canonicalEvidenceSource",
+                "staging Azure OpenAI deployment",
+            ),
+            "source": str(real_mode_path),
+        }
+
+    divergence_path, _ = find_status_file(
+        root,
+        bundle_dir,
+        [
+            "simulator-live-divergence.json",
+            "artifacts/release/simulator-live-divergence.json",
+        ],
+    )
+    divergence_payload = load_json(divergence_path) if divergence_path else None
+
+    if divergence_payload is not None:
+        payload["simulatorLiveDivergence"] = {
+            "classification": divergence_payload.get("classification"),
+            "buyerFacingFullRealBlocked": divergence_payload.get("buyerFacingFullRealBlocked"),
+            "source": str(divergence_path),
+        }
+
     if strict_rc:
         payload["interpretation"] += (
             " Strict RC mode fails when any release-blocking lane is MISSING, STALE, WARN, or HOLD."
@@ -185,9 +227,37 @@ def render_markdown(summary: dict[str, Any]) -> str:
         "",
         f"Disposition: **{summary['disposition']}**",
         "",
+    ]
+
+    real_mode = summary.get("realModeClaim")
+
+    if isinstance(real_mode, dict):
+        lines.extend(
+            [
+                f"**Real-mode claim:** **{real_mode.get('claimWordingClass', 'unknown')}** "
+                f"(disposition {real_mode.get('disposition', 'unknown')}; "
+                f"canonical source: {real_mode.get('canonicalEvidenceSource', 'staging Azure OpenAI deployment')})",
+                "",
+            ]
+        )
+
+    divergence = summary.get("simulatorLiveDivergence")
+
+    if isinstance(divergence, dict):
+        lines.extend(
+            [
+                f"**Simulator/live divergence:** **{divergence.get('classification', 'unknown')}** "
+                f"(buyer-facing full-real blocked: {divergence.get('buyerFacingFullRealBlocked')})",
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
         "| Lane | Status | Release-blocking | Source | Detail |",
         "| --- | --- | :---: | --- | --- |",
-    ]
+        ]
+    )
 
     for lane in summary["lanes"]:
         source = lane.get("source") or "(missing)"

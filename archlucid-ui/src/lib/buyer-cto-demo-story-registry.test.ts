@@ -4,6 +4,7 @@ import {
   CTO_DEMO_DEFAULT_STORY_ID,
   CTO_DEMO_STORIES,
   findCtoDemoStory,
+  isCtoDemoStoryFullyBacked,
 } from "@/lib/buyer-cto-demo-story-registry";
 
 describe("buyer-cto-demo-story-registry", () => {
@@ -17,5 +18,12 @@ describe("buyer-cto-demo-story-registry", () => {
 
   it("findCtoDemoStory falls back to default for unknown ids", () => {
     expect(findCtoDemoStory("unknown").id).toBe(CTO_DEMO_DEFAULT_STORY_ID);
+  });
+
+  it("only healthcare has a full-depth showcase payload", () => {
+    expect(isCtoDemoStoryFullyBacked("healthcare")).toBe(true);
+    expect(isCtoDemoStoryFullyBacked("fintech")).toBe(false);
+    expect(isCtoDemoStoryFullyBacked("retail")).toBe(false);
+    expect(isCtoDemoStoryFullyBacked("public-sector")).toBe(false);
   });
 });

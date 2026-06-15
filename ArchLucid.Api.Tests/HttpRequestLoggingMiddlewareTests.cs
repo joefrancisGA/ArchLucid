@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Api.Tests.Http;
 using ArchLucid.Host.Core.Middleware;
 
@@ -5,6 +6,8 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+
+using Moq;
 
 namespace ArchLucid.Api.Tests;
 
@@ -122,7 +125,7 @@ public sealed class HttpRequestLoggingMiddlewareTests
             },
             logger);
 
-        CorrelationIdMiddleware corr = new(logging.InvokeAsync);
+        CorrelationIdMiddleware corr = new(logging.InvokeAsync, CreateScopeProvider());
 
         DefaultHttpContext context = new()
         {
@@ -142,5 +145,15 @@ public sealed class HttpRequestLoggingMiddlewareTests
 
         joined.Should()
             .NotContain(e => e.Message.Contains("HTTP request finished", StringComparison.Ordinal));
+    }
+
+    private static IScopeContextProvider CreateScopeProvider()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext());
+
+        return scopeProvider.Object;
     }
 }

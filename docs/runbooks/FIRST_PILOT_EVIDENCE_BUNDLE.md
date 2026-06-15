@@ -18,7 +18,9 @@ Use these when assembling handoff folders — they map artifacts to decision nee
 | Operator / pilot lead | [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md) |
 | Security reviewer | [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) |
 
-Minimum doc routing: [`V1_CRITICAL_PATH_MAP.md`](../library/V1_CRITICAL_PATH_MAP.md).
+Minimum doc routing: [`V1_CRITICAL_PATH_MAP.md`](../library/V1_CRITICAL_PATH_MAP.md) · **First path choice:** [`FIRST_EVALUATOR_DECISION.md`](FIRST_EVALUATOR_DECISION.md).
+
+Optional **generic-AI comparison** rubric when a buyer asks "why not ChatGPT?": [`DIFFERENTIATION_PROOF_PACKET.md`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md) § Generic-AI comparison exercise.
 
 ## When to run
 
@@ -43,15 +45,18 @@ Optional `-DeferredBuyerRequirement` values document buyer requirements that are
   -BaseUrl https://your-staging-api.example `
   -RunId <committed-run-guid> `
   -SponsorHandoff `
+  -FailOnHold `
   -ProductionLikeHostedPilot `
   -OutputDirectory artifacts/first-pilot-proof
 ```
 
-The pipeline emits **`first-pilot-command-center.md`** and **`first-pilot-command-center.json`** (primary phased status surface aligned to [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) labels), `go-no-go-summary.md`, `go-no-go-summary.json`, `quote-to-proof-packet.md`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `route-tier-policy-nav-drift.json`, `scale-envelope-evidence.md`, `first-pilot-timing-budget.md`, `admin-operational-posture.md`, `procurement-deal-ready-check.txt`, `procurement-deal-ready-classification.md`, **`data-consistency-readiness/`** (including `data-consistency-summary.json` rolled into `go-no-go-summary.json` as `dataConsistencyProof`), and the committed-run evidence bundle when `-RunId` is supplied. **BLOCK/WARN** rows in `go-no-go-summary.md` include a **`supportNextStep`** column pointing at support-bundle or collector commands (no secrets). Triage IDs in the detailed summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
+`-FailOnHold` exits **1** when `sponsorPacketDisposition` is **HOLD** or consolidated `ai-readiness-gate` is **HOLD**. **WARN** may still exit **0** unless blocking findings are present.
+
+The pipeline emits **`first-pilot-command-center.md`** and **`first-pilot-command-center.json`** (primary phased status surface aligned to [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) labels), `go-no-go-summary.md`, `go-no-go-summary.json`, `quote-to-proof-packet.md`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `route-tier-policy-nav-drift.json`, `scale-envelope-evidence.md`, `first-pilot-timing-budget.md`, `support-bundle-status.json`, `admin-operational-posture.md`, `procurement-deal-ready-check.txt`, `procurement-deal-ready-classification.md`, **`data-consistency-readiness/`** (including `data-consistency-summary.json` rolled into `go-no-go-summary.json` as `dataConsistencyProof`), and the committed-run evidence bundle when `-RunId` is supplied. **BLOCK/WARN** rows in `go-no-go-summary.md` include a **`supportNextStep`** column pointing at support-bundle or collector commands (no secrets). Triage IDs in the detailed summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
 
 ## First-pilot command center
 
-Open **`first-pilot-command-center.md`** first after proof collection. It rolls up five phases — platform ready, evidence ingest, review lifecycle, sponsor package, procurement posture — using only **READY**, **WARN**, **HOLD**, **DEFERRED**, and one **NEXT ACTION** row. Each **HOLD** phase links to exactly one remediation doc. Deferred V1.1/V2/(B) buyer requirements appear under **DEFERRED** and do not block V1 handoff when `sponsorPacketDisposition` is `DEFERRED_SCOPE`. Without `-RunId`, review lifecycle stays **WARN** (readiness-only); the pipeline does not crash.
+Open **`first-pilot-command-center.md`** first after proof collection. It rolls up five phases — platform ready, evidence ingest, review lifecycle, sponsor package, procurement posture — using only **READY**, **WARN**, **HOLD**, **DEFERRED**, and one **NEXT ACTION** row. The top section is buyer-safe after release-owner review; the diagnostics appendix points operators to raw findings and JSON artifacts. Each **HOLD** phase links to exactly one remediation doc. Deferred V1.1/V2/(B) buyer requirements appear under **DEFERRED** and do not block V1 handoff when `sponsorPacketDisposition` is `DEFERRED_SCOPE`. Without `-RunId`, review lifecycle stays **WARN** (readiness-only); the pipeline does not crash.
 
 `go-no-go-summary.json` includes a `commandCenter` pointer (`jsonPath`, `mdPath`, `readinessOnly`, `nextActionSummary`) for automation.
 
@@ -101,6 +106,38 @@ When `-RunId` is supplied, `go-no-go-summary.md` includes an **AI Quality Proof*
 
 Missing signals are labeled **WARN** or **BLOCK** (sponsor handoff) — the pipeline does not invent pass values.
 
+## RC real-mode evidence (release-candidate)
+
+Reference real-mode RC evidence uses the **existing CI / owner dev Azure OpenAI configuration** — do not create ad hoc deployments.
+
+| Variable | Purpose |
+| --- | --- |
+| `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` | CI / golden-cohort endpoint (maps to `ARCHLUCID_REAL_AOAI_TEST_ENDPOINT` locally) |
+| `ARCHLUCID_CI_REAL_AOAI_KEY` | CI / golden-cohort key (maps to `ARCHLUCID_REAL_AOAI_TEST_KEY` locally) |
+| `ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT` | Deployment name (default **`gpt-4o`** when unset) |
+
+Workflow:
+
+1. **Generate real-mode gate evidence** (owner-approved credentials only — not PR CI):
+
+   ```powershell
+   .\scripts\Invoke-RealLlmEvidenceGate.ps1
+   ```
+
+2. **Collect first-pilot proof** with sponsor handoff discipline:
+
+   ```powershell
+   .\scripts\collect-first-pilot-proof.ps1 -RunId <committed-run-guid> -SponsorHandoff -FailOnHold
+   ```
+
+3. Inspect `go-no-go-summary.json` fields **`realModeEvidenceStatus`**, **`executionModeEvidenceCaptured`**, and **`realModeEvidenceNextAction`**.
+
+**Sponsor handoff rules:**
+
+- **`-SponsorHandoff`** + missing real-mode evidence → **`realModeEvidenceStatus=HOLD`** and **`sponsorPacketDisposition=HOLD`** (via BLOCK finding).
+- Readiness-only mode (no `-SponsorHandoff`) may WARN but must not imply real-mode proof exists.
+- Movement from controlled pilot to evidence-backed selling requires **founder / release owner** signoff — green technical checks do not advance claim stage automatically.
+
 ## LLM budget status
 
 When ExecuteAuthority is available, committed-run evidence collection writes `llm-budget-status.json` and includes `llmExecutionMode`, `llmBudgetStatusCollected`, and nested `llmBudgetStatus` in `pilot-observability-summary.json`. First-pilot proof renders `llm-budget-proof-status.md` — buyer-safe UTC-month hard-cap posture without secrets or prompt text.
@@ -134,6 +171,8 @@ Proof copies `live-ui-sql-parity-result.json` (+ Markdown companion). This is **
 ## Support summary
 
 Committed-run evidence bundles include `support-summary.md` — a one-page buyer/operator index with base URL, version, health status, run/manifest ids, artifact manifest checksum, correlation-id guidance, and buyer-safe vs internal-only file notes.
+
+`support-bundle-status.json` checks whether a support bundle or support summary is attached to first-pilot proof and performs a lightweight redaction scan for obvious connection-string, bearer-token, API-key, password, and secret patterns. A redaction finding is **HOLD** and records only file, pattern, and line metadata, never the matched secret value.
 
 ## Sponsor artifact evidence badges
 

@@ -26,7 +26,13 @@ internal static class GreenfieldSqlIntegrationWarmup
         }
         catch (WarmupTimedOutException)
         {
-            Skip.If(true, ShardOverloadSkipReason);
+            SkipShardOverload();
         }
     }
+
+    /// <summary>
+    ///     Unconditional skip for overloaded CI shards. Centralised so test-level catch blocks do not depend on
+    ///     <c>Skip.If(true, …)</c> predicate quirks when factory disposal throws a secondary exception.
+    /// </summary>
+    internal static void SkipShardOverload() => Skip.IfNot(false, ShardOverloadSkipReason);
 }

@@ -58,7 +58,7 @@ export function CtoDemoDataSourceBadge(props: CtoDemoDataSourceBadgeProps): Reac
       )}
       data-testid="cto-demo-data-source-badge-sample"
     >
-      Sample data — Contoso Retail
+      Sample data — Claims Intake showcase
     </span>
   );
 }

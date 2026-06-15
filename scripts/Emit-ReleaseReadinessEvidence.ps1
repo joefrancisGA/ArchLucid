@@ -28,6 +28,18 @@ $ErrorActionPreference = "Stop"
 [string] $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
+[bool] $strictRcEffective = $StrictRc.IsPresent `
+    -or $env:ARCHLUCID_STRICT_RC -eq '1' `
+    -or $env:ARCHLUCID_RC_RELEASE_CONTEXT -eq '1'
+
+if ($strictRcEffective) {
+    Write-Host "Strict RC mode: ON (fail-closed on missing/stale strict signoff artifacts)."
+}
+
+function Test-StrictRcEffective {
+    return $strictRcEffective
+}
+
 function Invoke-PythonReport {
     param(
         [string] $EnvName,
@@ -206,6 +218,37 @@ function Get-RealModeAiEvidenceVerdict {
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
+function Import-ReleaseSmokeParityArtifactIfPresent {
+    param(
+        [string] $OutputDirectory,
+        [string] $RepositoryRoot
+    )
+
+    [string] $bundleParityPath = Join-Path $OutputDirectory "release-smoke-live-ui-sql-result.json"
+
+    if (Test-Path -LiteralPath $bundleParityPath) {
+        return
+    }
+
+    [string[]] $candidates = @(
+        (Join-Path $RepositoryRoot "artifacts/release-smoke-live-ui-sql-result.json"),
+        (Join-Path $RepositoryRoot "artifacts/release-smoke/result.json"),
+        (Join-Path $RepositoryRoot "artifacts/release-smoke/release-smoke-live-ui-sql-result.json")
+    )
+
+    foreach ($candidate in $candidates) {
+        if (-not (Test-Path -LiteralPath $candidate)) {
+            continue
+        }
+
+        Copy-Item -LiteralPath $candidate -Destination $bundleParityPath -Force
+        Write-Host "Staged live UI-SQL parity artifact into bundle: $bundleParityPath (from $candidate)"
+        return
+    }
+}
+
+Import-ReleaseSmokeParityArtifactIfPresent -OutputDirectory $OutDir -RepositoryRoot $root
+
 [System.Collections.Generic.List[object]] $checks = [System.Collections.Generic.List[object]]::new()
 
 [string] $gitCommitSha = Get-GitCommitSha
@@ -365,6 +408,15 @@ if (Test-Path -LiteralPath $faithfulnessSource) {
     Copy-Item -LiteralPath $faithfulnessSource -Destination (Join-Path $OutDir "faithfulness-report.md") -Force
 }
 
+[string] $materialFindingJson = Join-Path $OutDir "material-finding-faithfulness-summary.json"
+[string] $materialFindingMd = Join-Path $OutDir "material-finding-faithfulness-summary.md"
+& python (Join-Path $root "scripts/ci/build_material_finding_faithfulness_summary.py") `
+    --json-out $materialFindingJson `
+    --markdown-out $materialFindingMd
+[int] $materialFindingExit = $LASTEXITCODE
+[string] $materialFindingVerdict = if ($materialFindingExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Material finding faithfulness (offline corpus)" $materialFindingVerdict "citation/evidence coverage on representative scenarios; exit $materialFindingExit" "material-finding-faithfulness-summary.json"
+
 [string] $aiQualityJsonPath = Join-Path $OutDir "ai-quality-release-summary.json"
 [string] $aiQualityMarkdownPath = Join-Path $OutDir "ai-quality-release-summary.md"
 & python (Join-Path $root "scripts/ci/build_ai_quality_release_summary.py") `
@@ -375,6 +427,69 @@ if (Test-Path -LiteralPath $faithfulnessSource) {
 [string] $aiQualityVerdict = if ($aiQualityExit -eq 0) { "PASS" } else { "FAIL" }
 [string] $aiQualityDetail = if ($aiQualityExit -eq 0) { "offline retrieval/faithfulness and optional committed-run/live evidence summarized" } else { "AI quality summary builder failed; exit $aiQualityExit" }
 Add-CheckRow $checks "AI quality release summary" $aiQualityVerdict $aiQualityDetail "ai-quality-release-summary.json"
+
+[string] $simDivJson = Join-Path $OutDir "simulator-live-divergence.json"
+[string] $simDivMd = Join-Path $OutDir "simulator-live-divergence.md"
+[string[]] $simDivArgs = @(
+    (Join-Path $root "scripts/ci/build_simulator_live_divergence_from_bundle.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $simDivJson,
+    "--markdown-out", $simDivMd
+)
+
+if (Test-StrictRcEffective) {
+    $simDivArgs += "--enforce-buyer-facing"
+}
+
+& python @simDivArgs
+[int] $simDivExit = $LASTEXITCODE
+[string] $simDivVerdict = if ($simDivExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Simulator/live divergence (RC boundary)" $simDivVerdict "bundle-derived classification; exit $simDivExit" "simulator-live-divergence.json"
+
+[string] $archInvJson = Join-Path $OutDir "architecture-invariant-rc-summary.json"
+[string] $archInvMd = Join-Path $OutDir "architecture-invariant-rc-summary.md"
+[string[]] $archInvArgs = @(
+    (Join-Path $root "scripts/ci/report_architecture_invariant_enforcement.py"),
+    "--json-out", $archInvJson,
+    "--markdown-out", $archInvMd
+)
+
+if (Test-StrictRcEffective) {
+    $archInvArgs += "--strict-rc"
+}
+
+& python @archInvArgs
+[int] $archInvExit = $LASTEXITCODE
+[string] $archInvVerdict = if ($archInvExit -eq 0) { "PASS" } elseif ($archInvExit -eq 1) { "FAIL" } else { "WARN" }
+Add-CheckRow $checks "Architecture invariant RC summary" $archInvVerdict "P0/P1 attention items; exit $archInvExit" "architecture-invariant-rc-summary.json"
+
+[string] $dataConsistencyJson = Join-Path $OutDir "data-consistency-readiness.json"
+[string] $dataConsistencyMd = Join-Path $OutDir "data-consistency-readiness.md"
+& python (Join-Path $root "scripts/ci/report_data_consistency_mode_readiness.py") `
+    --json-out $dataConsistencyJson `
+    --markdown-out $dataConsistencyMd
+Add-CheckRow $checks "Data consistency readiness" (Map-ExitToVerdict $LASTEXITCODE).verdict "production appsettings posture" "data-consistency-readiness.json"
+
+[string] $realModeFreshJson = Join-Path $OutDir "real-mode-evidence-freshness.json"
+[string] $realModeFreshMd = Join-Path $OutDir "real-mode-evidence-freshness.md"
+[string[]] $realModeFreshArgs = @(
+    (Join-Path $root "scripts/ci/report_real_mode_evidence_freshness.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $realModeFreshJson,
+    "--markdown-out", $realModeFreshMd,
+    "--gate-json", (Join-Path $OutDir "real-llm-evidence-gate.json")
+)
+
+if ($env:ARCHLUCID_RELEASE_SIMULATOR_ONLY -eq '1') {
+    $realModeFreshArgs += "--allow-simulator-only"
+}
+
+if (Test-StrictRcEffective) {
+    $realModeFreshArgs += "--strict"
+}
+
+& python @realModeFreshArgs
+Add-CheckRow $checks "Real-mode evidence freshness" (Map-ExitToVerdict $LASTEXITCODE).verdict "claim boundary freshness lane" "real-mode-evidence-freshness.json"
 
 [int] $deploymentEvidenceExit = 999
 
@@ -451,7 +566,7 @@ function Write-ReleaseReadinessIndexArtifacts {
     [void] $summaryBuilder.AppendLine("")
     [void] $summaryBuilder.AppendLine("**Generate:** ``pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1 [-ApiBaseUrl https://staging.example]``")
     [void] $summaryBuilder.AppendLine("")
-    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. RC verdict: ``rc-go-no-go-verdict.json``. Deploy handoff: ``deploy-handoff.json``. Redaction policy: ``redaction-note.md``.")
+    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. RC evidence index: ``rc-evidence-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. RC verdict: ``rc-go-no-go-verdict.json``. Deploy handoff: ``deploy-handoff.json``. Redaction policy: ``redaction-note.md``.")
     [void] $summaryBuilder.AppendLine("")
     [void] $summaryBuilder.AppendLine("See ``docs/library/DEPLOYMENT_RUNBOOK.md`` and ``docs/library/OBSERVABILITY.md``.")
 
@@ -512,8 +627,9 @@ Add-CheckRow $checks "Azure extractor + Terraform emit acceptance" $azureExtract
     "--gate-json", (Join-Path $OutDir "real-llm-evidence-gate.json")
 )
 
-if ($StrictRc) {
+if (Test-StrictRcEffective) {
     $claimGateArgs += "--rc-strict-claims"
+    $claimGateArgs += @("--expected-commit-sha", $gitCommitSha)
 }
 
 if ($env:ARCHLUCID_RELEASE_SIMULATOR_ONLY -eq '1') {
@@ -532,7 +648,7 @@ Add-CheckRow $checks "Real-mode claim gate (RC boundary)" $claimGateVerdict "exi
     "--markdown-out", $confidenceMarkdownPath
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $confidenceArgs += "--strict-rc"
 }
 
@@ -557,7 +673,7 @@ Add-CheckRow $checks "RC test evidence manifest" (Map-ExitToVerdict $LASTEXITCOD
     "--markdown-out", $azureParityMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $azureParityArgs += "--strict-rc"
 }
 
@@ -573,7 +689,7 @@ Add-CheckRow $checks "Azure IaC parity proof" (Map-ExitToVerdict $LASTEXITCODE).
     "--markdown-out", $managedIdentityMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $managedIdentityArgs += "--strict-rc"
 }
 
@@ -589,14 +705,62 @@ Add-CheckRow $checks "Managed identity verification" (Map-ExitToVerdict $LASTEXI
     "--markdown-out", $rcVerdictMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $rcVerdictArgs += "--strict-rc"
 }
+
+[string] $pilotPerfJson = Join-Path $OutDir "pilot-critical-performance-evidence.json"
+[string] $pilotPerfMd = Join-Path $OutDir "pilot-critical-performance-evidence.md"
+& python (Join-Path $root "scripts/ci/build_pilot_critical_performance_evidence.py") `
+    --bundle-dir $OutDir `
+    --environment-label $Environment `
+    --json-out $pilotPerfJson `
+    --markdown-out $pilotPerfMd
+Add-CheckRow $checks "Pilot-critical performance smoke" (Map-ExitToVerdict $LASTEXITCODE).verdict "pilot-critical flow timings — not a load test" "pilot-critical-performance-evidence.json"
+
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-FirstPilotPerformanceBudgetSmoke.ps1") `
+    -OutputDir $OutDir `
+    -ExecutionMode Simulator | Out-Null
+Add-CheckRow $checks "First-value timing budget" (Map-ExitToVerdict $LASTEXITCODE).verdict "PASS/WARN/HOLD create→commit→artifact budget" "first-pilot-timing-budget.json"
+
+[string] $rcSignoffJson = Join-Path $OutDir "rc-evidence-signoff-bundle.json"
+[string] $rcSignoffMd = Join-Path $OutDir "rc-evidence-signoff-bundle.md"
+[string[]] $rcSignoffArgs = @(
+    (Join-Path $root "scripts/ci/build_rc_evidence_signoff_bundle.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $rcSignoffJson,
+    "--markdown-out", $rcSignoffMd
+)
+
+if (Test-StrictRcEffective) {
+    $rcSignoffArgs += "--strict-rc"
+}
+
+& python @rcSignoffArgs
+[int] $rcSignoffExit = $LASTEXITCODE
+[string] $rcSignoffLabel = if ($rcSignoffExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "RC evidence signoff bundle (TB-317)" $rcSignoffLabel "per-gate PASS/WARN/HOLD/SKIPPED composition; exit $rcSignoffExit" "rc-evidence-signoff-bundle.json"
 
 & python @rcVerdictArgs
 [int] $rcVerdictExit = $LASTEXITCODE
 [string] $rcVerdictLabel = if ($rcVerdictExit -eq 0) { "PASS" } else { "FAIL" }
 Add-CheckRow $checks "RC go/no-go verdict" $rcVerdictLabel "synthesized signoff artifact; exit $rcVerdictExit" "rc-go-no-go-verdict.json"
+
+[string] $rcNarrativeJson = Join-Path $OutDir "rc-decision-narrative.json"
+[string] $rcNarrativeMd = Join-Path $OutDir "rc-decision-narrative.md"
+& python (Join-Path $root "scripts/ci/build_rc_decision_narrative.py") `
+    --bundle-dir $OutDir `
+    --json-out $rcNarrativeJson `
+    --markdown-out $rcNarrativeMd
+Add-CheckRow $checks "RC decision narrative" (Map-ExitToVerdict $LASTEXITCODE).verdict "human-readable go/no-go summary" "rc-decision-narrative.md"
+
+[string] $execBriefJson = Join-Path $OutDir "executive-one-screen-brief.json"
+[string] $execBriefMd = Join-Path $OutDir "executive-one-screen-brief.md"
+& python (Join-Path $root "scripts/ci/build_executive_one_screen_brief.py") `
+    --bundle-dir $OutDir `
+    --json-out $execBriefJson `
+    --markdown-out $execBriefMd
+Add-CheckRow $checks "Executive one-screen brief" (Map-ExitToVerdict $LASTEXITCODE).verdict "sponsor-facing rollup from RC artifacts" "executive-one-screen-brief.md"
 
 [string] $deployHandoffJson = Join-Path $OutDir "deploy-handoff.json"
 [string] $deployHandoffMd = Join-Path $OutDir "deploy-handoff.md"
@@ -609,12 +773,41 @@ Add-CheckRow $checks "RC go/no-go verdict" $rcVerdictLabel "synthesized signoff 
     "--config-profile", "production-like-hosted-pilot"
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $deployHandoffArgs += "--strict-rc"
 }
 
 & python @deployHandoffArgs
 Add-CheckRow $checks "Deploy handoff artifact" (Map-ExitToVerdict $LASTEXITCODE).verdict "commit/profile/Azure metadata for operations" "deploy-handoff.json"
+
+[string] $rcGoldenPathJson = Join-Path $OutDir "rc-golden-path-validation.json"
+[string] $rcGoldenPathMd = Join-Path $OutDir "rc-golden-path-validation.md"
+[string[]] $rcGoldenPathArgs = @(
+    (Join-Path $root "scripts/ci/validate_rc_golden_path.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $rcGoldenPathJson,
+    "--markdown-out", $rcGoldenPathMd
+)
+
+if (Test-StrictRcEffective) {
+    $rcGoldenPathArgs += "--enforce"
+}
+
+& python @rcGoldenPathArgs
+[int] $rcGoldenPathExit = $LASTEXITCODE
+[string] $rcGoldenPathVerdict = if ($rcGoldenPathExit -eq 1) { "FAIL" } else { "PASS" }
+Add-CheckRow $checks "RC golden-path evidence validation" $rcGoldenPathVerdict "mandatory pilot-facing RC artifacts; exit $rcGoldenPathExit" "rc-golden-path-validation.json"
+
+[string] $rcEvidenceIndexJson = Join-Path $OutDir "rc-evidence-index.json"
+[string] $rcEvidenceIndexMd = Join-Path $OutDir "rc-evidence-index.md"
+& python (Join-Path $root "scripts/ci/build_rc_evidence_index.py") `
+    --bundle-dir $OutDir `
+    --json-out $rcEvidenceIndexJson `
+    --markdown-out $rcEvidenceIndexMd
+[int] $rcEvidenceIndexExit = $LASTEXITCODE
+[string] $rcEvidenceIndexVerdict = if ($rcEvidenceIndexExit -eq 1) { "FAIL" } else { "PASS" }
+Add-CheckRow $checks "RC evidence index (unified)" $rcEvidenceIndexVerdict "PASS/WARN/HOLD/NOT_RUN rollup; exit $rcEvidenceIndexExit" "rc-evidence-index.json"
+
 $indexState = Write-ReleaseReadinessIndexArtifacts -CheckRows $checks -GeneratedUtc $generatedUtc -OutputDirectory $OutDir
 $rollup = [string]$indexState.rollup
 $failCount = [int]$indexState.failCount
@@ -629,6 +822,30 @@ $warnCount = [int]$indexState.warnCount
     -Environment $Environment | Out-Null
 
 Write-Host "Wrote release readiness bundle to $OutDir (rollup=$rollup)"
+
+if (Test-StrictRcEffective) {
+    & python (Join-Path $root "scripts/ci/release_evidence_bundle.py") validate `
+        --dir $OutDir `
+        --profile "release-readiness" `
+        --strict-buyer-rc `
+        --json-out (Join-Path $OutDir "release-evidence-bundle-validation-strict-rc.json")
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Strict buyer RC bundle validation failed (exit $LASTEXITCODE). See release-evidence-bundle-validation-strict-rc.json."
+        exit $LASTEXITCODE
+    }
+
+    & python (Join-Path $root "scripts/ci/assert_rc_strict_signoff.py") `
+        --bundle-dir $OutDir `
+        --require-pass `
+        --require-live-parity-artifact `
+        --json-out (Join-Path $OutDir "rc-strict-signoff-assertion.json")
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Strict RC signoff assertion failed (exit $LASTEXITCODE). See rc-strict-signoff-assertion.json and blockingReasons."
+        exit $LASTEXITCODE
+    }
+}
 
 if ($strictExit -ne 0) {
     Write-Warning "Strict observability export gate failed (exit $strictExit). See $OutDir."

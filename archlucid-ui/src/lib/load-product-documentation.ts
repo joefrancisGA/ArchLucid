@@ -5,6 +5,11 @@ import {
   getProductDocumentationEntry,
   type ProductDocumentationEntry,
 } from "@/lib/product-documentation-registry";
+import {
+  stripDuplicateMarkdownTitle,
+  stripInternalEngineeringBatchLabels,
+  stripLeadingContributorScopeBlockquote,
+} from "@/lib/help-markdown-presentation";
 
 export type LoadedProductDocumentation = {
   entry: ProductDocumentationEntry;
@@ -33,27 +38,12 @@ function readRepoRelativeMarkdown(relativePath: string): string | null {
   return readFileSync(absolute, "utf8").replace(/\r\n/g, "\n");
 }
 
-function stripLeadingScopeBlockquote(markdown: string): string {
-  const lines = markdown.split("\n");
-  let index = 0;
+function prepareHelpSourceMarkdown(markdown: string): string {
+  let result = stripLeadingContributorScopeBlockquote(markdown);
+  result = stripInternalEngineeringBatchLabels(result);
+  result = stripDuplicateMarkdownTitle(result);
 
-  while (index < lines.length) {
-    const line = lines[index] ?? "";
-
-    if (line.trim().length === 0) {
-      index++;
-      continue;
-    }
-
-    if (line.trimStart().startsWith(">")) {
-      index++;
-      continue;
-    }
-
-    break;
-  }
-
-  return lines.slice(index).join("\n").trimStart();
+  return result.trimStart();
 }
 
 /**
@@ -72,7 +62,7 @@ export function tryLoadProductDocumentation(slug: string): LoadedProductDocument
     const body = readRepoRelativeMarkdown(sourcePath);
 
     if (body !== null && body.trim().length > 0) {
-      chunks.push(stripLeadingScopeBlockquote(body));
+      chunks.push(prepareHelpSourceMarkdown(body));
     }
   }
 

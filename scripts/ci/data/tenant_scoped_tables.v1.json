@@ -24,6 +24,7 @@
     "dbo.DecisioningTraces",
     "dbo.DigestDeliveryAttempts",
     "dbo.DigestSubscriptions",
+    "dbo.DraftRequests",
     "dbo.EvolutionCandidateChangeSets",
     "dbo.FindingFeedback",
     "dbo.FindingsSnapshots",

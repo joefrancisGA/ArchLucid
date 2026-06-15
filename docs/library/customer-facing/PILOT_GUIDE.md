@@ -7,7 +7,11 @@
 
 **Operator / pilot** material is merged into the command-first quickstart. **V1 boundary** (scope, gates) stays in **[V1_SCOPE.md](../V1_SCOPE.md)**.
 
+**Canonical hosted pilot path:** [`HOSTED_PILOT_SINGLE_PATH.md`](../HOSTED_PILOT_SINGLE_PATH.md) — one command sequence via `Invoke-FirstPilotStrictPath.ps1`.
+
 **Canonical:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)
+
+**Minimum viable success lane (five steps):** [MINIMUM_VIABLE_PILOT_SUCCESS.md](../MINIMUM_VIABLE_PILOT_SUCCESS.md)
 
 **Deployment presets (auth, storage, execution, retrieval):** [OPERATOR_DECISION_GUIDE.md](../OPERATOR_DECISION_GUIDE.md#1a-fast-path-deployment-presets-hosted-vs-self-hosted)
 

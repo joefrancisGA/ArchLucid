@@ -408,7 +408,7 @@ describe("collapsed pilot sidebar filter", () => {
 });
 
 describe("countSidebarLinksRevealedByShowAllFeatures", () => {
-  it("counts fewer links for pilot_operator than collapsed-only delta when preset hides routes", () => {
+  it("matches collapsed-pilot delta without navigation presets", () => {
     const collapsedOnly = countSidebarLinksHiddenByCollapsedPilot(
       NAV_GROUPS,
       false,
@@ -416,26 +416,16 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
       AUTHORITY_RANK.ReadAuthority,
       true,
     );
-    const withPreset = countSidebarLinksRevealedByShowAllFeatures(
+    const revealed = countSidebarLinksRevealedByShowAllFeatures(
       NAV_GROUPS,
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
       true,
-      "pilot_operator",
-    );
-    const withFullPreset = countSidebarLinksRevealedByShowAllFeatures(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      true,
-      "full",
     );
 
-    expect(withPreset).toBeGreaterThan(0);
-    expect(withPreset).toBeLessThanOrEqual(collapsedOnly);
-    expect(withFullPreset).toBe(collapsedOnly);
+    expect(revealed).toBe(collapsedOnly);
+    expect(revealed).toBeGreaterThan(0);
   });
 });
 

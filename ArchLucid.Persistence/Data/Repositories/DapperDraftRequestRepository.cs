@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -192,6 +193,9 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Cross-tenant draft intake reaper hard-deletes terminal Redirected/Abandoned rows by UpdatedUtc cutoff.")]
     public async Task<DraftIntakeReaperBatchResult> HardDeleteTerminalDraftsBatchAsync(
         DateTimeOffset updatedBeforeUtc,
         int batchSize,

@@ -20,7 +20,7 @@ export function LlmMonthlyBudgetExceededBanner(props: LlmMonthlyBudgetExceededBa
       role="alert"
       data-testid="llm-monthly-budget-exceeded-banner"
     >
-      LLM Execution budget exceeded for this month. You may still view previous runs.
+      LLM Execution budget exceeded for this month. You may still view previous reviews.
       {status.utcMonth.length > 0 ? (
         <span className="block text-xs text-amber-900/90 dark:text-amber-200/90">
           UTC month: {status.utcMonth}

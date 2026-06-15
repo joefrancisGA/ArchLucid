@@ -23,6 +23,7 @@ export type GovernanceFindingQueueRow = {
   revisitDueUtc?: string | null;
   isStale?: boolean;
   evidenceHref?: string;
+  evidenceRefCount?: number | null;
   /** TB-063: inbound sync human review state for architecture risk register rows. */
   humanReviewStatusLabel?: string | null;
   /** TB-063: aggregated ITSM correlation summary (e.g. Jira:KEY-1). */

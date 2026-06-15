@@ -33,6 +33,7 @@ public sealed class AgentOutputQualityGateOptionsTests
         o.PerAgentTypeFloors.Should().BeEmpty();
         o.EnforceOnReject.Should().BeFalse();
         o.BlockRunOnReject.Should().BeFalse();
+        o.MaxAutoRetries.Should().Be(1);
         o.PersistPartialOutputsOnBudgetExceeded.Should().BeTrue();
         o.MaxTokensPerRun.Should().BeNull();
         o.MaxCostPerRun.Should().BeNull();

@@ -40,7 +40,7 @@
 
 **Operator narrative:** `docs/library/LIVE_E2E_HAPPY_PATH.md` (HTTP request → commit → retrieval parity); **`docs/library/FIRST_RUN_WALKTHROUGH.md`** for the operator wizard surface.
 
-**Integration starter fixtures (V1 buyer automation):** Machine-readable workflow contracts with sanitized request shapes and OpenAPI path validation — [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json). CI gate: `scripts/ci/check_v1_integration_starter_contracts.py`. Covers create → execute → commit → export → compare → ROI summary paths.
+**Integration starter fixtures (V1 buyer automation):** Machine-readable workflow contracts with sanitized request shapes and OpenAPI path validation — [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json). CI gate: `scripts/ci/check_v1_integration_starter_contracts.py`. Covers create → execute → commit → export → compare → ROI summary paths. **Operator handoff pack:** [`V1_AUTOMATION_HANDOFF_PACK.md`](V1_AUTOMATION_HANDOFF_PACK.md). **V1 automation handoff** uses REST, CLI, UI export, and SCIM only; first-party ServiceNow/Jira/Confluence/Slack/Teams connectors are **V1.1** (Microsoft Teams is the first buyer-critical connector target after core V1 proof).
 
 ## Run DTO shapes under `/v1`
 

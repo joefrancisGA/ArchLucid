@@ -303,6 +303,10 @@ function Format-FirstPilotCommandCenterMarkdown {
     $lines.Add('')
     $lines.Add('Single status surface for the first-pilot operator path. Labels match [`FIRST_PILOT_OPERATOR_PATH.md`](../../docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md): **READY**, **WARN**, **HOLD**, **DEFERRED**, **NEXT ACTION**.')
     $lines.Add('')
+    $lines.Add('## Buyer-safe summary')
+    $lines.Add('')
+    $lines.Add('This section is safe for sponsor handoff after review by the release owner. It states outcome, evidence basis, skipped/deferred scope, and next decision without raw diagnostics.')
+    $lines.Add('')
     $lines.Add('| Field | Value |')
     $lines.Add('| --- | --- |')
     $lines.Add("| Sponsor packet disposition | **$($CommandCenter.sponsorPacketDisposition)** |")
@@ -344,6 +348,10 @@ function Format-FirstPilotCommandCenterMarkdown {
     $lines.Add("| Operator path | $($next.operatorPathPhase) |")
     $lines.Add("| Action | $($next.summary) |")
     $lines.Add("| Remediation | [$($next.remediationDocLink)](../../$($next.remediationDocLink)) |")
+    $lines.Add('')
+    $lines.Add('## Internal diagnostics appendix')
+    $lines.Add('')
+    $lines.Add('Use `go-no-go-summary.md`, the linked remediation docs, and the individual JSON artifacts for operator-only troubleshooting, raw findings, strict RC details, and support handoff.')
     $lines.Add('')
     return $lines
 }

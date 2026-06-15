@@ -33,6 +33,8 @@ import { cn } from "@/lib/utils";
 import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
+import { CtoDemoAuditClosingBeat } from "@/components/cto-demo/CtoDemoAuditClosingBeat";
+import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 
 type AuditEventGroup = { stage: string; events: AuditEvent[] };
@@ -78,6 +80,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
 
   return (
     <section aria-labelledby="audit-results-heading">
+      <CtoDemoBuyerValueStrip stepIndex={4} />
       <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
         {buyerPolishedShell && events.length > 0
           ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
@@ -294,6 +297,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
               </details>
             ) : null}
             {buyerPolishedShell ? <BuyerAuditEventsTechnicalAppendix events={displayEvents} /> : null}
+            {buyerPolishedShell && events.length > 0 ? <CtoDemoAuditClosingBeat /> : null}
           </>
         )}
       </div>

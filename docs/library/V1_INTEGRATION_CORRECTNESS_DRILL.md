@@ -65,6 +65,8 @@ Each row includes: **route**, **expectedStatus**, **actualStatus**, **correlatio
 | Idempotent commit | Second `POST …/commit` | **200** retry-safe per [`API_CONTRACTS.md`](API_CONTRACTS.md) |
 | Artifacts | `GET /v1/artifacts/manifests/{manifestId}` (+ descriptor) | Listing and metadata |
 | Explain | `GET /v1/explain/runs/{runId}/aggregate` | Aggregate explanation |
+| Compare explain (negative) | `GET /v1/explain/compare/explain?baseRunId={runId}&targetRunId={missing}` | **404** when target run lacks golden manifest |
+| Descriptor integrity | Parsed fields on first artifact descriptor | `artifactId` required; `manifestId` linkage validated |
 | First value | `GET /v1/pilots/runs/{runId}/first-value-report` | Sponsor Markdown |
 | Negative run | `GET …/run/{missing}` | **404** + `#run-not-found` |
 | Negative manifest | `GET /v1/artifacts/manifests/{missing}` | **404** + `#manifest-not-found` or `#resource-not-found` |

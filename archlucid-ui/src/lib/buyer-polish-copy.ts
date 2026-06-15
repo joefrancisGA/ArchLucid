@@ -24,6 +24,57 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
 
+export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
+
+export const PILOT_COMMAND_CENTER_LEAD =
+  "Create a governed, evidence-linked review package.";
+
+export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
+
+export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Open example review";
+
+export const PILOT_COMMAND_CENTER_HELP_LINK = "How it works";
+
+export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What you'll get";
+
+export const PILOT_COMMAND_CENTER_OUTCOMES = [
+  "Findings",
+  "Decisions",
+  "Review trail",
+  "Governed decision record",
+] as const;
+
+export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
+
+export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
+
+export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
+
+export const PILOT_PATH_PREVIEW_STEPS = [
+  { id: "connect", label: "Connect environment or upload evidence" },
+  { id: "analyze", label: "Execute review analysis" },
+  { id: "review", label: "Review findings" },
+] as const;
+
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Advanced guidance";
+
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
+  "Checklists, operating path, walkthroughs, and optional setup.";
+
+export const OPERATOR_HOME_WORKSPACE_STATUS_TITLE = "Workspace status";
+
+export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
+  "ROI baseline and workspace readiness signals.";
+
+export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
+
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished package";
+
+export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
+
+export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION =
+  "Short definitions for terms you will see during a pilot — open on demand instead of on every screen.";
+
 export const BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo";
 
 export const BUYER_HOME_START_CTO_DEMO_LEAD =
@@ -85,9 +136,61 @@ export const BUYER_CTO_DEMO_RECAP_COPY_CTA = "Copy recap";
 
 export const BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA = "Download recap (.md)";
 
+export const BUYER_CTO_DEMO_RECAP_BOARD_PACKET_CTA = "Download board packet";
+
+export const BUYER_CTO_DEMO_RECAP_BOARD_PACKET_BUSY_CTA = "Board packet…";
+
+export const BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL = "Optional 3b — Show drift";
+
+export const BUYER_CTO_DEMO_COMPARE_DRIFT_CTA = "See what changed →";
+
+export const BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING = "Offline fallback";
+
+export const BUYER_CTO_DEMO_PANIC_SCRIPT_BODY =
+  "If the API goes down: say \"Let me switch to our pre-loaded version — same data, same output.\" Then click Enable offline fallback below. Navigate to Step 1 using keyboard shortcut 1. Continue the walkthrough — all five steps work offline.";
+
+export const BUYER_CTO_DEMO_PANIC_ENABLE_CTA = "Enable offline fallback";
+
+export const BUYER_CTO_DEMO_PANIC_ENABLED_LABEL = "Offline fallback active";
+
+export const BUYER_SIMULATOR_TRUST_BADGE_LABEL =
+  "Simulator mode — structurally identical findings, no cloud LLM charges";
+
+export const BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP =
+  "Simulator mode runs the full four-agent pipeline using rule-based inference. Findings have the same structure as live mode; cost estimates are illustrative.";
+
+export const BUYER_CTO_DEMO_AUDIT_EXPORT_CTA = "Export audit trail (CSV)";
+
+export const BUYER_CTO_DEMO_AUDIT_EXPORT_BUSY = "Exporting…";
+
+export const BUYER_CTO_DEMO_AUDIT_EXPORT_SUCCESS =
+  "Audit trail exported — attach to your GRC record.";
+
+export const BUYER_MANIFEST_DELIVERABLES_HEADING = "Deliverables";
+
+export const BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_TITLE = "Executive PDF";
+
+export const BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_DESC =
+  "Sponsor-ready one-pager with verdict, top risks, and recommended actions.";
+
+export const BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE = "Architecture package (DOCX)";
+
+export const BUYER_MANIFEST_DELIVERABLE_DOCX_DESC =
+  "Full review package for architecture board and GRC teams.";
+
+export const BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE = "Review bundle (ZIP)";
+
+export const BUYER_MANIFEST_DELIVERABLE_ZIP_DESC =
+  "All signed artifacts, evidence index, and manifest in one archive.";
+
+export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE = "Decision receipt (Markdown)";
+
+export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_DESC =
+  "Machine-readable record of all decisions in this review.";
+
 export const BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL = "Live data";
 
-export const BUYER_CTO_DEMO_DATA_SOURCE_SAMPLE_LABEL = "Sample data — Contoso Retail";
+export const BUYER_CTO_DEMO_DATA_SOURCE_SAMPLE_LABEL = "Sample data — Claims Intake showcase";
 
 export const QUICK_REVIEW_SAMPLE_BRIEF_CAPTION = "Sample — edit freely";
 
@@ -96,7 +199,7 @@ export const COMMAND_PALETTE_START_CTO_DEMO_LABEL = "Start CTO demo tour";
 export const COMMAND_PALETTE_RESET_DEMO_LABEL = "Reset demo";
 
 export const BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT =
-  "Press 1–5 to jump between journey steps · S — spotlight · 0 — offline mode";
+  "Press 1–5 to jump steps · E — explore · P — presenter notes · S — spotlight · 0 — offline · Shift+R — hard reset";
 
 export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_ON_CTA = "Auto-play";
 
@@ -342,6 +445,8 @@ export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY =
 
 export const BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK = "Review this action →";
 
+export const BUYER_EXECUTIVE_OPERATOR_HANDOFF_LINK = "Open in Operator →";
+
 export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews";
 
 export const BUYER_GRAPH_FILTER_SUMMARY = "Filter by evidence type, decision, or risk";
@@ -426,8 +531,67 @@ export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trac
 
 export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
 
+export const AUDIT_TRAIL_INTEGRITY_NOTE =
+  "Append-only audit trail — every create, commit, governance decision, and export is recorded with actor, action type, and timestamp. Filter below or verify the hash chain when demo integrity tools are enabled.";
+
 export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance decision record";
 
 export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
 
 export const BUYER_EXAMPLE_COUNT_SUFFIX = "(example)";
+
+export const BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING = "Your diligence package is ready.";
+
+export const BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT =
+  "Download the board packet — a PDF summary of findings, decisions, and the governance record — to share with your sponsor or procurement team.";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_HEADING = "Next steps";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_SUBTEXT =
+  "Continue diligence with your team — start a pilot, book a security review, or download the trust pack for procurement.";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_PILOT_CTA = "Start a pilot";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_SECURITY_REVIEW_CTA = "Book a security review";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_TRUST_PACK_CTA = "Get the trust pack";
+
+export const BUYER_CTO_DEMO_STORY_GATED_NOTE =
+  "Healthcare data shown in this demo — other verticals are talk-track only until a pilot is provisioned.";
+
+export const BUYER_CTO_DEMO_PREFLIGHT_HEADING = "Before you begin";
+
+export const BUYER_CTO_DEMO_PREFLIGHT_BEGIN_CTA = "Begin demo";
+
+export const BUYER_CTO_DEMO_AGENDA_HEADING = "Your 30-minute review journey";
+
+export const BUYER_CTO_DEMO_AGENDA_SUBTEXT =
+  "Five stops from executive outcomes through signed manifest, evidence, governance, and audit trail.";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_CTA = "Verify integrity";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_BUSY = "Verifying…";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_SUCCESS = "Chain intact";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_FAIL = "Chain broken";
+
+export const BUYER_CTO_DEMO_ISOLATION_PROOF_HEADING = "Tenant isolation evidence";
+
+export const BUYER_CTO_DEMO_ISOLATION_PROOF_BODY =
+  "Each customer receives a dedicated database catalog. The showcase below is isolated from all other tenants.";
+
+export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE = "Demo preview — read-only view";
+
+export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
+  "In a live pilot, an architect with Execute authority approves here. The view below shows the post-approval state for demonstration purposes.";
+
+export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
+  "This executive summary gives your sponsor a one-page risk and outcome verdict — no engineering context required.",
+  "This signed manifest is the verifiable record of every decision made in this review — your auditors' starting point.",
+  "Every finding traces back to the exact evidence that produced it — no black-box AI.",
+  "This approval gate enforces separation-of-duties before any architecture change is promoted to production.",
+  "Every event in this timeline is immutable and exportable — the compliance trail your auditors need on day one.",
+] as const;
+
+export const REVIEWS_NEW_OTHER_PATHS_DISCLOSURE = "Other ways to start a review";

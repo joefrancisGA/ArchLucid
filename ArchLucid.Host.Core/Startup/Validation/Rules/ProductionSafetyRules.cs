@@ -293,4 +293,52 @@ internal static class ProductionSafetyRules
             errors.Add(
                 $"WebhookDelivery:HmacSha256SharedSecret must be at least {minWebhookSecretChars} characters in Production when WebhookDelivery:UseHttpClient is true.");
     }
+
+    /// <summary>
+    ///     In-product demo routes must not run on ASP.NET/ArchLucid Production profiles (TB-293).
+    /// </summary>
+    public static void CollectDemoDisallowedInProductionProfile(
+        IConfiguration configuration,
+        List<string> errors,
+        IHostEnvironment? environment = null)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!IsProductionProfile(configuration, environment))
+            return;
+
+        if (configuration.GetValue("Demo:Enabled", false))
+        {
+            errors.Add(
+                "Demo:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
+                + "(in-product demo paths must not run on production-profile hosts).");
+        }
+
+        if (configuration.GetValue("Demo:AnonymousViewer:Enabled", false))
+        {
+            errors.Add(
+                "Demo:AnonymousViewer:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
+                + "(anonymous demo viewer must not run on production-profile hosts).");
+        }
+    }
+
+    private static bool IsProductionProfile(IConfiguration configuration, IHostEnvironment? environment)
+    {
+        if (environment?.IsProduction() == true)
+            return true;
+
+        string? aspNetEnv =
+            configuration["ASPNETCORE_ENVIRONMENT"]?.Trim()
+            ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Trim();
+
+        if (string.Equals(aspNetEnv, "Production", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        string? archLucidEnv =
+            configuration["ARCHLUCID_ENVIRONMENT"]?.Trim()
+            ?? Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT")?.Trim();
+
+        return string.Equals(archLucidEnv, "Production", StringComparison.OrdinalIgnoreCase);
+    }
 }

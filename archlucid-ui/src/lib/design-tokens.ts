@@ -10,6 +10,12 @@ export const AL_CSS_VAR_NAMES = {
   surfaceOverlay: "--al-surface-overlay",
   accentInteractive: "--al-accent-interactive",
   accentBorderFocus: "--al-accent-border-focus",
+  primaryActionBg: "--al-primary-action-bg",
+  primaryActionBgHover: "--al-primary-action-bg-hover",
+  primaryActionFg: "--al-primary-action-fg",
+  primaryActionRing: "--al-primary-action-ring",
+  accentLink: "--al-accent-link",
+  accentLinkHover: "--al-accent-link-hover",
   textPrimary: "--al-text-primary",
   textSecondary: "--al-text-secondary",
   textPlaceholder: "--al-text-placeholder",
@@ -27,16 +33,42 @@ export const AL_CSS_VAR_NAMES = {
   layerHover: "--al-layer-hover",
 } as const;
 
+/** Shared card chrome for operator surfaces — prefer over per-page `px-2.5` overrides. */
+export const OPERATOR_CARD = {
+  /** CardHeader: 16px inset, 12px title → body when paired with {@link OPERATOR_CARD.content}. */
+  header: "flex flex-col space-y-1.5 p-4 pb-3",
+  /** CardContent following a header (no duplicate top padding). */
+  content: "p-4 pt-0",
+  /** Single-block cards without a split header/content pair. */
+  body: "p-4",
+  /** Nested raised surface inside a card (metrics, run rows, empty states). */
+  nested: "p-3",
+} as const;
+
 /** Tailwind class bundles for layout and surfaces (operator shell). */
 export const OPERATOR_LAYOUT = {
   page: "bg-al-surface-base text-al-text-primary",
-  /** Gap between items within a single functional zone (cards, rows). */
+  /** Gap between items within a single functional zone (form fields, list rows). */
   sectionStack: "space-y-4",
-  /** Gap between major functional zones on the Home page (reviews, readiness, get started). */
-  majorSectionGap: "space-y-8",
-  cardPadding: "p-4",
-  inlineGap: "gap-2",
+  /** Gap between major page zones (hero → reviews → guidance). Target 24–32px. */
+  majorSectionGap: "space-y-6",
+  /** Section heading → content block (12px). */
+  sectionHeadingStack: "space-y-3",
+  /** Standalone section heading bottom margin when not using sectionHeadingStack. */
   sectionHeadingMargin: "mb-3",
+  cardPadding: "p-4",
+  /** Related controls (button groups, filter chips). Target 8–12px. */
+  inlineGap: "gap-2",
+  /** Related control clusters with labels. */
+  controlClusterGap: "gap-3",
+  /** Unrelated control groups (filters → table, CTA → body). Target 16–24px. */
+  unrelatedClusterGap: "gap-4",
+  disclosure: {
+    default: "p-4",
+    slim: "p-3",
+    bodyOffset: "mt-4",
+    bodyOffsetSlim: "mt-3",
+  },
 } as const;
 
 /**
@@ -59,9 +91,9 @@ export const OPERATOR_TYPE_SCALE = {
   micro: "text-[11px] font-normal leading-snug text-al-text-secondary",
 } as const;
 
-/** Zone headings on operator/buyer home — quieter than {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
+/** Zone headings on operator/buyer home — one step below {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
 export const OPERATOR_HOME_SECTION_HEADING =
-  `m-0 ${OPERATOR_TYPE_SCALE.meta} font-medium text-neutral-600 dark:text-neutral-300`;
+  "m-0 text-lg font-semibold leading-snug tracking-tight text-al-text-primary";
 
 /** Subsection labels inside home disclosure cards — sentence case. */
 export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.section} text-neutral-600 dark:text-neutral-400`;
@@ -97,7 +129,7 @@ export const DESIGN_TOKENS = {
     muted: "rounded-md border border-neutral-200 bg-neutral-100/80 dark:border-neutral-800 dark:bg-neutral-900/50",
   },
   accent: {
-    link: "font-medium text-teal-800 underline dark:text-teal-300",
+    link: "font-medium text-[var(--al-accent-link)] underline hover:text-[var(--al-accent-link-hover)]",
     focusRing:
       "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
   },
@@ -201,10 +233,20 @@ export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
   }
 }
 
-export type FindingSeverityKind = "critical" | "high" | "medium" | "low" | "info" | "unknown";
+export type FindingSeverityKind =
+  | "critical"
+  | "error"
+  | "warning"
+  | "high"
+  | "medium"
+  | "low"
+  | "info"
+  | "unknown";
 
 export const SEVERITY_LABELS: Readonly<Record<FindingSeverityKind, string>> = {
   critical: "Critical",
+  error: "Error",
+  warning: "Warning",
   high: "High",
   medium: "Medium",
   low: "Low",
@@ -215,8 +257,44 @@ export const SEVERITY_LABELS: Readonly<Record<FindingSeverityKind, string>> = {
 export function normalizeFindingSeverity(raw: string | null | undefined): FindingSeverityKind {
   const s = (raw ?? "").trim().toLowerCase();
 
+  switch (s) {
+    case "critical":
+      return "critical";
+
+    case "error":
+      return "error";
+
+    case "warning":
+      return "warning";
+
+    case "info":
+    case "informational":
+      return "info";
+
+    case "high":
+      return "high";
+
+    case "medium":
+    case "moderate":
+      return "medium";
+
+    case "low":
+      return "low";
+
+    default:
+      break;
+  }
+
   if (s.includes("critical")) {
     return "critical";
+  }
+
+  if (s.includes("error")) {
+    return "error";
+  }
+
+  if (s.includes("warning")) {
+    return "warning";
   }
 
   if (s.includes("high")) {
@@ -326,9 +404,11 @@ export function severityTagClass(kind: FindingSeverityKind): string {
     case "critical":
       return `${STATUS_TAG_BASE} border-rose-800/60 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
 
+    case "error":
     case "high":
       return `${STATUS_TAG_BASE} border-amber-800/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
 
+    case "warning":
     case "medium":
       return `${STATUS_TAG_BASE} border-amber-600/40 bg-al-surface-raised text-al-text-primary`;
 
@@ -339,7 +419,12 @@ export function severityTagClass(kind: FindingSeverityKind): string {
       return `${STATUS_TAG_BASE} border-blue-700/40 bg-al-surface-raised text-al-text-primary`;
 
     case "unknown":
-    default:
       return `${STATUS_TAG_BASE} border-neutral-300 bg-al-surface-raised text-al-text-secondary`;
+
+    default: {
+      const exhaustive: never = kind;
+
+      return exhaustive;
+    }
   }
 }

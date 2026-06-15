@@ -105,6 +105,14 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
                 foreach (ArchitectureFinding finding in result.Findings)
                 {
+                    if (finding.EvidenceRefs.Count == 0)
+                    {
+                        finding.ConfidenceLevel = FindingConfidenceLevel.Low;
+                        finding.EvaluationConfidenceScore = 44;
+                        touched = true;
+                        continue;
+                    }
+
                     Finding shaped = FindingFactory.CreateFromAgentArchitectureFinding(finding, result, traceForAgent);
 
                     TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(shaped);

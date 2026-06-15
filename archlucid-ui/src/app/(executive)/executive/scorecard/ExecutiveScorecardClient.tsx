@@ -27,9 +27,9 @@ import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
   BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT,
   BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY,
-  BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK,
   BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP,
 } from "@/lib/buyer-polish-copy";
+import { executiveShellHandoffLinkLabel } from "@/lib/executive-shell-handoff";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -39,7 +39,7 @@ import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
-/** Used when severity-weighted ROI hours round to zero but committed runs exist. */
+/** Used when severity-weighted ROI hours round to zero but committed reviews exist. */
 const AVERAGE_MANUAL_REVIEW_HOURS = 3;
 
 export type ExecutiveScorecardTimeRange = ExecutiveTimeRange;
@@ -314,7 +314,7 @@ export function ExecutiveScorecardClient() {
           className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
           role="status"
         >
-          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">No committed runs in this range</p>
+          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">No committed reviews in this range</p>
           <p className="m-0 mt-1 leading-snug">
             Finalize a review to populate executive ROI and drift for this workspace.
           </p>
@@ -333,7 +333,7 @@ export function ExecutiveScorecardClient() {
               {finiteIntegerCountDisplay(reviewsCount)}
             </p>
             <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {buyerPolished ? BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL : "Committed runs (pilot-value-report)"}
+              {BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL}
             </p>
           </CardContent>
         </Card>
@@ -346,7 +346,7 @@ export function ExecutiveScorecardClient() {
             <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {finiteIntegerCountDisplay(findingsTotal)}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">Across committed runs in range</p>
+            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">Across committed reviews in range</p>
           </CardContent>
         </Card>
 
@@ -412,7 +412,7 @@ export function ExecutiveScorecardClient() {
                     className="text-sm font-medium text-blue-700 underline dark:text-blue-400"
                     data-testid={`executive-scorecard-action-${action.id}`}
                   >
-                    {buyerPolished ? BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK : "View →"}
+                    {executiveShellHandoffLinkLabel(action.href, { buyerPolished })}
                   </Link>
                 </li>
               ))}
@@ -432,7 +432,7 @@ export function ExecutiveScorecardClient() {
           </li>
           <li>
             Estimated hours use the same coefficients as workspace health (critical/high/medium findings plus pre-commit
-            blocks). When that sum is zero but reviews exist, the scorecard uses a simple runs × hours fallback.
+            blocks). When that sum is zero but reviews exist, the scorecard uses a simple reviews × hours fallback.
           </li>
           <li>Drift activity sums daily buckets from the governance compliance-drift-trend endpoint; trend compares first vs second half of the window.</li>
         </ul>

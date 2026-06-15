@@ -10,6 +10,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 
 
+import { CtoDemoHowItWorksTrigger } from "@/components/cto-demo/CtoDemoHowItWorksTrigger";
+import { CtoDemoPreflightGate } from "@/components/cto-demo/CtoDemoPreflightGate";
 import { CtoDemoRecapCard } from "@/components/cto-demo/CtoDemoRecapCard";
 import { CtoDemoSoftRestartButton } from "@/components/cto-demo/CtoDemoSoftRestartButton";
 import { CtoDemoStorySelector } from "@/components/cto-demo/CtoDemoStorySelector";
@@ -29,26 +31,46 @@ import {
   BUYER_CTO_DEMO_TOUR_QUERY_PARAM,
   buyerCtoDemoRemainingBudgetMinutes,
   buyerCtoDemoStepBudgetSeconds,
+  formatCtoDemoStepBudgetLabel,
   formatCtoDemoStepTimer,
   readBuyerCtoDemoAutoplay,
+  readBuyerCtoDemoExploreMode,
+  readBuyerCtoDemoPreflightAcknowledged,
   readBuyerCtoDemoStoryId,
   readBuyerCtoDemoTourActive,
   readBuyerCtoDemoTourCollapsed,
   readBuyerCtoDemoPresenterNotesFullScript,
   readBuyerCtoDemoPresenterNotesVisible,
   readBuyerCtoDemoVisitedSteps,
+  readCtoDemoPresenterLayerVisible,
   resolveBuyerCtoDemoTourNavigation,
   writeBuyerCtoDemoAutoplay,
+  writeBuyerCtoDemoExploreMode,
+  writeBuyerCtoDemoPreflightAcknowledged,
   writeBuyerCtoDemoTourActive,
   writeBuyerCtoDemoTourCollapsed,
   writeBuyerCtoDemoPresenterNotesFullScript,
   writeBuyerCtoDemoPresenterNotesVisible,
   writeBuyerCtoDemoVisitedStep,
+  writeCtoDemoPresenterLayerVisible,
 } from "@/lib/buyer-cto-demo-tour";
 
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { BUYER_CTO_DEMO_COMPARE_HREF, BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { emitDemoJourneyTelemetry } from "@/lib/demo-journey-telemetry";
 
 import {
+
+  BUYER_CTO_DEMO_COMPARE_DRIFT_CTA,
+
+  BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL,
+
+  BUYER_CTO_DEMO_PANIC_ENABLE_CTA,
+
+  BUYER_CTO_DEMO_PANIC_ENABLED_LABEL,
+
+  BUYER_CTO_DEMO_PANIC_SCRIPT_BODY,
+
+  BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING,
 
   BUYER_CTO_DEMO_QUESTIONS_HIDE_CTA,
 
@@ -95,6 +117,11 @@ import {
 import { useBuyerCtoDemoTourKeyboard } from "@/hooks/useBuyerCtoDemoTourKeyboard";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
+  readOperatorDemoPanicOffline,
+  writeOperatorDemoPanicOffline,
+} from "@/lib/operator-static-demo";
 
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
 
@@ -120,6 +147,10 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   const [collapsed, setCollapsed] = useState(false);
 
+  const [exploreMode, setExploreMode] = useState(false);
+
+  const [presenterLayerVisible, setPresenterLayerVisible] = useState(false);
+
   const [presenterNotesVisible, setPresenterNotesVisible] = useState(true);
 
   const [presenterNotesFullScript, setPresenterNotesFullScript] = useState(true);
@@ -140,7 +171,13 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   const [smokeBusy, setSmokeBusy] = useState(false);
 
+  const [panicEnabled, setPanicEnabled] = useState(false);
+
+  const [preflightAcknowledged, setPreflightAcknowledged] = useState(false);
+
   const advancedForStepRef = useRef<number | null>(null);
+  const telemetryStepIndexRef = useRef<number | null>(null);
+  const telemetryElapsedRef = useRef(0);
 
 
 
@@ -159,15 +196,21 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
 
   const endTour = useCallback(() => {
+    emitDemoJourneyTelemetry({
+      kind: "tour_ended",
+      stepsVisitedCount: readBuyerCtoDemoVisitedSteps().size,
+    });
 
     writeBuyerCtoDemoTourActive(false);
+    writeBuyerCtoDemoExploreMode(false);
+    writeBuyerCtoDemoPreflightAcknowledged(false);
 
     setActive(false);
-
+    setPreflightAcknowledged(false);
+    setExploreMode(false);
     setCollapsed(false);
 
     writeBuyerCtoDemoTourCollapsed(false);
-
   }, []);
 
 
@@ -190,11 +233,40 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     setStoryId(readBuyerCtoDemoStoryId());
 
+    setPanicEnabled(readOperatorDemoPanicOffline());
+
+    setExploreMode(readBuyerCtoDemoExploreMode());
+
+    setPresenterLayerVisible(readCtoDemoPresenterLayerVisible());
+
+    setPreflightAcknowledged(readBuyerCtoDemoPreflightAcknowledged());
+
   }, []);
 
+  const toggleExploreMode = useCallback(() => {
+    setExploreMode((previous) => {
+      const next = !previous;
 
+      writeBuyerCtoDemoExploreMode(next);
 
-  useBuyerCtoDemoTourKeyboard(active);
+      return next;
+    });
+  }, []);
+
+  const togglePresenterLayer = useCallback(() => {
+    setPresenterLayerVisible((previous) => {
+      const next = !previous;
+
+      writeCtoDemoPresenterLayerVisible(next);
+
+      return next;
+    });
+  }, []);
+
+  useBuyerCtoDemoTourKeyboard(active, {
+    onExploreToggle: toggleExploreMode,
+    onPresenterLayerToggle: togglePresenterLayer,
+  });
 
 
 
@@ -219,6 +291,29 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     }
 
 
+
+    const previousStepIndex = telemetryStepIndexRef.current;
+
+    if (previousStepIndex !== null && previousStepIndex !== navigation.stepIndex) {
+      emitDemoJourneyTelemetry({
+        kind: "step_exited",
+        stepIndex: previousStepIndex,
+        dwellSeconds: telemetryElapsedRef.current,
+      });
+    }
+
+    if (previousStepIndex !== navigation.stepIndex) {
+      const stepDef = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[navigation.stepIndex];
+
+      emitDemoJourneyTelemetry({
+        kind: "step_entered",
+        stepIndex: navigation.stepIndex,
+        stepLabel: stepDef.label,
+      });
+
+      telemetryStepIndexRef.current = navigation.stepIndex;
+      telemetryElapsedRef.current = 0;
+    }
 
     writeBuyerCtoDemoVisitedStep(navigation.stepIndex);
 
@@ -362,7 +457,12 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     const intervalId = window.setInterval(() => {
 
-      setElapsedSecondsOnStep((previous) => previous + 1);
+      setElapsedSecondsOnStep((previous) => {
+        const next = previous + 1;
+        telemetryElapsedRef.current = next;
+
+        return next;
+      });
 
     }, 1000);
 
@@ -438,7 +538,15 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }, [activateTour]);
 
+  useEffect(() => {
+    if (!mounted || !active) {
+      return;
+    }
 
+    for (const step of BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS) {
+      router.prefetch(step.href);
+    }
+  }, [active, mounted, router]);
 
   if (!isBuyerPolishedOperatorShellEnv() || !mounted || !active) {
 
@@ -446,9 +554,24 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }
 
-
+  if (exploreMode) {
+    return (
+      <div className="pointer-events-none fixed bottom-4 right-4 z-[9990] print:hidden" data-testid="cto-demo-explore-resume-pill">
+        <Button
+          type="button"
+          size="sm"
+          className="pointer-events-auto h-7 min-w-[3.25rem] px-2 shadow-sm"
+          aria-label="Resume CTO demo tour"
+          onClick={toggleExploreMode}
+        >
+          Tour
+        </Button>
+      </div>
+    );
+  }
 
   const stepCount = navigation.stepCount;
+  const showPresenterLayer = presenterLayerVisible;
 
   const currentStepNumber = navigation.stepIndex !== null ? navigation.stepIndex + 1 : null;
 
@@ -524,7 +647,46 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }
 
-
+  if (!preflightAcknowledged) {
+    return (
+      <aside
+        aria-label={BUYER_CTO_DEMO_TOUR_ARIA}
+        className="pointer-events-none fixed bottom-4 right-4 z-[9990] w-[min(22rem,calc(100vw-2rem))] print:hidden"
+        data-testid="buyer-cto-demo-tour-overlay"
+      >
+        <div className="pointer-events-auto rounded-lg border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="flex items-start justify-between gap-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
+              {BUYER_CTO_DEMO_TOUR_HEADING}
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
+              aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+              onClick={() => {
+                setCollapsed(true);
+                writeBuyerCtoDemoTourCollapsed(true);
+              }}
+            >
+              {BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+            </Button>
+          </div>
+          <CtoDemoPreflightGate
+            onAcknowledged={() => {
+              setPreflightAcknowledged(true);
+            }}
+          />
+          <div className="mt-3">
+            <Button type="button" variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
+              {BUYER_CTO_DEMO_TOUR_END_CTA}
+            </Button>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
 
@@ -552,33 +714,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
             <p className={cn("m-0 mt-1", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{stepLabel}</p>
 
-            {stepTimer !== null ? (
-
-              <p
-
-                className={cn(
-
-                  "m-0 mt-0.5 tabular-nums",
-
-                  OPERATOR_TYPOGRAPHY.badge,
-
-                  stepTimer.isOvertime
-
-                    ? "font-medium text-amber-700 dark:text-amber-300"
-
-                    : "text-neutral-500 dark:text-neutral-400",
-
-                )}
-
-                data-testid="buyer-cto-demo-tour-step-timer"
-
-              >
-
-                {stepTimer.display}
-
-              </p>
-
-            ) : remainingMinutes !== null ? (
+            {remainingMinutes !== null ? (
 
               <p className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
 
@@ -592,7 +728,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               <div className="mt-1">
 
-                <StatusTag kind="attention" label={BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE} />
+                <StatusTag kind="needs-attention" label={BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE} />
 
               </div>
 
@@ -600,37 +736,52 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
           </div>
 
-          <Button
-
-            type="button"
-
-            variant="ghost"
-
-            size="sm"
-
-            className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
-
-            aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
-
-            onClick={() => {
-
-              setCollapsed(true);
-
-              writeBuyerCtoDemoTourCollapsed(true);
-
-            }}
-
-          >
-
-            {BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
-
-          </Button>
+          <div className="flex shrink-0 flex-wrap items-center gap-1">
+            <CtoDemoHowItWorksTrigger />
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" data-testid="cto-demo-explore-toggle" onClick={toggleExploreMode}>
+              Explore
+            </Button>
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" data-testid="cto-demo-presenter-layer-toggle" onClick={togglePresenterLayer}>
+              {presenterLayerVisible ? "Audience view" : "Presenter"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
+              aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+              onClick={() => {
+                setCollapsed(true);
+                writeBuyerCtoDemoTourCollapsed(true);
+              }}
+            >
+              {BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+            </Button>
+          </div>
 
         </div>
 
+        {showPresenterLayer && navigation.stepIndex !== null && stepTimer !== null ? (
+          <div className="mt-2" data-testid="buyer-cto-demo-tour-step-budget">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
+              {formatCtoDemoStepBudgetLabel(navigation.stepIndex)}
+            </p>
+            <p
+              className={cn(
+                "m-0 mt-0.5 tabular-nums",
+                OPERATOR_TYPOGRAPHY.badge,
+                stepTimer.isOvertime
+                  ? "font-medium text-amber-700 dark:text-amber-300"
+                  : "text-neutral-500 dark:text-neutral-400",
+              )}
+              data-testid="buyer-cto-demo-tour-step-timer"
+            >
+              {stepTimer.display}
+            </p>
+          </div>
+        ) : null}
 
-
-        {presenterNotesVisible ? (
+        {showPresenterLayer && presenterNotesVisible ? (
 
           <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
 
@@ -640,9 +791,57 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
         ) : null}
 
+        {showPresenterLayer && presenterNotesVisible && navigation.stepIndex === 2 ? (
+          <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400" data-testid="cto-demo-compare-drift-beat">
+            {BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL}:{" "}
+            <Link
+              href={BUYER_CTO_DEMO_COMPARE_HREF}
+              className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              data-testid="cto-demo-compare-drift-link"
+            >
+              {BUYER_CTO_DEMO_COMPARE_DRIFT_CTA}
+            </Link>
+          </p>
+        ) : null}
+
+        {showPresenterLayer && presenterNotesVisible ? (
+          <div
+            className="mt-2 rounded-md border border-amber-200/80 bg-amber-50/60 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/20"
+            data-testid="cto-demo-panic-script-section"
+          >
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">Presenter only</p>
+            <p className="m-0 mt-2 text-xs font-semibold text-amber-900 dark:text-amber-200">
+              {BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING}
+            </p>
+            <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">{BUYER_CTO_DEMO_PANIC_SCRIPT_BODY}</p>
+            <div className="mt-2">
+              {panicEnabled ? (
+                <StatusTag kind="ready" label={BUYER_CTO_DEMO_PANIC_ENABLED_LABEL} />
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  data-testid="cto-demo-panic-enable-btn"
+                  onClick={() => {
+                    writeOperatorDemoPanicOffline(true);
+                    window.dispatchEvent(
+                      new CustomEvent(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, { detail: { on: true } }),
+                    );
+                    setPanicEnabled(true);
+                  }}
+                >
+                  {BUYER_CTO_DEMO_PANIC_ENABLE_CTA}
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : null}
 
 
-        {navigation.stepIndex === 0 ? (
+
+        {showPresenterLayer && navigation.stepIndex === 0 ? (
 
           <>
 
@@ -744,10 +943,11 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
 
 
-        <p className={cn("m-0 mt-2 text-xs text-neutral-500 dark:text-neutral-400")}>{BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT}</p>
+        {showPresenterLayer ? (
+          <p className={cn("m-0 mt-2 text-xs text-neutral-500 dark:text-neutral-400")}>{BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT}</p>
+        ) : null}
 
-
-
+        {showPresenterLayer ? (
         <div className="mt-2 flex flex-wrap gap-1">
 
           <Button
@@ -863,10 +1063,9 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
           </Button>
 
         </div>
+        ) : null}
 
-
-
-        {ctoQuestionsVisible ? (
+        {showPresenterLayer && ctoQuestionsVisible ? (
 
           <ol
 
@@ -972,6 +1171,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                       href={def.href}
 
+                      prefetch
+
                       title={def.chipTooltip}
 
                       className={cn(
@@ -1024,7 +1225,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               <Button type="button" variant="outline" size="sm" asChild>
 
-                <Link href={navigation.prev.href} data-testid="buyer-cto-demo-tour-back">
+                <Link href={navigation.prev.href} prefetch data-testid="buyer-cto-demo-tour-back">
 
                   {BUYER_CTO_DEMO_TOUR_BACK_CTA}: {navigation.prev.label}
 
@@ -1046,7 +1247,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               <Button type="button" size="sm" asChild>
 
-                <Link href={navigation.next.href} data-testid="buyer-cto-demo-tour-next">
+                <Link href={navigation.next.href} prefetch data-testid="buyer-cto-demo-tour-next">
 
                   {BUYER_CTO_DEMO_TOUR_NEXT_CTA}: {navigation.next.label}
 

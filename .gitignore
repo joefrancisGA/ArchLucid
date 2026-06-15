@@ -421,6 +421,8 @@ ArchiForge.*/
 
 # Cursor agent session scratch at repo root (never commit)
 .cursor-tmp-*
+# Per-session baseline of user dirty files (Cursor hook; never commit)
+.cursor/.agent-dirty-baseline.txt
 mojibake-count.txt
 
 # Fody - auto-generated XML schema

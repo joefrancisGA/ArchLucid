@@ -4,4 +4,6 @@ export type TenantTrialStatusPayload = {
   status?: string;
   /** Days until the next lifecycle boundary; for `ExportOnly`, days until hard purge. */
   daysRemaining?: number | null;
+  /** Seeded sample review package id for trial onboarding CTAs when present. */
+  trialSampleRunId?: string | null;
 };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveInAppDocHref } from "./in-app-doc-href";
+import { resolveInAppDocHref, tryResolveInAppDocHref } from "./in-app-doc-href";
 
 describe("resolveInAppDocHref", () => {
   it("maps registry primary paths to /help/{slug}", () => {
@@ -22,5 +22,10 @@ describe("resolveInAppDocHref", () => {
 
     expect(resolveInAppDocHref("docs/runbooks/TROUBLESHOOTING.md")).toBe("/help/developer-troubleshooting");
     expect(resolveInAppDocHref("docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md")).toBe("/help/troubleshooting");
+  });
+
+  it("returns null from tryResolve for unmapped contributor docs", () => {
+    expect(tryResolveInAppDocHref("docs/BUILD.md")).toBeNull();
+    expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/operator-shell");
   });
 });

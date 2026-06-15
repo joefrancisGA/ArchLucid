@@ -30,7 +30,7 @@ namespace ArchLucid.AgentRuntime;
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification =
     "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
-public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClient
+public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClient, IDisposable
 {
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = AzureOpenAiOptions.DefaultMaxCompletionTokens;
@@ -44,6 +44,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     internal static void SeedLastCompletionTokenUsageForTests(int promptTokens, int completionTokens, int reasoningTokens = 0) =>
         LlmCompletionTokenUsageAmbient.TestingSeed(promptTokens, completionTokens, reasoningTokens);
 
+    private readonly AzureOpenAIClient _azureOpenAiClient;
     private readonly ChatClient _chatClient;
     private readonly string _deploymentName;
     private readonly int _maxOutputTokens;
@@ -124,6 +125,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
             endpointUri,
             new ApiKeyCredential(apiKey));
 
+        _azureOpenAiClient = azureClient;
         _deploymentName = deploymentName.Trim();
         _chatClient = azureClient.GetChatClient(_deploymentName);
         _maxOutputTokens = maxCompletionTokens;
@@ -142,6 +144,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions,
         Uri endpointUri)
     {
+        _azureOpenAiClient = azureClient;
         _deploymentName = deploymentName;
         _chatClient = azureClient.GetChatClient(deploymentName);
         _maxOutputTokens = maxCompletionTokens;
@@ -694,5 +697,20 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         modelVersion = null;
 
         return false;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (_azureOpenAiClient is IAsyncDisposable asyncAzureClient)
+        {
+            asyncAzureClient.DisposeAsync().AsTask().GetAwaiter().GetResult();
+
+            return;
+        }
+
+        if (_azureOpenAiClient is IDisposable disposableAzureClient)
+
+            disposableAzureClient.Dispose();
     }
 }

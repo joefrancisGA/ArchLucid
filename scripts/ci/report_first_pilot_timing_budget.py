@@ -37,6 +37,67 @@ STAGING_STEP_KEYS: tuple[tuple[str, str], ...] = (
     ("sponsor_export", "Sponsor export"),
 )
 
+_FIRST_VALUE_STEP_KEYS: tuple[str, ...] = (
+    "create_run",
+    "poll_ready",
+    "commit",
+    "get_manifest",
+    "list_artifacts",
+)
+
+_PASS_MAX_MS = 10 * 60 * 1000
+_WARN_MAX_MS = 20 * 60 * 1000
+
+
+def _sum_elapsed_ms(measured: list[dict[str, object]], keys: tuple[str, ...]) -> int | None:
+    total = 0
+    found = 0
+
+    for key in keys:
+        row = next((item for item in measured if item.get("phaseKey") == key), None)
+
+        if row is None:
+            return None
+
+        elapsed = row.get("elapsedMs")
+
+        if not isinstance(elapsed, int):
+            return None
+
+        total += elapsed
+        found += 1
+
+    return total if found == len(keys) else None
+
+
+def classify_first_value_commit_budget(total_ms: int | None) -> dict[str, object]:
+    if total_ms is None:
+        return {
+            "disposition": "HOLD",
+            "totalElapsedMs": None,
+            "passMaxMs": _PASS_MAX_MS,
+            "warnMaxMs": _WARN_MAX_MS,
+            "detail": "Missing measured create→commit→artifact steps — attach staging-smoke timings.",
+        }
+
+    if total_ms <= _PASS_MAX_MS:
+        disposition = "PASS"
+    elif total_ms <= _WARN_MAX_MS:
+        disposition = "WARN"
+    else:
+        disposition = "HOLD"
+
+    return {
+        "disposition": disposition,
+        "totalElapsedMs": total_ms,
+        "passMaxMs": _PASS_MAX_MS,
+        "warnMaxMs": _WARN_MAX_MS,
+        "detail": (
+            f"Measured first-value path {total_ms} ms — PASS ≤ {_PASS_MAX_MS} ms, "
+            f"WARN ≤ {_WARN_MAX_MS} ms, HOLD above warn max."
+        ),
+    }
+
 
 def load_json(path: Path | None) -> dict | None:
     if path is None or not path.is_file():
@@ -129,10 +190,18 @@ def build_timing_budget(
     ]
 
     disposition = "PASS" if measured else "WARN"
+    first_value_total_ms = _sum_elapsed_ms(measured, _FIRST_VALUE_STEP_KEYS)
+    first_value_budget = classify_first_value_commit_budget(first_value_total_ms)
+
+    if first_value_budget["disposition"] == "HOLD":
+        disposition = "HOLD"
+    elif first_value_budget["disposition"] == "WARN" and disposition == "PASS":
+        disposition = "WARN"
 
     return {
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "disposition": disposition,
+        "firstValueCommitBudget": first_value_budget,
         "measuredPhases": measured,
         "guidanceOnlyPhases": guidance,
         "missingPhases": missing,
@@ -148,6 +217,9 @@ def format_markdown(summary: dict[str, object]) -> str:
         "Not a load test or SLA proof.",
         "",
         f"| Disposition | **{summary['disposition']}** |",
+        "",
+        f"**First-value commit budget:** **{summary['firstValueCommitBudget']['disposition']}** "
+        f"({summary['firstValueCommitBudget']['detail']})",
         "",
         f"**Sponsor rule:** {summary['sponsorOutputRule']}",
         "",

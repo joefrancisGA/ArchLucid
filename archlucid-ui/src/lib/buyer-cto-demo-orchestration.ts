@@ -12,13 +12,17 @@ export const BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO = "2026-01-14T16:00:00.000Z";
 
 const SEED_SAMPLE_ROUTE = "/api/seed-sample";
 
-/** Audience-facing caption for each golden-journey step (#15). */
+/**
+ * Audience-facing caption for each golden-journey step (#15).
+ * These are distinct from CtoDemoBuyerValueStrip — no "What you're seeing" prefix
+ * so the two surfaces don't duplicate the same framing on spine pages.
+ */
 export const BUYER_CTO_DEMO_AUDIENCE_CAPTION_LINES: readonly string[] = [
-  "What you are seeing: executive outcomes, residual risk posture, and sponsor-ready actions.",
-  "What you are seeing: the signed package — decisions, findings, and downloadable deliverables.",
-  "What you are seeing: evidence-linked traceability from inputs through findings to decisions.",
-  "What you are seeing: governance approvals and segregation-of-duties for this review package.",
-  "What you are seeing: the append-only audit trail for compliance and GRC follow-up.",
+  "Executive outcomes, residual risk posture, and sponsor-ready actions.",
+  "Signed package — decisions, findings, and downloadable deliverables.",
+  "Evidence-linked traceability from inputs through findings to decisions.",
+  "Governance approvals and segregation-of-duties for this review package.",
+  "Append-only audit trail for compliance and GRC follow-up.",
 ];
 
 export function buyerCtoDemoAudienceCaption(stepIndex: number): string {

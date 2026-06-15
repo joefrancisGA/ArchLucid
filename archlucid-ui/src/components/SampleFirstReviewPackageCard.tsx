@@ -13,6 +13,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { cn } from "@/lib/utils";
 
 const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
@@ -48,7 +49,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
             >
               {BUYER_HOME_SAMPLE_PACKAGE_HEADLINE}
             </h2>
-
+            <DemoDataBadge />
           </div>
 
           {buyerPolished === true ? (

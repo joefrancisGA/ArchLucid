@@ -582,7 +582,18 @@ $topologyMetricsPathForJson = if ($credsPresent -and (Test-Path -LiteralPath $to
 
 $pipelineMetricsPathForJson = if ($credsPresent -and (Test-Path -LiteralPath $pipelineMetricsAbs)) { $pipelineRel } else { $null }
 
+[string] $gitCommitSha = 'unknown'
 
+try {
+    [string] $resolvedSha = (& git -C $root rev-parse HEAD 2>$null)
+
+    if (-not [string]::IsNullOrWhiteSpace($resolvedSha)) {
+        $gitCommitSha = $resolvedSha.Trim()
+    }
+}
+catch {
+    $gitCommitSha = 'unknown'
+}
 
 $jsonPayload = New-RealLlmEvidenceGateJsonPayload `
     -GeneratedUtc $generatedUtc `
@@ -593,7 +604,8 @@ $jsonPayload = New-RealLlmEvidenceGateJsonPayload `
     -TopologyMetricsRelativePath $topologyMetricsPathForJson `
     -PipelineMetricsRelativePath $pipelineMetricsPathForJson `
     -TopologyMetrics $topologyMetrics `
-    -PipelineMetrics $pipelineMetrics
+    -PipelineMetrics $pipelineMetrics `
+    -GitCommitSha $gitCommitSha
 
 
 

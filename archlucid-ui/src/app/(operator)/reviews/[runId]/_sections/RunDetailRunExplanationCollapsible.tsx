@@ -105,11 +105,17 @@ export function RunDetailRunExplanationCollapsible(
               }
 
               return (
-                <RunFindingExplainabilityTable
-                  runId={runId}
-                  rows={traceRows}
-                  findingWireSnapshots={findingWireSnapshots}
-                />
+                <CollapsibleSection
+                  title="Per-finding trace details"
+                  defaultOpen={false}
+                  sectionTestId="run-finding-explainability-collapsible"
+                >
+                  <RunFindingExplainabilityTable
+                    runId={runId}
+                    rows={traceRows}
+                    findingWireSnapshots={findingWireSnapshots}
+                  />
+                </CollapsibleSection>
               );
             })()}
             {decisionExplainability !== null ? (

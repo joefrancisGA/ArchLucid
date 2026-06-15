@@ -145,6 +145,12 @@ public static class AuditEventTypes
     /// <summary>Workspace curation: <c>PATCH /v1/architecture/run/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>
     public const string RunPinStateChanged = "RunPinStateChanged";
 
+    /// <summary>Operator created a saved filter preset (<c>POST /v1/operator/saved-views</c>).</summary>
+    public const string OperatorSavedViewCreated = "OperatorSavedView.Created";
+
+    /// <summary>Operator deleted a saved filter preset (<c>DELETE /v1/operator/saved-views/{viewId}</c>).</summary>
+    public const string OperatorSavedViewDeleted = "OperatorSavedView.Deleted";
+
     /// <summary>Internal QA: POST <c>…/internal/architecture/runs/{{runId}}/determinism-check</c> completed.</summary>
     public const string InternalArchitectureDeterminismCheckExecuted = "InternalArchitectureDeterminismCheckExecuted";
 

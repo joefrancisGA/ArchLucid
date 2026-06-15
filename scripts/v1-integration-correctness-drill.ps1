@@ -229,6 +229,43 @@ else {
                     $descriptorRoute = "GET /v1/artifacts/manifests/$manifestId/artifact/$artifactId/descriptor"
                     $descriptor = Invoke-V1IntegrationDrillHttp -Uri "$base/v1/artifacts/manifests/$manifestId/artifact/$artifactId/descriptor" -Method Get -Headers $headers
                     $null = Add-V1IntegrationDrillRowFromHttp -Rows $rows -Name 'artifact-descriptor-metadata' -Route $descriptorRoute -ExpectedStatus 200 -HttpResult $descriptor -IntegrationModel $integrationModelObserved
+
+                    $descriptorPayload = $null
+
+                    if ($descriptor.StatusCode -eq 200) {
+                        try {
+                            $descriptorPayload = $descriptor.Content | ConvertFrom-Json -ErrorAction Stop
+                        }
+                        catch {
+                            $descriptorPayload = $null
+                        }
+                    }
+
+                    $integrityDisposition = 'PASS'
+                    $integrityDetail = 'Artifact descriptor includes artifactId and manifest linkage.'
+
+                    if ($null -eq $descriptorPayload) {
+                        $integrityDisposition = 'HOLD'
+                        $integrityDetail = 'Artifact descriptor JSON could not be parsed.'
+                    }
+                    elseif ([string]::IsNullOrWhiteSpace([string]$descriptorPayload.artifactId)) {
+                        $integrityDisposition = 'HOLD'
+                        $integrityDetail = 'Artifact descriptor missing artifactId.'
+                    }
+                    elseif ([string]::IsNullOrWhiteSpace([string]$descriptorPayload.manifestId) -and [string]::IsNullOrWhiteSpace([string]$manifestId)) {
+                        $integrityDisposition = 'WARN'
+                        $integrityDetail = 'Artifact descriptor missing manifestId; commit manifest may still be valid.'
+                    }
+
+                    $rows.Add((New-V1IntegrationDrillRow `
+                        -Name 'artifact-descriptor-integrity' `
+                        -Route $descriptorRoute `
+                        -ExpectedStatus 200 `
+                        -ActualStatus ([int]$descriptor.StatusCode) `
+                        -Disposition $integrityDisposition `
+                        -Detail $integrityDetail `
+                        -CorrelationId ([string]$descriptor.CorrelationId) `
+                        -IntegrationModel $integrationModelObserved)) | Out-Null
                 }
             }
             elseif ($artifactRow.disposition -eq 'PASS') {
@@ -241,6 +278,11 @@ else {
 
         $firstValue = Invoke-V1IntegrationDrillHttp -Uri "$base/v1/pilots/runs/$runId/first-value-report" -Method Get -Headers $headers
         $null = Add-V1IntegrationDrillRowFromHttp -Rows $rows -Name 'first-value-report' -Route "GET /v1/pilots/runs/$runId/first-value-report" -ExpectedStatus 200 -HttpResult $firstValue -IntegrationModel $integrationModelObserved
+
+        $compareTargetId = '00000000-0000-0000-0000-000000000097'
+        $compareRoute = "GET /v1/explain/compare/explain?baseRunId=$runId&targetRunId=$compareTargetId"
+        $compareExplain = Invoke-V1IntegrationDrillHttp -Uri "$base/v1/explain/compare/explain?baseRunId=$runId&targetRunId=$compareTargetId" -Method Get -Headers $headers
+        $null = Add-V1IntegrationDrillRowFromHttp -Rows $rows -Name 'explain-compare-missing-target' -Route $compareRoute -ExpectedStatus 404 -HttpResult $compareExplain -IntegrationModel $integrationModelObserved
     }
     else {
         $rows.Add((New-V1IntegrationDrillRow -Name 'committed-manifest-required' -Route "GET /v1/architecture/run/$runId" -ExpectedStatus 200 -ActualStatus 0 -Disposition 'HOLD' -Detail 'goldenManifestId missing; cannot run artifact/explain/first-value steps.')) | Out-Null

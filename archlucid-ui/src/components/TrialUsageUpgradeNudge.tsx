@@ -63,7 +63,7 @@ function nudgeCopy(
     const limit = payload.trialRunsLimit;
 
     return {
-      title: "You're approaching your trial run limit",
+      title: "You're approaching your trial review limit",
       detail:
         typeof limit === "number"
           ? `${used} of ${limit} evaluation runs used — talk to us to extend or upgrade.`

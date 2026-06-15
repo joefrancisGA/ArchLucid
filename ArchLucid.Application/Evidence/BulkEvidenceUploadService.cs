@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Serilog.Context;
+
 namespace ArchLucid.Application.Evidence;
 
 public sealed class BulkEvidenceUploadService(
@@ -70,111 +72,120 @@ public sealed class BulkEvidenceUploadService(
 
         List<string> uploadedIds = [];
         List<string> fileNames = [];
+        Guid bulkEvidencePackageId = Guid.NewGuid();
 
-        // 3 & 4. Process files with partial failure documentation
-        // Note: Blob storage operations cannot be easily rolled back in a SQL transaction.
-        // We attempt to upload all valid files; if an exception occurs mid-batch, 
-        // the successfully uploaded blobs remain and partial failure is reported.
-        try
+        ActivityScopeTags.ApplyEvidencePackageId(System.Diagnostics.Activity.Current, bulkEvidencePackageId);
+
+        using (LogContext.PushProperty("EvidencePackageId", bulkEvidencePackageId.ToString("D")))
         {
-            foreach (IFormFile file in files)
+            // 3 & 4. Process files with partial failure documentation
+            // Note: Blob storage operations cannot be easily rolled back in a SQL transaction.
+            // We attempt to upload all valid files; if an exception occurs mid-batch, 
+            // the successfully uploaded blobs remain and partial failure is reported.
+            try
             {
-                // Basic per-file validation
-                if (file.Length == 0)
+                foreach (IFormFile file in files)
                 {
-                    logger.LogWarning("Skipped empty file '{FileName}' during bulk upload for run {RunId}", LogSanitizer.Sanitize(file.FileName), runId);
-                    continue;
-                }
+                    // Basic per-file validation
+                    if (file.Length == 0)
+                    {
+                        logger.LogWarning("Skipped empty file '{FileName}' during bulk upload for run {RunId}", LogSanitizer.Sanitize(file.FileName), runId);
+                        continue;
+                    }
 
-                // Form parsers may omit Content-Disposition filenames; Path.GetFileName(null) throws.
-                string safeBaseName = Path.GetFileName(file.FileName ?? string.Empty);
+                    // Form parsers may omit Content-Disposition filenames; Path.GetFileName(null) throws.
+                    string safeBaseName = Path.GetFileName(file.FileName ?? string.Empty);
 
-                if (string.IsNullOrEmpty(safeBaseName))
-                    safeBaseName = "upload";
+                    if (string.IsNullOrEmpty(safeBaseName))
+                        safeBaseName = "upload";
 
-                if (IsZipArchive(file))
-                {
-                    await UploadExpandedZipEntriesAsync(
+                    if (IsZipArchive(file))
+                    {
+                        await UploadExpandedZipEntriesAsync(
+                            runId,
+                            file,
+                            safeBaseName,
+                            bulkEvidencePackageId,
+                            uploadedIds,
+                            fileNames,
+                            cancellationToken);
+
+                        continue;
+                    }
+
+                    // Multipart section streams must be disposed before opening the next file part.
+                    using Stream contentStream = file.OpenReadStream();
+
+                    await UploadSingleEvidenceFileAsync(
                         runId,
-                        file,
                         safeBaseName,
+                        contentStream,
                         uploadedIds,
                         fileNames,
                         cancellationToken);
-
-                    continue;
                 }
-
-                // Multipart section streams must be disposed before opening the next file part.
-                using Stream contentStream = file.OpenReadStream();
-
-                await UploadSingleEvidenceFileAsync(
-                    runId,
-                    safeBaseName,
-                    contentStream,
-                    uploadedIds,
-                    fileNames,
-                    cancellationToken);
             }
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            logger.LogError(ex, "Partial failure during bulk evidence upload for RunId={RunId}. {Count} files were uploaded before failure.", runId, uploadedIds.Count);
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogError(ex, "Partial failure during bulk evidence upload for RunId={RunId}. {Count} files were uploaded before failure.", runId, uploadedIds.Count);
             
+                return new BulkEvidenceUploadResult
+                {
+                    Succeeded = false,
+                    ErrorCode = InternalErrorCode,
+                    FailureDetail = $"An error occurred during upload. {uploadedIds.Count} of {files.Count} files were uploaded. Error: {ex.Message}",
+                    UploadedEvidenceItemIds = uploadedIds
+                };
+            }
+
+            // 5. Emit audit event (bounded retry — transient SQL failures must not silently drop the row)
+            AuditEvent auditEvent = new()
+            {
+                EventType = AuditEventTypes.EvidenceBulkAttached,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runId,
+                CorrelationId = correlationId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        evidencePackageId = bulkEvidencePackageId,
+                        fileCount = uploadedIds.Count,
+                        fileNames = fileNames
+                    },
+                    AuditJsonSerializationOptions.Instance)
+            };
+
+            await DurableAuditLogRetry.TryLogAsync(
+                    ct => auditService.LogAsync(auditEvent, ct),
+                    logger,
+                    $"BulkEvidenceUpload:{runId:N}",
+                    cancellationToken,
+                    auditEventTypeForMetrics: auditEvent.EventType)
+                .ConfigureAwait(false);
+
             return new BulkEvidenceUploadResult
             {
-                Succeeded = false,
-                ErrorCode = InternalErrorCode,
-                FailureDetail = $"An error occurred during upload. {uploadedIds.Count} of {files.Count} files were uploaded. Error: {ex.Message}",
+                Succeeded = true,
                 UploadedEvidenceItemIds = uploadedIds
             };
         }
-
-        // 5. Emit audit event (bounded retry — transient SQL failures must not silently drop the row)
-        AuditEvent auditEvent = new()
-        {
-            EventType = AuditEventTypes.EvidenceBulkAttached,
-            ActorUserId = actor,
-            ActorUserName = actor,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = runId,
-            CorrelationId = correlationId,
-            DataJson = JsonSerializer.Serialize(
-                new
-                {
-                    fileCount = uploadedIds.Count,
-                    fileNames = fileNames
-                },
-                AuditJsonSerializationOptions.Instance)
-        };
-
-        await DurableAuditLogRetry.TryLogAsync(
-                ct => auditService.LogAsync(auditEvent, ct),
-                logger,
-                $"BulkEvidenceUpload:{runId:N}",
-                cancellationToken,
-                auditEventTypeForMetrics: auditEvent.EventType)
-            .ConfigureAwait(false);
-
-        return new BulkEvidenceUploadResult
-        {
-            Succeeded = true,
-            UploadedEvidenceItemIds = uploadedIds
-        };
     }
 
     private async Task UploadExpandedZipEntriesAsync(
         Guid runId,
         IFormFile zipFile,
         string archiveName,
+        Guid evidencePackageId,
         List<string> uploadedIds,
         List<string> fileNames,
         CancellationToken cancellationToken)
     {
         using Stream zipStream = zipFile.OpenReadStream();
-        ZipEvidenceExpansionResult expansion = zipEvidenceExpanderService.Expand(zipStream, archiveName);
+        ZipEvidenceExpansionResult expansion = zipEvidenceExpanderService.Expand(zipStream, archiveName, evidencePackageId);
 
         foreach (ZipEvidenceExpandedFile expandedFile in expansion.Files)
         {

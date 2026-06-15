@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   alertOperatorToolingOperatorRankLine,
   alertOperatorToolingReaderRankLine,
@@ -17,7 +18,12 @@ import {
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
+import {
+  BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE,
+  BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE,
+} from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
 
@@ -158,4 +164,33 @@ export function OperateExecutePlusPageCue({ message, className }: OperateExecute
   }
 
   return <p className={cn(pageCueClassName, className)} role="note">{message}</p>;
+}
+
+/**
+ * Reader-tier CTO demo: explain that governance shows a completed approval story without mutation.
+ */
+export function CtoDemoGovernancePreviewHint({ className }: { className?: string }): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  if (!isBuyerPolishedOperatorShellEnv() || !isCtoDemoPresenterSafeModeEnv()) {
+    return null;
+  }
+
+  if (rank >= AUTHORITY_RANK.ExecuteAuthority) {
+    return null;
+  }
+
+  return (
+    <div
+      className={cn(
+        "mb-4 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
+        className,
+      )}
+      data-testid="cto-demo-governance-preview-hint"
+      role="note"
+    >
+      <StatusTag kind="needs-attention" label={BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE} />
+      <p className={cn(pageCueClassName, "mb-0 mt-2")}>{BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE}</p>
+    </div>
+  );
 }

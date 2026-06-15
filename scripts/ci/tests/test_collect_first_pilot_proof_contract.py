@@ -31,6 +31,7 @@ def test_sponsor_handoff_missing_runid_blocks() -> None:
     text = _script_text()
 
     assert "[switch] $SponsorHandoff" in text
+    assert "[switch] $FailOnHold" in text
     assert "No RunId supplied; committed-review evidence collection was skipped in sponsor handoff mode." in text
     assert "Add-ProofFinding -Disposition 'BLOCK' -Name 'committed-run-evidence'" in text
 
@@ -42,6 +43,14 @@ def test_production_like_handoff_blocks_missing_telemetry_export() -> None:
     assert "report_observability_export_readiness.py" in text
     assert "$telemetryArgs += '--strict-exit-code'" in text
     assert "Add-ProofFinding -Disposition 'BLOCK' -Name 'telemetry-export-readiness'" in text
+
+
+def test_sponsor_handoff_strict_send_is_wired() -> None:
+    text = _script_text()
+
+    assert "-StrictSend:$SponsorHandoff" in text
+    assert "'roi-baseline-send-eligibility'" in text
+    assert "ROI baseline SEND eligibility failed" in text
 
 
 def test_summary_includes_sponsor_packet_disposition() -> None:

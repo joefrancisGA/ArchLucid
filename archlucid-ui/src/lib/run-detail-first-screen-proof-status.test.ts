@@ -17,6 +17,7 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
 
     expect(summary.disposition).toBe("READY");
     expect(summary.cardTitle).toBe("Why this is safe to send");
+    expect(summary.proofConfidenceLabel).toBe("Real-mode verified");
     expect(summary.whySafeToSendBullets.length).toBeGreaterThan(0);
   });
 
@@ -52,5 +53,18 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     expect(roiHold.disposition).toBe("HOLD");
     expect(roiHold.roiBasisLabel).toContain("HOLD");
     expect(roiHold.cardTitle).toBe("Why sponsor send is blocked");
+  });
+
+  it("uses review vocabulary in simulator fallback bullets", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      realModeFellBackToSimulator: true,
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(summary.whySafeToSendBullets.join(" ").toLowerCase()).toContain("this review");
+    expect(summary.detail?.toLowerCase()).toContain("this review");
   });
 });

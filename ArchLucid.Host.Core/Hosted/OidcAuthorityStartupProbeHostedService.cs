@@ -30,7 +30,7 @@ public sealed class OidcAuthorityStartupProbeHostedService(
 
     IHostApplicationLifetime hostApplicationLifetime,
 
-    ILogger<OidcAuthorityStartupProbeHostedService> logger) : IHostedService
+    ILogger<OidcAuthorityStartupProbeHostedService> logger) : BackgroundService
 
 {
 
@@ -58,9 +58,7 @@ public sealed class OidcAuthorityStartupProbeHostedService(
 
 
 
-    /// <inheritdoc />
-
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 
     {
 
@@ -68,7 +66,7 @@ public sealed class OidcAuthorityStartupProbeHostedService(
 
         OidcAuthorityMetadataProbe.ProbeResult result =
 
-            await OidcAuthorityMetadataProbe.ProbeAsync(_configuration, client, cancellationToken).ConfigureAwait(false);
+            await OidcAuthorityMetadataProbe.ProbeAsync(_configuration, client, stoppingToken).ConfigureAwait(false);
 
 
 
@@ -131,12 +129,6 @@ public sealed class OidcAuthorityStartupProbeHostedService(
     private bool ShouldFailClosedOnOidcDiscoveryError() =>
 
         _configuration.GetValue("ArchLucidAuth:FailClosedOnOidcDiscoveryError", false);
-
-
-
-    /// <inheritdoc />
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
 }
 

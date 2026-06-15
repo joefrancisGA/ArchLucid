@@ -13,6 +13,7 @@ import {
 } from "@/lib/keyboard-shortcut-display";
 import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/shortcut-registry";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { searchHelpTopics } from "@/lib/usability/search-help-topics";
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
 export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
@@ -105,10 +106,13 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
+  const helpHits = searchHelpTopics(query, 4);
+
   const hasResults =
     (results?.runs?.length ?? 0) > 0 ||
     (results?.findings?.length ?? 0) > 0 ||
-    (results?.policyPacks?.length ?? 0) > 0;
+    (results?.policyPacks?.length ?? 0) > 0 ||
+    helpHits.length > 0;
 
   const resultsPanelOpen = open && query.trim().length >= 2;
 
@@ -123,7 +127,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           ref={inputRef}
           id={inputId}
           type="search"
-          placeholder="Search reviews, findings, and evidence…"
+          placeholder="Search or jump to…"
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -210,7 +214,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
             </section>
           ) : null}
           {!loading && (results?.policyPacks?.length ?? 0) > 0 ? (
-            <section className="px-3 py-2">
+            <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
               <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Policy packs</h3>
               <ul className="m-0 list-none p-0">
                 {results?.policyPacks?.map((pack) => (
@@ -221,6 +225,25 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       onClick={() => setOpen(false)}
                     >
                       {pack.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {!loading && helpHits.length > 0 ? (
+            <section className="px-3 py-2">
+              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Help</h3>
+              <ul className="m-0 list-none p-0">
+                {helpHits.map((hit) => (
+                  <li key={hit.slug}>
+                    <Link
+                      href={`/help/${hit.slug}`}
+                      className="block rounded px-1 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                      onClick={() => setOpen(false)}
+                    >
+                      <span className="font-medium">{hit.title}</span>
+                      <span className="mt-0.5 block text-xs text-neutral-500">{hit.summary}</span>
                     </Link>
                   </li>
                 ))}

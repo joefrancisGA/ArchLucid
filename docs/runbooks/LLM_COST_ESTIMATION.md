@@ -40,3 +40,15 @@ Prompt text is never logged. Billing enforcement and hard-cap logic are unchange
 | `ArchLucid:Testing:SimulateLlmBudgetExhausted` | QA flag — forces hard cap in non-Production hosts |
 
 See [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) and [`OPERATIONS_LLM_QUOTA.md`](../library/OPERATIONS_LLM_QUOTA.md).
+
+## Operator shell budget UX (Improvement #10)
+
+Operators see LLM spend posture without opening raw logs:
+
+| Surface | Location | Behaviour |
+| --- | --- | --- |
+| **Budget status pill** | Operator shell header (`LlmBudgetStatusPill`) | Shows monthly utilization band; links to cost reporting |
+| **Approaching-limit banner** | `LlmBudgetApproachingLimitBanner` in `AppShellClient` | Surfaces when tenant is near hard cap — includes link to **`/settings/cost-reporting`** |
+| **Cost reporting page** | Settings → cost reporting | Authoritative monthly dollar budget configuration and history |
+
+**QA:** set `ArchLucid:Testing:SimulateLlmBudgetExhausted=true` on non-Production hosts to exercise exhaustion UX without SQL manipulation.

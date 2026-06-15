@@ -1,0 +1,43 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
+export type PilotPathPreviewStep = {
+  readonly id: string;
+  readonly label: string;
+};
+
+export type PilotPathPreviewStepperProps = {
+  readonly steps: readonly PilotPathPreviewStep[];
+  readonly className?: string;
+};
+
+/** Compact horizontal preview of the first-review path — sets time-to-value expectations before the primary CTA. */
+export function PilotPathPreviewStepper(props: PilotPathPreviewStepperProps): React.JSX.Element {
+  return (
+    <ol
+      className={cn("m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 list-none p-0", props.className)}
+      aria-label="First review path"
+      data-testid="pilot-path-preview-stepper"
+    >
+      {props.steps.map((step, index) => (
+        <li key={step.id} className="inline-flex items-center gap-2">
+          <span
+            className={cn(
+              OPERATOR_TYPOGRAPHY.badge,
+              "inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border border-neutral-300 bg-white px-1 font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200",
+            )}
+            aria-hidden
+          >
+            {index + 1}
+          </span>
+          <span className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>{step.label}</span>
+          {index < props.steps.length - 1 ? (
+            <span className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary/60")} aria-hidden>
+              →
+            </span>
+          ) : null}
+        </li>
+      ))}
+    </ol>
+  );
+}

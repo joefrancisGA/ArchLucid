@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { CtoDemoExecutiveTenantIsolationCallout } from "@/components/cto-demo/CtoDemoExecutiveTenantIsolationCallout";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import {
   buildStaticCtoDemoRecapPayload,
@@ -8,7 +9,7 @@ import {
   formatCtoDemoHeroSubStat,
 } from "@/lib/buyer-cto-demo-recap";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
-import { operatorSemanticBadge } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/finding-evidence-navigation";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
 import { verdictTierFromRiskPosture, verdictTierLabel, verdictTierTone } from "@/lib/verdict-taxonomy";
@@ -75,26 +76,24 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
     <section
       aria-label="Executive decision at a glance"
       data-testid="cto-demo-executive-above-fold"
-      className="space-y-4 rounded-xl border border-teal-200/80 bg-gradient-to-br from-teal-50 via-white to-neutral-50 px-4 py-4 shadow-sm dark:border-teal-900/50 dark:from-teal-950/40 dark:via-neutral-950 dark:to-neutral-950 sm:px-5"
+      className={cn("space-y-4 px-4 py-4 sm:px-5", DESIGN_TOKENS.banner.page)}
     >
       {showHeroStat ? (
-        <div
-          className="rounded-lg bg-teal-800 px-4 py-3 text-white dark:bg-teal-900"
-          data-testid="cto-demo-hero-stat"
-        >
-          <p className="m-0 text-2xl font-bold tracking-tight">{heroStat}</p>
-          <p className="m-0 mt-0.5 text-sm text-teal-100 dark:text-teal-200">{heroSubStat}</p>
+        <div className={cn("p-3", DESIGN_TOKENS.surface.card)} data-testid="cto-demo-hero-stat">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>{heroStat}</p>
+          <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta)}>{heroSubStat}</p>
         </div>
       ) : null}
       <div className="space-y-1">
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "font-semibold uppercase tracking-wide text-al-text-secondary")}>
           CTO demo — executive summary
         </p>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{headline}</h1>
+        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{headline}</h1>
+        <CtoDemoExecutiveTenantIsolationCallout />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <div className="rounded-lg border border-neutral-200 bg-white/90 p-3 dark:border-neutral-800 dark:bg-neutral-900/60">
+        <div className={cn("p-3", DESIGN_TOKENS.surface.card)}>
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             Verdict
           </p>
@@ -113,7 +112,7 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
           </p>
         </div>
 
-        <div className="rounded-lg border border-neutral-200 bg-white/90 p-3 dark:border-neutral-800 dark:bg-neutral-900/60">
+        <div className={cn("p-3", DESIGN_TOKENS.surface.card)}>
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             Top risks
           </p>
@@ -144,7 +143,7 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
           )}
         </div>
 
-        <div className="rounded-lg border border-neutral-200 bg-white/90 p-3 dark:border-neutral-800 dark:bg-neutral-900/60">
+        <div className={cn("p-3", DESIGN_TOKENS.surface.card)}>
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             Recommended action
           </p>

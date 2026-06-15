@@ -34,6 +34,8 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
         Mock<IRetrievalIndexingOutboxRepository> outbox = new();
         outbox
             .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -43,8 +45,8 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
                 {
                     OutboxId = outboxId,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
                     ProjectId = Guid.NewGuid(),
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -77,5 +79,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             .Be($"retrieval-outbox:{outboxId:D}");
         entryActivity.GetTagItem("archlucid.outbox_id").Should().Be(outboxId.ToString("D"));
         entryActivity.GetTagItem("archlucid.run_id").Should().Be(runId.ToString("D"));
+        entryActivity.GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
+        entryActivity.GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
     }
 }

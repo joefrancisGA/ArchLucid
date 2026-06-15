@@ -28,6 +28,20 @@ Set-Location $root
 
 $python = Join-Path $PSScriptRoot 'ci\check_release_real_mode_claim.py'
 $gateJson = Join-Path $root 'artifacts/release/real-llm-evidence-gate.json'
+
+[string] $gitCommitSha = 'unknown'
+
+try {
+    [string] $resolvedSha = (& git -C $root rev-parse HEAD 2>$null)
+
+    if (-not [string]::IsNullOrWhiteSpace($resolvedSha)) {
+        $gitCommitSha = $resolvedSha.Trim()
+    }
+}
+catch {
+    $gitCommitSha = 'unknown'
+}
+
 $args = @(
     $python,
     '--markdown-out', $MarkdownOut,
@@ -45,6 +59,13 @@ if ($env:ARCHLUCID_REQUIRE_REAL_LLM_RELEASE_EVIDENCE -eq '1') {
 
 if ($RcStrictClaims -or $env:ARCHLUCID_RC_STRICT_CLAIMS -eq '1') {
     $args += '--rc-strict-claims'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_RC_COMMIT_SHA)) {
+    $args += @('--expected-commit-sha', $env:ARCHLUCID_RC_COMMIT_SHA.Trim())
+}
+elseif ($gitCommitSha -ne 'unknown') {
+    $args += @('--expected-commit-sha', $gitCommitSha)
 }
 
 & python @args

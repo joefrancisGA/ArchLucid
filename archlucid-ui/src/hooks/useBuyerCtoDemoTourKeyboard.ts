@@ -3,7 +3,10 @@ import { useRouter } from "next/navigation";
 
 import { getBuyerCtoDemoJourneyStepHref } from "@/lib/buyer-cto-demo-orchestration";
 import {
+  ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
   ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT,
+  clearBuyerCtoDemoState,
+  getStartCtoDemoTourHref,
   readBuyerCtoDemoSpotlight,
   writeBuyerCtoDemoSpotlight,
 } from "@/lib/buyer-cto-demo-tour";
@@ -12,6 +15,11 @@ import {
   readOperatorDemoPanicOffline,
   writeOperatorDemoPanicOffline,
 } from "@/lib/operator-static-demo";
+
+export type BuyerCtoDemoTourKeyboardHandlers = {
+  readonly onExploreToggle?: () => void;
+  readonly onPresenterLayerToggle?: () => void;
+};
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -23,8 +31,8 @@ function isTypingTarget(target: EventTarget | null): boolean {
   return tag === "input" || tag === "textarea" || tag === "select" || target.isContentEditable;
 }
 
-/** Press 1–5 to jump steps; S toggles spotlight; 0 toggles offline panic mode. */
-export function useBuyerCtoDemoTourKeyboard(active: boolean): void {
+/** Press 1–5 to jump steps; E explore; P presenter layer; S spotlight; 0 offline panic; Shift+R reset. */
+export function useBuyerCtoDemoTourKeyboard(active: boolean, handlers?: BuyerCtoDemoTourKeyboardHandlers): void {
   const router = useRouter();
 
   useEffect(() => {
@@ -33,11 +41,45 @@ export function useBuyerCtoDemoTourKeyboard(active: boolean): void {
     }
 
     function onKeyDown(event: KeyboardEvent): void {
+      if (isTypingTarget(event.target)) {
+        return;
+      }
+
+      if (event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+        if (event.key === "R" || event.key === "r") {
+          event.preventDefault();
+
+          clearBuyerCtoDemoState();
+          writeOperatorDemoPanicOffline(false);
+          window.dispatchEvent(
+            new CustomEvent(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, { detail: { on: false } }),
+          );
+
+          const step1Href = getStartCtoDemoTourHref();
+          window.dispatchEvent(new CustomEvent(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT));
+          router.push(step1Href);
+
+          return;
+        }
+
+        return;
+      }
+
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
         return;
       }
 
-      if (isTypingTarget(event.target)) {
+      if (event.key === "e" || event.key === "E") {
+        event.preventDefault();
+        handlers?.onExploreToggle?.();
+
+        return;
+      }
+
+      if (event.key === "p" || event.key === "P") {
+        event.preventDefault();
+        handlers?.onPresenterLayerToggle?.();
+
         return;
       }
 
@@ -91,5 +133,5 @@ export function useBuyerCtoDemoTourKeyboard(active: boolean): void {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [active, router]);
+  }, [active, handlers, router]);
 }

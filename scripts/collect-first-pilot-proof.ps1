@@ -12,6 +12,10 @@
   Multi-run stickiness (TB-227): pass -RunNumber 2+ with -CompareBaseRunId (prior committed
   run) and -RunId (current run) to capture compare, governance, and risk-register snapshots
   under pilot-proof-run{N}/ inside the timestamped proof folder.
+
+.PARAMETER FailOnHold
+  Exit with code 1 when sponsor handoff disposition is HOLD or consolidated AI readiness is HOLD.
+  Combine with `-SponsorHandoff` for send/no-send automation.
 #>
 param(
     [string] $BaseUrl = '',
@@ -28,6 +32,7 @@ param(
     [switch] $SkipDemoWorkspaceValidation,
     [switch] $ProductionLikeHostedPilot,
     [switch] $SponsorHandoff,
+    [switch] $FailOnHold,
     [string[]] $DeferredBuyerRequirement = @(),
     [string] $K6SummaryPath = '',
     [string] $LiveUiSqlResultPath = '',
@@ -370,7 +375,9 @@ function Add-AgentQualitySponsorGateFinding {
         return
     }
 
-    Add-ProofFinding -Disposition 'WARN' -Name 'real-llm-sponsor-evidence' -Detail "No real-mode LLM sponsor-evidence signal was detected. Quality gate disposition: $qualityGateDisposition." -Remediation 'For buyer sponsor proof, use a PilotStrict real-mode host or explicitly label the packet as simulator/demo evidence.' -TriageCard 'FP-T004'
+    $missingRealModeDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $missingRealModeDisposition -Name 'real-llm-sponsor-evidence' -Detail "No real-mode LLM sponsor-evidence signal was detected. Quality gate disposition: $qualityGateDisposition." -Remediation 'For buyer sponsor proof, use a PilotStrict real-mode host or explicitly label the packet as simulator/demo evidence.' -TriageCard 'FP-T004'
 }
 
 function Add-AiQualityProofFinding {
@@ -722,7 +729,51 @@ function Add-FirstPilotTimingBudgetFinding {
         return
     }
 
-    Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-timing-budget' -Detail 'Timing budget includes measured staging-smoke steps with guidance-only doc targets labeled separately.' -Remediation ''
+    $timingJson = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $budgetDisposition = [string]$timingJson.firstValueCommitBudget.disposition
+
+    if ($budgetDisposition -eq 'HOLD') {
+        Add-ProofFinding -Disposition 'HOLD' -Name 'first-pilot-timing-budget' -Detail ([string]$timingJson.firstValueCommitBudget.detail) -Remediation 'Reduce create→commit→artifact wall clock or document environment-specific constraints before sponsor send.'
+        return
+    }
+
+    if ($budgetDisposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-pilot-timing-budget' -Detail ([string]$timingJson.firstValueCommitBudget.detail) -Remediation 'Review first-value path timing before controlled pilot sponsor send.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-timing-budget' -Detail 'Timing budget includes measured staging-smoke steps with PASS first-value commit budget (≤10 min).' -Remediation ''
+}
+
+function Add-SupportBundleStatusFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $jsonPath = Join-Path $ProofDirectory 'support-bundle-status.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\evaluate_support_bundle_status.py'
+
+    & python $scriptPath --bundle-dir $ProofDirectory --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'support-bundle-status.json' -Path 'support-bundle-status.json' -Purpose 'Machine-readable support-bundle presence and redaction proof.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'support-bundle-status' -Detail 'Support-bundle status artifact was not generated.' -Remediation 'Run python scripts/ci/evaluate_support_bundle_status.py for the proof folder.'
+        return
+    }
+
+    $statusJson = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $status = [string]$statusJson.status
+
+    if ($status -eq 'HOLD') {
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'support-bundle-status' -Detail ([string]$statusJson.detail) -Remediation 'Regenerate the support bundle with secrets redacted before sponsor or support handoff.' -TriageCard 'FP-T013'
+        return
+    }
+
+    if ($status -eq 'MISSING') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'support-bundle-status' -Detail 'No support bundle artifact was attached to the first-pilot proof folder.' -Remediation 'Attach a generated support bundle or support summary before operational handoff.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'support-bundle-status' -Detail 'Support bundle artifact is present and redaction scan passed.' -Remediation ''
 }
 
 function Add-AdminOperationalPostureFinding {
@@ -2198,7 +2249,8 @@ function Add-SecurityReviewerOnePagerFinding {
 function Invoke-RoiBaselineSendEvaluation {
     param(
         [Parameter(Mandatory = $true)][string] $ProofDirectory,
-        [Parameter(Mandatory = $true)][hashtable] $SummaryPayload
+        [Parameter(Mandatory = $true)][hashtable] $SummaryPayload,
+        [switch] $StrictSend
     )
 
     $partialPath = Join-Path $ProofDirectory 'go-no-go-summary.partial.json'
@@ -2216,6 +2268,10 @@ function Invoke-RoiBaselineSendEvaluation {
 
     if (Test-Path -LiteralPath $overridePath) {
         $args += @('--override-json', $overridePath)
+    }
+
+    if ($StrictSend) {
+        $args += '--strict-send'
     }
 
     & python @args 2>&1 | Out-Null
@@ -2808,6 +2864,7 @@ Add-FirstPilotTimingBudgetFinding `
     -PerformanceBaselineJsonPath $performanceBaselineJsonForEnvelope `
     -ProofCollectionElapsedMs $proofCollectionElapsedMs
 
+Add-SupportBundleStatusFinding -ProofDirectory $proofDir
 Add-AdminOperationalPostureFinding -ProofDirectory $proofDir
 Add-EnvironmentReliabilityRollupFinding -ProofDirectory $proofDir
 Add-OptionalIntegrationCorrectnessDrillFinding -ProofDirectory $proofDir
@@ -2889,13 +2946,47 @@ if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
     }
 }
 
-$baselineSendEval = Invoke-RoiBaselineSendEvaluation -ProofDirectory $proofDir -SummaryPayload ([ordered]@{
+$baselineSendEval = Invoke-RoiBaselineSendEvaluation `
+    -ProofDirectory $proofDir `
+    -StrictSend:$SponsorHandoff `
+    -SummaryPayload ([ordered]@{
         roiBasisStatus           = $script:roiBasisStatus
         roiSponsorSafe           = $script:roiSponsorSafe
         blockCount               = $blockCount
         sponsorPacketDisposition = $sponsorPacketDisposition
         runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
     })
+
+if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
+    $missingFields = @($baselineSendEval.missingRequiredBaselineFields) -join ', '
+
+    if ([string]::IsNullOrWhiteSpace($missingFields)) {
+        $missingFields = 'see roi-baseline-send-evaluation.json'
+    }
+
+    $sendBlockDetail = @($baselineSendEval.sendBlockReasons) -join '; '
+
+    if ([string]::IsNullOrWhiteSpace($sendBlockDetail)) {
+        $sendBlockDetail = 'ROI baseline completeness did not satisfy strict SEND policy.'
+    }
+
+    Add-ProofFinding `
+        -Disposition 'BLOCK' `
+        -Name 'roi-baseline-send-eligibility' `
+        -Detail "Sponsor SEND blocked: $sendBlockDetail (missing: $missingFields)." `
+        -Remediation 'Collect buyer ROI baselines per ROI_BASELINE_SEND_POLICY.md or attach an approved override JSON before sponsor handoff.' `
+        -TriageCard 'FP-T015'
+
+    $blockCount = @($findings | Where-Object { $_.disposition -eq 'BLOCK' }).Count
+    $warnCount = @($findings | Where-Object { $_.disposition -eq 'WARN' }).Count
+    $verdict = if ($blockCount -gt 0) { 'BLOCK' } elseif ($warnCount -gt 0) { 'PASS_WITH_WARNINGS' } else { 'PASS' }
+    $blockingReasons = Get-BlockingReasonsFromFindings -Findings @($findings)
+    $sponsorPacketDisposition = Resolve-SponsorPacketDisposition `
+        -SponsorHandoff:$SponsorHandoff `
+        -BlockCount $blockCount `
+        -WarnCount $warnCount `
+        -DeferredScopeReasons $deferredScopeReasons
+}
 
 $closeoutPaths = Write-FirstPilotCommercialCloseoutArtifacts `
     -ProofDirectory $proofDir `
@@ -2970,8 +3061,10 @@ if ($RunNumber -ge 2 -and -not [string]::IsNullOrWhiteSpace($RunId)) {
     }
 }
 
+$realModeEvidenceRollup = Get-RealModeEvidenceRollupFromFindings -Findings @($findings) -SponsorHandoff:$SponsorHandoff
+
 $summary = [ordered]@{
-    formatVersion             = '1.2'
+    formatVersion             = '1.3'
     generatedUtc              = $timestamp
     baseUrl                   = $normalizedBase
     runNumber                 = $RunNumber
@@ -3007,6 +3100,10 @@ $summary = [ordered]@{
     missingRequiredBaselineFields = @($baselineSendEval.missingRequiredBaselineFields)
     aiQualityProof            = $script:aiQualityProof
     aiReadinessGate           = $script:aiReadinessGate
+    realModeEvidence          = $realModeEvidenceRollup
+    realModeEvidenceStatus    = [string]$realModeEvidenceRollup.status
+    executionModeEvidenceCaptured = [bool]$realModeEvidenceRollup.evidenceCaptured
+    realModeEvidenceNextAction = [string]$realModeEvidenceRollup.nextAction
     commandCenter             = [ordered]@{
         jsonPath            = $commandCenterPaths.jsonPath
         mdPath              = $commandCenterPaths.mdPath
@@ -3051,6 +3148,9 @@ $lines.Add("| ROI basis status | **$($script:roiBasisStatus)** |")
 $lines.Add("| Baseline completeness | **$($baselineSendEval.baselineCompletenessStatus)** |")
 $lines.Add("| SEND eligible | **$($baselineSendEval.sendEligible)** |")
 $lines.Add("| ROI sponsor-safe | **$($script:roiSponsorSafe)** |")
+$lines.Add("| Real-mode evidence status | **$($realModeEvidenceRollup.status)** |")
+$lines.Add("| Execution mode evidence captured | **$($realModeEvidenceRollup.evidenceCaptured)** |")
+$lines.Add("| Real-mode next action | $($realModeEvidenceRollup.nextAction) |")
 $lines.Add("| Blocking findings | $blockCount |")
 $lines.Add("| Warnings | $warnCount |")
 $lines.Add('')
@@ -3198,6 +3298,33 @@ $snapshotScript = Join-Path $PSScriptRoot 'ci\write_first_pilot_proof_status_sna
 
 if (Test-Path -LiteralPath $snapshotScript) {
     & python $snapshotScript 2>&1 | ForEach-Object { Write-Host $_ }
+}
+
+if ($FailOnHold) {
+    $aiReadinessHold = $false
+
+    if ($null -ne $script:aiReadinessGate -and [string]$script:aiReadinessGate.disposition -eq 'HOLD') {
+        $aiReadinessHold = $true
+    }
+
+    if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
+        Write-Host 'FailOnHold: ROI baseline SEND eligibility failed; sponsor packet cannot be sent.'
+        exit 1
+    }
+
+    if ($SponsorHandoff -and $sponsorPacketDisposition -eq 'HOLD') {
+        Write-Host "FailOnHold: sponsor packet disposition is HOLD ($blockCount blocking finding(s))."
+        exit 1
+    }
+
+    if ($aiReadinessHold) {
+        Write-Host 'FailOnHold: consolidated ai-readiness-gate disposition is HOLD.'
+        exit 1
+    }
+
+    if (-not $SponsorHandoff) {
+        Write-Warning 'FailOnHold: use -SponsorHandoff for full sponsor send/no-send gating; ai-readiness HOLD still blocks when present.'
+    }
 }
 
 if ($blockCount -gt 0) {

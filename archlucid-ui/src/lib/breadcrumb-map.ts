@@ -1,5 +1,5 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -20,6 +20,8 @@ export type GetBreadcrumbsOptions = {
    * buyer-polished shell can insert the active review package title after **Home**.
    */
   readonly queryRunId?: string;
+  /** Persisted reviews list href (filters) for return navigation from detail pages. */
+  readonly reviewsListReturnHref?: string;
 };
 
 function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): string {
@@ -65,9 +67,9 @@ const SEGMENT_LABELS: Record<string, string> = {
   governance: "Governance",
   findings: "Findings",
   dashboard: "Dashboard",
-  audit: "Audit log",
+  audit: "Audit trail",
   manifests: "Manifests",
-  provenance: "Provenance",
+  provenance: "Evidence provenance",
   "value-report": "Value report",
   pilot: "Pilot report",
   roi: "ROI summary",
@@ -96,7 +98,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   if (normalized === "/dashboard") {
     return [
       { label: "Home", href: "/" },
-      { label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle },
+      { label: OPERATOR_NAV_LINK_LABELS.portfolioOverview },
     ];
   }
 
@@ -154,18 +156,97 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     if (isLast) {
       items.push({ label });
     } else {
-      items.push({ label, href: cumulative });
+      let href = cumulative;
+
+      if (segment === "reviews" && options?.reviewsListReturnHref !== undefined && options.reviewsListReturnHref.length > 0) {
+        href = options.reviewsListReturnHref;
+      }
+
+      items.push({ label, href });
     }
   }
 
-  return injectBuyerShowcaseReviewPackageCrumb(items, normalized, options);
+  return finalizeTrustRouteBreadcrumbs(items, normalized, options);
+}
+
+function injectReviewPackagePathCrumbs(
+  items: BreadcrumbItem[],
+  normalizedPath: string,
+  options?: GetBreadcrumbsOptions,
+): BreadcrumbItem[] {
+  const segments = normalizedPath.split("/").filter(Boolean);
+
+  if (segments[0] !== "reviews" || segments.length < 3) {
+    return items;
+  }
+
+  const runId = segments[1] ?? "";
+
+  if (runId.length === 0 || runId === "new") {
+    return items;
+  }
+
+  const packageTitle = resolveBuyerHubRunPackageTitle(runId) ?? "Review package";
+  const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
+
+  return items.map((item, index) => {
+    if (index === 0 || item.href !== reviewHref) {
+      return item;
+    }
+
+    return {
+      ...item,
+      label: packageTitle,
+      href: reviewHref,
+    };
+  });
+}
+
+function injectGovernanceLineageCrumbs(
+  items: BreadcrumbItem[],
+  normalizedPath: string,
+): BreadcrumbItem[] {
+  const segments = normalizedPath.split("/").filter(Boolean);
+
+  if (
+    segments.length !== 4 ||
+    segments[0] !== "governance" ||
+    segments[1] !== "approval-requests" ||
+    segments[3] !== "lineage"
+  ) {
+    return items;
+  }
+
+  const requestId = segments[2] ?? "";
+  const requestHref = `/governance/approval-requests/${encodeURIComponent(requestId)}`;
+  const demoTitle = DEMO_PATH_SEGMENT_TITLES[requestId];
+
+  return items.map((item) => {
+    if (item.href === requestHref && demoTitle !== undefined) {
+      return { ...item, label: demoTitle };
+    }
+
+    return item;
+  });
+}
+
+function finalizeTrustRouteBreadcrumbs(
+  items: BreadcrumbItem[],
+  normalizedPath: string,
+  options?: GetBreadcrumbsOptions,
+): BreadcrumbItem[] {
+  let next = injectBuyerShowcaseReviewPackageCrumb(items, normalizedPath, options);
+  next = injectReviewPackagePathCrumbs(next, normalizedPath, options);
+  next = injectGovernanceLineageCrumbs(next, normalizedPath);
+
+  return next;
 }
 
 /** E2E / demo fixture ids in path segments — show realistic titles instead of slug-style labels. */
 const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-run-001": "Claims Intake Modernization",
-  "e2e-fixture-left-run": "Baseline architecture run (compare)",
-  "e2e-fixture-right-run": "Target architecture run (compare)",
+  "e2e-fixture-left-run": "Baseline architecture review (compare)",
+  "e2e-fixture-right-run": "Target architecture review (compare)",
   "f0000001-0000-4000-8000-000000000001": "Sample finalized manifest",
   "f0000002-0000-4000-8000-000000000002": "Manifest (artifacts pending)",
   [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake package manifest",
@@ -318,7 +399,7 @@ function labelForSegment(
 
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
     if (prev === "reviews") {
-      return "Review detail";
+      return "Review package";
     }
 
     if (prev === "manifests") {
@@ -338,7 +419,7 @@ function labelForSegment(
 
   if (/^[0-9a-f-]{16,}$/i.test(segment) && segment.includes("-")) {
     if (prev === "reviews") {
-      return "Review detail";
+      return "Review package";
     }
   }
 

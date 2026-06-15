@@ -64,7 +64,7 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
         <DialogHeader>
           <DialogTitle id="finding-ai-reasoning-title">View AI reasoning</DialogTitle>
           <DialogDescription id="finding-ai-reasoning-desc">
-            Raw evaluation payload from the run detail finding record — confidence, evidence refs, and reasoning trace as
+            Raw evaluation payload from the review detail finding record — confidence, evidence refs, and reasoning trace as
             returned by the API (additional Staged Critic metadata appears here when persisted).
           </DialogDescription>
         </DialogHeader>
@@ -85,7 +85,7 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
 
           {snapshot === null ? (
             <p className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 m-0 p-3">
-              No finding payload was available on this run response. Open <strong>View trace</strong> for persisted
+              No finding payload was available on this review response. Open <strong>View trace</strong> for persisted
               explainability, or inspect the finding page after the pipeline persists full results.
             </p>
           ) : (

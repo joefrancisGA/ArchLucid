@@ -148,9 +148,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Sponsor-ready proof snapshot without generating a DOCX.",
     useWhen:
-      "When executives need totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
+      "After you commit a review, open sponsor proof here — totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
     firstPilotNote:
-      "Complements the in-product scorecard; Read-tier API; optional during Pilot for executive visibility.",
+      "First-use path: create review → execute analysis → commit → open sponsor proof on this page (or export from review detail).",
   },
   "value-report-roi": {
     layerBadge: "Advanced operations",

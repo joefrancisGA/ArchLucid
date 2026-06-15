@@ -100,6 +100,7 @@ NEGATIVE_CONTROL_CATEGORIES: tuple[str, ...] = (
     "missing-citation",
     "wrong-corpus",
     "roi-cost-unsupported",
+    "deferred-scope-claim",
 )
 
 

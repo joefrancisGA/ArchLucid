@@ -85,6 +85,15 @@ public sealed class RunExportBlobPushOutboxProcessor(
         activity?.SetTag("archlucid.run_id", entry.RunId.ToString("D"));
         activity?.SetTag("archlucid.outbox_id", entry.OutboxId.ToString("D"));
 
+        ScopeContext scopeContext = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
+
+        ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
+
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 
         string? sasRejection =
@@ -106,13 +115,6 @@ public sealed class RunExportBlobPushOutboxProcessor(
 
             return;
         }
-
-        ScopeContext scopeContext = new()
-        {
-            TenantId = entry.TenantId,
-            WorkspaceId = entry.WorkspaceId,
-            ProjectId = entry.ProjectId
-        };
 
         RunExportPackageResult packageResult = await packageBuilder.BuildAsync(
             scopeContext,

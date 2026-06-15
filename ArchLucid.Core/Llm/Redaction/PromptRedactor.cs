@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,6 +13,9 @@ namespace ArchLucid.Core.Llm.Redaction;
 ///     Default deny-list redactor: compiled invariant-culture regexes with bounded work via
 ///     <see cref="Regex.Replace(string, string, RegexOptions, TimeSpan)" />.
 /// </summary>
+/// <remarks>
+///     Full prompts must not be logged in production; see <see cref="LoggingPolicy.NeverLogCategories" /> (ADR 0053).
+/// </remarks>
 public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> options, ILogger<PromptRedactor> logger)
     : IPromptRedactor
 {

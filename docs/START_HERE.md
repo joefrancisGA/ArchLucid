@@ -9,7 +9,7 @@ Use this page to pick **one** door based on your role.
 
 > **V1 critical path (minimum doc set):** [`library/V1_CRITICAL_PATH_MAP.md`](library/V1_CRITICAL_PATH_MAP.md) — one-page map for buyer, operator, security reviewer, and RC signoff; excludes deferred v1.1/v2 distractions.
 
-> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`runbooks/FIRST_VALUE_20_MINUTES.md`](runbooks/FIRST_VALUE_20_MINUTES.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
+> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. **Evaluators choosing a path:** [`runbooks/FIRST_EVALUATOR_DECISION.md`](runbooks/FIRST_EVALUATOR_DECISION.md) — three choices only (demo, real pilot, sponsor handoff). **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`runbooks/FIRST_VALUE_20_MINUTES.md`](runbooks/FIRST_VALUE_20_MINUTES.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
 
 ```text
 START_HERE.md (you are here)
@@ -18,6 +18,7 @@ START_HERE.md (you are here)
 │   ├─ https://archlucid.net
 │   ├─ CORE_PILOT.md                               (**four-step narrative — read second**)
 │   ├─ runbooks/FIRST_PILOT_OPERATOR_PATH.md     (single V1 pilot path — **start here for operators**)
+│   ├─ runbooks/FIRST_EVALUATOR_DECISION.md      (**three first paths** — demo / real pilot / sponsor handoff)
 │   ├─ runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md (production-like sponsor handoff preflight)
 │   ├─ runbooks/FIRST_PILOT_TROUBLESHOOTING.md   (symptom decision tree — when stuck)
 │   ├─ go-to-market/demo-proof-packets/README.md  (static demo proof shape — before setup)

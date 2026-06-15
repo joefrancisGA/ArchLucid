@@ -1,21 +1,12 @@
 import Link from "next/link";
 
+import { ExecutiveReviewsListClient } from "@/components/executive/ExecutiveReviewsListClient";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-function runHeadline(run: RunSummary): string {
-  const d = (run.description ?? "").trim();
-
-  if (d.length > 0) {
-    return d;
-  }
-
-  return run.runId;
-}
 
 function isFinalizedReview(run: RunSummary): boolean {
   return run.hasGoldenManifest === true;
@@ -109,27 +100,7 @@ export default async function ExecutiveReviewsPage() {
       ) : null}
 
       {loadError === null && runs.length > 0 ? (
-        <ul className="m-0 list-none space-y-3 p-0">
-          {runs.map((run) => (
-            <li key={run.runId}>
-              <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
-                <CardHeader className="space-y-1 pb-2">
-                  <CardTitle className="text-sm font-semibold text-al-text-primary">
-                    {runHeadline(run)}
-                  </CardTitle>
-                  <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-                    Created {new Date(run.createdUtc).toLocaleString()} · {run.findingCount ?? "—"} findings
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Button asChild variant="primary" size="sm">
-                    <Link href={`/executive/reviews/${encodeURIComponent(run.runId)}`}>Open risk review</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </li>
-          ))}
-        </ul>
+        <ExecutiveReviewsListClient runs={runs} />
       ) : null}
     </div>
   );

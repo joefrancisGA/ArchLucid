@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from "react";
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
@@ -208,9 +209,14 @@ export function RunFindingExplainabilityTable({
                   {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "—"}
                 </div>
                 <div className="tabular-nums text-xs text-neutral-700 dark:text-neutral-300">
-                  {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
-                    ? row.evidenceRefCount
-                    : "—"}
+                  {explainGraphHref !== null ? (
+                    <FindingEvidenceLinkChip
+                      href={explainGraphHref}
+                      evidenceRefCount={row.evidenceRefCount}
+                    />
+                  ) : (
+                    "—"
+                  )}
                 </div>
                 <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">{row.traceConfidenceLabel}</div>
                 <div className="tabular-nums text-xs text-neutral-700 dark:text-neutral-300">{pct}</div>
@@ -264,11 +270,6 @@ export function RunFindingExplainabilityTable({
                         Explain
                       </Link>
                     </Button>
-                    {explainGraphHref !== null ? (
-                      <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" asChild>
-                        <Link href={explainGraphHref}>View evidence</Link>
-                      </Button>
-                    ) : null}
                   </div>
                   <CopyTraceRowWorkItemButton row={row} runId={runId} />
                   {!buyerPolishedShell ? (

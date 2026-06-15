@@ -574,6 +574,19 @@ def evaluate_quality_evidence_block(corpus_root: Path, scenario_id: str, qe: Map
         raw_path = str(os.environ.get(env_key, "") or "").strip()
 
         if raw_path == "":
+            committed_fixture = (corpus_root / "agent-results" / f"{scenario_id}.real.json").resolve()
+
+            if committed_fixture.is_file():
+                scored = score_committed_agent_result_json(committed_fixture.read_text(encoding="utf-8"))
+                scored["scenario_id"] = scenario_id
+                scored["mode"] = "real"
+                scored["agent_type"] = agent_type
+                scored["agent_result_path"] = str(committed_fixture)
+                scored["evidence_env"] = env_key
+                scored["evidence_captured"] = True
+                scored["evidence_source"] = "committed_fixture"
+                return scored
+
             return {
                 "scenario_id": scenario_id,
                 "mode": "real",
@@ -582,7 +595,8 @@ def evaluate_quality_evidence_block(corpus_root: Path, scenario_id: str, qe: Map
                 "evidence_env": env_key,
                 "reason": (
                     f"Set `{env_key}` to the filesystem path of an exported Web-serialized AgentResult JSON "
-                    f"(for example pasted from architecture-run trace export). Omit in PR CI."
+                    f"(for example pasted from architecture-run trace export). Omit in PR CI when no committed "
+                    f"`agent-results/{scenario_id}.real.json` fixture exists."
                 ),
             }
 
@@ -1001,7 +1015,29 @@ def evaluate_scenario(scenario_path: Path, corpus_root: Path) -> dict[str, Any]:
         raise ValueError(f"{scenario_path.name} must be an object")
 
     sid = str(scen.get("id") or scenario_path.stem)
+    precheck = scen.get("precheckGuard")
     rec_rel = scen.get("recording")
+
+    if isinstance(precheck, dict) and precheck and (not isinstance(rec_rel, str) or not rec_rel.strip()):
+        row: dict[str, Any] = {
+            "id": sid,
+            "path": str(scenario_path.relative_to(corpus_root)),
+            "expectedRules": 0,
+            "expectedHits": 0,
+            "recall": 1.0,
+            "unexpectedHits": [],
+            "actualFindings": 0,
+            "precheckGuard": precheck,
+            "quality": None,
+        }
+        inline_eo = scen.get("expectedOutcome")
+
+        if isinstance(inline_eo, dict):
+            row["expectedOutcome"] = inline_eo
+        else:
+            _attach_expected_outcome(row, scenario_path, sid, corpus_root)
+
+        return row
 
     if not isinstance(rec_rel, str) or not rec_rel.strip():
         raise ValueError(f"{sid}: recording path required")

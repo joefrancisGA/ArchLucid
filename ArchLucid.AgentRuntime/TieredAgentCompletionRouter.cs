@@ -5,19 +5,22 @@ namespace ArchLucid.AgentRuntime;
 /// <summary>
 ///     Resolves an <see cref="IAgentCompletionClient" /> per <see cref="LlmModelTier" /> using a deployment-scoped factory.
 /// </summary>
-public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter
+public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter, IDisposable
 {
     private readonly IAgentModelTierResolver _resolver;
     private readonly Func<LlmModelTier, IAgentCompletionClient> _clientFactory;
+    private readonly IAgentCompletionClient? _borrowedPrimaryClient;
     private readonly Dictionary<LlmModelTier, IAgentCompletionClient> _clientsByTier = new();
 
     /// <summary>Creates a router that memoizes one client per tier within the current DI scope.</summary>
     public TieredAgentCompletionRouter(
         IAgentModelTierResolver resolver,
-        Func<LlmModelTier, IAgentCompletionClient> clientFactory)
+        Func<LlmModelTier, IAgentCompletionClient> clientFactory,
+        IAgentCompletionClient? borrowedPrimaryClient = null)
     {
         _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
         _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
+        _borrowedPrimaryClient = borrowedPrimaryClient;
     }
 
     /// <inheritdoc />
@@ -44,5 +47,17 @@ public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter
         _clientsByTier[tier] = created;
 
         return created;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        foreach (IAgentCompletionClient client in _clientsByTier.Values)
+        {
+            if (_borrowedPrimaryClient is not null && ReferenceEquals(client, _borrowedPrimaryClient))
+                continue;
+
+            AgentCompletionClientLifecycle.DisposeIfDisposable(client);
+        }
     }
 }

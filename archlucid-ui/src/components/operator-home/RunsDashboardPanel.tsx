@@ -37,7 +37,9 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
 import {
+  OPERATOR_CARD,
   OPERATOR_HOME_SECTION_HEADING,
+  OPERATOR_LAYOUT,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
@@ -309,7 +311,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
   return (
     <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
       {!hideHeading ? (
-        <h3 id="runs-dashboard-heading" className={cn("mb-3", OPERATOR_HOME_SECTION_HEADING)}>
+        <h3 id="runs-dashboard-heading" className={cn(OPERATOR_LAYOUT.sectionHeadingMargin, OPERATOR_HOME_SECTION_HEADING)}>
           {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
       ) : null}
@@ -317,8 +319,8 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         data-testid="runs-dashboard-panel"
       >
-        <CardHeader className="space-y-2 px-3 pb-2 pt-3">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Review views">
+        <CardHeader className={OPERATOR_CARD.header}>
+          <div className={cn("flex flex-wrap", OPERATOR_LAYOUT.inlineGap)} role="tablist" aria-label="Review views">
             {(["recent", "attention", "outcomes"] as const).map((id) => (
               <button
                 key={id}
@@ -350,7 +352,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               : null}
             {tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
           </CardTitle>
-          <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
             {tab === "recent"
               ? buyerPolishedShell
                 ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
@@ -368,9 +370,9 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               : null}
           </p>
         </CardHeader>
-        <CardContent className={cn("space-y-3 px-3 pb-3", OPERATOR_TYPE_SCALE.body)}>
+        <CardContent className={cn(OPERATOR_CARD.content, OPERATOR_LAYOUT.sectionStack, OPERATOR_TYPE_SCALE.body)}>
           <div
-            className="flex flex-wrap items-center gap-x-2 gap-y-2"
+            className="flex flex-wrap items-center gap-x-2 gap-y-1.5"
             data-testid="runs-dashboard-filters"
             role="group"
             aria-label="Filter review packages"
@@ -460,7 +462,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
 
               {(phase === "ready" || phase === "error") && showcaseDemoRun && !buyerPolishedShell ? (
                 <div
-                  className={cn("space-y-3 px-3 py-3", OPERATOR_SURFACE_CARD_CLASS)}
+                  className={cn(OPERATOR_LAYOUT.sectionStack, OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
                   data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
@@ -533,7 +535,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError ? (
                 buyerPolishedShell ? (
                   <div
-                    className={cn("space-y-3 px-3 py-3", OPERATOR_SURFACE_CARD_CLASS)}
+                    className={cn(OPERATOR_LAYOUT.sectionStack, OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
                     data-testid="operator-home-getting-started"
                   >
                     <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Getting started</p>
@@ -556,7 +558,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (
                 <section
                   aria-label="Featured review package summary"
-                  className={cn("space-y-2 p-3", OPERATOR_SURFACE_CARD_CLASS)}
+                  className={cn("space-y-2", OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
                   data-testid="runs-dashboard-buyer-proof-summary"
                 >
                   <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Decision: Package finalized</p>
@@ -772,13 +774,13 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
           className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           data-testid="example-request-panel"
         >
-          <CardHeader className="space-y-1 px-3 pb-2 pt-3">
+          <CardHeader className={OPERATOR_CARD.header}>
             <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Example request</CardTitle>
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
               {OPERATOR_HOME_EXAMPLE_DESCRIPTION}
             </p>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2 px-3 pb-3">
+          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap", OPERATOR_LAYOUT.inlineGap)}>
             <Button asChild variant="outline" size="sm" className="h-8">
               <Link
                 href={`/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}

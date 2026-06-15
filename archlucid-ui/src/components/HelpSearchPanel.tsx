@@ -22,10 +22,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
+import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
 import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-index";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 export type HelpSearchPanelProps = {
@@ -93,6 +95,42 @@ const CURATED_START_HERE = [
   },
 ] as const;
 
+/** Former operator shell Resources menu entries — surfaced in Help instead of the top bar. */
+const CURATED_SHELL_RESOURCES = [
+  {
+    id: "security-trust",
+    label: "Security & trust",
+    description: "Trust center, compliance posture, and security documentation.",
+    action: "route" as const,
+    href: "/trust",
+    helpSlug: null,
+  },
+  {
+    id: "product-concepts",
+    label: "Concepts",
+    description: "Core product vocabulary and definitions.",
+    action: "concepts-dialog" as const,
+    href: null,
+    helpSlug: null,
+  },
+  {
+    id: "getting-started",
+    label: "Getting started",
+    description: "Orientation for your first review package and workspace setup.",
+    action: "help" as const,
+    href: "/help/getting-started",
+    helpSlug: "getting-started",
+  },
+  {
+    id: "product-feedback",
+    label: "Feedback",
+    description: "Share what worked or felt confusing in the operator experience.",
+    action: "feedback-dialog" as const,
+    href: null,
+    helpSlug: null,
+  },
+] as const;
+
 /** Map doc path fragments to a short, reader-friendly category label. */
 function friendlyCategoryLabel(docPath: string): string {
   const lower = docPath.toLowerCase();
@@ -145,6 +183,8 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const [query, setQuery] = useState("");
   const [activeValue, setActiveValue] = useState("");
   const [article, setArticle] = useState<ArticleState>({ status: "idle" });
+  const [conceptsDialogOpen, setConceptsDialogOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
   const isSearching = query.trim().length > 0;
   const isViewingArticle = article.status === "loaded" || article.status === "loading" || article.status === "error";
@@ -156,6 +196,8 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
       setQuery("");
       setActiveValue("");
       setArticle({ status: "idle" });
+      setConceptsDialogOpen(false);
+      setFeedbackDialogOpen(false);
     }
   }, [open]);
 
@@ -189,6 +231,24 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
     }
   }, []);
 
+  function openShellResource(entry: (typeof CURATED_SHELL_RESOURCES)[number]): void {
+    if (entry.action === "concepts-dialog") {
+      setConceptsDialogOpen(true);
+      return;
+    }
+
+    if (entry.action === "feedback-dialog") {
+      setFeedbackDialogOpen(true);
+      return;
+    }
+
+    if (entry.href === null) {
+      return;
+    }
+
+    openEntry(entry.href, entry.helpSlug);
+  }
+
   function openEntry(href: string, helpSlug: string | null): void {
     if (helpSlug !== null) {
       void loadArticle(helpSlug);
@@ -217,7 +277,8 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   const loadingSlug = article.status === "loading" ? article.slug : article.status === "error" ? article.slug : null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         data-testid="help-search-panel"
         className={cn(
@@ -280,6 +341,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     markdownBody={article.article.markdown}
                     tableCaption={`${article.article.title} reference table`}
                     presentation="help"
+                    sourceDocPath={getProductDocumentationEntry(article.article.slug)?.sourcePaths[0]}
                   />
                 </article>
               )}
@@ -348,22 +410,40 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     </CommandGroup>
                   </>
                 ) : (
-                  <CommandGroup heading="Start here" className="px-1">
-                    {CURATED_START_HERE.map((entry) => (
-                      <CommandItem
-                        key={entry.id}
-                        value={entry.id}
-                        className="flex cursor-pointer flex-col items-start gap-0.5 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-neutral-400 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
-                        onPointerDown={() => setActiveValue(entry.id)}
-                        onPointerEnter={() => setActiveValue(entry.id)}
-                        onSelect={() => openEntry(entry.href, entry.helpSlug)}
-                      >
-                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{entry.category}</span>
-                        <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{entry.label}</span>
-                        <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-300">{entry.description}</span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                  <>
+                    <CommandGroup heading="Start here" className="px-1">
+                      {CURATED_START_HERE.map((entry) => (
+                        <CommandItem
+                          key={entry.id}
+                          value={entry.id}
+                          className="flex cursor-pointer flex-col items-start gap-0.5 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-neutral-400 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
+                          onPointerDown={() => setActiveValue(entry.id)}
+                          onPointerEnter={() => setActiveValue(entry.id)}
+                          onSelect={() => openEntry(entry.href, entry.helpSlug)}
+                        >
+                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{entry.category}</span>
+                          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{entry.label}</span>
+                          <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-300">{entry.description}</span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                    <CommandGroup heading="Resources" className="px-1" data-testid="help-shell-resources-group">
+                      {CURATED_SHELL_RESOURCES.map((entry) => (
+                        <CommandItem
+                          key={entry.id}
+                          value={entry.id}
+                          className="flex cursor-pointer flex-col items-start gap-0.5 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-neutral-400 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
+                          onPointerDown={() => setActiveValue(entry.id)}
+                          onPointerEnter={() => setActiveValue(entry.id)}
+                          onSelect={() => openShellResource(entry)}
+                        >
+                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Resources</span>
+                          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{entry.label}</span>
+                          <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-300">{entry.description}</span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </>
                 )}
               </CommandList>
             </Command>
@@ -401,6 +481,17 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
           </>
         )}
       </DialogContent>
-    </Dialog>
+      </Dialog>
+      <ProductConceptsGlossaryDialog
+        open={conceptsDialogOpen}
+        onOpenChange={setConceptsDialogOpen}
+        showTrigger={false}
+      />
+      <UsabilityFeedbackWidget
+        open={feedbackDialogOpen}
+        onOpenChange={setFeedbackDialogOpen}
+        showTrigger={false}
+      />
+    </>
   );
 }

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Controllers.Operator;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Operator;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -50,7 +51,7 @@ public sealed class OperatorSavedViewsControllerTests
     }
 
     [SkippableFact]
-    public async Task CreateSavedView_ReturnsCreated()
+    public async Task CreateSavedView_ReturnsCreated_and_emits_audit()
     {
         CreateOperatorSavedViewRequest request = new()
         {
@@ -85,15 +86,26 @@ public sealed class OperatorSavedViewsControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
-        OperatorSavedViewsController sut = CreateController(repository.Object);
+        Mock<IAuditService> audit = new();
+        OperatorSavedViewsController sut = CreateController(repository.Object, audit);
 
         IActionResult result = await sut.CreateSavedView(request, CancellationToken.None);
 
         result.Should().BeOfType<CreatedAtActionResult>();
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(evt =>
+                    evt.EventType == AuditEventTypes.OperatorSavedViewCreated
+                    && evt.ActorUserId == "jwt:user-1"
+                    && evt.TenantId == TenantId
+                    && evt.DataJson.Contains(created.Id.ToString("D"), StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [SkippableFact]
-    public async Task DeleteSavedView_ReturnsNoContentWhenDeleted()
+    public async Task DeleteSavedView_ReturnsNoContentWhenDeleted_and_emits_audit()
     {
         Guid viewId = Guid.NewGuid();
         Mock<IOperatorSavedViewRepository> repository = new();
@@ -101,14 +113,26 @@ public sealed class OperatorSavedViewsControllerTests
             .Setup(repo => repo.DeleteAsync(TenantId, "jwt:user-1", viewId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        OperatorSavedViewsController sut = CreateController(repository.Object);
+        Mock<IAuditService> audit = new();
+        OperatorSavedViewsController sut = CreateController(repository.Object, audit);
 
         IActionResult result = await sut.DeleteSavedView(viewId, CancellationToken.None);
 
         result.Should().BeOfType<NoContentResult>();
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(evt =>
+                    evt.EventType == AuditEventTypes.OperatorSavedViewDeleted
+                    && evt.ActorUserId == "jwt:user-1"
+                    && evt.DataJson.Contains(viewId.ToString("D"), StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
-    private static OperatorSavedViewsController CreateController(IOperatorSavedViewRepository repository)
+    private static OperatorSavedViewsController CreateController(
+        IOperatorSavedViewRepository repository,
+        Mock<IAuditService>? auditMock = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider
@@ -117,7 +141,14 @@ public sealed class OperatorSavedViewsControllerTests
 
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(context => context.GetActorId()).Returns("jwt:user-1");
+        actorContext.Setup(context => context.GetActor()).Returns("operator@example.com");
 
-        return new OperatorSavedViewsController(scopeProvider.Object, actorContext.Object, repository);
+        Mock<IAuditService> audit = auditMock ?? new Mock<IAuditService>();
+
+        return new OperatorSavedViewsController(
+            scopeProvider.Object,
+            actorContext.Object,
+            audit.Object,
+            repository);
     }
 }

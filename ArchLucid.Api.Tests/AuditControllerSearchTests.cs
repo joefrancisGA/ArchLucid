@@ -55,8 +55,22 @@ public sealed class AuditControllerSearchTests
     }
 
     [SkippableFact]
-    public async Task SearchAudit_WithBeforeUtc_PassesFilterToRepo()
+    public async Task SearchAudit_WithBeforeUtc_without_BeforeEventId_Returns400()
     {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response =
+            await client.GetAsync("/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithBeforeUtcAndBeforeEventId_PassesFilterToRepo()
+    {
+        Guid beforeEventId = Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+
         await using AuditControllerSearchApiFactory factory = new();
         HttpClient client = factory.CreateClient();
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
@@ -69,7 +83,8 @@ public sealed class AuditControllerSearchTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z");
+        HttpResponseMessage response = await client.GetAsync(
+            $"/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z&beforeEventId={beforeEventId:D}");
 
         await response.EnsureSuccessForTestAsync();
         repo.Verify(
@@ -82,7 +97,8 @@ public sealed class AuditControllerSearchTests
                     && f.BeforeUtc.Value.Kind == DateTimeKind.Utc
                     && f.BeforeUtc.Value.Year == 2026
                     && f.BeforeUtc.Value.Month == 1
-                    && f.BeforeUtc.Value.Day == 1),
+                    && f.BeforeUtc.Value.Day == 1
+                    && f.BeforeEventId == beforeEventId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

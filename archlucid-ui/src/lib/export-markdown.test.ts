@@ -44,6 +44,7 @@ describe("formatTrustEvidenceCardMarkdown", () => {
     const md = formatTrustEvidenceCardMarkdown(card);
 
     expect(md).toContain("## Evidence basis (operational)");
+    expect(md).toContain("**Proof confidence:** Simulator-only");
     expect(md).toContain("Not a SOC 2 report.");
     expect(md).toContain("### Evidence routes");
     expect(md).toContain("/v1/architecture/run/r1/traces");

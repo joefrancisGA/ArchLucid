@@ -6,7 +6,7 @@ Use this table to translate ArchLucid capabilities into buyer language. **Econom
 
 | Technical Feature | Business Outcome | Economic Impact |
 |-------------------|------------------|-----------------|
-| Row-Level Security (RLS) | Prevents cross-tenant data leakage at the database boundary | Reduces breach and privacy-incident exposure; lowers cost of forensic cleanup and regulator response |
+| Database-per-tenant catalog isolation | Prevents cross-tenant data leakage at the database boundary via dedicated SQL catalogs per tenant organization | Reduces breach and privacy-incident exposure; lowers cost of forensic cleanup and regulator response |
 | Append-only audit log (typed events, DENY mutate) | Gives a tamper-evident record of who did what and when for reviews and operations | Accelerates compliance and internal investigations; avoids “no durable record” remediation |
 | Pre-commit governance gate | Stops golden manifests from landing when severity or policy thresholds fail | Avoids shipping non-compliant architecture decisions into production; cuts emergency rework |
 | Golden manifest (versioned, immutable) | Locks the authoritative reviewed architecture snapshot tied to findings and traces | Single source of truth for sign-off and handoffs; shortens stakeholder alignment cycles |

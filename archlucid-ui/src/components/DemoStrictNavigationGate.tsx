@@ -1,67 +1,50 @@
 "use client";
 
-import { useLayoutEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useMemo, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
+import { CtoDemoBlockedRoutePanel } from "@/components/cto-demo/CtoDemoBlockedRoutePanel";
+import {
+  findBlockedRouteEntry,
+  resolveDemoBlockedRoutePanel,
+} from "@/lib/cto-demo-blocked-route-registry";
 import {
   isCompareRouteBlockedUnderDemoStrictShell,
   isDemoStrictNavigationRedirectsActive,
   isDemoStrictNavigationRedirectsBypassedForE2E,
 } from "@/lib/demo-ui-env";
 
-/**
- * Demo-only guard: redirects blocked operator prefixes (see buyer demo allowlist discussion) back to Home while keeping
- * sponsor-safe routes reachable without server middleware.
- *
- * `/onboarding` (and legacy `/onboard`) are not blocked: post-registration trial handoff and mock E2E depend on them even
- * when demo static-operator / demo mode enables this gate.
- */
-const DEMO_NAVIGATION_BLOCKED_PREFIXES: readonly string[] = [
-  "/admin",
-  "/search",
-  "/replay",
-  "/planning",
-  "/digests",
-  "/integrations",
-  "/advisory",
-  "/settings",
-  "/product-learning",
-  "/recommendation-learning",
-  "/evolution-review",
-  "/demo/explain",
-];
+export type DemoStrictNavigationGateProps = {
+  readonly children: ReactNode;
+};
 
-export function DemoStrictNavigationGate() {
-  const pathname = usePathname();
-  const router = useRouter();
+export function DemoStrictNavigationGate(props: DemoStrictNavigationGateProps): React.JSX.Element {
+  const { children } = props;
+  const pathname = usePathname() ?? "/";
 
-  useLayoutEffect(() => {
+  const blockedEntry = useMemo(() => {
     if (isDemoStrictNavigationRedirectsBypassedForE2E()) {
-      return;
+      return null;
     }
 
     if (pathname.startsWith("/auth/")) {
-      return;
-    }
-
-    if (isCompareRouteBlockedUnderDemoStrictShell() && (pathname === "/compare" || pathname.startsWith("/compare/"))) {
-      router.replace("/");
-
-      return;
+      return null;
     }
 
     if (!isDemoStrictNavigationRedirectsActive()) {
-      return;
+      return null;
     }
 
-    for (const prefix of DEMO_NAVIGATION_BLOCKED_PREFIXES) {
-      if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
-        router.replace("/");
-
-        return;
-      }
+    if (isCompareRouteBlockedUnderDemoStrictShell() && (pathname === "/compare" || pathname.startsWith("/compare/"))) {
+      return resolveDemoBlockedRoutePanel("/compare");
     }
-  }, [pathname, router]);
 
-  return null;
+    return findBlockedRouteEntry(pathname);
+  }, [pathname]);
+
+  if (blockedEntry !== null) {
+    return <CtoDemoBlockedRoutePanel entry={blockedEntry} />;
+  }
+
+  return <>{children}</>;
 }

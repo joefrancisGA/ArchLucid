@@ -205,6 +205,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Detect buyer-surface path changes (strict claim guard trigger)
+        id: buyer-surface-detect
+        run: |
+          python scripts/ci/detect_buyer_surface_changes.py \
+            --base-ref "origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}" \
+            --json-out artifacts/ci/buyer-surface-change-detection.json \
+            --write-github-output
+
       - name: Terraform root ordering sync
         continue-on-error: true
         run: python scripts/ci/assert_terraform_root_ordering_sync.py
@@ -484,6 +492,10 @@ jobs:
       - name: Correctness batch unit tests (TB-196 / batch 5R)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5r.py"
+
+      - name: Correctness guardrails batch unit tests (TB-320–328)
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_guardrails_batch_328.py"
 
       - name: Cutting-Edge batch 5V drift guards (TB-192)
         continue-on-error: true
@@ -802,6 +814,39 @@ jobs:
       - name: Buyer-facing canonical claim drift guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
+
+      - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
+        if: steps.buyer-surface-detect.outputs.changed == 'true'
+        run: |
+          python scripts/ci/run_buyer_surface_strict_guards.py \
+            --base-ref "origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}" \
+            --strict
+
+      - name: Real-mode evidence freshness (advisory on ordinary PRs)
+        continue-on-error: true
+        run: |
+          python scripts/ci/report_real_mode_evidence_freshness.py \
+            --allow-simulator-only \
+            --json-out artifacts/ci/real-mode-evidence-freshness.json \
+            --markdown-out artifacts/ci/real-mode-evidence-freshness.md
+
+      - name: Real-mode evidence freshness (strict when buyer paths changed)
+        if: steps.buyer-surface-detect.outputs.changed == 'true'
+        run: |
+          python scripts/ci/report_real_mode_evidence_freshness.py \
+            --strict \
+            --json-out artifacts/ci/real-mode-evidence-freshness.strict.json \
+            --markdown-out artifacts/ci/real-mode-evidence-freshness.strict.md
+
+      - name: TECH_BACKLOG next recommended batch hygiene
+        run: python scripts/ci/check_tech_backlog_next_batch.py
+
+      - name: Buyer-surface / backlog guard unit tests
+        continue-on-error: true
+        run: |
+          python -m unittest discover -s scripts/ci/tests -p "test_detect_buyer_surface_changes.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_check_tech_backlog_next_batch.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_report_real_mode_evidence_freshness.py"
 
       - name: Buyer-polished demo env coherence (TB-273 / BDA-024)
         continue-on-error: true
@@ -1365,6 +1410,9 @@ jobs:
       - name: Prompt-injection datasets (shape + executable regression)
         run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict --enforce-prompt-injection-block-layer
 
+      - name: TB-325 prompt-injection guard (corpus + typed rejection)
+        run: python3 scripts/ci/assert_prompt_injection_guard.py
+
   ci-agent-offline-regression:
     name: "CI: agent offline regression (eval corpus + prompt JSON baseline)"
     needs:
@@ -1383,7 +1431,7 @@ jobs:
         run: |
           set -euo pipefail
           REP="${{ runner.temp }}/eval-corpus-report.md"
-          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP" --baseline
+          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP" --baseline --enforce-quality-gate
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Deterministic agent faithfulness (Phase A enforce)
@@ -2169,6 +2217,15 @@ jobs:
           name: core-libs-shard-manifest-${{ matrix.shard }}
           path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/core-libs-shard-*.json
           if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-blame-core-libs-shard-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/Sequence_*.xml
+            ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/*.dmp
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v6
         with:
@@ -3452,6 +3509,7 @@ jobs:
           curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test \
             live-api-apikey-auth.spec.ts \
+            live-api-auth-parity-spine.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
 
@@ -3618,6 +3676,7 @@ jobs:
           curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test \
             live-api-jwt-auth.spec.ts \
+            live-api-auth-parity-spine.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
 
@@ -4110,3 +4169,25 @@ jobs:
                   f.write("\n".join(lines) + "\n")
           print("Overall:", overall)
           PY
+
+      - name: Emit CI release-signal health (advisory)
+        if: always()
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          mkdir -p artifacts/ci
+          printf '%s' "$NEEDS_JSON" > artifacts/ci/workflow-needs.json
+          python scripts/ci/report_ci_release_signal_health.py \
+            --needs-json artifacts/ci/workflow-needs.json \
+            --json-out artifacts/ci/release-signal-health.json \
+            --markdown-out artifacts/ci/release-signal-health.md
+
+      - name: Upload CI release-signal health
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci-release-signal-health
+          path: |
+            artifacts/ci/release-signal-health.json
+            artifacts/ci/release-signal-health.md
+          if-no-files-found: warn

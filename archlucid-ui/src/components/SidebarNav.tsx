@@ -21,21 +21,12 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
-import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { NAV_GROUPS, flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { NAV_DISCLOSURE, SIDEBAR_QUICK_ACTIONS_LABEL, SIDEBAR_SHOW_ALL_FEATURES, V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
-import {
-  OPERATOR_SHELL_PRESET_DEFAULT_ID,
-  OPERATOR_SHELL_PRESET_ORDER,
-  OPERATOR_SHELL_PRESET_STORAGE_KEY,
-  isOperatorShellPresetId,
-  operatorShellPresetAllowsHref,
-  type OperatorShellPresetId,
-} from "@/lib/operator-nav-preset";
 import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksRevealedByShowAllFeatures,
@@ -46,13 +37,27 @@ import {
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { buyerGoldenPathSecondaryRouteHint } from "@/lib/buyer-golden-path-secondary-hint";
+import {
+  ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
+  readBuyerCtoDemoTourActive,
+} from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
+  isOperatorDemoStaticMode,
+  readOperatorDemoPanicOffline,
+} from "@/lib/operator-static-demo";
+import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
 import { resolveNavLinkPresentation, resolveQuickActionNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { OperateGovernanceUnlockPrompt } from "@/components/usability/OperateGovernanceUnlockPrompt";
+import {
+  filterNavLinksByOperateUnlockPhase,
+  readOperateNavUnlockPhase,
+} from "@/lib/usability/operate-nav-progressive-unlock";
+import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
@@ -89,18 +94,6 @@ function presentQuickActionLink(link: NavLinkItem): NavLinkItem {
     title: resolved.title,
   };
 }
-
-const OPERATOR_SHELL_PRESET_LABELS: Record<OperatorShellPresetId, string> = {
-
-  full: "Full navigator",
-
-  pilot_operator: "Pilot operator",
-
-  governance_reviewer: "Governance reviewer",
-
-  analytics_investigator: "Analytics investigator",
-
-};
 
 /** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config` (may be empty). */
 const GOVERNANCE_PINNED_HREFS = new Set<string>([]);
@@ -196,21 +189,22 @@ export function SidebarNav() {
   /** When true, pathname-first-run nav suppression no longer hides extended/advanced links the user asked to reveal. */
   const [navDisclosurePathOverride, setNavDisclosurePathOverride] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
-  const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
-  /**
-   * The preset that was active before "Show all features" upgraded it to "full".
-   * Restored when the user clicks "Fewer sidebar links" so collapsing actually removes links.
-   */
-  const [preExpandPresetId, setPreExpandPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
-  const demoUi = isStaticDemoPayloadFallbackEnabled();
+  const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
+  const ctoDemoNavExpandedEnv =
+    process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "true" ||
+    process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "1";
+  const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
+  const [runtimeCtoDemoTourActive, setRuntimeCtoDemoTourActive] = useState(false);
+  const demoUi = runtimeDemoUi;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showProgressiveDisclosureChrome = !demoUi && !buyerPolishedShell;
+  const showSidebarCustomizationChrome = showProgressiveDisclosureChrome && V1_SIDEBAR_CUSTOMIZATION_VISIBLE;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = navDisclosurePathOverride
     ? { showExtended, showAdvanced }
     : effectiveNavDisclosureForPathname(pathname, showExtended, showAdvanced);
-  const navExpanded = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
-  const navAdvanced = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
-  const effectiveShellPresetId: OperatorShellPresetId = buyerPolishedShell || demoUi ? "full" : shellPresetId;
+  const ctoDemoNavExpanded = buyerPolishedShell && (ctoDemoNavExpandedEnv || runtimeCtoDemoTourActive);
+  const navExpanded = ctoDemoNavExpanded ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const navAdvanced = ctoDemoNavExpanded ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
 
   const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded;
   const extraLinksBehindCollapsedPilot = applyCollapsedSidebarPilotFilter
@@ -220,29 +214,36 @@ export function SidebarNav() {
         navAdvanced,
         callerAuthorityRank,
         hasCommittedArchitectureReview,
-        effectiveShellPresetId,
       )
     : 0;
 
   useLayoutEffect(() => {
     try {
-      const rawPreset = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
-
-      if (rawPreset !== null && isOperatorShellPresetId(rawPreset)) {
-
-
-        setShellPresetId(rawPreset);
-      }
-
-
       setNavAllFeaturesExpanded(window.localStorage.getItem(SIDEBAR_NAV_EXPAND_ALL_KEY) === "true");
-
 
       setAdminSectionOpen(window.localStorage.getItem(SIDEBAR_ADMIN_SECTION_OPEN_KEY) === "1");
     } catch {
       /* private mode — keep collapsed default */
     }
   }, []);
+
+  useEffect(() => {
+    function refreshRuntimeDemoState(): void {
+      setRuntimeDemoUi(demoUiEnv || readOperatorDemoPanicOffline());
+      setRuntimeCtoDemoTourActive(readBuyerCtoDemoTourActive());
+    }
+
+    refreshRuntimeDemoState();
+    window.addEventListener(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, refreshRuntimeDemoState);
+    window.addEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, refreshRuntimeDemoState);
+    window.addEventListener("storage", refreshRuntimeDemoState);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, refreshRuntimeDemoState);
+      window.removeEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, refreshRuntimeDemoState);
+      window.removeEventListener("storage", refreshRuntimeDemoState);
+    };
+  }, [demoUiEnv]);
 
   useEffect(() => {
     if (demoUi) {
@@ -273,56 +274,6 @@ export function SidebarNav() {
     setOpenByGroup(next);
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (demoUi || buyerPolishedShell) {
-      return;
-    }
-
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        if (typeof window === "undefined") {
-          return;
-        }
-
-        const raw = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
-
-        if (raw !== null && isOperatorShellPresetId(raw)) {
-          return;
-        }
-
-        const ctx = await fetchCorePilotCommitContext();
-
-        if (cancelled) {
-          return;
-        }
-
-        const rawAfter = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
-
-        if (rawAfter !== null && isOperatorShellPresetId(rawAfter)) {
-          return;
-        }
-
-        if (!ctx.hasCommittedManifest) {
-          setShellPresetId("pilot_operator");
-
-          try {
-            window.localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, "pilot_operator");
-          } catch {
-            /* private mode */
-          }
-        }
-      } catch {
-        /* ignore: preset stays full until the user chooses Navigation settings */
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [buyerPolishedShell, demoUi]);
 
   useEffect(() => {
     setNavDisclosurePathOverride(false);
@@ -375,12 +326,6 @@ export function SidebarNav() {
     if (applyCollapsedSidebarPilotFilter && groupSurface === "review-workflow") {
       setNavAllFeaturesExpanded(true);
 
-      setPreExpandPresetId(shellPresetId);
-
-      if (effectiveShellPresetId !== "full") {
-        persistShellPreset("full");
-      }
-
       try {
         window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, "true");
       } catch {
@@ -396,21 +341,6 @@ export function SidebarNav() {
 
     if (!showAdvanced) {
       setShowAdvanced(true);
-
-      if (!operatorShellPresetAllowsHref(effectiveShellPresetId, "/governance")) {
-        persistShellPreset("full");
-      }
-    }
-  }
-
-  function persistShellPreset(next: OperatorShellPresetId): void {
-    setShellPresetId(next);
-
-
-    try {
-      window.localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, next);
-    } catch {
-      /* private mode */
     }
   }
 
@@ -424,27 +354,7 @@ export function SidebarNav() {
     }
   }
 
-  function filterClustersByPreset(clusters: NavGroupWithVisibleLinks[]): NavGroupWithVisibleLinks[] {
-    if (demoUi || effectiveShellPresetId === "full") {
-
-
-      return clusters;
-    }
-
-    return clusters
-      .map((row) => ({
-        ...row,
-        visibleLinks: row.visibleLinks.filter((l) => operatorShellPresetAllowsHref(effectiveShellPresetId, l.href)),
-      }))
-      .filter((row) => row.visibleLinks.length > 0);
-  }
-
-  const omitAdminClusters =
-    demoUi ||
-    buyerPolishedShell ||
-    shellPresetId === "pilot_operator" ||
-    shellPresetId === "analytics_investigator";
-
+  const omitAdminClusters = demoUi || buyerPolishedShell;
 
   const quickActionLinks = useMemo(() => {
     if (buyerPolishedShell) {
@@ -470,18 +380,12 @@ export function SidebarNav() {
       filtered = filtered.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true));
     }
 
-    if (!demoUi && mounted) {
-      filtered = filtered.filter((l) => operatorShellPresetAllowsHref(effectiveShellPresetId, l.href));
-    }
-
     return filtered;
   }, [
     buyerPolishedShell,
     callerAuthorityRank,
     demoUi,
-    effectiveShellPresetId,
     hasCommittedArchitectureReview,
-    mounted,
     navAdvanced,
     navExpanded,
   ]);
@@ -509,17 +413,88 @@ export function SidebarNav() {
       );
 
 
-  const reviewNavRows = filterClustersByPreset(reviewNavRowsRaw);
+  const reviewNavRows = reviewNavRowsRaw;
 
+  const adminNavRows = adminNavRowsRaw;
+  const operateUnlockPhase = mounted ? readOperateNavUnlockPhase() : 2;
+  // Full progressive disclosure ("Show all features") opts into governance cluster links without a separate unlock click.
+  const effectiveOperateUnlockPhase = navExpanded && navAdvanced ? 2 : operateUnlockPhase;
 
-  const adminNavRows = filterClustersByPreset(adminNavRowsRaw);
+  function renderNavLinkLabel(presented: NavLinkItem): ReactElement {
+    const subtitle = navLinkQuestionSubtitle(presented.href);
+
+    if (subtitle === null) {
+      return <>{presented.label}</>;
+    }
+
+    return (
+      <span className="flex min-w-0 flex-col">
+        <span>{presented.label}</span>
+        <span
+          aria-hidden="true"
+          className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400"
+        >
+          {subtitle}
+        </span>
+      </span>
+    );
+  }
+
+  function renderCollapsibleNavLink(
+    presented: NavLinkItem,
+    options: {
+      active: boolean;
+      advancedDemo: boolean;
+      buyerPolishedShell: boolean;
+      afterLabel?: ReactElement | null;
+      keyPrefix?: string;
+    },
+  ): ReactElement {
+    const Icon = presented.icon;
+    const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
+
+    return (
+      <Link
+        key={`${options.keyPrefix ?? ""}${presented.href}`}
+        href={presented.href}
+        {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
+        className={cn(
+          "shell-nav-link flex min-w-0 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+          options.active
+            ? DESIGN_TOKENS.interactive.navActive
+            : "text-neutral-900 dark:text-neutral-100",
+          options.buyerPolishedShell && presented.href === "/reviews/new"
+            ? "font-normal text-neutral-600 dark:text-neutral-300"
+            : null,
+        )}
+        title={
+          options.advancedDemo
+            ? `${presented.title} (Advanced — optional)`
+            : presented.title
+        }
+        aria-current={options.active ? "page" : undefined}
+        aria-keyshortcuts={
+          presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
+        }
+      >
+        {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+        {renderNavLinkLabel(presented)}
+        {options.afterLabel}
+      </Link>
+    );
+  }
+
   function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
         const linksAfterDemoFilter =
           demoUi || buyerPolishedShell
             ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true))
             : visibleLinks;
 
-        const linksForRender = linksAfterDemoFilter;
+        const linksForRender = filterNavLinksByOperateUnlockPhase(
+          linksAfterDemoFilter,
+          hasCommittedArchitectureReview,
+          effectiveOperateUnlockPhase,
+        );
 
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
@@ -546,6 +521,7 @@ export function SidebarNav() {
               aria-controls={`sidebar-group-${group.id}-content`}
               aria-labelledby={`sidebar-group-trigger-title-${group.id}`}
               aria-describedby={group.id === "operate-governance" ? "sidebar-governance-nav-hint-slot" : undefined}
+              {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
             >
               <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
                 <span id={`sidebar-group-trigger-title-${group.id}`}>
@@ -572,34 +548,14 @@ export function SidebarNav() {
                   .map((link) => {
                     const presented = presentNavLink(link, buyerPolishedShell);
                     const active = isNavLinkActive(pathname, presented.href);
-                    const Icon = presented.icon;
                     const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
 
-                    return (
-                      <Link
-                        key={`pinned-${presented.href}`}
-                        href={presented.href}
-                        data-onboarding={onboardingTourAnchorForHref(presented.href)}
-                        className={cn(
-                          "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                          active
-                            ? DESIGN_TOKENS.interactive.navActive
-                            : "text-neutral-900 dark:text-neutral-100",
-                        )}
-                        title={
-                          advancedDemo
-                            ? `${presented.title} (Advanced — optional)`
-                            : presented.title
-                        }
-                        aria-current={active ? "page" : undefined}
-                        aria-keyshortcuts={
-                          presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
-                        }
-                      >
-                        {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                        {presented.label}
-                      </Link>
-                    );
+                    return renderCollapsibleNavLink(presented, {
+                      active,
+                      advancedDemo,
+                      buyerPolishedShell,
+                      keyPrefix: "pinned-",
+                    });
                   })}
               </nav>
             ) : null}
@@ -616,38 +572,15 @@ export function SidebarNav() {
                   .map((link) => {
                   const presented = presentNavLink(link, buyerPolishedShell);
                   const active = isNavLinkActive(pathname, presented.href);
-                  const Icon = presented.icon;
                   const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
 
-                  return (
-                    <Link
-                      key={presented.href}
-                      href={presented.href}
-                      data-onboarding={onboardingTourAnchorForHref(presented.href)}
-                      className={cn(
-                        "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                        active
-                          ? DESIGN_TOKENS.interactive.navActive
-                          : "text-neutral-900 dark:text-neutral-100",
-                        buyerPolishedShell && presented.href === "/reviews/new"
-                          ? "font-normal text-neutral-600 dark:text-neutral-300"
-                          : null,
-                      )}
-                      title={
-                        advancedDemo
-                          ? `${presented.title} (Advanced — optional)`
-                          : presented.title
-                      }
-                      aria-current={active ? "page" : undefined}
-                      aria-keyshortcuts={
-                        presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
-                      }
-                    >
-                      {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                      {presented.label}
-                      {presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null}
-                    </Link>
-                  );
+                  return renderCollapsibleNavLink(presented, {
+                    active,
+                    advancedDemo,
+                    buyerPolishedShell,
+                    afterLabel:
+                      presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null,
+                  });
                 })}
               </nav>
             </CollapsibleContent>
@@ -682,6 +615,7 @@ export function SidebarNav() {
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
+      <OperateGovernanceUnlockPrompt />
       <SidebarRecentActivityCard />
 
       {mounted && (buyerPolishedShell || quickActionLinks.length > 0) ? (
@@ -691,7 +625,7 @@ export function SidebarNav() {
           aria-label={buyerPolishedShell ? "Review journey" : "Quick actions"}
         >
           <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-            {buyerPolishedShell ? "Review journey" : "Quick actions"}
+            {buyerPolishedShell ? "Review journey" : SIDEBAR_QUICK_ACTIONS_LABEL}
           </p>
           <nav
             className="flex flex-col gap-0.5 border-l-2 border-neutral-200 py-1 pl-2 dark:border-neutral-800"
@@ -733,12 +667,13 @@ export function SidebarNav() {
                   const active = isNavLinkActive(pathname, presented.href);
                   const Icon = presented.icon;
                   const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
+                  const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
 
                   return (
                     <Link
                       key={`quick-${presented.href}`}
                       href={presented.href}
-                      data-onboarding={onboardingTourAnchorForHref(presented.href)}
+                      {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
@@ -793,7 +728,7 @@ export function SidebarNav() {
         </nav>
       ) : reviewNavRows.map((row) => renderNavCluster(row))}
 
-      {showProgressiveDisclosureChrome ? (
+      {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
           <button
             type="button"
@@ -802,36 +737,25 @@ export function SidebarNav() {
             aria-expanded={navAllFeaturesExpanded}
             aria-label={
               navAllFeaturesExpanded
-                ? "Fewer sidebar links"
+                ? SIDEBAR_SHOW_ALL_FEATURES.hide
                 : extraLinksBehindCollapsedPilot > 0
-                  ? `Show all features, ${extraLinksBehindCollapsedPilot} more links hidden`
-                  : "Show all features"
+                  ? `${SIDEBAR_SHOW_ALL_FEATURES.show}, ${extraLinksBehindCollapsedPilot} more links hidden`
+                  : SIDEBAR_SHOW_ALL_FEATURES.show
             }
-            title="Unlock advanced analysis and governance tools."
+            title={SIDEBAR_SHOW_ALL_FEATURES.title}
             onClick={() => {
               const next = !navAllFeaturesExpanded;
               setNavAllFeaturesExpanded(next);
 
               if (next) {
-                // Expanding: one-click full sidebar — tiers, preset, and first-run path suppression.
+                // Expanding: one-click full sidebar — tiers and first-run path suppression.
                 setNavDisclosurePathOverride(true);
-                setPreExpandPresetId(shellPresetId);
                 setShowExtended(true);
                 setShowAdvanced(true);
-
-                if (effectiveShellPresetId !== "full") {
-                  persistShellPreset("full");
-                }
               } else {
-                // Collapsing: restore the preset that was active before expansion so
-                // "Fewer sidebar links" actually removes links rather than doing nothing.
                 setNavDisclosurePathOverride(false);
                 setShowExtended(false);
                 setShowAdvanced(false);
-
-                if (shellPresetId === "full") {
-                  persistShellPreset(preExpandPresetId);
-                }
               }
 
               try {
@@ -842,10 +766,10 @@ export function SidebarNav() {
             }}
           >
             {navAllFeaturesExpanded ? (
-              "Fewer sidebar links"
+              SIDEBAR_SHOW_ALL_FEATURES.hide
             ) : (
               <>
-                Show all features
+                {SIDEBAR_SHOW_ALL_FEATURES.show}
                 {extraLinksBehindCollapsedPilot > 0 ? (
                   <>
                     {" "}
@@ -899,7 +823,7 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showProgressiveDisclosureChrome ? (
+      {showSidebarCustomizationChrome ? (
       <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button
           type="button"
@@ -916,20 +840,6 @@ export function SidebarNav() {
           <Settings2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
           Sidebar layout
         </Button>
-        {mounted && shellPresetId !== "full" && !buyerPolishedShell && !navAllFeaturesExpanded ? (
-          <p
-            className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200"
-            data-testid="sidebar-nav-preset-hint"
-          >
-            Navigation preset ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}) hides some links.{" "}
-            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Show all features</strong> switches to
-            Full navigator; or open{" "}
-            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Sidebar layout</strong>
-            {" → "}
-            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Preset</strong> to choose a different
-            preset.
-          </p>
-        ) : null}
 
         {!navAllFeaturesExpanded ? (
         <Button
@@ -945,16 +855,7 @@ export function SidebarNav() {
               : `${NAV_DISCLOSURE.advancedOperationsSidebar.show}. ${NAV_DISCLOSURE.advancedOperationsSidebar.assistiveCollapsed}`
           }
           onClick={() => {
-            const next = !showAdvanced;
-            setShowAdvanced(next);
-
-            // When revealing governance links, ensure the current preset doesn't block them.
-            // The pilot_operator preset only allows /reviews, /graph, /dashboard, etc. —
-            // not /governance, /audit, or /alerts — so governance links would be silently
-            // filtered out even with showAdvanced = true unless the preset allows them.
-            if (next && !operatorShellPresetAllowsHref(effectiveShellPresetId, "/governance")) {
-              persistShellPreset("full");
-            }
+            setShowAdvanced(!showAdvanced);
           }}
         >
           {shellShowAdvanced
@@ -965,7 +866,7 @@ export function SidebarNav() {
       </div>
       ) : null}
 
-      {showProgressiveDisclosureChrome ? (
+      {showSidebarCustomizationChrome ? (
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="max-w-md" data-testid="sidebar-layout-settings-dialog">
           <DialogHeader>
@@ -978,32 +879,6 @@ export function SidebarNav() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <fieldset className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-600">
-              <legend className="px-1 text-xs font-semibold text-neutral-800 dark:text-neutral-100">
-                Navigation preset (UI only)
-              </legend>
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-300">
-                Presets prune visible routes for common personas — server policies still gate HTTP access.
-              </p>
-              <div className="flex flex-col gap-2">
-                {OPERATOR_SHELL_PRESET_ORDER.map((id) => (
-                  <label key={id} className="flex cursor-pointer gap-2 text-xs text-neutral-800 dark:text-neutral-100">
-                    <input
-                      type="radio"
-                      className="mt-0.5 h-4 w-4 shrink-0"
-                      name="operator-shell-preset"
-                      checked={shellPresetId === id}
-                      onChange={() => {
-                        persistShellPreset(id);
-                      }}
-                    />
-                    <span>
-                      <span className="font-semibold">{OPERATOR_SHELL_PRESET_LABELS[id]}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>

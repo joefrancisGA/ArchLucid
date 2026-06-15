@@ -12,7 +12,7 @@ public sealed class PlatformDocCorpusStartupIndexerHostedService(
     PlatformDocCorpusIndexer indexer,
     IServiceScopeFactory scopeFactory,
     IOptionsMonitor<PlatformDocCorpusIndexerOptions> options,
-    ILogger<PlatformDocCorpusStartupIndexerHostedService> logger) : IHostedService
+    ILogger<PlatformDocCorpusStartupIndexerHostedService> logger) : BackgroundService
 {
     private readonly PlatformDocCorpusIndexer _indexer =
         indexer ?? throw new ArgumentNullException(nameof(indexer));
@@ -26,7 +26,7 @@ public sealed class PlatformDocCorpusStartupIndexerHostedService(
     private readonly ILogger<PlatformDocCorpusStartupIndexerHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!_options.CurrentValue.IndexOnStartup)
             return;
@@ -34,7 +34,7 @@ public sealed class PlatformDocCorpusStartupIndexerHostedService(
         try
         {
             IReadOnlyList<Models.RetrievalDocument> documents =
-                await _indexer.BuildDocumentsAsync(cancellationToken).ConfigureAwait(false);
+                await _indexer.BuildDocumentsAsync(stoppingToken).ConfigureAwait(false);
 
             if (documents.Count == 0)
             {
@@ -47,7 +47,7 @@ public sealed class PlatformDocCorpusStartupIndexerHostedService(
             using IServiceScope scope = _scopeFactory.CreateScope();
             IRetrievalIndexingService indexingService = scope.ServiceProvider.GetRequiredService<IRetrievalIndexingService>();
 
-            await indexingService.IndexDocumentsAsync(documents, cancellationToken).ConfigureAwait(false);
+            await indexingService.IndexDocumentsAsync(documents, stoppingToken).ConfigureAwait(false);
 
             if (_logger.IsEnabled(LogLevel.Information))
                 _logger.LogInformation("Indexed {Count} platform ADR documents for retrieval.", documents.Count);
@@ -60,6 +60,4 @@ public sealed class PlatformDocCorpusStartupIndexerHostedService(
                 _logger.LogWarning(ex, "Platform doc corpus startup indexing failed; retrieval will continue fail-open.");
         }
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

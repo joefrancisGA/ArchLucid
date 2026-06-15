@@ -11,9 +11,10 @@ describe("quick-review-sample-briefs", () => {
     expect(QUICK_REVIEW_SAMPLE_BRIEFS).toHaveLength(5);
   });
 
-  it("defaults to healthcare in demo mode", () => {
+  it("defaults to healthcare in demo mode or when CTO tour is active", () => {
     expect(defaultQuickReviewSampleBriefId(true)).toBe("healthcare");
-    expect(defaultQuickReviewSampleBriefId(false)).toBe("retail");
+    expect(defaultQuickReviewSampleBriefId(false, true)).toBe("healthcare");
+    expect(defaultQuickReviewSampleBriefId(false, false)).toBe("retail");
   });
 
   it("loads healthcare brief text", () => {

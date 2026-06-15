@@ -18,6 +18,14 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(forensicsIndex).toBeGreaterThan(proofIndex);
   });
 
+  it("places proof status before evidence density strip on committed packages", () => {
+    const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
+    const evidenceStripIndex = source.indexOf("<ReviewPackageEvidenceDensityStrip");
+
+    expect(proofIndex).toBeGreaterThan(-1);
+    expect(evidenceStripIndex).toBeGreaterThan(proofIndex);
+  });
+
   it("hides operator forensics and metadata in sponsor mode", () => {
     expect(source).toContain("{!m.buyerPolishedArtifactTable ? (");
     expect(source).toMatch(
@@ -31,5 +39,15 @@ describe("RunDetailPageView progressive disclosure", () => {
   it("keeps advanced analysis behind dedicated section", () => {
     expect(source).toContain("RunDetailAdvancedAnalysisSection");
     expect(source).toContain("RunDetailOperatorPipelineToolsCollapsible");
+  });
+
+  it("hides per-finding trace table behind collapsible disclosure", () => {
+    const collapsibleSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailRunExplanationCollapsible.tsx"),
+      "utf8",
+    );
+
+    expect(collapsibleSource).toContain("run-finding-explainability-collapsible");
+    expect(collapsibleSource).toContain('defaultOpen={false}');
   });
 });

@@ -81,6 +81,7 @@ flowchart TB
 - `{tenantId}` route binding: `RouteTenantScopeBindingFilter`
 - CI: `scripts/ci/assert_route_tenant_scope_guard.py`
 - Integration: `ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs`, route-tenant P1 batches
+- **Within-tenant workspace/project posture (V1):** [`V1_WORKSPACE_PROJECT_AUTHORIZATION_POSTURE.md`](V1_WORKSPACE_PROJECT_AUTHORIZATION_POSTURE.md) — organizational scope with IDOR regression on high-value routes; not a paying-client isolation boundary.
 
 ### Layer D — Persistence
 

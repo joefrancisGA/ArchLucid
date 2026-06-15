@@ -86,7 +86,7 @@ We share personal information only in the following circumstances:
 |-----------|---------|------------|
 | **Microsoft Azure** (subprocessor) | Infrastructure hosting, identity, AI inference, email delivery | Azure data processing terms; managed identity; encryption at rest and in transit; private endpoints where configured |
 | **Microsoft Clarity** (optional subprocessor) | Marketing-page session replay / heatmaps after explicit visitor consent | Loads only on public marketing surfaces when enabled; consent stored in browser localStorage |
-| **Your organization** | Tenant administrators can view audit logs and user activity within their tenant scope | RLS tenant isolation; RBAC role enforcement |
+| **Your organization** | Tenant administrators can view audit logs and user activity within their tenant scope | Database-per-tenant catalog isolation; RBAC role enforcement |
 | **Legal compliance** | Response to valid legal process (subpoena, court order) | We will notify affected customers unless legally prohibited |
 
 We do **not** sell, rent, or trade personal information to third parties. The full subprocessor list is maintained at [`SUBPROCESSORS.md`](SUBPROCESSORS.md).
@@ -195,7 +195,7 @@ If this changes in a future version, this policy will be updated and users will 
 We implement technical and organizational measures to protect personal information, including:
 
 - Encryption at rest (Azure SQL TDE, Azure Blob encryption) and in transit (TLS 1.2+)
-- Row-level security (RLS) for tenant isolation
+- **Database-per-tenant** SQL catalog isolation with application scope predicates ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md))
 - Managed identity for service-to-service authentication
 - Private endpoints for data-plane services where configured
 - Append-only audit log with database-level `DENY UPDATE/DELETE`

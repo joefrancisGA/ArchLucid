@@ -1,9 +1,9 @@
 ﻿# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
-# Named profile LiveUiSql: same gates + enforced live playwright (browser UI vs smoke SQL API). SQL required unless -SkipE2E.
+# Named profiles LiveUiSql / ReleaseCandidate: same gates + enforced live playwright (browser UI vs smoke SQL API). ReleaseCandidate requires -ResultOut.
 # Optional -AuthorityPipelineDtfSmoke: sets ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask for the temporary API (requires ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint in the environment — staging SQL + DTF worker validation).
 # Full detail: docs/library/RELEASE_SMOKE.md
 param(
-    [ValidateSet('', 'LiveUiSql')]
+    [ValidateSet('', 'LiveUiSql', 'ReleaseCandidate')]
     [string] $Profile = '',
     [string] $SqlConnectionString = '',
     [Alias('BaseUrl')]
@@ -31,7 +31,19 @@ $root = Split-Path -Parent $PSScriptRoot
 
 $releaseSmokeAuthHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
-$runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql')
+$runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql' -or $Profile -eq 'ReleaseCandidate')
+
+if ($runLiveUiSqlProfile -and [string]::IsNullOrWhiteSpace($ResultOut)) {
+    Write-OperatorFailureTriage -Stage '-Profile (precheck — ResultOut)' -Category 'Misconfiguration' `
+        -Details @(
+        'Live UI vs SQL parity profiles require -ResultOut for RC machine-readable evidence (JSON + Markdown companion).'
+    ) `
+        -NextSteps @(
+        '-ResultOut artifacts/release-smoke/result.json',
+        'Use scripts/release-smoke-rc.ps1 as the RC convenience wrapper (sets profile + reminds on ResultOut).'
+    )
+    exit 1
+}
 
 if ($runLiveUiSqlProfile) {
     if ($SkipUi) {
@@ -181,6 +193,38 @@ function Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled {
     }
     finally {
         Pop-Location
+    }
+}
+
+function Publish-ReleaseSmokeRcCanonicalArtifacts {
+    param(
+        [Parameter(Mandatory = $true)][string] $ResultOutPath,
+        [Parameter(Mandatory = $true)][string] $ExpectedProfile
+    )
+
+    if (-not (Test-Path -LiteralPath $ResultOutPath)) {
+        return
+    }
+
+    $resultDir = Split-Path -Parent $ResultOutPath
+    $canonicalJson = Join-Path $resultDir 'release-smoke-live-ui-sql-result.json'
+    $canonicalMd = [System.IO.Path]::ChangeExtension($canonicalJson, '.md')
+    $sourceMd = [System.IO.Path]::ChangeExtension($ResultOutPath, '.md')
+
+    if ($canonicalJson -ne $ResultOutPath) {
+        Copy-Item -LiteralPath $ResultOutPath -Destination $canonicalJson -Force
+    }
+
+    if ((Test-Path -LiteralPath $sourceMd) -and ($canonicalMd -ne $sourceMd)) {
+        Copy-Item -LiteralPath $sourceMd -Destination $canonicalMd -Force
+    }
+
+    & (Join-Path $PSScriptRoot 'Assert-ReleaseSmokeRcResult.ps1') `
+        -ResultPath $ResultOutPath `
+        -ExpectedProfile $ExpectedProfile
+
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
     }
 }
 
@@ -681,6 +725,19 @@ try
             Write-Warning 'Live parity (-LivePlaywright or -Profile LiveUiSql) skipped under -SkipE2E (steps 5–7 never ran; API not started).'
         }
 
+        if ($Profile -eq 'ReleaseCandidate') {
+            Write-OperatorFailureTriage -Stage 'ReleaseCandidate (-SkipE2E blocked)' -Category 'StrictRcValidation' `
+                -Details @(
+                'Release candidate profile is fail-closed: -SkipE2E produces Partial evidence only and cannot satisfy RC signoff lanes.'
+            ) `
+                -NextSteps @(
+                'Omit -SkipE2E and supply tenant SQL (ARCHLUCID_SMOKE_SQL or -SqlConnectionString)',
+                'Use plain release-smoke.ps1 -SkipE2E for build-only developer workflows',
+                'See docs/library/RELEASE_SMOKE.md — ReleaseCandidate profile'
+            )
+            exit 1
+        }
+
         Write-Host '=== 6-8/8 Skipped E2E API+CLI (-SkipE2E) ==='
         if ($FullCore)
         {
@@ -1032,6 +1089,10 @@ try
         -RanLivePlaywright:$runLivePlaywrightEffective `
         -ApiBaseUrlEvidence $ApiBaseUrl `
         -ProfileName $Profile
+
+    if ($Profile -eq 'ReleaseCandidate') {
+        Publish-ReleaseSmokeRcCanonicalArtifacts -ResultOutPath $ResultOut -ExpectedProfile 'ReleaseCandidate'
+    }
 
     Write-Host ''
     Write-Host 'Release smoke finished successfully.'

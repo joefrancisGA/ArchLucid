@@ -6,6 +6,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { MarketingAnalyticsConsentBanner } from "@/components/MarketingAnalyticsConsentBanner";
 import { MarketingFirstTouchCapture } from "@/components/MarketingFirstTouchCapture";
 import { MarketingJsonLd } from "@/components/MarketingJsonLd";
+import { MarketingResourcesMenu } from "@/components/marketing/MarketingResourcesMenu";
 import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
@@ -59,54 +60,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 className="mx-0.5 hidden h-5 w-px shrink-0 bg-neutral-200 dark:bg-neutral-700 sm:block"
                 aria-hidden
               />
-              <details className="group relative shrink-0 [&_summary::-webkit-details-marker]:hidden">
-                <summary className="inline-flex list-none cursor-pointer items-center rounded-md px-2 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800">
-                  Resources
-                  <span className="ml-0.5 text-neutral-400" aria-hidden>
-                    ▾
-                  </span>
-                </summary>
-                <div className="absolute end-0 top-full z-50 mt-1 min-w-[14rem] rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-950">
-                  <Link
-                    href="/compliance-journey"
-                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
-                  >
-                    Compliance journey
-                  </Link>
-                  <Link
-                    href="/trust"
-                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
-                  >
-                    Trust Center
-                  </Link>
-                  <Link
-                    href="/security-trust"
-                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
-                  >
-                    Security &amp; assurance
-                  </Link>
-                  <Link
-                    href="/privacy"
-                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
-                  >
-                    Privacy
-                  </Link>
-                  <Link
-                    href="/why"
-                    className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
-                  >
-                    Why ArchLucid
-                  </Link>
-                  {liveDemoLinked ? (
-                    <Link
-                      href="/live-demo"
-                      className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
-                    >
-                      Live demo
-                    </Link>
-                  ) : null}
-                </div>
-              </details>
+              <MarketingResourcesMenu liveDemoLinked={liveDemoLinked} />
             </nav>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">

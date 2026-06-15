@@ -197,6 +197,26 @@ def parse_real_mode(evidence: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
+def parse_material_finding_faithfulness(summary: dict[str, Any] | None) -> dict[str, Any]:
+    if summary is None:
+        return {
+            "status": "MISSING",
+            "evidenceMode": "offline-fixture",
+            "detail": "material-finding-faithfulness-summary.json not found",
+        }
+
+    rollup = str(summary.get("rollup") or "MISSING").upper()
+    citation = summary.get("citationCoverage") if isinstance(summary.get("citationCoverage"), dict) else {}
+
+    return {
+        "status": rollup,
+        "evidenceMode": str(summary.get("evidenceMode") or "offline-fixture"),
+        "scenariosRequiringEvidenceRefs": citation.get("scenariosRequiringEvidenceRefs"),
+        "scenariosPassingCitationRules": citation.get("scenariosPassingCitationRules"),
+        "detail": summary.get("claimBoundary") or "material finding corpus rollup attached",
+    }
+
+
 def rollup_status(signals: list[dict[str, Any]]) -> str:
     statuses = [str(signal.get("status", "MISSING")).upper() for signal in signals]
 
@@ -231,6 +251,11 @@ def build_summary(root: Path, bundle_dir: Path) -> dict[str, Any]:
     grounding_path, _ = first_existing(root, bundle_dir, ["retrieval-grounding.json"])
     go_no_go_path, _ = first_existing(root, bundle_dir, ["go-no-go-summary.json"])
     real_mode_path, _ = first_existing(root, bundle_dir, ["real-llm-evidence-gate.json"])
+    material_path, material_source = first_existing(
+        root,
+        bundle_dir,
+        ["material-finding-faithfulness-summary.json"],
+    )
 
     retrieval_ir = parse_retrieval_ir(read_json(ir_summary_path) if ir_summary_path else None, ir_report_path is not None)
     retrieval_ir["source"] = str(ir_summary_path) if ir_summary_path else None
@@ -244,7 +269,12 @@ def build_summary(root: Path, bundle_dir: Path) -> dict[str, Any]:
     go_no_go["source"] = str(go_no_go_path) if go_no_go_path else None
     real_mode = parse_real_mode(read_json(real_mode_path) if real_mode_path else None)
     real_mode["source"] = str(real_mode_path) if real_mode_path else None
-    signals = [retrieval_ir, faithfulness, retrieval_grounding, go_no_go, real_mode]
+    material_finding = parse_material_finding_faithfulness(
+        read_json(material_path) if material_path else None
+    )
+    material_finding["source"] = str(material_path) if material_path else None
+    material_finding["sourceScope"] = material_source
+    signals = [retrieval_ir, faithfulness, retrieval_grounding, go_no_go, real_mode, material_finding]
 
     return {
         "schema": _SCHEMA,
@@ -256,6 +286,7 @@ def build_summary(root: Path, bundle_dir: Path) -> dict[str, Any]:
             "retrievalGrounding": retrieval_grounding,
             "goNoGoAiQualityProof": go_no_go,
             "realModeAiEvidence": real_mode,
+            "materialFindingFaithfulness": material_finding,
         },
         "claimBoundary": (
             "Offline fixture passes do not prove live model behavior. "
@@ -272,6 +303,7 @@ def render_markdown(summary: dict[str, Any]) -> str:
         ("Retrieval grounding", signals["retrievalGrounding"]),
         ("Go/no-go AI quality proof", signals["goNoGoAiQualityProof"]),
         ("Real-mode AI evidence", signals["realModeAiEvidence"]),
+        ("Material finding faithfulness", signals["materialFindingFaithfulness"]),
     ]
     lines = [
         "# AI quality release summary",

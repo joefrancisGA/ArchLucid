@@ -27,6 +27,12 @@ function healthReadinessDotClass(status: string): string {
   return "bg-neutral-400";
 }
 
+function isHealthStatusHealthy(status: string): boolean {
+  const normalized = status.trim().toLowerCase();
+
+  return normalized.includes("healthy") || normalized.includes("ok");
+}
+
 type SystemHealthStatusStripProps = {
   className?: string;
 };
@@ -88,6 +94,13 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
   const archivalStatus = archival?.status?.trim() ?? "";
 
   if (phase !== "ready" || overall.length === 0) {
+    return null;
+  }
+
+  const overallHealthy = isHealthStatusHealthy(overall);
+  const archivalHealthy = archival === null || archivalStatus.length === 0 || isHealthStatusHealthy(archivalStatus);
+
+  if (overallHealthy && archivalHealthy) {
     return null;
   }
 

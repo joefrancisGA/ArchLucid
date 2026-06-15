@@ -26,8 +26,12 @@
 | --- | --- | --- |
 | `deploy-handoff.json` | Deploy readiness | Operational — not a buyer SLA |
 | `release-confidence-rollup.json` | Gate rollup | Reference lane labels; do not invent PASS where HOLD |
-| Sponsor packet ZIP (`archlucid sponsor-packet`) | Committed-run proof | One run only — label commit SHA and environment |
+| Sponsor packet ZIP (`archlucid sponsor-packet`) | Committed-run proof | One run only — label commit SHA, **execution mode**, and environment |
 | [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) | Why not generic AI | Evidence-linked claims only |
+
+## Comparison — ArchLucid vs manual frontier AI (optional)
+
+Use [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) § Generic-AI comparison exercise. Score each rubric row **Better / Same / Worse / NOT_RUN**. Do not claim benchmark superiority without data.
 
 ## Deferred scope — label explicitly (do not imply V1 delivery)
 

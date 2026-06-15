@@ -1,4 +1,5 @@
 import type { AuditEvent } from "@/lib/api";
+import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 
 /** Neutral role titles for buyer-polished surfaces (TB-273 / BDA-003, 007, 022). */
 export const BUYER_DEMO_ARCHITECTURE_REVIEW_LEAD = "Architecture Review Lead";
@@ -11,7 +12,10 @@ export const BUYER_DEMO_REVIEW_OWNER_ROLE = "Review owner";
 
 const SCRIPTED_ACTOR_NAMES = new Set(["Jordan Lee", "Taylor Morgan"]);
 
-export function isScriptedDemoActorName(name: string | null | undefined): boolean {
+export function isScriptedDemoActorName(name: string | null | undefined): boolean {  if (!isBuyerSafeDemoMarketingChromeEnv()) {
+    return false;
+  }
+
   if (name === null || name === undefined) {
     return false;
   }
@@ -49,7 +53,7 @@ export function buyerSafeTechnicalIdLabel(raw: string | null | undefined): strin
   }
 
   if (/^demo-/i.test(value) || /^corr-intake-demo/i.test(value) || /^sample-decision-/i.test(value)) {
-    return "Recorded in workspace audit log";
+    return "Recorded in workspace audit trail";
   }
 
   return value;

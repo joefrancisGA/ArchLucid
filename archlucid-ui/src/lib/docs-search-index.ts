@@ -1,10 +1,10 @@
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export type DocumentationSearchItem = {
   title: string;
   description: string;
   category: string;
-  /** Relative repo path beginning with `docs/…` for {@link toDocsBlobUrl}. */
+  /** Relative repo path beginning with `docs/…` for {@link resolveInAppDocHref}. */
   relativeDocsPath: string;
 };
 
@@ -105,7 +105,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
     category: "Analysis",
     title: "Comparison and replay",
-    description: "Two-run compare, replay modes, export records.",
+    description: "Two-review compare, replay modes, export records.",
     relativeDocsPath: "docs/library/COMPARISON_REPLAY.md",
   },
   {
@@ -164,8 +164,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   },
 ];
 
-export function documentationSearchOpenUrl(relativeDocsPath: string): void {
-  const url = toDocsBlobUrl(`/${relativeDocsPath}`);
-
-  window.location.assign(url);
+/** Resolves a relative docs path to the in-app help URL without navigating. */
+export function resolveDocumentationHref(relativeDocsPath: string): string {
+  return resolveInAppDocHref(relativeDocsPath);
 }

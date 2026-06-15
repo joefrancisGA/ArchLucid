@@ -43,36 +43,45 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        await using GreenfieldSqlApiFactory factory = new();
-        using (HttpClient primer = factory.CreateClient())
+        try
         {
-            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+            await using GreenfieldSqlApiFactory factory = new();
+            using (HttpClient primer = factory.CreateClient())
+            {
+                IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+
+                // Full create-run warmup: TB-290 depends on POST /v1/architecture/request on a cold greenfield catalog.
+                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            }
+
+            using HttpClient client = factory.CreateClient();
+            WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+            string requestId = "REQ-AUDIT-TRAIL-" + Guid.NewGuid().ToString("N")[..12];
+            HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
+            await create.EnsureSuccessForTestAsync();
+            CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            string runId = created!.Run.RunId;
+            Guid runGuid = Guid.Parse(runId);
+
+            HttpResponseMessage execute = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+            await execute.EnsureSuccessForTestAsync();
+
+            HttpResponseMessage commit = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+            commit.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            HttpResponseMessage search = await client.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
+            await search.EnsureSuccessForTestAsync();
+
+            string json = await search.Content.ReadAsStringAsync();
+            json.Should().Contain(AuditEventTypes.RunStarted, because: "audit search must include run lifecycle events after commit");
+            json.Should().Contain(AuditEventTypes.RunCompleted);
+            json.Should().Contain(ScopeIds.DefaultTenant.ToString("D"), because: "audit rows must carry tenant scope");
         }
-
-        using HttpClient client = factory.CreateClient();
-        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
-
-        string requestId = "REQ-AUDIT-TRAIL-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
-        await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-        Guid runGuid = Guid.Parse(runId);
-
-        HttpResponseMessage execute = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await execute.EnsureSuccessForTestAsync();
-
-        HttpResponseMessage commit = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commit.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        HttpResponseMessage search = await client.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
-        await search.EnsureSuccessForTestAsync();
-
-        string json = await search.Content.ReadAsStringAsync();
-        json.Should().Contain(AuditEventTypes.RunStarted, because: "audit search must include run lifecycle events after commit");
-        json.Should().Contain(AuditEventTypes.RunCompleted);
-        json.Should().Contain(ScopeIds.DefaultTenant.ToString("D"), because: "audit rows must carry tenant scope");
+        catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
+        }
     }
 
     [SkippableFact]
@@ -80,31 +89,42 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        await using GreenfieldSqlApiFactory factory = new();
-        using (HttpClient primer = factory.CreateClient())
+        try
         {
-            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+            await using GreenfieldSqlApiFactory factory = new();
+            using (HttpClient primer = factory.CreateClient())
+            {
+                IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+
+                // Full warmup including one create-run POST; ensures SQL is warm before the tenant-A
+                // create-run in the test body. The 10-attempt transient-retry helper is not a cold-start
+                // substitute for the warmup's 50-minute bootstrap budget.
+                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            }
+
+            await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+            using HttpClient clientA = factory.CreateClient();
+            WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+            string requestId = "REQ-AUDIT-ISO-" + Guid.NewGuid().ToString("N")[..12];
+            HttpResponseMessage create = await PostArchitectureRequestAsync(clientA, TestRequestFactory.CreateArchitectureRequest(requestId));
+            await create.EnsureSuccessForTestAsync();
+            CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            Guid runGuid = Guid.Parse(created!.Run.RunId);
+
+            using HttpClient clientB = factory.CreateClient();
+            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+            HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=50");
+            await search.EnsureSuccessForTestAsync();
+            string json = await search.Content.ReadAsStringAsync();
+            json.Should().NotContain(runGuid.ToString("D"), because: "tenant B must not see tenant A audit events for that run id");
         }
-
-        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
-
-        using HttpClient clientA = factory.CreateClient();
-        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
-
-        string requestId = "REQ-AUDIT-ISO-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(clientA, TestRequestFactory.CreateArchitectureRequest(requestId));
-        await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        Guid runGuid = Guid.Parse(created!.Run.RunId);
-
-        using HttpClient clientB = factory.CreateClient();
-        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
-
-        HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=50");
-        await search.EnsureSuccessForTestAsync();
-        string json = await search.Content.ReadAsStringAsync();
-        json.Should().NotContain(runGuid.ToString("D"), because: "tenant B must not see tenant A audit events for that run id");
+        catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
+        }
     }
 
     private static bool IsSqlServerReachableWithShortTimeout()

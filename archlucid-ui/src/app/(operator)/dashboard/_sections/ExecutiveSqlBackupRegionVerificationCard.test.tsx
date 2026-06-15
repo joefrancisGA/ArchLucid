@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const loadGate = vi.hoisted(() => ({
@@ -20,11 +20,14 @@ const loadGate = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/lib/sql-backup-region-verification", () => ({
-  loadSqlBackupRegionVerification: vi.fn(async () => loadGate.verification),
-  formatSqlBackupPrimaryRegionLabel: (v: { primaryDataRegion: string | null }) =>
-    v.primaryDataRegion?.trim() || "Primary region not declared in plan",
-}));
+vi.mock("@/lib/sql-backup-region-verification", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/sql-backup-region-verification")>();
+
+  return {
+    ...actual,
+    fetchSqlBackupRegionVerification: vi.fn(async () => loadGate.verification),
+  };
+});
 
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 
@@ -36,9 +39,9 @@ describe("ExecutiveSqlBackupRegionVerificationCard", () => {
       primaryDataRegion: "eastus",
     };
 
-    render(await ExecutiveSqlBackupRegionVerificationCard());
+    render(<ExecutiveSqlBackupRegionVerificationCard />);
 
-    expect(screen.getByTestId("sql-backup-verification-status-verified")).toBeInTheDocument();
+    expect(await screen.findByTestId("sql-backup-verification-status-verified")).toBeInTheDocument();
     expect(screen.getByTestId("sql-backup-verification-region-name")).toHaveTextContent("eastus");
   });
 
@@ -50,9 +53,11 @@ describe("ExecutiveSqlBackupRegionVerificationCard", () => {
       violations: [{ address: "azurerm_mssql_database.app", detail: "not in allowed" }],
     };
 
-    render(await ExecutiveSqlBackupRegionVerificationCard());
+    render(<ExecutiveSqlBackupRegionVerificationCard />);
 
-    expect(screen.getByTestId("sql-backup-verification-status-unverified")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("sql-backup-verification-status-unverified")).toBeInTheDocument();
+    });
     expect(screen.getByTestId("sql-backup-verification-region-name")).toHaveTextContent("westeurope");
   });
 });

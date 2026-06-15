@@ -111,7 +111,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
         {llmResolved && typeof llmCalls === "number" ? (
           <>
             {" "}
-            LLM calls on this run: <span className="font-mono tabular-nums">{llmCalls}</span>.
+            LLM calls on this review: <span className="font-mono tabular-nums">{llmCalls}</span>.
           </>
         ) : null}
       </p>

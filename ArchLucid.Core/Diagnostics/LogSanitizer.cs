@@ -4,6 +4,9 @@ namespace ArchLucid.Core.Diagnostics;
 ///     Strips C0/C1 control characters (CR, LF, TAB, etc.) from values before structured logging,
 ///     preventing log injection (CWE-117) in plaintext sinks.
 /// </summary>
+/// <remarks>
+///     Forbidden content categories: see <see cref="LoggingPolicy.NeverLogCategories" /> (ADR 0053 / TB-330).
+/// </remarks>
 public static class LogSanitizer
 {
     /// <summary>

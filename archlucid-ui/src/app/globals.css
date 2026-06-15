@@ -14,6 +14,12 @@ body {
   --al-surface-overlay: #fafafa;
   --al-accent-interactive: #0f766e;
   --al-accent-border-focus: #0d9488;
+  --al-primary-action-bg: #0f766e;
+  --al-primary-action-bg-hover: #115e59;
+  --al-primary-action-fg: #ffffff;
+  --al-primary-action-ring: #5eead4;
+  --al-accent-link: #115e59;
+  --al-accent-link-hover: #134e4a;
   --al-text-primary: #171717;
   --al-text-secondary: #525252;
   --al-text-placeholder: #737373;
@@ -37,6 +43,12 @@ body {
   --al-surface-overlay: #262626;
   --al-accent-interactive: #2dd4bf;
   --al-accent-border-focus: #14b8a6;
+  --al-primary-action-bg: #115e59;
+  --al-primary-action-bg-hover: #0f766e;
+  --al-primary-action-fg: #ffffff;
+  --al-primary-action-ring: #2dd4bf;
+  --al-accent-link: #5eead4;
+  --al-accent-link-hover: #99f6e4;
   --al-text-primary: #f5f5f5;
   --al-text-secondary: #a3a3a3;
   --al-text-placeholder: #737373;
@@ -52,6 +64,33 @@ body {
   --al-status-approved-monitoring-bg: #042f2e;
   --al-status-approved-monitoring-fg: #99f6e4;
   --al-layer-hover: #262626;
+}
+
+/* A/B evaluation — charcoal authority hierarchy (see ui-authority-theme.ts). Default teal tokens remain in :root. */
+[data-al-authority-theme="charcoal"] {
+  --al-accent-interactive: #374151;
+  --al-accent-border-focus: #4b5563;
+  --al-primary-action-bg: #1f2937;
+  --al-primary-action-bg-hover: #111827;
+  --al-primary-action-fg: #ffffff;
+  --al-primary-action-ring: #9ca3af;
+  --al-accent-link: #1f2937;
+  --al-accent-link-hover: #111827;
+  --al-status-approved-monitoring-bg: #f3f4f6;
+  --al-status-approved-monitoring-fg: #374151;
+}
+
+[data-al-authority-theme="charcoal"].dark {
+  --al-accent-interactive: #d1d5db;
+  --al-accent-border-focus: #9ca3af;
+  --al-primary-action-bg: #374151;
+  --al-primary-action-bg-hover: #4b5563;
+  --al-primary-action-fg: #f9fafb;
+  --al-primary-action-ring: #6b7280;
+  --al-accent-link: #e5e7eb;
+  --al-accent-link-hover: #f3f4f6;
+  --al-status-approved-monitoring-bg: #1f2937;
+  --al-status-approved-monitoring-fg: #d1d5db;
 }
 
 body {
@@ -114,15 +153,11 @@ body {
   outline-color: #60a5fa;
 }
 
-/* Sidebar / drawer section triggers — match teal accent, visible on neutral rail */
+/* Sidebar / drawer section triggers — match accent token, visible on neutral rail */
 .sidebar-disclosure-trigger:focus-visible {
-  outline: 2px solid #0d9488;
+  outline: 2px solid var(--al-accent-border-focus);
   outline-offset: 2px;
   border-radius: 0.375rem;
-}
-
-.dark .sidebar-disclosure-trigger:focus-visible {
-  outline-color: #2dd4bf;
 }
 
 /* Teal CTA-style links in the first-run panel */
@@ -138,7 +173,7 @@ body {
 }
 
 .workflow-inline-link:focus-visible {
-  outline: 2px solid #0f766e;
+  outline: 2px solid var(--al-accent-interactive);
   outline-offset: 2px;
   border-radius: 0.125rem;
 }

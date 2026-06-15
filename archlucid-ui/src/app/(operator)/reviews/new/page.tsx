@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { ReviewsNewPathSwitcher } from "./QuickReviewWizard";
 
 export const metadata: Metadata = {
@@ -15,13 +18,14 @@ export default function NewRunPage() {
   return (
     <div>
       <div className="mb-1 flex flex-wrap items-baseline gap-3">
-        <h2 className="m-0">New Architecture Review</h2>
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>New Architecture Review</h2>
         <ContextualHelp helpKey="new-run-wizard" />
         <InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />
       </div>
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Start fast with a pasted brief (Quick review), use Guided intake for admission and MUST questions, or open the full wizard with templates and imports.
+        Start fast with Quick review (guided defaults), or open Full guided review for intake questions, templates, and imports.
       </p>
+      <NewReviewSampleEscapeLink className="mt-2" />
       <div className="mt-3">
         <FirstWeekRouteGuidance variant="new-review" />
       </div>

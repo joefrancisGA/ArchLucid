@@ -1,0 +1,141 @@
+{
+  "schema": "archlucid.architecture-invariant-enforcement.v1",
+  "effectiveUtc": "2026-06-11T00:00:00Z",
+  "sourceDoc": "docs/library/ARCHITECTURE_INVARIANTS.md",
+  "invariants": [
+    {
+      "id": "INV-001",
+      "tier": "P0",
+      "label": "Tenant identity boundary",
+      "status": "partially-enforced",
+      "evidence": [
+        "ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer",
+        "scripts/ci/assert_route_tenant_scope_guard.py",
+        "ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs"
+      ]
+    },
+    {
+      "id": "INV-002",
+      "tier": "P0",
+      "label": "Structural execution mode",
+      "status": "partially-enforced",
+      "evidence": [
+        "ArchLucid.Application.Tests/Pilots/ExecutionModeCrossSurfaceInvariantTests.cs",
+        "OpenAPI contract tests"
+      ]
+    },
+    {
+      "id": "INV-003",
+      "tier": "P1",
+      "label": "Audit path contracts",
+      "status": "convention-only",
+      "evidence": [
+        "docs/library/ARCHITECTURE_INVARIANTS.md#inv-003-audit-path-contracts"
+      ]
+    },
+    {
+      "id": "INV-004",
+      "tier": "P1",
+      "label": "Durable cost guardrails",
+      "status": "partially-enforced",
+      "evidence": [
+        "ArchLucid.Persistence/Repositories/SqlLlmTenantBudgetRepository.cs",
+        "155_LlmMonthlyTenantBudgetPurchasedCapBump.sql"
+      ]
+    },
+    {
+      "id": "INV-005",
+      "tier": "P0",
+      "label": "Production host fail-closed",
+      "status": "enforced",
+      "evidence": [
+        "ArchLucid.Host.Composition.Tests/ConfigurationCatalogProductionProfileGuardParityTests.cs"
+      ]
+    },
+    {
+      "id": "INV-006",
+      "tier": "P2",
+      "label": "Single composition root",
+      "status": "enforced",
+      "evidence": [
+        "ArchLucid.Host.Composition.Tests/SingleCompositionRootServiceCollectionExtensionsTests.cs"
+      ]
+    },
+    {
+      "id": "INV-007",
+      "tier": "P2",
+      "label": "Injected time",
+      "status": "partially-enforced",
+      "evidence": ["Roslyn analyzer on DateTime.UtcNow"]
+    },
+    {
+      "id": "INV-008",
+      "tier": "P2",
+      "label": "Cancellation forwarding",
+      "status": "partially-enforced",
+      "evidence": ["Analyzer on I*Service async boundaries"]
+    },
+    {
+      "id": "INV-009",
+      "tier": "P2",
+      "label": "Mutating HTTP idempotency",
+      "status": "partially-enforced",
+      "evidence": ["Idempotency filter + conformance tests"]
+    },
+    {
+      "id": "INV-010",
+      "tier": "P2",
+      "label": "Central HTTP / LLM clients",
+      "status": "partially-enforced",
+      "evidence": ["Composition tests + analyzer"]
+    },
+    {
+      "id": "INV-011",
+      "tier": "P2",
+      "label": "Append-only repository shape",
+      "status": "partially-enforced",
+      "evidence": ["Interface architecture tests"]
+    },
+    {
+      "id": "INV-012",
+      "tier": "P1",
+      "label": "Quality gate single source of truth",
+      "status": "partially-enforced",
+      "evidence": [
+        "scripts/ci/build_ai_quality_release_summary.py",
+        "ArchLucid.AgentRuntime/Evaluation/AgentOutputEvaluationRecorder.cs"
+      ]
+    },
+    {
+      "id": "INV-013",
+      "tier": "P2",
+      "label": "Replay read-only scope",
+      "status": "partially-enforced",
+      "evidence": ["Replay integration hash assertions"]
+    },
+    {
+      "id": "INV-014",
+      "tier": "P2",
+      "label": "No mutable statics",
+      "status": "partially-enforced",
+      "evidence": ["Analyzer on Application/AgentRuntime"]
+    },
+    {
+      "id": "INV-015",
+      "tier": "P1",
+      "label": "Inbound webhook pipeline order",
+      "status": "partially-enforced",
+      "evidence": ["Shared middleware ordering tests"]
+    },
+    {
+      "id": "INV-017",
+      "tier": "P1",
+      "label": "Within-tenant workspace/project scope on pilot routes",
+      "status": "partially-enforced",
+      "evidence": [
+        "docs/security/V1_WORKSPACE_PROJECT_AUTHORIZATION_POSTURE.md",
+        "ArchLucid.Api.Tests/Security/WorkspaceProjectScopeIdorIntegrationTests.cs"
+      ]
+    }
+  ]
+}

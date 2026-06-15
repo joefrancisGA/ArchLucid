@@ -24,36 +24,12 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/components/HomeFirstRunWorkflowGate", () => ({
-  HomeFirstRunWorkflowGate: () => (
-    <div data-testid="first-run-panel-mock" aria-hidden>
-      First-run panel mock
-    </div>
-  ),
-}));
-
-vi.mock("@/components/WelcomeBanner", () => ({
-  WelcomeBanner: () => <div data-testid="welcome-banner-mock">Welcome mock</div>,
-}));
-
-vi.mock("@/components/ValueRealizationDashboard", () => ({
-  ValueRealizationDashboard: () => <div data-testid="value-realization-dashboard-mock" aria-hidden />,
-}));
-
 vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
 
 vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
   OperatorWelcomeOnboarding: () => null,
-}));
-
-vi.mock("@/components/PilotOutcomeCard", () => ({
-  PilotOutcomeCard: () => <div data-testid="pilot-outcome-mock" aria-hidden />,
-}));
-
-vi.mock("@/components/operator-home/OperationalMetricsGate", () => ({
-  OperationalMetricsGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/components/OperatorHomeGate", () => ({
@@ -68,6 +44,14 @@ vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
     tryStaticDemoRunSummariesPaged: vi.fn(() => null),
   };
 });
+
+vi.mock("@/components/cto-demo/CtoDemoResetButton", () => ({
+  CtoDemoResetButton: () => (
+    <button type="button" data-testid="cto-demo-reset-button-mock">
+      Reset demo
+    </button>
+  ),
+}));
 
 import HomePage from "./page";
 
@@ -91,42 +75,39 @@ describe("HomePage — buyer-polished shell", () => {
     vi.unstubAllEnvs();
   });
 
-  it("omits co-architect strip, maturity explore cards, and pilot metrics rail", async () => {
+  it("keeps the home launchpad focused on hero, reviews, and collapsed advanced guidance", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
 
     render(<HomePage />);
 
-    expect(screen.queryByText("ArchLucid — your AI co-architect.")).toBeNull();
-    expect(screen.queryByText(/AI co-architect/i)).toBeNull();
+    expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your review packages" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
-    expect(screen.queryByText("Explore when ready")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
+    expect(screen.queryByText(/AI co-architect/i)).toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Open full reviews list" })).toBeInTheDocument();
     });
   });
 });
 
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders Reviews panel, maturity layer cards, and workflow panel", async () => {
+  it("renders compact hero, reviews panel, and collapsed advanced guidance", async () => {
     render(<HomePage />);
 
     expect(screen.getByRole("heading", { name: "Your reviews" })).toBeInTheDocument();
-    expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
-    expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
-    expect(screen.getByText("Search & Insights")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open the example review package" })).toHaveAttribute(
+    expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-command-center-example")).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();
-    });
+    expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });
 
-  it("exposes create-first-request CTA from runs empty state and layer card links", async () => {
+  it("exposes create-first-request CTA from runs empty state", async () => {
     render(<HomePage />);
 
     const runsLinks = screen

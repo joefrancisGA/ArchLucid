@@ -1,9 +1,12 @@
 import Link from "next/link";
 
+import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
+import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
-import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
+import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
+import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
 
@@ -13,7 +16,7 @@ type OnboardingPageViewProps = {
 
 /**
  * Canonical onboarding orientation: optional trial card when arriving from registration,
- * plus the core first-review checklist wizard.
+ * plus the unified first-pilot progress panel.
  */
 export function OnboardingPageView({ model }: OnboardingPageViewProps) {
   const { fromRegistration } = model;
@@ -37,15 +40,16 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         </Link>
         .
       </p>
+      <CorePilotProgressTrackerBanner />
       <FirstWeekRouteGuidance variant="onboarding" />
       <div className="flex flex-wrap items-center gap-2">
         <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
         <InAppHelpLink helpSlug="specialty-walkthroughs" label="Specialty templates (optional, after first commit)" />
       </div>
       <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} />
-      <div>
-        <OperatorFirstRunWorkflowPanel />
-      </div>
+      <FinishSetupWizardPanel />
+      <TryCliDemoCard />
+      <UnifiedFirstPilotProgressPanel checklistVariant="full" />
     </div>
   );
 }

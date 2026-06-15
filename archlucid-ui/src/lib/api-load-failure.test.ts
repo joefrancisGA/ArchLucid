@@ -35,33 +35,37 @@ describe("toApiLoadFailure", () => {
       retryAfterSeconds: 12,
     });
 
-    expect(toApiLoadFailure(err)).toEqual({
+    expect(toApiLoadFailure(err)).toMatchObject({
       message: "rate",
       problem: null,
-      correlationId: null,
+      correlationId: expect.any(String),
       httpStatus: 429,
       retryAfterSeconds: 12,
     });
   });
 
   it("maps generic Error to message-only state", () => {
-    expect(toApiLoadFailure(new Error("oops"))).toEqual({
+    const failure = toApiLoadFailure(new Error("oops"));
+
+    expect(failure).toMatchObject({
       message: "oops",
       problem: null,
-      correlationId: null,
       httpStatus: null,
       retryAfterSeconds: null,
     });
+    expect(failure.correlationId).toEqual(expect.any(String));
   });
 
   it("maps unknown to generic message", () => {
-    expect(toApiLoadFailure(42)).toEqual({
+    const failure = toApiLoadFailure(42);
+
+    expect(failure).toMatchObject({
       message: "An unexpected error occurred.",
       problem: null,
-      correlationId: null,
       httpStatus: null,
       retryAfterSeconds: null,
     });
+    expect(failure.correlationId).toEqual(expect.any(String));
   });
 });
 
@@ -106,13 +110,15 @@ describe("isApiNotFoundFailure", () => {
 
 describe("uiFailureFromMessage", () => {
   it("trims message", () => {
-    expect(uiFailureFromMessage("  hello  ")).toMatchObject({
+    const failure = uiFailureFromMessage("  hello  ");
+
+    expect(failure).toMatchObject({
       message: "hello",
       problem: null,
-      correlationId: null,
       httpStatus: null,
       retryAfterSeconds: null,
     });
+    expect(failure.correlationId).toEqual(expect.any(String));
   });
 
   it("uses default when message empty after trim", () => {

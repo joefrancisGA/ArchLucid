@@ -26,9 +26,11 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
     {
         ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.NoMeasurementYet);
 
-        (string headline, _) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
+        (string headline, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
 
         headline.Should().Be("Low");
+        body.Should().Contain("No tenant baseline measurements were captured");
+        body.Should().Contain("illustrative / internal planning only");
     }
 
     [Fact]

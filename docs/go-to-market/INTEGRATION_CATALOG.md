@@ -9,11 +9,13 @@
 
 **Last reviewed:** 2026-05-27 — First-party **Jira**, **ServiceNow**, **Slack**, **Confluence**, **Microsoft Teams** incoming webhooks, **CloudEvents** outbound webhooks, **MCP** agent-tool membrane, and copy-paste **recipes** are **V1.1 buyer-contract** commitments ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3; *Resolved 2026-05-18* in [`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). **V1** buyer contract: **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, **Azure extractor ZIP**, and other **V1-ready** capabilities enumerated in **§2** — not Teams/webhook/recipe **obligations**. **Engineering order (V1.1):** **ServiceNow** → **Confluence** → **Jira** — **Atlassian** paired, **Confluence** first (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*).
 
-**Engineering source of truth:** [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, and §3. This catalog is the procurement-facing summary; amend `V1_SCOPE.md` first when integration boundaries change.
+**Engineering source of truth:** [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, and §3. This catalog is the procurement-facing summary; amend `V1_SCOPE.md` first when integration boundaries change. **First-run operators:** use only the **V1 GA** column in § Commitment boundary and § What to use today — do not plan day-one go-live on **V1.1** rows ([`../library/CANONICAL_FIRST_RUN_PATH.md`](../library/CANONICAL_FIRST_RUN_PATH.md)).
 
 **Philosophy:** ArchLucid connects to your tools — you do not run our agents in your infrastructure. Integrations operate via the hosted **REST**/**CLI**/**UI** surfaces for **V1** GA; **webhooks**, **Teams**, **Service Bus** fan-out, and managed/first-party connectors are **V1.1 buyer-contract** paths per [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md).
 
 **V1 copyable recipes:** [`../library/V1_REST_CLI_INTEGRATION_RECIPES.md`](../library/V1_REST_CLI_INTEGRATION_RECIPES.md)
+
+**V1 automation handoff pack (create → execute → commit → export → compare → ROI):** [`../library/V1_AUTOMATION_HANDOFF_PACK.md`](../library/V1_AUTOMATION_HANDOFF_PACK.md) — REST, CLI, OpenAPI, idempotency, and V1 vs V1.1 boundaries for enterprise pilots without first-party connectors.
 
 **Connector readiness matrix (implementers):** [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) — shipped vs recipe vs planned; **product** vs **customer-operated**; code paths and tests.
 

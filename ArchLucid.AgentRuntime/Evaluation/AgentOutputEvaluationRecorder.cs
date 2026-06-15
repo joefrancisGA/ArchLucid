@@ -107,7 +107,9 @@ public sealed class AgentOutputEvaluationRecorder(
 
         Dictionary<string, double?> calibratedByTaskId = BuildCalibratedConfidenceByTaskId(agentResults);
 
-        await Task.WhenAll(traces.Select(trace => EvaluateOneAsync(trace, calibratedByTaskId))).ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTrace> tracesForEvaluation = SelectLatestTracePerTask(traces);
+
+        await Task.WhenAll(tracesForEvaluation.Select(trace => EvaluateOneAsync(trace, calibratedByTaskId))).ConfigureAwait(false);
 
         try
         {
@@ -308,5 +310,18 @@ public sealed class AgentOutputEvaluationRecorder(
         }
 
         return map;
+    }
+
+    private static IReadOnlyList<AgentExecutionTrace> SelectLatestTracePerTask(IReadOnlyList<AgentExecutionTrace> traces)
+    {
+        if (traces.Count <= 1)
+            return traces;
+
+        List<AgentExecutionTrace> latest = traces
+            .GroupBy(static t => t.TaskId, StringComparer.OrdinalIgnoreCase)
+            .Select(static g => g.OrderByDescending(static t => t.CreatedUtc).First())
+            .ToList();
+
+        return latest;
     }
 }

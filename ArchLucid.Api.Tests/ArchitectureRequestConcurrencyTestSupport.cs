@@ -183,6 +183,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                  attempt < maxPerSlotAttempts && responses[i].StatusCode == HttpStatusCode.ServiceUnavailable;
                  attempt++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 responses[i].Dispose();
                 await Task.Delay(delayMs, cancellationToken);
                 delayMs = Math.Min(delayMs * 2, 4000);
@@ -191,8 +193,23 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
 
-                responses[i] =
-                    await PostSingleArchitectureRequestAsync(client, body, idempotencyKey, attemptBudget.Token);
+                try
+                {
+                    responses[i] =
+                        await PostSingleArchitectureRequestAsync(client, body, idempotencyKey, attemptBudget.Token);
+                }
+                catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException(
+                        "ResolveServiceUnavailablePerResponseAsync aborted: outer cancellation token fired "
+                        + "(hang guard or test CancellationToken expired) while retrying slot "
+                        + i
+                        + ", attempt "
+                        + (attempt + 1)
+                        + ".",
+                        ex,
+                        cancellationToken);
+                }
             }
         }
 

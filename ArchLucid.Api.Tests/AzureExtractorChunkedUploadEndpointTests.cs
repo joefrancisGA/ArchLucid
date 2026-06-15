@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -24,7 +23,7 @@ public sealed class AzureExtractorChunkedUploadEndpointTests(GreenfieldSqlApiFac
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        byte[] zip = BuildValidZip(includeManifest: true, schemaVersionOverride: null);
+        byte[] zip = AzureExtractorTestZipBuilder.BuildValidZip(includeManifest: true, schemaVersionOverride: null);
 
         string startJson = JsonSerializer.Serialize(
             new { fileName = "azure-package.zip", totalChunks = 2, totalBytes = zip.LongLength });
@@ -93,54 +92,4 @@ public sealed class AzureExtractorChunkedUploadEndpointTests(GreenfieldSqlApiFac
         scalar.Should().Be(1);
     }
 
-    private static byte[] BuildValidZip(bool includeManifest, int? schemaVersionOverride)
-    {
-        using MemoryStream ms = new();
-
-        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
-
-        {
-
-            if (includeManifest)
-
-            {
-
-                ZipArchiveEntry m = zip.CreateEntry("manifest.json");
-
-                using StreamWriter sw = new(m.Open());
-
-                int schemaVersion = schemaVersionOverride ?? 1;
-
-                sw.Write(
-
-                    $$"""
-
-                    {"schemaVersion":{{schemaVersion}},"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
-
-                    "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-
-                    "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-
-                    "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
-
-                    """);
-
-            }
-
-            else
-
-            {
-
-                ZipArchiveEntry other = zip.CreateEntry("readme.txt");
-
-                using StreamWriter ow = new(other.Open());
-
-                ow.WriteLine("no manifest");
-
-            }
-
-        }
-
-        return ms.ToArray();
-    }
 }

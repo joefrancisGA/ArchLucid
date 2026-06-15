@@ -45,6 +45,59 @@ def waiver_requested() -> tuple[bool, str | None, str | None]:
     return True, owner, rationale
 
 
+def resolve_claim_wording_class(
+    *,
+    disposition: str,
+    canary_result: str,
+    rc_strict: bool,
+) -> str:
+    if canary_result == "PASS":
+        return "full-real-mode"
+
+    if canary_result == "WAIVED":
+        return "simulator-only"
+
+    if canary_result in {"SKIPPED_NO_CREDENTIALS", "SKIPPED"}:
+        return "simulator-only"
+
+    if disposition == "WAIVER_REQUIRED_FAIL":
+        return "blocked-pending-waiver"
+
+    if canary_result == "FAIL":
+        return "partial-real-mode"
+
+    if rc_strict and disposition in {"FAIL", "WAIVED"}:
+        return "simulator-only" if disposition == "WAIVED" else "partial-real-mode"
+
+    return "partial-real-mode"
+
+
+def allowed_claim_wording_summary(claim_wording_class: str) -> str:
+    summaries = {
+        "full-real-mode": (
+            "Allowed: controlled-pilot claims backed by current real-model canary evidence. "
+            "Prohibited: SOC 2 CPA, third-party pen-test, or broad public-reference claims."
+        ),
+        "simulator-only": (
+            "Allowed: simulator-backed architecture review, audit trail, and governance workflows. "
+            "Prohibited: live Azure OpenAI / full-real AI quality claims without fresh real evidence."
+        ),
+        "partial-real-mode": (
+            "Allowed: mixed or partial real-mode posture with explicit limitations in release notes. "
+            "Prohibited: full-real quad-agent quality claims until evidence is PASS and current."
+        ),
+        "blocked-pending-waiver": (
+            "Allowed: none for buyer-facing AI claims on this RC cut. "
+            "Required: attach real-model canary credentials or an explicit owner waiver before signoff."
+        ),
+    }
+
+    return summaries.get(
+        claim_wording_class,
+        "Allowed wording must follow release evidence artifacts; do not exceed claim-readiness posture.",
+    )
+
+
 def run_bounded_canary_prereq_check() -> tuple[str, str]:
     script = repo_root() / "scripts" / "ci" / "verify_real_mode_prereqs.ps1"
 
@@ -101,15 +154,36 @@ def evaluate_gate(*, rc_strict: bool) -> dict[str, object]:
     else:
         disposition = "FAIL"
 
+    claim_wording_class = resolve_claim_wording_class(
+        disposition=disposition,
+        canary_result=canary_result,
+        rc_strict=rc_strict,
+    )
+
+    blocking_reasons: list[str] = []
+
+    if disposition in {"FAIL", "WAIVER_REQUIRED_FAIL"}:
+        blocking_reasons.append(
+            f"Real-model canary disposition {disposition} ({canary_detail})"
+        )
+
+    if rc_strict and claim_wording_class == "blocked-pending-waiver":
+        blocking_reasons.append(
+            "RC strict canary requires owner waiver env vars or live credentials"
+        )
+
     return {
         "schema": _GATE_SCHEMA,
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "disposition": disposition,
+        "claimWordingClass": claim_wording_class,
+        "allowedClaimSummary": allowed_claim_wording_summary(claim_wording_class),
         "rcStrict": rc_strict,
         "credentialsPresent": creds_ok,
         "credentialDetail": cred_detail,
         "canaryResult": canary_result,
         "canaryDetail": canary_detail,
+        "blockingReasons": blocking_reasons,
         "waiver": {
             "requested": waiver,
             "owner": owner,
@@ -123,10 +197,15 @@ def render_markdown(payload: dict[str, object]) -> str:
         "# Real-model canary gate",
         "",
         f"**Disposition:** {payload.get('disposition')}",
+        f"**Claim wording class:** {payload.get('claimWordingClass')}",
         f"**RC strict:** {payload.get('rcStrict')}",
         f"**Canary result:** {payload.get('canaryResult')}",
         "",
         str(payload.get("canaryDetail")),
+        "",
+        "## Allowed buyer wording",
+        "",
+        str(payload.get("allowedClaimSummary")),
         "",
         "Policy: [`RC_RELEASE_GATE.md`](../runbooks/RC_RELEASE_GATE.md)",
         "",

@@ -23,6 +23,15 @@ _REAL_LLM_EVIDENCE_SCHEMA = "archlucid.real-llm-evidence-gate.v2"
 _REAL_LLM_EVIDENCE_FILE = "real-llm-evidence-gate.json"
 _REAL_LLM_EVIDENCE_STALE_AFTER_DAYS = 30
 _REQUIRED_REAL_AGENT_PATHS = frozenset({"topology", "cost", "compliance", "critic"})
+_BUYER_RC_REQUIRED_FILES: tuple[str, ...] = (
+    "real-mode-claim-gate.json",
+    "real-mode-claim-gate.md",
+    "real-mode-evidence-freshness.json",
+    "rc-go-no-go-verdict.json",
+)
+_BUYER_RC_OPTIONAL_WAIVER_FILES: tuple[str, ...] = (
+    "simulator-only-override.md",
+)
 
 
 @dataclass(frozen=True)
@@ -218,6 +227,218 @@ def evaluate_real_mode_ai_evidence(bundle_dir: Path) -> dict[str, Any]:
     }
 
 
+def _evaluate_strict_rc_machine_outputs(bundle_dir: Path) -> list[MissingRequirement]:
+    missing: list[MissingRequirement] = []
+
+    confidence_path = bundle_dir / "release-confidence-rollup.json"
+    confidence = None
+
+    if confidence_path.is_file():
+        try:
+            confidence = json.loads(confidence_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="release-confidence-rollup.json",
+                    detail="unreadable — strict RC requires strictDisposition and strictBlockingReasons",
+                )
+            )
+    else:
+        missing.append(
+            MissingRequirement(
+                kind="strictRcMachineOutput",
+                target="release-confidence-rollup.json",
+                detail="missing — run build_release_confidence_rollup.py --strict-rc",
+            )
+        )
+
+    if confidence is not None:
+        strict_disposition = str(confidence.get("strictDisposition") or "").upper()
+
+        if strict_disposition != "PASS":
+            reasons = confidence.get("strictBlockingReasons") or []
+            detail = f"strictDisposition={strict_disposition or 'MISSING'}"
+
+            if isinstance(reasons, list) and reasons:
+                detail += f"; strictBlockingReasons={reasons[:5]}"
+
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="release-confidence-rollup.json",
+                    detail=detail,
+                )
+            )
+
+    signoff_path = bundle_dir / "rc-evidence-signoff-bundle.json"
+    signoff = None
+
+    if signoff_path.is_file():
+        try:
+            signoff = json.loads(signoff_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="rc-evidence-signoff-bundle.json",
+                    detail="unreadable — strict RC signoff bundle required",
+                )
+            )
+    else:
+        missing.append(
+            MissingRequirement(
+                kind="strictRcMachineOutput",
+                target="rc-evidence-signoff-bundle.json",
+                detail="missing — run build_rc_evidence_signoff_bundle.py --strict-rc",
+            )
+        )
+
+    if signoff is not None:
+        overall = str(signoff.get("overallDisposition") or "").upper()
+
+        if overall != "PASS":
+            skipped = signoff.get("skippedHighRiskGates") or []
+            detail = f"overallDisposition={overall or 'MISSING'}"
+
+            if isinstance(skipped, list) and skipped:
+                detail += f"; skippedHighRiskGates={skipped[:8]}"
+
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="rc-evidence-signoff-bundle.json",
+                    detail=detail,
+                )
+            )
+
+        references = signoff.get("references") if isinstance(signoff.get("references"), dict) else {}
+
+        for ref_key, ref_file in (
+            ("releaseConfidenceRollup", "release-confidence-rollup.json"),
+            ("rcGoNoGoVerdict", "rc-go-no-go-verdict.json"),
+        ):
+            if ref_key not in references:
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="rc-evidence-signoff-bundle.json",
+                        detail=f"references.{ref_key} must reference {ref_file} for machine-readable RC handoff",
+                    )
+                )
+
+    parity_path = bundle_dir / "release-smoke-live-ui-sql-result.json"
+
+    if not parity_path.is_file():
+        missing.append(
+            MissingRequirement(
+                kind="strictRcMachineOutput",
+                target="release-smoke-live-ui-sql-result.json",
+                detail=(
+                    "missing — run scripts/release-smoke-rc.ps1 "
+                    "-ResultOut artifacts/release-smoke-live-ui-sql-result.json"
+                ),
+            )
+        )
+    else:
+        try:
+            parity = json.loads(parity_path.read_text(encoding="utf-8"))
+            evidence_kind = str(parity.get("evidenceKind") or "").lower()
+            verdict = str(parity.get("verdict") or parity.get("status") or "").strip().upper()
+            profile = str(parity.get("profile") or "")
+
+            if evidence_kind != "live-ui-sql-parity":
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="release-smoke-live-ui-sql-result.json",
+                        detail=f"evidenceKind expected live-ui-sql-parity, got {evidence_kind!r}",
+                    )
+                )
+
+            if verdict != "PASS":
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="release-smoke-live-ui-sql-result.json",
+                        detail=f"verdict expected Pass/PASS, got {verdict!r}",
+                    )
+                )
+
+            if profile not in {"LiveUiSql", "ReleaseCandidate"}:
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="release-smoke-live-ui-sql-result.json",
+                        detail=f"profile expected LiveUiSql or ReleaseCandidate, got {profile!r}",
+                    )
+                )
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="release-smoke-live-ui-sql-result.json",
+                    detail="unreadable JSON",
+                )
+            )
+
+    return missing
+
+
+def evaluate_buyer_rc_packet(bundle_dir: Path, *, strict_buyer_rc: bool) -> list[MissingRequirement]:
+    if not strict_buyer_rc:
+        return []
+
+    missing: list[MissingRequirement] = []
+    simulator_override = bundle_dir / "simulator-only-override.md"
+    waiver_present = simulator_override.is_file()
+
+    for file_name in _BUYER_RC_REQUIRED_FILES:
+        target = bundle_dir / file_name
+
+        if target.is_file():
+            continue
+
+        if file_name.startswith("real-mode-") and waiver_present:
+            continue
+
+        missing.append(
+            MissingRequirement(
+                kind="buyerRcRequiredFile",
+                target=file_name,
+                detail="buyer-facing RC packet requires this artifact",
+            )
+        )
+
+    freshness_path = bundle_dir / "real-mode-evidence-freshness.json"
+
+    if freshness_path.is_file():
+        try:
+            freshness = json.loads(freshness_path.read_text(encoding="utf-8"))
+            status = str(freshness.get("freshnessStatus", "")).upper()
+
+            if status in {"STALE", "MISSING"} and not waiver_present:
+                missing.append(
+                    MissingRequirement(
+                        kind="buyerRcFreshness",
+                        target="real-mode-evidence-freshness.json",
+                        detail=f"freshness status {status} blocks buyer-facing RC handoff",
+                    )
+                )
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="buyerRcFreshness",
+                    target="real-mode-evidence-freshness.json",
+                    detail="freshness artifact is not valid JSON",
+                )
+            )
+
+    missing.extend(_evaluate_strict_rc_machine_outputs(bundle_dir))
+
+    return missing
+
+
 def evaluate_profile(bundle_dir: Path, profile_name: str, profiles_doc: dict[str, Any]) -> tuple[list[MissingRequirement], list[str], list[str]]:
     profile = profiles_doc["profiles"][profile_name]
     missing: list[MissingRequirement] = []
@@ -317,6 +538,7 @@ def validate_bundle(
     *,
     require_manifest: bool = True,
     profiles_doc: dict[str, Any] | None = None,
+    strict_buyer_rc: bool = False,
 ) -> tuple[dict[str, Any], int]:
     bundle_dir = bundle_dir.resolve()
     profiles_doc = profiles_doc or load_profiles()
@@ -333,6 +555,7 @@ def validate_bundle(
         return report, 2
 
     missing, present_required, present_optional = evaluate_profile(bundle_dir, profile_name, profiles_doc)
+    missing.extend(evaluate_buyer_rc_packet(bundle_dir, strict_buyer_rc=strict_buyer_rc))
     real_mode_ai_evidence = evaluate_real_mode_ai_evidence(bundle_dir)
     manifest_name = profiles_doc["manifestFileName"]
     manifest_path = bundle_dir / manifest_name
@@ -366,6 +589,7 @@ def validate_bundle(
         "profile": profile_name,
         "bundleRoot": bundle_dir.as_posix(),
         "verdict": verdict,
+        "strictBuyerRc": strict_buyer_rc,
         "realModeAiEvidence": real_mode_ai_evidence,
         "presentRequiredCount": len(present_required),
         "presentOptionalCount": len(present_optional),
@@ -392,6 +616,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     validate_parser.add_argument("--profile", required=True)
     validate_parser.add_argument("--json-out", type=Path, default=None)
     validate_parser.add_argument("--no-require-manifest", action="store_true")
+    validate_parser.add_argument(
+        "--strict-buyer-rc",
+        action="store_true",
+        help="Require buyer-facing RC packet artifacts (claim gate, freshness summary, go/no-go verdict).",
+    )
 
     return parser.parse_args(argv)
 
@@ -415,6 +644,7 @@ def main(argv: list[str] | None = None) -> int:
         args.dir,
         args.profile,
         require_manifest=not args.no_require_manifest,
+        strict_buyer_rc=args.strict_buyer_rc,
     )
 
     if args.json_out is not None:

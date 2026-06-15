@@ -1,6 +1,7 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { maybeReportApiServerErrorFromUnknown } from "@/lib/error-telemetry";
+import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 
 /** Serializable load failure for server and client components (Problem Details + correlation id). */
 export type ApiLoadFailureState = {
@@ -125,7 +126,7 @@ export function toApiLoadFailure(error: unknown): ApiLoadFailureState {
     return {
       message: error.message,
       problem: error.problem,
-      correlationId: error.correlationId,
+      correlationId: ensureCorrelationId(error.correlationId ?? error.problem?.correlationId),
       httpStatus: error.httpStatus,
       retryAfterSeconds: error.retryAfterSeconds,
     };
@@ -135,7 +136,7 @@ export function toApiLoadFailure(error: unknown): ApiLoadFailureState {
     return {
       message: error.message,
       problem: null,
-      correlationId: null,
+      correlationId: ensureCorrelationId(null),
       httpStatus: null,
       retryAfterSeconds: null,
     };
@@ -144,7 +145,7 @@ export function toApiLoadFailure(error: unknown): ApiLoadFailureState {
   return {
     message: "An unexpected error occurred.",
     problem: null,
-    correlationId: null,
+    correlationId: ensureCorrelationId(null),
     httpStatus: null,
     retryAfterSeconds: null,
   };
@@ -157,7 +158,7 @@ export function uiFailureFromMessage(message: string): ApiLoadFailureState {
   return {
     message: trimmed.length > 0 ? trimmed : "Something went wrong.",
     problem: null,
-    correlationId: null,
+    correlationId: ensureCorrelationId(null),
     httpStatus: null,
     retryAfterSeconds: null,
   };

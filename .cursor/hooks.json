@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/capture-dirty-baseline.ps1"
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .cursor/hooks/block-baseline-dirty-edit.ps1",
+        "matcher": "Write|StrReplace|apply_patch"
+      }
+    ]
+  }
+}

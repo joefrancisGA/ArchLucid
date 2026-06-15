@@ -67,7 +67,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "evidence-backed",
         "Evidence-backed",
-        "Persisted proof fields attest sponsor-safe ROI basis and PilotStrict posture for this run.",
+        "Persisted proof fields attest sponsor-safe ROI basis and PilotStrict posture for this review.",
       ),
     );
   }

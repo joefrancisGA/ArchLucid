@@ -23,72 +23,75 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
     };
 
     [SkippableFact]
-    public async Task Create_subscription_run_advisory_scan_lists_succeeded_delivery_attempt()
+    public Task Create_subscription_run_advisory_scan_lists_succeeded_delivery_attempt()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
-        await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(factory.Services, CancellationToken.None)
-            ;
-
-        HttpClient client = factory.CreateClient();
-
-        HttpResponseMessage subResponse = await client.PostAsJsonAsync(
-            $"/{ApiV1Routes.DigestSubscriptions}",
-            new
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Create_subscription_run_advisory_scan_lists_succeeded_delivery_attempt),
+            async testDeadline =>
             {
-                name = "Lifecycle digest email",
-                channelType = DigestDeliveryChannelType.Email,
-                destination = "operator@example.com",
-                isEnabled = true
-            },
-            JsonOptions,
-            CancellationToken.None);
+                await using AlertLifecycleWebAppFactory factory = new();
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        subResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        DigestSubscription? subscription = await subResponse.Content
-                .ReadFromJsonAsync<DigestSubscription>(JsonOptions, CancellationToken.None)
-            ;
-        subscription.Should().NotBeNull();
-        Guid subscriptionId = subscription.SubscriptionId;
+                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+                await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(services, requestTimeout.Token);
 
-        HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
-            "v1/advisory-scheduling/schedules",
-            new
-            {
-                name = "Digest lifecycle scan",
-                cronExpression = "0 7 * * *",
-                isEnabled = true,
-                runProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug
-            },
-            JsonOptions,
-            CancellationToken.None);
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
 
-        createScheduleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        AdvisoryScanSchedule? schedule = await createScheduleResponse.Content
-                .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, CancellationToken.None)
-            ;
-        schedule.Should().NotBeNull();
+                HttpResponseMessage subResponse = await client.PostAsJsonAsync(
+                    $"/{ApiV1Routes.DigestSubscriptions}",
+                    new
+                    {
+                        name = "Lifecycle digest email",
+                        channelType = DigestDeliveryChannelType.Email,
+                        destination = "operator@example.com",
+                        isEnabled = true
+                    },
+                    JsonOptions,
+                    requestTimeout.Token);
 
-        HttpResponseMessage runResponse = await client
-                .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", null,
-                    CancellationToken.None)
-            ;
+                subResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+                DigestSubscription? subscription = await subResponse.Content
+                    .ReadFromJsonAsync<DigestSubscription>(JsonOptions, requestTimeout.Token);
+                subscription.Should().NotBeNull();
+                Guid subscriptionId = subscription.SubscriptionId;
 
-        runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+                HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
+                    "v1/advisory-scheduling/schedules",
+                    new
+                    {
+                        name = "Digest lifecycle scan",
+                        cronExpression = "0 7 * * *",
+                        isEnabled = true,
+                        runProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug
+                    },
+                    JsonOptions,
+                    requestTimeout.Token);
 
-        HttpResponseMessage attemptsResponse = await client
-                .GetAsync(
-                    new Uri($"/{ApiV1Routes.DigestSubscriptions}/{subscriptionId:D}/attempts?take=20",
-                        UriKind.Relative), CancellationToken.None)
-            ;
+                createScheduleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+                AdvisoryScanSchedule? schedule = await createScheduleResponse.Content
+                    .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, requestTimeout.Token);
+                schedule.Should().NotBeNull();
 
-        attemptsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<DigestDeliveryAttempt>? attempts = await attemptsResponse.Content
-                .ReadFromJsonAsync<List<DigestDeliveryAttempt>>(JsonOptions, CancellationToken.None)
-            ;
+                HttpResponseMessage runResponse = await client
+                    .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", null,
+                        requestTimeout.Token);
 
-        attempts.Should().NotBeNull();
-        attempts.Should().Contain(a =>
-            a.SubscriptionId == subscriptionId &&
-            string.Equals(a.Status, DigestDeliveryStatus.Succeeded, StringComparison.OrdinalIgnoreCase));
+                runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+                HttpResponseMessage attemptsResponse = await client
+                    .GetAsync(
+                        new Uri($"/{ApiV1Routes.DigestSubscriptions}/{subscriptionId:D}/attempts?take=20",
+                            UriKind.Relative), requestTimeout.Token);
+
+                attemptsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+                List<DigestDeliveryAttempt>? attempts = await attemptsResponse.Content
+                    .ReadFromJsonAsync<List<DigestDeliveryAttempt>>(JsonOptions, requestTimeout.Token);
+
+                attempts.Should().NotBeNull();
+                attempts.Should().Contain(a =>
+                    a.SubscriptionId == subscriptionId &&
+                    string.Equals(a.Status, DigestDeliveryStatus.Succeeded, StringComparison.OrdinalIgnoreCase));
+            });
     }
 }

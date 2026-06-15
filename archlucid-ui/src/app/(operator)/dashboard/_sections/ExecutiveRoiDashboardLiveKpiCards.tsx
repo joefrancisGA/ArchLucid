@@ -3,25 +3,24 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
 } from "@/lib/executive-roi-kpi-display";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/executive-pilot-day";
-import { BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
 type LiveKpiState = {
   summary: ExecutiveRoiSummary | null;
   staleRiskCount: number;
@@ -40,7 +39,7 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
       {props.runbookHref ? (
         <>
           {" "}
-          <Link href={toDocsBlobUrl(props.runbookHref)} className="underline" rel="noopener noreferrer" target="_blank">
+          <Link href={toDocsBlobUrl(props.runbookHref)} className="underline">
             Runbook
           </Link>
         </>
@@ -50,46 +49,58 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
 }
 
 /** Live KPI tiles for `/dashboard` backed by ROI and governance stickiness APIs (TB-062). */
-export function ExecutiveRoiDashboardLiveKpiCards() {
+export type ExecutiveRoiDashboardLiveKpiCardsProps = {
+  readonly summary?: ExecutiveRoiSummary | null;
+  readonly loading?: boolean;
+};
+
+export function ExecutiveRoiDashboardLiveKpiCards({
+  summary: summaryProp,
+  loading: loadingProp,
+}: ExecutiveRoiDashboardLiveKpiCardsProps = {}) {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
   const [state, setState] = useState<LiveKpiState>({
-    summary: null,
+    summary: summaryProp ?? null,
     staleRiskCount: 0,
     expiringWaiversCount: 0,
     decisionsNeededCount: 0,
   });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [loading, setLoading] = useState(loadingProp ?? true);
 
   useEffect(() => {
+    if (usesExternalSummary) {
+      setState((current) => ({
+        ...current,
+        summary: summaryProp ?? null,
+        staleRiskCount: summaryProp?.staleArchitectureRiskCount ?? current.staleRiskCount,
+      }));
+      setLoading(loadingProp ?? false);
+      setFailure(null);
+
+      if (loadingProp) {
+        return undefined;
+      }
+    }
+
     let cancelled = false;
 
     void (async () => {
       try {
-        const [summaryRes, decisionsNeeded] = await Promise.all([
-          fetch(
-            EXECUTIVE_ROI_SUMMARY_PATH,
-            mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-          ),
+        const summaryPromise = usesExternalSummary
+          ? Promise.resolve(summaryProp ?? null)
+          : fetchExecutiveRoiSummaryClient();
+        const [summary, decisionsNeeded] = await Promise.all([
+          summaryPromise,
           getGovernanceDecisionsNeededSummary(),
         ]);
-
-        if (!summaryRes.ok) {
-          throw new Error(`Executive summary HTTP ${summaryRes.status}`);
-        }
-
-        const summary = (await summaryRes.json()) as ExecutiveRoiSummary & {
-          resolvedFindingsCount30Days?: number;
-          newlyDiscoveredFindingsCount30Days?: number;
-          expiringWaiversCount14Days?: number;
-          staleArchitectureRiskCount?: number;
-        };
 
         if (!cancelled) {
           setState({
             summary,
             staleRiskCount:
-              summary.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
+              summary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
             // TB-155 / EXECUTIVE_KPI_SEMANTIC_CONTRACT: live governance count only (not cached ROI).
             expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
             decisionsNeededCount: decisionsNeeded.totalDecisionItems,
@@ -97,7 +108,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         }
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load executive KPIs.");
+          setFailure(toApiLoadFailure(e));
         }
       } finally {
         if (!cancelled) {
@@ -109,20 +120,15 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadingProp, summaryProp, usesExternalSummary]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
-  if (error) {
-    const displayError =
-      buyerPolished && error.startsWith("Executive summary HTTP")
-        ? BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR
-        : error;
-
+  if (failure) {
     return (
-      <p className="text-sm text-red-600 dark:text-red-400 sm:col-span-2 lg:col-span-3" role="alert">
-        {displayError}
-      </p>
+      <div className="sm:col-span-2 lg:col-span-3">
+        <OperatorApiProblem failure={failure} />
+      </div>
     );
   }
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -74,15 +75,6 @@ export function FindingDetailPageView(props: Props) {
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4">
       <nav className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-        <Link
-          href={`/reviews/${encodeURIComponent(runId)}`}
-          className="font-medium text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
-        >
-          ← Back to review package
-        </Link>
-        <span aria-hidden className="text-neutral-300 dark:text-neutral-600">
-          ·
-        </span>
         <Link
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
@@ -187,6 +179,10 @@ export function FindingDetailPageView(props: Props) {
                 </Button>
               ) : null}
             </div>
+          </div>
+
+          <div className="space-y-4 p-6">
+            <FindingProvenancePanel runId={runId} findingId={decodedFindingId} />
           </div>
 
           <div className="grid gap-4 p-6 lg:grid-cols-3">

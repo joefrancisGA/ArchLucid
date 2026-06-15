@@ -10,6 +10,14 @@ import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
+import { CommitBlockingFindingsBanner } from "@/components/usability/CommitBlockingFindingsBanner";
+import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import { StalledReviewGuidanceCallout } from "@/components/usability/StalledReviewGuidanceCallout";
+import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
+import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
+import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
+import { ReviewPackagePlainSummary } from "@/components/usability/ReviewPackagePlainSummary";
+import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
@@ -22,6 +30,7 @@ import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunSavingsSummary } from "@/components/RunSavingsSummary";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
+import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarningsSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
 import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 import {
@@ -36,11 +45,18 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
+import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
+import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
+import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
+import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
+import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphSection";
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
+import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
+import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
@@ -61,6 +77,7 @@ import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSecti
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
+import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
@@ -154,9 +171,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     <div
       className={`mx-auto space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
     >
+      <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
 
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
+      {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
 
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}
@@ -183,11 +202,85 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
       />
 
+      {!m.manifestId ? (
+        (() => {
+          const legacyStatus = m.resolvedDetail.run.legacyRunStatus;
+          const stalled = detectStalledReview(
+            m.resolvedDetail.run.createdUtc,
+            m.resolvedDetail.run.completedUtc != null
+              || legacyStatus === "Completed"
+              || legacyStatus === "Failed",
+          );
+
+          return stalled.isStalled ? (
+            <StalledReviewGuidanceCallout
+              elapsedMinutes={stalled.elapsedMinutes}
+              runId={m.resolvedDetail.run.runId}
+            />
+          ) : null;
+        })()
+      ) : null}
+
+      {findingCoverageSummary?.hasCommitBlockingFailures === true ? (
+        <CommitBlockingFindingsBanner
+          runId={m.resolvedDetail.run.runId}
+          blockingFindings={[
+            {
+              findingId: "blocking-findings",
+              title: "Open blocking findings — review findings section below",
+            },
+          ]}
+        />
+      ) : null}
+
       <FirstWeekRouteGuidance
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
       <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
+
+      {m.manifestId ? (
+        <ReviewPackagePlainSummary
+          blockingFindingCount={m.manifestSummary?.unresolvedIssueCount ?? 0}
+          advisoryFindingCount={Math.max(
+            0,
+            (m.findingCountDisplay ?? 0) - (m.manifestSummary?.unresolvedIssueCount ?? 0),
+          )}
+          overallRiskLabel={m.explanationSummary?.riskPosture ?? m.governanceGateLabel ?? "Moderate"}
+        />
+      ) : null}
+
+      {m.manifestId ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <ReviewPackageEvidenceDensityStrip
+            className="min-w-0 flex-1"
+            findingCount={m.findingCountDisplay}
+            evidenceArtifactCount={m.artifacts.length}
+            policiesCheckedLabel={
+              m.manifestSummaryForUi !== null
+                ? policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion)
+                : null
+            }
+            governanceApprovalLabel={m.governanceGateLabel ?? null}
+            auditTrailHref={`/audit?runId=${encodeURIComponent(m.resolvedDetail.run.runId)}`}
+          />
+          <CtoDemoAuditIntegrityVerifyButton />
+        </div>
+      ) : null}
+
+      {m.manifestId ? (
+        <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
+      ) : null}
+
+      {m.manifestId ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
+          <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
+          {m.resolvedDetail.run.completedUtc ? (
+            <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
+          ) : null}
+        </div>
+      ) : null}
 
       {m.explanationSummary !== null ? (
         <RunExplanationConfidenceBanner summary={m.explanationSummary} />
@@ -239,6 +332,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <RunAgentResultsSummaryCard results={m.resolvedDetail.results} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
@@ -334,8 +431,34 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
       ) : null}
 
+      {!m.buyerPolishedArtifactTable && m.resolvedDetail.run.operatorGovernanceDecision ? (
+        <GovernanceApprovalAttestationBlock
+          decision={m.resolvedDetail.run.operatorGovernanceDecision}
+          approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
+          decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
+          rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
+          runId={m.resolvedDetail.run.runId}
+        />
+      ) : null}
+
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailProvenanceSummaryCard runId={m.routeRunId} run={m.resolvedDetail.run} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <ReviewChainOfCustodySection
+          run={m.resolvedDetail.run}
+          manifestId={m.manifestId ?? null}
+          ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+          ruleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+        />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <ReviewCliReproduceSection
+          runId={m.resolvedDetail.run.runId}
+          ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+        />
       ) : null}
 
       {!m.manifestId ? <RunDetailPreFinalizedEmptyState /> : null}
@@ -433,6 +556,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         />
       ) : null}
+
+      {!m.buyerPolishedArtifactTable ? <RunAgentQualityWarningsSection runId={m.routeRunId} /> : null}
 
       {!m.buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={m.routeRunId} /> : null}
 

@@ -1,0 +1,95 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  dispositionLabel,
+  type OperatorAiQualitySnapshot,
+  type OperatorAiQualitySnapshotDisposition,
+} from "@/lib/operator-ai-quality-snapshot";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+function formatMetric(value: number | null | undefined, digits: number): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "—";
+  }
+
+  return value.toFixed(digits);
+}
+
+function dispositionStatusKind(disposition: OperatorAiQualitySnapshotDisposition): EnterpriseStatusKind {
+  switch (disposition) {
+    case "PASS":
+      return "ready";
+    case "WARN":
+      return "needs-attention";
+    case "NOT_GENERATED":
+      return "draft";
+    default: {
+      const exhaustive: never = disposition;
+
+      return exhaustive;
+    }
+  }
+}
+
+/** Dashboard tile: offline retrieval + quality snapshot metrics for operators. */
+export function QualityGateMetricsTile(): React.JSX.Element {
+  const [snapshot, setSnapshot] = useState<OperatorAiQualitySnapshot | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const response = await fetch("/operator-ai-quality-snapshot.json", { cache: "no-store" });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const json = (await response.json()) as OperatorAiQualitySnapshot;
+
+        if (!cancelled) {
+          setSnapshot(json);
+        }
+      }
+      catch {
+        /* optional snapshot */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const recall = snapshot?.retrievalIr.meanRecallAt5 ?? null;
+  const mrr = snapshot?.retrievalIr.meanMrr ?? null;
+
+  return (
+    <Card data-testid="quality-gate-metrics-tile">
+      <CardHeader className="pb-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>AI quality metrics</h2>
+          {snapshot !== null ? (
+            <StatusTag kind={dispositionStatusKind(snapshot.disposition)} label={dispositionLabel(snapshot.disposition)} />
+          ) : null}
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-3 sm:grid-cols-2 text-sm">
+        <div>
+          <p className="m-0 text-xs text-neutral-500">Mean recall@5 (golden cohort)</p>
+          <p className="m-0 font-mono text-lg text-neutral-900 dark:text-neutral-100">{formatMetric(recall, 4)}</p>
+        </div>
+        <div>
+          <p className="m-0 text-xs text-neutral-500">Mean MRR</p>
+          <p className="m-0 font-mono text-lg text-neutral-900 dark:text-neutral-100">{formatMetric(mrr, 4)}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

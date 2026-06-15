@@ -70,13 +70,13 @@ export function OperatorPageHeader({
       </div>
 
       {subtitle != null && (
-        <p className="m-0 mt-1 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="m-0 mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
           {subtitle}
         </p>
       )}
 
       {metadata != null && (
-        <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
           {metadata}
         </div>
       )}

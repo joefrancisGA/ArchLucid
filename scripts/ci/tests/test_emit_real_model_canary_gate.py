@@ -40,6 +40,13 @@ class EmitRealModelCanaryGateTests(unittest.TestCase):
             payload = evaluate_gate(rc_strict=True)
             self.assertEqual(payload["disposition"], "WAIVED")
             self.assertEqual(payload["canaryResult"], "WAIVED")
+            self.assertEqual(payload["claimWordingClass"], "simulator-only")
+
+    def test_rc_strict_without_creds_claim_wording_is_blocked_pending_waiver(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True):
+            payload = evaluate_gate(rc_strict=True)
+            self.assertEqual(payload["claimWordingClass"], "blocked-pending-waiver")
+            self.assertIn("allowedClaimSummary", payload)
 
     def test_waiver_requested_parses_owner_fields(self) -> None:
         env = {

@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Export;
@@ -118,5 +121,62 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_sets_tenant_and_workspace_activity_tags()
+    {
+        List<Activity> stopped = [];
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.AuthorityRunActivitySource;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = stopped.Add;
+        ActivitySource.AddActivityListener(listener);
+
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Mock<IRunExportBlobPushOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunExportBlobPushOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = Guid.NewGuid(),
+                    DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IRunExportPackageBuilder> builder = new();
+        builder
+            .Setup(b => b.BuildAsync(It.IsAny<ScopeContext>(), runId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunExportPackageResult.NotFound("missing", "https://archlucid.example.org/errors#run-not-found"));
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => builder.Object);
+        services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RunExportBlobPushOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RunExportBlobPushOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RunExportBlobPushOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        stopped.Should().ContainSingle();
+        stopped[0].GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
+        stopped[0].GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
     }
 }

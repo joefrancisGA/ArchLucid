@@ -117,7 +117,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
             string actor = _actorContext.GetActor();
             await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, request.RequestId,
                 $"Request content failed safety precheck: {string.Join("; ", safety.Reasons)}", cancellationToken).ConfigureAwait(false);
-            throw new InvalidOperationException(string.Join("; ", safety.Reasons));
+            throw new RequestContentSafetyRejectedException(safety.Reasons);
         }
 
         // ReSharper disable once InvertIf

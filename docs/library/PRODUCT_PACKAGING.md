@@ -66,7 +66,7 @@ The operator shell uses **progressive disclosure** so users do not see the full 
 - **Operate · analysis** (`operate-analysis`) appears after **Show more links**.
 - **Operate · governance** (`operate-governance`) surfaces deepen after extended or advanced disclosure.
 
-- *(Operator preference)* sidebar **Navigation preset (UI only)** rotates focused vs fuller Pilot shortcuts using **`operator-nav-preset`** while keeping the tier / authority seams above authoritative.
+- Progressive disclosure tiers and **Show all features** in the sidebar control link breadth while keeping tier / authority seams authoritative.
 
 This is the default user-experience model.
 

@@ -75,6 +75,17 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/go-to-market/dpa_template.md": "audit-trail",
   "docs/go-to-market/subprocessors.md": "audit-trail",
   "docs/go-to-market/trust_center.md": "audit-trail",
+  "docs/library/operator_atlas.md": "operator-shell",
+  "docs/library/operator_decision_guide.md": "operator-shell",
+  "docs/library/concept_vocabulary.md": "glossary",
+  "docs/go-to-market/ui_glossary_v1.md": "glossary",
+  "docs/library/core_pilot.md": "core-pilot",
+  "docs/library/pilot_guide.md": "pilot-guide",
+  "docs/pre_commit_governance_gate.md": "governance-approval",
+  "docs/alerts.md": "alerts",
+  "archlucid-ui/docs/testing_and_troubleshooting.md": "troubleshooting",
+  "archlucid-ui/docs/architecture.md": "operator-shell",
+  "archlucid-ui/docs/operator_shell_tutorial.md": "operator-shell",
 };
 
 function normalizeDocPath(docPath: string): string {
@@ -96,25 +107,39 @@ function slugFromRegistry(normalizedPath: string): string | null {
 }
 
 /**
- * Resolves a repo-relative docs path to an in-app operator help route (`/help` or `/help/{slug}`).
- * Product UI must not link to GitHub blob URLs by default.
+ * Resolves a repo-relative docs path to an in-app operator help route when mapped.
+ * Returns `null` for contributor-only docs that should not become help links.
  */
-export function resolveInAppDocHref(docPath: string): string {
+export function tryResolveInAppDocHref(docPath: string): string | null {
   const hashIndex = docPath.indexOf("#");
   const pathPart = hashIndex >= 0 ? docPath.slice(0, hashIndex) : docPath;
   const fragment = hashIndex >= 0 ? docPath.slice(hashIndex + 1) : "";
   const normalized = normalizeDocPath(pathPart);
 
   if (normalized.length === 0) {
-    return "/help";
+    return null;
   }
 
   const aliasSlug = DOC_PATH_TO_SLUG[normalized];
   const slug = aliasSlug ?? slugFromRegistry(normalized);
 
   if (slug === undefined || slug === null || slug.length === 0) {
-    return "/help";
+    return null;
   }
 
   return inAppHelpHref(slug, fragment.length > 0 ? fragment : undefined);
+}
+
+/**
+ * Resolves a repo-relative docs path to an in-app operator help route (`/help` or `/help/{slug}`).
+ * Product UI must not link to GitHub blob URLs by default.
+ */
+export function resolveInAppDocHref(docPath: string): string {
+  const resolved = tryResolveInAppDocHref(docPath);
+
+  if (resolved !== null) {
+    return resolved;
+  }
+
+  return "/help";
 }

@@ -59,7 +59,7 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
           <Link href="/reviews">Export review packages</Link>
         </Button>
         <Button asChild type="button" size="sm" variant="outline" className="border-red-300 dark:border-red-600">
-          <Link href="/audit">Export audit log</Link>
+          <Link href="/audit">Export audit trail</Link>
         </Button>
         <Button asChild type="button" size="sm" variant="outline" className="border-red-300 dark:border-red-600">
           <Link href="/pricing#pricing-quote-request">Talk to us about retention</Link>

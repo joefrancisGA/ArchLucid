@@ -1,5 +1,6 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
+import type { FindingProvenance } from "@/lib/api/finding-provenance";
 import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
 
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
@@ -36,6 +37,45 @@ export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = "phi-minimization-risk";
 
 /** Canonical headline for PHI finding deep links (queues, graph, finding detail H1). */
 export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = "PHI Minimization Risk";
+
+/** Demo tenant label for isolation cues in buyer-polished shell. */
+export const SHOWCASE_DEMO_TENANT_NAME = "Claims Intake Showcase";
+
+/** Isolated SQL catalog for the showcase tenant — shown in tenant-isolation proof UI. */
+export const SHOWCASE_DEMO_TENANT_CATALOG_ID = "al-tenant-claims-intake-showcase";
+
+/** Static provenance chains for showcase finding deep links when the API is unavailable. */
+export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvenance>> = {
+  "phi-minimization-risk": {
+    findingId: "phi-minimization-risk",
+    steps: [
+      {
+        kind: "input",
+        label: "Architecture brief",
+        detail:
+          "Claims Intake Modernization — brief describing data flow between intake portal and claims processor.",
+      },
+      {
+        kind: "evidence",
+        label: "Data flow identified",
+        detail:
+          "Patient demographics field detected in claims payload transmitted over internal API without field-level encryption.",
+      },
+      {
+        kind: "policy-check",
+        label: "HIPAA §164.312(a)(2)(iv) evaluated",
+        detail:
+          "Policy pack rule: PHI must be minimized at data boundary. Transmission includes date-of-birth and SSN fields not required by downstream processor.",
+      },
+      {
+        kind: "conclusion",
+        label: "High severity finding raised",
+        detail:
+          "Unnecessary PHI exposure at claims API boundary — recommend field-level stripping before transmission.",
+      },
+    ],
+  },
+};
 
 /**
  * Canonical counts for the static Claims Intake demo spine — Run detail, manifest summary, and showcase should

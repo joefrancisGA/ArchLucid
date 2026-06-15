@@ -232,7 +232,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                                           throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
             RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
             if (!safety.IsAllowed)
-                throw new InvalidOperationException(string.Join("; ", safety.Reasons));
+                throw new RequestContentSafetyRejectedException(safety.Reasons);
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
             if (tasks.Count == 0)
@@ -314,28 +314,65 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     "agent_results_persisting",
                     "execute_complete",
                     scheduledTaskIds);
-            try
+            List<AgentResult> mutableResults = results.ToList();
+            int qualityGateAutoRetryAttempt = 0;
+            int maxAutoRetries = Math.Max(0, _agentOutputQualityGateOptions.Value.MaxAutoRetries);
+
+            while (true)
             {
-                await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
+                try
+                {
+                    await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
+                    results = mutableResults;
+                    break;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (AgentOutputQualityGateRejectedException ex)
+                    when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true }
+                          && qualityGateAutoRetryAttempt < maxAutoRetries)
+                {
+                    qualityGateAutoRetryAttempt++;
+
+                    if (logger.IsEnabled(LogLevel.Information))
+                    {
+                        logger.LogInformation(
+                            "Quality gate rejected trace; auto-retrying agent {AgentLabel} for RunId={RunId} attempt {Attempt}/{MaxAttempts} TraceId={TraceId}",
+                            ex.AgentLabel,
+                            LogSanitizer.Sanitize(runId),
+                            qualityGateAutoRetryAttempt,
+                            maxAutoRetries,
+                            LogSanitizer.Sanitize(ex.TraceId));
+                    }
+
+                    mutableResults = await RetryQualityGateRejectedAgentAsync(
+                        runId,
+                        request,
+                        evidence,
+                        tasks,
+                        mutableResults,
+                        ex,
+                        cancellationToken);
+                }
+                catch (AgentOutputQualityGateRejectedException ex)
+                    when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true })
+                {
+                    await TryMarkRunQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    if (logger.IsEnabled(LogLevel.Warning))
+                        logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
+                            LogSanitizer.Sanitize(runId));
+
+                    logger.LogError(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
+                    results = mutableResults;
+                    break;
+                }
             }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (AgentOutputQualityGateRejectedException ex)
-                when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true })
-            {
-                await TryMarkRunQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
-                throw;
-            }
-        catch (Exception ex)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
-                    LogSanitizer.Sanitize(runId));
-            
-            logger.LogError(ex, "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged. CorrelationId={CorrelationId}", LogSanitizer.Sanitize(runId), System.Diagnostics.Activity.Current?.Id ?? "unknown");
-        }
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
             await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
@@ -470,6 +507,59 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 await auditService.LogAsync(auditEvent, ct);
             }, logger, $"{AuditEventTypes.RunLegacyReadyForCommitPromoted}:{LogSanitizer.Sanitize(runId)}", cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RunLegacyReadyForCommitPromoted);
+    }
+
+    private async Task<List<AgentResult>> RetryQualityGateRejectedAgentAsync(
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentTask> tasks,
+        IReadOnlyList<AgentResult> currentResults,
+        AgentOutputQualityGateRejectedException rejection,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(rejection);
+
+        if (!Enum.TryParse(rejection.AgentLabel, ignoreCase: true, out AgentType agentType))
+        {
+            throw new InvalidOperationException(
+                $"Cannot auto-retry quality gate rejection: unknown agent label '{rejection.AgentLabel}'.");
+        }
+
+        AgentTask? task = tasks.FirstOrDefault(t => t.AgentType == agentType);
+
+        if (task is null)
+        {
+            throw new InvalidOperationException(
+                $"Cannot auto-retry quality gate rejection: no task for agent '{rejection.AgentLabel}' on run '{runId}'.");
+        }
+
+        IReadOnlyList<AgentResult> retryBatch =
+            await _agentExecutor.ExecuteAsync(runId, request, evidence, [task], cancellationToken);
+
+        if (retryBatch.Count == 0)
+        {
+            throw new InvalidOperationException(
+                $"Quality gate auto-retry produced no result for agent '{rejection.AgentLabel}' on run '{runId}'.");
+        }
+
+        AgentResult replacement = retryBatch[0];
+
+        await _agentResultPostExecutionEnricher
+            .EnrichAsync(runId, request, evidence, retryBatch, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _resultRepository.ReplaceForRunTaskAsync(replacement, cancellationToken);
+
+        List<AgentResult> updated = currentResults.ToList();
+        int index = updated.FindIndex(r => string.Equals(r.TaskId, task.TaskId, StringComparison.Ordinal));
+
+        if (index >= 0)
+            updated[index] = replacement;
+        else
+            updated.Add(replacement);
+
+        return updated;
     }
 
     private async Task TryMarkRunQualityGateRejectedAsync(

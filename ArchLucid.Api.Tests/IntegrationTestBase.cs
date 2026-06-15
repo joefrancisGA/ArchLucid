@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 ///     Base for API integration tests: provides an <see cref="HttpClient" /> from <see cref="ArchLucidApiFactory" /> and
 ///     JSON helpers aligned with the API’s serializer settings.
 /// </summary>
-public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
+public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>, IAsyncLifetime
 {
     /// <summary>Distinct actor for governance submit vs review in DevelopmentBypass integration tests.</summary>
     protected const string GovernanceSubmitterName = "governance-submitter";
@@ -22,7 +22,7 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     ///     DevelopmentBypass authentication emits <c>tenant_id</c> scope claims (TB-072); scope headers align the client
     ///     with <see cref="ScopeIds" /> defaults so SQL-backed <c>CommercialTenantTierFilter</c> can resolve <c>dbo.Tenants</c>.
     /// </summary>
-    protected readonly HttpClient Client = CreateClientWithDefaultScopeHeaders(factory);
+    protected HttpClient Client { get; private set; } = null!;
 
     /// <summary>
     ///     Aligned with <see cref="ArchLucid.Api.Startup.MvcExtensions" /> API JSON options (camelCase properties, string
@@ -40,6 +40,18 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     {
         get;
     } = factory;
+
+    /// <inheritdoc />
+    public async Task InitializeAsync()
+    {
+        Client = await CreateClientWithDefaultScopeHeadersAsync(Factory).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     ///     Serializes <paramref name="value" /> with <see cref="JsonOptions" /> and returns <see cref="StringContent" />
@@ -273,9 +285,9 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
         _ = request.Headers.TryAddWithoutValidation(ArchLucidAuthOptions.TestActorIdHeader, testActorId.Trim());
     }
 
-    private static HttpClient CreateClientWithDefaultScopeHeaders(ArchLucidApiFactory apiFactory)
+    private static async Task<HttpClient> CreateClientWithDefaultScopeHeadersAsync(ArchLucidApiFactory apiFactory)
     {
-        HttpClient client = apiFactory.CreateClient();
+        HttpClient client = await apiFactory.CreateBoundedClientAsync().ConfigureAwait(false);
         WireDefaultSqlIntegrationScopeHeaders(client);
 
         return client;

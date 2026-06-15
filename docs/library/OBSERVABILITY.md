@@ -7,6 +7,8 @@
 
 **Audience:** SRE, platform engineers, and developers wiring Prometheus/Grafana, Application Insights, or OTLP exporters.
 
+**Architectural decision:** Near-perfect diagnostic logging for V1 enterprise supportability is mandated by **[ADR 0053](../architecture/adrs/0053-enterprise-diagnostic-logging-observability-posture.md)**. Enforcement backlog: **TB-329–TB-336** in [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
+
 **Scope:** This doc lists **stable** custom instrumentation names owned in **`ArchLucid.Core.Diagnostics.ArchLucidInstrumentation`**. It is not an exhaustive inventory of ASP.NET Core, HTTP client, or SQL client auto-instrumentation.
 
 ---
@@ -220,6 +222,8 @@ Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (includ
 - **`archlucid.execution_mode`** — `simulator` or `real` on **`architecture.run.execute`** spans (`ArchitectureRunExecuteOrchestrator`). Verify in trace export pipelines with `span.attributes["archlucid.execution_mode"]` or your vendor's tag filter; quality-gate counters also label **`execution_mode`** on **`archlucid_agent_output_quality_gate_total`**.
 - **`archlucid.stage.name`** — low-cardinality stage key (`context_ingestion`, `graph`, …) for dashboards and queries.
 - **`correlation.id`** — logical correlation (`ActivityCorrelation.LogicalCorrelationIdTag`); aligns with Serilog `CorrelationId` where pushed.
+- **`archlucid.tenant_id`** / **`archlucid.workspace_id`** — scope GUIDs when resolved (HTTP middleware + outbox processors); omitted when empty — see § Mandatory Activity correlation tags.
+- **`archlucid.evidence_package_id`** — evidence ingest and ZIP expansion paths when package id is assigned.
 - **`error.type`** — exception type name on failed spans when recorded.
 
 ---
@@ -324,6 +328,107 @@ When **`infra/terraform-logicapps/`** hosts are enabled, send **platform + workf
 If you prefer the Portal for a one-off host, you can still add **Diagnostic settings** manually; keep destinations on **private** analytics paths consistent with org policy.
 
 **Correlations:** Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true), and with body **`providerDedupeKey`** / **`subscriptionId`** for Marketplace fulfillment (`com.archlucid.billing.marketplace.webhook.received.v1` when `enable_logic_app_marketplace_fulfillment_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](../runbooks/LOGIC_APPS_STANDARD.md) and [CURSOR_PROMPTS_LOGIC_APPS.md](../archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_LOGIC_APPS.md).
+
+---
+
+## Do Not Log (TB-330)
+
+Canonical forbidden categories live in code: **`ArchLucid.Core/Diagnostics/LoggingPolicy.cs`** (`LoggingPolicy.NeverLogCategories`). Enforcement helpers: **`LogSanitizer`**, **`PromptRedactor`**, support-bundle redaction. Do not duplicate the category list here — PR reviewers cite the type and ADR 0053.
+
+---
+
+## Diagnostic event taxonomy (TB-332)
+
+Canonical lifecycle event name constants: **`ArchLucid.Core/Diagnostics/DiagnosticEventNames.cs`**. Naming rules (ADR 0053): lowercase dot-separated `domain.verb` for log/activity event names; metrics remain `archlucid_*` snake_case.
+
+| Domain | Constants (sample) |
+| --- | --- |
+| Review | `review.created`, `review.stage.completed`, `review.completed`, `review.failed` |
+| Evidence | `evidence.ingest.started`, `evidence.ingest.succeeded`, `evidence.ingest.failed`, `evidence.expansion.completed` |
+| AI | `ai.completion.started`, `ai.completion.succeeded`, `ai.completion.failed`, `ai.budget.exceeded` |
+| Export | `export.started`, `export.succeeded`, `export.failed` |
+| Failure | `failure.unhandled`, `failure.dependency`, `failure.validation` |
+
+Migrate **new** log sites in touched files only; do not bulk-rewrite existing call sites in one batch.
+
+---
+
+## Mandatory Activity correlation tags (TB-329 / TB-331)
+
+| Dimension | Activity tag | Serilog `LogContext` |
+| --- | --- | --- |
+| Correlation | `correlation.id` | `CorrelationId` |
+| Run | `archlucid.run_id` | *(tag only)* |
+| Tenant | `archlucid.tenant_id` | *(tag only — no log duplication)* |
+| Workspace | `archlucid.workspace_id` | *(tag only)* |
+| Evidence package | `archlucid.evidence_package_id` | `EvidencePackageId` (ingest paths) |
+
+Helpers: **`ActivityScopeTags`** in `ArchLucid.Core/Diagnostics`. HTTP requests set tenant/workspace in **`CorrelationIdMiddleware`** (re-applied on response start after auth). Outbox processors propagate from payload scope.
+
+**Example App Insights query (traces):**
+
+```kusto
+traces
+| where customDimensions["archlucid.tenant_id"] == "<tenant-guid>"
+| order by timestamp desc
+```
+
+---
+
+## Production operator runbook (TB-333)
+
+### 1. Inject Application Insights (Api + Worker)
+
+| Priority | Setting |
+| --- | --- |
+| 1 | **`APPLICATIONINSIGHTS_CONNECTION_STRING`** (Container Apps / App Service env) |
+| 2 | **`ApplicationInsights:ConnectionString`** or **`Observability:AzureMonitor:ApplicationInsightsConnectionString`** in merged config |
+
+**Worker parity:** both **Api** and **Worker** hosts must export telemetry in production-like profiles. A configured Api with a blind Worker breaks background review lifecycle visibility.
+
+### 2. Verify export before sign-off
+
+```bash
+python scripts/report_observability_export_readiness.py --environment Production --honor-require-telemetry-export-config --strict-exit-code
+```
+
+When **`ProductionValidation:RequireTelemetryExport=true`**, hosts **fail startup** if no Application Insights connection string, active OTLP endpoint, or Prometheus scrape is configured (`ProductionDangerousMisconfigurationLint`). Staging/local may disable via explicit config — not a silent production default.
+
+### 3. Smoke after deploy
+
+- Confirm **Live Metrics** or incoming traces in Application Insights within 5 minutes of traffic.
+- Send a request with **`X-Correlation-ID`**; locate the trace via response **`traceparent`** / **`X-Trace-Id`** headers.
+- Run one successful review **`POST …/execute`** and confirm agent-output metrics (see export table above).
+
+### 4. Canonical triage queries
+
+```kusto
+// By review run
+traces
+| where customDimensions["archlucid.run_id"] == "<run-guid>"
+
+// By tenant (after TB-329)
+traces
+| where customDimensions["archlucid.tenant_id"] == "<tenant-guid>"
+
+// Evidence ingest
+traces
+| where customDimensions["archlucid.evidence_package_id"] == "<package-guid>"
+```
+
+### 5. Sampling and cost
+
+Production default guidance: **`Observability:Tracing:SamplingRatio`** **0.1–0.25** (see § Sampling strategy). Keep **`ArchLucid.AuthorityRun`** and LLM error paths at full fidelity via collector tail sampling or **`AlwaysSampleActivitySources`** where configured.
+
+### 6. Disable export safely (non-production)
+
+Set **`Observability:Otlp:Enabled`** / Prometheus / connection string empty **and** **`ProductionValidation:RequireTelemetryExport=false`** for the target profile. Do not ship production with export disabled and fail-fast enabled.
+
+---
+
+## Verification (TB-334)
+
+Regression matrix: **`ArchLucid.Api.Tests/Middleware/ObservabilityCorrelationIntegrationTests.cs`** — correlation header, **`traceparent`**, Problem Details **`correlationId`**, tenant/workspace Activity tags. Unit coverage: **`CorrelationIdMiddlewareTests`** (Api + Host.Core), **`PostCommitProjectionOutboxProcessorTests`**, **`RetrievalIndexingOutboxProcessorCorrelationTests`**, **`RunExportBlobPushOutboxProcessorTests`**, **`ZipEvidenceExpanderServiceTests`**, **`LoggingPolicyTests`**, **`DiagnosticEventNamesTests`**, **`DiagnosticEventNamesArchitectureTests`**.
 
 ---
 

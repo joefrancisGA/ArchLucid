@@ -11,6 +11,8 @@ import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
 import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
 import { CtoDemoReadOnlySnapshotBanner } from "@/components/cto-demo/CtoDemoReadOnlySnapshotBanner";
+import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
+import { CtoDemoExecutiveTenantIsolationCallout } from "@/components/cto-demo/CtoDemoExecutiveTenantIsolationCallout";
 import {
   CtoDemoExecutiveAboveFold,
   CtoDemoFindingEvidenceLink,
@@ -19,6 +21,16 @@ import {
 import type { ExecutiveRiskReviewFindingMarkdownRow } from "@/lib/executive-risk-review-markdown";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { SeverityTag } from "@/components/ui/severity-tag";
 
 type ExecutiveFindingRow = {
   findingId: string;
@@ -135,6 +147,7 @@ export default async function ExecutiveReviewFindingsPage({
   return (
     <div className="space-y-6" data-testid="executive-review-page">
       {readOnlySnapshot ? <CtoDemoReadOnlySnapshotBanner /> : null}
+      <CtoDemoBuyerValueStrip stepIndex={0} />
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <Link
           href="/executive/reviews"
@@ -172,6 +185,7 @@ export default async function ExecutiveReviewFindingsPage({
               {summary.riskPosture}
             </p>
           ) : null}
+          <CtoDemoExecutiveTenantIsolationCallout />
         </header>
       )}
 
@@ -214,46 +228,44 @@ export default async function ExecutiveReviewFindingsPage({
               No findings were identified in this review package.
             </p>
           ) : (
-            <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 shadow-sm dark:border-neutral-800 md:block">
-              <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-                <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-                  <tr>
-                    <th className="px-3 py-2">Severity</th>
-                    <th className="px-3 py-2">Finding</th>
-                    <th className="px-3 py-2">Confidence</th>
-                    <th className="px-3 py-2">Recommended action</th>
-                    <th className="px-3 py-2">Evidence</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="hidden md:block">
+              <EnterpriseTable ariaLabel="Prioritized findings">
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow>
+                    <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Finding</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Evidence</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
                   {rows.map((row) => (
-                    <tr
-                      key={row.findingId}
-                      className="border-t border-neutral-200 transition-colors hover:bg-neutral-50/90 dark:border-neutral-800 dark:hover:bg-neutral-900/40"
-                    >
-                      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">{row.severity}</td>
-                      <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
+                    <EnterpriseTableRow key={row.findingId}>
+                      <EnterpriseTableCell>
+                        <SeverityTag severity={row.severity} />
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="font-medium">
                         <Link
                           className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                           href={findingExecutiveHref(runId, row.findingId)}
                         >
                           {row.title}
                         </Link>
-                        
-                      </td>
-                      <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="text-xs text-al-text-secondary">
                         {row.confidence}
-                      </td>
-                      <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className="text-xs text-al-text-secondary">
                         {row.recommended}
-                      </td>
-                      <td className="px-3 py-2 align-top">
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>
                         <CtoDemoFindingEvidenceLink runId={runId} findingId={row.findingId} />
-                      </td>
-                    </tr>
+                      </EnterpriseTableCell>
+                    </EnterpriseTableRow>
                   ))}
-                </tbody>
-              </table>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             </div>
           )}
 

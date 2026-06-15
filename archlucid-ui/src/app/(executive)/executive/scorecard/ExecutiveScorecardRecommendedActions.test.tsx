@@ -102,7 +102,7 @@ describe("ExecutiveScorecardClient recommended actions", () => {
     const actions = screen.getAllByRole("listitem");
 
     expect(actions[0]?.textContent).toMatch(/drifted policy changes/i);
-    expect(screen.getByTestId("executive-scorecard-action-compliance-drift")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-scorecard-action-compliance-drift")).toHaveTextContent("Open in Operator →");
   });
 
   it("shows healthy message when no recommendations apply", async () => {

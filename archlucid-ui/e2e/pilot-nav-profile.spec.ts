@@ -1,9 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
-import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator-welcome-onboarding-storage";
 
 /** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */
@@ -36,27 +34,16 @@ async function dismissBlockingHomeModals(page: Page): Promise<void> {
   }
 }
 
-/** Matches SidebarNav.test.tsx: role checkbox + Close dialog avoids Radix portal evaluate flake in CI. */
-async function enableExtendedNavTierViaSidebarLayout(page: Page): Promise<void> {
+/** Matches SidebarNav.test.tsx: per-group "N more" avoids removed Sidebar layout dialog in V1. */
+async function enableExtendedNavTierViaReviewWorkDisclosure(page: Page): Promise<void> {
   await expect(async () => {
     await scrollOperatorSidebarFooterIntoView(page);
-    await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
 
-    const layoutDialog = page.getByTestId("sidebar-layout-settings-dialog");
+    const reviewMore = page.getByRole("button", { name: /Show \d+ more destinations in Review work/ });
 
-    await expect(layoutDialog).toBeVisible();
-
-    const extendedCheckbox = page.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show });
-
-    await expect(extendedCheckbox).toBeVisible();
-
-    if (!(await extendedCheckbox.isChecked())) {
-      await extendedCheckbox.check();
-    }
-
-    await expect(extendedCheckbox).toBeChecked();
-    await page.getByRole("button", { name: "Close dialog" }).click();
-    await expect(layoutDialog).toBeHidden();
+    await expect(reviewMore).toBeVisible();
+    await reviewMore.click();
+    await expect(page.getByRole("navigation", { name: "Analysis" })).toBeVisible();
   }).toPass({ timeout: 30_000 });
 }
 
@@ -82,9 +69,7 @@ async function clickSidebarDisclosureTrigger(sidebarNav: Locator, ariaControlsId
 test.describe("pilot-default operator navigation profile @pilot-nav", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(
-      (keys: { presetStorageKey: string; hasSeenOnboardingKey: string; onboardingTourCompletedKey: string }) => {
-        // Full navigator preset: tier/disclosure toggles are under test; preset pruning would hide operate links.
-        localStorage.setItem(keys.presetStorageKey, "full");
+      (keys: { hasSeenOnboardingKey: string; onboardingTourCompletedKey: string }) => {
         localStorage.setItem("archlucid-nav-expanded", "false");
         localStorage.setItem("archlucid_nav_show_extended", "false");
         localStorage.setItem("archlucid_nav_show_advanced", "false");
@@ -99,7 +84,6 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         }
       },
       {
-        presetStorageKey: OPERATOR_SHELL_PRESET_STORAGE_KEY,
         hasSeenOnboardingKey: HAS_SEEN_ONBOARDING_STORAGE_KEY,
         onboardingTourCompletedKey: ONBOARDING_TOUR_COMPLETED_KEY,
       },
@@ -134,20 +118,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance — pinned links" })).toHaveCount(0);
 
-    await enableExtendedNavTierViaSidebarLayout(page);
-
-    const showAllFeatures = page.getByTestId("sidebar-show-all-features-toggle");
-
-    await scrollOperatorSidebarFooterIntoView(page);
-    await expect(showAllFeatures).toBeVisible();
-    await showAllFeatures.click();
-    await expect(showAllFeatures).toHaveAttribute("aria-expanded", "true");
-
-    const analysisNav = page.getByRole("navigation", { name: "Analysis" });
-
-    await expect(analysisNav).toBeVisible();
-    await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
-    await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    await enableExtendedNavTierViaReviewWorkDisclosure(page);
 
     const sidebarNavEl = page.getByTestId("sidebar-nav");
 
@@ -155,6 +126,12 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
       timeout: 15_000,
     });
     await clickSidebarDisclosureTrigger(sidebarNavEl, "sidebar-group-operate-governance-content");
+
+    const analysisNav = page.getByRole("navigation", { name: "Analysis" });
+
+    await expect(analysisNav).toBeVisible();
+    await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
+    await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
 

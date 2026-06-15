@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { BuyerTitleHint } from "@/components/BuyerTitleHint";
 import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
+import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -200,6 +202,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
+      <CtoDemoBuyerValueStrip stepIndex={1} />
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
           Home
@@ -332,6 +335,15 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {monitoredRiskCard}
         </>
       )}
+
+      {buyerPolishedLayout ? (
+        <ManifestDeliverableGrid
+          manifestId={manifestId}
+          runId={summary.runId}
+          buyerPolished={buyerPolishedLayout}
+          systemName={showcaseBuyerManifestHeadline ? SHOWCASE_BUYER_REVIEW_TITLE : undefined}
+        />
+      ) : null}
 
       <Card
         id={buyerPolishedLayout ? "manifest-deliverables" : undefined}

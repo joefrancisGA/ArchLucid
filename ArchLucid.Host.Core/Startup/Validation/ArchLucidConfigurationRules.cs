@@ -30,6 +30,7 @@ public static class ArchLucidConfigurationRules
             archLucidOptions,
             errors);
         ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, environment, errors);
+        ProductionSafetyRules.CollectDemoDisallowedInProductionProfile(configuration, errors, environment);
         ProductionSafetyRules.CollectScopeDerivationUnsafeInProductionLike(configuration, environment, errors);
         SqlConnectionCredentialRules.Collect(configuration, environment, archLucidOptions, errors);
         ArchLucidSecretProviderRules.Collect(configuration, environment, errors);

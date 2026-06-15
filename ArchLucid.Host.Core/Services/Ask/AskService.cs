@@ -346,6 +346,10 @@ public sealed class AskService(
             retrievalHits = AskRetrievalHitRanker.Rank(rawHits, boostPriorManifest, retrievalTopK);
             retrievalContext = BuildRetrievalContext(retrievalHits);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Retrieval search failed for Ask; falling back to SQL findings/manifest text search.");

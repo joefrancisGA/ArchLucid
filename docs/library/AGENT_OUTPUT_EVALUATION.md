@@ -171,7 +171,7 @@ These labels are product evidence posture, not legal, compliance, or audit attes
 
 When enabled, **`AgentOutputEvaluationRecorder`** increments **`archlucid_agent_output_quality_gate_total`** (labels `agent_type`, `outcome`, `gate_mode`, `reject_reason`, `execution_mode`) and logs **warn** for **warned**/**rejected** outcomes. A **`warned`** outcome also sets **`AgentExecutionTrace.QualityWarning`** (persisted in **`TraceJson`**) so **`GET …/agent-evaluation`** and trace reads expose the flag. **`EnforceOnReject`** / **`BlockRunOnReject`** default **`false`** in code; Staging and Production appsettings opt into blocking for pilot/production posture.
 
-**Automatic retry on reject (V1 posture, owner 2026-05-25):** The orchestrator does **not** automatically re-run agents when the quality gate rejects a trace. Operators re-run manually via the operator UI or CLI. **`reject_reason`** and **`execution_mode`** labels on **`archlucid_agent_output_quality_gate_total`** exist so V1.1 can decide whether transient rejects warrant a single automatic retry based on production data.
+**Automatic retry on reject:** When **`MaxAutoRetries`** &gt; 0 (default **1**) and **`EnforceOnReject`** + **`BlockRunOnReject`** are enabled, **`ArchitectureRunExecuteOrchestrator`** re-invokes the rejected agent task up to the configured limit before marking the run **`ExecutionCompletedQualityRejected`**. Each attempt emits **`archlucid_agent_output_quality_gate_total`** for the rejected try; evaluation uses the **latest trace per task** so superseded retry traces do not re-trigger the gate. Operators can still manually re-run execute from the review detail **AI Quality Warnings** panel.
 
 ### Eval corpus baseline regression (Improvement #1, shipped 2026-05-25)
 
@@ -182,7 +182,9 @@ Committed per-scenario baselines live under **`tests/golden-cohort/baselines/<sc
 | `python scripts/ci/eval_agent_corpus.py --write-baseline` | Maintainer-only: regenerate baselines from current simulator **`qualityEvidence`** rows. |
 | `python scripts/ci/eval_agent_corpus.py --baseline --markdown-report artifacts/agent-eval-scorecard.md` | Compare live scores vs committed baselines; fail when aggregate drops **>3.0** pts or any dimension drops **>5.0** pts. |
 
-**CI posture (owner 2026-05-25):** **`.github/workflows/ci.yml`** runs **`--baseline`** with **`continue-on-error: true`** (warn-only soak) and uploads **`agent-eval-scorecard`** artifact. Flip to merge-blocking only after **10 consecutive main-branch green runs** with **zero false-positive PR failures** attributable to LLM/judge noise — record the flip date here when promoted.
+**CI posture (2026-06-10):** **`.github/workflows/ci.yml`** runs **`--baseline --enforce-quality-gate`** merge-blocking on PR CI (simulator rows only). Real-mode rows use committed **`tests/eval-corpus/agent-results/*.real.json`** fixtures when env vars are unset — no Azure OpenAI credentials required. **`--enforce-real-quality-gate`** remains off on standard PR CI.
+
+**Real-mode offline fixtures:** When **`qualityEvidence.mode`** is **`real`** and the scenario's **`agentResultPathEnv`** is unset, **`eval_agent_corpus.py`** loads **`tests/eval-corpus/agent-results/{scenario-id}.real.json`** when present.
 
 ## Golden-set trace fixtures (regression)
 

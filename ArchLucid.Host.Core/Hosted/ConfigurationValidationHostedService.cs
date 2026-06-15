@@ -10,10 +10,14 @@ namespace ArchLucid.Host.Core.Hosted;
 /// </summary>
 public sealed class ConfigurationValidationHostedService(
     IConfiguration configuration,
+    IHostEnvironment environment,
     ILogger<ConfigurationValidationHostedService> logger) : IHostedService
 {
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IHostEnvironment _environment =
+        environment ?? throw new ArgumentNullException(nameof(environment));
 
     private readonly ILogger<ConfigurationValidationHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -21,7 +25,7 @@ public sealed class ConfigurationValidationHostedService(
     /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(_configuration);
+        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(_configuration, _environment);
 
         if (errors.Count == 0)
             return Task.CompletedTask;

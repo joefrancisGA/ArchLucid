@@ -42,6 +42,12 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
     /// <summary>Literal <c>aud</c> wired into this factory's host (pair of <see cref="JwtLocalTestIssuer" />).</summary>
     public const string JwtLocalTestAudience = "api://archlucid-jwt-local-test";
 
+    /// <summary>
+    ///     Create-run on this InMemory host runs inline authority pipeline (default 5 min). Default
+    ///     <see cref="HttpClient.Timeout" /> (100s) is too low for Admin ExecuteAuthority positive probes on cold CI.
+    /// </summary>
+    internal static readonly TimeSpan JwtLocalSigningIntegrationHttpTimeout = TimeSpan.FromMinutes(10);
+
     private readonly string _publicPemPath;
 
     private readonly RsaSecurityKey _validationSigningKey;
@@ -111,6 +117,13 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         });
     }
 
+    /// <inheritdoc />
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+        client.Timeout = JwtLocalSigningIntegrationHttpTimeout;
+    }
+
     private void ApplyFactoryJwtValidation(JwtBearerOptions options)
     {
         options.RequireHttpsMetadata = false;
@@ -160,6 +173,7 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
             ["ArchLucidAuth:JwtLocalAudience"] = JwtLocalTestAudience,
             ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
             ["Billing:Provider"] = "Noop",
+            ["AuthorityPipeline:PipelineTimeout"] = "00:05:00",
             ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
         };
 

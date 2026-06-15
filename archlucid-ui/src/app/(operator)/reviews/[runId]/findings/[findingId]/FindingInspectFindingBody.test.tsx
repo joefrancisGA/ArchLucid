@@ -54,6 +54,20 @@ describe("FindingInspectFindingBody", () => {
     expect(evIdx).toBeLessThan(recIdx);
   });
 
+  it("executive surface omits operator audit linkage", () => {
+    render(
+      <FindingInspectFindingBody
+        runId={basePayload.runId}
+        decodedFindingId="f-1"
+        payload={basePayload}
+        variant="detail"
+        surface="executive"
+      />,
+    );
+
+    expect(screen.queryByRole("heading", { name: "Audit record" })).toBeNull();
+  });
+
   it("inspect variant exposes reasoning and structured payload dumps", () => {
     render(
       <FindingInspectFindingBody

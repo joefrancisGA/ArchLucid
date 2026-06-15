@@ -559,7 +559,7 @@ export function NewRunWizardClient() {
     }
 
     if (blocksLlmExecution) {
-      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous runs.");
+      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous reviews.");
 
       return;
     }

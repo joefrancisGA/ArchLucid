@@ -75,7 +75,13 @@
         "deployed-evidence-freshness.json",
         "real-llm-evidence-gate.json",
         "real-llm-evidence-gate.md",
-        "simulator-only-override.md"
+        "simulator-only-override.md",
+        "pilot-critical-performance-evidence.json",
+        "pilot-critical-performance-evidence.md",
+        "rc-evidence-signoff-bundle.json",
+        "rc-evidence-signoff-bundle.md",
+        "saq-release-gate.json",
+        "saq-release-gate.md"
       ]
     },
     "production-readiness-drill": {

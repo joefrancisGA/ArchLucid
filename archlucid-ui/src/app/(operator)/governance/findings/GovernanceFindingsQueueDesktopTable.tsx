@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,13 +18,14 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import {
-  BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
+import { cn } from "@/lib/utils";
 
 import {
   formatGovernanceQueueRecordKind,
@@ -81,22 +84,97 @@ function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolish
 export type GovernanceFindingsQueueDesktopTableProps = {
   readonly rows: readonly GovernanceFindingQueueRow[];
   readonly buyerPolishedShell: boolean;
+  /** When provided, the table renders a leading checkbox column for bulk selection. */
+  readonly selectedFindingIds?: ReadonlySet<string>;
+  readonly onSelectionChange?: (ids: ReadonlySet<string>) => void;
 };
 
 /** Carbon-style desktop queue for architecture risks and recorded decisions (md+). */
 export function GovernanceFindingsQueueDesktopTable(
   props: GovernanceFindingsQueueDesktopTableProps,
 ): ReactElement {
-  const { rows, buyerPolishedShell } = props;
+  const { rows, buyerPolishedShell, selectedFindingIds, onSelectionChange } = props;
+  const router = useRouter();
+  const hasBulkSelect = selectedFindingIds !== undefined && onSelectionChange !== undefined;
+  const allSelected = hasBulkSelect && rows.length > 0 && rows.every((r) => selectedFindingIds.has(r.findingId));
+  const someSelected = hasBulkSelect && rows.some((r) => selectedFindingIds.has(r.findingId));
+
+  const keyboardNav = useEnterpriseTableKeyboardNav({
+    rowCount: rows.length,
+    onActivateRow: (index) => {
+      const row = rows[index];
+
+      if (row === undefined) {
+        return;
+      }
+
+      router.push(inspectHref(row.runId, row.findingId));
+    },
+  });
+
+  function toggleRow(findingId: string) {
+    if (!hasBulkSelect) return;
+    const next = new Set(selectedFindingIds);
+
+    if (next.has(findingId)) {
+      next.delete(findingId);
+    } else {
+      next.add(findingId);
+    }
+
+    onSelectionChange(next);
+  }
+
+  function toggleAll() {
+    if (!hasBulkSelect) return;
+
+    if (allSelected) {
+      onSelectionChange(new Set());
+    } else {
+      onSelectionChange(new Set(rows.map((r) => r.findingId)));
+    }
+  }
+
   const ariaLabel = buyerPolishedShell
     ? "Review records and dispositions"
     : "Architecture risk register";
 
   return (
-    <div className="hidden md:block">
+    <div
+      className="hidden md:block"
+      tabIndex={0}
+      role="region"
+      aria-label={ariaLabel}
+      onKeyDown={keyboardNav.onTableKeyDown}
+      data-testid="governance-findings-queue-keyboard-region"
+    >
+      <p className={cn("mb-2 text-neutral-500", DESIGN_TOKENS.table.cellSecondary)} aria-hidden="true">
+        <kbd className="rounded border border-neutral-300 px-1 font-mono text-[10px] dark:border-neutral-600">j</kbd>
+        /
+        <kbd className="rounded border border-neutral-300 px-1 font-mono text-[10px] dark:border-neutral-600">k</kbd>
+        {" move rows · "}
+        <kbd className="rounded border border-neutral-300 px-1 font-mono text-[10px] dark:border-neutral-600">Enter</kbd>
+        {" open finding"}
+      </p>
       <EnterpriseTable ariaLabel={ariaLabel}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
+            {hasBulkSelect ? (
+              <EnterpriseTableHeaderCell className="w-8">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
+                  aria-label={allSelected ? "Deselect all findings" : "Select all findings on this page"}
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) {
+                      el.indeterminate = someSelected && !allSelected;
+                    }
+                  }}
+                  onChange={toggleAll}
+                />
+              </EnterpriseTableHeaderCell>
+            ) : null}
             <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
             {buyerPolishedShell ? <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell> : null}
             <EnterpriseTableHeaderCell>{buyerPolishedShell ? "Record" : "Record kind"}</EnterpriseTableHeaderCell>
@@ -111,11 +189,29 @@ export function GovernanceFindingsQueueDesktopTable(
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          {rows.map((row) => {
+          {rows.map((row, rowIndex) => {
             const graphHref = governanceQueueGraphEvidenceHref(row);
+            const evidenceChipHref =
+              graphHref ??
+              (row.evidenceHref !== undefined && row.evidenceHref.trim().length > 0 ? row.evidenceHref : null);
 
             return (
-              <EnterpriseTableRow key={`${row.runId}:${row.findingId}:table`}>
+              <EnterpriseTableRow
+                key={`${row.runId}:${row.findingId}:table`}
+                className={keyboardNav.isRowFocused(rowIndex) ? "ring-2 ring-inset ring-teal-700/40 dark:ring-teal-400/40" : undefined}
+              >
+                {hasBulkSelect ? (
+                  <EnterpriseTableCell className="w-8">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
+                      aria-label={`Select finding: ${row.title}`}
+                      checked={selectedFindingIds.has(row.findingId)}
+                      onChange={() => { toggleRow(row.findingId); }}
+                      onClick={(e) => { e.stopPropagation(); }}
+                    />
+                  </EnterpriseTableCell>
+                ) : null}
                 <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell)}</EnterpriseTableCell>
                 {buyerPolishedShell ? (
                   <EnterpriseTableCell>
@@ -140,11 +236,24 @@ export function GovernanceFindingsQueueDesktopTable(
                   >
                     {row.title}
                   </Link>
+                  {row.category && row.recordKind === "finding" ? (
+                    <div className="mt-0.5 text-[11px] font-normal text-al-text-secondary">
+                      Policy area: {row.category}
+                    </div>
+                  ) : null}
                   {buyerPolishedShell ? null : (
                     <div className="mt-0.5 font-mono text-[11px] font-normal text-al-text-secondary">
                       {row.findingId}
                     </div>
                   )}
+                  {evidenceChipHref !== null ? (
+                    <div className="mt-1">
+                      <FindingEvidenceLinkChip
+                        href={evidenceChipHref}
+                        evidenceRefCount={row.evidenceRefCount}
+                      />
+                    </div>
+                  ) : null}
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <Link
@@ -206,11 +315,6 @@ export function GovernanceFindingsQueueDesktopTable(
                           : "Open"}
                       </Link>
                     </Button>
-                    {graphHref !== null ? (
-                      <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
-                      </Button>
-                    ) : null}
                     {!buyerPolishedShell && row.recordKind === "finding" ? (
                       <ItsmOutboundQuickActions findingId={row.findingId} compact />
                     ) : null}

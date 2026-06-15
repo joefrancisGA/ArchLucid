@@ -6,6 +6,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { cn } from "@/lib/utils";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
   BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA,
@@ -14,6 +15,12 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-t
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
+import { AuditActiveFilterChips } from "@/components/AuditActiveFilterChips";
+import { buildAuditActiveFilterChips } from "@/lib/audit-active-filter-chips";
+import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
+import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
+
+import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditResultsSection } from "./AuditResultsSection";
@@ -31,7 +38,7 @@ export function AuditPageView(props: AuditPageViewProps) {
     props.displayEvents.length <= 10;
 
   return (
-    <div className={cn("space-y-4", buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
+    <div className={cn(OPERATOR_LAYOUT.sectionStack, buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
         title={
@@ -39,11 +46,15 @@ export function AuditPageView(props: AuditPageViewProps) {
             ? `Audit trail for ${buyerFacingReviewLinkLabelFromRunId(
                 props.runId.trim().length > 0 ? props.runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID,
               )}`
-            : "Audit log"
+            : "Audit trail"
         }
         helpKey="audit-log"
         actions={
-          <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
+          <>
+            <CtoDemoAuditIntegrityExportButton />
+            <CtoDemoAuditIntegrityVerifyButton />
+            <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
+          </>
         }
       />
       {buyerPolishedShell ? (
@@ -52,6 +63,8 @@ export function AuditPageView(props: AuditPageViewProps) {
           buyerAuditTrailMetrics={props.buyerAuditTrailMetrics}
         />
       ) : null}
+
+      {!buyerPolishedShell ? <AuditTrailIntegrityNote /> : null}
 
       {props.ctoDemoAuditFilterActive ? (
         <div
@@ -118,6 +131,29 @@ export function AuditPageView(props: AuditPageViewProps) {
             showSavedViews={!buyerPolishedShell && props.canMutateEnterpriseShell}
             getAuditSavedViewPayload={props.getAuditSavedViewPayload}
             loadAuditSavedView={props.loadAuditSavedView}
+          />
+          <AuditActiveFilterChips
+            chips={buildAuditActiveFilterChips({
+              eventType: props.eventType,
+              fromUtc: props.fromUtc,
+              toUtc: props.toUtc,
+              correlationId: props.correlationId,
+              actorUserId: props.actorUserId,
+              runId: props.runId,
+              auditDatePreset: props.auditDatePreset,
+            })}
+            onClearChip={(id) => {
+              if (id === "eventType") props.setEventType("");
+              if (id === "datePreset") void props.clearDateRangeAndSearch();
+              if (id === "fromUtc") props.setFromUtc("");
+              if (id === "toUtc") props.setToUtc("");
+              if (id === "correlationId") props.setCorrelationId("");
+              if (id === "actorUserId") props.setActorUserId("");
+              if (id === "runId") props.setRunId("");
+            }}
+            onClearAll={() => {
+              void props.clearFiltersAndSearch();
+            }}
           />
         </div>
 

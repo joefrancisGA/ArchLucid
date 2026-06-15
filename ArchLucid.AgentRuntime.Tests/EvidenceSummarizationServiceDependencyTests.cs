@@ -20,7 +20,8 @@ public sealed class EvidenceSummarizationServiceDependencyTests
             .SelectMany(static c => c.GetParameters())
             .Select(static p => p.ParameterType);
 
-        parameterTypes.Should().Contain(typeof(IAgentTierCompletionRouter));
+        parameterTypes.Should().Contain(typeof(Lazy<IAgentTierCompletionRouter>));
+        parameterTypes.Should().NotContain(typeof(IAgentTierCompletionRouter));
         parameterTypes.Should().NotContain(typeof(IAgentCompletionClient));
         parameterTypes.Should().NotContain(typeof(AgentOutputFaithfulnessEvaluator));
         parameterTypes.Should().NotContain(typeof(AgentOutputQualityGate));

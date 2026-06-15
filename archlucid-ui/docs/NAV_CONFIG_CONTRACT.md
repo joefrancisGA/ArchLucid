@@ -19,6 +19,17 @@ This stack owns **Visibility metadata only**:
 
 Enumeration: **`docs/library/PRODUCT_PACKAGING.md`** §3.
 
+## Primary navigation model (2026-06-14)
+
+Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance reviewer, Analytics investigator). Audit before removal:
+
+| Control | Changed permissions? | Changed routes? | Changed data / workflows? | Changed page behavior? | Effect |
+|---------|---------------------|-----------------|---------------------------|------------------------|--------|
+| Workflow-mode toolbar + sidebar preset radios | No | No | No | No | **Sidebar link visibility only** — `localStorage` filter by href prefix; API `[Authorize]` unchanged |
+| **Operator \| Executive** (retained) | No | Yes (shell destination) | No | No | Switches between operator workspace (`/`) and executive dashboard (`/executive/dashboard`) |
+
+**Retained shaping:** progressive disclosure tiers (`essential` / `extended` / `advanced`), authority rank from `GET /api/auth/me`, collapsed-pilot **Show all features**, and per-group **N more** disclosure in the sidebar.
+
 ## Nav groups → buyer layers
 
 | Group `id`           | `surface`           | Layer    | Notes |

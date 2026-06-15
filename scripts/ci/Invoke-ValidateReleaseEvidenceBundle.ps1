@@ -11,8 +11,11 @@
     .PARAMETER JsonOut
         Optional path for validation report JSON.
 
+    .PARAMETER StrictBuyerRc
+        Require buyer-facing RC packet artifacts and strict machine-readable signoff outputs.
+
     .EXAMPLE
-        .\scripts\ci\Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir artifacts/release-readiness -Profile release-readiness
+        .\scripts\ci\Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir artifacts/release-readiness -Profile release-readiness -StrictBuyerRc
 #>
 [CmdletBinding()]
 param(
@@ -22,7 +25,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $Profile,
 
-    [string] $JsonOut = ''
+    [string] $JsonOut = '',
+
+    [switch] $StrictBuyerRc
 )
 
 Set-StrictMode -Version Latest
@@ -40,6 +45,10 @@ $pythonScript = Join-Path $PSScriptRoot 'release_evidence_bundle.py'
 
 if (-not [string]::IsNullOrWhiteSpace($JsonOut)) {
     $pythonArgs += @('--json-out', $JsonOut)
+}
+
+if ($StrictBuyerRc) {
+    $pythonArgs += '--strict-buyer-rc'
 }
 
 & python @pythonArgs

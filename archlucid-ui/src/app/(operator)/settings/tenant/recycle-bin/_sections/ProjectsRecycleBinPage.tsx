@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
@@ -196,11 +195,6 @@ export function ProjectsRecycleBinPage() {
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Soft-deleted architecture projects remain here until retention purges them. Restoring clears the deletion flag when
           the project name does not collide with another active project in the same workspace.
-        </p>
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
-          <Link href="/settings/tenant" className="text-teal-800 underline dark:text-teal-300">
-            Back to tenant settings
-          </Link>
         </p>
       </div>
 

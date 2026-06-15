@@ -32,8 +32,8 @@ describe("OperatorApiProblem", () => {
       <OperatorApiProblem problem={null} fallbackMessage="Plain error" correlationId="abc-123" />,
     );
 
-    expect(screen.getByText("Provide correlation ID")).toBeInTheDocument();
-    expect(screen.getByText("abc-123")).toBeInTheDocument();
+    expect(screen.getByText("Provide request ID")).toBeInTheDocument();
+    expect(screen.getAllByText("abc-123").length).toBeGreaterThan(0);
   });
 
   it("reads correlation id from problem details when prop omitted", () => {
@@ -44,8 +44,14 @@ describe("OperatorApiProblem", () => {
       />,
     );
 
-    expect(screen.getByText("from-problem-json")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Copy correlation ID" })).toBeInTheDocument();
+    expect(screen.getAllByText("from-problem-json").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Copy request ID" }).length).toBeGreaterThan(0);
+  });
+
+  it("generates request id when correlation id is missing", () => {
+    render(<OperatorApiProblem problem={null} fallbackMessage="Plain error" />);
+
+    expect(screen.getByText("Provide request ID")).toBeInTheDocument();
   });
 
   it("treats omitted problem details like null (no throw)", () => {

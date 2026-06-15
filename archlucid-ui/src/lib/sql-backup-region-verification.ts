@@ -1,6 +1,3 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
-
 /** Shape of `public/sql-backup-region-verification.json` (from `write_sql_backup_verification_artifact.py`). */
 export type SqlBackupRegionVerification = {
   schemaVersion: string;
@@ -19,13 +16,20 @@ export type SqlBackupRegionVerification = {
   };
 };
 
-const PUBLIC_ARTIFACT_FILE = "sql-backup-region-verification.json";
+export const SQL_BACKUP_REGION_VERIFICATION_PUBLIC_PATH = "/sql-backup-region-verification.json";
 
-/** Loads the persisted CI verification artifact baked into the operator UI `public/` folder. */
-export async function loadSqlBackupRegionVerification(): Promise<SqlBackupRegionVerification> {
-  const path = join(process.cwd(), "public", PUBLIC_ARTIFACT_FILE);
-  const raw = await readFile(path, "utf-8");
-  const parsed: unknown = JSON.parse(raw);
+/** Loads the persisted CI verification artifact from the operator UI `public/` folder. */
+export async function fetchSqlBackupRegionVerification(): Promise<SqlBackupRegionVerification> {
+  const response = await fetch(SQL_BACKUP_REGION_VERIFICATION_PUBLIC_PATH, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to load SQL backup verification artifact: HTTP ${response.status}`);
+  }
+
+  const parsed: unknown = await response.json();
 
   return parsed as SqlBackupRegionVerification;
 }

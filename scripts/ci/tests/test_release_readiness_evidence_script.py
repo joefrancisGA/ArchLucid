@@ -27,6 +27,9 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("real-llm-evidence-gate.json", text)
         self.assertIn("AI quality release summary", text)
         self.assertIn("ai-quality-release-summary.json", text)
+        self.assertIn("build_rc_evidence_signoff_bundle.py", text)
+        self.assertIn("build_pilot_critical_performance_evidence.py", text)
+        self.assertIn("rc-evidence-signoff-bundle.json", text)
 
 
 if __name__ == "__main__":

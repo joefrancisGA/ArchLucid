@@ -28,6 +28,7 @@ import {
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { cn } from "@/lib/utils";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
 
@@ -106,11 +107,16 @@ function demoClaimsIntakeWorkspaceOption(): WorkspaceOption {
   };
 }
 
+type ScopeSwitcherProps = {
+  readonly density?: "default" | "compact";
+};
+
 /**
  * Header control: show current workspace/project, persist scope to `localStorage`, and send scope on `/api/proxy` requests
  * (see `getEffectiveBrowserProxyScopeHeaders`).
  */
-export function ScopeSwitcher() {
+export function ScopeSwitcher(props: ScopeSwitcherProps) {
+  const density = props.density ?? "default";
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const [open, setOpen] = useState(false);
   const [tick, setTick] = useState(0);
@@ -203,16 +209,26 @@ export function ScopeSwitcher() {
     return null;
   }
 
+  const polishedMaxWidthClass =
+    density === "compact" ? "max-w-[min(12rem,28vw)]" : "max-w-[min(22rem,46vw)]";
+  const polishedTriggerMaxWidthClass =
+    density === "compact" ? "max-w-[min(10rem,24vw)]" : "max-w-[min(18rem,38vw)]";
+  const scopeTriggerMaxWidthClass =
+    density === "compact" ? "max-w-[min(12rem,28vw)]" : "max-w-[min(20rem,42vw)]";
+
   if (polishedShell) {
     const displayLabel =
       isDefaultDevScope ? workspaceLabel : `${workspaceLabel} — ${projectLabel}`;
 
     return (
-      <span className="inline-flex max-w-[min(22rem,46vw)] shrink items-center gap-1">
-        <span className="inline-flex min-w-0 max-w-[min(22rem,46vw)] shrink cursor-default items-center gap-2">
+      <span className={cn("inline-flex shrink items-center gap-1", polishedMaxWidthClass)}>
+        <span className={cn("inline-flex min-w-0 shrink cursor-default items-center gap-2", polishedMaxWidthClass)}>
           <span
             data-testid="operator-scope-switcher-trigger"
-            className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+            className={cn(
+              "inline-flex min-w-0 shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+              polishedTriggerMaxWidthClass,
+            )}
             aria-label={`Active workspace: ${displayLabel}`}
           >
             {displayLabel}
@@ -233,7 +249,7 @@ export function ScopeSwitcher() {
         type="button"
         variant="outline"
         size="sm"
-        className="max-w-[min(20rem,42vw)] shrink gap-1 truncate"
+        className={cn("max-w-full shrink gap-1 truncate", scopeTriggerMaxWidthClass)}
         aria-expanded={open}
         aria-haspopup="dialog"
         data-testid="operator-scope-switcher-trigger"

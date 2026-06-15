@@ -56,7 +56,7 @@ export function RunDetailRunGovernanceDispositionActions(
       setRationale("");
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to record run disposition.";
+      const message = e instanceof Error ? e.message : "Failed to record review disposition.";
       setErrorMessage(message);
     } finally {
       setBusy(false);
@@ -78,15 +78,15 @@ export function RunDetailRunGovernanceDispositionActions(
           disabled={hasCommitBlockingFailures || busy}
           title={
             hasCommitBlockingFailures
-              ? "Resolve commit-blocking finding coverage before approving this run."
+              ? "Resolve commit-blocking finding coverage before approving this review."
               : undefined
           }
           onClick={() => setPending("Approved")}
         >
-          Approve run
+          Approve review
         </Button>
         <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => setPending("Rejected")}>
-          Reject run
+          Reject review
         </Button>
         <Button
           type="button"
@@ -108,9 +108,9 @@ export function RunDetailRunGovernanceDispositionActions(
       <Dialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm run disposition</DialogTitle>
+            <DialogTitle>Confirm review disposition</DialogTitle>
             <DialogDescription>
-              Record a run-level governance decision for operators and audit. This does not replace per-finding
+              Record a review-level governance decision for operators and audit. This does not replace per-finding
               dispositions.
             </DialogDescription>
           </DialogHeader>

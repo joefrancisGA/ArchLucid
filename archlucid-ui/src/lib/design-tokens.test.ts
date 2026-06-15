@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  OPERATOR_CARD,
+  OPERATOR_LAYOUT,
   OPERATOR_TYPE_SCALE,
   OPERATOR_TYPOGRAPHY,
   operatorConfidenceSurface,
@@ -57,5 +59,16 @@ describe("design-tokens TB-119 typography", () => {
   it("badge typography uses 11px medium scale for status chips", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");
+  });
+});
+
+describe("design-tokens spacing rhythm", () => {
+  it("defines canonical major-section and card spacing tokens", () => {
+    expect(OPERATOR_LAYOUT.majorSectionGap).toBe("space-y-6");
+    expect(OPERATOR_LAYOUT.sectionHeadingStack).toBe("space-y-3");
+    expect(OPERATOR_LAYOUT.sectionStack).toBe("space-y-4");
+    expect(OPERATOR_CARD.header).toContain("p-4");
+    expect(OPERATOR_CARD.content).toContain("pt-0");
+    expect(OPERATOR_CARD.body).toBe("p-4");
   });
 });

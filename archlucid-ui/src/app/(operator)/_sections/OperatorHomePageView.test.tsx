@@ -1,36 +1,28 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/components/WelcomeBanner", () => ({
-  WelcomeBanner: () => <div data-testid="home-block-welcome" />,
-}));
-
-vi.mock("@/components/SampleFirstReviewPackageCard", () => ({
-  SampleFirstReviewPackageCard: () => <div data-testid="home-block-sample-package" />,
-}));
-
 vi.mock("@/components/operator-home/BuyerPolishedHomeHeroSection", () => ({
   BuyerPolishedHomeHeroSection: () => (
     <section data-testid="operator-home-hero-section">
-      <div data-testid="home-block-cto-demo-readiness" />
-      <div data-testid="home-block-start-cto-demo" />
-      <div data-testid="buyer-home-secondary-panels">
-        <div data-testid="home-block-welcome" />
-        <div data-testid="home-block-core-pilot-hint" />
-        <div data-testid="home-block-before-after" />
-        <div data-testid="home-block-co-architect" />
-        <div data-testid="home-block-sample-package" />
-      </div>
+      <div data-testid="home-block-pilot-command-center" />
     </section>
   ),
 }));
 
-vi.mock("@/components/operator-home/StartCtoDemoCard", () => ({
-  StartCtoDemoCard: () => <div data-testid="home-block-start-cto-demo" />,
+vi.mock("@/components/operator-home/RunsDashboardPanel", () => ({
+  RunsDashboardPanel: () => <div data-testid="home-block-runs-dashboard" />,
 }));
 
-vi.mock("@/components/operator-home/BuyerCtoDemoReadinessPanel", () => ({
-  BuyerCtoDemoReadinessPanel: () => <div data-testid="home-block-cto-demo-readiness" />,
+vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidanceSection", () => ({
+  OperatorHomeAdvancedGuidanceSection: () => <div data-testid="home-block-advanced-guidance" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeWorkspaceStatusSection", () => ({
+  OperatorHomeWorkspaceStatusSection: () => <div data-testid="home-block-workspace-status" />,
+}));
+
+vi.mock("@/components/usability/PilotCommandCenterCard", () => ({
+  PilotCommandCenterCard: () => <div data-testid="home-block-pilot-command-center" />,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -41,50 +33,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isOperatorExperienceFullShellEnv: vi.fn(() => true),
   };
 });
-
-vi.mock("@/components/operator-home/RunsDashboardPanel", () => ({
-  RunsDashboardPanel: () => <div data-testid="home-block-runs-dashboard" />,
-}));
-
-vi.mock("@/components/BeforeAfterDeltaPanel", () => ({
-  BeforeAfterDeltaPanel: () => <div data-testid="home-block-before-after" />,
-}));
-
-vi.mock("@/components/CorePilotBuyerStepHint", () => ({
-  CorePilotBuyerStepHint: () => <div data-testid="home-block-core-pilot-hint" />,
-}));
-
-vi.mock("@/components/BuyerGoldenJourneyStrip", () => ({
-  BuyerGoldenJourneyStrip: () => <div data-testid="home-block-journey" />,
-}));
-
-vi.mock("@/components/FirstPilotOperatingRail", () => ({
-  FirstPilotOperatingRail: () => <div data-testid="home-block-operating-rail" />,
-}));
-
-vi.mock("@/components/LlmUsageBandHint", () => ({
-  LlmUsageBandHint: () => <div data-testid="home-block-llm-hint" />,
-}));
-
-vi.mock("@/components/OperatorCoArchitectHomeStrip", () => ({
-  OperatorCoArchitectHomeStrip: () => <div data-testid="home-block-co-architect" />,
-}));
-
-vi.mock("@/components/FirstPilotReadinessCockpit", () => ({
-  FirstPilotReadinessCockpit: () => <div data-testid="home-block-readiness-cockpit" />,
-}));
-
-vi.mock("@/components/FirstWeekRouteGuidance", () => ({
-  FirstWeekRouteGuidance: () => <div data-testid="home-block-first-week" />,
-}));
-
-vi.mock("@/components/CorePilotNextStepsCard", () => ({
-  CorePilotNextStepsCard: () => <div data-testid="home-block-next-steps" />,
-}));
-
-vi.mock("@/components/CorePilotChecklist", () => ({
-  CorePilotChecklist: () => <div data-testid="home-block-checklist" />,
-}));
 
 vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -100,67 +48,38 @@ vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
 
-function sectionBlockOrder(sectionTestId: string): string[] {
-  const section = screen.getByTestId(sectionTestId);
-
-  return Array.from(section.querySelectorAll("[data-testid^='home-block-']")).map(
-    (element) => element.getAttribute("data-testid") ?? "",
-  );
-}
-
 describe("OperatorHomePageView", () => {
-  it("orders buyer-polished home as hero, reviews, journey, readiness, then setup", () => {
+  it("orders buyer-polished home as hero, reviews, then collapsed advanced guidance", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
 
     expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-journey-section")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-setup-section")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();
-
-    expect(screen.getByTestId("home-block-cto-demo-readiness")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-start-cto-demo")).toBeInTheDocument();
-
-    expect(sectionBlockOrder("operator-home-hero-section")).toEqual([
-      "home-block-cto-demo-readiness",
-      "home-block-start-cto-demo",
-      "home-block-welcome",
-      "home-block-core-pilot-hint",
-      "home-block-before-after",
-      "home-block-co-architect",
-      "home-block-sample-package",
-    ]);
-    expect(sectionBlockOrder("operator-home-journey-section")).toEqual(["home-block-journey"]);
-    expect(sectionBlockOrder("operator-home-setup-section")).toEqual([
-      "home-block-checklist",
-      "home-block-operating-rail",
-    ]);
+    expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("home-block-workspace-status")).toBeNull();
 
     const heroSection = screen.getByTestId("operator-home-hero-section");
-    const journeySection = screen.getByTestId("operator-home-journey-section");
-    const setupSection = screen.getByTestId("operator-home-setup-section");
+    const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
+    const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
-    expect(heroSection.compareDocumentPosition(journeySection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(journeySection.compareDocumentPosition(setupSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(heroSection.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(runsDashboard.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("keeps operator shell proof before reviews grid and setup rail at the bottom", () => {
+  it("keeps operator shell hero before reviews and advanced guidance at the bottom", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
 
-    expect(screen.queryByTestId("home-block-start-cto-demo")).toBeNull();
-    expect(screen.queryByTestId("operator-home-proof-section")).toBeNull();
-    expect(screen.getByTestId("home-block-co-architect")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-pilot-command-center")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-workspace-status")).toBeInTheDocument();
 
-    const welcome = screen.getByTestId("home-block-welcome");
-    const samplePackage = screen.getByTestId("home-block-sample-package");
-    const operatingRail = screen.getByTestId("home-block-operating-rail");
+    const hero = screen.getByTestId("home-block-pilot-command-center");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
-    const nextSteps = screen.getByTestId("home-block-next-steps");
+    const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
+    const workspaceStatus = screen.getByTestId("home-block-workspace-status");
 
-    expect(welcome.compareDocumentPosition(samplePackage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(samplePackage.compareDocumentPosition(operatingRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(runsDashboard.compareDocumentPosition(operatingRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(runsDashboard.compareDocumentPosition(nextSteps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hero.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(runsDashboard.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(advancedGuidance.compareDocumentPosition(workspaceStatus) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

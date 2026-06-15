@@ -135,6 +135,7 @@ All of the following must use simulator-only language when the override is activ
 | AI readiness posture artifact | `executionMode` per agent path is sourced from gate JSON (TB-167) |
 | Sponsor proof ZIP | Must include gate artifact or explicit simulator-only override record |
 | Public claim-boundary check | `scripts/Scan-BuyerDocClaims.ps1` consults gate outcome |
+| Buyer UI proof-confidence labels | `archlucid-ui/src/lib/proof-confidence-taxonomy.ts` — Real-mode verified / Mixed evidence / Simulator-only / Evidence not classified; guarded by `scripts/ci/check_proof_confidence_taxonomy_drift.py` |
 
 ---
 

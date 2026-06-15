@@ -31,12 +31,12 @@ const STEPS: readonly Step[] = [
   {
     n: 2,
     title: "Pick a vertical",
-    body: "A short picker asks which industry profile to start from. The defaults match the briefs in templates/briefs/ — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first run produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run against multiple verticals from the same workspace.",
+    body: "A short picker asks which industry profile to start from. The defaults match the briefs in templates/briefs/ — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first review produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run reviews against multiple verticals from the same workspace.",
   },
   {
     n: 3,
     title: "Run a sample & read your first finding",
-    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline — no upload required for the first pass. Within a few seconds you get a finalized manifest with structured findings. Open the run and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
+    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline — no upload required for the first pass. Within a few seconds you get a finalized manifest with structured findings. Open the review and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
   },
   {
     n: 4,
@@ -69,7 +69,7 @@ export default function GetStartedPage(): ReactNode {
         data-testid="get-started-brand-category-paragraph"
       >
         ArchLucid is an {BRAND_CATEGORY} product — this page walks through signup, vertical selection, and your first
-        sample run.
+        sample review.
       </p>
       <p
         className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"

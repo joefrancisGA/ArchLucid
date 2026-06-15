@@ -171,6 +171,16 @@ public sealed class AgentOutputQualityGateOptions
     }
 
     /// <summary>
+    ///     When &gt; 0 and <see cref="EnforceOnReject" /> rejects a trace after execute, the orchestrator re-invokes that
+    ///     agent up to this many times before failing the run (when <see cref="BlockRunOnReject" /> is also enabled).
+    /// </summary>
+    public int MaxAutoRetries
+    {
+        get;
+        set;
+    } = 1;
+
+    /// <summary>
     ///     When a per-run token or USD cap (<see cref="MaxTokensPerRun" />, <see cref="MaxCostPerRun" />) is exceeded
     ///     after at least one agent handler returns, persist completed <see cref="ArchLucid.Contracts.Agents.AgentResult" />
     ///     rows plus evidence (orchestrator path). When false, the executor fails the batch without partial persistence.

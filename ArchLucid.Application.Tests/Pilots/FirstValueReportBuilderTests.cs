@@ -91,6 +91,7 @@ public sealed class FirstValueReportBuilderTests
         firstPageStatusHeading.Should().BeGreaterThan(introEnd);
         proofStatusHeading.Should().BeGreaterThan(firstPageStatusHeading);
         md.Should().Contain("| Evidence source |");
+        md.Should().Contain("| Execution mode | **Simulator**");
         md.Should().Contain("| Quality disposition | PilotStrict posture satisfied");
         md.Should().Contain("| ROI basis status | **Strong**");
         md.Should().Contain("| LLM call basis | **4** trace row(s)");
@@ -100,6 +101,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("SOC 2 CPA report, external third-party pen-test summary");
         md.Should().Contain("| Recommended next action | Send sponsor packet after human redaction review");
         md.Should().Contain("**Verdict:** **Sendable**");
+        md.Should().Contain("**Structural execution mode:** **Simulator**");
         md.Should().Contain("First-value evidence completeness");
         md.Should().Contain("**Classification:** **Strong**");
         md.Should().Contain("Architecture review identity");

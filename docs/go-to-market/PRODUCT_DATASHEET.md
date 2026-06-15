@@ -54,9 +54,9 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
                         │
                  ┌──────┴───────┐
                  │ Azure SQL    │     ┌─────────────────┐
-                 │ (+ RLS)      │     │ Azure OpenAI    │
-                 └──────────────┘     │ (multi-vendor)  │
-                                      └─────────────────┘
+                 │ (per-tenant  │     │ Azure OpenAI    │
+                 │  catalogs)   │     │ (multi-vendor)  │
+                 └──────────────┘     └─────────────────┘
 ```
 
 **Operator UI** — Next.js console for the **architecture review** lifecycle (reviews and legacy **runs** routes, manifests, governance, graph, audit), aligned with [CORE_PILOT.md](../CORE_PILOT.md)).
@@ -68,7 +68,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 
 | Option | Best for |
 |--------|---------|
-| **Vendor-hosted SaaS (Azure)** | Production for customers — service operated by ArchLucid on Azure (Entra, private endpoints, RLS-isolated tenancy); customers integrate via **web**, **CLI**, and **API clients** |
+| **Vendor-hosted SaaS (Azure)** | Production for customers — service operated by ArchLucid on Azure (Entra, private endpoints, **database-per-tenant** catalog isolation per [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)); customers integrate via **web**, **CLI**, and **API clients** |
 | **Azure Container Apps** | How **we** run the service — Terraform modules for API, worker, SQL, blob, and identity in **our** subscriptions |
 | **Docker Compose** | **Optional** local development and evaluation on a prospect’s or engineer’s machine — full-stack profile with SQL, Redis, Azurite (**not** a standard customer deliverable) |
 
@@ -81,7 +81,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 | Area | Capability |
 |------|-----------|
 | **Identity** | Microsoft Entra ID (JWT), API key, RBAC (Admin / Operator / Reader / Auditor) |
-| **Data isolation** | SQL row-level security (RLS) with `SESSION_CONTEXT` for multi-tenant isolation |
+| **Data isolation** | **Database-per-tenant** SQL catalogs (`SystemWithPerTenantCatalogs`) plus application-layer scope predicates — **SQL RLS is not the production isolation boundary** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md)) |
 | **Network** | Private endpoints for SQL and blob storage; Azure Front Door with WAF |
 | **Audit** | Append-only event store with `DENY UPDATE/DELETE`; export for compliance evidence |
 | **Scanning** | OWASP ZAP baseline in CI, Schemathesis API fuzzing, CodeQL, Gitleaks, Trivy |
@@ -94,7 +94,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 | Channel | Details |
 |---------|---------|
 | **REST API** | OpenAPI v1 spec with versioned routes (`/v1/...`), rate limiting, correlation ID |
-| **CLI** | .NET global tool or `dotnet run` — full run lifecycle and diagnostics |
+| **CLI** | .NET global tool or `dotnet run` — full **review** lifecycle (`run` CLI verb; APIs retain `runId`) and diagnostics |
 | **Webhooks** | HMAC-signed delivery with optional CloudEvents envelope |
 | **Service Bus** | Azure Service Bus with transactional outbox for lifecycle events |
 | **Events** | `com.archlucid.*` canonical event types with JSON Schema |

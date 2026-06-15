@@ -1,3 +1,4 @@
+import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -10,6 +11,15 @@ export default function SettingsPage() {
           General operator settings.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Visual theme (developer preview)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AuthorityThemeDevSelector />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

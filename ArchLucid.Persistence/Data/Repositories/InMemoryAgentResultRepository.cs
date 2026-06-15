@@ -62,6 +62,29 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
             await CreateAsync(result, cancellationToken).ConfigureAwait(false);
     }
 
+    public Task ReplaceForRunTaskAsync(
+        AgentResult replacement,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(replacement);
+        cancellationToken.ThrowIfCancellationRequested();
+        _ = connection;
+        _ = transaction;
+
+        lock (_gate)
+        {
+            _results.RemoveAll(r =>
+                string.Equals(r.RunId, replacement.RunId, StringComparison.Ordinal) &&
+                string.Equals(r.TaskId, replacement.TaskId, StringComparison.Ordinal));
+
+            _results.Add(Clone(replacement));
+        }
+
+        return Task.CompletedTask;
+    }
+
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,

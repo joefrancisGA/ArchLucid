@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
@@ -32,6 +33,10 @@ public static class SponsorSafeProofStatusMarkdownFormatter
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"**Verdict:** **{DescribeDisposition(disposition)}** — derived only from persisted run proofs, tenant value-window posture, and the buyer-safe gate.");
+        sb.AppendLine();
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"**Structural execution mode:** **{StructuralExecutionModeLabels.ToDisplayLabel(run.StructuralExecutionMode)}** — {StructuralExecutionModeLabels.ToOperatorDetail(run.StructuralExecutionMode)}");
         sb.AppendLine();
 
         if (Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification sponsorReadiness))

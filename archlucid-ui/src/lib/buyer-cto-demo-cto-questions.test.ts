@@ -6,8 +6,8 @@ import {
 } from "@/lib/buyer-cto-demo-cto-questions";
 
 describe("buyer-cto-demo-cto-questions", () => {
-  it("defines six CTO diligence questions with proof links", () => {
-    expect(CTO_DEMO_QUESTIONS.length).toBeGreaterThanOrEqual(6);
+  it("defines twelve CTO diligence questions with proof links", () => {
+    expect(CTO_DEMO_QUESTIONS).toHaveLength(12);
 
     for (const row of CTO_DEMO_QUESTIONS) {
       expect(row.id.length).toBeGreaterThan(0);

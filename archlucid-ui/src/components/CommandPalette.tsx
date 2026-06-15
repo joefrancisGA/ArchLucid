@@ -22,8 +22,9 @@ import {
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
+import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
-import { DOCUMENTATION_SEARCH_ITEMS, documentationSearchOpenUrl } from "@/lib/docs-search-index";
+import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
@@ -39,6 +40,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -89,19 +91,63 @@ function curatedPaletteVisibilityHref(href: string): string {
   return href.slice(0, i);
 }
 
-function CommandPaletteDocumentationSearch({ buyerPolishedShell }: { buyerPolishedShell: boolean }) {
+function CommandPaletteDocumentationSearch({
+  buyerPolishedShell,
+  onNavigate,
+}: {
+  buyerPolishedShell: boolean;
+  onNavigate: (href: string) => void;
+}) {
   return (
     <CommandGroup heading={buyerPolishedShell ? "Help topics" : "Documentation"}>
-      {DOCUMENTATION_SEARCH_ITEMS.map((row) => (
+      {DOCUMENTATION_SEARCH_ITEMS.map((row) => {
+        const href = resolveDocumentationHref(row.relativeDocsPath);
+
+        return (
+          <CommandItem
+            key={row.relativeDocsPath}
+            value={`doc ${row.title} ${row.description} ${row.category} ${row.relativeDocsPath}`}
+            className="cursor-pointer"
+            onSelect={() => onNavigate(href)}
+          >
+            {/*
+             * Render a real <a> so the browser provides right-click → "Open in new tab",
+             * Ctrl+Click, and middle-click. For plain left-clicks we preventDefault and
+             * delegate to the SPA router so the dialog closes cleanly.
+             */}
+            <a
+              href={href}
+              className="flex w-full items-center"
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onNavigate(href);
+                }
+              }}
+            >
+              <span className="font-medium">{row.title}</span>
+              <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
+            </a>
+          </CommandItem>
+        );
+      })}
+    </CommandGroup>
+  );
+}
+
+function CommandPaletteActions({ onNavigate }: { onNavigate: (href: string) => void }) {
+  return (
+    <CommandGroup heading="Actions">
+      {COMMAND_PALETTE_ACTIONS.map((action) => (
         <CommandItem
-          key={row.relativeDocsPath}
-          value={`doc ${row.title} ${row.description} ${row.category} ${row.relativeDocsPath}`}
+          key={action.id}
+          value={`action ${action.label} ${action.searchValue}`}
           onSelect={() => {
-            documentationSearchOpenUrl(row.relativeDocsPath);
+            onNavigate(action.href);
           }}
         >
-          <span className="font-medium">{row.title}</span>
-          <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
+          {action.label}
         </CommandItem>
       ))}
     </CommandGroup>
@@ -470,7 +516,9 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
-          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} />
+          <CommandPaletteRecentViewsGroup onNavigate={navigate} />
+          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
+          <CommandPaletteActions onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}

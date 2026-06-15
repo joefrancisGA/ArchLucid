@@ -81,6 +81,8 @@ public sealed class TraceabilityBundleBuilderTests
         await using ZipArchive zip = new(ms, ZipArchiveMode.Read, leaveOpen: false);
         zip.GetEntry("run-summary.json").Should().NotBeNull();
         zip.GetEntry("audit-events.json").Should().NotBeNull();
+        zip.GetEntry("audit-evidence-summary.json").Should().NotBeNull();
+        zip.GetEntry("audit-evidence-summary.md").Should().NotBeNull();
         zip.GetEntry("decision-traces.json").Should().NotBeNull();
         zip.GetEntry("README.txt").Should().NotBeNull();
     }

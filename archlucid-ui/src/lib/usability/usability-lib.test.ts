@@ -1,0 +1,35 @@
+import { describe, expect, it } from "vitest";
+
+import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
+import { filterNavLinksByOperateUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
+import { searchHelpTopics } from "@/lib/usability/search-help-topics";
+import { shouldAutoStartRegistrationTour } from "@/lib/usability/onboarding-registration-tour";
+
+describe("usability lib", () => {
+  it("navLinkQuestionSubtitle returns compare copy", () => {
+    expect(navLinkQuestionSubtitle("/compare")).toContain("changed");
+  });
+
+  it("filterNavLinksByOperateUnlockPhase hides governance until phase 2", () => {
+    const links = [{ href: "/compare" }, { href: "/audit" }];
+    const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
+
+    expect(phase1.map((l) => l.href)).toEqual(["/compare"]);
+  });
+
+  it("pageHelpTopicForPathname maps review routes", () => {
+    expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
+  });
+
+  it("searchHelpTopics finds pilot guide", () => {
+    const hits = searchHelpTopics("pilot guide");
+
+    expect(hits.some((h) => h.slug === "pilot-guide")).toBe(true);
+  });
+
+  it("shouldAutoStartRegistrationTour detects registration source", () => {
+    expect(shouldAutoStartRegistrationTour("?source=registration")).toBe(true);
+    expect(shouldAutoStartRegistrationTour("")).toBe(false);
+  });
+});

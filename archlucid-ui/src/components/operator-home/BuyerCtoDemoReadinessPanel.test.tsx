@@ -7,6 +7,20 @@ vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
+
+vi.mock("@/lib/buyer-cto-demo-orchestration", () => ({
+  resetBuyerCtoDemoSession: vi.fn(async () => ({
+    seedSucceeded: true,
+    destinationHref: "/operator",
+  })),
+}));
+
 vi.mock("@/lib/buyer-cto-demo-readiness", () => ({
   buyerCtoDemoReadinessStatusKind: () => "ready",
   evaluateBuyerCtoDemoReadiness: vi.fn(async () => ({

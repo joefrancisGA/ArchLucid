@@ -1,0 +1,143 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+
+const resourcesMenuId = "marketing-resources-menu";
+
+type MarketingResourcesMenuProps = {
+  liveDemoLinked: boolean;
+};
+
+export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMenuProps) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function closeWhenClickingOutside(event: PointerEvent) {
+      const targetNode = event.target instanceof Node ? event.target : null;
+
+      if (targetNode === null || menuRef.current?.contains(targetNode)) {
+        return;
+      }
+
+      setOpen(false);
+    }
+
+    function closeWhenFocusLeaves(event: FocusEvent) {
+      const targetNode = event.target instanceof Node ? event.target : null;
+
+      if (targetNode === null || menuRef.current?.contains(targetNode)) {
+        return;
+      }
+
+      setOpen(false);
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      setOpen(false);
+    }
+
+    document.addEventListener("pointerdown", closeWhenClickingOutside);
+    document.addEventListener("focusin", closeWhenFocusLeaves);
+    document.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeWhenClickingOutside);
+      document.removeEventListener("focusin", closeWhenFocusLeaves);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  function closeMenu() {
+    setOpen(false);
+  }
+
+  function toggleMenu() {
+    setOpen((currentOpen) => !currentOpen);
+  }
+
+  return (
+    <div ref={menuRef} className="relative shrink-0">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={resourcesMenuId}
+        aria-haspopup="menu"
+        className="inline-flex list-none cursor-pointer items-center rounded-md px-2 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
+        onClick={toggleMenu}
+      >
+        Resources
+        <span className="ml-0.5 text-neutral-400" aria-hidden>
+          ▾
+        </span>
+      </button>
+      {open ? (
+        <div
+          id={resourcesMenuId}
+          role="menu"
+          className="absolute end-0 top-full z-50 mt-1 min-w-[14rem] rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
+        >
+          <Link
+            href="/compliance-journey"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            onClick={closeMenu}
+          >
+            Compliance journey
+          </Link>
+          <Link
+            href="/trust"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            onClick={closeMenu}
+          >
+            Trust Center
+          </Link>
+          <Link
+            href="/security-trust"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            onClick={closeMenu}
+          >
+            Security &amp; assurance
+          </Link>
+          <Link
+            href="/privacy"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            onClick={closeMenu}
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/why"
+            role="menuitem"
+            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            onClick={closeMenu}
+          >
+            Why ArchLucid
+          </Link>
+          {liveDemoLinked ? (
+            <Link
+              href="/live-demo"
+              role="menuitem"
+              className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+              onClick={closeMenu}
+            >
+              Live demo
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}

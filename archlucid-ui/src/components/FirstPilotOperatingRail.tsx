@@ -138,7 +138,7 @@ export function FirstPilotOperatingRail() {
       sectionTestId="first-pilot-operating-rail"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.operatingRail}
       legacyStorageKeys={[RAIL_LEGACY_MINIMIZED_STORAGE_KEY]}
-      defaultExpanded={buyerPolishedShell}
+      defaultExpanded={false}
       description={shellCopy.intro}
       collapsedSummary="Six-step path from platform setup to a finalized review package."
       headerAside={

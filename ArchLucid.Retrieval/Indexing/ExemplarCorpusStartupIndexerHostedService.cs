@@ -10,7 +10,7 @@ public sealed class ExemplarCorpusStartupIndexerHostedService(
     ExemplarCorpusIndexer indexer,
     IServiceScopeFactory scopeFactory,
     IOptionsMonitor<ExemplarCorpusIndexerOptions> options,
-    ILogger<ExemplarCorpusStartupIndexerHostedService> logger) : IHostedService
+    ILogger<ExemplarCorpusStartupIndexerHostedService> logger) : BackgroundService
 {
     private readonly ExemplarCorpusIndexer _indexer =
         indexer ?? throw new ArgumentNullException(nameof(indexer));
@@ -24,7 +24,7 @@ public sealed class ExemplarCorpusStartupIndexerHostedService(
     private readonly ILogger<ExemplarCorpusStartupIndexerHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!_options.CurrentValue.IndexOnStartup)
             return;
@@ -32,7 +32,7 @@ public sealed class ExemplarCorpusStartupIndexerHostedService(
         try
         {
             IReadOnlyList<Models.RetrievalDocument> documents =
-                await _indexer.BuildDocumentsAsync(cancellationToken).ConfigureAwait(false);
+                await _indexer.BuildDocumentsAsync(stoppingToken).ConfigureAwait(false);
 
             if (documents.Count == 0)
             {
@@ -45,7 +45,7 @@ public sealed class ExemplarCorpusStartupIndexerHostedService(
             using IServiceScope scope = _scopeFactory.CreateScope();
             IRetrievalIndexingService indexingService = scope.ServiceProvider.GetRequiredService<IRetrievalIndexingService>();
 
-            await indexingService.IndexDocumentsAsync(documents, cancellationToken).ConfigureAwait(false);
+            await indexingService.IndexDocumentsAsync(documents, stoppingToken).ConfigureAwait(false);
 
             if (_logger.IsEnabled(LogLevel.Information))
                 _logger.LogInformation("Indexed {Count} exemplar documents for retrieval.", documents.Count);
@@ -58,6 +58,4 @@ public sealed class ExemplarCorpusStartupIndexerHostedService(
                 _logger.LogWarning(ex, "Exemplar corpus startup indexing failed; retrieval will continue fail-open.");
         }
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

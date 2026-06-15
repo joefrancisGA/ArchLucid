@@ -95,7 +95,7 @@ These are factual claims grounded in what the repository ships today.
 | DOCX export with embedded diagrams | Consulting-grade report via `IDocxExportService`, Mermaid → PNG rendering |
 | CLI for automation | `archlucid new`, `run`, `status`, `commit`, `artifacts`, `doctor`, `support-bundle`, `trace` |
 | Enterprise auth (Entra ID + RBAC) | JwtBearer, API key, Admin/Operator/Reader/Auditor roles, `AuthSafetyGuard` |
-| SQL RLS for multi-tenant isolation | `SESSION_CONTEXT`, scope columns, ADR 0003 |
+| Database-per-tenant catalog isolation | `TenantDatabaseBindings`, scope predicates, [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
 | Private endpoints + WAF | Terraform modules for SQL/blob private endpoints, Front Door + WAF |
 | Agent output quality scoring | Structural completeness + semantic quality, configurable quality gate |
 | Prompt versioning | SHA-256 prompt catalog, prompt regression detection in CI |

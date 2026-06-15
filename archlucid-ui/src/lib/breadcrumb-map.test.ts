@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "./showcase-static-demo";
 import { getBreadcrumbs } from "./breadcrumb-map";
 
 describe("getBreadcrumbs", () => {
@@ -22,12 +22,40 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("labels UUID review segments as Review detail", () => {
+  it("labels UUID review segments as Review package", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}`)).toEqual([
       { label: "Home", href: "/" },
       { label: "Architecture reviews", href: "/reviews" },
-      { label: "Review detail" },
+      { label: "Review package" },
+    ]);
+  });
+
+  it("maps review provenance under the review package crumb", () => {
+    const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    expect(getBreadcrumbs(`/reviews/${id}/provenance`)).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Architecture reviews", href: "/reviews" },
+      { label: "Review package", href: `/reviews/${id}` },
+      { label: "Evidence provenance" },
+    ]);
+  });
+
+  it("maps showcase manifest detail trail", () => {
+    expect(getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Manifests", href: "/manifests" },
+      { label: "Claims Intake package manifest" },
+    ]);
+  });
+
+  it("maps governance approval lineage with demo request title", () => {
+    expect(getBreadcrumbs("/governance/approval-requests/e2e-approval-001/lineage")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Governance", href: "/governance" },
+      { label: "Approval requests", href: "/governance/approval-requests" },
+      { label: "Sample approval record", href: "/governance/approval-requests/e2e-approval-001" },
+      { label: "Lineage" },
     ]);
   });
 
@@ -39,10 +67,10 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("maps executive ROI dashboard as Home / Executive summary", () => {
+  it("maps operator ROI dashboard as Home / Portfolio overview", () => {
     expect(getBreadcrumbs("/dashboard")).toEqual([
       { label: "Home", href: "/" },
-      { label: "Executive summary" },
+      { label: "Portfolio overview" },
     ]);
   });
 

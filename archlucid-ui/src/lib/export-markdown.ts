@@ -1,3 +1,7 @@
+import {
+  formatProofConfidenceLabelFromTrustStatus,
+  PROOF_CONFIDENCE_FIELD_LABEL,
+} from "@/lib/proof-confidence-taxonomy";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestMarkdownOptions = {
@@ -695,6 +699,10 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
   lines.push("");
   lines.push(card.selfAttestationNotice);
   lines.push("");
+  pushField(
+    PROOF_CONFIDENCE_FIELD_LABEL,
+    formatProofConfidenceLabelFromTrustStatus(card.executionMode.status),
+  );
   pushField(card.executionMode.title, card.executionMode.status, card.executionMode.detail);
   pushField(card.goldenManifest.title, card.goldenManifest.status, card.goldenManifest.detail);
   pushField(card.auditTrail.title, card.auditTrail.status, card.auditTrail.detail);

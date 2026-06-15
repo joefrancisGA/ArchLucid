@@ -15,11 +15,28 @@ public sealed class PilotProofPacketSchemaRegressionTests
     {
         PilotProofPacketArtifactCatalog.CoreFileNames.Should().Contain(
         [
+            "sponsor-proof-packet-index.json",
+            "sponsor-proof-packet-index.md",
             "run-evidence.json",
             "quote-to-proof-readiness.json",
             "redaction-manifest.json",
             "governance-outcome-summary.json",
         ]);
+    }
+
+    [Fact]
+    public void Index_json_uses_stable_schema_and_includes_run_id()
+    {
+        string json = PilotProofPacketIndexBuilder.BuildJson("run-abc", pilotStrictSatisfied: true, demoWarning: false, structuralExecutionModeLabel: "Real");
+
+        using JsonDocument doc = JsonDocument.Parse(json);
+        JsonElement root = doc.RootElement;
+
+        root.GetProperty("schema").GetString().Should().Be(PilotProofPacketArtifactCatalog.IndexSchema);
+        root.GetProperty("runId").GetString().Should().Be("run-abc");
+        root.GetProperty("structuralExecutionMode").GetString().Should().Be("Real");
+        root.GetProperty("whatThisProves").GetArrayLength().Should().BeGreaterThan(0);
+        root.GetProperty("whatThisDoesNotProve").GetArrayLength().Should().BeGreaterThan(0);
     }
 
     [Fact]

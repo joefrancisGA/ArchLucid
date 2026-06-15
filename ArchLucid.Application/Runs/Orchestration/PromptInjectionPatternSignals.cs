@@ -82,7 +82,10 @@ public static class PromptInjectionPatternSignals
         "new system prompt",
         "override safety",
         "jailbreak",
-        "disregard your earlier rules"
+        "disregard your earlier rules",
+        "dump secrets",
+        "leak credentials",
+        "exfiltrate"
     ];
 
     private static bool MatchesAnyInjectionFamily(string normalized)

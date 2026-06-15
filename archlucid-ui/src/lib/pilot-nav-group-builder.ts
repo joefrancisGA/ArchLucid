@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-const EXECUTIVE_SUMMARY_NAV_TITLE =
-  "Executive summary — sponsor-facing ROI snapshot and package overview";
+const PORTFOLIO_OVERVIEW_NAV_TITLE =
+  "Portfolio overview — sponsor-facing ROI snapshot and package overview";
 
 /** Pilot layer — default authenticated path; essentials omit `requiredAuthority` where invariant requires it. */
 export class PilotNavGroupBuilder extends NavGroupBuilderBase {
@@ -26,7 +28,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Executive summary → Review packages → Evidence trail → Evidence intake for net-new input; then onboarding, findings, help, and scorecard.",
+        "Buyer-first path: Portfolio overview → Architecture reviews → Evidence trail → Evidence intake for net-new input; then onboarding, findings, help, and scorecard.",
       links: [
         {
           href: "/",
@@ -38,9 +40,9 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/dashboard",
-          label: OPERATOR_NAV_LINK_LABELS.executiveSummary,
-          title: EXECUTIVE_SUMMARY_NAV_TITLE,
+          href: isCtoDemoPresenterSafeModeEnv() ? getShowcaseExecutiveHref() : "/dashboard",
+          label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
+          title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
@@ -49,7 +51,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           href: "/reviews?projectId=default",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle(
-            "Review packages — open review detail, architecture package, artifacts, exports",
+            "Architecture reviews — open review detail, architecture package, artifacts, exports",
             "alt+r",
           ),
           keyShortcut: "alt+r",

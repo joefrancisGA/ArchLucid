@@ -83,6 +83,13 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/customer-facing/FAQ.md", "docs/library/AUDIT_COVERAGE_MATRIX.md"],
   },
   {
+    slug: "how-it-works",
+    title: "What ArchLucid does with your data",
+    summary: "Data flow, tenant isolation, audit trail, and portability — factual security posture for CTO diligence.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/customer-facing/HOW_IT_WORKS.md"],
+  },
+  {
     slug: "core-pilot",
     title: "Core Pilot",
     summary: "Operator walkthrough from first session through commit — checklist anchors and recovery links.",

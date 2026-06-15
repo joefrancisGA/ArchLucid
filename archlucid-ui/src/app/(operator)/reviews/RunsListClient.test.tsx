@@ -181,7 +181,7 @@ describe("RunsListClient inspector", () => {
       <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
     );
 
-    expect(screen.getByRole("heading", { name: /finalized review packages/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /finalized architecture reviews/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^finalized packages$/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Search reviews by title or description/i)).toBeInTheDocument();
   });

@@ -1,4 +1,5 @@
 import { operatorSemanticSurface } from "@/lib/design-tokens";
+import { formatProofConfidenceLabel } from "@/lib/proof-confidence-taxonomy";
 import { describeSponsorProofReadiness, isAgentOutputPilotStrictSponsorSafe, isProjectedDollarClaimsSponsorSafe, type PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
 
 export type RunDetailFirstScreenProofDisposition = "READY" | "WARN" | "HOLD";
@@ -7,6 +8,7 @@ export type RunDetailFirstScreenProofSummary = {
   readonly disposition: RunDetailFirstScreenProofDisposition;
   readonly cardTitle: string;
   readonly whySafeToSendBullets: readonly string[];
+  readonly proofConfidenceLabel: string;
   readonly executionModeLabel: string;
   readonly pilotStrictLabel: string;
   readonly roiBasisLabel: string;
@@ -94,7 +96,7 @@ function buildWhySafeToSendBullets(
   }
 
   if (simulatorFallback) {
-    bullets.push("Real mode fell back to simulator for this run — label that limitation before any external send.");
+    bullets.push("Real mode fell back to simulator for this review — label that limitation before any external send.");
   }
 
   if (bullets.length === 0) {
@@ -157,17 +159,28 @@ export function buildRunDetailFirstScreenProofSummary(
   const detailParts: string[] = [];
 
   if (simulatorFallback) {
-    detailParts.push("Simulator substitution is recorded on this run.");
+    detailParts.push("Simulator substitution is recorded on this review.");
   }
 
   if (readiness?.detail) {
     detailParts.push(readiness.detail);
   }
 
+  const extendedPayload = payload as {
+    structuralExecutionMode?: string | number;
+    realModeFellBackToSimulator?: boolean;
+    claimWordingClass?: string;
+  } | null;
+
   return {
     disposition,
     cardTitle: buildCardTitle(disposition),
     whySafeToSendBullets: buildWhySafeToSendBullets(payload, disposition, strictSafe, roiLabel, simulatorFallback),
+    proofConfidenceLabel: formatProofConfidenceLabel({
+      structuralExecutionMode: extendedPayload?.structuralExecutionMode,
+      realModeFellBackToSimulator: extendedPayload?.realModeFellBackToSimulator,
+      claimWordingClass: extendedPayload?.claimWordingClass,
+    }),
     executionModeLabel: structuralExecutionModeLabel(payload),
     pilotStrictLabel: pilotStrictLabel(payload),
     roiBasisLabel: roiLabel,

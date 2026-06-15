@@ -3,9 +3,11 @@ import Link from "next/link";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer-polish-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { inAppHelpHref, listProductDocumentationEntries } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 /**
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
@@ -14,7 +16,7 @@ export function HelpProductGuide() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <div className="space-y-4" aria-labelledby="help-product-guide-heading">
+    <div className={OPERATOR_LAYOUT.sectionStack} aria-labelledby="help-product-guide-heading">
       <h2
         id="help-product-guide-heading"
         className="m-0 text-sm font-semibold text-al-text-primary"
@@ -23,11 +25,11 @@ export function HelpProductGuide() {
       </h2>
 
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
-        <CardHeader className="pb-2">
+        <CardHeader>
           <CardTitle className="text-base">Your first review package</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 pt-0 text-sm text-neutral-800 dark:text-neutral-200">
-          <ol className="m-0 list-decimal space-y-1.5 pl-5">
+        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
+          <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
                 {BUYER_HELP_EXECUTIVE_STEP_CTA}
@@ -61,50 +63,50 @@ export function HelpProductGuide() {
 
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
         <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <CardTitle className="text-base">Review packages</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 text-sm text-neutral-800 dark:text-neutral-200">
+          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
             Each review package consolidates outcomes, findings, evidence, governance approval, and audit history in one
             place.
           </CardContent>
         </Card>
 
         <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <CardTitle className="text-base">Signed manifests</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 text-sm text-neutral-800 dark:text-neutral-200">
+          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
             The signed manifest is the governed architecture decision record — versioned, hash-verified, and ready for
             export.
           </CardContent>
         </Card>
 
         <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <CardTitle className="text-base">Findings</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 text-sm text-neutral-800 dark:text-neutral-200">
+          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
             Findings include severity, business impact, evidence citations, and recommended monitoring or remediation
             actions.
           </CardContent>
         </Card>
 
         <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <CardTitle className="text-base">Evidence and audit trail</CardTitle>
           </CardHeader>
-          <CardContent className="pt-0 text-sm text-neutral-800 dark:text-neutral-200">
+          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
             The evidence trail links artifacts, findings, and decisions. The audit trail records who acted and when for
             compliance review.
           </CardContent>
         </Card>
 
         <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
+          <CardHeader>
             <CardTitle className="text-base">Troubleshooting</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 pt-0 text-sm text-neutral-800 dark:text-neutral-200">
+          <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
             <p className="m-0">
               If a page fails to load, refresh once; for sign-in issues, return to{" "}
               <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
@@ -117,7 +119,7 @@ export function HelpProductGuide() {
         </Card>
       </div>
 
-      <section aria-labelledby="help-in-app-topics" className="space-y-3">
+      <section aria-labelledby="help-in-app-topics" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h3 id="help-in-app-topics" className="m-0 text-sm font-semibold text-al-text-primary">
           In-app guides
         </h3>
