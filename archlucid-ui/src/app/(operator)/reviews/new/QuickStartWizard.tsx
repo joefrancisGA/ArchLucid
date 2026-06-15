@@ -23,6 +23,7 @@ import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-prese
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
+import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
 
 const QUICK_STEPS = [
   { label: "System & preset", description: "Name your system and pick a starter profile" },
@@ -76,6 +77,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   }, [presetId, reset]);
 
   useEffect(() => {
+    trackWizardStepViewed(quickStep, QUICK_STEPS[quickStep]?.label ?? "Unknown", "QuickStart");
     if (quickStep !== 2) {
       setSubmitError(null);
     }
@@ -117,6 +119,12 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       // Trigger validation for only the fields on this step
       const ok = await trigger(fieldGroup, { shouldFocus: true });
       if (!ok) {
+        trackWizardValidationFailed(
+          "QuickStart",
+          quickStep,
+          QUICK_STEPS[quickStep]?.label ?? "Unknown",
+          "field_validation",
+        );
         showToast("err", "Fix the highlighted fields before continuing.");
         return;
       }
@@ -158,6 +166,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         return;
       }
 
+      trackWizardCompleted("QuickStart");
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
       onRunCreated(id);

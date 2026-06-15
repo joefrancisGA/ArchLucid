@@ -9,6 +9,7 @@ import { DECISION_RECEIPT_COST_ESTIMATE_LABEL } from "@/lib/decision-receipt-exp
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import { DecisionReceiptExportButton } from "./DecisionReceiptExportButton";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export type DraftIntakeDecisionReceiptCardProps = {
   readonly draftId: string;

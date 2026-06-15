@@ -23,6 +23,7 @@ import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
 
 const PILOT_STEPS = [
   { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
@@ -59,6 +60,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   }, [reset]);
 
   useEffect(() => {
+    trackWizardStepViewed(pilotStep, PILOT_STEPS[pilotStep]?.label ?? "Unknown", "SimplifiedPilot");
     if (pilotStep !== 2) {
       setSubmitError(null);
     }
@@ -86,6 +88,12 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
       const ok = await trigger(fieldGroup, { shouldFocus: true });
 
       if (!ok) {
+        trackWizardValidationFailed(
+          "SimplifiedPilot",
+          pilotStep,
+          PILOT_STEPS[pilotStep]?.label ?? "Unknown",
+          "field_validation",
+        );
         showToast("err", "Fix the highlighted fields before continuing.");
 
         return;
@@ -124,6 +132,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         return;
       }
 
+      trackWizardCompleted("SimplifiedPilot");
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
       onRunCreated(id);

@@ -66,6 +66,7 @@ import {
   type WizardFormValues,
 } from "@/lib/wizard-schema";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
+import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
 
 import { QuickStartWizard } from "./QuickStartWizard";
 import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
@@ -235,6 +236,10 @@ export function NewRunWizardClient() {
   useEffect(() => {
     wizardReadyRef.current?.setAttribute("data-wizard-ready", "true");
   }, []);
+
+  useEffect(() => {
+    trackWizardStepViewed(stepIndex, stepDefinitions[stepIndex]?.label ?? "Unknown", "FullGuided");
+  }, [stepIndex, stepDefinitions]);
 
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled: runId !== null && (wizardMode === "quick" ? true : stepIndex === trackStepIndex),
@@ -541,6 +546,12 @@ export function NewRunWizardClient() {
     if (fieldGroup != null) {
       const ok = await trigger(fieldGroup, { shouldFocus: true });
       if (!ok) {
+        trackWizardValidationFailed(
+          "FullGuided",
+          stepIndex,
+          stepDefinitions[stepIndex]?.label ?? "Unknown",
+          "field_validation",
+        );
         showToast("err", "Fix the highlighted fields before continuing.");
         return;
       }
@@ -583,6 +594,7 @@ export function NewRunWizardClient() {
 
       setRunId(id);
       setStepIndex(trackStepIndex);
+      trackWizardCompleted("FullGuided");
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
 

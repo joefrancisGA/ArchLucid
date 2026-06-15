@@ -45,6 +45,8 @@ describe("FindingExplainabilityDialog", () => {
       expect(screen.getByText("Test finding")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("explainability-trace-tree")).toBeInTheDocument();
+
     expect(screen.getAllByText(/Narrative body\./)[0]).toBeInTheDocument();
     expect(screen.getByText("Structured evidence (deterministic)")).toBeInTheDocument();
     expect(screen.getByText("Policy breach on node n1.")).toBeInTheDocument();

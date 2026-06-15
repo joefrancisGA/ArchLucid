@@ -45,6 +45,8 @@
   "dependencies": {
     "@archlucid/api-types": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
+    "@microsoft/applicationinsights-react-js": "^19.4.0",
+    "@microsoft/applicationinsights-web": "^3.4.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",

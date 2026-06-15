@@ -7,6 +7,7 @@ import { Suspense, useLayoutEffect, useRef, useState, type ReactNode } from "rea
 import { usePathname } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
 import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -234,6 +235,7 @@ function AppShellInner({ children }: AppShellClientProps) {
   return (
     <OperatorNavAuthorityProvider>
       <WorkspaceActiveRunProvider>
+      <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
