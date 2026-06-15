@@ -60,6 +60,8 @@ internal static class IntegrationTestHostStartup
             Console.Error.WriteLine(
                 $"[IntegrationTestHostStartup] TIMEOUT: operation exceeded {effectiveTimeout.TotalSeconds:N0}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
+            ObserveAbandonedOperation(operationTask);
+
             throw new TimeoutException(
                 $"Integration host operation exceeded {effectiveTimeout.TotalSeconds:N0}s.");
         }
@@ -70,5 +72,39 @@ internal static class IntegrationTestHostStartup
             $"[IntegrationTestHostStartup] Bounded operation completed in {sw.Elapsed.TotalSeconds:N1}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
         return result;
+    }
+
+    /// <summary>
+    ///     The worker thread may keep running after a timeout; observe completion so faults are not unobserved and
+    ///     late finishes are visible in CI stderr when diagnosing host leaks.
+    /// </summary>
+    private static void ObserveAbandonedOperation(Task operationTask)
+    {
+        ArgumentNullException.ThrowIfNull(operationTask);
+
+        _ = operationTask.ContinueWith(
+            static completed =>
+            {
+                if (completed.IsFaulted)
+                {
+                    _ = completed.Exception;
+
+                    return;
+                }
+
+                if (completed.IsCanceled)
+                {
+                    Console.Error.WriteLine(
+                        "[IntegrationTestHostStartup] Abandoned bounded operation was canceled after caller timeout.");
+
+                    return;
+                }
+
+                Console.Error.WriteLine(
+                    $"[IntegrationTestHostStartup] Abandoned bounded operation completed after caller timeout at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+            },
+            CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
     }
 }

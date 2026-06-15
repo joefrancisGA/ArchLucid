@@ -120,6 +120,13 @@ foreach ($filter in $filterChunks) {
         if ($inGitHubActions) {
             Write-Host '::endgroup::'
         }
+
+        if ($IsLinux -or $inGitHubActions) {
+            # Kill orphaned testhost/dotnet processes that prevent the GitHub Actions step from finishing
+            Get-Process -Name 'dotnet', 'testhost' -ErrorAction SilentlyContinue |
+                Where-Object { $_.Id -ne $PID } |
+                Stop-Process -Force -ErrorAction SilentlyContinue
+        }
     }
 }
 

@@ -33,13 +33,13 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
 {
+    private const string LogPrefix = nameof(ArchLucidApiFactory);
+
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment;
     private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
     private readonly bool _ownsSqlCatalog;
     private readonly string _storageProvider;
-    private readonly object _hostLifecycleLock = new();
-
-    private Task<IServiceProvider>? _ensureServicesTask;
+    private readonly IntegrationTestWebAppFactoryHostLifecycle _hostLifecycle = new();
 
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
@@ -133,25 +133,15 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    ///     Returns a single in-flight host-start task per factory instance so concurrent
-    ///     <see cref="EnsureServicesStartedAsync" /> / <see cref="CreateBoundedClientAsync" /> calls do not race
-    ///     <see cref="WebApplicationFactory{TEntryPoint}" /> internals (CI #2168).
-    /// </summary>
     internal Task<IServiceProvider> EnsureServicesStartedAsync()
     {
-        lock (_hostLifecycleLock)
-        {
-            _ensureServicesTask ??= StartServicesCoreAsync();
-
-            return _ensureServicesTask;
-        }
+        return _hostLifecycle.EnsureServicesStartedAsync(LogPrefix, StartServicesCoreAsync);
     }
 
     private Task<IServiceProvider> StartServicesCoreAsync()
     {
         Console.Error.WriteLine(
-            $"[ArchLucidApiFactory] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+            $"[{LogPrefix}] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
         // Services access and first CreateClient share one Task.Run worker so WebApplicationFactory.EnsureServer
         // is never entered concurrently from an abandoned startup thread and a later CreateClient (CI #2168).
@@ -161,7 +151,7 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
             _ = CreateClient();
 
             Console.Error.WriteLine(
-                $"[ArchLucidApiFactory] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+                $"[{LogPrefix}] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
             return services;
         });
@@ -178,6 +168,12 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
         return await IntegrationTestHostStartup.EnsureCompletedAsync(
             () => CreateClient(),
             IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public override ValueTask DisposeAsync()
+    {
+        return _hostLifecycle.DisposeHostAsync(LogPrefix, () => base.DisposeAsync());
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>
