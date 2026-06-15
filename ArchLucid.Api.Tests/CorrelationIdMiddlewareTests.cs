@@ -1,8 +1,14 @@
-﻿using ArchLucid.Host.Core.Middleware;
+﻿using System.Diagnostics;
+
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Middleware;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+
+using Moq;
 
 namespace ArchLucid.Api.Tests;
 
@@ -19,7 +25,7 @@ public sealed class CorrelationIdMiddlewareTests
         DefaultHttpContext context = new() { TraceIdentifier = "default-trace" };
         context.Request.Headers["X-Correlation-ID"] = "safe-id_01";
 
-        CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask);
+        CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask, CreateScopeProvider());
 
         await middleware.InvokeAsync(context);
 
@@ -33,7 +39,7 @@ public sealed class CorrelationIdMiddlewareTests
         DefaultHttpContext context = new() { TraceIdentifier = "fallback-trace" };
         context.Request.Headers["X-Correlation-ID"] = "bad id has spaces";
 
-        CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask);
+        CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask, CreateScopeProvider());
 
         await middleware.InvokeAsync(context);
 
@@ -50,10 +56,49 @@ public sealed class CorrelationIdMiddlewareTests
         {
             nextCalled = true;
             return Task.CompletedTask;
-        });
+        }, CreateScopeProvider());
 
         await middleware.InvokeAsync(context);
 
         nextCalled.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task InvokeAsync_sets_tenant_and_workspace_activity_tags_from_scope()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = _ => true;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        ActivitySource.AddActivityListener(listener);
+
+        using Activity? parent = new ActivitySource("CorrelationIdMiddlewareTests").StartActivity("request");
+        parent.Should().NotBeNull();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId });
+
+        CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask, scopeProvider.Object);
+        DefaultHttpContext context = new();
+
+        await middleware.InvokeAsync(context);
+        await context.Response.StartAsync();
+
+        parent!.GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
+        parent.GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
+    }
+
+    private static IScopeContextProvider CreateScopeProvider()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(p => p.GetCurrentScope())
+            .Returns(new ScopeContext());
+
+        return scopeProvider.Object;
     }
 }

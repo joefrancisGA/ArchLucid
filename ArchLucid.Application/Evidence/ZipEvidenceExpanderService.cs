@@ -22,12 +22,15 @@ public sealed class ZipEvidenceExpanderService(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public ZipEvidenceExpansionResult Expand(Stream zipStream, string sourceArchiveName)
+    public ZipEvidenceExpansionResult Expand(Stream zipStream, string sourceArchiveName, Guid? evidencePackageId = null)
     {
         ArgumentNullException.ThrowIfNull(zipStream);
 
         using Activity? activity = ArchLucidInstrumentation.EvidenceZipExpansion.StartActivity("evidence.zip.expand");
         activity?.SetTag("archlucid.evidence.archive_name", sourceArchiveName);
+
+        if (evidencePackageId is Guid packageId)
+            ActivityScopeTags.ApplyEvidencePackageId(activity, packageId);
 
         List<ZipEvidenceExpandedFile> files = [];
         List<string> skipped = [];

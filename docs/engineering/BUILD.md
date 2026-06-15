@@ -138,7 +138,7 @@ The API registers meter **`ArchLucid`** (`ArchLucidInstrumentation.MeterName`). 
 | `archlucid_governance_pack_content_deserialize_cache_hits` / `_misses` | In-resolve dedupe when the same pack **version** appears on multiple assignments (not HTTP-scope cache — see **`NEXT_REFACTORINGS.md`** §230). |
 | `archlucid_llm_prompt_tokens_total` / `archlucid_llm_completion_tokens_total` | Aggregate by default; with **`LlmTelemetry:RecordPerTenantTokens=true`**, also emitted **with** `tenant_id` label (cardinality). |
 
-Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archlucid-slo.json`**.
+Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archlucid-slo.json`**. Production export injection, verification queries, and correlation regression tests: **[`docs/library/OBSERVABILITY.md`](../library/OBSERVABILITY.md)** (ADR 0053 / TB-329–334).
 
 ## SQL Server for integration tests (Dapper + API)
 

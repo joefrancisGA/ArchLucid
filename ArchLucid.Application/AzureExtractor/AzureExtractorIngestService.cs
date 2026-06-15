@@ -20,6 +20,8 @@ using ArchLucid.Core.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Serilog.Context;
+
 namespace ArchLucid.Application.AzureExtractor;
 
 public sealed class AzureExtractorIngestService(
@@ -268,65 +270,70 @@ public sealed class AzureExtractorIngestService(
 
         Guid packageId = Guid.NewGuid();
 
-        AzureExtractorPackageRecord record = new()
+        ActivityScopeTags.ApplyEvidencePackageId(Activity.Current, packageId);
+
+        using (LogContext.PushProperty("EvidencePackageId", packageId.ToString("D")))
         {
-            PackageId = packageId,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = runId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            SchemaVersion = manifest.SchemaVersion,
-            ScriptVersion = manifest.ScriptVersion,
-            CollectionTimestampUtc = manifest.CollectionTimestamp.UtcDateTime,
-            SubscriptionId = manifest.SubscriptionId,
-            OriginalFileName = safeName,
-            ManifestJson = manifest.RawJson,
-            PackageBytes = zipBytes,
-        };
-
-        await packageRepository.InsertAsync(record, ct);
-
-        if (runId is { } mergedRunGuid)
-        {
-            try
+            AzureExtractorPackageRecord record = new()
             {
-                await TryAttachEvidenceBundleAsync(mergedRunGuid, record, ct);
-            }
-
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogWarning(
-                    ex,
-                    "Azure extractor ingest succeeded but evidence bundle attachment failed for RunId={RunId:N}.",
-                    mergedRunGuid);
-            }
-        }
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AzureExtractorPackageIngestSucceeded,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                PackageId = packageId,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 RunId = runId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        packageId,
-                        citation = AzureExtractorCitationFormatter.FormatCostProofPoint(manifest),
-                        manifest.SchemaVersion,
-                        manifest.SubscriptionId,
-                    },
-                    AuditJsonSerializationOptions.Instance),
-                CorrelationId = correlationId,
-            },
-            ct);
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                SchemaVersion = manifest.SchemaVersion,
+                ScriptVersion = manifest.ScriptVersion,
+                CollectionTimestampUtc = manifest.CollectionTimestamp.UtcDateTime,
+                SubscriptionId = manifest.SubscriptionId,
+                OriginalFileName = safeName,
+                ManifestJson = manifest.RawJson,
+                PackageBytes = zipBytes,
+            };
 
-        return new AzureExtractorIngestResult { Succeeded = true, PackageId = packageId, IsSchemaRejection = false };
+            await packageRepository.InsertAsync(record, ct);
+
+            if (runId is { } mergedRunGuid)
+            {
+                try
+                {
+                    await TryAttachEvidenceBundleAsync(mergedRunGuid, record, ct);
+                }
+
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    logger.LogWarning(
+                        ex,
+                        "Azure extractor ingest succeeded but evidence bundle attachment failed for RunId={RunId:N}.",
+                        mergedRunGuid);
+                }
+            }
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.AzureExtractorPackageIngestSucceeded,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = runId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            packageId,
+                            citation = AzureExtractorCitationFormatter.FormatCostProofPoint(manifest),
+                            manifest.SchemaVersion,
+                            manifest.SubscriptionId,
+                        },
+                        AuditJsonSerializationOptions.Instance),
+                    CorrelationId = correlationId,
+                },
+                ct);
+
+            return new AzureExtractorIngestResult { Succeeded = true, PackageId = packageId, IsSchemaRejection = false };
+        }
     }
 
     private static string NormalizeZipFileName(string? fileName)

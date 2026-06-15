@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 using ArchLucid.Application.Provenance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Projection;
@@ -70,6 +73,64 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_sets_tenant_workspace_activity_tags()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        List<Activity> stopped = [];
+
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.AuthorityRunActivitySource;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = stopped.Add;
+        ActivitySource.AddActivityListener(listener);
+
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PostCommitProjectionOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        PostCommitProjectionOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new PostCommitProjectionOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        stopped.Should().ContainSingle();
+        stopped[0].GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
+        stopped[0].GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
     }
 
     [Fact]

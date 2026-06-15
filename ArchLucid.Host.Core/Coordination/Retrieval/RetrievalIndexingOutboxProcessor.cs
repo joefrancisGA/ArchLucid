@@ -95,6 +95,8 @@ public sealed class RetrievalIndexingOutboxProcessor(
             ProjectId = entry.ProjectId
         };
 
+        ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
+
         RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct);
 
         if (detail?.GoldenManifest is null ||
