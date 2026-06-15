@@ -13,6 +13,8 @@ const BUYER_SURFACE_FILES = [
   "src/lib/first-pilot-buyer-copy.ts",
   "src/lib/first-pilot-operating-rail-copy.ts",
   "src/components/EmailRunToSponsorBanner.tsx",
+  "src/app/(marketing)/get-started/page.tsx",
+  "src/app/(marketing)/signup/page.tsx",
 ] as const;
 
 const HIGH_TRAFFIC_COPY_FILES = [
