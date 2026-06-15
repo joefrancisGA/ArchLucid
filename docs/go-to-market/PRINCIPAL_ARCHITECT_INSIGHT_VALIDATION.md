@@ -26,6 +26,7 @@ This is validation work — not a substitute for shipping pilot proof mechanics.
 | ArchLucid committed review output | Real-mode preferred; simulator OK if labeled |
 | Frontier-AI manual baseline | Same packet reviewed in Claude Opus / GPT-5 / Gemini Pro with principal-architect prompt |
 | Scoring sheet | [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md) (print or shared doc) |
+| Blind comparison packet (optional) | [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md) + `python scripts/assemble_blind_validation_packet.py assemble` |
 
 **Frontier-AI baseline prompt (manual comparison):**
 
@@ -54,7 +55,17 @@ List findings by severity. Cite assumptions. Do not invent infrastructure that i
 
 ## Scoring rubric
 
-Rate each material finding (ArchLucid and manual AI separately):
+Rate each material finding (ArchLucid and manual AI separately). For **blinded** sessions, use Arm A / Arm B in [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md) and capture numeric scales in `scoring-sheet.json`:
+
+| Scale (1–5) | Field | Definition |
+| --- | --- | --- |
+| Novelty | `novelty` | 1 = obvious · 5 = non-obvious and valuable |
+| Correctness | `correctnessConfidence` | 1 = likely wrong · 5 = high confidence vs packet |
+| Actionability | `actionability` | 1 = vague · 5 = clear next step |
+| Surprise | `surpriseFactor` | 1 = expected · 5 = would not write in first pass |
+| Decision impact | `decisionImpact` | 1 = informational · 5 = changes approval/priority |
+
+Optional single-letter classification:
 
 | Code | Label | Definition |
 | --- | --- | --- |
@@ -94,6 +105,7 @@ Rate each material finding (ArchLucid and manual AI separately):
 
 ## Related
 
+- [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
 - [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 - [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)

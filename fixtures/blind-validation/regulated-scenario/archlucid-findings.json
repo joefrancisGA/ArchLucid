@@ -1,0 +1,48 @@
+{
+  "schema": "archlucid.blind-validation-findings.v1",
+  "source": "archlucid",
+  "evidenceBasis": "demo-derived",
+  "executionMode": "simulator",
+  "findings": [
+    {
+      "findingId": "f-hipaa-1",
+      "category": "Compliance",
+      "severity": "High",
+      "title": "PHI encryption boundary",
+      "detail": "Patient indexes and imaging metadata use customer-managed keys in Key Vault with explicit PHI classification on every blob container.",
+      "evidenceRefs": ["key-vault-cmk", "blob-phi-tag"]
+    },
+    {
+      "findingId": "f-hipaa-2",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Private data paths",
+      "detail": "Clinical APIs resolve storage and SQL through private endpoints; public network access remains denied on data stores.",
+      "evidenceRefs": ["private-endpoint-sql", "private-endpoint-blob"]
+    },
+    {
+      "findingId": "f-hipaa-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Audit coverage",
+      "detail": "Diagnostic settings stream administrative actions and data-plane queries into immutable Log Analytics workspaces.",
+      "evidenceRefs": ["diagnostic-settings-audit"]
+    },
+    {
+      "findingId": "f-hipaa-4",
+      "category": "Reliability",
+      "severity": "Medium",
+      "title": "Regional failover documentation gap",
+      "detail": "Multi-region standby is described at the service level but RPO/RTO targets for clinical read paths are not attached to the manifest governance block.",
+      "evidenceRefs": ["manifest-governance-metadata"]
+    },
+    {
+      "findingId": "f-hipaa-5",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Idle analytics pool window",
+      "detail": "Dedicated SQL pool runs nightly ETL but remains provisioned through weekends without pause-resume automation.",
+      "evidenceRefs": ["synapse-schedule-export"]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "sourceKey": {
+    "A": {
+      "sourceKey": "manualAi",
+      "sourceLabel": "Principal architect + frontier AI manual baseline"
+    },
+    "B": {
+      "sourceKey": "archlucid",
+      "sourceLabel": "ArchLucid committed review export"
+    }
+  }
+}

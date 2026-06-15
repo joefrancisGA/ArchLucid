@@ -1,0 +1,44 @@
+{
+  "schema": "archlucid.blind-validation-findings.v1",
+  "source": "manual-ai-baseline",
+  "evidenceBasis": "manual-transcript",
+  "executionMode": "manual-frontier-ai",
+  "baselineModelNote": "Illustrative fixture transcript — replace with live session output during a bakeoff.",
+  "findings": [
+    {
+      "findingId": "manual-1",
+      "category": "Compliance",
+      "severity": "High",
+      "title": "Encrypt PHI at rest",
+      "detail": "Use encryption for protected health information in storage accounts and databases."
+    },
+    {
+      "findingId": "manual-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Prefer private connectivity",
+      "detail": "Consider private endpoints for SQL and blob access instead of public endpoints."
+    },
+    {
+      "findingId": "manual-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Enable audit logging",
+      "detail": "Turn on diagnostic logs for administrative and data-plane activity."
+    },
+    {
+      "findingId": "manual-4",
+      "category": "Reliability",
+      "severity": "Medium",
+      "title": "Document disaster recovery",
+      "detail": "Add DR runbooks and backup retention expectations for clinical workloads."
+    },
+    {
+      "findingId": "manual-5",
+      "category": "Security",
+      "severity": "Low",
+      "title": "Review network security groups",
+      "detail": "Validate NSG rules restrict inbound traffic to required ports only."
+    }
+  ]
+}

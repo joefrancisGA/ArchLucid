@@ -27,9 +27,21 @@
 - [ ] Printed or shared scoring sheet (this document)
 - [ ] Real-mode / simulator label visible on ArchLucid materials
 
+## Numeric scales (blind sessions — per finding)
+
+When using [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md), score **Arm A** and **Arm B** in `scoring-sheet.json`:
+
+| Field | 1 | 5 |
+| --- | --- | --- |
+| `novelty` | Obvious to any architect | Non-obvious and valuable |
+| `correctnessConfidence` | Likely wrong vs packet | High confidence correct |
+| `actionability` | Vague | Clear sponsor/team next step |
+| `surpriseFactor` | Expected in first pass | Would not write unprompted |
+| `decisionImpact` | Informational only | Changes approval or priority |
+
 ## Finding labels (per material finding)
 
-Rate **each material finding** separately for ArchLucid and for the manual frontier-AI baseline:
+Rate **each material finding** separately for ArchLucid and for the manual frontier-AI baseline (or blind arms before unblinding):
 
 | Code | Label | Definition |
 | --- | --- | --- |
@@ -68,5 +80,7 @@ Store completed scorecards and transcripts outside the repository. Summarize agg
 
 ## Related
 
+- [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+- [`templates/blind-validation-scoring-sheet.template.json`](templates/blind-validation-scoring-sheet.template.json)
 - [`PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
