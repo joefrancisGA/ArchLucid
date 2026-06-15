@@ -57,11 +57,13 @@ _This executive summary was generated with AI assistance from run findings and s
 
 ## ROI basis
 
+**ROI claim disposition:** **WARN** — ROI narratives must carry estimate labels; do not lead sponsor readouts with projected dollar savings.
+
 **Savings pricing basis:** EA-adjusted
 **EA discount multiplier:** 0.85
 **Pricing basis note:** Cost-category findings use EA-adjusted Azure Retail rates for the demo tenant.
 **Cost evidence freshness:** Fresh (stale after 90 days)
-**Estimated savings (USD):** 8,400.00
+**Estimated savings (USD):** 8,400.00 (estimate-basis — not a customer-specific savings attestation)
 
 ## Sponsor artifact evidence badges
 
