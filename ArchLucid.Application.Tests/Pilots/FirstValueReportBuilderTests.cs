@@ -94,6 +94,10 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| Execution mode | **Simulator**");
         md.Should().Contain("| Quality disposition | PilotStrict posture satisfied");
         md.Should().Contain("| ROI basis status | **Strong**");
+        md.Should().Contain("## ROI narrative claim gate");
+        md.Should().Contain("| ROI claim gate |");
+        md.Should().Contain("**Claim disposition:**");
+        md.Should().Contain("**Projected dollar claim disposition:**");
         md.Should().Contain("| LLM call basis | **4** trace row(s)");
         md.Should().Contain("## ROI baseline inputs (per field)");
         md.Should().Contain("| Projected dollar claims sponsor-safe | **No**");
@@ -167,6 +171,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("**Verdict:** **Not sponsor-safe yet**");
         md.Should().Contain("| Evidence source | **Demo-derived** — illustrative sample output; do not present as buyer outcome. |");
         md.Should().Contain("| Recommended next action | Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send. |");
+        md.Should().Contain("| ROI claim gate | **HOLD**");
         md.Should().Contain("Demo or sample tenant scope");
         md.Should().Contain("must **not** be presented");
         // Banner must appear in the document preface AND immediately under the computed-deltas heading,
@@ -287,6 +292,55 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Tenant comparative baseline is incomplete");
         md.Should().Contain("Sponsor-proof readiness:");
         md.Should().Contain("**NeedsBaseline**");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenBaselineNotCaptured_RendersHoldRoiClaimGate()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Warning", 1)],
+            AuditRowCount = 5,
+            LlmCallCount = 2,
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        ValueReportRawMetrics raw = new(
+            [],
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            null,
+            6m,
+            3,
+            null,
+            null,
+            null);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, raw);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("| ROI claim gate | **HOLD**");
+        md.Should().Contain("**HOLD:** Do not quote cycle-time savings percentages");
+        md.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()

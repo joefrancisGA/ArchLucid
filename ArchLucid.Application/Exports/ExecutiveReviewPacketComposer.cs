@@ -234,7 +234,11 @@ public static class ExecutiveReviewPacketComposer
 
     private static void AppendRoiBasisSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)
     {
+        SponsorRoiClaimDisposition disposition = SponsorRoiExecutivePacketDispositionResolver.Resolve(roiSummary);
+
         sb.AppendLine("## ROI basis");
+        sb.AppendLine();
+        sb.AppendLine($"**ROI claim disposition:** {SponsorRoiClaimDispositionRules.DescribeLeadLine(disposition)}");
         sb.AppendLine();
         sb.AppendLine($"**Savings pricing basis:** {roiSummary.SavingsPricingBasis}");
         sb.AppendLine(
@@ -249,8 +253,16 @@ public static class ExecutiveReviewPacketComposer
                 $"**Cost evidence freshness:** {roiSummary.CostEvidenceFreshnessStatus} (stale after {roiSummary.CostEvidenceStaleAfterDays.ToString(CultureInfo.InvariantCulture)} days)");
         }
 
+        string savingsQualifier = disposition switch
+        {
+            SponsorRoiClaimDisposition.Pass => "sponsor-quotable after human redaction",
+            SponsorRoiClaimDisposition.Warn => "estimate-basis — not a customer-specific savings attestation",
+            SponsorRoiClaimDisposition.Hold => "internal planning only — do not circulate projected savings externally",
+            _ => throw new ArgumentOutOfRangeException(nameof(disposition), disposition, null),
+        };
+
         sb.AppendLine(
-            $"**Estimated savings (USD):** {roiSummary.TotalEstimatedUsdSavings.ToString("N2", CultureInfo.InvariantCulture)}");
+            $"**Estimated savings (USD):** {roiSummary.TotalEstimatedUsdSavings.ToString("N2", CultureInfo.InvariantCulture)} ({savingsQualifier})");
     }
 
     private static void AppendRealizedValueSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)

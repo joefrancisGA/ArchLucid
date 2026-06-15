@@ -1,0 +1,61 @@
+using System.Text;
+
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.Roi;
+
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Exports;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class SponsorRoiExecutivePacketDispositionResolverTests
+{
+    [Theory]
+    [InlineData(ExecutiveRoiSavingsPricingBasis.UploadedActualAmortized, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Pass)]
+    [InlineData(ExecutiveRoiSavingsPricingBasis.Retail, RoiCostEvidenceFreshness.Missing, SponsorRoiClaimDisposition.Hold)]
+    [InlineData(ExecutiveRoiSavingsPricingBasis.HeuristicFallback, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Hold)]
+    [InlineData(ExecutiveRoiSavingsPricingBasis.EaAdjusted, RoiCostEvidenceFreshness.Stale, SponsorRoiClaimDisposition.Warn)]
+    public void Resolve_maps_pricing_and_freshness_to_disposition(
+        string pricingBasis,
+        string freshness,
+        SponsorRoiClaimDisposition expected)
+    {
+        ExecutiveRoiSummaryResponse roi = new()
+        {
+            SavingsPricingBasis = pricingBasis,
+            CostEvidenceFreshnessStatus = freshness,
+        };
+
+        SponsorRoiExecutivePacketDispositionResolver.Resolve(roi).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ComposeMarkdown_includes_roi_claim_disposition_for_heuristic_basis()
+    {
+        ExecutiveRoiSummaryResponse roi = new()
+        {
+            SavingsPricingBasis = ExecutiveRoiSavingsPricingBasis.HeuristicFallback,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+            TotalEstimatedUsdSavings = 1200m,
+        };
+
+        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+            new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = "r1", Status = ArchitectureRunStatus.Committed },
+            },
+            "summary",
+            [],
+            roi,
+            DateTime.UtcNow);
+
+        markdown.Should().Contain("**ROI claim disposition:**");
+        markdown.Should().Contain("HOLD");
+        markdown.Should().Contain("internal planning only");
+    }
+}

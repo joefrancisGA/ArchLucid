@@ -8,7 +8,7 @@
 
 | Surface | Label fields | Test / guard |
 | --- | --- | --- |
-| First-value report (Markdown) | Execution mode, evidence-basis labels, ROI basis | `FirstValueReportBuilderTests`, `ExecutionModeCrossSurfaceInvariantTests` |
+| First-value report (Markdown) | Execution mode, evidence-basis labels, ROI basis, **ROI narrative claim gate (PASS/WARN/HOLD)** | `FirstValueReportBuilderTests`, `SponsorRoiClaimDispositionResolverTests`, `ExecutionModeCrossSurfaceInvariantTests` |
 | Sponsor proof packet | Mode, limitations, ROI table | `SponsorEvidencePackServiceTests` |
 | Review-detail trust card | Execution mode status | `RunTrustEvidenceCardBuilderTests` |
 | Executive ROI summary | Real-mode filter, estimate caveats | `ExecutiveRoiSummaryServiceExtendedTests` |
@@ -18,7 +18,7 @@
 ## Rules (V1)
 
 1. **Never** present simulator, fallback, or demo-derived output as live customer proof without explicit labels.
-2. **Never** lead with projected dollar ROI when `projectedDollarClaimsSponsorSafe` is false or ROI basis is `defaulted` / `demo-derived` / `not-collected`.
+2. **Never** lead with projected dollar ROI when `projectedDollarClaimsSponsorSafe` is false or ROI basis is `defaulted` / `demo-derived` / `not-collected`. The first-value report **ROI narrative claim gate** emits **PASS**, **WARN**, or **HOLD** with matching comparative-language qualifiers.
 3. **Always** include execution mode (Real / Simulator / Fallback / Mixed) on sponsor exports.
 4. **Always** include evidence-basis badges (Evidence-backed, Estimate, Low support, Manual review required, Deferred scope) where applicable.
 5. Deferred V1.1/V2 capabilities must use **Deferred scope** — not implied as shipped.

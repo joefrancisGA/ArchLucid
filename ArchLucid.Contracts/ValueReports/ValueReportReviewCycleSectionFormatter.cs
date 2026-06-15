@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Contracts.Pilots;
+
 namespace ArchLucid.Contracts.ValueReports;
 
 /// <summary>
@@ -12,6 +14,14 @@ public static class ValueReportReviewCycleSectionFormatter
 
     /// <summary>Paragraphs for OpenXML (font sizes match existing value-report sections).</summary>
     public static IReadOnlyList<ValueReportReviewCycleParagraph> GetParagraphs(ValueReportSnapshot snapshot)
+    {
+        return GetParagraphs(snapshot, SponsorRoiClaimDispositionRules.FromReviewCycleProvenance(snapshot.ReviewCycleBaselineProvenance));
+    }
+
+    /// <summary>Paragraphs with explicit ROI claim disposition for sponsor-safe comparative language.</summary>
+    public static IReadOnlyList<ValueReportReviewCycleParagraph> GetParagraphs(
+        ValueReportSnapshot snapshot,
+        SponsorRoiClaimDisposition claimDisposition)
     {
         if (snapshot is null)
             throw new ArgumentNullException(nameof(snapshot));
@@ -64,11 +74,7 @@ public static class ValueReportReviewCycleSectionFormatter
         decimal? delta = snapshot.ReviewCycleHoursDelta;
         decimal? deltaPct = snapshot.ReviewCycleHoursDeltaPercent;
 
-        string deltaLine = deltaPct is { } pct
-            ? $"Delta: {FormatHours(delta)} h saved per run ({pct.ToString("0.##", CultureInfo.InvariantCulture)}% improvement)"
-            : $"Delta: {FormatHours(delta)} h saved per run";
-
-        list.Add(new ValueReportReviewCycleParagraph(deltaLine, false, false, 22));
+        list.Add(new ValueReportReviewCycleParagraph(FormatDeltaLine(delta, deltaPct, claimDisposition), false, false, 22));
 
         if (snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
             or ReviewCycleBaselineProvenance.TenantSuppliedViaSettings)
@@ -113,18 +119,46 @@ public static class ValueReportReviewCycleSectionFormatter
                     22));
         }
 
+        if (claimDisposition is SponsorRoiClaimDisposition.Hold)
+        {
+            list.Add(
+                new ValueReportReviewCycleParagraph(
+                    "**HOLD:** Do not quote cycle-time savings percentages or projected dollar ROI externally until buyer baselines are collected.",
+                    false,
+                    true,
+                    22));
+        }
+        else if (claimDisposition is SponsorRoiClaimDisposition.Warn)
+        {
+            list.Add(
+                new ValueReportReviewCycleParagraph(
+                    "**WARN:** Comparative cycle-time deltas are estimate-basis only — not customer-specific savings claims.",
+                    false,
+                    true,
+                    22));
+        }
+
         return list;
     }
 
     /// <summary>Appends the Markdown section (## heading + lines). Caller supplies leading blank lines if needed.</summary>
     public static void AppendMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
     {
+        AppendMarkdownSection(sb, snapshot, SponsorRoiClaimDispositionRules.FromReviewCycleProvenance(snapshot.ReviewCycleBaselineProvenance));
+    }
+
+    /// <summary>Appends the Markdown section with explicit ROI claim disposition.</summary>
+    public static void AppendMarkdownSection(
+        StringBuilder sb,
+        ValueReportSnapshot snapshot,
+        SponsorRoiClaimDisposition claimDisposition)
+    {
         if (sb is null)
             throw new ArgumentNullException(nameof(sb));
         if (snapshot is null)
             throw new ArgumentNullException(nameof(snapshot));
 
-        IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs = GetParagraphs(snapshot);
+        IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs = GetParagraphs(snapshot, claimDisposition);
 
         sb.AppendLine("## Review-cycle delta (before vs measured)");
         sb.AppendLine();
@@ -147,6 +181,30 @@ public static class ValueReportReviewCycleSectionFormatter
             sb.AppendLine(p.Text);
             sb.AppendLine();
         }
+    }
+
+    private static string FormatDeltaLine(
+        decimal? delta,
+        decimal? deltaPct,
+        SponsorRoiClaimDisposition claimDisposition)
+    {
+        if (claimDisposition is SponsorRoiClaimDisposition.Hold)
+        {
+            return deltaPct is { } holdPct
+                ? $"Observed cycle-time delta (internal planning only): {FormatHours(delta)} h ({holdPct.ToString("0.##", CultureInfo.InvariantCulture)}% vs baseline) — **HOLD: not sponsor-quotable**"
+                : $"Observed cycle-time delta (internal planning only): {FormatHours(delta)} h — **HOLD: not sponsor-quotable**";
+        }
+
+        if (claimDisposition is SponsorRoiClaimDisposition.Warn)
+        {
+            return deltaPct is { } warnPct
+                ? $"Directional delta (estimate basis): {FormatHours(delta)} h ({warnPct.ToString("0.##", CultureInfo.InvariantCulture)}% vs baseline) — **WARN: not customer-specific**"
+                : $"Directional delta (estimate basis): {FormatHours(delta)} h — **WARN: not customer-specific**";
+        }
+
+        return deltaPct is { } pct
+            ? $"Delta: {FormatHours(delta)} h saved per run ({pct.ToString("0.##", CultureInfo.InvariantCulture)}% improvement)"
+            : $"Delta: {FormatHours(delta)} h saved per run";
     }
 
     private static decimal? ComputeEffectiveBaselineHours(ValueReportSnapshot snapshot)
