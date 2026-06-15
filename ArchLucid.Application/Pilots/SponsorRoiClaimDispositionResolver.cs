@@ -66,15 +66,15 @@ public static class SponsorRoiClaimDispositionResolver
         if (isDemoTenant)
             return SponsorRoiClaimDisposition.Hold;
 
-        if (baselineInputs is not null && HasBasis(baselineInputs, PilotRoiBaselineInputBasis.DemoDerived))
+        if (HasBasis(baselineInputs, PilotRoiBaselineInputBasis.DemoDerived))
             return SponsorRoiClaimDisposition.Hold;
 
         if (confidence is PilotRoiEvidenceConfidence.Low
-            || (baselineInputs is not null && HasBasis(baselineInputs, PilotRoiBaselineInputBasis.NotCollected)))
+            || HasBasis(baselineInputs, PilotRoiBaselineInputBasis.NotCollected))
             return SponsorRoiClaimDisposition.Hold;
 
         if (confidence is PilotRoiEvidenceConfidence.Partial
-            || (baselineInputs is not null && HasBasis(baselineInputs, PilotRoiBaselineInputBasis.Defaulted))
+            || HasBasis(baselineInputs, PilotRoiBaselineInputBasis.Defaulted)
             || !projectedDollarClaimsSponsorSafe)
             return SponsorRoiClaimDisposition.Warn;
 
@@ -82,13 +82,14 @@ public static class SponsorRoiClaimDispositionResolver
     }
 
     private static bool HasBasis(
-        PilotRoiBaselineInputsStatusResponse inputs,
+        PilotRoiBaselineInputsStatusResponse? inputs,
         PilotRoiBaselineInputBasis basis)
     {
-        return inputs.ReviewCycleHoursBasis == basis
+        return inputs is not null
+            && (inputs.ReviewCycleHoursBasis == basis
             || inputs.ArchitectPrepHoursPerReviewBasis == basis
             || inputs.EvidenceAssemblyEffortBasis == basis
-            || inputs.ArchitectHourlyCostBasis == basis;
+            || inputs.ArchitectHourlyCostBasis == basis);
     }
 
     private static string FormatBasisClassSummary(
