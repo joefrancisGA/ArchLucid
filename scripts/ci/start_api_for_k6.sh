@@ -27,6 +27,10 @@ export ArchLucid__StorageProvider=Sql
 export ArchLucidAuth__Mode=DevelopmentBypass
 export Authentication__ApiKey__DevelopmentBypassAll=true
 export AgentExecution__Mode=Simulator
+# Match integration-test hosts: skip demo seed and trial preseed so write-path smoke is not competing with startup workers.
+export Demo__Enabled=false
+export Demo__SeedOnStartup=false
+export TrialArchitecturePreseed__Enabled=false
 # k6 path uses appsettings.Advanced.json (chained in Program); DbUp + schema bootstrap run without database RLS.
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1
@@ -50,6 +54,20 @@ for i in $(seq 1 90); do
     list_runs_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/architecture/runs?limit=1" -H "Accept: application/json")"
     if [ "${list_runs_code}" != "200" ]; then
       echo "::error::GET /v1/architecture/runs (smoke) returned HTTP ${list_runs_code} — check API log for SQL/auth/RLS errors"
+      tail -n 200 "${LOG_FILE}" || true
+      exit 1
+    fi
+
+    create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
+    create_run_code="$(curl -sS -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
+      -X POST "${API_URL}/v1/architecture/request" \
+      -H "Accept: application/json" \
+      -H "Content-Type: application/json" \
+      -d "${create_run_body}")"
+    if [ "${create_run_code}" != "200" ] && [ "${create_run_code}" != "201" ]; then
+      echo "::error::POST /v1/architecture/request (smoke) returned HTTP ${create_run_code} — check API log for auth/trial/validation errors"
+      head -c 500 "${LOG_FILE}.create-run-smoke.json" 2>/dev/null || true
+      echo ""
       tail -n 200 "${LOG_FILE}" || true
       exit 1
     fi

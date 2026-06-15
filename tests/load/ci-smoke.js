@@ -62,7 +62,7 @@ export function healthFn() {
 function createArchitectureRequestBody(requestIdPrefix) {
   return JSON.stringify({
     requestId: `${requestIdPrefix}-${__VU}-${__ITER}-${Date.now()}`,
-    description: "k6 CI smoke write-path test",
+    description: "k6 CI smoke architecture write-path test",
     systemName: "K6CiSmokeSystem",
     environment: "prod",
     cloudProvider: 1,
@@ -76,6 +76,12 @@ function createArchitectureRequestBody(requestIdPrefix) {
 export function createRunFn() {
   const body = createArchitectureRequestBody("k6-ci");
   const r = req("create_run", "POST", `${BASE}/v1/architecture/request`, body, { timeout: "120s" });
+
+  if (r.status < 200 || r.status >= 300) {
+    const snippet = typeof r.body === "string" ? r.body.slice(0, 500) : String(r.body);
+    console.error(`create_run: status=${r.status} body_snippet=${snippet}`);
+  }
+
   check(r, { "create run 2xx": (res) => res.status >= 200 && res.status < 300 });
 }
 
@@ -114,6 +120,12 @@ export function getRunDetailFn() {
   // 4xx toward http_req_failed. Create a run in this VU, then GET that id — one detail call that should 200, no probe 404s.
   const createBody = createArchitectureRequestBody("k6-ci-gtr");
   const created = req("create_run", "POST", `${BASE}/v1/architecture/request`, createBody, { timeout: "120s" });
+
+  if (created.status < 200 || created.status >= 300) {
+    const snippet = typeof created.body === "string" ? created.body.slice(0, 500) : String(created.body);
+    console.error(`get_run_detail create: status=${created.status} body_snippet=${snippet}`);
+  }
+
   check(created, { "get run path create 2xx": (res) => res.status >= 200 && res.status < 300 });
 
   let runId;

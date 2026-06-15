@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -182,6 +183,21 @@ public sealed class ApplicationProblemMapperTests
         result!.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.AuthorityTenantConcurrentRunsExceeded);
+    }
+
+    [SkippableFact]
+    public void TryMapUnhandledException_RequestContentSafetyRejected_Returns400Validation()
+    {
+        RequestContentSafetyRejectedException ex = new(["blocked phrase"]);
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-content-safety");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.ValidationFailed);
+        p.Detail.Should().Be("blocked phrase");
     }
 
     [SkippableFact]

@@ -2,6 +2,7 @@ using System.Data.Common;
 
 using ArchLucid.Core;
 using ArchLucid.Application;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
@@ -31,6 +32,18 @@ public static class ApplicationProblemMapper
     {
         result = null;
         string? instance = httpContext.Request.Path.Value;
+
+        if (ex is RequestContentSafetyRejectedException contentSafetyRejected)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status400BadRequest,
+                "Bad Request",
+                contentSafetyRejected.Message,
+                ProblemTypes.ValidationFailed,
+                instance,
+                httpContext);
+            return true;
+        }
 
         if (ex is TrialLimitExceededException tlex)
         {
