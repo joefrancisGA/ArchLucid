@@ -53,6 +53,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             self.assertIn("Telemetry export readiness verdict:", text)
             self.assertIn("ArchLucid.Api", text)
             self.assertIn("ArchLucid.Worker", text)
+            self.assertIn("ArchLucid.Jobs.Cli", text)
             self.assertIn("archlucid_agent_output_structural_completeness_ratio", text)
             self.assertIn("archlucid_agent_output_quality_gate_total", text)
             self.assertIn("archlucid_agent_trace_blob_upload_failures_total", text)
@@ -91,6 +92,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
 
             self.assertIn("| **ArchLucid.Api** | **no** |", text)
             self.assertIn("| **ArchLucid.Worker** | **no** |", text)
+            self.assertIn("| **ArchLucid.Jobs.Cli** | **no** |", text)
             self.assertIn("**Telemetry export readiness verdict:** **WARN**", text)
 
     def test_strict_exit_code_fails_when_json_only_and_no_exporter(self):
@@ -181,10 +183,18 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             active_exports=["OTLP"],
             export_warnings=[],
         )
+        jobs_cli = _M.HostReport(
+            files_attempted=[],
+            files_loaded=[],
+            load_errors=[],
+            active_exports=["OTLP"],
+            export_warnings=[],
+        )
 
         v, reasons = _M.compute_release_verdict(
             api=api,
             worker=worker,
+            jobs_cli=jobs_cli,
             include_process_environment=True,
         )
 
@@ -238,10 +248,18 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             active_exports=[],
             export_warnings=["x"],
         )
+        jobs_cli = _M.HostReport(
+            files_attempted=[],
+            files_loaded=[],
+            load_errors=[],
+            active_exports=[],
+            export_warnings=["x"],
+        )
 
         v, reasons = _M.compute_release_verdict(
             api=api,
             worker=worker,
+            jobs_cli=jobs_cli,
             include_process_environment=False,
             honor_require_telemetry_export_config=True,
             require_telemetry_export_from_config=True,

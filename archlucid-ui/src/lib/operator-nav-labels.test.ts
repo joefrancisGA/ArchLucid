@@ -12,14 +12,14 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 describe("operator-nav-labels", () => {
   it("returns New review in buyer-polished shell", () => {
     expect(resolveNewReviewNavLinkLabel(true)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
-    expect(resolveNewReviewNavLinkLabel(false)).toBe(OPERATOR_NAV_LINK_LABELS.capture);
+    expect(resolveNewReviewNavLinkLabel(false)).toBe(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL);
   });
 
   it("overrides /reviews/new presentation for buyer shell", () => {
     const source = {
       href: "/reviews/new",
       label: OPERATOR_NAV_LINK_LABELS.capture,
-      title: "Evidence intake — start",
+      title: "Start review — start",
     };
 
     expect(resolveNavLinkPresentation(source, true).label).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
@@ -30,7 +30,7 @@ describe("operator-nav-labels", () => {
     const source = {
       href: "/reviews/new",
       label: OPERATOR_NAV_LINK_LABELS.capture,
-      title: "Evidence intake — start",
+      title: "Start review — start",
     };
 
     expect(resolveQuickActionNavLinkPresentation(source).label).toBe(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL);

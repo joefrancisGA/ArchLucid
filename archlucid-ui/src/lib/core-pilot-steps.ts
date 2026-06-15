@@ -18,12 +18,13 @@ export const EXTRACT_UPLOAD_SETTINGS_PATH = "/settings/extract-upload";
 
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
-    title: "Upload Azure architecture context",
-    shortBody: "Run the read-only extractor script locally, then upload the ZIP for production-faithful reviews.",
+    title: "Provide architecture evidence",
+    shortBody:
+      "Add a brief, docs, diagrams, or IaC; connected to Azure, use the read-only extractor for production-faithful evidence.",
     detail:
-      "The Extract & Upload settings page walks through script download, local execution, optional CLI validation, and server upload.",
+      "The Extract & Upload settings page keeps the Azure extractor one click away as the accelerated path; the review can still start from architecture materials and guided intake.",
     primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
-    primaryLabel: "Upload Azure package",
+    primaryLabel: "Add evidence",
   },
   {
     title: "Create an architecture review request",

@@ -1,4 +1,4 @@
-import { CloudUpload, FileSearch, ShieldCheck } from "lucide-react";
+import { FileSearch, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,13 @@ const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN
 
 const FIRST_RUN_STEPS: { label: string; description: string }[] = [
   {
-    label: "Upload your Azure environment",
-    description: "Run the Tier 1 PowerShell extractor in your subscription (no credentials leave your tenant) and upload the generated ZIP.",
+    label: "Provide architecture evidence",
+    description:
+      "Paste a brief, add design docs, ADRs, diagrams, or IaC, or upload an Azure export. Connected to Azure? The read-only extractor is the fastest path to production-faithful evidence.",
   },
   {
-    label: "Select analysis scope",
-    description: "Choose which policy pack to apply — Azure CIS, custom governance rules, or the default starter pack.",
+    label: "Set review scope",
+    description: "Choose the governance and policy packs to apply, such as starter rules, custom governance, or Azure CIS when Azure evidence is present.",
   },
   {
     label: "View your first finding",
@@ -25,11 +26,11 @@ const FIRST_RUN_STEPS: { label: string; description: string }[] = [
 ];
 
 /** First-run empty workspace: inline 3-step progress strip with a single primary CTA. */
-export function OperatorHomeAzureExtractorEmptyState() {
+export function OperatorHomeFirstReviewEmptyState() {
   return (
     <div
       className={cn(OPERATOR_LAYOUT.sectionStack, OPERATOR_CARD.nested, "rounded-md border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900")}
-      data-testid="operator-home-azure-extractor-empty-state"
+      data-testid="operator-home-first-review-empty-state"
     >
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -58,7 +59,7 @@ export function OperatorHomeAzureExtractorEmptyState() {
       <div className={cn("flex flex-wrap items-center border-t border-neutral-200 pt-3 dark:border-neutral-800", OPERATOR_LAYOUT.inlineGap)}>
         <Button asChild variant="primary" size="sm" className="h-8">
           <Link href="/reviews/new">
-            <CloudUpload className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+            <FileSearch className="mr-1.5 h-3.5 w-3.5" aria-hidden />
             Begin architecture review
           </Link>
         </Button>

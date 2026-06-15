@@ -128,10 +128,10 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-azure-extractor-empty-state")).toBeInTheDocument();
+        expect(screen.getByTestId("operator-home-first-review-empty-state")).toBeInTheDocument();
       });
       expect(screen.getByText("Start your first architecture review")).toBeInTheDocument();
-      expect(screen.getByText("Upload your Azure environment")).toBeInTheDocument();
+      expect(screen.getByText("Provide architecture evidence")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Begin architecture review" })).toHaveAttribute("href", "/reviews/new");
       expect(screen.getByRole("link", { name: "How this works" })).toHaveAttribute("href", "/help");
       expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();

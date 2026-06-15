@@ -112,7 +112,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   reviewPackage: "Architecture reviews",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-  capture: "Evidence intake",
+  capture: "Start review",
   onboarding: "Onboarding",
   findings: "Risk register",
   riskExceptions: "Risk exceptions",

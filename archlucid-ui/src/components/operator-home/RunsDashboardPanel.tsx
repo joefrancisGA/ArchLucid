@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorHomeAzureExtractorEmptyState } from "@/components/operator-home/OperatorHomeAzureExtractorEmptyState";
+import { OperatorHomeFirstReviewEmptyState } from "@/components/operator-home/OperatorHomeFirstReviewEmptyState";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -551,7 +551,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                     </div>
                   </div>
                 ) : (
-                  <OperatorHomeAzureExtractorEmptyState />
+                  <OperatorHomeFirstReviewEmptyState />
                 )
               ) : null}
 

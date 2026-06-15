@@ -42,19 +42,19 @@ function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: 
     status.blocksAdditionalLlmExecution ||
     (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
 
-  return paused ? `AI budget: ${display} left — paused` : `AI budget: ${display} left`;
+  return paused ? `Monthly analysis allowance: ${display} left — paused` : `Monthly analysis allowance: ${display} left`;
 }
 
 function buildPillAriaLabel(remainingPercent: number | null, paused: boolean): string {
   if (remainingPercent === null) {
-    return "AI analysis budget for this month";
+    return "Monthly analysis allowance";
   }
 
   if (paused) {
-    return `AI analysis budget for this month: ${remainingPercent}% left, new runs paused`;
+    return `Monthly analysis allowance: ${remainingPercent}% left, new reviews paused`;
   }
 
-  return `AI analysis budget for this month: ${remainingPercent}% left`;
+  return `Monthly analysis allowance: ${remainingPercent}% left`;
 }
 
 function isOperatorShellAuthenticated(): boolean {
@@ -80,7 +80,7 @@ export function LlmBudgetStatusPill() {
       isBuyerPolishedOperatorShellEnv() ||
       isAuthorityLoading ||
       !isOperatorShellAuthenticated() ||
-      callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+      callerAuthorityRank < AUTHORITY_RANK.AdminAuthority
     ) {
       return;
     }
@@ -110,7 +110,7 @@ export function LlmBudgetStatusPill() {
     isBuyerPolishedOperatorShellEnv() ||
     isAuthorityLoading ||
     !isOperatorShellAuthenticated() ||
-    callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+    callerAuthorityRank < AUTHORITY_RANK.AdminAuthority
   ) {
     return null;
   }

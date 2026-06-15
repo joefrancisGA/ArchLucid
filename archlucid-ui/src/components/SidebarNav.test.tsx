@@ -54,10 +54,10 @@ describe("SidebarNav (primary navigation)", () => {
       const homeLink = within(nav).getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(within(nav).getByRole("link", { name: "Evidence intake" })).toHaveAttribute("href", "/reviews/new");
-      expect(within(nav).getByRole("link", { name: "Evidence intake" })).toHaveAttribute(
+      expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+      expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute(
         "title",
-        "Evidence intake — start a new architecture review (guided wizard through review progress tracking) (Alt+N)",
+        "Start review — Quick review, Guided intake, or full wizard (Alt+N)",
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(within(nav).getByRole("link", { name: "Architecture reviews" })).toHaveAttribute("href", "/reviews?projectId=default");

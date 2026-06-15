@@ -74,10 +74,10 @@ import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Choose starting point", description: "Template, import, or blank" },
-  { label: "Evidence (optional)", description: "Azure extractor ZIP or demo data" },
+  { label: "Evidence (optional)", description: "Brief, docs, IaC, Azure export, or demo" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
-  { label: "Ingest Azure context", description: "Packager command (optional)" },
+  { label: "Review evidence context", description: "Azure packager command when used" },
   { label: "Advanced", description: "Optional context" },
   { label: "Baseline metrics (optional)", description: "ROI reporting inputs" },
   { label: "Review", description: "Confirm & create" },
@@ -86,7 +86,7 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
 
 const WIZARD_STEP_DEFINITIONS_BASELINE = [
   WIZARD_STEP_DEFINITIONS_FULL[0],
-  { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
+  { label: "Add evidence", description: "Azure export or sample review evidence" },
   WIZARD_STEP_DEFINITIONS_FULL[2],
   WIZARD_STEP_DEFINITIONS_FULL[3],
   WIZARD_STEP_DEFINITIONS_FULL[4],

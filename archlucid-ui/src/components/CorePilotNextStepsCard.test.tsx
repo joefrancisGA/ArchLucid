@@ -57,13 +57,13 @@ describe("CorePilotNextStepsCard", () => {
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
     });
 
-    it("marks Evidence intake as the active step CTA when expanded", async () => {
+    it("marks Start review as the active step CTA when expanded", async () => {
       render(<CorePilotNextStepsCard />);
 
       await expandNextStepsCardIfMinimized();
 
       expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/evidence intake/i);
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/start review/i);
     });
 
     it("shows skip-for-now note naming advanced features", async () => {
