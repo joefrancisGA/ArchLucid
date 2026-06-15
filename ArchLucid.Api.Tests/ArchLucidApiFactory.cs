@@ -175,7 +175,9 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
     {
         await EnsureServicesStartedAsync().ConfigureAwait(false);
 
-        return CreateClient();
+        return await IntegrationTestHostStartup.EnsureCompletedAsync(
+            () => CreateClient(),
+            IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>

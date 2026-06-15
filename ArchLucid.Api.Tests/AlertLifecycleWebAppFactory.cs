@@ -91,7 +91,9 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
     {
         await EnsureServicesStartedAsync().ConfigureAwait(false);
 
-        return CreateClient();
+        return await IntegrationTestHostStartup.EnsureCompletedAsync(
+            () => CreateClient(),
+            IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
     }
 
     /// <summary>
