@@ -195,7 +195,13 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
-        services.AddSingleton<IRequestContentSafetyPrecheck, DefaultRequestContentSafetyPrecheck>();
+        services.AddSingleton<DefaultRequestContentSafetyPrecheck>();
+        services.AddSingleton<LlmSemanticAdmissionGate>();
+        services.AddSingleton<IRequestContentSafetyPrecheck>(sp => new CompositeRequestContentSafetyPrecheck(
+        [
+            sp.GetRequiredService<DefaultRequestContentSafetyPrecheck>(),
+            sp.GetRequiredService<LlmSemanticAdmissionGate>()
+        ]));
         services.Configure<EvidenceInjectionMitigationOptions>(
             configuration.GetSection(EvidenceInjectionMitigationOptions.SectionPath));
         services.AddSingleton<IEvidencePackageInjectionMitigator, EvidencePackageInjectionMitigator>();

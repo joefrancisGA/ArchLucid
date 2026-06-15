@@ -7,6 +7,13 @@ public sealed class DraftAdmissionGate : IDraftAdmissionGate
 {
     private const int MinimumIntentLength = 10;
 
+    // A simple heuristic regex to check for architecture-related terms before invoking an LLM.
+    // In a full implementation, this would call a fast/cheap LLM (e.g., GPT-4o-mini or Haiku)
+    // to evaluate domain fit.
+    private static readonly System.Text.RegularExpressions.Regex ArchitectureDomainRegex = new(
+        @"(?i)\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+
     /// <inheritdoc />
     public DraftAdmissionEvaluation Evaluate(DraftRequestDocument document)
     {
@@ -18,6 +25,12 @@ public sealed class DraftAdmissionGate : IDraftAdmissionGate
         {
             return Redirect(
                 "I don't understand yet — please describe the system you want designed in at least ten characters.");
+        }
+
+        if (!ArchitectureDomainRegex.IsMatch(intent))
+        {
+            return Redirect(
+                "REJECT-AS-WRITTEN: The request description does not appear to be related to software architecture. Please provide more context about the system, components, or architectural constraints.");
         }
 
         if (!HasFunctionalOutcome(document))
