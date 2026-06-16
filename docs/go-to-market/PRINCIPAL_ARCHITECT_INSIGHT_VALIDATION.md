@@ -109,6 +109,8 @@ Optional single-letter classification:
 - [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
 - Session log template: [`templates/blind-insight-session-log.template.json`](templates/blind-insight-session-log.template.json)
 - Cohort aggregate: `python scripts/ci/aggregate_blind_insight_sessions.py --sessions-dir artifacts/blind-validation --json-out artifacts/blind-validation/cohort-summary.json`
+- Principal-architect cohort aggregate: `python scripts/ci/aggregate_principal_architect_sessions.py --sessions-dir artifacts/principal-architect-sessions --json-out artifacts/principal-architect-sessions/cohort-summary.json --markdown-out artifacts/principal-architect-sessions/cohort-summary.md`
+- Principal-architect session template: [`templates/principal-architect-session.template.json`](templates/principal-architect-session.template.json)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 - [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout
