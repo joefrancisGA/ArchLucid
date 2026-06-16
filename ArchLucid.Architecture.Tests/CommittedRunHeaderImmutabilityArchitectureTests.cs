@@ -29,13 +29,13 @@ public sealed class CommittedRunHeaderImmutabilityArchitectureTests
     }
 
     [Fact]
-    public void Committed_run_header_registry_matches_migration_250_anchor_columns()
+    public void Committed_run_header_registry_matches_migration_252_anchor_columns()
     {
         string migrationPath = Path.Combine(
             RepoRoot,
             "ArchLucid.Persistence",
             "Migrations",
-            "250_SealCommittedRunHeader.sql");
+            "252_Runs_EngineProvenanceJson.sql");
 
         string migrationText = File.ReadAllText(migrationPath);
         HashSet<string> migrationColumns = Migration250ColumnRegex

@@ -164,6 +164,7 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
+            Mock.Of<IRunEngineProvenanceCaptureService>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

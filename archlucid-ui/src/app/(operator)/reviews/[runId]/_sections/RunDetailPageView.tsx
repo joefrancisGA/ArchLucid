@@ -442,7 +442,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
-        <RunDetailProvenanceSummaryCard runId={m.routeRunId} run={m.resolvedDetail.run} />
+        <RunDetailProvenanceSummaryCard
+          runId={m.routeRunId}
+          run={m.resolvedDetail.run}
+          engineProvenance={m.resolvedDetail.engineProvenance ?? null}
+        />
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (

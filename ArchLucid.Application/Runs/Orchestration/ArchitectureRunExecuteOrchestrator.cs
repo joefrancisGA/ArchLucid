@@ -54,6 +54,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IOptions<AgentExecutionOptions> agentExecutionOptions,
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
     IRunStateTransitionService runStateTransitionService,
+    IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -107,6 +108,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    private readonly IRunEngineProvenanceCaptureService _runEngineProvenanceCaptureService =
+        runEngineProvenanceCaptureService ?? throw new ArgumentNullException(nameof(runEngineProvenanceCaptureService));
 
     /// <inheritdoc/>
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -374,6 +378,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 }
             }
 
+            await TryPersistEngineProvenanceAsync(runId, evidence, cancellationToken);
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
             await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
                 cancellationToken);
@@ -461,6 +466,29 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     ///     <see cref = "ArchitectureRunStatus.ReadyForCommit"/>
     ///     once all required agent outputs exist (matches commit prerequisites and orchestrator contract).
     /// </summary>
+    private async Task TryPersistEngineProvenanceAsync(
+        string runId,
+        AgentEvidencePackage evidence,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _runEngineProvenanceCaptureService
+                .TryCaptureAndPersistAsync(runId, evidence, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    ex,
+                    "Engine provenance capture failed for RunId={RunId}; execute outcome unchanged.",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
+    }
+
     private async Task TryPromoteRunLegacyStatusIfAllResultsPresentAsync(string runId, IReadOnlyList<AgentResult> results, CancellationToken cancellationToken)
     {
         if (!_runStateTransitionService.HasAllRequiredAgentResults(results))

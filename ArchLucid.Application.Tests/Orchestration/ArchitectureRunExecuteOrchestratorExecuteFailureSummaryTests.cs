@@ -154,6 +154,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             Options.Create(new AgentExecutionOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
+            Mock.Of<IRunEngineProvenanceCaptureService>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

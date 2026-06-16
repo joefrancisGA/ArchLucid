@@ -170,5 +170,12 @@ public class RunDetailDto
         get;
         set;
     }
+
+    /// <summary>Engine and model provenance captured at execute-time; null for runs created before provenance capture.</summary>
+    public ReviewRunEngineProvenance? EngineProvenance
+    {
+        get;
+        set;
+    }
 }
 

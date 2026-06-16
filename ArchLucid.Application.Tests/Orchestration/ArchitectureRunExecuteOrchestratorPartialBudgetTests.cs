@@ -233,6 +233,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             Options.Create(new AgentExecutionOptions()),
             Options.Create(gateOptions),
             new RunStateTransitionService(),
+            Mock.Of<IRunEngineProvenanceCaptureService>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

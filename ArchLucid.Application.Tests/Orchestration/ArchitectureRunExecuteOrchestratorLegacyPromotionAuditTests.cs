@@ -183,6 +183,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
             Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
+            Mock.Of<IRunEngineProvenanceCaptureService>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

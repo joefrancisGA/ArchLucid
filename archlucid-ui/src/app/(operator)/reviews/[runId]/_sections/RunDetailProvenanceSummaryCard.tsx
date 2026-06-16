@@ -3,7 +3,9 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { RunDetailEngineProvenanceRow } from "@/components/reviews/RunDetailEngineProvenanceRow";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-display";
 import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
@@ -11,11 +13,12 @@ import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 export type RunDetailProvenanceSummaryCardProps = {
   readonly runId: string;
   readonly run: RunDetail["run"];
+  readonly engineProvenance?: ReviewRunEngineProvenance | null;
 };
 
 /** TB-111: inline provenance context without leaving run detail. */
 export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummaryCardProps): ReactElement {
-  const { runId, run } = props;
+  const { runId, run, engineProvenance } = props;
   const architectureRequestId =
     "architectureRequestId" in run && typeof run.architectureRequestId === "string"
       ? run.architectureRequestId
@@ -63,6 +66,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               </div>
             </dl>
           </CollapsibleSection>
+          {engineProvenance ? <RunDetailEngineProvenanceRow provenance={engineProvenance} /> : null}
           <p className="m-0 text-sm">
             <Link
               className="font-medium text-teal-800 underline dark:text-teal-300"

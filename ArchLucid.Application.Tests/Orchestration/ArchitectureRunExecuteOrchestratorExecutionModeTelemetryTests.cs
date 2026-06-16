@@ -206,6 +206,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             Options.Create(new AgentExecutionOptions { Mode = executionMode }),
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
+            Mock.Of<IRunEngineProvenanceCaptureService>(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }
