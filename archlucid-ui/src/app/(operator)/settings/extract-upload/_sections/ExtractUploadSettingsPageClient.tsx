@@ -147,7 +147,9 @@ export function ExtractUploadSettingsPageClient() {
       return;
     }
 
-    const demoFile = new File([bytes], "contoso-sample-architecture.zip", { type: "application/zip" });
+    const demoFile = new File([new Uint8Array(bytes)], "contoso-sample-architecture.zip", {
+      type: "application/zip",
+    });
     setSelectedFileLabel(`${demoFile.name} (bundled demo)`);
     await onUpload(demoFile);
   }

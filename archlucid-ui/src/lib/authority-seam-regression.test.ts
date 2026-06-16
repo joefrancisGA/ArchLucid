@@ -256,7 +256,7 @@ describe("authority seam regression", () => {
       AUTHORITY_RANK.ReadAuthority,
       false,
       "all",
-      true,
+      false,
     );
     const qa = rows.find((r) => r.group.id === "operate-analysis");
 
