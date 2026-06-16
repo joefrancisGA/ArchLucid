@@ -418,7 +418,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                   setActiveSampleBriefId(null);
                 }}
                 className="min-h-[220px] font-mono text-sm"
-                placeholder="Example: Document the target architecture for a customer-facing retail API on Azure — App Service for APIs, Azure SQL for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
+                placeholder="Example: Document the target architecture for a customer-facing retail API — containerized services behind an API gateway, relational store for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
                 aria-describedby="quick-review-brief-hint"
                 autoComplete="off"
               />
