@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class ArchitectureRequestEvidenceSufficiencyTests
 {
     [Fact]
