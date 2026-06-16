@@ -25,7 +25,7 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
 
   it("summarizes the four-step flow with buyer concepts", () => {
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/create architecture review/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/assessment runs/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/assessment executes/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review package/i);
   });
