@@ -55,7 +55,7 @@ describe("architectureReviewTemplates", () => {
       expect(payload.description).toBe(t.briefText.trim());
       expect(payload.systemName).toBe(suggestedSystemNameFromTemplateId(t.id));
       expect(payload.requestId.length).toBeGreaterThanOrEqual(32);
-      expect(payload.cloudProvider).toBe("Azure");
+      expect(payload.cloudProvider).toBe("None");
       expect(payload.environment.length).toBeGreaterThan(0);
     }
   });

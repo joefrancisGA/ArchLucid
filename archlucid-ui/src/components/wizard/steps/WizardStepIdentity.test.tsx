@@ -35,7 +35,7 @@ describe("WizardStepIdentity", () => {
 
     expect(screen.getByLabelText("System name")).toBeInTheDocument();
     expect(screen.getByText("Environment")).toBeInTheDocument();
-    expect(screen.getByText("Cloud provider")).toBeInTheDocument();
+    expect(screen.getByText("Cloud target")).toBeInTheDocument();
     expect(screen.queryByLabelText("Prior manifest version (optional)")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /advanced options/i }));
@@ -43,21 +43,19 @@ describe("WizardStepIdentity", () => {
     expect(screen.getByLabelText("Prior manifest version (optional)")).toBeInTheDocument();
   });
 
-  it("shows Azure as the selected cloud and lists AWS and GCP as disabled coming-soon options", () => {
+  it("shows None as the default cloud target and lists Azure as the accelerated V1 option", () => {
     render(<IdentityHarness />);
 
     const triggers = screen.getAllByRole("combobox");
     expect(triggers.length).toBeGreaterThanOrEqual(2);
 
     const cloudTrigger = triggers[1];
-    expect(cloudTrigger).toHaveTextContent("Microsoft Azure");
+    expect(cloudTrigger).toHaveTextContent("No cloud / evidence-only");
 
     fireEvent.click(cloudTrigger);
 
-    const aws = screen.getByRole("option", { name: /Amazon Web Services/i });
-    const gcp = screen.getByRole("option", { name: /Google Cloud/i });
-    expect(aws).toHaveAttribute("data-disabled");
-    expect(gcp).toHaveAttribute("data-disabled");
+    expect(screen.getByRole("option", { name: /Microsoft Azure/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /No cloud \/ evidence-only/i })).toBeInTheDocument();
   });
 
   it("surfaces a validation error when system name is cleared and validated", async () => {

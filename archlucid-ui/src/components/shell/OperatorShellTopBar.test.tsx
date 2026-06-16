@@ -34,7 +34,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
   return {
     ...actual,
     useOperatorNavAuthority: () => ({
-      callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
       isAuthorityLoading: false,
       currentPrincipal: operatorNavOutsideProviderPrincipal,
     }),

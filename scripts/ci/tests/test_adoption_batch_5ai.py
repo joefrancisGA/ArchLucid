@@ -13,7 +13,7 @@ class TestAdoptionBatch5AI(unittest.TestCase):
     def test_tb_215_evidence_upload_step_component(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "wizard" / "steps" / "WizardStepEvidenceUpload.tsx"
         text = path.read_text(encoding="utf-8")
-        self.assertIn("Upload Azure evidence (optional)", text)
+        self.assertIn("Add architecture evidence (optional)", text)
         self.assertIn("wizard-evidence-upload-skip-demo", text)
 
     def test_tb_215_upload_helper_supports_run_id(self) -> None:

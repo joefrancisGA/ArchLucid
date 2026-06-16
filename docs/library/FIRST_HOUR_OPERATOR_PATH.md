@@ -1,4 +1,4 @@
-> **Scope:** Canonical first-hour operator golden path — reduces cognitive load while keeping enterprise surfaces available via progressive disclosure.
+> **Scope:** Customer-facing canonical first-hour operator golden path — reduces cognitive load while keeping enterprise surfaces available via progressive disclosure.
 
 # First-hour operator path
 

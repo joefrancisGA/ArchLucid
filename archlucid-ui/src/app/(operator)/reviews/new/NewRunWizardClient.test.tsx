@@ -259,7 +259,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     fireEvent.change(systemName, { target: { value: "Ab" } });
     await waitFor(() => {
-      expect(screen.queryByText(/Required/i)).toBeNull();
+      expect(screen.queryByRole("alert")).toBeNull();
     });
   });
 

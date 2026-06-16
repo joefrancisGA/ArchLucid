@@ -37,7 +37,7 @@ export function OperatorFirstHourJourneyStrip() {
           </li>
         ))}
       </ol>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.caption, "text-neutral-600 dark:text-neutral-400")}>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
         Next: {steps[0].nextAction}{" "}
         <Link href="/help/first-hour-operator-path" className="text-teal-900 underline dark:text-teal-100">
           Read the canonical guide
