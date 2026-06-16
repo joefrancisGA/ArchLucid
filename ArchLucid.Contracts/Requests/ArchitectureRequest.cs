@@ -48,13 +48,13 @@ public sealed class ArchitectureRequest
         set;
     } = "prod";
 
-    /// <summary>Primary cloud provider for the target architecture.</summary>
+    /// <summary>Primary cloud provider for the target architecture, or <see cref="CloudProvider.None" /> for evidence-only reviews.</summary>
     [Required]
     public CloudProvider CloudProvider
     {
         get;
         set;
-    } = CloudProvider.Azure;
+    } = CloudProvider.None;
 
     /// <summary>Hard constraints the architecture must satisfy (max 50 items).</summary>
     public List<string> Constraints

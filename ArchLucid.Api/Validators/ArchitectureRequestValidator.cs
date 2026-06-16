@@ -33,6 +33,12 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
         RuleFor(x => x.CloudProvider)
             .IsInEnum().WithMessage("CloudProvider must be a valid value.");
 
+        RuleFor(x => x)
+            .Must(ArchitectureRequestEvidenceSufficiency.HasSufficientEvidenceForNoneProvider)
+            .WithMessage(
+                $"When CloudProvider is None, supply documents, IaC, inline requirements, topology/policy/security hints, "
+                + $"or a description of at least {ArchitectureRequestEvidenceSufficiency.MinDescriptionLengthForNoneOnly} characters.");
+
         RuleFor(x => x.Constraints)
             .NotNull().WithMessage("Constraints must not be null.")
             .Must(c => c.Count <= 50).WithMessage("Constraints must not exceed 50 items.");

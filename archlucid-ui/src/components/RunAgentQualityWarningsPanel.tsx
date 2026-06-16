@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,7 +11,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { executeArchitectureRun } from "@/lib/api";
 import type { AgentQualityConcernRow } from "@/lib/agent-quality-warnings-presenter";
-import { buildPlainLanguageQualityBlockSummary } from "@/lib/agent-quality-warnings-presenter";
+import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_PATH } from "@/lib/agent-quality-warnings-presenter";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
@@ -79,7 +80,10 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
           </CardDescription>
           {blockSummary !== null ? (
             <p className="m-0 mt-2 text-sm font-medium text-neutral-800 dark:text-neutral-200" role="status">
-              {blockSummary}
+              {blockSummary}{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={QUALITY_GATE_REJECTION_RUNBOOK_PATH}>
+                Quality gate recovery runbook
+              </Link>
             </p>
           ) : null}
         </CardHeader>

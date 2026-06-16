@@ -138,8 +138,8 @@ function persistFullGuidedSubMode(mode: FullGuidedSubMode): void {
   }
 }
 
-/** V1 API requires a cloud provider; omit only when the server default (Azure) is intended. */
-const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "Azure";
+/** V1 evidence-first default; Azure is set when Azure extractor evidence is attached. */
+const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
 
 function buildQuickReviewPayload(
   brief: string,

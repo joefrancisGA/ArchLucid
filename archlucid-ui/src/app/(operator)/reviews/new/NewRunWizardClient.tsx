@@ -252,6 +252,16 @@ export function NewRunWizardClient() {
   });
 
   const { trigger, getValues, setValue, reset, control } = form;
+  const handlePendingEvidenceFileChange = useCallback(
+    (file: File | null) => {
+      setPendingEvidenceFile(file);
+
+      if (file !== null) {
+        setValue("cloudProvider", "Azure", { shouldValidate: true, shouldDirty: true });
+      }
+    },
+    [setValue],
+  );
 
   const recapSystemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
   const recapEnvironment = useWatch({ control, name: "environment" })?.trim() ?? "";
@@ -804,7 +814,7 @@ export function NewRunWizardClient() {
           {stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !baselineFirst ? (
             <WizardStepEvidenceUpload
               pendingFile={pendingEvidenceFile}
-              onPendingFileChange={setPendingEvidenceFile}
+              onPendingFileChange={handlePendingEvidenceFileChange}
               onSkipDemoData={skipEvidenceAndAdvance}
             />
           ) : null}

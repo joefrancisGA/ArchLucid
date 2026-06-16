@@ -29,7 +29,7 @@ const wizardSelectTriggerClassName =
   "w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus:ring-teal-600/35 dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500";
 
 /**
- * Step 2: system name, environment, cloud (Azure only), optional prior manifest version.
+ * Step 2: system name, environment, cloud target (None or Azure in V1).
  */
 export function WizardStepIdentity() {
   const { register, control, formState, clearErrors, watch } = useFormContext<WizardFormValues>();
@@ -105,8 +105,8 @@ export function WizardStepIdentity() {
         <div>
           <WizardFieldHint
             htmlFor="wizard-cloud-provider"
-            label="Cloud provider"
-            hint="Where baseline services must exist; only Microsoft Azure executes pipelines today, with other clouds shown as roadmap placeholders."
+            label="Cloud target"
+            hint="Choose None for brief/docs/diagram/IaC-only reviews. Choose Azure when the workload runs on Azure or you attach Azure extractor evidence."
           />
           <Controller
             name="cloudProvider"
@@ -120,18 +120,11 @@ export function WizardStepIdentity() {
                 }}
               >
                 <SelectTrigger id="wizard-cloud-provider" className={wizardSelectTriggerClassName}>
-                  <SelectValue placeholder="Select cloud provider" />
+                  <SelectValue placeholder="Select cloud target" />
                 </SelectTrigger>
                 <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
-                  <SelectItem value="Azure">Microsoft Azure</SelectItem>
-                  <SelectItem className="text-neutral-500 dark:text-neutral-400" disabled value="Aws">
-                    Amazon Web Services
-                    <span className="ml-1.5 text-xs text-neutral-400 dark:text-neutral-500">(coming soon)</span>
-                  </SelectItem>
-                  <SelectItem className="text-neutral-500 dark:text-neutral-400" disabled value="Gcp">
-                    Google Cloud
-                    <span className="ml-1.5 text-xs text-neutral-400 dark:text-neutral-500">(coming soon)</span>
-                  </SelectItem>
+                  <SelectItem value="None">No cloud / evidence-only</SelectItem>
+                  <SelectItem value="Azure">Microsoft Azure (accelerated V1 path)</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -140,7 +133,9 @@ export function WizardStepIdentity() {
             id="err-wizard-cloud"
             message={cloudErr != null ? String(cloudErr) : undefined}
           />
-          <p className="mt-1 text-xs text-neutral-500">Only Azure is available in this release.</p>
+          <p className="mt-1 text-xs text-neutral-500">
+            Azure export is the fastest production-faithful V1 path — not required for every review.
+          </p>
         </div>
 
         <Separator />

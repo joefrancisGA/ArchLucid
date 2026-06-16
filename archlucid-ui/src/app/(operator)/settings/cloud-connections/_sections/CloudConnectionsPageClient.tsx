@@ -56,7 +56,8 @@ export function CloudConnectionsPageClient() {
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cloud connections</h1>
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Configure continuous ingestion from your cloud providers.
+          Optional continuous ingestion from Azure when you want production-faithful evidence. Brief, documents, diagrams,
+          and IaC reviews do not require a cloud connection.
         </p>
       </div>
 

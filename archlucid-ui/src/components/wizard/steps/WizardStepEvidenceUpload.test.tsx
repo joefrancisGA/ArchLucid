@@ -18,8 +18,8 @@ describe("WizardStepEvidenceUpload", () => {
     expect(screen.getByTestId("wizard-evidence-upload-skip-demo")).toBeInTheDocument();
     expect(screen.getByTestId("wizard-evidence-source-brief")).toHaveTextContent("Available");
     expect(screen.getByTestId("wizard-evidence-source-azure-export")).toHaveTextContent("Fastest");
-    expect(screen.getByTestId("wizard-evidence-source-aws-gcp-inventory")).toHaveTextContent("V1.1");
-    expect(screen.getByTestId("wizard-evidence-source-aws-gcp-inventory")).toHaveAttribute("aria-disabled", "true");
+    expect(screen.queryByTestId("wizard-evidence-source-aws-gcp-inventory")).not.toBeInTheDocument();
+    expect(screen.getByTestId("wizard-evidence-source-structurizr-archimate-import")).toHaveTextContent("V1.1");
   });
 
   it("calls skip without requiring a file", () => {

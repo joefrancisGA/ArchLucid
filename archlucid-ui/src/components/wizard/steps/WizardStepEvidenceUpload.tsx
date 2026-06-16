@@ -61,12 +61,6 @@ const EVIDENCE_SOURCE_OPTIONS: readonly EvidenceSourceOption[] = [
     status: "available",
   },
   {
-    label: "AWS / GCP inventory",
-    description: "Planned multi-cloud evidence source.",
-    icon: Lock,
-    status: "v1.1",
-  },
-  {
     label: "Structurizr / ArchiMate import",
     description: "Planned model-import source.",
     icon: Lock,

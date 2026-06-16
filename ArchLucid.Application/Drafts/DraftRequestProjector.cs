@@ -25,7 +25,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             Description = description,
             SystemName = systemName,
             Environment = "prod",
-            CloudProvider = CloudProvider.Azure,
+            CloudProvider = CloudProvider.None,
             Assumptions = assumptions,
             RequestSource = "draft-intake",
             InlineRequirements = BuildInlineRequirements(document),
