@@ -1,4 +1,4 @@
-> **Scope:** Single canonical RC readiness order — reduces branching across release scripts and checklists.
+> **Scope:** Contributor-reference — single canonical RC readiness order for release owners; reduces branching across release scripts and checklists.
 
 # RC canonical release flow
 
