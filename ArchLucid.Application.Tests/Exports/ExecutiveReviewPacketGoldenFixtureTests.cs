@@ -35,6 +35,26 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
     }
 
     [Fact]
+    public void Executive_review_packet_includes_execution_mode_section()
+    {
+        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
+            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+
+        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+            inputs.Detail,
+            inputs.ExecutiveSummary,
+            inputs.TopFindingTitles,
+            inputs.RoiSummary,
+            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            inputs.TopDecisions,
+            inputs.PortfolioSignals);
+
+        markdown.Should().Contain("## Execution mode");
+        markdown.Should().Contain("Simulator");
+        markdown.Should().Contain("Not real-mode AI");
+    }
+
+    [Fact]
     public void Seeded_demo_run_packet_includes_roi_basis_label()
     {
         ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
@@ -77,6 +97,7 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
         string[] requiredSections =
         [
             "## Manifest summary",
+            "## Execution mode",
             "## Top decisions",
             "## Run summary",
             "## Portfolio signals (live)",

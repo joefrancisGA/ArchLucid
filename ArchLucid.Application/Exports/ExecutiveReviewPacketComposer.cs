@@ -38,6 +38,10 @@ public static class ExecutiveReviewPacketComposer
         sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
         sb.AppendLine();
         AppendManifestSummarySection(sb, detail);
+
+        if (detail.Run is not null)
+            SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, detail.Run);
+
         AppendTopDecisionsSection(sb, topDecisions);
         AppendRunSummarySection(sb, detail, executiveSummary, topFindingTitles);
         AppendPortfolioSignalsSection(sb, portfolioSignals);

@@ -9,6 +9,10 @@
 - **Run:** `claims-intake-modernization`
 - **Status:** Committed
 
+## Execution mode
+
+**Simulator** — **Not real-mode AI** — deterministic simulator; do not claim live model quality.
+
 ## Top decisions
 
 - **PHI ingress classification** — Enforce boundary classifier before persistence

@@ -2,13 +2,14 @@
 
 # Sponsor claim and execution-mode label audit
 
-**Last reviewed:** 2026-06-14
+**Last reviewed:** 2026-06-16
 
 ## Surfaces in scope
 
 | Surface | Label fields | Test / guard |
 | --- | --- | --- |
 | First-value report (Markdown) | Execution mode, evidence-basis labels, ROI basis, **ROI narrative claim gate (PASS/WARN/HOLD)**, **decision delta**, **novelty confidence** | `FirstValueReportBuilderTests`, `SponsorDecisionDeltaNoveltyResolverTests`, `SponsorRoiClaimDispositionResolverTests`, `ExecutionModeCrossSurfaceInvariantTests` |
+| Executive review packet (Markdown) | Execution mode, ROI disposition | `ExecutiveReviewPacketGoldenFixtureTests`, `SponsorExecutionModeMarkdownFormatter` (shared with first-value report) |
 | Sponsor proof packet | Mode, limitations, ROI table | `SponsorEvidencePackServiceTests` |
 | Review-detail trust card | Execution mode status | `RunTrustEvidenceCardBuilderTests` |
 | Executive ROI summary | Real-mode filter, estimate caveats | `ExecutiveRoiSummaryServiceExtendedTests` |
