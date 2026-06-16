@@ -19,6 +19,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Diagnostics;
 
 using FluentAssertions;
 
@@ -48,7 +49,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
         string configuredMode,
         string expectedLabel)
     {
-        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(ArchLucid.Core.Diagnostics.ArchLucidInstrumentation).TypeHandle);
+        ArchLucidInstrumentationTestSupport.EnsureInitialized();
 
         List<Activity> captured = [];
 
@@ -56,7 +57,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
         {
             ShouldListenTo = static source => source.Name == ArchLucidMeterNames.AgentExecutionActivitySource,
             Sample = static (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            ActivityStarted = captured.Add,
+            ActivityStopped = captured.Add,
         };
 
         ActivitySource.AddActivityListener(listener);

@@ -11,6 +11,15 @@ describe("OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS", () => {
     expect(OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[0]?.href).toBe("/reviews/new");
     expect(OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[3]?.href).toBe("/manifests");
   });
+
+  it("keeps distinct step numbers when execute and commit both route to /reviews", () => {
+    const execute = OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[1];
+    const commit = OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS[2];
+
+    expect(execute?.href).toBe("/reviews");
+    expect(commit?.href).toBe("/reviews");
+    expect(execute?.step).not.toBe(commit?.step);
+  });
 });
 
 describe("resolveOperatorFirstHourJourneyNav", () => {

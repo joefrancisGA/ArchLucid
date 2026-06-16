@@ -4143,6 +4143,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v5
+
       - name: Write workflow summary
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}

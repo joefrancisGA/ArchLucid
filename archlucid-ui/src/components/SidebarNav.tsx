@@ -679,7 +679,7 @@ export function SidebarNav() {
 
                   return (
                     <Link
-                      key={row.href}
+                      key={`first-hour-step-${row.step}`}
                       href={row.href}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",

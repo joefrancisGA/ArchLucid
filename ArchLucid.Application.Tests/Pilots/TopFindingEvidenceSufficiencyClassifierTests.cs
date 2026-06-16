@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
