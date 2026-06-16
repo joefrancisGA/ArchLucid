@@ -15,6 +15,14 @@ export type ProductDocumentationEntry = {
 
 export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] = [
   {
+    slug: "first-hour-operator-path",
+    title: "First-hour operator path",
+    summary:
+      "Four-step golden path for new operators — request, execute, commit, and review artifacts before opening Operate depth.",
+    audience: "operator",
+    sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
+  },
+  {
     slug: "first-pilot-path",
     title: "Full operating path",
     summary:

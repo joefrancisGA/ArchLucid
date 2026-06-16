@@ -107,6 +107,8 @@ Optional single-letter classification:
 
 - [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
 - [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
+- Session log template: [`templates/blind-insight-session-log.template.json`](templates/blind-insight-session-log.template.json)
+- Cohort aggregate: `python scripts/ci/aggregate_blind_insight_sessions.py --sessions-dir artifacts/blind-validation --json-out artifacts/blind-validation/cohort-summary.json`
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 - [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout

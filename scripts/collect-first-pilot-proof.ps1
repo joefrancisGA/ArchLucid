@@ -3096,6 +3096,15 @@ $summary = [ordered]@{
     baselineCompletenessStatus = [string]$baselineSendEval.baselineCompletenessStatus
     sendEligible              = [bool]$baselineSendEval.sendEligible
     overrideApplied           = [bool]$baselineSendEval.overrideApplied
+    roiBaselineSendOverrideAudit = if ([bool]$baselineSendEval.overrideApplied -and (Test-Path -LiteralPath (Join-Path $proofDir 'roi-baseline-send-override.json'))) {
+        [ordered]@{
+            overridePath = 'roi-baseline-send-override.json'
+            policyRef    = 'docs/go-to-market/ROI_BASELINE_SEND_POLICY.md'
+        }
+    }
+    else {
+        $null
+    }
     sendBlockReasons          = @($baselineSendEval.sendBlockReasons)
     missingRequiredBaselineFields = @($baselineSendEval.missingRequiredBaselineFields)
     aiQualityProof            = $script:aiQualityProof

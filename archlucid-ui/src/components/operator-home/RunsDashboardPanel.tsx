@@ -7,6 +7,7 @@ import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorHomeFirstReviewEmptyState } from "@/components/operator-home/OperatorHomeFirstReviewEmptyState";
+import { OperatorFirstHourJourneyStrip } from "@/components/OperatorFirstHourJourneyStrip";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -314,6 +315,11 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
         <h3 id="runs-dashboard-heading" className={cn(OPERATOR_LAYOUT.sectionHeadingMargin, OPERATOR_HOME_SECTION_HEADING)}>
           {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
+      ) : null}
+      {!buyerPolishedShell ? (
+        <div className={OPERATOR_LAYOUT.sectionStack}>
+          <OperatorFirstHourJourneyStrip />
+        </div>
       ) : null}
       <Card
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"

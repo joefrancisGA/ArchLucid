@@ -27,7 +27,8 @@
 
 1. Score gates using [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md) or pilot review notes.
 2. Update this table and the proof run log in the same PR or ops note.
-3. Do not advance marketing claims past the highest fully-passed stage ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)).
+3. Run weekly cadence when reviewing G4/G5 posture: [`../runbooks/WEEKLY_PROOF_CADENCE.md`](../runbooks/WEEKLY_PROOF_CADENCE.md) (`.\scripts\Invoke-WeeklyProofCadence.ps1`).
+4. Do not advance marketing claims past the highest fully-passed stage ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)).
 
 ## G5 release-evidence workflow
 

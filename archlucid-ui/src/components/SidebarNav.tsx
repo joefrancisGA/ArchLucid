@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, FileSearch, FileText, GitBranch, GitGraph, LayoutDashboard, Settings2 } from "lucide-react";
+import { ChevronDown, FileSearch, FileText, GitBranch, GitGraph, LayoutDashboard, ListChecks, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactElement } from "react";
@@ -36,6 +36,7 @@ import {
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS } from "@/lib/operator-first-hour-journey-nav";
 import { buyerGoldenPathSecondaryRouteHint } from "@/lib/buyer-golden-path-secondary-hint";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
@@ -73,6 +74,15 @@ const BUYER_POLISHED_QUICK_ACTION_LINKS = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.
   href: def.href,
   label: def.label,
   Icon: BUYER_JOURNEY_STEP_ICONS[idx]!,
+}));
+
+const OPERATOR_FIRST_HOUR_STEP_ICONS = [FileText, ListChecks, GitBranch, FileSearch] as const;
+
+const OPERATOR_FIRST_HOUR_QUICK_ACTION_LINKS = OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS.map((def, idx) => ({
+  step: def.step,
+  href: def.href,
+  label: def.label,
+  Icon: OPERATOR_FIRST_HOUR_STEP_ICONS[idx]!,
 }));
 
 function presentNavLink(link: NavLinkItem, buyerPolishedShell: boolean): NavLinkItem {
@@ -618,14 +628,14 @@ export function SidebarNav() {
       <OperateGovernanceUnlockPrompt />
       <SidebarRecentActivityCard />
 
-      {mounted && (buyerPolishedShell || quickActionLinks.length > 0) ? (
+      {mounted && (buyerPolishedShell || quickActionLinks.length > 0 || !buyerPolishedShell) ? (
         <div
           className="px-2 py-2"
           data-testid="sidebar-quick-actions"
-          aria-label={buyerPolishedShell ? "Review journey" : "Quick actions"}
+          aria-label={buyerPolishedShell ? "Review journey" : "First-hour path"}
         >
           <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-            {buyerPolishedShell ? "Review journey" : SIDEBAR_QUICK_ACTIONS_LABEL}
+            {buyerPolishedShell ? "Review journey" : "First-hour path"}
           </p>
           <nav
             className="flex flex-col gap-0.5 border-l-2 border-neutral-200 py-1 pl-2 dark:border-neutral-800"
@@ -662,36 +672,32 @@ export function SidebarNav() {
                     </Link>
                   );
                 })
-              : quickActionLinks.map((link) => {
-                  const presented = presentQuickActionLink(link);
-                  const active = isNavLinkActive(pathname, presented.href);
-                  const Icon = presented.icon;
-                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
-                  const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
+              : OPERATOR_FIRST_HOUR_QUICK_ACTION_LINKS.map((row) => {
+                  const active = isNavLinkActive(pathname, row.href);
+                  const Icon = row.Icon;
+                  const stepLabel = `${row.step}. ${row.label}`;
 
                   return (
                     <Link
-                      key={`quick-${presented.href}`}
-                      href={presented.href}
-                      {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
+                      key={row.href}
+                      href={row.href}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
                           ? DESIGN_TOKENS.interactive.navActive
                           : "text-neutral-900 dark:text-neutral-100",
                       )}
-                      title={
-                        advancedDemo
-                          ? `${presented.title} (Advanced — optional)`
-                          : presented.title
-                      }
+                      title={stepLabel}
                       aria-current={active ? "page" : undefined}
-                      aria-keyshortcuts={
-                        presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
-                      }
                     >
-                      {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                      {presented.label}
+                      <span
+                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100"
+                        aria-hidden
+                      >
+                        {row.step}
+                      </span>
+                      <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
+                      {row.label}
                     </Link>
                   );
                 })}
