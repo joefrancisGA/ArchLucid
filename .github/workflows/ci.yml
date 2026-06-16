@@ -421,6 +421,10 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_claim_evidence_consistency.py"
 
+      - name: First-value lane alignment gate
+        continue-on-error: true
+        run: python scripts/ci/validate_first_value_lane.py
+
       - name: Commercial closeout batch unit tests (TB-129-134)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_closeout_batch.py"

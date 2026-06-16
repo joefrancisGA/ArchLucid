@@ -74,6 +74,12 @@ def validate_payload(payload: dict[str, Any], schema: dict[str, Any] | None = No
     if not isinstance(payload.get("missingRealModeEvidence"), bool):
         errors.append("missingRealModeEvidence must be boolean")
 
+    stage1 = str(payload.get("stage1Readiness") or "").upper()
+    allowed_stage1 = set(schema.get("allowedStage1Readiness") or [])
+
+    if stage1 not in allowed_stage1:
+        errors.append(f"stage1Readiness invalid: {stage1!r}")
+
     return errors
 
 

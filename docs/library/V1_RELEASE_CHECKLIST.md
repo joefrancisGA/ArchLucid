@@ -9,7 +9,7 @@
 
 **How to use:** Work top to bottom. Check boxes when the item is **done for this release** (build ID / environment recorded in your run notes). This is **operational**, not a substitute for full automated CI.
 
-**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Minimum doc path:** [V1_CRITICAL_PATH_MAP.md](V1_CRITICAL_PATH_MAP.md). **Authoritative live environment for RC evidence:** **Staging** — see [RC_TARGET_ENVIRONMENT_MATRIX.md](RC_TARGET_ENVIRONMENT_MATRIX.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`**.
+**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Minimum doc path:** [V1_CRITICAL_PATH_MAP.md](V1_CRITICAL_PATH_MAP.md). **Canonical RC flow:** [RC_CANONICAL_RELEASE_FLOW.md](RC_CANONICAL_RELEASE_FLOW.md). **Authoritative live environment for RC evidence:** **Staging** — see [RC_TARGET_ENVIRONMENT_MATRIX.md](RC_TARGET_ENVIRONMENT_MATRIX.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`**.
 
 ---
 

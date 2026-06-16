@@ -64,6 +64,7 @@ class WeeklyProofCadenceTests(unittest.TestCase):
             self.assertEqual("archlucid.weekly-proof-cadence.v1", payload["schema"])
             self.assertIn("G4", payload["gates"])
             self.assertTrue(payload["missingRealModeEvidence"])
+            self.assertEqual("NOT_READY", payload["stage1Readiness"])
 
 
 if __name__ == "__main__":

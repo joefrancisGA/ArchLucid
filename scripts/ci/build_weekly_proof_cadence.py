@@ -111,6 +111,19 @@ def _gate_row(
     }
 
 
+def _resolve_stage1_readiness(gates: dict[str, dict[str, str]], overall: str) -> str:
+    g4 = str((gates.get("G4") or {}).get("status") or "NOT_RUN").upper()
+    g5 = str((gates.get("G5") or {}).get("status") or "NOT_RUN").upper()
+
+    if overall == "HOLD" or g4 == "HOLD" or g5 == "HOLD":
+        return "NOT_READY"
+
+    if g4 == "PASS" and g5 in {"PASS", "WARN"}:
+        return "READY"
+
+    return "NOT_READY"
+
+
 def build_cadence(
     *,
     cadence_id: str,
@@ -168,6 +181,8 @@ def build_cadence(
     else:
         overall = "PASS"
 
+    stage1_readiness = _resolve_stage1_readiness(gates, overall)
+
     now = datetime.now(timezone.utc)
 
     def _days_old(generated: datetime | None) -> int | None:
@@ -182,6 +197,7 @@ def build_cadence(
         "generatedUtc": _utc_now(),
         "gates": gates,
         "overallDisposition": overall,
+        "stage1Readiness": stage1_readiness,
         "runIdsReferenced": run_ids,
         "executionModeSummary": {
             "qualifyingRealRunCount": real_run_count,
@@ -203,6 +219,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
         f"**Cadence id:** {payload.get('cadenceId')}",
         f"**Generated UTC:** {payload.get('generatedUtc')}",
         f"**Overall disposition:** {payload.get('overallDisposition')}",
+        f"**Stage 1 readiness:** {payload.get('stage1Readiness')}",
         f"**Missing real-mode evidence:** {payload.get('missingRealModeEvidence')}",
         "",
         "## Claim gates (G1–G6)",

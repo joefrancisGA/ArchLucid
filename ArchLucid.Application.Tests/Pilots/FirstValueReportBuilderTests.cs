@@ -84,6 +84,10 @@ public sealed class FirstValueReportBuilderTests
         md.Should().NotBeNull();
         md.Should().Contain("## Sponsor first-page status");
         md.Should().Contain("## Sponsor-safe proof status");
+        md.Should().Contain("## Decision delta (recommended changes)");
+        md.Should().Contain("## Novelty confidence");
+        md.Should().Contain("**Confidence:**");
+        md.Should().Contain("**Evidence class:**");
         int introEnd = md.IndexOf("metric catalog.", StringComparison.Ordinal);
         int firstPageStatusHeading = md.IndexOf("## Sponsor first-page status", StringComparison.Ordinal);
         int proofStatusHeading = md.IndexOf("## Sponsor-safe proof status", StringComparison.Ordinal);

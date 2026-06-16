@@ -435,8 +435,35 @@ def evaluate_buyer_rc_packet(bundle_dir: Path, *, strict_buyer_rc: bool) -> list
             )
 
     missing.extend(_evaluate_strict_rc_machine_outputs(bundle_dir))
+    missing.extend(_evaluate_strict_buyer_real_mode_evidence(bundle_dir, waiver_present=waiver_present))
 
     return missing
+
+
+def _evaluate_strict_buyer_real_mode_evidence(
+    bundle_dir: Path,
+    *,
+    waiver_present: bool,
+) -> list[MissingRequirement]:
+    if waiver_present:
+        return []
+
+    real_mode = evaluate_real_mode_ai_evidence(bundle_dir)
+    status = str(real_mode.get("status") or "MISSING").upper()
+
+    if status == "PASS":
+        return []
+
+    return [
+        MissingRequirement(
+            kind="buyerRcRealModeEvidence",
+            target=_REAL_LLM_EVIDENCE_FILE,
+            detail=(
+                f"strict buyer RC requires current real-mode AI evidence PASS or simulator-only override; "
+                f"found {status}: {real_mode.get('detail')}"
+            ),
+        )
+    ]
 
 
 def evaluate_profile(bundle_dir: Path, profile_name: str, profiles_doc: dict[str, Any]) -> tuple[list[MissingRequirement], list[str], list[str]]:

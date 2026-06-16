@@ -130,6 +130,12 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         AppendSponsorFirstPageStatusBlock(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run, roiClaimGate);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
+        SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proofCompleteness,
+            buyerSafeGate);
+        SponsorDecisionDeltaNoveltyMarkdownFormatter.AppendMarkdownSections(sb, decisionDeltaNovelty);
         SponsorArtifactEvidenceBadgeMarkdownFormatter.AppendMarkdownSection(
             sb,
             deltas,
