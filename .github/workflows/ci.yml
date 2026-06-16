@@ -2050,6 +2050,10 @@ jobs:
           -BlameHangTimeout 75min
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
+      - name: SQL Server hang diagnostics (on failure)
+        if: failure()
+        uses: ./.github/actions/sqlserver-hang-diagnostics
+
       - uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -2136,6 +2140,11 @@ jobs:
           --collect:"XPlat Code Coverage"
           --results-directory "${{ runner.temp }}/coverage-full-core-api-unit"
           --logger "trx;LogFilePrefix=full-core-api-unit-"
+          --blame-hang --blame-hang-timeout 10m --blame-hang-dump-type mini
+
+      - name: SQL Server hang diagnostics (on failure)
+        if: failure()
+        uses: ./.github/actions/sqlserver-hang-diagnostics
 
       - uses: actions/upload-artifact@v6
         if: always()
@@ -2143,6 +2152,20 @@ jobs:
           name: dotnet-trx-full-core-api-unit
           path: ${{ runner.temp }}/coverage-full-core-api-unit/**/*.trx
           if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-blame-core-api-unit
+          path: ${{ runner.temp }}/coverage-full-core-api-unit/**/Sequence_*.xml
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-hangdumps-core-api-unit
+          path: ${{ runner.temp }}/coverage-full-core-api-unit/**/*.dmp
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v6
         with:
@@ -2313,6 +2336,10 @@ jobs:
           --logger "trx;LogFilePrefix=full-slow-api-"
           --diag "${{ runner.temp }}/vstest-slow-api.diag.log"
           --blame-hang --blame-hang-timeout 105min
+
+      - name: SQL Server hang diagnostics (on failure)
+        if: failure()
+        uses: ./.github/actions/sqlserver-hang-diagnostics
 
       - uses: actions/upload-artifact@v6
         if: always()

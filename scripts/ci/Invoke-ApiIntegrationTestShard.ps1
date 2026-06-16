@@ -121,6 +121,42 @@ foreach ($filter in $filterChunks) {
             Write-Host '::endgroup::'
         }
 
+        # On failure or blame-hang dump: emit SQL Server diagnostics so the next hang shows which
+        # sessions were active/blocked and how many catalogs had accumulated on the container.
+        if ($failed -and ($IsLinux -or $inGitHubActions)) {
+            Write-Host '--- SQL Server diagnostics (post-hang) ---'
+
+            $saPassword = $env:ARCHLUCID_CI_SQL_SA_PASSWORD
+            if (-not $saPassword) { $saPassword = 'LocalTesting123!' }
+
+            $sqlcmd = '/opt/mssql-tools18/bin/sqlcmd'
+            if (-not (Test-Path $sqlcmd)) { $sqlcmd = 'sqlcmd' }
+
+            $sqlArgs = @('-S', '127.0.0.1,1433', '-U', 'sa', '-P', $saPassword, '-C', '-Q')
+
+            & $sqlcmd @sqlArgs @'
+SELECT session_id, status, blocking_session_id, wait_type, wait_time_ms,
+       DB_NAME(database_id) AS db_name, LEFT(sql_text.text, 200) AS sql_snippet
+FROM sys.dm_exec_requests r
+CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS sql_text
+WHERE session_id > 50
+ORDER BY wait_time_ms DESC;
+'@ -ErrorAction SilentlyContinue
+
+            & $sqlcmd @sqlArgs @'
+SELECT COUNT(*) AS blocked_session_count
+FROM sys.dm_os_waiting_tasks
+WHERE blocking_session_id IS NOT NULL AND blocking_session_id <> 0;
+'@ -ErrorAction SilentlyContinue
+
+            & $sqlcmd @sqlArgs @'
+SELECT name, state_desc, log_reuse_wait_desc
+FROM sys.databases
+WHERE name LIKE 'ArchLucid%'
+ORDER BY name;
+'@ -ErrorAction SilentlyContinue
+        }
+
         if ($IsLinux -or $inGitHubActions) {
             # Kill orphaned testhost/dotnet processes that prevent the GitHub Actions step from finishing
             Get-Process -Name 'dotnet', 'testhost' -ErrorAction SilentlyContinue |

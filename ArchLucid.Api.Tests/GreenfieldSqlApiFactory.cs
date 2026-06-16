@@ -75,6 +75,11 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         settings["ArchLucidAuth:Mode"] = "DevelopmentBypass";
         settings["Authentication:ApiKey:DevelopmentBypassAll"] = "true";
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        // 300 s covers sp_getapplock wait (DistributedIdempotencyLockTimeoutMilliseconds = 180 s + 120 s ADO headroom)
+        // and heavy migration queries.  Individual repositories that must fail fast under CI SQL pressure
+        // (e.g. DapperAuditRepository.AppendAsync) must set an explicit commandTimeout on their CommandDefinition
+        // rather than relying on this global.  Do NOT raise this value without also reviewing audit / outbox
+        // commandTimeout caps — they intentionally do NOT inherit the global to avoid consuming the pipeline budget.
         settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300";
         settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
         // Keep lock wait below slow-shard hang guards; 3 min is enough for one winner + idempotent replays in CI.

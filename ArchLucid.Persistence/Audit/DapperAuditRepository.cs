@@ -67,7 +67,12 @@ public sealed class DapperAuditRepository(
             await _retryPolicy.ExecuteAsync(async () =>
             {
                 await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
-                await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
+
+                // Explicit short timeout so a blocked audit INSERT never consumes the caller's full
+                // pipeline budget (global DefaultSqlCommandTimeoutSeconds is intentionally long for
+                // sp_getapplock and migration queries; audit writes must fail fast under SQL pressure).
+                await connection.ExecuteAsync(
+                    new CommandDefinition(sql, auditEvent, commandTimeout: 30, cancellationToken: ct));
             });
         }
         finally
