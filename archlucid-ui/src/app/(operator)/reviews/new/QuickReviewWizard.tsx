@@ -138,6 +138,9 @@ function persistFullGuidedSubMode(mode: FullGuidedSubMode): void {
   }
 }
 
+/** V1 API requires a cloud provider; omit only when the server default (Azure) is intended. */
+const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "Azure";
+
 function buildQuickReviewPayload(
   brief: string,
   titleTrimmed: string,
@@ -150,7 +153,7 @@ function buildQuickReviewPayload(
     description: brief.trim(),
     systemName,
     environment: "staging",
-    cloudProvider: "Azure",
+    cloudProvider: V1_DEFAULT_CLOUD_PROVIDER,
     constraints: [],
     requiredCapabilities,
     assumptions: [],

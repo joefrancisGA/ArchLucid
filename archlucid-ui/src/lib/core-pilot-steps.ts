@@ -23,8 +23,8 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
       "Add a brief, docs, diagrams, or IaC; connected to Azure, use the read-only extractor for production-faithful evidence.",
     detail:
       "The Extract & Upload settings page keeps the Azure extractor one click away as the accelerated path; the review can still start from architecture materials and guided intake.",
-    primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
-    primaryLabel: "Add evidence",
+    primaryHref: "/reviews/new",
+    primaryLabel: "Start a review",
   },
   {
     title: "Create an architecture review request",

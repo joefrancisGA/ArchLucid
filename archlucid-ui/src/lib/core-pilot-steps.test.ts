@@ -12,7 +12,8 @@ describe("core-pilot-steps", () => {
     const firstStep = CORE_PILOT_STEPS[0];
 
     expect(firstStep.title).toBe("Provide architecture evidence");
-    expect(firstStep.primaryLabel).toBe("Add evidence");
+    expect(firstStep.primaryLabel).toBe("Start a review");
+    expect(firstStep.primaryHref).toBe("/reviews/new");
     expect(firstStep.shortBody.toLowerCase()).toContain("brief");
     expect(firstStep.shortBody.toLowerCase()).toContain("azure");
     expect(firstStep.title.toLowerCase()).not.toContain("azure");

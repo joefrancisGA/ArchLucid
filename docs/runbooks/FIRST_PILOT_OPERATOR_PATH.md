@@ -61,6 +61,20 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 
 ---
 
+## Pilot UI deployment (buyer-default shell)
+
+Before provisioning a **pilot or staging tenant UI**, confirm the build **does not** set `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`. When that flag is unset, the operator shell uses buyer-polished labels (no AI budget pill in the header, outcome-first pipeline status copy). Local engineers keep the dense shell via `archlucid-ui/.env.development` only.
+
+| Check | Pass criteria |
+| --- | --- |
+| Env template | Use [`archlucid-ui/.env.pilot.example`](../../archlucid-ui/.env.pilot.example) as the starting point — flag absent |
+| CI guard | `python scripts/ci/assert_pilot_ui_env_posture.py` exits 0 |
+| Symptom if misconfigured | Header shows **AI budget** pill; nav uses **Evidence intake** / pipeline jargon |
+
+Canonical reference: [`OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_EXPERIENCE_MODES.md).
+
+---
+
 ## Phase A — Platform ready
 
 | Step | Action | Success signal | Surface |

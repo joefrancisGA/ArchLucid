@@ -5,7 +5,7 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 export const DOMAIN_TERMS = {
-  goldenManifest: "Golden Manifest",
+  goldenManifest: "Signed review record",
   decisionTrace: "Decision Trace",
   policyPack: "Policy Pack",
   policyPackContentDocument: "Policy Pack Content Document",
@@ -35,15 +35,15 @@ export const PIPELINE_STATUS_LABELS = {
   inPipeline: "In pipeline",
   starting: "Starting",
   packageFinalized: "Package finalized",
-  readyToSeal: "Ready to seal",
-  inFlight: "In flight",
+  readyToSeal: "Ready to finalize",
+  inFlight: "In review",
 } as const;
 
 export const PIPELINE_STATUS_TOOLTIPS = {
-  finalized: `The ${DOMAIN_TERMS.goldenManifest} has been committed and the architecture review is sealed.`,
-  readyToFinalize: `All analysis is complete. An operator must review and commit the ${DOMAIN_TERMS.goldenManifest}.`,
-  inPipeline: "The architecture graph and context have been extracted, and analysis is currently running.",
-  starting: "The architecture request has been received and the execution pipeline is initializing.",
+  finalized: `The ${DOMAIN_TERMS.goldenManifest} is finalized and the architecture review is complete.`,
+  readyToFinalize: "All analysis is complete. Finalize the review to produce a signed, auditable record.",
+  inPipeline: "ArchLucid is analyzing your architecture evidence and building findings.",
+  starting: "ArchLucid is preparing your architecture review.",
 } as const;
 
 export const RUNS_DASHBOARD_LABELS = {
@@ -91,10 +91,10 @@ export const ALERTS_INBOX_LABELS = {
 } as const;
 
 export const SERVICE_BUS_HEALTH_LABELS = {
-  bannerTitle: "Azure Service Bus messaging is degraded",
+  bannerTitle: "Some analysis tasks are delayed",
   bannerBody:
-    "Background jobs and integration events may be delayed or failing. Review worker logs and open System health for the azure_service_bus readiness check.",
-  systemHealthLink: "System health",
+    "Results may take longer than usual. Contact your ArchLucid administrator if this persists.",
+  systemHealthLink: "System health (operators)",
 } as const;
 
 /** Sidebar group headings — single source for `*-nav-group-builder.ts` files. */

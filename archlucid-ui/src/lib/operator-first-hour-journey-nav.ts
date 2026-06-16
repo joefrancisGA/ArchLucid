@@ -21,7 +21,7 @@ export const OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS = [
     step: 3,
     label: "Commit review package",
     href: "/reviews",
-    nextAction: "Finalize the golden manifest when findings look right.",
+    nextAction: "Finalize the signed review record when findings look right.",
     chipTooltip: "Commit produces the versioned signed package sponsors expect.",
   },
   {

@@ -13,13 +13,13 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Architecture review",
     shortDefinition: "The end-to-end work unit from intake through finalized outputs for one architecture question.",
     longDefinition:
-      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a golden manifest you can govern and compare.",
+      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a signed review record you can govern and compare.",
   },
   manifest: {
-    displayLabel: "Golden manifest",
+    displayLabel: "Signed review record",
     shortDefinition: "The finalized, signed architecture package treated as source of truth for a review.",
     longDefinition:
-      "The golden manifest is the immutable, versioned design package for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
+      "The signed review record is the immutable, versioned design package for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",

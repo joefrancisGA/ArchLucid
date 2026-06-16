@@ -24,9 +24,9 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
       "The decision-traceability graph linking each finding back through the policy rule, evidence source, and agent reasoning that produced it.",
   },
   {
-    term: "Golden Manifest",
+    term: "Signed review record",
     definition:
-      "The signed, immutable summary of a finalized architecture review. Committing the manifest seals the package and triggers governance gates.",
+      "The signed, immutable summary of a finalized architecture review. Finalizing the review seals the package and triggers governance gates.",
   },
   {
     term: "Policy pack",
