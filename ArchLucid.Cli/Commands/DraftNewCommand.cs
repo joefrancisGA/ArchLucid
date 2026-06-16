@@ -49,7 +49,17 @@ internal static class DraftNewCommand
 
         string intent = options.IntentText?.Trim() ?? string.Empty;
 
-        if (intent.Length < 10)
+        if (options.IntentText is not null)
+        {
+
+            if (intent.Length < 10)
+            {
+                await error.WriteLineAsync("Intent must be at least 10 characters after trim.");
+
+                return CliExitCode.UsageError;
+            }
+        }
+        else if (intent.Length < 10)
         {
             string? prompted = await hooks.PromptRequiredAsync(
                 "Describe the architecture you want reviewed (minimum 10 characters):",
@@ -60,13 +70,13 @@ internal static class DraftNewCommand
                 return CliExitCode.OperationFailed;
 
             intent = prompted;
-        }
 
-        if (intent.Length < 10)
-        {
-            await error.WriteLineAsync("Intent must be at least 10 characters after trim.");
+            if (intent.Length < 10)
+            {
+                await error.WriteLineAsync("Intent must be at least 10 characters after trim.");
 
-            return CliExitCode.UsageError;
+                return CliExitCode.UsageError;
+            }
         }
 
         ArchLucidApiClient client = hooks.CreateApiClient(baseUrl, config);
