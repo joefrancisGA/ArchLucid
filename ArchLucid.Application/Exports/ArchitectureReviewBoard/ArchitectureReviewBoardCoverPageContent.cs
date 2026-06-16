@@ -18,6 +18,8 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
 {
     internal const string DemoTenantNotice = "Demo tenant — replace before publishing to executives.";
 
+    internal const string LogoPlaceholderLabel = "[Logo placeholder — upload tenant cover logo in settings]";
+
     internal const string DirectionalEstimatesFooter = "Directional estimates — see methodology";
 
     /// <summary>Logo width in EMUs for OpenXML cover embedding (scaled below full-page width).</summary>

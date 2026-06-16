@@ -112,6 +112,7 @@ public sealed class ComplianceAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                _logger,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

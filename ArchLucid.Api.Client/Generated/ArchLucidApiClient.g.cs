@@ -61284,6 +61284,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("referencedFindings")]
         public System.Collections.Generic.ICollection<string>? ReferencedFindings { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("retrievalDegraded")]
+        public bool? RetrievalDegraded { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("threadId")]
         public System.Guid? ThreadId { get; set; } = default!;
 

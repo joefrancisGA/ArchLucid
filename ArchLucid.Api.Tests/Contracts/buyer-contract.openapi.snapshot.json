@@ -4022,6 +4022,9 @@
             },
             "type": "array"
           },
+          "retrievalDegraded": {
+            "type": "boolean"
+          },
           "threadId": {
             "format": "uuid",
             "type": "string"

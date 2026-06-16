@@ -565,6 +565,14 @@ public static class ArchLucidInstrumentation
             description: "Remediation LLM attempts after AgentResult schema validation failed (label: agent_type).");
 
     /// <summary>
+    ///     Successful <c>AgentResult</c> parses after schema remediation (labels: <c>agent_type</c>, <c>schema_retry_count</c>).
+    /// </summary>
+    public static readonly Counter<long> AgentSchemaRemediationCompletionsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.agent.schema_remediation_completions_total",
+            description: "Successful AgentResult parses after schema remediation (labels: agent_type, schema_retry_count).");
+
+    /// <summary>
     ///     Schema validation of explanation LLM JSON (labels: <c>explanation_type</c>, <c>outcome</c>
     ///     =valid|invalid|skipped).
     /// </summary>
@@ -1830,6 +1838,16 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "agent_type", t } };
 
         AgentSchemaRemediationRetriesTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="AgentSchemaRemediationCompletionsTotal" /> with the retry count required for success.</summary>
+    public static void RecordAgentSchemaRemediationCompletion(string agentTypeLabel, int schemaRetryCount)
+    {
+        string t = string.IsNullOrWhiteSpace(agentTypeLabel) ? "unknown" : agentTypeLabel.Trim();
+        int clamped = schemaRetryCount < 0 ? 0 : schemaRetryCount;
+        TagList tags = new() { { "agent_type", t }, { "schema_retry_count", clamped.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+
+        AgentSchemaRemediationCompletionsTotal.Add(1, tags);
     }
 
     /// <summary>Increments <c>archlucid_explanation_schema_validations_total</c> (outcome: valid, invalid, or skipped).</summary>

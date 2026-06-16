@@ -100,6 +100,7 @@ public sealed class CostAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                _logger,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

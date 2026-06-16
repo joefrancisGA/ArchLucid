@@ -2,6 +2,7 @@ import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-con
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
+import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -144,7 +145,8 @@ export function filterNavLinksForOperatorShell(
   applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
-  const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
+  const promoted = applyCommittedArchitectureReviewNavPromotions(links, hasCommittedArchitectureReview);
+  const gated = filterNavLinksByCommittedArchitectureReviewGate(promoted, hasCommittedArchitectureReview);
 
   let tiered: NavLinkItem[] = filterNavLinksByAuthority(
     filterNavLinksByTier(gated, showExtended, showAdvanced),

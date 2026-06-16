@@ -111,6 +111,14 @@ public sealed class ArchitectureReviewDocxBuilder
                 ArchitectureReviewBoardCoverPageContent.DocxLogoHeightEmus);
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
         }
+        else
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(
+                body,
+                ArchitectureReviewBoardCoverPageContent.LogoPlaceholderLabel,
+                "Subtle");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
+        }
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.Title, "DocTitle");
 

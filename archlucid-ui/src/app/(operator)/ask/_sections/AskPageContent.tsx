@@ -46,6 +46,7 @@ export function AskPageContent() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
+  const [retrievalDegraded, setRetrievalDegraded] = useState(false);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const questionRef = useRef<HTMLTextAreaElement>(null);
   const hideCompareChrome =
@@ -203,6 +204,7 @@ export function AskPageContent() {
 
     setLoading(true);
     resetAskStream();
+    setRetrievalDegraded(false);
     const pendingUserMessage: ConversationMessage = {
       messageId: `pending-user-${Date.now()}`,
       threadId: tid || "pending",
@@ -232,6 +234,7 @@ export function AskPageContent() {
       }
 
       setSelectedThreadId(result.threadId);
+      setRetrievalDegraded(result.retrievalDegraded === true);
       setQuestion("");
       await loadThreads();
       await loadMessages(result.threadId);
@@ -342,6 +345,7 @@ export function AskPageContent() {
   const onNewConversation = useCallback(() => {
     setSelectedThreadId("");
     setMessages([]);
+    setRetrievalDegraded(false);
 
     if (buyerPolishedShell) {
       const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
@@ -416,6 +420,7 @@ export function AskPageContent() {
           streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
           askAssistantGroundingLinks={askAssistantGroundingLinks}
           showPostAssistantFollowUps={showPostAssistantFollowUps}
+          retrievalDegraded={retrievalDegraded}
         />
       </div>
     </div>

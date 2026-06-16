@@ -342,7 +342,7 @@ public sealed class PolicyPackManagementServiceTests
             "1.0.0",
             GovernanceScopeLevel.Project,
             isPinned: true,
-            CancellationToken.None);
+            ct: CancellationToken.None);
 
         changeLog.Verify(
             c => c.AppendAsync(

@@ -27,7 +27,31 @@ public static class DefaultPolicyPackCatalog
     /// <summary>Matches <c>pack.displayName</c> in <see cref="DefaultPolicyPackTemplates.AzureCafLandingZoneV1Json" />.</summary>
     public const string AzureCafLandingZoneDisplayName = "Azure Landing Zone / Cloud Adoption Framework";
 
-    /// <summary>Matches <c>pack.description</c> for the Azure CAF / landing zone template.</summary>
+    /// <summary>Matches <c>pack.displayName</c> for the Azure CAF / landing zone template.</summary>
     public const string AzureCafLandingZoneDescription =
         "Starter prompts for enterprise Azure landing zones — management hierarchy, hub-spoke networking, policy initiatives, platform identity, and centralized observability. Thematic CAF/LZ mapping only; not conformance certification.";
+
+    /// <summary>Matches <c>pack.displayName</c> in bundled FinOps template.</summary>
+    public const string FinOpsCostOptimizationDisplayName = "FinOps & Cloud Cost Optimization";
+
+    /// <summary>Matches <c>pack.displayName</c> in bundled CIS Azure Foundations template.</summary>
+    public const string CisAzureFoundationsDisplayName = "CIS Microsoft Azure Foundations Benchmark";
+
+    /// <summary>Matches <c>pack.displayName</c> in bundled Zero Trust template.</summary>
+    public const string ZeroTrustArchitectureDisplayName = "Zero Trust Architecture";
+
+    /// <summary>Platform default packs enabled on tenant provisioning before operator opt-in.</summary>
+    public static readonly IReadOnlySet<string> StandardBaselineDisplayNames =
+        new HashSet<string>(StringComparer.Ordinal)
+        {
+            AzureWellArchitectedDisplayName,
+            FinOpsCostOptimizationDisplayName,
+            AiGovernanceDisplayName,
+            CisAzureFoundationsDisplayName,
+            ZeroTrustArchitectureDisplayName,
+        };
+
+    /// <summary>Returns whether a bundled platform pack is part of the V1 standard baseline set.</summary>
+    public static bool IsStandardBaselineDisplayName(string displayName) =>
+        StandardBaselineDisplayNames.Contains(displayName);
 }

@@ -50,6 +50,8 @@ public sealed class DefaultPolicyPackSeederTests
         IReadOnlyList<PolicyPackAssignment> assigns =
             await assignments.ListByScopeAsync(tenantId, workspaceId, projectId, CancellationToken.None);
         assigns.Should().HaveCount(expectedCount);
+        assigns.Count(a => a.IsEnabled).Should().Be(DefaultPolicyPackCatalog.StandardBaselineDisplayNames.Count);
+        assigns.Count(a => !a.IsEnabled).Should().Be(expectedCount - DefaultPolicyPackCatalog.StandardBaselineDisplayNames.Count);
     }
 
     [Fact]

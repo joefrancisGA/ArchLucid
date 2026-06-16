@@ -79,7 +79,7 @@ public interface IPolicyPackManagementService
     /// </param>
     /// <param name="isPinned">When true, increases precedence within the same scope tier during resolution.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>The new assignment row (always enabled).</returns>
+    /// <returns>The new assignment row.</returns>
     /// <remarks>
     ///     Normalizes <paramref name="scopeLevel" /> and clears unused workspace/project ids for tenant/workspace rows so
     ///     persistence matches
@@ -93,7 +93,8 @@ public interface IPolicyPackManagementService
         string version,
         string scopeLevel,
         bool isPinned,
-        CancellationToken ct);
+        bool isEnabled = true,
+        CancellationToken ct = default);
 
     /// <summary>Soft-deletes an assignment row for the tenant (sets <see cref="PolicyPackAssignment.ArchivedUtc" />).</summary>
     Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct);

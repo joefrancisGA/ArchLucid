@@ -44,4 +44,13 @@ public sealed class AskResponse
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <see langword="true" />, vector retrieval failed and evidence was sourced from SQL findings/manifest text only.
+    /// </summary>
+    public bool RetrievalDegraded
+    {
+        get;
+        set;
+    }
 }

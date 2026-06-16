@@ -1,0 +1,151 @@
+"use client";
+
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import type { components } from "@/lib/openapi-schemas";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { showError, showSuccess } from "@/lib/toast";
+
+type AdminTokenClaimsDiagnosticResponse = components["schemas"]["AdminTokenClaimsDiagnosticResponse"];
+
+/**
+ * Dry-run JWT role mapping against current tenant configuration via POST /v1/admin/auth/diagnose-token.
+ */
+export function AuthTokenTestMappingCard() {
+  const [bearerToken, setBearerToken] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<AdminTokenClaimsDiagnosticResponse | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function onTestMapping(): Promise<void> {
+    const token = bearerToken.trim();
+
+    if (token.length === 0) {
+      setErrorMessage("Paste a sample JWT bearer token (without the Bearer prefix).");
+      setResult(null);
+
+      return;
+    }
+
+    setBusy(true);
+    setErrorMessage(null);
+    setResult(null);
+
+    try {
+      const response = await fetch(
+        "/api/proxy/v1/admin/auth/diagnose-token",
+        mergeRegistrationScopeForProxy({
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ bearerToken: token }),
+        }),
+      );
+
+      const bodyText = await response.text();
+
+      if (!response.ok) {
+        const apiError = buildApiRequestErrorFromParts(response, bodyText);
+        setErrorMessage(apiError.message);
+        showError("Test mapping", apiError.message);
+
+        return;
+      }
+
+      const payload = JSON.parse(bodyText) as AdminTokenClaimsDiagnosticResponse;
+      setResult(payload);
+      showSuccess("Token mapping evaluated — review resolved roles below.");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Test mapping request failed.";
+      setErrorMessage(message);
+      showError("Test mapping", message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card data-testid="auth-token-test-mapping-card">
+      <CardHeader>
+        <CardTitle className="text-base">Test mapping</CardTitle>
+        <CardDescription>
+          Paste a sample JWT from your IdP (payload only — signature is not validated). ArchLucid evaluates claim
+          mappings and returns resolved roles without changing tenant configuration.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-1">
+          <Label htmlFor="auth-test-mapping-token">Sample bearer token</Label>
+          <Textarea
+            id="auth-test-mapping-token"
+            value={bearerToken}
+            onChange={(event) => {
+              setBearerToken(event.target.value);
+            }}
+            rows={4}
+            className="font-mono text-xs"
+            placeholder="eyJhbGciOiJ..."
+            data-testid="auth-test-mapping-token-input"
+          />
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          disabled={busy}
+          data-testid="auth-test-mapping-submit"
+          onClick={() => {
+            void onTestMapping();
+          }}
+        >
+          {busy ? "Evaluating…" : "Test mapping"}
+        </Button>
+        {errorMessage !== null ? (
+          <p className="m-0 text-sm text-red-700 dark:text-red-300" role="alert" data-testid="auth-test-mapping-error">
+            {errorMessage}
+          </p>
+        ) : null}
+        {result !== null ? (
+          <div className="space-y-2 text-sm" data-testid="auth-test-mapping-result">
+            <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Resolved roles</p>
+            {(result.resolvedRoles ?? []).length > 0 ? (
+              <ul className="m-0 list-disc pl-5">
+                {(result.resolvedRoles ?? []).map((role) => (
+                  <li key={role}>{role}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="m-0 text-neutral-600 dark:text-neutral-400">No ArchLucid roles resolved.</p>
+            )}
+            {(result.unmappedValues ?? []).length > 0 ? (
+              <>
+                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Unmapped claim values</p>
+                <ul className="m-0 list-disc pl-5">
+                  {(result.unmappedValues ?? []).map((value) => (
+                    <li key={value}>{value}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {(result.warnings ?? []).length > 0 ? (
+              <>
+                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Warnings</p>
+                <ul className="m-0 list-disc pl-5 text-amber-900 dark:text-amber-100">
+                  {(result.warnings ?? []).map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}

@@ -101,6 +101,7 @@ public sealed class TopologyAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                _logger,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

@@ -5,6 +5,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
@@ -30,6 +31,7 @@ public static class LlmAgentSchemaCompletion
         string baseUserPrompt,
         int? maxTokensOverride = null,
         IAgentCompletionClient? remediationCompletionClient = null,
+        ILogger? logger = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(completionClient);
@@ -46,6 +48,8 @@ public static class LlmAgentSchemaCompletion
             maxAttempts = AgentSchemaRemediationOptions.MaxCompletionAttemptsCeiling;
 
         RemediationState? lastRemediation = null;
+        int schemaRetryCount = 0;
+        string agentTypeLabel = agentType.ToString();
 
         for (int attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex++)
         {
@@ -70,6 +74,16 @@ public static class LlmAgentSchemaCompletion
                     agentType,
                     cancellationToken);
 
+                ArchLucidInstrumentation.RecordAgentSchemaRemediationCompletion(agentTypeLabel, schemaRetryCount);
+
+                if (logger?.IsEnabled(LogLevel.Information) == true)
+                {
+                    logger.LogInformation(
+                        "Agent schema remediation completed for {AgentType} after {SchemaRetryCount} retries.",
+                        agentTypeLabel,
+                        schemaRetryCount);
+                }
+
                 return (rawJson, parsed);
             }
             catch (AgentResultSchemaViolationException ex)
@@ -77,7 +91,8 @@ public static class LlmAgentSchemaCompletion
                 if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
+                schemaRetryCount++;
+                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
 
                 lastRemediation = RemediationState.FromSchemaViolation(ex);
             }
@@ -86,7 +101,8 @@ public static class LlmAgentSchemaCompletion
                 if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
+                schemaRetryCount++;
+                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
 
                 lastRemediation = RemediationState.FromPlainDetail(ex.Message);
             }
@@ -95,7 +111,8 @@ public static class LlmAgentSchemaCompletion
                 if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
-                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
+                schemaRetryCount++;
+                ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
 
                 lastRemediation = RemediationState.FromPlainDetail(BuildParseFailureDetail(ex));
             }

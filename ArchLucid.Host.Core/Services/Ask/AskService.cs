@@ -445,7 +445,8 @@ public sealed class AskService(
             ThreadId = prepared.Thread.ThreadId,
             Answer =
                 "The assistant could not be reached. Summarize from context manually or retry. " +
-                "Context included " + prepared.Manifest.Decisions.Count + " decision(s)."
+                "Context included " + prepared.Manifest.Decisions.Count + " decision(s).",
+            RetrievalDegraded = prepared.RetrievalDegraded,
         };
 
         await PersistAssistantTurnAsync(prepared, response, ct);
@@ -456,6 +457,7 @@ public sealed class AskService(
     private async Task<AskResponse> FinalizeAskResponseAsync(AskPreparedContext prepared, string? raw, CancellationToken ct)
     {
         AskResponse response = ParseAskResponse(prepared.Thread.ThreadId, raw);
+        response.RetrievalDegraded = prepared.RetrievalDegraded;
 
         await PersistAssistantTurnAsync(prepared, response, ct);
 

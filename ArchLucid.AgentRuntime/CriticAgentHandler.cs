@@ -86,6 +86,7 @@ public sealed class CriticAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                logger: null,
                 cancellationToken);
 
             lastCompletionJson = rawJson;

@@ -30220,6 +30220,7 @@ export interface components {
             referencedArtifacts?: string[];
             referencedDecisions?: string[];
             referencedFindings?: string[];
+            retrievalDegraded?: boolean;
             /** Format: uuid */
             threadId?: string;
         };
