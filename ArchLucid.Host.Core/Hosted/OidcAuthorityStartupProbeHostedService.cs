@@ -128,7 +128,9 @@ public sealed class OidcAuthorityStartupProbeHostedService(
 
     private bool ShouldFailClosedOnOidcDiscoveryError() =>
 
-        _configuration.GetValue("ArchLucidAuth:FailClosedOnOidcDiscoveryError", false);
+        _configuration
+            .GetSection(ArchLucidConfigurationBridge.ArchLucidAuthSectionName)
+            .GetValue("FailClosedOnOidcDiscoveryError", false);
 
 }
 
