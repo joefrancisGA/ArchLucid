@@ -101,8 +101,10 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
             CultureInfo.InvariantCulture,
             $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");
 
+        ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
+
         TopFindingEvidenceSufficiency? sufficiency =
-            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, run);
+            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, basisRun);
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
