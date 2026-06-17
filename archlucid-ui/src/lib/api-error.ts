@@ -18,6 +18,7 @@ export function formatApiFailureMessage(
   if (problem !== null) {
     const title = problem.title?.trim() ?? "";
     const detail = problem.detail?.trim() ?? "";
+    const validationDetail = problem.errors?.join("; ").trim() ?? "";
 
     if (title.length > 0 && detail.length > 0) {
       return `${title}: ${detail}`;
@@ -25,6 +26,10 @@ export function formatApiFailureMessage(
 
     if (detail.length > 0) {
       return detail;
+    }
+
+    if (validationDetail.length > 0) {
+      return title.length > 0 ? `${title}: ${validationDetail}` : validationDetail;
     }
 
     if (title.length > 0) {

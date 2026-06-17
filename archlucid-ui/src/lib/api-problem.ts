@@ -75,6 +75,41 @@ function readStringArray(value: unknown): readonly string[] | undefined {
   return strings.length > 0 ? strings : undefined;
 }
 
+/** ASP.NET ValidationProblemDetails uses an object map of field → string[] messages. */
+function readAspNetModelStateErrors(value: unknown): readonly string[] | undefined {
+  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const messages: string[] = [];
+
+  for (const fieldMessages of Object.values(value as Record<string, unknown>)) {
+    if (Array.isArray(fieldMessages)) {
+      for (const entry of fieldMessages) {
+        if (typeof entry === "string") {
+          const trimmed = entry.trim();
+
+          if (trimmed.length > 0) {
+            messages.push(trimmed);
+          }
+        }
+      }
+
+      continue;
+    }
+
+    if (typeof fieldMessages === "string") {
+      const trimmed = fieldMessages.trim();
+
+      if (trimmed.length > 0) {
+        messages.push(trimmed);
+      }
+    }
+  }
+
+  return messages.length > 0 ? messages : undefined;
+}
+
 function readOptionalNumber(obj: Record<string, unknown>, key: string): number | undefined {
   const value = obj[key];
 
@@ -132,7 +167,7 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
   const blockExplanation =
     readTrimmedString(record, "blockExplanation") ?? fromExt.blockExplanation;
   const failureKind = readTrimmedString(record, "failureKind") ?? fromExt.failureKind;
-  const errors = readStringArray(record.errors) ?? fromExt.errors;
+  const errors = readAspNetModelStateErrors(record.errors) ?? readStringArray(record.errors) ?? fromExt.errors;
   const status = readOptionalNumber(record, "status");
 
   if (!title && !detail && !type && !errorCode) {

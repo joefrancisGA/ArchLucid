@@ -3236,6 +3236,7 @@
             "type": "array"
           },
           "description": {
+            "maxLength": 10000,
             "minLength": 10,
             "type": "string"
           },

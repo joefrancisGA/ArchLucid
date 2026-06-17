@@ -14,8 +14,11 @@ import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { showApiRequestErrorToast } from "@/lib/api-error-toast";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { QuickReviewAdvancedConfigAccordion } from "@/components/usability/QuickReviewAdvancedConfigAccordion";
@@ -235,7 +238,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [advancedConfigExpanded, setAdvancedConfigExpanded] = useState(initialWizardState.advancedConfigExpanded);
   const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
 
-  const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS;
+  const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS && briefText.trim().length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
 
   const persistWizardPreferences = useCallback(() => {
@@ -321,6 +324,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   const goNext = () => {
+    if (step === 0 && briefText.trim().length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
+      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+
+      return;
+    }
+
     if (step === 0 && !briefOk) {
       showToast("err", `Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
 
@@ -346,6 +355,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   const submitRun = async () => {
+    if (briefText.trim().length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
+      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+
+      return;
+    }
+
     if (!briefOk) {
       showToast("err", `Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
 
@@ -386,6 +401,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
       router.push(`/reviews/${encodeURIComponent(id)}`);
     } catch (error: unknown) {
+      if (isApiRequestError(error)) {
+        showApiRequestErrorToast(error, "Quick review");
+
+        return;
+      }
+
       const message =
         error && typeof error === "object" && "message" in error
           ? String((error as { message?: string }).message)
@@ -449,7 +470,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 autoComplete="off"
               />
               <p id="quick-review-brief-hint" className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum. Paste an executive summary or detailed
+                {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum ({ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} max). Paste an executive summary or detailed
                 brief — it becomes the review description sent to the API.
                 {activeSampleBriefId !== null ? (
                   <span className="mt-1 block text-xs text-neutral-500 dark:text-neutral-400">

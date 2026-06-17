@@ -27,6 +27,7 @@ public sealed class ArchitectureRequest
     /// </summary>
     [Required]
     [MinLength(ArchitectureRequestFieldLimits.MinDescriptionLength)]
+    [MaxLength(ArchitectureRequestFieldLimits.MaxDescriptionLength)]
     public string Description
     {
         get;

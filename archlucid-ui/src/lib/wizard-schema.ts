@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import {
+  ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH,
+  ARCHITECTURE_REQUEST_INLINE_REQUIREMENT_MAX_LENGTH,
+} from "@/lib/architecture-request-limits";
 
 const wizardDocumentSchema = z.object({
   name: z.string(),
@@ -63,7 +66,14 @@ export const wizardFormSchema = z.object({
   priorManifestVersion: z.string().refine(isPriorManifestVersionValid, {
     message: "Use a valid UUID, or leave blank for greenfield.",
   }),
-  inlineRequirements: z.array(z.string()),
+  inlineRequirements: z.array(
+    z
+      .string()
+      .max(
+        ARCHITECTURE_REQUEST_INLINE_REQUIREMENT_MAX_LENGTH,
+        "Each inline requirement is too long.",
+      ),
+  ),
   documents: z.array(wizardDocumentSchema),
   policyReferences: z.array(z.string()),
   topologyHints: z.array(z.string()),
