@@ -81,7 +81,7 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Evidence (optional)", description: "Brief, docs, IaC, cloud export, or demo" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
-  { label: "Review evidence context", description: "Supplemental environment details when used" },
+  { label: "Optional enrichment", description: "Azure inventory or supporting files — not required" },
   { label: "Advanced", description: "Optional context" },
   { label: "Baseline metrics (optional)", description: "ROI reporting inputs" },
   { label: "Review", description: "Confirm & create" },
