@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+
 const wizardDocumentSchema = z.object({
   name: z.string(),
   contentType: z.string(),
@@ -42,7 +44,7 @@ export const wizardFormSchema = z.object({
         .string()
         .min(1, "Required")
         .min(10, "Brief must be at least 10 characters for agents to have enough context.")
-        .max(4000, "Description is too long."),
+        .max(ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH, "Description is too long."),
     ),
   systemName: z
     .string()

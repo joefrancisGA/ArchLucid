@@ -46,7 +46,7 @@ public sealed class StarterProofPackArchitectureRequestTests
         request.RequestId.Should().NotBeNullOrWhiteSpace();
         request.RequestId.Length.Should().BeLessOrEqualTo(64);
         request.SystemName.Should().NotBeNullOrWhiteSpace();
-        request.Description.Length.Should().BeInRange(10, 4000);
+        request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
         request.Environment.Should().NotBeNullOrWhiteSpace();
         request.CloudProvider.Should().Be(CloudProvider.Azure);
         request.Constraints.Should().NotBeNull();

@@ -11,6 +11,7 @@ import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { draftArchitectureRequest } from "@/lib/api";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
@@ -171,7 +172,7 @@ export function WizardStepDescription() {
             message={descErr != null ? String(descErr) : undefined}
           />
           <p id="wizard-description-count" className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            {description.trim().length} / 4000 characters (minimum 10; suggest fields needs 20)
+            {description.trim().length} / {ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters (minimum 10; suggest fields needs 20)
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <Button

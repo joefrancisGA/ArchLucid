@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 
 function ValidateDescriptionButton() {
   const { trigger } = useFormContext();
@@ -27,10 +28,10 @@ describe("WizardStepDescription", () => {
 
     const textarea = screen.getByLabelText("Description");
     const defaultLen = (textarea as HTMLTextAreaElement).value.length;
-    expect(screen.getByText(new RegExp(`${defaultLen} / 4000`))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`${defaultLen} / ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH}`))).toBeInTheDocument();
 
     fireEvent.change(textarea, { target: { value: "1234567890" } });
-    expect(screen.getByText(/10 \/ 4000/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`10 / ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH}`))).toBeInTheDocument();
   });
 
   it("adds and removes inline requirement rows", () => {

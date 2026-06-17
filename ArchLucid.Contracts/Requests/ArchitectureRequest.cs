@@ -22,10 +22,11 @@ public sealed class ArchitectureRequest
 
     /// <summary>
     ///     Natural-language description of the system and what the architecture must achieve.
-    ///     Minimum 10 characters; maximum 4 000 characters.
+    ///     Minimum <see cref="ArchitectureRequestFieldLimits.MinDescriptionLength" /> characters;
+    ///     maximum <see cref="ArchitectureRequestFieldLimits.MaxDescriptionLength" /> characters.
     /// </summary>
     [Required]
-    [MinLength(10)]
+    [MinLength(ArchitectureRequestFieldLimits.MinDescriptionLength)]
     public string Description
     {
         get;
@@ -87,7 +88,10 @@ public sealed class ArchitectureRequest
         set;
     }
 
-    /// <summary>Free-text requirements supplementing the description (max 100 items, each max 4 000 characters).</summary>
+    /// <summary>
+    ///     Free-text requirements supplementing the description (max 100 items, each max
+    ///     <see cref="ArchitectureRequestFieldLimits.MaxInlineRequirementLength" /> characters).
+    /// </summary>
     public List<string> InlineRequirements
     {
         get;

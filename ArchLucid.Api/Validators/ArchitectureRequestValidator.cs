@@ -19,8 +19,10 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
 
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Description is required.")
-            .MinimumLength(10).WithMessage("Description must be at least 10 characters.")
-            .MaximumLength(4000).WithMessage("Description must not exceed 4000 characters.");
+            .MinimumLength(ArchitectureRequestFieldLimits.MinDescriptionLength)
+            .WithMessage($"Description must be at least {ArchitectureRequestFieldLimits.MinDescriptionLength} characters.")
+            .MaximumLength(ArchitectureRequestFieldLimits.MaxDescriptionLength)
+            .WithMessage($"Description must not exceed {ArchitectureRequestFieldLimits.MaxDescriptionLength} characters.");
 
         RuleFor(x => x.SystemName)
             .NotEmpty().WithMessage("SystemName is required.")
@@ -56,7 +58,9 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
             .Must(c => c.Count <= 100).WithMessage("InlineRequirements must not exceed 100 items.");
 
         RuleForEach(x => x.InlineRequirements)
-            .MaximumLength(4000).WithMessage("Each inline requirement must not exceed 4000 characters.");
+            .MaximumLength(ArchitectureRequestFieldLimits.MaxInlineRequirementLength)
+            .WithMessage(
+                $"Each inline requirement must not exceed {ArchitectureRequestFieldLimits.MaxInlineRequirementLength} characters.");
 
         RuleFor(x => x.Documents)
             .NotNull().WithMessage("Documents must not be null.")
