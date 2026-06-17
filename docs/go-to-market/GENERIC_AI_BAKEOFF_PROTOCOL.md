@@ -74,7 +74,10 @@ ArchLucid does **not** always reason better than frontier AI. This protocol docu
 
 ## Related
 
+- [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) — end-to-end five-step bakeoff runbook
+- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) — packet checklist and templates
 - [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md) — automated blind packet assembly
+- [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) — post-bakeoff decision scoring
 - [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md)
 - [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md)
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)

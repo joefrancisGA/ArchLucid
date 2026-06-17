@@ -7,7 +7,9 @@
 
 **Purpose:** Assemble a **repeatable evidence packet** comparing ArchLucid against a principal architect using frontier AI manually on the **same sanitized architecture packet**. Do **not** claim ArchLucid is smarter than frontier AI.
 
-**Canonical protocol:** [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)
+**Canonical protocol:** [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)  
+**End-to-end runbook (five steps):** [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md)  
+**Session folder template:** [`fixtures/bakeoff/session-template/README.md`](../../fixtures/bakeoff/session-template/README.md)
 
 ---
 
@@ -71,7 +73,40 @@ Optional insight-validation scales (1–5): novelty, correctness confidence, act
 
 ---
 
-## Generate summary artifacts
+## Step 3 — Blind comparison of findings
+
+After manual and ArchLucid arms complete, run blind scoring so reviewers do not know which arm is which.
+
+**Protocol:** [`Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
+
+```powershell
+# Demo / internal dry-run on regulated fixture
+.\scripts\Run-BlindInsightValidation.ps1 -SessionLabel <label> -NonInteractiveScore -AutoSummarize
+
+# Live session — see runbook Step 3 for fixture layout under artifacts/bakeoff/<label>/
+python scripts/assemble_blind_validation_packet.py assemble `
+  --fixture artifacts/bakeoff/<label> `
+  --output artifacts/bakeoff/<label>/blind `
+  --session-id <label>
+```
+
+**Facilitator only:** `source-key.json` — do not share until scoring completes.
+
+---
+
+## Step 4 — Decision-delta scoring
+
+Within 7 days, complete [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md) and save to `artifacts/bakeoff/<label>/decision-delta.md` (template: [`fixtures/bakeoff/session-template/decision-delta.template.md`](../../fixtures/bakeoff/session-template/decision-delta.template.md)).
+
+| Outcome | Criteria |
+| --- | --- |
+| **PASS** | ≥1 documented decision change from an ArchLucid finding not in the manual AI pass |
+| **WARN** | Confirmatory only — packaging/audit value |
+| **FAIL** | Participant would not run review #2 |
+
+---
+
+## Generate summary artifacts (Step 5 — sponsor-safe summary)
 
 From repository root after packet folder is prepared:
 
@@ -150,6 +185,8 @@ Omit `--archlucid-minutes` / `--manual-minutes` when not measured — summary wi
 
 ## Related
 
+- [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) — orchestrates all five steps
 - [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md)
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 - [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)
+- [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md)
