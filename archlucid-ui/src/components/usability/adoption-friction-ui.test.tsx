@@ -14,7 +14,14 @@ describe("PilotCommandCenterCard", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
+    expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveAttribute(
+      "href",
+      "/reviews/new?zeroConfig=1",
+    );
     expect(screen.getByTestId("pilot-command-center-help")).toHaveAttribute("href", "/help/core-pilot");
+    expect(screen.getByTestId("pilot-command-center-first-run-steps")).toHaveTextContent(
+      "Provide evidence → Set review scope → Review first finding",
+    );
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
     expect(screen.queryByText("Optional setup")).toBeNull();

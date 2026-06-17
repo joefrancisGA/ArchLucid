@@ -36,6 +36,17 @@ vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => false,
+  useOperatorNavAuthority: () => ({
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+    currentPrincipal: {
+      hasCommittedArchitectureReview: false,
+    },
+  }),
+}));
+
 vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
 
@@ -81,7 +92,9 @@ describe("HomePage — buyer-polished shell", () => {
     render(<HomePage />);
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Your review packages" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
@@ -97,11 +110,17 @@ describe("HomePage (55R smoke — landing)", () => {
   it("renders compact hero, reviews panel, and collapsed advanced guidance", async () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("heading", { name: "Your reviews" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("pilot-command-center-example")).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveAttribute(
+      "href",
+      "/reviews/new?zeroConfig=1",
     );
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();

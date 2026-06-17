@@ -10,15 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
-import { getBundledArchLucidAzurePackageSampleZipBytes } from "@/lib/arch-lucid-azure-package-sample-zip";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { recordPilotBaselineZipApplied } from "@/lib/pilot-baseline-zip-signal";
 import {
-  readArchLucidAzurePackageZipFromBytes,
   readArchLucidAzurePackageZipFromFile,
 } from "@/lib/read-arch-lucid-azure-package-zip";
 import { showError, showSuccess } from "@/lib/toast";
+import { applyBundledSamplePackageToWizard } from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type AzureExtractorPackageZipFieldProps = {
@@ -64,16 +63,20 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     setBusy(true);
 
     try {
-      const result = readArchLucidAzurePackageZipFromBytes(getBundledArchLucidAzurePackageSampleZipBytes());
+      const applied = applyBundledSamplePackageToWizard(setValue, (file) => {
+        if (file !== null) {
+          recordPilotBaselineZipApplied();
+        }
+      });
 
-      if (!result.ok) {
-        setLocalError(result.message);
-        showError("Extractor ZIP", result.message);
+      if (!applied.ok) {
+        setLocalError(applied.message);
+        showError("Extractor ZIP", applied.message);
 
         return;
       }
 
-      applyManifestToWizard(result.manifest);
+      showSuccess(successMessage);
     } finally {
       setBusy(false);
     }

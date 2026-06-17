@@ -22,7 +22,20 @@ export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
   "Review a completed example package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
-export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
+export const BUYER_HOME_PRIMARY_CTA = "Open example review";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Example findings";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
+  "Each finding links to evidence, policy context, and review-package history.";
+
+export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
+
+export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
+  "Start your first review or open the example review package.";
+
+export const PILOT_COMMAND_CENTER_FIRST_RUN_STEPS =
+  "Provide evidence → Set review scope → Review first finding";
 
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
@@ -33,16 +46,20 @@ export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
 export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Open example review";
 
+export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try with Sample Data";
+
 export const PILOT_COMMAND_CENTER_HELP_LINK = "How it works";
 
-export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What you'll get";
+export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
 
 export const PILOT_COMMAND_CENTER_OUTCOMES = [
-  "Findings",
-  "Decisions",
-  "Review trail",
-  "Governed decision record",
+  "Missing dependencies",
+  "Hidden risks",
+  "Cost drivers",
+  "Governance gaps",
 ] as const;
+
+export const PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL = "Setup options";
 
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
@@ -262,7 +279,7 @@ export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture rev
 export const BUYER_HOME_WELCOME_LEAD =
   "Start with the executive view, then the signed manifest, audit trail, and prioritized findings.";
 
-export const BUYER_HOME_REVIEWS_SECTION_HEADING = "Your review packages";
+export const BUYER_HOME_REVIEWS_SECTION_HEADING = "Workspace activity";
 
 export const BUYER_HOME_SECONDARY_CTA = "Create from evidence";
 

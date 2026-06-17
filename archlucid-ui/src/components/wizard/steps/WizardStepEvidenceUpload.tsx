@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 export type WizardStepEvidenceUploadProps = {
   pendingFile: File | null;
   onPendingFileChange: (file: File | null) => void;
+  onTrySampleData: () => void;
   onSkipDemoData: () => void;
 };
 
@@ -61,6 +62,18 @@ const EVIDENCE_SOURCE_OPTIONS: readonly EvidenceSourceOption[] = [
     status: "available",
   },
   {
+    label: "AWS / GCP inventory",
+    description: "Continuous ingestion connectors for additional clouds.",
+    icon: Lock,
+    status: "v1.1",
+  },
+  {
+    label: "Generic inventory JSON",
+    description: "Non-Azure inventory import for hybrid estates.",
+    icon: Lock,
+    status: "v1.1",
+  },
+  {
     label: "Structurizr / ArchiMate import",
     description: "Planned model-import source.",
     icon: Lock,
@@ -82,7 +95,7 @@ function EvidenceSourceBadge(props: { status: EvidenceSourceOption["status"] }) 
 
 /** Optional evidence step between preset and identity in the full wizard (TB-215). */
 export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
-  const { pendingFile, onPendingFileChange, onSkipDemoData } = props;
+  const { pendingFile, onPendingFileChange, onTrySampleData, onSkipDemoData } = props;
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   return (
@@ -150,18 +163,30 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
         ) : null}
 
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          No evidence file yet? Continue with guided intake or use demo data instead — demo outputs are labeled Simulator.
+          No evidence file yet? Load the bundled Azure sample package or continue with guided intake — demo outputs are
+          labeled Simulator.
         </p>
 
-        <Button
-          type="button"
-          variant="outline"
-          data-testid="wizard-evidence-upload-skip-demo"
-          onClick={onSkipDemoData}
-        >
-          <BadgeCheck className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-          Skip and use demo data
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="primary"
+            data-testid="wizard-evidence-upload-try-sample"
+            onClick={onTrySampleData}
+          >
+            <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+            Try with Sample Data
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            data-testid="wizard-evidence-upload-skip-demo"
+            onClick={onSkipDemoData}
+          >
+            <BadgeCheck className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+            Skip and use demo data
+          </Button>
+        </div>
       </div>
     </WizardStepPanel>
   );

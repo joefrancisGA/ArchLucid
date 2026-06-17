@@ -67,6 +67,10 @@ import {
 } from "@/lib/wizard-schema";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
 import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import {
+  applyBundledSamplePackageToWizard,
+  isZeroConfigDemoQuery,
+} from "@/lib/zero-config-demo-mode";
 
 import { QuickStartWizard } from "./QuickStartWizard";
 import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
@@ -194,6 +198,8 @@ export function NewRunWizardClient() {
 
     return tryParseSampleRunQuery(raw);
   }, [searchParams]);
+  const zeroConfigDemo = useMemo(() => isZeroConfigDemoQuery(searchParams), [searchParams]);
+  const zeroConfigAppliedRef = useRef(false);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
   const reviewStepIndex: number = 7;
@@ -487,6 +493,39 @@ export function NewRunWizardClient() {
     setPendingEvidenceFile(null);
     setStepIndex((current) => Math.min(stepMax, current + 1));
   };
+
+  const tryWithSampleData = useCallback(() => {
+    const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange);
+
+    if (!applied.ok) {
+      showToast("err", applied.message);
+
+      return;
+    }
+
+    showToast("ok", "Sample Azure package loaded — it uploads automatically after the review is created.");
+    setStepIndex((current) => Math.min(stepMax, current + 1));
+  }, [handlePendingEvidenceFileChange, setValue, showToast, stepMax]);
+
+  useEffect(() => {
+    if (!zeroConfigDemo || zeroConfigAppliedRef.current) {
+      return;
+    }
+
+    zeroConfigAppliedRef.current = true;
+    persistWizardMode("full");
+
+    const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange);
+
+    if (!applied.ok) {
+      showToast("err", applied.message);
+
+      return;
+    }
+
+    setStepIndex(2);
+    showToast("ok", "Sample Azure package loaded — confirm identity and submit your review.");
+  }, [zeroConfigDemo, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
 
   const skipBaselineMetricsAndAdvance = () => {
     setBaselineReviewCycleHours("");
@@ -815,6 +854,7 @@ export function NewRunWizardClient() {
             <WizardStepEvidenceUpload
               pendingFile={pendingEvidenceFile}
               onPendingFileChange={handlePendingEvidenceFileChange}
+              onTrySampleData={tryWithSampleData}
               onSkipDemoData={skipEvidenceAndAdvance}
             />
           ) : null}

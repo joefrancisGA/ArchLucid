@@ -6,19 +6,27 @@ import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
+  PILOT_COMMAND_CENTER_FIRST_RUN_STEPS,
   PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_HELP_LINK,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
-  PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
   PILOT_COMMAND_CENTER_SAMPLE_LINK,
-  PILOT_COMMAND_CENTER_STEPS_HEADING,
+  PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK,
+  PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import {
+  OPERATOR_CARD,
+  OPERATOR_LAYOUT,
+  OPERATOR_SURFACE_CARD_CLASS,
+  OPERATOR_TYPOGRAPHY,
+  OPERATOR_TYPE_SCALE,
+} from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { ZERO_CONFIG_DEMO_WIZARD_HREF } from "@/lib/zero-config-demo-mode";
 import { cn } from "@/lib/utils";
 
 const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
@@ -30,67 +38,88 @@ const tertiaryLinkClass = cn(
 
 /**
  * Single next-action command center for first-run operator home — one primary CTA, quiet supporting links.
- *
- * Relocation note (home keeps deep links for first-run discoverability only):
- * - Connect Azure also lives under Settings → Cloud connections and the evidence intake / new-review wizard.
- * - Invite reviewer also lives under Settings → Roles and governance approval flows on review packages.
  */
 export function PilotCommandCenterCard(): React.JSX.Element {
   return (
     <section
       aria-labelledby="pilot-command-center-heading"
-      className={cn(OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD.body)}
+      className={cn(OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD.body, "py-4")}
       data-testid="pilot-command-center-card"
     >
-      <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
-        {PILOT_COMMAND_CENTER_HEADING}
-      </h2>
-      <p className={cn("m-0 mt-3 max-w-2xl", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
-        {PILOT_COMMAND_CENTER_LEAD}
-      </p>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1 space-y-3">
+          <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
+            {PILOT_COMMAND_CENTER_HEADING}
+          </h2>
 
-      <div className={cn("mt-4 flex flex-col sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.unrelatedClusterGap)}>
-        <Button asChild variant="primary" className="w-full justify-center sm:w-auto">
-          <Link href="/reviews/new" data-testid="pilot-command-center-primary">
-            {PILOT_COMMAND_CENTER_PRIMARY_CTA}
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="w-full justify-center sm:w-auto">
-          <Link href={sampleReviewHref} data-testid="pilot-command-center-example">
-            {PILOT_COMMAND_CENTER_SAMPLE_LINK}
-          </Link>
-        </Button>
-        <Link href="/help/core-pilot" className={cn(tertiaryLinkClass, "text-center sm:text-left")} data-testid="pilot-command-center-help">
-          {PILOT_COMMAND_CENTER_HELP_LINK}
-        </Link>
-      </div>
+          <div className={cn("flex flex-col sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.inlineGap)}>
+            <Button asChild variant="primary" className="w-full justify-center sm:w-auto">
+              <Link href="/reviews/new" data-testid="pilot-command-center-primary">
+                {PILOT_COMMAND_CENTER_PRIMARY_CTA}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full justify-center sm:w-auto">
+              <Link href={sampleReviewHref} data-testid="pilot-command-center-example">
+                {PILOT_COMMAND_CENTER_SAMPLE_LINK}
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full justify-center sm:w-auto">
+              <Link href={ZERO_CONFIG_DEMO_WIZARD_HREF} data-testid="pilot-command-center-try-sample">
+                {PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK}
+              </Link>
+            </Button>
+            <Link href="/help/core-pilot" className={cn(tertiaryLinkClass, "text-center sm:text-left")} data-testid="pilot-command-center-help">
+              {PILOT_COMMAND_CENTER_HELP_LINK}
+            </Link>
+          </div>
 
-      <p
-        className={cn("m-0 mt-3 flex flex-wrap items-center gap-x-1 gap-y-1", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
-        data-testid="pilot-command-center-tertiary-actions"
-      >
-        <Link href="/settings/cloud-connections" className={tertiaryLinkClass} data-testid="pilot-command-center-connect-azure">
-          {PILOT_COMMAND_CENTER_CONNECT_AZURE}
-        </Link>
-        <span aria-hidden className="text-al-text-secondary/50">
-          ·
-        </span>
-        <Link href="/settings/roles" className={tertiaryLinkClass} data-testid="pilot-command-center-invite-reviewer">
-          {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
-        </Link>
-      </p>
+          <p
+            className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+            data-testid="pilot-command-center-first-run-steps"
+          >
+            {PILOT_COMMAND_CENTER_FIRST_RUN_STEPS}
+          </p>
 
-      <div className={cn("mt-4 grid border-t border-neutral-200/80 pt-4 dark:border-neutral-800 sm:grid-cols-2", OPERATOR_LAYOUT.controlClusterGap)}>
-        <div>
+          <details className="group" data-testid="pilot-command-center-setup-disclosure">
+            <summary
+              className={cn(
+                "cursor-pointer list-none text-al-text-secondary [&::-webkit-details-marker]:hidden",
+                OPERATOR_TYPE_SCALE.meta,
+                "font-medium text-al-accent-interactive hover:text-al-text-primary",
+              )}
+            >
+              {PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL}
+            </summary>
+            <p
+              className={cn("m-0 mt-2 flex flex-wrap items-center gap-x-1 gap-y-1", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+              data-testid="pilot-command-center-tertiary-actions"
+            >
+              <Link href="/settings/cloud-connections" className={tertiaryLinkClass} data-testid="pilot-command-center-connect-azure">
+                {PILOT_COMMAND_CENTER_CONNECT_AZURE}
+              </Link>
+              <span aria-hidden className="text-al-text-secondary/50">
+                ·
+              </span>
+              <Link href="/settings/roles" className={tertiaryLinkClass} data-testid="pilot-command-center-invite-reviewer">
+                {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
+              </Link>
+            </p>
+          </details>
+        </div>
+
+        <div className="min-w-0 lg:max-w-md lg:flex-1">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label, "text-al-text-primary")}>
             {PILOT_COMMAND_CENTER_OUTCOMES_HEADING}
           </p>
           <ul
-            className={cn("m-0 mt-2 grid list-none gap-x-3 gap-y-1 p-0 grid-cols-2", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+            className={cn("m-0 mt-2 flex flex-wrap list-none gap-2 p-0", OPERATOR_TYPE_SCALE.meta)}
             data-testid="pilot-command-center-outcomes"
           >
             {PILOT_COMMAND_CENTER_OUTCOMES.map((outcome) => (
-              <li key={outcome} className="flex items-center gap-2">
+              <li
+                key={outcome}
+                className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200/80 bg-neutral-50 px-2 py-1 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/50"
+              >
                 <span aria-hidden className="text-al-accent-interactive">
                   ✓
                 </span>
@@ -98,13 +127,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
               </li>
             ))}
           </ul>
-        </div>
-
-        <div>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label, "text-al-text-primary")}>
-            {PILOT_COMMAND_CENTER_STEPS_HEADING}
-          </p>
-          <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="mt-2" />
+          <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="mt-3" />
         </div>
       </div>
     </section>
