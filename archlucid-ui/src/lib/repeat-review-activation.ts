@@ -74,7 +74,7 @@ export function resolveRepeatReviewActivation(input: {
   return {
     headline: "Repeat reviews unlocked",
     summary:
-      "You have multiple committed reviews. Compare against a prior run, replay authority, refresh the executive ROI rollup, and collect an updated proof packet for sponsors.",
+      "You have multiple committed reviews. Compare against a prior review, replay authority, refresh the executive ROI rollup, and collect an updated proof packet for sponsors.",
     primaryHref: compareHref,
     primaryCta: "Compare reviews",
     actions: [

@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   {
-    title: "First run wizard",
+    title: "First review wizard",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
     blurb: "End-to-end walkthrough from request through manifest, artifacts, and operator flows.",
   },
@@ -28,7 +28,7 @@ const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
     blurb: "Example payloads aligned with POST /v1/architecture/request for paste-import.",
   },
   {
-    title: "Second run import and export",
+    title: "Second review import and export",
     docPath: "docs/library/SECOND_RUN.md",
     blurb: "Schema and workflow for reusing a prepared request in the wizard or automation.",
   },

@@ -196,7 +196,7 @@ export function ExtractUploadSettingsPageClient() {
         setPackageId(null);
       }
 
-      showSuccess("Azure package uploaded — open Reviews to attach it to a run.");
+      showSuccess("Azure package uploaded — open Reviews to attach it to a review.");
     } finally {
       setBusy(false);
     }

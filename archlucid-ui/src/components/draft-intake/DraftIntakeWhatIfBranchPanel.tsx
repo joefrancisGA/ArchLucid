@@ -189,7 +189,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     <CollapsibleSection title="Explore a what-if branch" defaultOpen={props.defaultOpen === true}>
       <div className="draft-intake-what-if-panel space-y-4" data-testid="draft-intake-what-if-panel">
         <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Clone this admitted draft with one change, submit it as a separate architecture run, then use{" "}
+          Clone this admitted draft with one change, submit it as a separate architecture review, then use{" "}
           <strong>Compare two reviews</strong> to diff the committed manifests (R12).
         </p>
 

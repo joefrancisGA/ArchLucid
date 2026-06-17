@@ -37,6 +37,7 @@ describe("repeat-review-activation", () => {
     });
 
     expect(prompt).not.toBeNull();
+    expect(prompt!.summary.toLowerCase()).not.toContain("prior run");
     expect(prompt!.primaryHref).toContain("/compare");
     expect(prompt!.actions.some((action) => action.href.includes("/replay"))).toBe(true);
     expect(prompt!.actions.some((action) => action.href === "/value-report")).toBe(true);

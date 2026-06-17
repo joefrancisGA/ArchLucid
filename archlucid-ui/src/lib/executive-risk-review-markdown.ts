@@ -121,7 +121,7 @@ export function buildExecutiveRiskReviewMarkdown(
   return [
     `# Executive summary — ${headline}`,
     "",
-    `- **Run ID:** \`${runId.trim()}\``,
+    `- **Review ID:** \`${runId.trim()}\``,
     "",
     "## Risk posture",
     "",

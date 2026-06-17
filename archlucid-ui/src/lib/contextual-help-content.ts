@@ -12,7 +12,7 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "new-run-wizard": {
-    text: "Create an architecture request for what ArchLucid should analyze. Reference starters, Quick shapes, and industry templates pre-fill the form — edit anything before submit.",
+    text: "Guided intake walks through intent, business outcome, and actors, then required review questions before analysis. Quick review accepts a pasted brief. Templates and imports support evidence upload and presets. After submit, ArchLucid runs analysis; finalize the signed manifest when findings are ready for sponsor exports.",
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
   "runs-list-overview": {
@@ -90,7 +90,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
   "tenant-cost-settings": {
-    text: "Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot run deltas and executive ROI. 1.0 = Retail list; lower applies EA-adjusted Cost-category savings only.",
+    text: "Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot review deltas and executive ROI. 1.0 = Retail list; lower applies EA-adjusted Cost-category savings only.",
     learnMoreUrl: "/docs/go-to-market/ROI_MODEL.md",
   },
   "admin-configuration": {

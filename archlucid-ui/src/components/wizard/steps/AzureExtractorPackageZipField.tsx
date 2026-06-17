@@ -26,7 +26,7 @@ export type AzureExtractorPackageZipFieldProps = {
 
 /**
  * Client-side unpack of the read-only Azure packager ZIP to read `manifest.json` and prefill wizard fields
- * that map to the architecture run create payload (description, optional system name, topology hints).
+ * that map to the architecture review create payload (description, optional system name, topology hints).
  */
 export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFieldProps) {
   const { variant } = props;
@@ -107,7 +107,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
               </code>{" "}
               (read-only inventory). Maximum size {maxMb} MB (matches server upload limit). Only{" "}
               <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">manifest.json</code>{" "}
-              is parsed in the browser; upload the full ZIP to ingestion when your run is configured.
+              is parsed in the browser; upload the full ZIP to ingestion when your review is configured.
             </p>
             {variant === "baseline" ? (
               <Button

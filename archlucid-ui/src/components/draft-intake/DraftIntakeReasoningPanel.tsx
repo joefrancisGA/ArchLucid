@@ -14,7 +14,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
 const DEFAULT_INTAKE_QUESTION =
-  "What gaps or risks do you see in my intent and outcome before I start the architecture run?";
+  "What gaps or risks do you see in my intent and outcome before I start the architecture review?";
 
 type DraftIntakeReasonTurn = {
   message: string;

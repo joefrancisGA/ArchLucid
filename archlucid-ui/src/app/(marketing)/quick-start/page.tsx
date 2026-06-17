@@ -6,7 +6,7 @@ import { QuickStartClient } from "./QuickStartClient";
 export const metadata: Metadata = {
   title: "Quick start · ArchLucid",
   description:
-    "Run a deterministic simulator pass with no sign-in: create a demo-scoped architecture run, commit a manifest, and open the operator run.",
+    "Run a deterministic simulator pass with no sign-in: create a demo-scoped architecture review, commit a manifest, and open the operator review workspace.",
   robots: { index: true, follow: true },
 };
 

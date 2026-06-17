@@ -80,7 +80,7 @@ export function PilotValueReportPageView(props: Props) {
             <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm">
               {m.data.runDetailsTruncated ? (
                 <p className="m-0">
-                  Finding and timing aggregates cap at {m.data.runDetailCap} earliest committed runs in the window; total committed runs
+                  Finding and timing aggregates cap at {m.data.runDetailCap} earliest committed reviews in the window; total committed reviews
                   shown separately.
                 </p>
               ) : null}

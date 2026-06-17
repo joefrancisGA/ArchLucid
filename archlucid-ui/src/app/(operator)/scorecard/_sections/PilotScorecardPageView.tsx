@@ -30,7 +30,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       <header>
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Pilot scorecard</h1>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">
-          Cumulative tenant metrics from committed runs, durable baselines for ROI modeling (
+          Cumulative tenant metrics from committed reviews, durable baselines for ROI modeling (
           <span className="font-mono">docs/go-to-market/ROI_MODEL.md</span>), and estimated review-time savings when
           baselines are complete.
         </p>

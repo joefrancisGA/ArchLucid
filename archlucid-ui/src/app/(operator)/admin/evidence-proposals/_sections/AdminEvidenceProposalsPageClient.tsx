@@ -74,7 +74,7 @@ export function AdminEvidenceProposalsPageClient() {
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Evidence proposals</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Review agent-suggested catalog entries from recent runs and promote approved items into the tenant curated evidence catalog.
+          Review agent-suggested catalog entries from recent reviews and promote approved items into the tenant curated evidence catalog.
         </p>
       </div>
 

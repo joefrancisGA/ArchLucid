@@ -1,0 +1,61 @@
+/**
+ * High-traffic operator and sponsor-facing modules scanned by {@link ./review-terminology-guard.test.ts}.
+ * API/DTO identifiers (`runId`, routes) are intentionally excluded — display copy only.
+ */
+export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
+  "src/lib/buyer-polish-copy.ts",
+  "src/lib/contextual-help-content.ts",
+  "src/lib/glossary-definitions.ts",
+  "src/lib/repeat-review-activation.ts",
+  "src/lib/api/architecture-request-create-guard.ts",
+  "src/lib/roi-sponsor-scope-labels.ts",
+  "src/components/LlmMonthlyBudgetExceededBanner.tsx",
+  "src/components/RunDetailRunGovernanceDispositionActions.tsx",
+  "src/components/CompareToBaselineCta.tsx",
+  "src/components/wizard/ArchitectureRequestWizardHelpDrawer.tsx",
+  "src/components/wizard/steps/AzureExtractorPackageZipField.tsx",
+  "src/components/wizard/steps/WizardStepBaselineZip.tsx",
+  "src/components/draft-intake/DraftIntakeReasoningPanel.tsx",
+  "src/components/draft-intake/DraftIntakeWhatIfBranchPanel.tsx",
+  "src/app/(operator)/settings/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx",
+  "src/app/(operator)/scorecard/_sections/PilotScorecardPageView.tsx",
+  "src/app/(operator)/value-report/pilot/_sections/PilotValueReportPageView.tsx",
+  "src/app/(operator)/policy-packs/_sections/PolicyRuleAuthoringWizard.tsx",
+  "src/app/(marketing)/quick-start/QuickStartClient.tsx",
+  "src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx",
+] as const;
+
+/** Lowercase phrase fragments that must not appear as primary user-facing labels on scanned surfaces. */
+export const REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS = [
+  "run analysis",
+  "committed runs",
+  "previous runs",
+  "approve run",
+  "reject run",
+  "run disposition",
+  "for this run",
+  "this run ",
+  "the run in",
+  "read runs",
+  "create runs",
+  "trial run limit",
+  "prior run",
+  "runs dashboard",
+  "attach it to a run",
+  "your run is configured",
+  "first run wizard",
+  "second run import",
+  "load recent runs",
+  "pick a recent run",
+  "committed architecture run",
+  "creating architecture run",
+  "architecture run",
+] as const;
+
+export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
+  "src/lib/first-pilot-buyer-copy.ts",
+  "src/lib/first-pilot-operating-rail-copy.ts",
+  "src/components/EmailRunToSponsorBanner.tsx",
+  "src/app/(marketing)/get-started/page.tsx",
+  "src/app/(marketing)/signup/page.tsx",
+] as const;

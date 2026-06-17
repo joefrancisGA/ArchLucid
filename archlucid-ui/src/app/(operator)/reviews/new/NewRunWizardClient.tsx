@@ -689,7 +689,7 @@ export function NewRunWizardClient() {
               className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
               data-testid="new-run-follow-up-source-run-id"
             >
-              Follow-up review for prior run{" "}
+              Follow-up review for prior review package{" "}
               <span className="font-mono text-xs">{followUpSourceRunId}</span>. Source context is stored for a
               future wizard prefill.
             </p>

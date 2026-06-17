@@ -20,7 +20,7 @@ export function resolveExecutiveHeadlineScopeLabel(source: RoiScopeLabelSource):
     return source.headlineSavingsScopeDescription.trim();
   }
 
-  return "Portfolio headline: disposition-aware open + needs-evidence estimated USD from latest committed run per system.";
+  return "Portfolio headline: disposition-aware open + needs-evidence estimated USD from latest committed review per system.";
 }
 
 export function resolveExecutiveSystemRowScopeLabel(source: RoiScopeLabelSource): string {

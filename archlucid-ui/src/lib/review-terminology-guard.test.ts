@@ -5,40 +5,14 @@ import path from "node:path";
 
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
+import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
+import {
+  REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
+  REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
+} from "@/lib/review-terminology-surfaces";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
-import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
-
-const BUYER_SURFACE_FILES = [
-  "src/lib/first-pilot-buyer-copy.ts",
-  "src/lib/first-pilot-operating-rail-copy.ts",
-  "src/components/EmailRunToSponsorBanner.tsx",
-  "src/app/(marketing)/get-started/page.tsx",
-  "src/app/(marketing)/signup/page.tsx",
-] as const;
-
-const HIGH_TRAFFIC_COPY_FILES = [
-  "src/lib/buyer-polish-copy.ts",
-  "src/lib/contextual-help-content.ts",
-  "src/components/LlmMonthlyBudgetExceededBanner.tsx",
-  "src/components/RunDetailRunGovernanceDispositionActions.tsx",
-  "src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx",
-] as const;
-
-const PRIMARY_RUN_LABEL_PATTERNS = [
-  "run analysis",
-  "committed runs",
-  "previous runs",
-  "approve run",
-  "reject run",
-  "run disposition",
-  "for this run",
-  "this run ",
-  "the run in",
-  "read runs",
-  "create runs",
-  "trial run limit",
-] as const;
 
 describe("review terminology guard", () => {
   it("uses review package as the primary buyer noun in shared vocabulary", () => {
@@ -56,10 +30,10 @@ describe("review terminology guard", () => {
   });
 
   it("high-traffic copy files avoid legacy run-primary labels", () => {
-    for (const relativePath of HIGH_TRAFFIC_COPY_FILES) {
+    for (const relativePath of REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS) {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
 
-      for (const pattern of PRIMARY_RUN_LABEL_PATTERNS) {
+      for (const pattern of REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS) {
         expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
       }
     }
@@ -80,7 +54,7 @@ describe("review terminology guard", () => {
   });
 
   it("buyer surface source files avoid architecture run phrasing", () => {
-    for (const relativePath of BUYER_SURFACE_FILES) {
+    for (const relativePath of REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS) {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
 
       expect(source, relativePath).not.toContain("architecture run");
