@@ -42,7 +42,12 @@ vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
   };
 });
 
-import { BUYER_WORKSPACE_DISPLAY_NAME } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
+  BUYER_SCOPE_SWITCHER_CONTINUE,
+  BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
+} from "@/lib/buyer-polish-copy";
 
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 
@@ -61,15 +66,16 @@ describe("ScopeSwitcher — operator shell", () => {
     vi.clearAllMocks();
   });
 
-  it("shows workspace labels on the trigger when effective scope is dev defaults", () => {
+  it("shows a buyer-safe sample workspace label without W:/P: shorthand", () => {
     render(<ScopeSwitcher />);
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent("Claims Intake Workspace");
-    expect(trigger).toHaveTextContent("Primary project");
+    expect(trigger).toHaveTextContent("Sample workspace: Claims Intake");
+    expect(trigger).not.toHaveTextContent(/^W:/);
+    expect(trigger).not.toHaveTextContent("Primary project");
   });
 
-  it("opens the panel without raw scope header ids and surfaces guidance when list is empty", async () => {
+  it("opens the sample-workspace info popover when switching is unavailable", async () => {
     render(<ScopeSwitcher />);
     fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
 
@@ -79,11 +85,31 @@ describe("ScopeSwitcher — operator shell", () => {
 
     expect(screen.getByTestId("operator-scope-switcher-panel").parentElement).toBe(document.body);
     expect(screen.queryByText(/x-tenant-id/i)).not.toBeInTheDocument();
-    expect(await screen.findByTestId("operator-scope-list-note")).toHaveTextContent(/sample workspace remains active/i);
+    expect(screen.getByText(BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-scope-sample-info-body")).toHaveTextContent(
+      BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
+    );
+    expect(screen.queryByText(/directory is unavailable/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES })).toHaveAttribute(
+      "href",
+      "/help/scope",
+    );
   });
 
-  it("closes the panel on Escape and outside click", async () => {
+  it("closes the panel on Continue, Escape, and outside click", async () => {
     render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: BUYER_SCOPE_SWITCHER_CONTINUE }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
+    });
+
     fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
 
     await waitFor(() => {
@@ -109,14 +135,33 @@ describe("ScopeSwitcher — operator shell", () => {
     });
   });
 
-  it("lists the Claims Intake sample workspace when demo mode and API list is empty", async () => {
-    demoUiEnvMock.demoMode = true;
+  it("lists projects when multiple scope options are available", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            workspaces: [
+              {
+                workspaceId: DEV_WORKSPACE,
+                name: "Claims Intake Workspace",
+                projects: [
+                  { projectId: DEV_PROJECT, name: "Primary project" },
+                  { projectId: "44444444-4444-4444-4444-444444444444", name: "Secondary project" },
+                ],
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
 
     render(<ScopeSwitcher />);
     fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
 
-    expect(await screen.findByRole("button", { name: "Primary project" })).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-scope-list-note")).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Secondary project" })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-scope-sample-info-body")).not.toBeInTheDocument();
   });
 });
 
@@ -124,6 +169,10 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
   beforeEach(() => {
     demoUiEnvMock.buyerPolishedShell = true;
     demoUiEnvMock.demoMode = true;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ workspaces: [] }), { status: 200 })),
+    );
   });
 
   afterEach(() => {
@@ -133,18 +182,24 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("shows a read-only sample workspace chip without opening a technical scope panel", () => {
+  it("shows a sample workspace indicator and opens the buyer-safe info popover", async () => {
     render(<ScopeSwitcher />);
 
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent("Claims Intake Workspace");
-    expect(trigger).toHaveAttribute("aria-label", `Active workspace: ${BUYER_WORKSPACE_DISPLAY_NAME}`);
-    expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
+    expect(trigger).toHaveTextContent("Sample workspace: Claims Intake");
+    expect(trigger).toHaveAttribute("aria-label", "Active workspace: Sample workspace: Claims Intake");
+    expect(screen.getByText("Sample workspace")).toBeInTheDocument();
 
     fireEvent.click(trigger);
 
-    expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("operator-scope-sample-info-body")).toHaveTextContent(
+      BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
+    );
     expect(screen.queryByText(/x-tenant-id/i)).not.toBeInTheDocument();
   });
 });

@@ -432,9 +432,39 @@ export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";
 
+export const BUYER_WORKSPACE_SHORT_NAME = "Claims Intake";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE = "Sample workspace";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_BODY =
+  "You are viewing the Claims Intake sample workspace. Workspace switching is disabled in this local demo.";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT =
+  "In a connected tenant, this menu lets you switch between workspaces and projects.";
+
+/** Shown only inside the sample-workspace popover technical-details disclosure. */
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS =
+  "Scope headers (tenant, workspace, project) route API requests. The workspace directory API is not available in this local demo, so the sample workspace stays active.";
+
+export const BUYER_SCOPE_SWITCHER_CONTINUE = "Continue";
+
+export const BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES = "Learn about workspaces";
+
+export const BUYER_SCOPE_SWITCHER_CONNECTED_INTRO = "Choose a workspace and project.";
+
+export const BUYER_SCOPE_CURRENT_WORKSPACE_TITLE = "Current workspace";
+
+export const BUYER_SCOPE_CURRENT_WORKSPACE_BODY =
+  "You are viewing the active workspace and project for this tenant.";
+
+export const BUYER_SCOPE_SWITCHER_LOAD_ERROR =
+  "We couldn't load workspaces for this tenant. Try again or contact support if the problem continues.";
+
+/** Legacy intro — prefer {@link BUYER_SCOPE_SAMPLE_WORKSPACE_BODY} in sample popovers. */
 export const BUYER_SCOPE_SWITCHER_INTRO =
   "This walkthrough uses the Claims Intake sample workspace. Switching live tenant scope is not required.";
 
+/** Legacy list-unavailable copy — keep for technical disclosures only. */
 export const BUYER_SCOPE_LIST_UNAVAILABLE =
   "Workspace directory is unavailable in this environment. The sample workspace remains active for the demonstration.";
 

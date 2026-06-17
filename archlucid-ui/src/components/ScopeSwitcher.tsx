@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsUpDown } from "lucide-react";
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -18,12 +19,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
+  BUYER_SCOPE_CURRENT_WORKSPACE_BODY,
+  BUYER_SCOPE_CURRENT_WORKSPACE_TITLE,
   BUYER_SCOPE_LIST_UNAVAILABLE,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL,
-  BUYER_SCOPE_SWITCHER_INTRO,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
+  BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
+  BUYER_SCOPE_SWITCHER_CONTINUE,
+  BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
+  BUYER_SCOPE_SWITCHER_LOAD_ERROR,
   BUYER_WORKSPACE_DISPLAY_NAME,
 } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   clearOperatorScopeStorage,
@@ -35,6 +45,11 @@ import {
   writeOperatorScopeToStorage,
 } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  formatScopeSwitcherTriggerLabel,
+  isScopeSwitchingAvailable,
+  type ScopeSwitcherWorkspaceOption,
+} from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { cn } from "@/lib/utils";
@@ -42,6 +57,9 @@ import { cn } from "@/lib/utils";
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
 const SCOPE_PANEL_GAP_PX = 4;
 const SCOPE_PANEL_MIN_EDGE_PX = 16;
+const SCOPE_SWITCHER_HELP_HREF = "/help/scope";
+
+type ScopePanelMode = "loading" | "selector" | "sample-info" | "current-scope-info" | "error";
 
 function computeScopePanelStyle(trigger: HTMLElement): CSSProperties {
   const rect = trigger.getBoundingClientRect();
@@ -59,9 +77,6 @@ function computeScopePanelStyle(trigger: HTMLElement): CSSProperties {
   };
 }
 
-type ProjectOption = { projectId: string; name: string };
-type WorkspaceOption = { workspaceId: string; name: string; projects: ProjectOption[] };
-
 type WorkspacesListPayload = {
   workspaces?: ReadonlyArray<{
     workspaceId?: string;
@@ -77,7 +92,7 @@ type WorkspacesListPayload = {
   }>;
 };
 
-function parseWorkspacesList(json: unknown): WorkspaceOption[] {
+function parseWorkspacesList(json: unknown): ScopeSwitcherWorkspaceOption[] {
   if (json === null || typeof json !== "object") {
     return [];
   }
@@ -86,7 +101,7 @@ function parseWorkspacesList(json: unknown): WorkspaceOption[] {
   if (!Array.isArray(raw)) {
     return [];
   }
-  const out: WorkspaceOption[] = [];
+  const out: ScopeSwitcherWorkspaceOption[] = [];
   for (const w of raw) {
     if (w === null || typeof w !== "object") {
       continue;
@@ -101,7 +116,7 @@ function parseWorkspacesList(json: unknown): WorkspaceOption[] {
         : typeof w.name === "string" && w.name.trim().length > 0
           ? w.name.trim()
           : "Workspace";
-    const projects: ProjectOption[] = [];
+    const projects: ScopeSwitcherWorkspaceOption["projects"][number][] = [];
     const prows = w.projects;
     if (Array.isArray(prows)) {
       for (const p of prows) {
@@ -126,12 +141,29 @@ function parseWorkspacesList(json: unknown): WorkspaceOption[] {
   return out;
 }
 
-function demoClaimsIntakeWorkspaceOption(): WorkspaceOption {
+function demoClaimsIntakeWorkspaceOption(): ScopeSwitcherWorkspaceOption {
   return {
     workspaceId: DEV_SCOPE_WORKSPACE_ID,
     name: BUYER_WORKSPACE_DISPLAY_NAME,
     projects: [{ projectId: DEV_SCOPE_PROJECT_ID, name: "Primary project" }],
   };
+}
+
+function isEffectiveDevDefaultScope(
+  workspaceId: string,
+  projectId: string,
+): boolean {
+  return (
+    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
+    projectId.trim() === DEV_SCOPE_PROJECT_ID
+  );
+}
+
+function shouldUseSampleWorkspaceFallback(
+  workspaceId: string,
+  projectId: string,
+): boolean {
+  return isEffectiveDevDefaultScope(workspaceId, projectId);
 }
 
 type ScopeSwitcherProps = {
@@ -149,7 +181,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const [tick, setTick] = useState(0);
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
-  const [workspaces, setWorkspaces] = useState<WorkspaceOption[] | null>(null);
+  const [workspaces, setWorkspaces] = useState<ScopeSwitcherWorkspaceOption[] | null>(null);
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -177,54 +209,100 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   }, [stored, workspaceId, projectId]);
 
   const polishedShell = isBuyerPolishedOperatorShellEnv();
-  const isDefaultDevScope =
-    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID && projectId.trim() === DEV_SCOPE_PROJECT_ID;
-  const polishedScopeOneLine =
-    polishedShell && isDefaultDevScope ? workspaceLabel : polishedShell ? workspaceLabel : null;
+  const isSampleWorkspaceSession = isEffectiveDevDefaultScope(workspaceId, projectId);
+  const switchingAvailable = isScopeSwitchingAvailable(workspaces);
+
+  const triggerLabel = formatScopeSwitcherTriggerLabel({
+    workspaceLabel,
+    projectLabel,
+    isSampleWorkspaceSession,
+    includeProject: !isSampleWorkspaceSession,
+  });
 
   const canShow =
     !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority;
 
+  const applySampleWorkspaceFallback = useCallback(() => {
+    setWorkspaces([demoClaimsIntakeWorkspaceOption()]);
+    setListError(null);
+  }, []);
+
   const refreshList = useCallback(async () => {
     setListLoading(true);
     setListError(null);
+    const useSampleFallback = shouldUseSampleWorkspaceFallback(workspaceId, projectId);
+
     try {
       const res = await fetch(WORKSPACES_PATH, mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }));
       if (!res.ok) {
-        setWorkspaces(null);
-        setListError("Workspace list API is not available yet (expected until GET /v1/tenant/workspaces is implemented).");
-        return;
-      }
-      const json: unknown = await res.json();
-      const parsed = parseWorkspacesList(json);
-      if (parsed.length === 0) {
-        if (isNextPublicDemoMode() || isBuyerPolishedOperatorShellEnv()) {
-          setWorkspaces([demoClaimsIntakeWorkspaceOption()]);
-          setListError(null);
+        if (useSampleFallback) {
+          applySampleWorkspaceFallback();
 
           return;
         }
 
         setWorkspaces(null);
-        setListError(BUYER_SCOPE_LIST_UNAVAILABLE);
+        setListError(BUYER_SCOPE_SWITCHER_LOAD_ERROR);
 
         return;
       }
+      const json: unknown = await res.json();
+      const parsed = parseWorkspacesList(json);
+
+      if (parsed.length === 0) {
+        if (useSampleFallback) {
+          applySampleWorkspaceFallback();
+
+          return;
+        }
+
+        setWorkspaces(null);
+        setListError(BUYER_SCOPE_SWITCHER_LOAD_ERROR);
+
+        return;
+      }
+
       setWorkspaces(parsed);
       setListError(null);
     } catch (e) {
+      if (useSampleFallback) {
+        applySampleWorkspaceFallback();
+
+        return;
+      }
+
       setWorkspaces(null);
-      setListError(e instanceof Error ? e.message : "Request failed");
+      setListError(e instanceof Error ? e.message : BUYER_SCOPE_SWITCHER_LOAD_ERROR);
     } finally {
       setListLoading(false);
     }
-  }, []);
+  }, [applySampleWorkspaceFallback, projectId, workspaceId]);
 
   useEffect(() => {
     if (open) {
       void refreshList();
     }
   }, [open, refreshList]);
+
+  const panelMode: ScopePanelMode = useMemo(() => {
+    if (listLoading && workspaces === null) {
+      return "loading";
+    }
+
+    if (listError !== null && !isSampleWorkspaceSession) {
+      return "error";
+    }
+
+    if (switchingAvailable) {
+      return "selector";
+    }
+
+    if (isSampleWorkspaceSession) {
+      return "sample-info";
+    }
+
+    return "current-scope-info";
+  }, [isSampleWorkspaceSession, listError, listLoading, switchingAvailable, workspaces]);
 
   const updatePanelPosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -295,6 +373,11 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     [],
   );
 
+  const closePanel = useCallback(() => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }, []);
+
   if (!canShow) {
     return null;
   }
@@ -306,33 +389,6 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const scopeTriggerMaxWidthClass =
     density === "compact" ? "max-w-[min(12rem,28vw)]" : "max-w-[min(20rem,42vw)]";
 
-  if (polishedShell) {
-    const displayLabel =
-      isDefaultDevScope ? workspaceLabel : `${workspaceLabel} — ${projectLabel}`;
-
-    return (
-      <span className={cn("inline-flex shrink items-center gap-1", polishedMaxWidthClass)}>
-        <span className={cn("inline-flex min-w-0 shrink cursor-default items-center gap-2", polishedMaxWidthClass)}>
-          <span
-            data-testid="operator-scope-switcher-trigger"
-            className={cn(
-              "inline-flex min-w-0 shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
-              polishedTriggerMaxWidthClass,
-            )}
-            aria-label={`Active workspace: ${displayLabel}`}
-          >
-            {displayLabel}
-          </span>
-          {isDefaultDevScope ? (
-            <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-              {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
-            </span>
-          ) : null}
-        </span>
-      </span>
-    );
-  }
-
   const scopePanel =
     open && panelStyle != null ? (
       <Card
@@ -341,78 +397,191 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         className="space-y-3 p-3 shadow-lg"
         data-testid="operator-scope-switcher-panel"
         role="dialog"
-        aria-label="Workspace and project selection"
+        aria-label={
+          panelMode === "selector"
+            ? "Workspace and project selection"
+            : panelMode === "sample-info"
+              ? BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE
+              : panelMode === "current-scope-info"
+                ? BUYER_SCOPE_CURRENT_WORKSPACE_TITLE
+                : "Workspace scope"
+        }
       >
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
-          {isNextPublicDemoMode() ? BUYER_SCOPE_SWITCHER_INTRO : "Choose the workspace and project for this session."}
-        </p>
-        {listError !== null ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="operator-scope-list-note">
-            {listError}
-          </p>
+        {panelMode === "loading" ? (
+          <p className="m-0 text-sm text-neutral-500">Loading workspaces…</p>
         ) : null}
-        {workspaces === null && listLoading ? (
-          <p className="m-0 text-sm text-neutral-500">Loading workspace list…</p>
-        ) : null}
-        {workspaces !== null && workspaces.length > 0 ? (
-          <div className="max-h-64 space-y-2 overflow-y-auto" role="list" aria-label="Workspaces and projects">
-            {workspaces.map((ws) => {
-              if (ws.projects.length === 0) {
-                return null;
-              }
-
-              return (
-                <div key={ws.workspaceId} className="space-y-1">
-                  <p className="m-0 truncate text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ws.name}</p>
-                  {ws.projects.map((pr) => {
-                    return (
-                      <Button
-                        key={pr.projectId}
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        className="h-8 w-full justify-start truncate"
-                        onClick={() => {
-                          const scopeTenantId = isNonEmptyId(tenantId) ? tenantId.trim() : DEV_SCOPE_TENANT_ID;
-
-                          applyScope({
-                            tenantId: scopeTenantId,
-                            workspaceId: ws.workspaceId,
-                            projectId: pr.projectId,
-                            workspaceLabel: ws.name,
-                            projectLabel: pr.name,
-                          });
-                        }}
-                      >
-                        {pr.name}
-                      </Button>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-        {stored !== null && !isDevDefaultScopeRecord(stored) ? (
-          <div className="space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-700">
-            <Label className="text-xs text-neutral-500">Override</Label>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 w-full"
-              onClick={() => {
-                clearOperatorScopeStorage();
-                setTick((n) => n + 1);
-                setOpen(false);
-              }}
-            >
-              Clear custom scope
+        {panelMode === "current-scope-info" ? (
+          <>
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              {BUYER_SCOPE_CURRENT_WORKSPACE_TITLE}
+            </p>
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+              {BUYER_SCOPE_CURRENT_WORKSPACE_BODY}
+            </p>
+            <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              {triggerLabel}
+            </p>
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT}
+            </p>
+            <Button type="button" size="sm" onClick={closePanel}>
+              {BUYER_SCOPE_SWITCHER_CONTINUE}
             </Button>
-          </div>
+          </>
+        ) : null}
+        {panelMode === "sample-info" ? (
+          <>
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE}
+            </p>
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300" data-testid="operator-scope-sample-info-body">
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_BODY}
+            </p>
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT}
+            </p>
+            <details className="rounded-md border border-neutral-200 p-2 text-xs dark:border-neutral-700">
+              <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
+                Technical details
+              </summary>
+              <p className="mt-2 mb-0 text-neutral-600 dark:text-neutral-400">
+                {BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS}
+              </p>
+            </details>
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <Button type="button" size="sm" onClick={closePanel}>
+                {BUYER_SCOPE_SWITCHER_CONTINUE}
+              </Button>
+              <Button type="button" variant="link" size="sm" className="h-8 px-0" asChild>
+                <Link href={SCOPE_SWITCHER_HELP_HREF}>{BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES}</Link>
+              </Button>
+            </div>
+          </>
+        ) : null}
+        {panelMode === "error" ? (
+          <>
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300" data-testid="operator-scope-list-note">
+              {listError ?? BUYER_SCOPE_SWITCHER_LOAD_ERROR}
+            </p>
+            <details className="rounded-md border border-neutral-200 p-2 text-xs dark:border-neutral-700">
+              <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
+                Technical details
+              </summary>
+              <p className="mt-2 mb-0 text-neutral-600 dark:text-neutral-400">
+                {BUYER_SCOPE_LIST_UNAVAILABLE}
+              </p>
+            </details>
+            <Button type="button" size="sm" variant="secondary" onClick={closePanel}>
+              {BUYER_SCOPE_SWITCHER_CONTINUE}
+            </Button>
+          </>
+        ) : null}
+        {panelMode === "selector" ? (
+          <>
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+              {BUYER_SCOPE_SWITCHER_CONNECTED_INTRO}
+            </p>
+            {workspaces !== null && workspaces.length > 0 ? (
+              <div className="max-h-64 space-y-2 overflow-y-auto" role="list" aria-label="Workspaces and projects">
+                {workspaces.map((ws) => {
+                  if (ws.projects.length === 0) {
+                    return null;
+                  }
+
+                  return (
+                    <div key={ws.workspaceId} className="space-y-1">
+                      <p className="m-0 truncate text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ws.name}</p>
+                      {ws.projects.map((pr) => {
+                        return (
+                          <Button
+                            key={pr.projectId}
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="h-8 w-full justify-start truncate"
+                            onClick={() => {
+                              const scopeTenantId = isNonEmptyId(tenantId) ? tenantId.trim() : DEV_SCOPE_TENANT_ID;
+
+                              applyScope({
+                                tenantId: scopeTenantId,
+                                workspaceId: ws.workspaceId,
+                                projectId: pr.projectId,
+                                workspaceLabel: ws.name,
+                                projectLabel: pr.name,
+                              });
+                            }}
+                          >
+                            {pr.name}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+            {stored !== null && !isDevDefaultScopeRecord(stored) ? (
+              <div className="space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-700">
+                <Label className="text-xs text-neutral-500">Override</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-full"
+                  onClick={() => {
+                    clearOperatorScopeStorage();
+                    setTick((n) => n + 1);
+                    setOpen(false);
+                  }}
+                >
+                  Clear custom scope
+                </Button>
+              </div>
+            ) : null}
+          </>
         ) : null}
       </Card>
     ) : null;
+
+  if (polishedShell) {
+    return (
+      <>
+        <span className={cn("inline-flex shrink items-center gap-1", polishedMaxWidthClass)}>
+          <Button
+            ref={triggerRef}
+            type="button"
+            variant="ghost"
+            className={cn(
+              "inline-flex h-auto min-w-0 shrink cursor-pointer items-center gap-2 p-0 font-normal hover:bg-transparent",
+              polishedMaxWidthClass,
+            )}
+            aria-expanded={open}
+            aria-haspopup="dialog"
+            data-testid="operator-scope-switcher-trigger"
+            aria-label={`Active workspace: ${triggerLabel}`}
+            onClick={() => {
+              setOpen((current) => !current);
+            }}
+          >
+            <span
+              className={cn(
+                "inline-flex min-w-0 shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+                polishedTriggerMaxWidthClass,
+              )}
+            >
+              {triggerLabel}
+            </span>
+            {isSampleWorkspaceSession ? (
+              <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+                {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
+              </span>
+            ) : null}
+          </Button>
+        </span>
+        {scopePanel != null && typeof document !== "undefined" ? createPortal(scopePanel, document.body) : null}
+      </>
+    );
+  }
 
   return (
     <>
@@ -426,22 +595,17 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           aria-expanded={open}
           aria-haspopup="dialog"
           data-testid="operator-scope-switcher-trigger"
+          aria-label={`Active workspace: ${triggerLabel}`}
           onClick={() => {
             setOpen((current) => !current);
           }}
         >
-          <span className="min-w-0 flex-1 truncate text-left text-xs font-medium">
-            {polishedScopeOneLine !== null ? (
-              <span className="text-neutral-800 dark:text-neutral-200">{polishedScopeOneLine}</span>
-            ) : (
-              <>
-                <span className="text-neutral-500 dark:text-neutral-400">W:</span> {workspaceLabel}{" "}
-                <span className="text-neutral-400 dark:text-neutral-500">/</span>{" "}
-                <span className="text-neutral-500 dark:text-neutral-400">P:</span> {projectLabel}
-              </>
-            )}
+          <span className="min-w-0 flex-1 truncate text-left text-xs font-medium text-neutral-800 dark:text-neutral-200">
+            {triggerLabel}
           </span>
-          <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
+          {switchingAvailable || !isSampleWorkspaceSession ? (
+            <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
+          ) : null}
         </Button>
         <ContextualHelp helpKey="operator-scope-switcher" />
       </div>
