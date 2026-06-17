@@ -18152,6 +18152,74 @@
         },
         "type": "object"
       },
+      "ReviewRunEngineProvenance": {
+        "properties": {
+          "deploymentOrModelId": {
+            "type": "string"
+          },
+          "engineProfileId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "evidenceSnapshotVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "outputSchemaVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promptPackVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerKind": {
+            "type": "string"
+          },
+          "runTimestampUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalInputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "totalOutputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RiskExceptionRecord": {
         "properties": {
           "createdAtUtc": {
@@ -18902,6 +18970,16 @@
           },
           "degradedFindingCoverage": {
             "type": "boolean"
+          },
+          "engineProvenance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReviewRunEngineProvenance"
+              }
+            ]
           },
           "estimatedUsdSavingsSummary": {
             "oneOf": [
@@ -19822,6 +19900,12 @@
             ]
           },
           "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "engineProvenanceJson": {
             "type": [
               "null",
               "string"

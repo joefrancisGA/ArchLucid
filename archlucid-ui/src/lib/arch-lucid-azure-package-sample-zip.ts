@@ -63,8 +63,9 @@ export function getBundledArchLucidAzurePackageSampleZipBytes(): Uint8Array {
 /** Browser File handle for upload after review creation in zero-config demo flows. */
 export function createBundledArchLucidAzurePackageSampleZipFile(): File {
   const bytes = getBundledArchLucidAzurePackageSampleZipBytes();
+  const zipBytes = Uint8Array.from(bytes);
 
-  return new File([bytes], BUNDLED_ARCH_LUCID_AZURE_PACKAGE_SAMPLE_ZIP_FILENAME, {
+  return new File([zipBytes], BUNDLED_ARCH_LUCID_AZURE_PACKAGE_SAMPLE_ZIP_FILENAME, {
     type: "application/zip",
   });
 }

@@ -75775,6 +75775,55 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ReviewRunEngineProvenance
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("deploymentOrModelId")]
+        public string? DeploymentOrModelId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineProfileId")]
+        public string? EngineProfileId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? EstimatedCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidenceSnapshotVersion")]
+        public string? EvidenceSnapshotVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("outputSchemaVersion")]
+        public string? OutputSchemaVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("policyPackVersion")]
+        public string? PolicyPackVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("promptPackVersion")]
+        public string? PromptPackVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("providerKind")]
+        public string? ProviderKind { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runTimestampUtc")]
+        public System.DateTimeOffset? RunTimestampUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalInputTokens")]
+        public int? TotalInputTokens { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalOutputTokens")]
+        public int? TotalOutputTokens { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RiskExceptionRecord
     {
 
@@ -76440,6 +76489,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("degradedFindingCoverage")]
         public bool? DegradedFindingCoverage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineProvenance")]
+        public ReviewRunEngineProvenance? EngineProvenance { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("estimatedUsdSavingsSummary")]
         public RunEstimatedUsdSavingsDto? EstimatedUsdSavingsSummary { get; set; } = default!;
@@ -77254,6 +77306,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         public string? Description { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineProvenanceJson")]
+        public string? EngineProvenanceJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
         public System.Guid? FindingsSnapshotId { get; set; } = default!;
