@@ -607,6 +607,154 @@ def summarize_command(scoring_path: Path, packet_path: Path | None, output: Path
     return 0
 
 
+def _parse_rating_input(prompt: str, allow_blank: bool = False) -> int | None:
+    while True:
+        raw = input(f"{prompt} (1-5, blank to skip): ").strip()
+
+        if not raw:
+            if allow_blank:
+                return None
+
+            print("Enter 1-5 or leave blank to skip.")
+            continue
+
+        if raw.isdigit():
+            value = int(raw)
+
+            if 1 <= value <= 5:
+                return value
+
+        print("Invalid rating — use integers 1 through 5.")
+
+
+def _parse_classification_input() -> str | None:
+    while True:
+        raw = input("Classification O/U/N/X/S (blank to skip): ").strip().upper()
+
+        if not raw:
+            return None
+
+        if raw in {"O", "U", "N", "X", "S"}:
+            return raw
+
+        print("Invalid classification — use O, U, N, X, or S.")
+
+
+def _apply_non_interactive_ratings(
+    scoring_sheet: dict[str, Any],
+    fill_rating: int | None,
+    fill_classification: str | None,
+) -> None:
+    for rating in scoring_sheet.get("ratings") or []:
+        if not isinstance(rating, dict):
+            continue
+
+        for field in _RATING_FIELDS:
+            if rating.get(field) is None and fill_rating is not None:
+                rating[field] = fill_rating
+
+        if rating.get("classification") is None and fill_classification is not None:
+            rating["classification"] = fill_classification.upper()
+
+
+def _prompt_reuse_intent() -> str | None:
+    while True:
+        raw = input("Reuse intent for next review cycle? yes / maybe / no (blank to skip): ").strip().lower()
+
+        if not raw:
+            return None
+
+        if raw in {"yes", "maybe", "no"}:
+            return raw
+
+        print("Enter yes, maybe, or no.")
+
+
+def score_command(
+    packet_dir: Path,
+    non_interactive: bool,
+    fill_rating: int | None,
+    fill_classification: str | None,
+    auto_summarize: bool,
+) -> int:
+    scoring_path = packet_dir / "scoring-sheet.json"
+    packet_path = packet_dir / "blind-packet.json"
+
+    if not scoring_path.is_file():
+        print(f"Missing scoring sheet: {scoring_path}", file=sys.stderr)
+        return 1
+
+    scoring_sheet = _load_json(scoring_path)
+    ratings = scoring_sheet.get("ratings") or []
+
+    if not ratings:
+        print("Scoring sheet has no ratings to complete.", file=sys.stderr)
+        return 1
+
+    if non_interactive:
+        _apply_non_interactive_ratings(scoring_sheet, fill_rating, fill_classification)
+    else:
+        print("Blind insight validation — interactive scoring")
+        print("Rate each material finding before unblinding. Press Ctrl+C to save progress and exit.")
+        print("")
+
+        for index, rating in enumerate(ratings, start=1):
+            if not isinstance(rating, dict):
+                continue
+
+            print("=" * 72)
+            print(
+                f"[{index}/{len(ratings)}] Arm {rating.get('armCode')} · "
+                f"{rating.get('findingCode')} · {rating.get('severity')} · {rating.get('category')}"
+            )
+            print(str(rating.get("body") or ""))
+            print("")
+
+            for field in _RATING_FIELDS:
+                if rating.get(field) is not None:
+                    continue
+
+                guidance = _RATING_GUIDANCE.get(field, field)
+                value = _parse_rating_input(f"  {field} — {guidance}", allow_blank=True)
+
+                if value is not None:
+                    rating[field] = value
+
+            if rating.get("classification") is None:
+                classification = _parse_classification_input()
+
+                if classification is not None:
+                    rating["classification"] = classification
+
+            _write_json(scoring_path, scoring_sheet)
+
+        session_meta = scoring_sheet.get("sessionMetadata")
+
+        if not isinstance(session_meta, dict):
+            session_meta = {}
+            scoring_sheet["sessionMetadata"] = session_meta
+
+        if session_meta.get("reuseIntent") is None:
+            reuse_intent = _prompt_reuse_intent()
+
+            if reuse_intent is not None:
+                session_meta["reuseIntent"] = reuse_intent
+
+            if not str(session_meta.get("reuseBlocker") or "").strip():
+                blocker = input("Primary blocker to reuse (blank if none): ").strip()
+
+                if blocker:
+                    session_meta["reuseBlocker"] = blocker
+
+    _write_json(scoring_path, scoring_sheet)
+    print(f"Updated scoring sheet: {scoring_path.resolve()}")
+
+    if auto_summarize:
+        return summarize_command(scoring_path, packet_path if packet_path.is_file() else None, packet_dir)
+
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Assemble anonymized blind-validation packets from committed-run fixtures.",
@@ -634,6 +782,37 @@ def build_parser() -> argparse.ArgumentParser:
     summarize.add_argument("--packet", type=Path, default=None, help="Optional blind-packet.json for source mapping.")
     summarize.add_argument("--output", type=Path, default=None, help="Summary output directory.")
 
+    score = sub.add_parser("score", help="Complete scoring-sheet.json via interactive CLI prompts.")
+    score.add_argument(
+        "--packet-dir",
+        type=Path,
+        required=True,
+        help="Directory containing scoring-sheet.json from assemble output.",
+    )
+    score.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Fill unrated fields without prompts (for automation/tests).",
+    )
+    score.add_argument(
+        "--fill-rating",
+        type=int,
+        default=None,
+        choices=range(1, 6),
+        help="When --non-interactive, apply this 1-5 rating to all empty numeric fields.",
+    )
+    score.add_argument(
+        "--fill-classification",
+        default=None,
+        choices=["O", "U", "N", "X", "S"],
+        help="When --non-interactive, apply this classification to unrated findings.",
+    )
+    score.add_argument(
+        "--auto-summarize",
+        action="store_true",
+        help="Run summarize after scoring completes.",
+    )
+
     return parser
 
 
@@ -646,6 +825,18 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "summarize":
         return summarize_command(args.scoring_sheet, args.packet, args.output)
+
+    if args.command == "score":
+        if args.non_interactive and args.fill_rating is None and args.fill_classification is None:
+            parser.error("score --non-interactive requires --fill-rating and/or --fill-classification.")
+
+        return score_command(
+            args.packet_dir,
+            args.non_interactive,
+            args.fill_rating,
+            args.fill_classification,
+            args.auto_summarize,
+        )
 
     parser.error(f"Unknown command: {args.command}")
     return 2

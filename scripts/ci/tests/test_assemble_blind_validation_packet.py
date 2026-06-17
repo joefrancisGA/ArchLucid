@@ -103,6 +103,30 @@ class AssembleBlindValidationPacketTests(unittest.TestCase):
         self.assertEqual(summary.get("reuseIntent"), "maybe")
         self.assertTrue(summary.get("armSummaries"))
 
+    def test_score_non_interactive_updates_sheet_and_summarizes(self) -> None:
+        output = self.temp_dir / "packet"
+        assemble = _run("assemble", "--fixture", str(FIXTURE), "--output", str(output), "--seed", "99")
+        self.assertEqual(assemble.returncode, 0, msg=assemble.stderr)
+
+        result = _run(
+            "score",
+            "--packet-dir",
+            str(output),
+            "--non-interactive",
+            "--fill-rating",
+            "4",
+            "--fill-classification",
+            "U",
+            "--auto-summarize",
+        )
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+
+        scoring = json.loads((output / "scoring-sheet.json").read_text(encoding="utf-8"))
+        first = scoring["ratings"][0]
+        self.assertEqual(first["novelty"], 4)
+        self.assertEqual(first["classification"], "U")
+        self.assertTrue((output / "session-summary.json").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

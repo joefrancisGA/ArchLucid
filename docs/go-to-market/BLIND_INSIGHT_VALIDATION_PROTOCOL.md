@@ -96,6 +96,35 @@ python scripts/assemble_blind_validation_packet.py summarize `
 
 Produces `session-summary.json` and `session-summary.md` for product/exec review.
 
+**Interactive scoring (CLI)**
+
+Facilitators can complete `scoring-sheet.json` without hand-editing JSON:
+
+```powershell
+python scripts/assemble_blind_validation_packet.py score `
+  --packet-dir artifacts/blind-validation/<session-label> `
+  --auto-summarize
+```
+
+Each finding prompts for 1–5 ratings (`novelty`, `correctnessConfidence`, `actionability`, `surpriseFactor`, `decisionImpact`) and optional O/U/N/X/S classification. Progress is saved after each finding.
+
+**Windows wrapper (assemble + optional score + cohort aggregate)**
+
+```powershell
+.\scripts\Run-BlindInsightValidation.ps1 -SessionLabel <session-label> -InteractiveScore -AutoSummarize
+```
+
+For automation/tests only:
+
+```powershell
+.\scripts\Run-BlindInsightValidation.ps1 `
+  -SessionLabel <session-label> `
+  -NonInteractiveScore `
+  -FillRating 4 `
+  -FillClassification U `
+  -AutoSummarize
+```
+
 ### 5. Aggregate cohort (≥3 sessions)
 
 Copy per-session summaries into [`templates/blind-validation-exec-summary.template.md`](templates/blind-validation-exec-summary.template.md). Do **not** change roadmap messaging until **≥3** independent sessions support the same direction.
