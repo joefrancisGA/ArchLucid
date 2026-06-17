@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — composer prompt set for authenticated operator home copy and hierarchy polish (not buyer-facing runtime docs).
+
 # Home page polish — composer prompt set
 
 **Goal:** Copy and hierarchy cleanup only. No new features, no layout changes, no behavior changes.

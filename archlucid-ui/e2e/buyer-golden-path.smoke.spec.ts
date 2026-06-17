@@ -13,7 +13,7 @@ import {
   expectBuyerGoldenJourneyStepper,
   expectNoGenericErrorBoundary,
 } from "./helpers/buyer-golden-path";
-import { askPageMainHeading, comparePageMainHeading, governancePageMainHeading } from "./helpers/operator-journey";
+import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 
 test.describe("buyer golden path — Claims Intake spine", () => {
   test("walks five-step diligence spine and satellite surfaces without generic error @smoke @smoke-golden-path", async ({
@@ -53,13 +53,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
         name: /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),
     ).toBeVisible();
-    await expect(
-      page
-        .getByRole("main")
-        .getByTestId("graph-canvas-ready")
-        .first()
-        .or(page.getByRole("main").getByRole("button", { name: /^Load graph$/i }).first()),
-    ).toBeVisible({ timeout: 25_000 });
+    await expectGraphPageReadySurface(page, { timeout: 25_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

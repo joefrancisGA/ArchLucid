@@ -7,7 +7,7 @@ import {
   SCREENSHOT_FINDING_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
-import { askPageMainHeading, comparePageMainHeading, governancePageMainHeading } from "./helpers/operator-journey";
+import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 test.describe("operator shell smoke", () => {
   test("home renders shell headings", async ({ page }) => {
     await page.goto("/");
@@ -109,13 +109,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
           /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),
     ).toBeVisible();
-    await expect(
-      page
-        .getByRole("main")
-        .getByTestId("graph-canvas-ready")
-        .first()
-        .or(page.getByRole("main").getByRole("button", { name: /^Load graph$/i }).first()),
-    ).toBeVisible({ timeout: 25_000 });
+    await expectGraphPageReadySurface(page, { timeout: 25_000 });
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/compare");

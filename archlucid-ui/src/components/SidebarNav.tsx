@@ -311,7 +311,7 @@ export function SidebarNav() {
         <span>{presented.label}</span>
         <span
           aria-hidden="true"
-          className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400"
+          className="text-[10px] font-normal leading-tight text-neutral-600 dark:text-neutral-300"
         >
           {subtitle}
         </span>
