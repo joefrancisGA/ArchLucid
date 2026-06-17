@@ -1,10 +1,24 @@
+import Link from "next/link";
+
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+  BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
+  BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
+  BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
+  BUYER_EVIDENCE_TRAIL_VIEW_GRAPH,
+  BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
+} from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
-import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
+import {
+  BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS,
+  type EvidenceTrailPresentationView,
+  type GraphMode,
+} from "@/app/(operator)/graph/_sections/graph-page-helpers";
 
 export type GraphPageControlsProps = {
   graphMainColumnMaxClass: string;
@@ -20,6 +34,8 @@ export type GraphPageControlsProps = {
   onLoadGraph: () => void;
   decisionId: string;
   nodeId: string;
+  presentationView?: EvidenceTrailPresentationView;
+  onPresentationViewChange?: (view: EvidenceTrailPresentationView) => void;
 };
 
 export function GraphPageControls(props: GraphPageControlsProps) {
@@ -37,7 +53,105 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     onLoadGraph,
     decisionId,
     nodeId,
+    presentationView = "trace",
+    onPresentationViewChange,
   } = props;
+
+  const runTrim = runId.trim();
+  const sampleTrailHref = `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+  const reviewPackageHref =
+    runTrim.length > 0 ? `/reviews/${encodeURIComponent(runTrim)}` : "/reviews?projectId=default";
+
+  if (buyerPolishedShell) {
+    return (
+      <div className={cn("mb-6 space-y-4", graphMainColumnMaxClass)} data-testid="graph-page-controls-buyer">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-[12rem] flex-1 lg:max-w-sm">
+            <AskRunIdPicker
+              value={runId}
+              onChange={onRunIdChange}
+              selectedThreadId=""
+              fieldId="graph-run"
+              label="Review"
+              committedOnly
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {showLoadButton ? (
+              <Button
+                type="button"
+                variant="primary"
+                disabled={
+                  loading ||
+                  runTrim.length === 0 ||
+                  (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
+                  (mode === "node-neighborhood" && nodeId.trim().length === 0)
+                }
+                onClick={() => void onLoadGraph()}
+              >
+                {loading ? "Loading…" : BUYER_EVIDENCE_TRAIL_LOAD_BUTTON}
+              </Button>
+            ) : null}
+            <Button type="button" variant="outline" asChild>
+              <Link href={sampleTrailHref}>{BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON}</Link>
+            </Button>
+            <Button type="button" variant="outline" asChild>
+              <Link href={reviewPackageHref}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            View
+          </p>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Evidence trail view">
+            <Button
+              type="button"
+              size="sm"
+              variant={presentationView === "trace" ? "primary" : "outline"}
+              aria-pressed={presentationView === "trace"}
+              onClick={() => onPresentationViewChange?.("trace")}
+            >
+              {BUYER_EVIDENCE_TRAIL_VIEW_TRACE}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={presentationView === "graph" ? "primary" : "outline"}
+              aria-pressed={presentationView === "graph"}
+              onClick={() => onPresentationViewChange?.("graph")}
+            >
+              {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
+            </Button>
+          </div>
+        </div>
+
+        {presentationView === "graph" ? (
+          <div className="space-y-2">
+            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              Graph mode
+            </p>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Graph mode">
+              {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
+                <Button
+                  key={option.mode}
+                  type="button"
+                  size="sm"
+                  variant={mode === option.mode ? "primary" : "outline"}
+                  aria-pressed={mode === option.mode}
+                  title={GRAPH_MODE_NATIVE_TITLES[option.mode]}
+                  onClick={() => onModeChange(option.mode)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -95,7 +209,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
           onClick={() => void onLoadGraph()}
           disabled={
             loading ||
-            runId.trim().length === 0 ||
+            runTrim.length === 0 ||
             (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
             (mode === "node-neighborhood" && nodeId.trim().length === 0)
           }
