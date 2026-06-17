@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { cn } from "@/lib/utils";
@@ -68,7 +69,8 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                     size="sm"
                     className="h-8 w-8 p-0"
                     data-testid="operator-shell-help-trigger"
-                    aria-label="Help and documentation"
+                    aria-label={OPERATOR_HELP_ARIA_LABEL}
+                    aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
                     onClick={() => {
                       props.onOpenHelpSearch();
                     }}
@@ -76,7 +78,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                     <CircleHelp className="h-4 w-4" aria-hidden />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
+                <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
               </Tooltip>
               {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
               <ColorModeToggle />

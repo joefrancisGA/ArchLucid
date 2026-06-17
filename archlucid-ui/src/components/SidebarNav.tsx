@@ -488,27 +488,6 @@ export function SidebarNav() {
 
       {reviewNavRows.map((row) => renderNavCluster(row))}
 
-      {buyerPolishedShell ? (
-        <nav
-          className="px-2 pb-1 pt-2"
-          aria-label="Support"
-          data-testid="sidebar-buyer-help-link"
-        >
-          <Link
-            href="/help"
-            className={cn(
-              "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-              isNavLinkActive(pathname, "/help")
-                ? DESIGN_TOKENS.interactive.navActive
-                : "text-neutral-900 dark:text-neutral-100",
-            )}
-            aria-current={isNavLinkActive(pathname, "/help") ? "page" : undefined}
-          >
-            Help
-          </Link>
-        </nav>
-      ) : null}
-
       {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
           <button

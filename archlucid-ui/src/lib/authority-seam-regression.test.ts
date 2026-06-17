@@ -133,7 +133,6 @@ describe("authority seam regression", () => {
     expect(hrefs.has("/dashboard")).toBe(true);
     expect(hrefs.has("/reviews/new")).toBe(true);
     expect(hrefs.has("/reviews?projectId=default")).toBe(true);
-    expect(hrefs.has("/help")).toBe(true);
   });
 
   /**

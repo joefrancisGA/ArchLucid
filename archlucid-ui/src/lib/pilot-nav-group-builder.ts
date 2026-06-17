@@ -5,7 +5,6 @@ import {
   GitGraph,
   Home,
   LayoutDashboard,
-  LifeBuoy,
   ListOrdered,
   Rocket,
   Settings2,
@@ -29,7 +28,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Portfolio overview → Review packages → Evidence trail → Start review for net-new input; then onboarding, findings, help, and scorecard.",
+        "Buyer-first path: Portfolio overview → Review packages → Evidence trail → Start review for net-new input; then onboarding, findings, and ROI baselines.",
       links: [
         {
           href: "/",
@@ -112,13 +111,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           icon: AlertCircle,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/help",
-          label: OPERATOR_NAV_LINK_LABELS.help,
-          title: "Help — using ArchLucid and reference documentation",
-          icon: LifeBuoy,
-          tier: "essential",
         },
         {
           href: "/settings/baseline",

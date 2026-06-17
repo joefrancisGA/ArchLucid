@@ -78,7 +78,8 @@ describe("OperatorShellTopBar", () => {
     expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
     expect(screen.queryByTestId("app-shell-topbar-secondary")).not.toBeInTheDocument();
-    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-keyshortcuts", "F1 Shift+?");
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
@@ -93,7 +94,8 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-keyshortcuts", "F1 Shift+?");
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();

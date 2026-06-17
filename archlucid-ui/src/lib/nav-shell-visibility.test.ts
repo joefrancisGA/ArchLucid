@@ -543,7 +543,6 @@ describe("committed architecture review gate — operator shell composition", ()
       "/reviews?projectId=default",
       "/dashboard",
       "/onboarding",
-      "/help",
       "/settings/baseline",
     ]);
     expect(rows[1]!.visibleLinks.map((l) => l.href)).toEqual([

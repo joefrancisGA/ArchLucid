@@ -71,6 +71,37 @@ describe("useKeyboardShortcuts", () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
+  it("invokes the help handler for F1 outside editable fields", () => {
+    const handler = vi.fn();
+
+    renderHook(() =>
+      useKeyboardShortcuts({
+        f1: { handler, description: "Help" },
+      }),
+    );
+
+    fireEvent.keyDown(window, { key: "F1" });
+
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not invoke F1 help when focus is in an input", () => {
+    const handler = vi.fn();
+
+    renderHook(() =>
+      useKeyboardShortcuts({
+        f1: { handler, description: "Help" },
+      }),
+    );
+
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    input.focus();
+    fireEvent.keyDown(input, { key: "F1", bubbles: true });
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
   it("removes the listener on unmount so handlers no longer run", () => {
     const handler = vi.fn();
 

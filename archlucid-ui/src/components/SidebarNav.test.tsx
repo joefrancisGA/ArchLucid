@@ -285,10 +285,10 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(within(nav).getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
   });
 
-  it("keeps the dedicated Help destination in the buyer support nav strip", () => {
+  it("does not show Help in the sidebar — help is top-bar only", () => {
     render(<SidebarNav />);
 
-    const helpNav = screen.getByTestId("sidebar-buyer-help-link");
-    expect(within(helpNav).getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
+    expect(screen.queryByTestId("sidebar-buyer-help-link")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Help" })).not.toBeInTheDocument();
   });
 });

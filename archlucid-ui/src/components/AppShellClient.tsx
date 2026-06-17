@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { Suspense, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useLayoutEffect, useRef, useState, useCallback, type ReactNode } from "react";
 
 import { usePathname } from "next/navigation";
 
@@ -62,6 +62,7 @@ import { TrialLimitModalHost } from "@/components/TrialLimitModal";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
@@ -88,6 +89,9 @@ function AppShellInner({ children }: AppShellClientProps) {
   const chromeMode = useOperatorChromeMode();
   const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
+  const openHelpSearch = useCallback(() => {
+    setHelpDocSearchOpen(true);
+  }, []);
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
@@ -176,15 +180,16 @@ function AppShellInner({ children }: AppShellClientProps) {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            aria-label="Help and documentation"
+                            aria-label={OPERATOR_HELP_ARIA_LABEL}
+                            aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
                             onClick={() => {
-                              setHelpDocSearchOpen(true);
+                              openHelpSearch();
                             }}
                           >
                             <CircleHelp className="h-4 w-4" aria-hidden />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
+                        <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
                       </Tooltip>
                       {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
                       <ColorModeToggle />
@@ -202,11 +207,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 <TrialUsageUpgradeNudge />
                 <TeamExpansionNudge />
                 <TrialExpiryBanner />
-                <KeyboardShortcutProvider
-                  onHelpRequested={() => {
-                    setHelpDocSearchOpen(true);
-                  }}
-                >
+                <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
                     tabIndex={-1}
@@ -248,11 +249,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         </a>
         <div ref={shellRootRef} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
           <div className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
-            <OperatorShellTopBar
-              onOpenHelpSearch={() => {
-                setHelpDocSearchOpen(true);
-              }}
-            />
+            <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
             <LayerContextFromRoute />
             <CtoDemoJourneyCaptionBar />
           </div>
@@ -274,7 +271,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <TrialExpiryBanner />
               <PersistentTrialStatusStrip />
               <TrialBanner />
-              <KeyboardShortcutProvider>
+              <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"
                   tabIndex={-1}
