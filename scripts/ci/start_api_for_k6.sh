@@ -31,17 +31,25 @@ export AgentExecution__Mode=Simulator
 export Demo__Enabled=false
 export Demo__SeedOnStartup=false
 export TrialArchitecturePreseed__Enabled=false
+# Parity with api-greenfield-boot / GreenfieldSqlApiFactory: readiness and create-run on cold CI SQL.
+export DataConsistency__InitialDelaySeconds=0
+export HostLeaderElection__Enabled=false
 # k6 path uses appsettings.Advanced.json (chained in Program); DbUp + schema bootstrap run without database RLS.
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1
-# k6 create_run hits the full authority pipeline; SqlClient's default 30s per-command limit surfaces as ~30.3s HTTP latency under cold SQL.
-export ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds=120
+# k6 create_run hits the full authority pipeline + sp_getapplock idempotency gate; 300s matches GreenfieldSqlApiFactory.
+export ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds=300
+export ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds=180000
+export AuthorityPipeline__PipelineTimeout=00:05:00
 
 nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${LOG_FILE}" 2>&1 &
 echo $! > "${PID_FILE}"
 
-echo "Waiting for ${API_URL}/health/ready..."
-for i in $(seq 1 90); do
+READY_WAIT_ATTEMPTS="${ARCHLUCID_K6_READY_WAIT_ATTEMPTS:-180}"
+READY_WAIT_SLEEP_SECONDS="${ARCHLUCID_K6_READY_WAIT_SLEEP_SECONDS:-2}"
+
+echo "Waiting for ${API_URL}/health/ready (up to $((READY_WAIT_ATTEMPTS * READY_WAIT_SLEEP_SECONDS))s)..."
+for i in $(seq 1 "${READY_WAIT_ATTEMPTS}"); do
   if curl -fsS "${API_URL}/health/ready"; then
     echo ""
     audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json")"
@@ -59,7 +67,7 @@ for i in $(seq 1 90); do
     fi
 
     create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
-    create_run_code="$(curl -sS -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
+    create_run_code="$(curl -sS --max-time 360 -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
       -X POST "${API_URL}/v1/architecture/request" \
       -H "Accept: application/json" \
       -H "Content-Type: application/json" \
@@ -76,11 +84,11 @@ for i in $(seq 1 90); do
     exit 0
   fi
 
-  if [ "$i" -eq 90 ]; then
+  if [ "$i" -eq "${READY_WAIT_ATTEMPTS}" ]; then
     echo "::error::API did not reach /health/ready in time"
     tail -n 200 "${LOG_FILE}" || true
     exit 1
   fi
 
-  sleep 2
+  sleep "${READY_WAIT_SLEEP_SECONDS}"
 done

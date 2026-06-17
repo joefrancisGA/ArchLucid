@@ -3870,7 +3870,7 @@ jobs:
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
