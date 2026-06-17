@@ -134,7 +134,7 @@ export function WizardStepIdentity() {
             message={cloudErr != null ? String(cloudErr) : undefined}
           />
           <p className="mt-1 text-xs text-neutral-500">
-            Azure export is the fastest production-faithful V1 path — not required for every review.
+            Evidence-only is the default first-pilot path. Azure export accelerates topology and cost findings when InfoSec approves the script.
           </p>
         </div>
 

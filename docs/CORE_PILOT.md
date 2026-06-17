@@ -67,3 +67,17 @@ Four steps — canonical sequence for sponsor-facing copy:
 **Sponsor-visible artifact:** after commit, use the operator **review detail** (**“Email this review to your sponsor”** banner when manifest exists) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.
 
 `runId` is still the API/CLI tracking id. Use it in support tickets and commands, but keep buyer copy centered on the architecture review package.
+
+---
+
+## Evidence-only path (no Azure extractor)
+
+Use this path when security has not yet approved the Azure extractor script, or when your first session only has briefs, diagrams, IaC, or policy documents.
+
+| Step | Action |
+|------|--------|
+| 1 | Create a review with **`cloudProvider: None`** (operator wizard: **No cloud / evidence-only**). |
+| 2 | Upload evidence files or paste the architecture brief — extractor ZIP is **not** required. |
+| 3 | Execute → finalize → export the sponsor packet. |
+
+**When to add Azure extractor later:** live subscription inventory, cost lines, or orphan-resource findings. Share [`go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md) with InfoSec before Phase B of [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md).

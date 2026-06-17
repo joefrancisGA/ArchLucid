@@ -72,6 +72,7 @@ describe("FirstWeekRouteGuidance", () => {
 
     expect(screen.getByText("Recommended first session path")).toBeInTheDocument();
     expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
+    expect(screen.getByText(/evidence-only/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start new review" })).toHaveAttribute("href", "/reviews/new");
   });
 });
