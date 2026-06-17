@@ -77,8 +77,36 @@ describe("ScopeSwitcher — operator shell", () => {
       expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("operator-scope-switcher-panel").parentElement).toBe(document.body);
     expect(screen.queryByText(/x-tenant-id/i)).not.toBeInTheDocument();
     expect(await screen.findByTestId("operator-scope-list-note")).toHaveTextContent(/sample workspace remains active/i);
+  });
+
+  it("closes the panel on Escape and outside click", async () => {
+    render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-scope-switcher-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.pointerDown(document.body);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
+    });
   });
 
   it("lists the Claims Intake sample workspace when demo mode and API list is empty", async () => {

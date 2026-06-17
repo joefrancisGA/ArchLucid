@@ -1,7 +1,16 @@
 "use client";
 
 import { ChevronsUpDown } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { createPortal } from "react-dom";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { ContextualHelp } from "@/components/ContextualHelp";
@@ -31,6 +40,24 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { cn } from "@/lib/utils";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
+const SCOPE_PANEL_GAP_PX = 4;
+const SCOPE_PANEL_MIN_EDGE_PX = 16;
+
+function computeScopePanelStyle(trigger: HTMLElement): CSSProperties {
+  const rect = trigger.getBoundingClientRect();
+  const maxWidth = Math.min(352, window.innerWidth - SCOPE_PANEL_MIN_EDGE_PX * 2);
+  const width = maxWidth;
+  const left = Math.max(SCOPE_PANEL_MIN_EDGE_PX, rect.right - width);
+
+  return {
+    position: "fixed",
+    zIndex: 100,
+    top: rect.bottom + SCOPE_PANEL_GAP_PX,
+    left,
+    width,
+    maxWidth: "min(22rem, calc(100vw - 2rem))",
+  };
+}
 
 type ProjectOption = { projectId: string; name: string };
 type WorkspaceOption = { workspaceId: string; name: string; projects: ProjectOption[] };
@@ -123,6 +150,9 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [workspaces, setWorkspaces] = useState<WorkspaceOption[] | null>(null);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const effective = useMemo(() => {
     void tick;
@@ -196,6 +226,66 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     }
   }, [open, refreshList]);
 
+  const updatePanelPosition = useCallback(() => {
+    const trigger = triggerRef.current;
+
+    if (trigger == null) {
+      return;
+    }
+
+    setPanelStyle(computeScopePanelStyle(trigger));
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPanelStyle(null);
+
+      return;
+    }
+
+    updatePanelPosition();
+
+    window.addEventListener("scroll", updatePanelPosition, true);
+    window.addEventListener("resize", updatePanelPosition);
+
+    return () => {
+      window.removeEventListener("scroll", updatePanelPosition, true);
+      window.removeEventListener("resize", updatePanelPosition);
+    };
+  }, [open, updatePanelPosition]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+
+      if (triggerRef.current?.contains(target) || panelRef.current?.contains(target)) {
+        return;
+      }
+
+      setOpen(false);
+    };
+
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointerDown, true);
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    };
+  }, [open]);
+
   const applyScope = useCallback(
     (row: OperatorScopeRecord) => {
       writeOperatorScopeToStorage(row);
@@ -243,119 +333,120 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     );
   }
 
-  return (
-    <div className="relative z-50 flex min-w-0 max-w-full items-center gap-1">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className={cn("max-w-full shrink gap-1 truncate", scopeTriggerMaxWidthClass)}
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        data-testid="operator-scope-switcher-trigger"
-        onClick={() => {
-          setOpen((o) => !o);
-        }}
+  const scopePanel =
+    open && panelStyle != null ? (
+      <Card
+        ref={panelRef}
+        style={panelStyle}
+        className="space-y-3 p-3 shadow-lg"
+        data-testid="operator-scope-switcher-panel"
+        role="dialog"
+        aria-label="Workspace and project selection"
       >
-        <span className="min-w-0 shrink truncate text-left text-xs font-medium">
-          {polishedScopeOneLine !== null ? (
-            <span className="text-neutral-800 dark:text-neutral-200">{polishedScopeOneLine}</span>
-          ) : (
-            <>
-              <span className="text-neutral-500 dark:text-neutral-400">W:</span> {workspaceLabel}{" "}
-              <span className="text-neutral-400 dark:text-neutral-500">/</span>{" "}
-              <span className="text-neutral-500 dark:text-neutral-400">P:</span> {projectLabel}
-            </>
-          )}
-        </span>
-        <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
-      </Button>
-      <ContextualHelp helpKey="operator-scope-switcher" />
-      {open ? (
-        <Card
-          className="absolute right-0 top-full z-[60] mt-1 w-[min(22rem,calc(100vw-2rem))] space-y-3 p-3 shadow-lg"
-          data-testid="operator-scope-switcher-panel"
-        >
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
-            {isNextPublicDemoMode() ? BUYER_SCOPE_SWITCHER_INTRO : "Choose the workspace and project for this session."}
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+          {isNextPublicDemoMode() ? BUYER_SCOPE_SWITCHER_INTRO : "Choose the workspace and project for this session."}
+        </p>
+        {listError !== null ? (
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="operator-scope-list-note">
+            {listError}
           </p>
-          {listError !== null ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="operator-scope-list-note">
-              {listError}
-            </p>
-          ) : null}
-          {workspaces === null && listLoading ? (
-            <p className="m-0 text-sm text-neutral-500">Loading workspace list…</p>
-          ) : null}
-          {workspaces !== null && workspaces.length > 0 ? (
-            <div className="max-h-64 space-y-2 overflow-y-auto" role="list" aria-label="Workspaces and projects">
-              {workspaces.map((ws) => {
-                if (ws.projects.length === 0) {
-                  return null;
-                }
-                return (
-                  <div key={ws.workspaceId} className="space-y-1">
-                    <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ws.name}</p>
-                    {ws.projects.map((pr) => {
-                      return (
-                        <Button
-                          key={pr.projectId}
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          className="h-8 w-full justify-start"
-                          onClick={() => {
-                            const scopeTenantId = isNonEmptyId(tenantId) ? tenantId.trim() : DEV_SCOPE_TENANT_ID;
+        ) : null}
+        {workspaces === null && listLoading ? (
+          <p className="m-0 text-sm text-neutral-500">Loading workspace list…</p>
+        ) : null}
+        {workspaces !== null && workspaces.length > 0 ? (
+          <div className="max-h-64 space-y-2 overflow-y-auto" role="list" aria-label="Workspaces and projects">
+            {workspaces.map((ws) => {
+              if (ws.projects.length === 0) {
+                return null;
+              }
 
-                            applyScope({
-                              tenantId: scopeTenantId,
-                              workspaceId: ws.workspaceId,
-                              projectId: pr.projectId,
-                              workspaceLabel: ws.name,
-                              projectLabel: pr.name,
-                            });
-                          }}
-                        >
-                          {pr.name}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-          ) : null}
-          {stored !== null && !isDevDefaultScopeRecord(stored) ? (
-            <div className="space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-700">
-              <Label className="text-xs text-neutral-500">Override</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 w-full"
-                onClick={() => {
-                  clearOperatorScopeStorage();
-                  setTick((n) => n + 1);
-                  setOpen(false);
-                }}
-              >
-                Clear custom scope
-              </Button>
-            </div>
-          ) : null}
-        </Card>
-      ) : null}
-      {open ? (
-        <button
+              return (
+                <div key={ws.workspaceId} className="space-y-1">
+                  <p className="m-0 truncate text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ws.name}</p>
+                  {ws.projects.map((pr) => {
+                    return (
+                      <Button
+                        key={pr.projectId}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="h-8 w-full justify-start truncate"
+                        onClick={() => {
+                          const scopeTenantId = isNonEmptyId(tenantId) ? tenantId.trim() : DEV_SCOPE_TENANT_ID;
+
+                          applyScope({
+                            tenantId: scopeTenantId,
+                            workspaceId: ws.workspaceId,
+                            projectId: pr.projectId,
+                            workspaceLabel: ws.name,
+                            projectLabel: pr.name,
+                          });
+                        }}
+                      >
+                        {pr.name}
+                      </Button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+        {stored !== null && !isDevDefaultScopeRecord(stored) ? (
+          <div className="space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-700">
+            <Label className="text-xs text-neutral-500">Override</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 w-full"
+              onClick={() => {
+                clearOperatorScopeStorage();
+                setTick((n) => n + 1);
+                setOpen(false);
+              }}
+            >
+              Clear custom scope
+            </Button>
+          </div>
+        ) : null}
+      </Card>
+    ) : null;
+
+  return (
+    <>
+      <div className="flex min-w-0 max-w-full shrink items-center gap-1">
+        <Button
+          ref={triggerRef}
           type="button"
-          className="fixed inset-0 z-[45] cursor-default bg-transparent"
-          aria-label="Close scope popover"
+          variant="outline"
+          size="sm"
+          className={cn("min-w-0 max-w-full shrink gap-1 overflow-hidden", scopeTriggerMaxWidthClass)}
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          data-testid="operator-scope-switcher-trigger"
           onClick={() => {
-            setOpen(false);
+            setOpen((current) => !current);
           }}
-        />
-      ) : null}
-    </div>
+        >
+          <span className="min-w-0 flex-1 truncate text-left text-xs font-medium">
+            {polishedScopeOneLine !== null ? (
+              <span className="text-neutral-800 dark:text-neutral-200">{polishedScopeOneLine}</span>
+            ) : (
+              <>
+                <span className="text-neutral-500 dark:text-neutral-400">W:</span> {workspaceLabel}{" "}
+                <span className="text-neutral-400 dark:text-neutral-500">/</span>{" "}
+                <span className="text-neutral-500 dark:text-neutral-400">P:</span> {projectLabel}
+              </>
+            )}
+          </span>
+          <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
+        </Button>
+        <ContextualHelp helpKey="operator-scope-switcher" />
+      </div>
+      {scopePanel != null && typeof document !== "undefined" ? createPortal(scopePanel, document.body) : null}
+    </>
   );
 }
 
