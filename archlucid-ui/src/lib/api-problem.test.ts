@@ -148,7 +148,13 @@ describe("tryParseApiProblemDetails", () => {
     expect(problem).toMatchObject({
       title: "One or more validation errors occurred.",
       status: 400,
-      errors: ["Description must not exceed 10000 characters."],
+      errors: ["description: Description must not exceed 10000 characters."],
+      fieldErrors: [
+        {
+          field: "Description",
+          messages: ["Description must not exceed 10000 characters."],
+        },
+      ],
     });
   });
 

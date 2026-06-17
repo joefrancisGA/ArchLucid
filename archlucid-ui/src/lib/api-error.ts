@@ -1,5 +1,10 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { tryParseApiProblemDetails } from "@/lib/api-problem";
+import {
+  formatValidationFailureSummary,
+  isHttpRequestValidationFailure,
+  sanitizeOperatorFacingText,
+} from "@/lib/api-validation-problem";
 import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { parseRetryAfterHeader } from "@/lib/retry-after";
@@ -15,10 +20,14 @@ export function formatApiFailureMessage(
 ): string {
   const statusLine = `${httpStatus} ${httpStatusText}`.trim();
 
+  if (problem !== null && isHttpRequestValidationFailure(httpStatus, problem)) {
+    return formatValidationFailureSummary(problem, httpStatus);
+  }
+
   if (problem !== null) {
-    const title = problem.title?.trim() ?? "";
-    const detail = problem.detail?.trim() ?? "";
-    const validationDetail = problem.errors?.join("; ").trim() ?? "";
+    const title = sanitizeOperatorFacingText(problem.title?.trim() ?? "");
+    const detail = sanitizeOperatorFacingText(problem.detail?.trim() ?? "");
+    const validationDetail = problem.errors?.map(sanitizeOperatorFacingText).join("; ").trim() ?? "";
 
     if (title.length > 0 && detail.length > 0) {
       return `${title}: ${detail}`;
@@ -68,7 +77,7 @@ export function formatApiFailureMessage(
           const error = record.error;
 
           if (typeof error === "string") {
-            const e = error.trim();
+            const e = sanitizeOperatorFacingText(error);
 
             if (e.length > 0) {
               return e;

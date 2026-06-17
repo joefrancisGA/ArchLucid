@@ -136,4 +136,22 @@ describe("operatorCopyForProblem", () => {
     expect(copy.heading).toBe("Trial or billing limit");
     expect(copy.hint).toContain("trial");
   });
+
+  it("surfaces field-scoped validation copy for HTTP 400", () => {
+    const copy = operatorCopyForProblem(
+      {
+        title: "One or more validation errors occurred.",
+        status: 400,
+        instance: "/v1/architecture/request",
+        fieldErrors: [{ field: "Description", messages: ["Description must not exceed 4000 characters."] }],
+      },
+      "fallback",
+      { httpStatus: 400 },
+    );
+
+    expect(copy.heading).toBe("Request validation failed (HTTP 400)");
+    expect(copy.isValidationFailure).toBe(true);
+    expect(copy.endpointLine).toContain("POST /v1/architecture/request");
+    expect(copy.validationFields?.[0]?.field).toBe("Description");
+  });
 });

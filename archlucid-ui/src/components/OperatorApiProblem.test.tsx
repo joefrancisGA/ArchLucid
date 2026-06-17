@@ -112,4 +112,25 @@ describe("OperatorApiProblem", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent("Err");
   });
+
+  it("renders field-scoped validation errors for HTTP 400", () => {
+    render(
+      <OperatorApiProblem
+        problem={{
+          title: "One or more validation errors occurred.",
+          status: 400,
+          instance: "/v1/architecture/request",
+          fieldErrors: [{ field: "Description", messages: ["Description must not exceed 4000 characters."] }],
+        }}
+        fallbackMessage="fallback"
+        httpStatus={400}
+      />,
+    );
+
+    expect(screen.getByText("Request validation failed (HTTP 400)")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-api-problem-validation")).toBeInTheDocument();
+    expect(screen.getByText("description")).toBeInTheDocument();
+    expect(screen.getByText("Description must not exceed 4000 characters.")).toBeInTheDocument();
+    expect(screen.queryByText(/at ArchLucid\./)).not.toBeInTheDocument();
+  });
 });

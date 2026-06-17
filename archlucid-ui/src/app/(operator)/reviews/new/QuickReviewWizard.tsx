@@ -19,6 +19,7 @@ import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/rev
 import { showError, showSuccess } from "@/lib/toast";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { showApiRequestErrorToast } from "@/lib/api-error-toast";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { QuickReviewAdvancedConfigAccordion } from "@/components/usability/QuickReviewAdvancedConfigAccordion";
@@ -232,6 +233,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [runTitle, setRunTitle] = useState("");
   const [scope, setScope] = useState<Record<string, string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>(initialWizardState.executionMode);
   const [evidenceAttached, setEvidenceAttached] = useState(false);
   const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(initialWizardState.proofScope);
@@ -374,6 +376,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     }
 
     setSubmitting(true);
+    setSubmitError(null);
 
     try {
       const body = buildQuickReviewPayload(
@@ -401,6 +404,8 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
       router.push(`/reviews/${encodeURIComponent(id)}`);
     } catch (error: unknown) {
+      setSubmitError(error);
+
       if (isApiRequestError(error)) {
         showApiRequestErrorToast(error, "Quick review");
 
@@ -572,6 +577,28 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 activePhase={submitPhase}
                 minutesEstimate={`First package typically ready in ${reviewPathTimeEstimate("quick-review").minutesLow}–${reviewPathTimeEstimate("quick-review").minutesHigh} minutes`}
               />
+            ) : null}
+            {submitError !== null ? (
+              <div data-testid="quick-review-submit-error">
+                {isApiRequestError(submitError) ? (
+                  <OperatorApiProblem
+                    problem={submitError.problem}
+                    fallbackMessage={submitError.message}
+                    correlationId={submitError.correlationId}
+                    httpStatus={submitError.httpStatus}
+                    retryAfterSeconds={submitError.retryAfterSeconds}
+                  />
+                ) : (
+                  <OperatorApiProblem
+                    problem={null}
+                    fallbackMessage={
+                      submitError && typeof submitError === "object" && "message" in submitError
+                        ? String((submitError as { message?: string }).message)
+                        : "Request failed."
+                    }
+                  />
+                )}
+              </div>
             ) : null}
           </CardContent>
         </Card>

@@ -31,14 +31,15 @@ describe("formatApiFailureMessage", () => {
       formatApiFailureMessage(
         {
           title: "One or more validation errors occurred.",
-          errors: ["Description must not exceed 10000 characters."],
+          status: 400,
+          errors: ["Description must not exceed 4000 characters."],
         },
         400,
         "Bad Request",
         "",
       ),
     ).toBe(
-      "One or more validation errors occurred.: Description must not exceed 10000 characters.",
+      "Request validation failed (HTTP 400): request body: Description must not exceed 4000 characters.",
     );
   });
 });

@@ -2,6 +2,11 @@
  * Subset of RFC 9457 Problem Details (obsoletes RFC 7807) plus ArchLucid API extensions (`errorCode`, `supportHint`).
  * ASP.NET Core typically serializes `ProblemDetails.Extensions` as extra root JSON properties (camelCase).
  */
+import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
+import { flattenValidationFieldErrors, parseAspNetValidationFieldErrors } from "@/lib/api-validation-problem";
+
+export type { ApiValidationFieldError };
+
 export type ApiProblemDetails = {
   type?: string;
   title?: string;
@@ -16,6 +21,8 @@ export type ApiProblemDetails = {
   failureKind?: string;
   /** Structured validation messages when returned by the API Problem Details extensions. */
   errors?: readonly string[];
+  /** ASP.NET model-state / FluentValidation field → messages (preserves field names). */
+  fieldErrors?: readonly ApiValidationFieldError[];
   /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
   blockExplanation?: string;
 };
@@ -75,41 +82,6 @@ function readStringArray(value: unknown): readonly string[] | undefined {
   return strings.length > 0 ? strings : undefined;
 }
 
-/** ASP.NET ValidationProblemDetails uses an object map of field → string[] messages. */
-function readAspNetModelStateErrors(value: unknown): readonly string[] | undefined {
-  if (value === null || value === undefined || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
-  }
-
-  const messages: string[] = [];
-
-  for (const fieldMessages of Object.values(value as Record<string, unknown>)) {
-    if (Array.isArray(fieldMessages)) {
-      for (const entry of fieldMessages) {
-        if (typeof entry === "string") {
-          const trimmed = entry.trim();
-
-          if (trimmed.length > 0) {
-            messages.push(trimmed);
-          }
-        }
-      }
-
-      continue;
-    }
-
-    if (typeof fieldMessages === "string") {
-      const trimmed = fieldMessages.trim();
-
-      if (trimmed.length > 0) {
-        messages.push(trimmed);
-      }
-    }
-  }
-
-  return messages.length > 0 ? messages : undefined;
-}
-
 function readOptionalNumber(obj: Record<string, unknown>, key: string): number | undefined {
   const value = obj[key];
 
@@ -167,7 +139,9 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
   const blockExplanation =
     readTrimmedString(record, "blockExplanation") ?? fromExt.blockExplanation;
   const failureKind = readTrimmedString(record, "failureKind") ?? fromExt.failureKind;
-  const errors = readAspNetModelStateErrors(record.errors) ?? readStringArray(record.errors) ?? fromExt.errors;
+  const fieldErrorsFromBody = parseAspNetValidationFieldErrors(record.errors);
+  const flatFieldErrors = flattenValidationFieldErrors(fieldErrorsFromBody);
+  const errors = flatFieldErrors.length > 0 ? flatFieldErrors : readStringArray(record.errors) ?? fromExt.errors;
   const status = readOptionalNumber(record, "status");
 
   if (!title && !detail && !type && !errorCode) {
@@ -218,6 +192,10 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (errors) {
     problem.errors = errors;
+  }
+
+  if (fieldErrorsFromBody.length > 0) {
+    problem.fieldErrors = fieldErrorsFromBody;
   }
 
   return problem;

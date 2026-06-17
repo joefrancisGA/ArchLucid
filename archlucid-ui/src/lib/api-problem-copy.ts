@@ -1,9 +1,18 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
+import {
+  buildValidationProblemDisplayCopy,
+  isHttpRequestValidationFailure,
+  sanitizeOperatorFacingText,
+} from "@/lib/api-validation-problem";
 
 export type OperatorProblemCopy = {
   heading: string;
   body: string;
   hint?: string;
+  endpointLine?: string;
+  validationFields?: readonly ApiValidationFieldError[];
+  isValidationFailure?: boolean;
 };
 
 /** Optional HTTP context for operator copy (e.g. 429 + `Retry-After`). */
@@ -123,7 +132,29 @@ export function operatorCopyForProblem(
   fallbackMessage: string,
   context: OperatorProblemCopyContext = {},
 ): OperatorProblemCopy {
-  const trimmedFallback = fallbackMessage.trim() || "Request failed.";
+  const trimmedFallback = sanitizeOperatorFacingText(fallbackMessage.trim() || "Request failed.");
+  const httpStatus = context.httpStatus ?? problem?.status ?? null;
+
+  if (problem != null && isHttpRequestValidationFailure(httpStatus, problem)) {
+    const validationCopy = buildValidationProblemDisplayCopy(problem, { httpStatus });
+    const fieldLines = validationCopy.fieldErrors.flatMap((entry) => entry.messages);
+
+    return mergeRateLimitCopy(
+      {
+        heading: validationCopy.heading,
+        body:
+          fieldLines.length > 0
+            ? "The request body failed server-side validation. See each field below."
+            : sanitizeOperatorFacingText(problem.detail?.trim() ?? trimmedFallback),
+        hint: validationCopy.hint,
+        endpointLine: validationCopy.endpointLine,
+        validationFields: validationCopy.fieldErrors,
+        isValidationFailure: true,
+      },
+      context,
+      problem,
+    );
+  }
 
   if (problem == null) {
     const status = context.httpStatus ?? null;
@@ -169,9 +200,10 @@ export function operatorCopyForProblem(
 
   const code = problem.errorCode?.trim();
   const fromCode = code ? ERROR_CODE_HEADINGS[code] : undefined;
-  const heading = fromCode ?? problem.title?.trim() ?? "Request failed";
-  const body =
-    problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback;
+  const heading = fromCode ?? sanitizeOperatorFacingText(problem.title?.trim() ?? "Request failed");
+  const body = sanitizeOperatorFacingText(
+    problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback,
+  );
 
   const apiHint = problem.supportHint?.trim();
   const fallbackHint = code ? ERROR_CODE_REMEDIATION[code] : undefined;
