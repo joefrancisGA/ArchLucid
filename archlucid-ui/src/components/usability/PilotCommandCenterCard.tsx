@@ -13,7 +13,6 @@ import {
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
-  PILOT_COMMAND_CENTER_SAMPLE_LINK,
   PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK,
   PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL,
   PILOT_PATH_PREVIEW_STEPS,
@@ -25,11 +24,8 @@ import {
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { ZERO_CONFIG_DEMO_WIZARD_HREF } from "@/lib/zero-config-demo-mode";
 import { cn } from "@/lib/utils";
-
-const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 const tertiaryLinkClass = cn(
   OPERATOR_TYPOGRAPHY.meta,
@@ -56,11 +52,6 @@ export function PilotCommandCenterCard(): React.JSX.Element {
             <Button asChild variant="primary" className="w-full justify-center sm:w-auto">
               <Link href="/reviews/new" data-testid="pilot-command-center-primary">
                 {PILOT_COMMAND_CENTER_PRIMARY_CTA}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full justify-center sm:w-auto">
-              <Link href={sampleReviewHref} data-testid="pilot-command-center-example">
-                {PILOT_COMMAND_CENTER_SAMPLE_LINK}
               </Link>
             </Button>
             <Button asChild variant="outline" className="w-full justify-center sm:w-auto">

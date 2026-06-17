@@ -22,7 +22,7 @@ export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
   "Review a completed example package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
-export const BUYER_HOME_PRIMARY_CTA = "Open example review";
+export const BUYER_HOME_PRIMARY_CTA = "Open completed review";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Example findings";
 
@@ -43,8 +43,6 @@ export const PILOT_COMMAND_CENTER_LEAD =
   "Create a governed, evidence-linked review package.";
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
-
-export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Open example review";
 
 export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try with Sample Data";
 

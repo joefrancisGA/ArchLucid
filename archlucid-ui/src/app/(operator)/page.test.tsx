@@ -114,14 +114,16 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByTestId("pilot-command-center-example")).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
+    expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveAttribute(
       "href",
       "/reviews/new?zeroConfig=1",
     );
+    expect(screen.getByTestId("operator-home-sample-review-open")).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
+    expect(screen.getByRole("link", { name: "Open completed review" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });

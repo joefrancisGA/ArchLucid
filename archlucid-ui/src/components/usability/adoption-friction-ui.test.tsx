@@ -6,14 +6,11 @@ import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 
 describe("PilotCommandCenterCard", () => {
-  it("renders primary start review CTA, outcomes, path preview, and example review CTA", () => {
+  it("renders primary start review CTA, outcomes, path preview, and sample-data link", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByTestId("pilot-command-center-example")).toHaveAttribute(
-      "href",
-      "/reviews/claims-intake-modernization",
-    );
+    expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveAttribute(
       "href",
       "/reviews/new?zeroConfig=1",
