@@ -23,7 +23,9 @@ function GuidanceBody(props: {
   return (
     <>
       <p className="m-0 mt-1.5 text-neutral-700 dark:text-neutral-300">{props.bridgeCopy}</p>
-      <p className="m-0 mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">{props.operateDeferralNote}</p>
+      {props.operateDeferralNote.trim().length > 0 ? (
+        <p className="m-0 mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">{props.operateDeferralNote}</p>
+      ) : null}
       {primaryAction !== undefined ? (
         <div className="mt-2.5">
           {primaryAction.href.startsWith("#") ? (

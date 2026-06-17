@@ -78,7 +78,7 @@ test.describe("route focus and announcements", () => {
     await navigateToReviewsViaOperatorShell(page);
     await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
-    await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Architecture reviews", {
+    await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Review Packages", {
       timeout: 10_000,
     });
   });

@@ -11,12 +11,12 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No reviews yet",
+  title: "No review packages yet",
   description:
-    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, open the sample review package, or submit via the CLI or API.",
+    "Start an architecture review to generate a package with findings, evidence, manifest, and exports. Or open the sample package to see the completed flow.",
   actions: [
-    { label: "Create request", href: "/reviews/new" },
-    { label: "View sample review package", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: "Start architecture review", href: "/reviews/new" },
+    { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };

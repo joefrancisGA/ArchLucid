@@ -58,9 +58,8 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review package.",
     bridgeCopy:
-      "The list shows every review package in this workspace — each with its own signed manifest and exports.",
-    primaryAction: { label: "Start new review", href: "/reviews/new" },
-    operateDeferralNote: "Compare is optional — not required for first-pilot success.",
+      "Each package gives you the review record, findings, evidence trail, manifest, and exports.",
+    operateDeferralNote: "",
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {

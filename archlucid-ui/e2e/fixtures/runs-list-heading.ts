@@ -1,5 +1,5 @@
 import { BUYER_ASK_PAGE_TITLE, BUYER_GOVERNANCE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
-import { ARCHITECTURE_REVIEW_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 function escapeRegExpLiteral(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -11,7 +11,7 @@ function escapeRegExpLiteral(value: string): string {
  * (`next.config.ts`).
  */
 export const RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN = new RegExp(
-  `^(${ARCHITECTURE_REVIEW_LABELS.plural}|${RUNS_LIST_PAGE_TITLES.buyerPolished})$`,
+  `^${RUNS_LIST_PAGE_TITLES.buyerPolished.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
   "i",
 );
 

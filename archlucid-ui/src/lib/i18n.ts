@@ -25,9 +25,13 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Architecture reviews",
-  fullOperator: "Architecture Reviews",
+  buyerPolished: "Review Packages",
+  fullOperator: "Review Packages",
 } as const;
+
+/** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
+export const RUNS_LIST_PAGE_SUBTITLE =
+  "Finalized architecture reviews with findings, evidence, manifest, and exports.";
 
 export const PIPELINE_STATUS_LABELS = {
   finalized: "Finalized",
