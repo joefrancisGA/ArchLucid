@@ -32,7 +32,7 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 
 ## Azure connectivity (extractor posture)
 
-**Tier 1 (default V1):** ArchLucid does **not** need login access to your Azure tenant for cost and architecture ingestion. Operators run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`**, inspect the artifact, and upload the **`schemaVersion`-versioned ZIP** via **`POST /v1/azure-extractor/upload`** (see [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md)).
+**Tier 1 (default V1):** ArchLucid does **not** need login access to your Azure tenant for cost and architecture ingestion. Operators run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`**, inspect the artifact, and upload the **`schemaVersion`-versioned ZIP** via **`POST /v1/azure-extractor/upload`** (see [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md)). **InfoSec pre-read (share with security reviewers):** [AZURE_EXTRACTOR_INFOSEC_PREREAD.md](AZURE_EXTRACTOR_INFOSEC_PREREAD.md).
 
 **Tier 2 (planned continuous mode, optional V1.x+):** If a future release offers pull-based collection, the customer would provision a **dedicated** service principal with **only** Azure **`Reader`** and **`Cost Management Reader`**, scoped to a subscription or management group, with **federated workload identity** preferred over long-lived secrets. See [../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
 

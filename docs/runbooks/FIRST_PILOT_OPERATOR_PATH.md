@@ -98,7 +98,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| B1 | Run **Azure extractor Tier 1** in the **customer** subscription (read-only PowerShell; no ArchLucid secrets in customer tenant). | ZIP contains `manifest.json` and cost/inventory payloads. | Customer script · [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
+| B1 | Run **Azure extractor Tier 1** in the **customer** subscription (read-only PowerShell; no ArchLucid secrets in customer tenant). Share [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](../go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md) with InfoSec if approval is required. | ZIP contains `manifest.json` and cost/inventory payloads. | Customer script · [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · InfoSec pre-read |
 | B2 | *(Alternative)* Use **demo evidence** only for evaluator dry-runs: open Workspace A Product Tour review (no extractor required). | Review detail shows committed manifest + artifacts. | UI · [`go-to-market/DEMO_WORKSPACES.md`](../go-to-market/DEMO_WORKSPACES.md) |
 
 **Failure recovery (Phase B):** extractor script errors → [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § troubleshooting · wrong scope headers on demo URLs → DEMO_WORKSPACES scope triplet table.
