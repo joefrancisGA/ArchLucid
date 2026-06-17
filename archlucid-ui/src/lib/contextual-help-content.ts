@@ -12,7 +12,7 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "new-run-wizard": {
-    text: "Guided intake walks through intent, business outcome, and actors, then required review questions before analysis. Quick review accepts a pasted brief. Templates and imports support evidence upload and presets. After submit, ArchLucid runs analysis; finalize the signed manifest when findings are ready for sponsor exports.",
+    text: "Create an architecture request for what ArchLucid should analyze. Guided intake covers intent, actors, and constraints. Quick review accepts a pasted brief.",
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
   "runs-list-overview": {

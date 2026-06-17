@@ -54,10 +54,12 @@ Complete **before first sponsor export** when projected hours-saved or dollar RO
 | Step | Action | Done |
 | --- | --- | --- |
 | 1 | Schedule 15-min baseline call at pilot kickoff | ☐ |
-| 2 | Record answers in scorecard (`/scorecard`) | ☐ |
-| 3 | Confirm `projectedDollarClaimsSponsorSafe` only when buyer cost + hours are buyer-reported or approved estimate | ☐ |
-| 4 | Re-run proof collection after baselines entered | ☐ |
-| 5 | Verify first-value report ROI narrative gate ≠ HOLD before sponsor send | ☐ |
+| 2 | Copy [`paid-pilot-baseline.template.json`](templates/paid-pilot-baseline.template.json) to `artifacts/paid-pilot-baseline/<label>/baseline.json` | ☐ |
+| 3 | Run `.\scripts\validate-paid-pilot-baseline-readiness.ps1 -BaselinePath <path> -StrictPaidPilot` | ☐ |
+| 4 | Record answers in scorecard (`/scorecard`) when electronic capture is available | ☐ |
+| 5 | Confirm `projectedDollarClaimsSponsorSafe` only when buyer cost + hours are buyer-reported or approved estimate | ☐ |
+| 6 | Re-run proof collection after baselines entered | ☐ |
+| 7 | Verify first-value report ROI narrative gate ≠ HOLD before sponsor send | ☐ |
 
 ```powershell
 .\scripts\collect-first-pilot-proof.ps1 -RunId '<run-id>' -SponsorHandoff -FailOnHold

@@ -24,10 +24,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import {
-  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
-} from "@/lib/operator-home-example-request";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -128,22 +124,10 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-first-review-empty-state")).toBeInTheDocument();
+        expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("Start your first architecture review")).toBeInTheDocument();
-      expect(screen.getByText("Provide architecture evidence")).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Begin architecture review" })).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByRole("link", { name: "How this works" })).toHaveAttribute("href", "/help");
-      expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
-      expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
-        "href",
-        `/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`,
-      );
-      expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
-        "href",
-        "/reviews?projectId=default",
-      );
+      expect(screen.getByText("No reviews yet")).toBeInTheDocument();
+      expect(screen.getByText("Start your first review or open the example review package.")).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
     }
@@ -299,7 +283,7 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
-  it("buyer-polished empty state links sample preview to manifest summary", async () => {
+  it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
     runsDashBuyerPolishedForced.on = true;
 
     const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
@@ -317,17 +301,11 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
+        expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(
-        screen.getByText(/open the full review package above to walk a governed claims intake review end to end/i),
-      ).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "View review package" })).toHaveAttribute(
-        "href",
-        "/reviews/claims-intake-modernization",
-      );
-      expect(screen.queryByRole("link", { name: "Start executive review" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "View signed manifest" })).toBeNull();
+      expect(screen.getByText("No reviews yet")).toBeInTheDocument();
+      expect(screen.getByText("Start your first review or open the example review package.")).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();

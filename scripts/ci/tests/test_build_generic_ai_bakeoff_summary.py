@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from build_generic_ai_bakeoff_summary import build_summary, render_markdown
+REPO_ROOT = Path(__file__).resolve().parents[3]
+_CI_DIR = REPO_ROOT / "scripts" / "ci"
+sys.path.insert(0, str(_CI_DIR))
+
+from build_generic_ai_bakeoff_summary import build_summary, render_markdown  # noqa: E402
 
 
 class BuildGenericAiBakeoffSummaryTests(unittest.TestCase):

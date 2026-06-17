@@ -255,7 +255,7 @@ export function CorePilotWizardLauncher() {
 
   const resumeLabel =
     state.status === "completed"
-      ? "Guided review recap"
+      ? "Review guide"
       : `Guided review (${Math.min(state.stepIndex + 1, CORE_PILOT_WIZARD_STEP_COUNT)}/${CORE_PILOT_WIZARD_STEP_COUNT})`;
 
   return (

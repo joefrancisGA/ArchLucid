@@ -53,10 +53,10 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
           </div>
 
           <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
-            {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
             <ExecutiveOperatorShellSwitcher />
-            <AuthPanel />
             <ScopeSwitcher density="compact" />
+            <AuthPanel />
+            {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
             <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
               <Tooltip>
                 <TooltipTrigger asChild>

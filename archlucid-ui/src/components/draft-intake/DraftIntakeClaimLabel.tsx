@@ -8,11 +8,11 @@ export type DraftIntakeClaimSurface =
   | "spawned-review";
 
 const SURFACE_COPY: Record<DraftIntakeClaimSurface, string> = {
-  "structural-admission": "Deterministic intake checks — not committed review evidence",
+  "structural-admission": "Admission check — not committed review evidence",
   "llm-intake-reasoning": "LLM-assisted intake support — manual review required",
   "redirected-draft": "Intake decision receipt — not an architecture finding",
-  "admitted-draft": "Admitted draft — downstream execution mode applies after submit",
-  "spawned-review": "Spawned review — label execution mode on review detail before sponsor export",
+  "admitted-draft": "Admitted draft — confirm execution mode on review detail before sponsor export",
+  "spawned-review": "Review queued — confirm execution mode on review detail before sponsor export",
 };
 
 export type DraftIntakeClaimLabelProps = {

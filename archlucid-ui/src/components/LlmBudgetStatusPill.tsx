@@ -135,7 +135,7 @@ export function LlmBudgetStatusPill() {
             type="button"
             variant="outline"
             size="sm"
-            className={cn("h-7 shrink-0 border px-2.5 text-xs font-semibold tabular-nums", pillClassForTone(tone))}
+            className={cn("h-6 shrink-0 border px-2 text-[10px] font-medium tabular-nums", pillClassForTone(tone))}
             data-testid="llm-budget-status-pill"
             aria-label={ariaLabel}
             aria-expanded={open}

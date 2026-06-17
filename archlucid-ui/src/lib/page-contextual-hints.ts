@@ -10,14 +10,6 @@ export type PageContextualHint = {
 
 const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
   {
-    prefix: "/reviews/new",
-    hint: {
-      id: "reviews-new-path",
-      message: "Choose Quick review for a pasted brief, Guided intake for admission questions, or Full wizard when you need templates and evidence upload.",
-      learnMoreHref: "/help/path-chooser",
-    },
-  },
-  {
     prefix: "/governance/findings",
     hint: {
       id: "governance-findings-queue",

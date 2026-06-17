@@ -4,6 +4,7 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
 import {
@@ -30,6 +31,7 @@ function openPilotBaselineWizard(): void {
 /** Non-blocking Home prompt when tenant ROI baselines are missing — opens the guided wizard on demand. */
 export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
   const demoMode = isNextPublicDemoMode();
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { loading, complete, reload } = usePilotRoiBaselineCompleteness();
   const [dismissed, setDismissed] = useState(false);
   const [chromeSuppressed, setChromeSuppressed] = useState(false);
@@ -56,7 +58,7 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
     setDismissed(true);
   }, []);
 
-  if (demoMode || chromeSuppressed || loading || complete !== false) {
+  if (demoMode || chromeSuppressed || loading || complete !== false || !hasCommittedArchitectureReview) {
     return null;
   }
 

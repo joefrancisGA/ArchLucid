@@ -2,7 +2,7 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { notifyTrialLimitFromApiError } from "@/lib/trial-limit-modal-bridge";
 import { shouldShowJwtBearerMissingRoleBanner } from "@/lib/operator-shell-principal-snapshot";
 import { parseTrialLimitProblemDetails } from "@/lib/trial-limit-problem";
-import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
+import { CORRELATION_ID_HEADER, applyTraceParentHeader, captureTraceContextFromResponse, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
@@ -141,6 +141,7 @@ export function applyCorrelationHeaders(headers: HeadersInit): { headers: Header
   const correlationId = generateCorrelationId();
   const h = new Headers(headers);
   h.set(CORRELATION_ID_HEADER, correlationId);
+  applyTraceParentHeader(h);
 
   return { headers: h, correlationId };
 }
@@ -220,6 +221,7 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
   const { url, headers } = resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h));
+  captureTraceContextFromResponse(response);
   const text = await response.text();
   const traceId = extractTraceId(response);
 
@@ -258,6 +260,7 @@ export async function apiPostJson<T>(
     url,
     serverFetchInit(h, { method: "POST", body: JSON.stringify(body) }),
   );
+  captureTraceContextFromResponse(response);
   const text = await response.text();
 
   if (!response.ok) {
@@ -279,6 +282,7 @@ export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
     url,
     serverFetchInit(h, { method: "PATCH", body: JSON.stringify(body) }),
   );
+  captureTraceContextFromResponse(response);
   const text = await response.text();
 
   if (!response.ok) {
@@ -300,6 +304,7 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
     url,
     serverFetchInit(h, { method: "POST", body: JSON.stringify(body) }),
   );
+  captureTraceContextFromResponse(response);
   const text = await response.text();
 
   if (!response.ok) {
@@ -316,6 +321,7 @@ export async function apiPutJson<T>(path: string, body: unknown): Promise<T> {
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
+  captureTraceContextFromResponse(response);
   const text = await response.text();
 
   if (!response.ok) {
@@ -338,6 +344,7 @@ export async function apiPutNoContent(path: string, body: unknown): Promise<void
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
+  captureTraceContextFromResponse(response);
   const text = await response.text();
 
   if (!response.ok) {
@@ -353,6 +360,7 @@ export async function apiDelete(path: string): Promise<void> {
   const { url, headers } = resolveRequest(path);
   const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h, { method: "DELETE" }));
+  captureTraceContextFromResponse(response);
   const text = await response.text();
 
   if (!response.ok) {

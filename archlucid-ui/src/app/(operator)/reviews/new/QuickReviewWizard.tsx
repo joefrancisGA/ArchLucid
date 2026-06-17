@@ -14,7 +14,7 @@ import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_FIRST_SESSION_GUIDANCE, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
@@ -56,6 +56,9 @@ const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
 
 type ReviewsNewPathMode = "quick-review" | "full-guided";
 
+/** Active creation path — maps to persisted storage keys and wizard component. */
+type ReviewsNewActivePath = "guided-intake" | "quick-review" | "detailed";
+
 export { CONTOSO_RETAIL_SAMPLE_BRIEF };
 
 const MIN_BRIEF_CHARS = 100;
@@ -96,6 +99,29 @@ function readStoredPathMode(): ReviewsNewPathMode {
   }
 
   return "full-guided";
+}
+
+function readStoredActivePath(): ReviewsNewActivePath {
+  const pathMode = readStoredPathMode();
+
+  if (pathMode === "quick-review") {
+    return "quick-review";
+  }
+
+  const subMode = readStoredFullGuidedSubMode();
+
+  return subMode === "detailed" ? "detailed" : "guided-intake";
+}
+
+function persistActivePath(path: ReviewsNewActivePath): void {
+  if (path === "quick-review") {
+    persistPathMode("quick-review");
+
+    return;
+  }
+
+  persistPathMode("full-guided");
+  persistFullGuidedSubMode(path === "detailed" ? "detailed" : "guided-intake");
 }
 
 function persistPathMode(mode: ReviewsNewPathMode): void {
@@ -569,74 +595,44 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 }
 
 /**
- * Toggle at the top of `/reviews/new`: Quick review (default) vs full detailed wizard (existing client).
+ * Path switcher at the top of `/reviews/new`: guided intake (default), quick review, or templates wizard.
  */
 export function ReviewsNewPathSwitcher() {
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
-  const [pathMode, setPathMode] = useState<ReviewsNewPathMode>("full-guided");
-  const [fullGuidedSubMode, setFullGuidedSubMode] = useState<FullGuidedSubMode>("guided-intake");
+  const [activePath, setActivePath] = useState<ReviewsNewActivePath>("guided-intake");
   const [ready, setReady] = useState(false);
-  const [tourActive, setTourActive] = useState(false);
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
-    setTourActive(activeTour);
 
     if (baselineFirst) {
-      setPathMode("full-guided");
-      setFullGuidedSubMode("detailed");
-      persistPathMode("full-guided");
-      persistFullGuidedSubMode("detailed");
+      setActivePath("detailed");
+      persistActivePath("detailed");
     } else if (presetGreenfield) {
-      setPathMode("quick-review");
-      persistPathMode("quick-review");
+      setActivePath("quick-review");
+      persistActivePath("quick-review");
     } else if (activeTour) {
-      setPathMode("quick-review");
-      persistPathMode("quick-review");
+      setActivePath("quick-review");
+      persistActivePath("quick-review");
     } else {
-      setPathMode(readStoredPathMode());
-      setFullGuidedSubMode(readStoredFullGuidedSubMode());
+      setActivePath(readStoredActivePath());
     }
 
     setReady(true);
   }, [baselineFirst, presetGreenfield]);
 
-  const selectQuick = () => {
-    setPathMode("quick-review");
-    persistPathMode("quick-review");
+  const selectPath = (path: ReviewsNewActivePath) => {
+    setActivePath(path);
+    persistActivePath(path);
   };
-
-  const selectFullGuided = () => {
-    setPathMode("full-guided");
-    persistPathMode("full-guided");
-  };
-
-  const selectGuidedIntake = () => {
-    setFullGuidedSubMode("guided-intake");
-    persistFullGuidedSubMode("guided-intake");
-  };
-
-  const selectDetailed = () => {
-    setFullGuidedSubMode("detailed");
-    persistFullGuidedSubMode("detailed");
-  };
-
-  const activePathHintKey =
-    pathMode === "quick-review" ? "quick-review" : fullGuidedSubMode === "detailed" ? "detailed" : "guided-intake";
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4">
+    <div className="mx-auto w-full max-w-4xl space-y-3">
       <Suspense fallback={null}>
         <NewReviewIntentCallout />
       </Suspense>
-      <p
-        className="rounded-md border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-200"
-        data-testid="reviews-new-first-session-guidance"
-      >
-        {REVIEWS_NEW_FIRST_SESSION_GUIDANCE}
-      </p>
       {ready ? (
         <div
           className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -647,43 +643,38 @@ export function ReviewsNewPathSwitcher() {
           <Button
             type="button"
             role="tab"
-            aria-selected={pathMode === "full-guided"}
-            variant={pathMode === "full-guided" ? "default" : "outline"}
+            aria-selected={activePath === "guided-intake"}
+            variant={activePath === "guided-intake" ? "default" : "outline"}
             className="min-w-[10rem]"
-            onClick={selectFullGuided}
-            data-testid="reviews-new-path-full-guided"
-          >
-            Guided intake (recommended)
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={pathMode === "quick-review"}
-            variant={pathMode === "quick-review" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={selectQuick}
-            data-testid="reviews-new-path-quick"
-          >
-            Quick review (advanced)
-          </Button>
-        </div>
-      ) : null}
-      {ready && pathMode === "full-guided" ? (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Full guided review options">
-          <Button
-            type="button"
-            size="sm"
-            variant={fullGuidedSubMode === "guided-intake" ? "default" : "outline"}
-            onClick={selectGuidedIntake}
+            onClick={() => {
+              selectPath("guided-intake");
+            }}
             data-testid="reviews-new-path-guided-intake"
           >
             Guided intake
           </Button>
           <Button
             type="button"
-            size="sm"
-            variant={fullGuidedSubMode === "detailed" ? "default" : "outline"}
-            onClick={selectDetailed}
+            role="tab"
+            aria-selected={activePath === "quick-review"}
+            variant={activePath === "quick-review" ? "default" : "outline"}
+            className="min-w-[10rem]"
+            onClick={() => {
+              selectPath("quick-review");
+            }}
+            data-testid="reviews-new-path-quick"
+          >
+            Quick review
+          </Button>
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={activePath === "detailed"}
+            variant={activePath === "detailed" ? "default" : "outline"}
+            className="min-w-[10rem]"
+            onClick={() => {
+              selectPath("detailed");
+            }}
             data-testid="reviews-new-path-detailed"
           >
             Templates and imports
@@ -691,17 +682,16 @@ export function ReviewsNewPathSwitcher() {
         </div>
       ) : null}
       {ready ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
-          {REVIEWS_NEW_PATH_HINTS[activePathHintKey]}
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
+          {REVIEWS_NEW_PATH_HINTS[activePath]}
         </p>
       ) : null}
-      {ready ? <ReviewPathTimeEstimateBanner pathId={activePathHintKey} /> : null}
       {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
-      {!ready ? null : pathMode === "quick-review" ? (
+      {!ready ? null : activePath === "quick-review" ? (
         <QuickReviewWizard />
-      ) : fullGuidedSubMode === "guided-intake" ? (
+      ) : activePath === "guided-intake" ? (
         <SocraticIntakeWizard />
       ) : (
         <NewRunWizardClient />

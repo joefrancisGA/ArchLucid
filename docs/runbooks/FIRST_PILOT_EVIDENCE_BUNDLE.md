@@ -106,6 +106,106 @@ When `-RunId` is supplied, `go-no-go-summary.md` includes an **AI Quality Proof*
 
 Missing signals are labeled **WARN** or **BLOCK** (sponsor handoff) — the pipeline does not invent pass values.
 
+## Decision-change ledger (paid pilot closeout)
+
+For **`-SponsorHandoff`** with **`-RunId`**, the proof pipeline validates an operator-recorded decision-change ledger:
+
+1. Copy [`pilot-decision-ledger.template.json`](../go-to-market/templates/pilot-decision-ledger.template.json) to `artifacts/pilot-decision-ledger/<runId>/ledger.json` (or pass **`-PilotDecisionLedgerPath`**).
+2. Record up to **three** decisions under review, any ArchLucid-attributed changes (`findingId`, `evidenceChainId`, `attributionConfidence`), and **sponsorAcceptance.outcome**.
+3. When no decisions changed, set **`noDecisionChangesConfirmed`: true** explicitly.
+
+Outputs: **`pilot-decision-ledger.json`**, **`pilot-decision-ledger-report.json`**, **`pilot-decision-ledger-report.md`**. Missing or incomplete ledgers are **BLOCK** on sponsor handoff (triage **FP-T024**). Use **`-SkipDecisionLedger`** only for readiness-only dry runs.
+
+Cohort rollup across pilots:
+
+```powershell
+python scripts/ci/aggregate_pilot_decision_ledgers.py `
+  --json-out artifacts/pilot-decision-ledger/cohort-summary.json `
+  --markdown-out artifacts/pilot-decision-ledger/cohort-summary.md
+```
+
+## Paid-pilot baseline readiness (kickoff gate)
+
+For **paid pilots** with projected ROI in sponsor materials, capture baselines **before kickoff**:
+
+1. Copy [`paid-pilot-baseline.template.json`](../go-to-market/templates/paid-pilot-baseline.template.json) to `artifacts/paid-pilot-baseline/<runId>/baseline.json` (or pass **`-PaidPilotBaselinePath`**).
+2. Record **`baselineReviewCycleHours`** and **`baselineReviewCycleSource`** (`buyer-provided`, `team-estimate`, …). When deferring capture, set **`waiver.waived`: true** with **`waiver.rationale`**.
+3. Validate at kickoff:
+
+```powershell
+.\scripts\validate-paid-pilot-baseline-readiness.ps1 `
+  -BaselinePath artifacts/paid-pilot-baseline/<runId>/baseline.json `
+  -StrictPaidPilot
+```
+
+Proof collection emits **`paid-pilot-baseline.json`**, **`paid-pilot-baseline-readiness-report.json`**, **`paid-pilot-baseline-readiness-report.md`**. Missing or HOLD baselines are **BLOCK** on `-SponsorHandoff` (triage **FP-T025**). Use **`-SkipBaselineReadiness`** only for readiness-only dry runs.
+
+## First non-obvious moment (pilot debrief)
+
+After each pilot or principal-architect debrief, record the first confirmed non-obvious finding moment:
+
+1. Copy [`first-non-obvious-moment.template.json`](../go-to-market/templates/first-non-obvious-moment.template.json) to `artifacts/first-non-obvious-moment/<runId>/moment.json` (or pass **`-FirstNonObviousMomentPath`**).
+2. Capture **timestamp**, **finding id**, **participant quote** (redacted), **correctness confidence**, and whether it **changed planned action**. When none occurred, set **`notYetObserved`: true** with rationale.
+3. Proof collection emits **`first-non-obvious-moment-report.md`** with a **First non-obvious moment** section for debrief review (triage **FP-T026** — WARN when missing).
+
+Cohort rollup:
+
+```powershell
+python scripts/ci/aggregate_first_non_obvious_moments.py `
+  --json-out artifacts/first-non-obvious-moment/cohort-summary.json `
+  --markdown-out artifacts/first-non-obvious-moment/cohort-summary.md
+```
+
+## Dismissal-trigger tracking (pilot debrief)
+
+Capture non-adoption or near-dismissal signals after each debrief:
+
+1. Copy [`pilot-dismissal-trigger.template.json`](../go-to-market/templates/pilot-dismissal-trigger.template.json) to `artifacts/pilot-dismissal-triggers/<runId>/dismissal.json` (or pass **`-PilotDismissalTriggerPath`**).
+2. Record **primary category**, **evidence snippet** (redacted), **trigger timing** (before/after first committed run), **mitigation attempted**, and **final outcome**. When none occurred, set **`noDismissalObserved`: true**.
+3. Proof collection emits **`pilot-dismissal-trigger-report.md`** (triage **FP-T027** — WARN when missing).
+
+Monthly aggregate with trend direction:
+
+```powershell
+python scripts/ci/aggregate_pilot_dismissal_triggers.py `
+  --month 2026-06 `
+  --json-out artifacts/pilot-dismissal-triggers/monthly-2026-06.json `
+  --markdown-out artifacts/pilot-dismissal-triggers/monthly-2026-06.md
+```
+
+## Top-severity finding challenge (review closeout)
+
+Before sponsor handoff, challenge the highest-severity finding in the review package:
+
+1. Copy [`top-severity-finding-challenge.template.json`](../go-to-market/templates/top-severity-finding-challenge.template.json) to `artifacts/top-severity-finding-challenge/<runId>/challenge.json` (or pass **`-TopSeverityFindingChallengePath`**).
+2. Confirm **evidence chain completeness** (or document gaps in `evidenceChainCompletenessNotes`).
+3. Capture one **counter-argument**, final **adjudication** (`confirmed` / `revised` / `rejected`), **rationale**, and **reviewer identity**.
+4. Proof collection emits **`sponsor-packet-appendix-top-severity-finding-challenge.md`** for the sponsor packet (triage **FP-T028** — WARN when missing; **BLOCK** on `-SponsorHandoff` when HOLD).
+
+```powershell
+python scripts/ci/report_top_severity_finding_challenge.py `
+  --challenge-json artifacts/top-severity-finding-challenge/<runId>/challenge.json `
+  --json-out artifacts/top-severity-finding-challenge/<runId>/report.json `
+  --markdown-out artifacts/top-severity-finding-challenge/<runId>/report.md `
+  --appendix-out artifacts/top-severity-finding-challenge/<runId>/sponsor-appendix.md
+```
+
+## 30-day reuse cohort tracker (pilot follow-up)
+
+Track voluntary return behavior at day 7, day 14, and day 30 after pilot kickoff:
+
+1. Copy [`pilot-reuse-cohort-tracker.template.json`](../go-to-market/templates/pilot-reuse-cohort-tracker.template.json) to `artifacts/pilot-reuse-cohort/<runId>/tracker.json` (or pass **`-PilotReuseCohortTrackerPath`**).
+2. For each checkpoint, record **usage state**, **voluntary return count**, **assistance mode** (founder-assisted vs independent), and **continuation/dropoff reason**. Use **`not-yet-due`** until the checkpoint date passes.
+3. Set **`trackingComplete`: true** only after day-30 is recorded. Proof collection emits **`pilot-reuse-cohort-tracker-report.md`** (triage **FP-T029** — WARN when missing).
+
+Executive cohort rollup across pilots:
+
+```powershell
+python scripts/ci/aggregate_pilot_reuse_cohort_trackers.py `
+  --json-out artifacts/pilot-reuse-cohort/cohort-rollup.json `
+  --markdown-out artifacts/pilot-reuse-cohort/cohort-rollup.md
+```
+
 ## RC real-mode evidence (release-candidate)
 
 Reference real-mode RC evidence uses the **existing CI / owner dev Azure OpenAI configuration** — do not create ad hoc deployments.

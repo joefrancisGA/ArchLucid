@@ -1,0 +1,12 @@
+{
+  "schema": "archlucid.pilot-decision-ledger-schema.v1",
+  "payloadSchema": "archlucid.pilot-decision-ledger.v1",
+  "reportSchema": "archlucid.pilot-decision-ledger-report.v1",
+  "canonicalTemplate": "docs/go-to-market/templates/pilot-decision-ledger.template.json",
+  "storageRoot": "artifacts/pilot-decision-ledger",
+  "maxDecisionsUnderReview": 3,
+  "attributionConfidenceValues": ["high", "medium", "low"],
+  "sponsorAcceptanceOutcomes": ["accepted", "deferred", "rejected", "pending", "not-applicable"],
+  "requiredDecisionFields": ["decisionId", "title"],
+  "requiredAttributedChangeFields": ["decisionId", "findingId", "evidenceChainId", "attributionConfidence"]
+}

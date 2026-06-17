@@ -91,6 +91,10 @@ export const OPERATOR_TYPE_SCALE = {
   micro: "text-[11px] font-normal leading-snug text-al-text-secondary",
 } as const;
 
+/** Zone headings on operator/buyer home — primary workspace surface (TB-347). */
+export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
+  "m-0 text-xl font-semibold leading-snug tracking-tight text-al-text-primary";
+
 /** Zone headings on operator/buyer home — one step below {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
 export const OPERATOR_HOME_SECTION_HEADING =
   "m-0 text-lg font-semibold leading-snug tracking-tight text-al-text-primary";

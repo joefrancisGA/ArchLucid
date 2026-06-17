@@ -6,6 +6,7 @@ import { PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY } from "@/lib/pilot-roi
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 
 const reload = vi.fn();
+const committedReviewMock = vi.hoisted(() => ({ value: true }));
 
 vi.mock("@/hooks/use-pilot-roi-baseline-completeness", () => ({
   usePilotRoiBaselineCompleteness: () => ({
@@ -23,14 +24,28 @@ vi.mock("@/lib/pilot-roi-baseline-chrome", () => ({
   suppressPilotRoiBaselineChrome: () => false,
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => committedReviewMock.value,
+}));
+
 describe("PilotRoiBaselineReadinessCard", () => {
   beforeEach(() => {
     localStorage.clear();
     reload.mockReset();
+    committedReviewMock.value = true;
   });
 
   afterEach(() => {
     localStorage.clear();
+  });
+
+  it("renders nothing before the tenant has a committed review package", () => {
+    committedReviewMock.value = false;
+
+    render(<PilotRoiBaselineReadinessCard />);
+
+    expect(screen.queryByTestId("pilot-roi-baseline-readiness-card")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-roi-baseline-readiness-compact")).not.toBeInTheDocument();
   });
 
   it("renders when tenant ROI baselines are incomplete", () => {

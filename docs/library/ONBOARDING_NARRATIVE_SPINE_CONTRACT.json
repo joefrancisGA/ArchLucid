@@ -9,12 +9,6 @@
       "requiredTitle": "Provide architecture evidence"
     },
     {
-      "id": "first-review-empty-state-step-1",
-      "sourceModule": "archlucid-ui/src/components/operator-home/OperatorHomeFirstReviewEmptyState.tsx",
-      "labelField": "FIRST_RUN_STEPS[0].label",
-      "requiredLabel": "Provide architecture evidence"
-    },
-    {
       "id": "operating-rail-ingest",
       "sourceModule": "archlucid-ui/src/lib/first-pilot-operating-rail-steps.ts",
       "titleField": "FIRST_PILOT_OPERATING_RAIL_STEPS[id=ingest-evidence].title",

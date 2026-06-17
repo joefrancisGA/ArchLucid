@@ -110,7 +110,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   /** Operator-shell ROI dashboard — distinct from the executive route group. */
   portfolioOverview: "Portfolio overview",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Architecture reviews",
+  reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   capture: "Start review",
   onboarding: "Onboarding",

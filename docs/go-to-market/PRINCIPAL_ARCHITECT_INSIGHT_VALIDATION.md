@@ -110,6 +110,8 @@ Optional single-letter classification:
 - Session log template: [`templates/blind-insight-session-log.template.json`](templates/blind-insight-session-log.template.json)
 - Cohort aggregate: `python scripts/ci/aggregate_blind_insight_sessions.py --sessions-dir artifacts/blind-validation --json-out artifacts/blind-validation/cohort-summary.json`
 - Principal-architect cohort aggregate: `python scripts/ci/aggregate_principal_architect_sessions.py --sessions-dir artifacts/principal-architect-sessions --json-out artifacts/principal-architect-sessions/cohort-summary.json --markdown-out artifacts/principal-architect-sessions/cohort-summary.md`
+- **Unified cohort batch (recommended):** `python scripts/ci/run_principal_architect_cohort_batch.py` — ingests both `artifacts/principal-architect-sessions` and `artifacts/blind-validation`, evaluates N-rate / X-rate / reuse intent / decision-impact median against protocol thresholds, writes `artifacts/principal-architect-cohort/cohort-report.json` + `.md`
+- **CI guard (warn-only when sample < 3):** `python scripts/ci/guard_principal_architect_cohort.py`
 - Principal-architect session template: [`templates/principal-architect-session.template.json`](templates/principal-architect-session.template.json)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 - [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)

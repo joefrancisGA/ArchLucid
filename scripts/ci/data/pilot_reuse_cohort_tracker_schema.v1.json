@@ -1,0 +1,33 @@
+{
+  "schema": "archlucid.pilot-reuse-cohort-tracker-schema.v1",
+  "payloadSchema": "archlucid.pilot-reuse-cohort-tracker.v1",
+  "reportSchema": "archlucid.pilot-reuse-cohort-tracker-report.v1",
+  "cohortSchema": "archlucid.pilot-reuse-cohort-tracker-cohort-summary.v1",
+  "canonicalTemplate": "docs/go-to-market/templates/pilot-reuse-cohort-tracker.template.json",
+  "storageRoot": "artifacts/pilot-reuse-cohort",
+  "checkpointKeys": [
+    "day7",
+    "day14",
+    "day30"
+  ],
+  "usageStateValues": [
+    "continuing-voluntarily",
+    "returned-voluntarily",
+    "inactive-no-return",
+    "dropped",
+    "not-yet-due",
+    "unknown"
+  ],
+  "assistanceModeValues": [
+    "founder-assisted",
+    "independent",
+    "mixed",
+    "not-applicable"
+  ],
+  "requiredCheckpointFields": [
+    "usageState",
+    "voluntaryReturnCount",
+    "assistanceMode",
+    "continuationOrDropoffReason"
+  ]
+}

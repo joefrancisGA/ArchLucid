@@ -107,7 +107,7 @@ public sealed class CostAgentHandler(
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
+            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             await traceRecorder.RecordAsync(
@@ -134,7 +134,7 @@ public sealed class CostAgentHandler(
         }
         catch (Exception ex)
         {
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
+            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             if (ex is AgentResultSchemaViolationException schemaViolation)

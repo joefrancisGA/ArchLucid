@@ -103,10 +103,14 @@ describe("ReviewsNewPathSwitcher", () => {
       expect(screen.getByTestId("quick-review-progress")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("reviews-new-path-full-guided"));
     fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));
     await waitFor(() => {
       expect(screen.getByTestId("detailed-wizard-stub")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
+    await waitFor(() => {
+      expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByTestId("reviews-new-path-quick"));
@@ -146,7 +150,6 @@ describe("ReviewsNewPathSwitcher", () => {
       expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
     });
 
-    fireEvent.click(screen.getByTestId("reviews-new-path-full-guided"));
     fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));
     await waitFor(() => {
       expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS.detailed);

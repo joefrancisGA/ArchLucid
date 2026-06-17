@@ -1,0 +1,40 @@
+{
+  "schema": "archlucid.pilot-decision-ledger.v1",
+  "pilotLabel": "prospect-or-tenant-alias",
+  "runId": "00000000-0000-0000-0000-000000000099",
+  "recordedUtc": "2026-06-16T18:00:00Z",
+  "paidPilot": true,
+  "decisionsUnderReview": [
+    {
+      "decisionId": "d1",
+      "title": "Approve east-west firewall rule for subnet X",
+      "statusBeforeReview": "pending-approval"
+    },
+    {
+      "decisionId": "d2",
+      "title": "Proceed with single-region deployment for pilot scope",
+      "statusBeforeReview": "under-review"
+    },
+    {
+      "decisionId": "d3",
+      "title": "Accept cost baseline for Q3 capacity plan",
+      "statusBeforeReview": "draft"
+    }
+  ],
+  "decisionChanges": [
+    {
+      "decisionId": "d1",
+      "changedBecauseOfArchLucidFinding": true,
+      "findingId": "finding-example-id",
+      "evidenceChainId": "evidence-chain-example-id",
+      "attributionConfidence": "high",
+      "notes": "Finding surfaced missing NSG rule; ARB deferred approval until remediation."
+    }
+  ],
+  "noDecisionChangesConfirmed": false,
+  "sponsorAcceptance": {
+    "outcome": "accepted",
+    "recordedUtc": "2026-06-16T19:30:00Z",
+    "notes": "Sponsor accepted deferred approval with remediation plan attached."
+  }
+}

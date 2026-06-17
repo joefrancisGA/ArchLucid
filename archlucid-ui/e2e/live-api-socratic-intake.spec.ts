@@ -33,7 +33,7 @@ test.describe("live-api-socratic-intake", () => {
   test("guided intake UI admits draft, resolves MUST questions, and spawns review", async ({ page, request }) => {
     await page.goto("/reviews/new");
     await expect(page.getByTestId("socratic-intake-wizard")).toBeVisible();
-    await expect(page.getByTestId("reviews-new-path-full-guided")).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByTestId("reviews-new-path-guided-intake")).toHaveAttribute("aria-selected", "true");
 
     await page.getByTestId("socratic-intent").fill(INTENT);
     await page.getByTestId("socratic-outcome").fill(OUTCOME);

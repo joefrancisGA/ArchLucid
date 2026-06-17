@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronDown, FileSearch, FileText, GitBranch, GitGraph, LayoutDashboard, ListChecks, Settings2 } from "lucide-react";
+import { ChevronDown, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useMemo, useState, type ReactElement } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactElement } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
@@ -20,24 +20,20 @@ import { Label } from "@/components/ui/label";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
-import { NAV_GROUPS, flattenNavLinks } from "@/lib/nav-config";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
-import { NAV_DISCLOSURE, SIDEBAR_QUICK_ACTIONS_LABEL, SIDEBAR_SHOW_ALL_FEATURES, V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
+import { NAV_DISCLOSURE, SIDEBAR_SHOW_ALL_FEATURES, V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksRevealedByShowAllFeatures,
-  filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
-import { OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS } from "@/lib/operator-first-hour-journey-nav";
-import { buyerGoldenPathSecondaryRouteHint } from "@/lib/buyer-golden-path-secondary-hint";
 import {
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
   readBuyerCtoDemoTourActive,
@@ -50,8 +46,7 @@ import {
 } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
-import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
-import { resolveNavLinkPresentation, resolveQuickActionNavLinkPresentation } from "@/lib/operator-nav-labels";
+import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { OperateGovernanceUnlockPrompt } from "@/components/usability/OperateGovernanceUnlockPrompt";
 import {
@@ -61,29 +56,8 @@ import {
 import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
 import { cn } from "@/lib/utils";
 
-const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
-const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
-
-/** Buyer-demo golden path — single source: {@link BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS}. */
-const BUYER_JOURNEY_STEP_ICONS = [LayoutDashboard, FileText, GitGraph, GitBranch, FileSearch] as const;
-
-const BUYER_POLISHED_QUICK_ACTION_LINKS = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => ({
-  step: def.step,
-  href: def.href,
-  label: def.label,
-  Icon: BUYER_JOURNEY_STEP_ICONS[idx]!,
-}));
-
-const OPERATOR_FIRST_HOUR_STEP_ICONS = [FileText, ListChecks, GitBranch, FileSearch] as const;
-
-const OPERATOR_FIRST_HOUR_QUICK_ACTION_LINKS = OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS.map((def, idx) => ({
-  step: def.step,
-  href: def.href,
-  label: def.label,
-  Icon: OPERATOR_FIRST_HOUR_STEP_ICONS[idx]!,
-}));
 
 function presentNavLink(link: NavLinkItem, buyerPolishedShell: boolean): NavLinkItem {
   const resolved = resolveNavLinkPresentation(link, buyerPolishedShell);
@@ -95,27 +69,8 @@ function presentNavLink(link: NavLinkItem, buyerPolishedShell: boolean): NavLink
   };
 }
 
-function presentQuickActionLink(link: NavLinkItem): NavLinkItem {
-  const resolved = resolveQuickActionNavLinkPresentation(link);
-
-  return {
-    ...link,
-    label: resolved.label,
-    title: resolved.title,
-  };
-}
-
 /** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config` (may be empty). */
 const GOVERNANCE_PINNED_HREFS = new Set<string>([]);
-
-/** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
-function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
-  if (groupId === "operate-governance") {
-    return raw === "1";
-  }
-
-  return raw !== "0";
-}
 
 /**
  * Collapsible "Recent activity" card at the top of the sidebar. Wraps the new
@@ -184,21 +139,19 @@ function SidebarRecentActivityCard() {
 }
 
 /**
- * Collapsible grouped sidebar navigation (desktop). Group open state persists in localStorage.
- * Progressive disclosure: essential links always; extended/advanced via toggles.
+ * Grouped sidebar navigation (desktop). Progressive disclosure: essential links always;
+ * extended/advanced via toggles and per-group "N more" controls.
  */
 export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [navAllFeaturesExpanded, setNavAllFeaturesExpanded] = useState(false);
-  const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [settingsOpen, setSettingsOpen] = useState(false);
   /** When true, pathname-first-run nav suppression no longer hides extended/advanced links the user asked to reveal. */
   const [navDisclosurePathOverride, setNavDisclosurePathOverride] = useState(false);
-  const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const ctoDemoNavExpandedEnv =
     process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "true" ||
@@ -230,11 +183,11 @@ export function SidebarNav() {
   useLayoutEffect(() => {
     try {
       setNavAllFeaturesExpanded(window.localStorage.getItem(SIDEBAR_NAV_EXPAND_ALL_KEY) === "true");
-
-      setAdminSectionOpen(window.localStorage.getItem(SIDEBAR_ADMIN_SECTION_OPEN_KEY) === "1");
     } catch {
       /* private mode — keep collapsed default */
     }
+
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -254,36 +207,6 @@ export function SidebarNav() {
       window.removeEventListener("storage", refreshRuntimeDemoState);
     };
   }, [demoUiEnv]);
-
-  useEffect(() => {
-    if (demoUi) {
-      return;
-    }
-
-    if (pathnameTouchesPlatformAdminSurface(pathname)) {
-      setAdminSectionOpen(true);
-    }
-  }, [demoUi, pathname]);
-
-  useEffect(() => {
-    const next: Record<string, boolean> = {};
-
-    for (const group of NAV_GROUPS) {
-      try {
-        if (typeof window !== "undefined") {
-          const raw = window.localStorage.getItem(STORAGE_PREFIX + group.id);
-          next[group.id] = readGroupOpenFromStorage(group.id, raw);
-        } else {
-          next[group.id] = group.id !== "operate-governance";
-        }
-      } catch {
-        next[group.id] = group.id !== "operate-governance";
-      }
-    }
-
-    setOpenByGroup(next);
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     setNavDisclosurePathOverride(false);
@@ -317,19 +240,8 @@ export function SidebarNav() {
     setShowExtended,
   ]);
 
-  function setGroupOpen(groupId: string, value: boolean): void {
-    setOpenByGroup((prev) => ({ ...prev, [groupId]: value }));
-
-    try {
-      window.localStorage.setItem(STORAGE_PREFIX + groupId, value ? "1" : "0");
-    } catch {
-      /* private mode */
-    }
-  }
-
   function revealHiddenLinksInGroup(groupId: string, groupSurface: string): void {
     setNavDisclosurePathOverride(true);
-    setGroupOpen(groupId, true);
 
     // Extended-tier Review work links (e.g. Risk register, Scorecard) stay hidden while the
     // collapsed-pilot sidebar filter is active even after showExtended — expand that filter too.
@@ -354,51 +266,7 @@ export function SidebarNav() {
     }
   }
 
-  function persistAdminSectionOpen(next: boolean): void {
-    setAdminSectionOpen(next);
-
-    try {
-      window.localStorage.setItem(SIDEBAR_ADMIN_SECTION_OPEN_KEY, next ? "1" : "0");
-    } catch {
-      /* private mode */
-    }
-  }
-
   const omitAdminClusters = demoUi || buyerPolishedShell;
-
-  const quickActionLinks = useMemo(() => {
-    if (buyerPolishedShell) {
-      return [] as NavLinkItem[];
-    }
-
-    const hrefs = ["/reviews/new", "/alerts", "/audit"] as const;
-    const flat = flattenNavLinks();
-    const candidates: NavLinkItem[] = hrefs
-      .map((h) => flat.find((l) => (l.href.split("?", 1)[0] ?? "").trim() === h))
-      .filter((l): l is NavLinkItem => l != null);
-
-    let filtered = filterNavLinksForOperatorShell(
-      candidates,
-      navExpanded,
-      navAdvanced,
-      callerAuthorityRank,
-      false,
-      hasCommittedArchitectureReview,
-    );
-
-    if (demoUi || buyerPolishedShell) {
-      filtered = filtered.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true));
-    }
-
-    return filtered;
-  }, [
-    buyerPolishedShell,
-    callerAuthorityRank,
-    demoUi,
-    hasCommittedArchitectureReview,
-    navAdvanced,
-    navExpanded,
-  ]);
 
   const reviewNavRowsRaw = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -506,7 +374,6 @@ export function SidebarNav() {
           effectiveOperateUnlockPhase,
         );
 
-        const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
           navExpanded,
@@ -514,40 +381,10 @@ export function SidebarNav() {
           callerAuthorityRank,
           hasCommittedArchitectureReview,
         );
+        const groupHeadingLabel = group.id === "pilot" && buyerPolishedShell ? "Reviews" : group.label;
 
-        return (
-          <Collapsible
-            key={group.id}
-            open={isOpen}
-            onOpenChange={(next) => {
-              setGroupOpen(group.id, next);
-            }}
-          >
-            <CollapsibleTrigger
-              className="sidebar-disclosure-trigger flex w-full items-start justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
-              title={group.caption}
-              type="button"
-              aria-expanded={isOpen}
-              aria-controls={`sidebar-group-${group.id}-content`}
-              aria-labelledby={`sidebar-group-trigger-title-${group.id}`}
-              aria-describedby={group.id === "operate-governance" ? "sidebar-governance-nav-hint-slot" : undefined}
-              {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
-            >
-              <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-                <span id={`sidebar-group-trigger-title-${group.id}`}>
-                  {group.id === "pilot" && buyerPolishedShell ? "Reviews" : group.label}
-                </span>
-                {group.id === "operate-governance" ? (
-                  <span id="sidebar-governance-nav-hint-slot">
-                    <OperateCapabilityNavGroupHint />
-                  </span>
-                ) : null}
-              </span>
-              <ChevronDown
-                className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", isOpen ? "rotate-0" : "-rotate-90")}
-                aria-hidden
-              />
-            </CollapsibleTrigger>
+        const clusterNavLinks = (
+          <>
             {group.id === "operate-governance" ? (
               <nav
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
@@ -569,17 +406,17 @@ export function SidebarNav() {
                   })}
               </nav>
             ) : null}
-            <CollapsibleContent id={`sidebar-group-${group.id}-content`}>
-              <nav
-                className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
-                aria-label={group.label}
-              >
-                {linksForRender
-                  .filter(
-                    (link) =>
-                      group.id !== "operate-governance" || !GOVERNANCE_PINNED_HREFS.has(link.href),
-                  )
-                  .map((link) => {
+            <nav
+              id={`sidebar-group-${group.id}-content`}
+              className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+              aria-label={group.label}
+            >
+              {linksForRender
+                .filter(
+                  (link) =>
+                    group.id !== "operate-governance" || !GOVERNANCE_PINNED_HREFS.has(link.href),
+                )
+                .map((link) => {
                   const presented = presentNavLink(link, buyerPolishedShell);
                   const active = isNavLinkActive(pathname, presented.href);
                   const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
@@ -592,8 +429,28 @@ export function SidebarNav() {
                       presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null,
                   });
                 })}
-              </nav>
-            </CollapsibleContent>
+            </nav>
+          </>
+        );
+
+        return (
+          <div key={group.id} data-testid={`sidebar-group-${group.id}`}>
+            <div
+              className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200"
+              title={group.caption}
+              id={`sidebar-group-heading-${group.id}`}
+              {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
+            >
+              <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+                <span>{groupHeadingLabel}</span>
+                {group.id === "operate-governance" ? (
+                  <span id="sidebar-governance-nav-hint-slot">
+                    <OperateCapabilityNavGroupHint />
+                  </span>
+                ) : null}
+              </span>
+            </div>
+            {clusterNavLinks}
             {showProgressiveDisclosureChrome && hiddenByDisclosure > 0 ? (
               <button
                 type="button"
@@ -615,103 +472,18 @@ export function SidebarNav() {
                         : `${hiddenByDisclosure} more`}
               </button>
             ) : null}
-          </Collapsible>
+          </div>
         );
   }
 
   const adminLinkCount = adminNavRows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
-  const buyerSecondaryRouteHint =
-    buyerPolishedShell && pathname !== null ? buyerGoldenPathSecondaryRouteHint(pathname) : null;
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
       <OperateGovernanceUnlockPrompt />
       <SidebarRecentActivityCard />
 
-      {mounted && (buyerPolishedShell || quickActionLinks.length > 0 || !buyerPolishedShell) ? (
-        <div
-          className="px-2 py-2"
-          data-testid="sidebar-quick-actions"
-          aria-label={buyerPolishedShell ? "Review journey" : "First-hour path"}
-        >
-          <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-            {buyerPolishedShell ? "Review journey" : "First-hour path"}
-          </p>
-          <nav
-            className="flex flex-col gap-0.5 border-l-2 border-neutral-200 py-1 pl-2 dark:border-neutral-800"
-            aria-label="Quick action destinations"
-          >
-            {buyerPolishedShell
-              ? BUYER_POLISHED_QUICK_ACTION_LINKS.map((row) => {
-                  const active = isNavLinkActive(pathname, row.href);
-                  const Icon = row.Icon;
-                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(row.href, demoUi || buyerPolishedShell);
-                  const stepLabel = `${row.step}. ${row.label}`;
-
-                  return (
-                    <Link
-                      key={row.href}
-                      href={row.href}
-                      className={cn(
-                        "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                        active
-                          ? DESIGN_TOKENS.interactive.navActive
-                          : "text-neutral-900 dark:text-neutral-100",
-                      )}
-                      title={advancedDemo ? `${stepLabel} (Advanced — optional)` : stepLabel}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      <span
-                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100"
-                        aria-hidden
-                      >
-                        {row.step}
-                      </span>
-                      <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
-                      {row.label}
-                    </Link>
-                  );
-                })
-              : OPERATOR_FIRST_HOUR_QUICK_ACTION_LINKS.map((row) => {
-                  const active = isNavLinkActive(pathname, row.href);
-                  const Icon = row.Icon;
-                  const stepLabel = `${row.step}. ${row.label}`;
-
-                  return (
-                    <Link
-                      key={`first-hour-step-${row.step}`}
-                      href={row.href}
-                      className={cn(
-                        "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                        active
-                          ? DESIGN_TOKENS.interactive.navActive
-                          : "text-neutral-900 dark:text-neutral-100",
-                      )}
-                      title={stepLabel}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      <span
-                        className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-800 dark:bg-neutral-700 dark:text-neutral-100"
-                        aria-hidden
-                      >
-                        {row.step}
-                      </span>
-                      <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
-                      {row.label}
-                    </Link>
-                  );
-                })}
-          </nav>
-          {buyerSecondaryRouteHint !== null ? (
-            <p
-              className="m-0 mt-2 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400"
-              data-testid="sidebar-secondary-route-hint"
-            >
-              {buyerSecondaryRouteHint}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
+      {reviewNavRows.map((row) => renderNavCluster(row))}
 
       {buyerPolishedShell ? (
         <nav
@@ -732,7 +504,7 @@ export function SidebarNav() {
             Help
           </Link>
         </nav>
-      ) : reviewNavRows.map((row) => renderNavCluster(row))}
+      ) : null}
 
       {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
@@ -795,37 +567,23 @@ export function SidebarNav() {
           className="mt-2 border-t border-neutral-200 pt-2 dark:border-neutral-700"
           data-testid="sidebar-administration-section"
         >
-          <Collapsible open={adminSectionOpen} onOpenChange={persistAdminSectionOpen}>
-            <CollapsibleTrigger
-              className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
-              type="button"
-              aria-expanded={adminSectionOpen}
-              aria-controls="sidebar-administration-content"
-              aria-labelledby="sidebar-admin-section-heading"
-            >
-              <span id="sidebar-admin-section-heading">Administration</span>
-              <span className="flex items-center gap-1">
-                {adminLinkCount > 0 ? (
-                  <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
-                    {adminLinkCount}
-                  </span>
-                ) : null}
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 shrink-0 transition-transform",
-                    adminSectionOpen ? "rotate-0" : "-rotate-90",
-                  )}
-                  aria-hidden
-                />
+          <div
+            className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200"
+            id="sidebar-admin-section-heading"
+          >
+            <span>Administration</span>
+            {adminLinkCount > 0 ? (
+              <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
+                {adminLinkCount}
               </span>
-            </CollapsibleTrigger>
-            <CollapsibleContent id="sidebar-administration-content" className="pt-1">
-              <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
-                Tenant cost, support bundles, system health — separate from architecture review navigation.
-              </p>
-              {adminNavRows.map((row) => renderNavCluster(row))}
-            </CollapsibleContent>
-          </Collapsible>
+            ) : null}
+          </div>
+          <div id="sidebar-administration-content" className="pt-1">
+            <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
+              Tenant cost, support bundles, system health — separate from architecture review navigation.
+            </p>
+            {adminNavRows.map((row) => renderNavCluster(row))}
+          </div>
         </div>
       ) : null}
 

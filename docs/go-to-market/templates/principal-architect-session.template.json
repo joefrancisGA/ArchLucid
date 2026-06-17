@@ -8,6 +8,7 @@
   "frontierAiModel": "",
   "reuseIntent": "yes | maybe | no",
   "reuseBlocker": "",
+  "decisionImpactMedian": null,
   "sourceCounts": {
     "archlucid": {
       "O": 0,

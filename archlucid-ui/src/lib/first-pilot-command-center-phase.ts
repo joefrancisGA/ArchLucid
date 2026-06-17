@@ -128,12 +128,11 @@ export function resolveFirstPilotCommandCenterPhase(input: {
       headline: "Evidence needed",
 
       summary:
-
-        "Upload an Azure extractor ZIP or acknowledge the sample package before starting the first architecture review.",
+        "Add architecture evidence — brief, documents, diagrams, IaC, or an Azure export — or acknowledge the sample package before starting the first architecture review.",
 
       href: "/settings/extract-upload",
 
-      cta: "Extract and upload",
+      cta: "Add evidence",
 
       sponsorDisposition: "readiness-only",
 

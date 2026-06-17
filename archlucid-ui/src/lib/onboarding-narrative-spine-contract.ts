@@ -24,8 +24,6 @@ export type OnboardingNarrativeSpineContract = {
 export const ONBOARDING_NARRATIVE_SPINE_CONTRACT =
   contractJson as OnboardingNarrativeSpineContract;
 
-const FIRST_RUN_STEP_ONE_LABEL = "Provide architecture evidence";
-
 export function listOnboardingNarrativeSpineMismatches(): string[] {
   const mismatches: string[] = [];
   const contract = ONBOARDING_NARRATIVE_SPINE_CONTRACT;
@@ -47,14 +45,6 @@ export function listOnboardingNarrativeSpineMismatches(): string[] {
       mismatches.push(
         `${surface.id}: title must contain "${surface.requiredTitleContains}", got "${ingestTitle}"`,
       );
-    }
-
-    if (surface.id === "first-review-empty-state-step-1" && surface.requiredLabel) {
-      if (FIRST_RUN_STEP_ONE_LABEL !== surface.requiredLabel) {
-        mismatches.push(
-          `${surface.id}: expected label "${surface.requiredLabel}", contract requires sync with empty-state component`,
-        );
-      }
     }
   }
 

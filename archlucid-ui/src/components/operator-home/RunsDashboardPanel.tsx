@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorHomeFirstReviewEmptyState } from "@/components/operator-home/OperatorHomeFirstReviewEmptyState";
+import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
 import { OperatorFirstHourJourneyStrip } from "@/components/OperatorFirstHourJourneyStrip";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,12 @@ import {
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import {
-  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
+import {
+  formatRunHomeListInsightLine,
+  formatRunHomeListUpdatedLabel,
+} from "@/lib/operator-home-run-list-insight";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import { BUYER_HOME_FILTER_ACTION_NEEDED, BUYER_GOVERNANCE_MONITORING_BADGE } from "@/lib/buyer-home-status-copy";
 import { buyerFilterChipActiveClass } from "@/lib/buyer-shell-home-present";
@@ -33,9 +35,6 @@ import {
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
-  BUYER_RUNS_DASHBOARD_TAB_APPROVED,
-  BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
-  BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -84,16 +83,16 @@ function isRunNeedingAttention(run: RunSummary): boolean {
   return run.hasFindingsSnapshot === true && run.hasGoldenManifest !== true;
 }
 
-function runsDashboardTabLabel(tabId: TabId, buyerPolishedShell: boolean): string {
+function runsDashboardTabLabel(tabId: TabId): string {
   if (tabId === "recent") {
-    return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_APPROVED : RUNS_DASHBOARD_LABELS.tabRecent;
+    return RUNS_DASHBOARD_LABELS.tabRecent;
   }
 
   if (tabId === "attention") {
-    return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING : RUNS_DASHBOARD_LABELS.tabNeedsAttention;
+    return RUNS_DASHBOARD_LABELS.tabNeedsAttention;
   }
 
-  return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION : RUNS_DASHBOARD_LABELS.tabOutcomes;
+  return RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
 function RunGovernanceWarningIndicator({ buyerPolishedShell }: { buyerPolishedShell: boolean }) {
@@ -345,7 +344,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   setTab(id);
                 }}
               >
-                {runsDashboardTabLabel(id, buyerPolishedShell)}
+                {runsDashboardTabLabel(id)}
               </button>
             ))}
           </div>
@@ -539,26 +538,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               ) : null}
 
               {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError ? (
-                buyerPolishedShell ? (
-                  <div
-                    className={cn(OPERATOR_LAYOUT.sectionStack, OPERATOR_CARD.nested, OPERATOR_SURFACE_CARD_CLASS)}
-                    data-testid="operator-home-getting-started"
-                  >
-                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Getting started</p>
-                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
-                      Open the full review package above to walk a governed Claims Intake review end to end.
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button asChild variant="outline" size="sm" className="h-8">
-                        <Link href={getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID)}>
-                          View review package
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <OperatorHomeFirstReviewEmptyState />
-                )
+                <OperatorHomeWorkspaceEmptyState />
               ) : null}
 
               {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (
@@ -613,6 +593,23 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                             Completed example review · Approved with monitoring
                           </p>
                         ) : null}
+                        {(() => {
+                          const insightLine = formatRunHomeListInsightLine(run);
+                          const updatedLabel = formatRunHomeListUpdatedLabel(run);
+
+                          if (insightLine === null && updatedLabel === null) {
+                            return null;
+                          }
+
+                          return (
+                            <p
+                              className="m-0 text-[11px] text-neutral-600 dark:text-neutral-400"
+                              data-testid={`run-home-list-insight-${run.runId}`}
+                            >
+                              {[insightLine, updatedLabel].filter((part) => part !== null).join(" · ")}
+                            </p>
+                          );
+                        })()}
                       </div>
                       {showArchived && requestId !== null ? (
                         <Button
@@ -677,6 +674,19 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                             <span className="min-w-0 flex-1 text-xs font-medium text-neutral-900 dark:text-neutral-100">
                               {runListPrimaryTitle(run)}
                             </span>
+                            {(() => {
+                              const insightLine = formatRunHomeListInsightLine(run);
+
+                              if (insightLine === null) {
+                                return null;
+                              }
+
+                              return (
+                                <p className="m-0 w-full basis-full text-[11px] text-neutral-600 dark:text-neutral-400">
+                                  {insightLine}
+                                </p>
+                              );
+                            })()}
                             <RunListRowBadges run={run} className="text-[0.6rem]" />
                           </li>
                         ))}
@@ -774,34 +784,6 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
           ) : null}
         </CardContent>
       </Card>
-
-      {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError && !buyerPolishedShell ? (
-        <Card
-          className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-          data-testid="example-request-panel"
-        >
-          <CardHeader className={OPERATOR_CARD.header}>
-            <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Example request</CardTitle>
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
-              {OPERATOR_HOME_EXAMPLE_DESCRIPTION}
-            </p>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap", OPERATOR_LAYOUT.inlineGap)}>
-            <Button asChild variant="outline" size="sm" className="h-8">
-              <Link
-                href={`/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
-              >
-                Use this example
-              </Link>
-            </Button>
-            <Button asChild variant="primary" size="sm" className="h-8">
-              <Link href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
-                See completed output
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : null}
     </section>
   );
 }

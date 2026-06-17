@@ -98,11 +98,27 @@ python scripts/assemble_blind_validation_packet.py summarize `
 
 Copy per-session `session-summary.md` into [`templates/blind-validation-exec-summary.template.md`](templates/blind-validation-exec-summary.template.md).
 
-Aggregate with:
+**Recommended — unified batch across live + blind sessions:**
+
+```powershell
+python scripts/ci/run_principal_architect_cohort_batch.py `
+  --json-out artifacts/principal-architect-cohort/cohort-report.json `
+  --markdown-out artifacts/principal-architect-cohort/cohort-report.md
+```
+
+Blind-only aggregate (legacy path):
 
 ```powershell
 python scripts/ci/aggregate_blind_insight_sessions.py `
-  --input-dir artifacts/blind-validation/cohort-<label>
+  --sessions-dir artifacts/blind-validation `
+  --json-out artifacts/blind-validation/cohort-summary.json `
+  --markdown-out artifacts/blind-validation/cohort-summary.md
+```
+
+CI guard (warn-only when sample count < 3):
+
+```powershell
+python scripts/ci/guard_principal_architect_cohort.py
 ```
 
 **Do not** change roadmap messaging until **≥3** independent sessions support the same direction.

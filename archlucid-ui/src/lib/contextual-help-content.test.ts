@@ -79,7 +79,7 @@ describe("contextualHelpByKey", () => {
 describe("contextualHelpTriggerSummary", () => {
   it("returns the first sentence when help copy contains a period", () => {
     expect(contextualHelpTriggerSummary(contextualHelpByKey["new-run-wizard"].text, "new-run-wizard")).toBe(
-      "Create an architecture request for what ArchLucid should analyze.",
+      "Guided intake covers intent, outcome, and actors before required review questions.",
     );
   });
 
@@ -91,7 +91,7 @@ describe("contextualHelpTriggerSummary", () => {
 describe("contextualHelpTriggerAriaLabel", () => {
   it("prefixes the summary with Contextual help for known keys", () => {
     expect(contextualHelpTriggerAriaLabel("new-run-wizard")).toBe(
-      "Contextual help: Create an architecture request for what ArchLucid should analyze.",
+      "Contextual help: Guided intake covers intent, outcome, and actors before required review questions.",
     );
   });
 
