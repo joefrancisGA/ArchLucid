@@ -9,6 +9,8 @@
 
 **Cookbook:** [`REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) · [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) · [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 
+**6-week execution board:** [`SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md`](SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md) — 3 pilot accounts, pass/fail rules, weekly digests (**Done 2026-06-17**) · fixtures: [`fixtures/second-review/README.md`](../../fixtures/second-review/README.md)
+
 ---
 
 ## Hypothesis
@@ -128,5 +130,6 @@ Otherwise hold feature work — market signal insufficient.
 
 ## Related
 
+- [`SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md`](SECOND_REVIEW_HABIT_LOOP_EXECUTION_BOARD.md)
 - [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) — run 3 in real-mode matrix
 - [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md)
