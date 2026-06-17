@@ -44,7 +44,7 @@ export function sanitizeOperatorFacingText(text: string): string {
 
   let result = kept.join("\n").trim();
 
-  const typedException = /^([A-Za-z0-9_.]+Exception):\s*(.+)/su.exec(result);
+  const typedException = /^([A-Za-z0-9_.]+Exception):\s*([\s\S]+)/u.exec(result);
 
   if (typedException !== null) {
     const messageOnly = typedException[2].split("\n")[0]?.trim() ?? "";

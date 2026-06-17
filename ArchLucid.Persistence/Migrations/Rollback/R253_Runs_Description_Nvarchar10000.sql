@@ -3,7 +3,7 @@
 */
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.Runs', N'Description') = 10000
+   AND COL_LENGTH(N'dbo.Runs', N'Description') = -1
 BEGIN
     ALTER TABLE dbo.Runs ALTER COLUMN Description NVARCHAR(4000) NULL;
 END;

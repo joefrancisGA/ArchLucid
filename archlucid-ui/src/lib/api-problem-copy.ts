@@ -147,7 +147,7 @@ export function operatorCopyForProblem(
             ? "The request body failed server-side validation. See each field below."
             : sanitizeOperatorFacingText(problem.detail?.trim() ?? trimmedFallback),
         hint: validationCopy.hint,
-        endpointLine: validationCopy.endpointLine,
+        endpointLine: validationCopy.endpointLine ?? undefined,
         validationFields: validationCopy.fieldErrors,
         isValidationFailure: true,
       },

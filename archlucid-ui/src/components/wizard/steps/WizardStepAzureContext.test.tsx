@@ -86,6 +86,8 @@ describe("WizardStepAzureContext", () => {
       </WizardFormTestHarness>,
     );
 
+    fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
+
     await waitFor(() => {
       expect(screen.getByText(new RegExp(`-SubscriptionId '${DEV_SCOPE_TENANT_ID}'`))).toBeInTheDocument();
     });
