@@ -60624,7 +60624,7 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(int.MaxValue, MinimumLength = 10)]
+        [System.ComponentModel.DataAnnotations.StringLength(10000, MinimumLength = 10)]
         public string Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("documents")]
