@@ -51,10 +51,17 @@ export const GRAPH_IDLE: EmptyStateProps = {
 /** Buyer-polished graph idle: no runId/query jargon or signed-manifest shortcut. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
-  title: "No evidence graph loaded",
+  title: "No review selected",
   description:
-    "Choose a finalized review above to see how captured context, findings, and decisions connect. If you have not started a review yet, open the reviews list first.",
-  actions: [{ label: "View reviews", href: "/reviews?projectId=default" }],
+    "Start a review or open the Claims Intake sample package to inspect its evidence trail.",
+  actions: [
+    { label: "Start review", href: "/reviews/new" },
+    {
+      label: "Open sample trail",
+      href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      variant: "outline" as const,
+    },
+  ],
 };
 
 export const COMPARE_WAITING: EmptyStateProps = {

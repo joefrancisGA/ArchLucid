@@ -34,14 +34,6 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
-    prefix: "/graph",
-    hint: {
-      id: "evidence-graph",
-      message: "Start in review-trail mode for finding-centric provenance; expand to the full knowledge graph when needed.",
-      learnMoreHref: "/help/evidence-trail",
-    },
-  },
-  {
     prefix: "/policy-packs",
     hint: {
       id: "policy-packs",

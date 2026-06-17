@@ -511,14 +511,49 @@ export const BUYER_MANIFEST_DOWNLOAD_PREPARING = "Download is being prepared whe
 
 export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review package (ZIP)";
 
-export const BUYER_GRAPH_PAGE_LEAD =
-  "Decision traceability graph for this architecture review package — evidence, decisions, and governance links.";
+export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence trail";
 
-export const BUYER_GRAPH_LOAD_ERROR =
-  "We couldn't render the evidence graph. Check connectivity and try again.";
+export const BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE =
+  "Trace findings back to architecture inputs, review steps, evidence, and the signed review package.";
 
-export const BUYER_GRAPH_IDLE_DESCRIPTION =
-  "Load the decision traceability graph from a finalized review package. Open the signed manifest or audit trail to continue diligence.";
+export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "How evidence traceability works";
+
+export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence trail";
+
+export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample trail";
+
+export const BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE = "Open review package";
+
+export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review selected";
+
+export const BUYER_EVIDENCE_TRAIL_EMPTY_BODY =
+  "Start a review or open the Claims Intake sample package to inspect its evidence trail.";
+
+export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No reviews yet";
+
+export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY =
+  "Start a review or open the sample package to inspect how findings link to evidence.";
+
+export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Evidence trail unavailable";
+
+export const BUYER_EVIDENCE_TRAIL_ERROR_BODY =
+  "We could not load the graph for this review. Confirm the review package exists, then retry.";
+
+export const BUYER_EVIDENCE_TRAIL_VIEW_TRACE = "Trace table";
+
+export const BUYER_EVIDENCE_TRAIL_VIEW_GRAPH = "Graph view";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING = "Finding provenance";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION = "Decision traceability";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE = "Architecture context";
+
+export const BUYER_GRAPH_PAGE_LEAD = BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE;
+
+export const BUYER_GRAPH_LOAD_ERROR = BUYER_EVIDENCE_TRAIL_ERROR_BODY;
+
+export const BUYER_GRAPH_IDLE_DESCRIPTION = BUYER_EVIDENCE_TRAIL_EMPTY_BODY;
 
 export const BUYER_GOVERNANCE_GOVERNED_USE_NOTES =
   "Governed-use record aligned with this architecture review package.";
