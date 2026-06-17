@@ -8,6 +8,7 @@ import {
   LifeBuoy,
   ListOrdered,
   Rocket,
+  Settings2,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -117,6 +118,13 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.help,
           title: "Help — using ArchLucid and reference documentation",
           icon: LifeBuoy,
+          tier: "essential",
+        },
+        {
+          href: "/settings/baseline",
+          label: OPERATOR_NAV_LINK_LABELS.pilotBaselines,
+          title: "ROI baselines — tenant anchors required before sponsor PDF with dollar claims",
+          icon: Settings2,
           tier: "essential",
         },
         {

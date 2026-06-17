@@ -123,6 +123,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   decisionRegister: "Decision register",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
+  pilotBaselines: "ROI baselines",
   scorecard: "Scorecard",
   alerts: "Alerts",
   policyPacks: "Policy packs",

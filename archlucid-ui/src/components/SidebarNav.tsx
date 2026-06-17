@@ -54,6 +54,7 @@ import {
   readOperateNavUnlockPhase,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
+import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
 import { cn } from "@/lib/utils";
 
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
@@ -330,12 +331,14 @@ export function SidebarNav() {
   ): ReactElement {
     const Icon = presented.icon;
     const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
+    const pilotNavTestId = pilotNavLinkTestId(presented.href);
 
     return (
       <Link
         key={`${options.keyPrefix ?? ""}${presented.href}`}
         href={presented.href}
         {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
+        {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
         className={cn(
           "shell-nav-link flex min-w-0 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
           options.active
@@ -510,7 +513,7 @@ export function SidebarNav() {
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
           <button
             type="button"
-            data-testid="sidebar-show-all-features-toggle"
+            data-testid="nav-advanced-unlock"
             className="sidebar-disclosure-trigger w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-50 dark:hover:bg-neutral-800"
             aria-expanded={navAllFeaturesExpanded}
             aria-label={

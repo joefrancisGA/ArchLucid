@@ -156,7 +156,7 @@ describe("SidebarNav (primary navigation)", () => {
   it("does not show V1 sidebar customization controls on the home sidebar", () => {
     render(<SidebarNav />);
 
-    expect(screen.queryByTestId("sidebar-show-all-features-toggle")).toBeNull();
+    expect(screen.queryByTestId("nav-advanced-unlock")).toBeNull();
     expect(screen.queryByRole("button", { name: "Sidebar layout" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Fewer sidebar links" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Show governance & analysis tools/ })).toBeNull();

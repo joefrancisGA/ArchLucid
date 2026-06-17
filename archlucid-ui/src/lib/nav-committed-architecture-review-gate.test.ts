@@ -16,6 +16,7 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/dashboard")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/help")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/onboarding")).toBe(true);
+    expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/settings/baseline")).toBe(true);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/governance/findings")).toBe(false);
     expect(pathnameEligibleBeforeFirstCommittedArchitectureReview("/alerts")).toBe(false);
   });
@@ -45,7 +46,16 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     expect(thin.every((l) => pathnameEligibleBeforeFirstCommittedArchitectureReview(l.href.split("?")[0] ?? ""))).toBe(
       true,
     );
-    expect(hrefs).toEqual(["/", "/reviews/new", "/graph", "/reviews", "/dashboard", "/onboarding", "/help"]);
+    expect(hrefs).toEqual([
+      "/",
+      "/reviews/new",
+      "/graph",
+      "/reviews",
+      "/dashboard",
+      "/onboarding",
+      "/help",
+      "/settings/baseline",
+    ]);
   });
 
   it("hides operate-governance links until the first committed review", () => {

@@ -465,6 +465,32 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
   });
 
+  it("blocks sponsor PDF export when execution mode is not Real", async () => {
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        structuralExecutionMode: "Simulator",
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "Sendable",
+          proofSendability: "Sendable",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-execution-mode-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-execution-mode")).toHaveTextContent("Simulator");
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+    expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeDisabled();
+  });
+
   it("hides the badge when trial-status returns 5xx", async () => {
     vi.stubGlobal(
       "fetch",

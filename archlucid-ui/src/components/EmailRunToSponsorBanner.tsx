@@ -27,7 +27,9 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import {
   describeSponsorProofReadiness,
+  formatStructuralExecutionModeLabel,
   isAgentOutputPilotStrictSponsorSafe,
+  isExternalSponsorPdfBlockedForExecutionMode,
   isProjectedDollarClaimsSponsorSafe,
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
@@ -295,7 +297,17 @@ export function EmailRunToSponsorBanner({
     proofGate.status === "ok" && !isProjectedDollarClaimsSponsorSafe(proofGate.payload) && !curatedSampleRun;
   const blockSponsorPdfForAiGate =
     proofGate.status === "ok" && !isAgentOutputPilotStrictSponsorSafe(proofGate.payload) && !curatedSampleRun;
-  const blockSponsorPdf = blockSponsorPdfForRoi || blockSponsorPdfForProjectedDollar || blockSponsorPdfForAiGate;
+  const blockSponsorPdfForExecutionMode =
+    proofGate.status === "ok"
+    && isExternalSponsorPdfBlockedForExecutionMode(proofGate.payload)
+    && !curatedSampleRun;
+  const blockSponsorPdf =
+    blockSponsorPdfForRoi
+    || blockSponsorPdfForProjectedDollar
+    || blockSponsorPdfForAiGate
+    || blockSponsorPdfForExecutionMode;
+  const executionModeLabel =
+    proofGate.status === "ok" ? formatStructuralExecutionModeLabel(proofGate.payload) : null;
 
   return (
     <aside
@@ -333,6 +345,14 @@ export function EmailRunToSponsorBanner({
             {formatUsd(estimatedUsdSavings)} projected savings
           </span>
         ) : null}
+        {executionModeLabel !== null ? (
+          <span
+            data-testid="email-run-to-sponsor-execution-mode"
+            className="ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
+          >
+            Execution mode: {executionModeLabel}
+          </span>
+        ) : null}
       </p>
 
       <h2 className="m-0 mt-2 text-sm font-semibold text-al-text-primary">
@@ -367,6 +387,21 @@ export function EmailRunToSponsorBanner({
             isDemoTenant={proofGate.payload.isDemoTenant}
             proofPackageCompleteness={proofGate.payload.proofPackageCompleteness}
           />
+        </div>
+      ) : null}
+
+      {blockSponsorPdfForExecutionMode ? (
+        <div
+          role="alert"
+          data-testid="email-run-to-sponsor-execution-mode-gap"
+          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50"
+        >
+          <p className="m-0 font-semibold">Execution mode blocks external sponsor PDF</p>
+          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+            This review is labeled{" "}
+            <strong>{executionModeLabel ?? "non-Real"}</strong>. Simulator, Fallback, and Mixed modes may be used for
+            internal walkthroughs only — re-run on Real mode or label exports explicitly before external sponsor send.
+          </p>
         </div>
       ) : null}
 
@@ -527,7 +562,9 @@ export function EmailRunToSponsorBanner({
           onClick={() => void onDownloadPdf()}
           data-testid="email-run-to-sponsor-primary-action"
           title={
-            blockSponsorPdfForAiGate
+            blockSponsorPdfForExecutionMode
+              ? "Resolve execution mode (Real required) before generating the sponsor PDF."
+              : blockSponsorPdfForAiGate
               ? "Resolve PilotStrict AI readiness signals before generating the sponsor PDF."
               : blockSponsorPdfForProjectedDollar
                 ? "Capture buyer-provided ROI baselines before dollar-led sponsor PDF export."
@@ -538,7 +575,9 @@ export function EmailRunToSponsorBanner({
         >
           {busy
             ? "Preparing PDF…"
-            : blockSponsorPdfForAiGate
+            : blockSponsorPdfForExecutionMode
+              ? "Execution mode blocks PDF"
+              : blockSponsorPdfForAiGate
               ? "AI readiness gate blocks PDF"
               : blockSponsorPdfForProjectedDollar
                 ? "ROI basis blocks PDF"
@@ -570,7 +609,7 @@ export function EmailRunToSponsorBanner({
             type="button"
             variant="outline"
             size="sm"
-            disabled={markSentBusy}
+            disabled={markSentBusy || blockSponsorPdf}
             onClick={() => void onMarkSentToSponsor()}
             data-testid="email-run-to-sponsor-mark-sent"
           >
@@ -578,7 +617,9 @@ export function EmailRunToSponsorBanner({
           </Button>
         )}
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-          {blockSponsorPdfForAiGate
+          {blockSponsorPdfForExecutionMode
+            ? "PDF export stays disabled until execution mode is Real (or this is a labeled curated sample review)."
+            : blockSponsorPdfForAiGate
             ? "PDF export stays disabled until PilotStrict AI readiness signals pass for this review."
             : blockSponsorPdfForProjectedDollar
               ? "PDF export stays disabled until ROI baselines are buyer-provided and projected-dollar claims are sponsor-safe."
