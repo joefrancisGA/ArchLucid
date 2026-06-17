@@ -1,5 +1,5 @@
 using ArchLucid.Api.Validators;
-using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
