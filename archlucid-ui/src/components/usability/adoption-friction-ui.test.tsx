@@ -17,7 +17,7 @@ describe("PilotCommandCenterCard", () => {
     );
     expect(screen.getByTestId("pilot-command-center-help")).toHaveAttribute("href", "/help/core-pilot");
     expect(screen.getByTestId("pilot-command-center-first-run-steps")).toHaveTextContent(
-      "Provide evidence → Set review scope → Review first finding",
+      "Open sample finding → Review evidence → See decision impact",
     );
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();

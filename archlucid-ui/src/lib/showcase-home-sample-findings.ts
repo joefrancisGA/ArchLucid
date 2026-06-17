@@ -1,7 +1,4 @@
-import {
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-} from "@/lib/showcase-static-demo";
+import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 
 export type ShowcaseHomeSampleFinding = {
   readonly id: string;
@@ -10,13 +7,13 @@ export type ShowcaseHomeSampleFinding = {
   readonly summary: string;
 };
 
-/** Buyer-safe static findings for the home sample-review preview (TB-353). */
+/** Buyer-safe static findings for secondary home preview references (TB-353). */
 export const SHOWCASE_HOME_SAMPLE_FINDINGS: readonly ShowcaseHomeSampleFinding[] = [
   {
-    id: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-    title: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
-    severity: "warning",
-    summary: "PHI fields cross the claims API boundary without field-level encryption required by downstream processors.",
+    id: SHOWCASE_HOME_AHA_MOMENT.id,
+    title: SHOWCASE_HOME_AHA_MOMENT.title,
+    severity: SHOWCASE_HOME_AHA_MOMENT.severity,
+    summary: SHOWCASE_HOME_AHA_MOMENT.finding,
   },
   {
     id: "adjudication-handoff-idempotency",

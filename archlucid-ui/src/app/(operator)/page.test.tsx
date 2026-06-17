@@ -121,9 +121,9 @@ describe("HomePage (55R smoke — landing)", () => {
     );
     expect(screen.getByTestId("operator-home-sample-review-open")).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization",
+      "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
     );
-    expect(screen.getByRole("link", { name: "Open completed review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sample finding" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });

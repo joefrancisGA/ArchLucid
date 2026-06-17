@@ -22,12 +22,30 @@ export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
   "Review a completed example package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
-export const BUYER_HOME_PRIMARY_CTA = "Open completed review";
+export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Example findings";
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Start with one sample finding";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
+  "See what ArchLucid surfaces in the first five minutes — one finding, the evidence behind it, and the decision it changes.";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
-  "Each finding links to evidence, policy context, and review-package history.";
+  "Demo-derived sample only — labels execution mode and evidence basis on the full review package.";
+
+export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
+
+export const SAMPLE_REVIEW_AHA_WHY_LABEL = "Why it matters";
+
+export const SAMPLE_REVIEW_AHA_EVIDENCE_LABEL = "Evidence support";
+
+export const SAMPLE_REVIEW_AHA_DECISION_LABEL = "Decision change";
+
+export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Demo-derived sample";
+
+export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
+
+export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
+  "This sample review package leads with one decision-changing finding — expand evidence and exports below when ready.";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
 
@@ -35,7 +53,7 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
   "Start your first review or open the example review package.";
 
 export const PILOT_COMMAND_CENTER_FIRST_RUN_STEPS =
-  "Provide evidence → Set review scope → Review first finding";
+  "Open sample finding → Review evidence → See decision impact";
 
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
