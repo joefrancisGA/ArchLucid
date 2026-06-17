@@ -2050,8 +2050,8 @@ jobs:
           -BlameHangTimeout 75min
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
-      - name: SQL Server hang diagnostics (on failure)
-        if: failure()
+      - name: SQL Server hang diagnostics (on failure or timeout)
+        if: failure() || cancelled()
         uses: ./.github/actions/sqlserver-hang-diagnostics
 
       - uses: actions/upload-artifact@v6

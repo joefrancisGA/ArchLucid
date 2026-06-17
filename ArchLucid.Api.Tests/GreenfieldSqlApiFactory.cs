@@ -13,6 +13,9 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 {
+    private const string LogPrefix = nameof(GreenfieldSqlApiFactory);
+
+    private readonly IntegrationTestWebAppFactoryHostLifecycle _hostLifecycle = new();
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("Sql");
     private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
 
@@ -119,5 +122,16 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         {
             // Best-effort cleanup (SQL Server may be unavailable on teardown).
         }
+    }
+
+    /// <summary>
+    ///     Bounds host teardown so a wedged SQL hosted service or connection cannot consume the CI
+    ///     blame-hang inactivity window. Mirrors the guard added to <see cref="AlertLifecycleWebAppFactory" />
+    ///     for CI #2168/#2195 — applied here because greenfield SQL host teardown is heavier (active
+    ///     connections, outbox workers) and the missing cap was identified in CI #2224.
+    /// </summary>
+    public override ValueTask DisposeAsync()
+    {
+        return _hostLifecycle.DisposeHostAsync(LogPrefix, () => base.DisposeAsync());
     }
 }
