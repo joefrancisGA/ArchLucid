@@ -136,6 +136,7 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-20 | Track objections from demos; refine one-sentence positioning and demo script | Copy iteration | P2 | Not started | M-19 (demos must start) |
 | M-21 | Identify the one strongest buyer segment from demo feedback | Positioning | P2 | Not started | M-20 |
 | M-38 | Run 3-session first-session dismissal cohort per `FIRST_SESSION_DISMISSAL_PLAYBOOK.md`; complete `cohort-synthesis.md` before any first-session UI batch | Market validation | P1 | Not started | Playbook + fixtures shipped 2026-06-17 |
+| M-39 | Apply `PROOF_PACKET_RUN_LOG_OPERATING_CHECKLIST.md` on every real pilot; reach ≥3 qualifying G4 rows | Market validation | P0 | Not started | Checklist shipped 2026-06-17 |
 | M-34 | Align SOWs / `ORDER_FORM_TEMPLATE.md` drafts and outreach talk track to named SKUs in `SERVICE_LED_OFFERS.md` (Readiness Review, Evidence Pack, ARB Report, Azure-first review) | Business | P2 | Not started | None — `SERVICE_LED_OFFERS.md` is canonical SKU list |
 | M-35 | Author ARC-AMPE pack #24 (CMS ACA / Medicaid Partner Entities) — curated rules JSON, embedded bundle, manifest bump (23→24), appendix doc, disclaimer test — per **[`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md)** | Content + engineering | P1 | Not started | LLM → critic → human pipeline (`POLICY_PACK_CONTENT_BACKLOG.md`); does not block landing page until content lands |
 
