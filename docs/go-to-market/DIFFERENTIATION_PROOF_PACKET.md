@@ -53,6 +53,8 @@ Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-pr
 
 Use this when an evaluator asks: *"Why not Claude/GPT/Gemini with a good prompt?"*
 
+**Message test (3 sponsor conversations):** [`MODEL_SEATS_COUNTER_POSITIONING_TEST.md`](MODEL_SEATS_COUNTER_POSITIONING_TEST.md) — three concise scripts, disqualifying objections, next-question flow; fixtures: [`fixtures/model-seats-counter-positioning/`](../../fixtures/model-seats-counter-positioning/). Execution: **GTM M-42**.
+
 This is **validation guidance**, not a claim that ArchLucid always beats frontier AI. Do not publish benchmark superiority without data. See [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
 
 ### Rubric (score each dimension: **Better / Same / Worse / NOT_RUN**)
