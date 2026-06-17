@@ -4,7 +4,7 @@
 
 **Audience:** Founder / facilitator running expert validation sessions.  
 **Duration:** 30–45 minutes per session.  
-**Protocol:** [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md) · Bakeoff framing: [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)
+**Protocol:** [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) · Bakeoff framing: [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md)
 
 ## Session metadata
 
@@ -78,11 +78,11 @@ Rate **each material finding** separately for ArchLucid and for the manual front
 
 Store completed scorecards and transcripts outside the repository. Summarize aggregate N/X rates and reuse intent in private founder notes only until **≥ 3 sessions** justify a messaging update.
 
-**Electronic capture:** Copy [`first-non-obvious-moment.template.json`](templates/first-non-obvious-moment.template.json) to `artifacts/first-non-obvious-moment/<runId>/moment.json` after debrief; proof collection surfaces **`first-non-obvious-moment-report.md`**. For dismissal signals, copy [`pilot-dismissal-trigger.template.json`](templates/pilot-dismissal-trigger.template.json) to `artifacts/pilot-dismissal-triggers/<runId>/dismissal.json`.
+**Electronic capture:** Copy [`first-non-obvious-moment.template.json`](../templates/first-non-obvious-moment.template.json) to `artifacts/first-non-obvious-moment/<runId>/moment.json` after debrief; proof collection surfaces **`first-non-obvious-moment-report.md`**. For dismissal signals, copy [`pilot-dismissal-trigger.template.json`](../templates/pilot-dismissal-trigger.template.json) to `artifacts/pilot-dismissal-triggers/<runId>/dismissal.json`.
 
 ## Related
 
 - [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
-- [`templates/blind-validation-scoring-sheet.template.json`](templates/blind-validation-scoring-sheet.template.json)
-- [`PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)
-- [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
+- [`templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
+- [`PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md`](../PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)
+- [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md)

@@ -85,10 +85,10 @@ Sponsors who do not have an operator install can preview a real commit page at *
 When InfoSec has not approved the Azure extractor script, or you only have briefs, diagrams, and IaC:
 
 1. Create a review with **`cloudProvider: None`** (operator wizard: **No cloud / evidence-only** — the quick-review default).
-2. Skip Phase B extractor upload in [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md); use demo evidence only for internal dry-runs.
+2. Skip Phase B extractor upload in [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md); use demo evidence only for internal dry-runs.
 3. Complete execute → commit → sponsor export on uploaded documents alone.
 
-When you need live Azure topology or cost grounding, share the InfoSec pre-read with security reviewers: [`go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](../go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md).
+When you need live Azure topology or cost grounding, share the InfoSec pre-read with security reviewers: [`go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](../../go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md).
 
 ## Pull-request decoration in your CI
 

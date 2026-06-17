@@ -54,6 +54,6 @@ Pull forward **only** when **≥2** of:
 
 - [ ] **No engineering pull-forward**
 - [ ] Log connector asks in pilot CRM with `deferred-scope` tag
-- [ ] Reassess after [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md) cohort completes
+- [ ] Reassess after [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md) cohort completes
 
 **V1.1 scope unchanged** — see [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).

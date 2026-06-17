@@ -48,4 +48,4 @@ Optional fifth round: data residency (#5) or DPA placeholders (#3).
 ## Related
 
 - [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md)
-- [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md) — product-value validation (separate from procurement)
+- [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md) — product-value validation (separate from procurement)

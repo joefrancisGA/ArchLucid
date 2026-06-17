@@ -67,7 +67,7 @@ Score each dimension **per session** for ArchLucid vs manual AI. Use **advantage
 | Finding usefulness | Session judgment | Session judgment | Record per finding — no superiority claim |
 | Sponsor packet quality | First-value / exports | Manual assembly | ArchLucid wins polish time |
 
-Optional insight-validation scales (1–5): novelty, correctness confidence, actionability, surprise, decision impact — see [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md).
+Optional insight-validation scales (1–5): novelty, correctness confidence, actionability, surprise, decision impact — see [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md).
 
 ---
 
@@ -152,4 +152,4 @@ Omit `--archlucid-minutes` / `--manual-minutes` when not measured — summary wi
 
 - [`COMPETITIVE_LANDSCAPE.md`](COMPETITIVE_LANDSCAPE.md)
 - [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
-- [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)
+- [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)

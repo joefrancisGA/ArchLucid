@@ -7,7 +7,7 @@
 
 **Purpose:** Run **≥3** independent blind sessions that test whether ArchLucid produces non-obvious, decision-changing findings versus manual frontier AI on the same sanitized packet. This document is the **cohort operating checklist**; it does not claim results until sessions complete.
 
-**Canonical protocols:** [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md) · [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md) · [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md) · [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
+**Canonical protocols:** [`BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](BLIND_INSIGHT_VALIDATION_PROTOCOL.md) · [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) · [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md) · [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
 
 ---
 
@@ -21,7 +21,7 @@
 | 4 | Evidence basis labeled | Demo-derived vs buyer-provided explicit in facilitator notes |
 | 5 | Blind packet assembled | `reviewer-packet.md` has **no** product branding on individual findings |
 | 6 | Source key secured | `source-key.json` **not** shared with reviewer during scoring |
-| 7 | Scoring sheet ready | `scoring-sheet.json` or [`templates/blind-validation-scoring-sheet.template.json`](templates/blind-validation-scoring-sheet.template.json) |
+| 7 | Scoring sheet ready | `scoring-sheet.json` or [`templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json) |
 | 8 | Participant consent | PII and quotes stored **outside** repo per scorecard § Post-session storage |
 | 9 | Time box set | 30–45 min scoring; architecture packet read 5–10 min cold |
 | 10 | Anti-claim reminder | Do **not** present demo fixture output as live customer validation |
@@ -42,14 +42,14 @@ python scripts/assemble_blind_validation_packet.py assemble `
   --seed 42
 ```
 
-**Sample checked-in output:** [`fixtures/blind-validation-regulated-scenario-sample/`](fixtures/blind-validation-regulated-scenario-sample/README.md)
+**Sample checked-in output:** [`fixtures/blind-validation-regulated-scenario-sample/`](../fixtures/blind-validation-regulated-scenario-sample/README.md)
 
 ### Option B — Live committed run
 
 | Step | Action |
 | --- | --- |
 | 1 | Export ArchLucid findings from proof packet or findings snapshot |
-| 2 | Run manual frontier-AI baseline using [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt) |
+| 2 | Run manual frontier-AI baseline using [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt) |
 | 3 | Place inputs in a fixture-shaped folder or pass paths to `assemble` if supported |
 | 4 | Record `executionMode` and `evidenceBasis` in facilitator metadata |
 
@@ -96,7 +96,7 @@ python scripts/assemble_blind_validation_packet.py summarize `
 
 ### Cohort aggregation (≥3 sessions)
 
-Copy per-session `session-summary.md` into [`templates/blind-validation-exec-summary.template.md`](templates/blind-validation-exec-summary.template.md).
+Copy per-session `session-summary.md` into [`templates/blind-validation-exec-summary.template.md`](../templates/blind-validation-exec-summary.template.md).
 
 **Recommended — unified batch across live + blind sessions:**
 
@@ -178,5 +178,5 @@ python scripts/ci/guard_principal_architect_cohort.py
 
 ## Related
 
-- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) — time/traceability comparison companion
-- [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) — G1 insight validation gate
+- [`FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md`](../FRONTIER_AI_BAKEOFF_EVIDENCE_PACK.md) — time/traceability comparison companion
+- [`CLAIM_READINESS_STATUS.md`](../CLAIM_READINESS_STATUS.md) — G1 insight validation gate

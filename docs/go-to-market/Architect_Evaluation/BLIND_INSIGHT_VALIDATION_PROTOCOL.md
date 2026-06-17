@@ -11,9 +11,9 @@ Convert market uncertainty about **insight quality** into measurable, repeatable
 
 This protocol extends:
 
-- [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md) — live session flow
-- [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md) — honest comparison framing
-- [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — capability matrix
+- [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) — live session flow
+- [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md) — honest comparison framing
+- [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) — capability matrix
 
 ## What gets measured
 
@@ -39,7 +39,7 @@ Facilitator holds `source-key.json` until scoring completes. Reviewer packet mus
 **Manual baseline requirements**
 
 - Same sanitized packet as ArchLucid path.
-- Principal-architect prompt (see [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt) or live transcript).
+- Principal-architect prompt (see [`fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt`](../../../fixtures/blind-validation/regulated-scenario/manual-ai-baseline-prompt.txt) or live transcript).
 - Save findings list — not a chat dump — before unblinding.
 
 ## Execution steps
@@ -79,7 +79,7 @@ Optional deterministic arm order: `--seed <int>`.
 
 ### 3. Run blind session (30–45 min)
 
-Follow [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION.md) through scoring — but use **Arm A / Arm B** instead of named sources.
+Follow [`PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md`](PRINCIPAL_ARCHITECT_INSIGHT_VALIDATION_PROTOCOL.md) through scoring — but use **Arm A / Arm B** instead of named sources.
 
 1. Reviewer reads sanitized architecture packet cold (5–10 min).
 2. Reviewer scores each material finding in `scoring-sheet.json` (15–20 min).
@@ -127,7 +127,7 @@ For automation/tests only:
 
 ### 5. Aggregate cohort (≥3 sessions)
 
-Copy per-session summaries into [`templates/blind-validation-exec-summary.template.md`](templates/blind-validation-exec-summary.template.md). Do **not** change roadmap messaging until **≥3** independent sessions support the same direction.
+Copy per-session summaries into [`templates/blind-validation-exec-summary.template.md`](../templates/blind-validation-exec-summary.template.md). Do **not** change roadmap messaging until **≥3** independent sessions support the same direction.
 
 ## Interpretation guardrails
 
@@ -156,14 +156,14 @@ Apply only after **≥3** blind sessions on comparable packets:
 
 | Fixture | Path | Notes |
 | --- | --- | --- |
-| Regulated scenario (demo-safe) | [`fixtures/blind-validation/regulated-scenario/`](../../fixtures/blind-validation/regulated-scenario/) | Tied to demo workspace B run id; **demo-derived** only |
-| Sample assembled packet | [`fixtures/blind-validation-regulated-scenario-sample/`](fixtures/blind-validation-regulated-scenario-sample/) | Checked-in output from assembler (`--seed 42`) |
+| Regulated scenario (demo-safe) | [`fixtures/blind-validation/regulated-scenario/`](../../../fixtures/blind-validation/regulated-scenario/) | Tied to demo workspace B run id; **demo-derived** only |
+| Sample assembled packet | [`fixtures/blind-validation-regulated-scenario-sample/`](../fixtures/blind-validation-regulated-scenario-sample/) | Checked-in output from assembler (`--seed 42`) |
 
 Add new fixtures by copying the package layout: `package.json`, `archlucid-findings.json`, `manual-ai-baseline-findings.json`, optional `pilot-run-deltas.json`.
 
 ## Related artifacts
 
-- Scoring JSON template: [`templates/blind-validation-scoring-sheet.template.json`](templates/blind-validation-scoring-sheet.template.json)
-- Exec rollup template: [`templates/blind-validation-exec-summary.template.md`](templates/blind-validation-exec-summary.template.md)
+- Scoring JSON template: [`templates/blind-validation-scoring-sheet.template.json`](../templates/blind-validation-scoring-sheet.template.json)
+- Exec rollup template: [`templates/blind-validation-exec-summary.template.md`](../templates/blind-validation-exec-summary.template.md)
 - Live facilitator scorecard: [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
-- Packet assembler: [`scripts/assemble_blind_validation_packet.py`](../../scripts/assemble_blind_validation_packet.py)
+- Packet assembler: [`scripts/assemble_blind_validation_packet.py`](../../../scripts/assemble_blind_validation_packet.py)

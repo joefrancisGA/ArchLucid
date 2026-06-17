@@ -1,11 +1,14 @@
 import type { NavLinkItem } from "@/lib/nav-config";
 
-/** Analytical destinations promoted into the primary sidebar after the first committed review. */
+/** Analytical destinations promoted to essential tier after the first committed review. */
 const COMMITTED_ARCHITECTURE_REVIEW_PROMOTED_HREFS = new Set<string>([
   "/compare",
   "/graph",
   "/value-report/pilot",
 ]);
+
+/** Pilot-group essentials that stay visible before Review work disclosure expands. */
+const COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS = new Set<string>(["/graph"]);
 
 function navPathWithoutQuery(href: string): string {
   return href.split("?")[0] ?? "";
@@ -13,7 +16,8 @@ function navPathWithoutQuery(href: string): string {
 
 /**
  * When the tenant has a committed architecture review, treat Compare, Graph, and Export as essential
- * and visible in the collapsed pilot sidebar without requiring extended disclosure toggles.
+ * without requiring extended disclosure toggles. Only pilot-group destinations (Graph today) also
+ * stay visible in the collapsed sidebar — Analysis/Governance clusters remain hidden until disclosure.
  */
 export function applyCommittedArchitectureReviewNavPromotions(
   links: ReadonlyArray<NavLinkItem>,
@@ -33,7 +37,9 @@ export function applyCommittedArchitectureReviewNavPromotions(
     return {
       ...link,
       tier: "essential",
-      defaultVisibleInCollapsedSidebar: true,
+      ...(COMMITTED_ARCHITECTURE_REVIEW_COLLAPSED_SIDEBAR_HREFS.has(path)
+        ? { defaultVisibleInCollapsedSidebar: true }
+        : {}),
     };
   });
 }
