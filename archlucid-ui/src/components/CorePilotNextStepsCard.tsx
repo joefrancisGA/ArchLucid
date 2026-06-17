@@ -283,7 +283,7 @@ export function CorePilotNextStepsCard() {
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">2.</span>
-          <span>Evidence — open the evidence trail after your review run starts.</span>
+          <span>Evidence — open the evidence trail after your review package starts.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>

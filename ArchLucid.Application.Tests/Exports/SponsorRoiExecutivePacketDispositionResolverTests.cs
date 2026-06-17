@@ -58,4 +58,30 @@ public sealed class SponsorRoiExecutivePacketDispositionResolverTests
         markdown.Should().Contain("HOLD");
         markdown.Should().Contain("internal planning only");
     }
+
+    [Fact]
+    public void ComposeMarkdown_includes_hold_disposition_for_retail_basis_with_missing_freshness()
+    {
+        ExecutiveRoiSummaryResponse roi = new()
+        {
+            SavingsPricingBasis = ExecutiveRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Missing,
+            TotalEstimatedUsdSavings = 900m,
+        };
+
+        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+            new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = "r-retail", Status = ArchitectureRunStatus.Committed },
+            },
+            "summary",
+            [],
+            roi,
+            DateTime.UtcNow);
+
+        markdown.Should().Contain("**ROI claim disposition:**");
+        markdown.Should().Contain("HOLD");
+        markdown.Should().Contain("internal planning only");
+        markdown.Should().Contain("do not circulate projected savings externally");
+    }
 }

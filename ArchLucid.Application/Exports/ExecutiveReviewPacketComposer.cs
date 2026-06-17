@@ -216,7 +216,7 @@ public static class ExecutiveReviewPacketComposer
         sb.AppendLine();
         sb.AppendLine($"- **System:** {manifest.SystemName}");
         sb.AppendLine($"- **Manifest version:** {manifestVersion}");
-        sb.AppendLine($"- **Run:** `{runId}`");
+        sb.AppendLine($"- **Review ID:** `{runId}`");
         sb.AppendLine($"- **Status:** {statusLabel}");
         sb.AppendLine();
     }
@@ -230,7 +230,7 @@ public static class ExecutiveReviewPacketComposer
         RunSummaryOnePagerDocumentModel onePager =
             RunSummaryOnePagerDocumentFactory.Create(detail, executiveSummary, topFindingTitles);
 
-        sb.AppendLine("## Run summary");
+        sb.AppendLine("## Review summary");
         sb.AppendLine();
         sb.AppendLine(RunSummaryOnePagerMarkdownRenderer.Render(onePager).TrimEnd());
         sb.AppendLine();

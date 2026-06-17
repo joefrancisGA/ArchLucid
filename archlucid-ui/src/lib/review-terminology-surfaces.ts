@@ -9,7 +9,10 @@ export const REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS = [
   "src/lib/repeat-review-activation.ts",
   "src/lib/api/architecture-request-create-guard.ts",
   "src/lib/roi-sponsor-scope-labels.ts",
-  "src/components/LlmMonthlyBudgetExceededBanner.tsx",
+  "src/components/CorePilotNextStepsCard.tsx",
+  "src/components/GraphViewer.tsx",
+  "src/components/ProvenanceNodeExplainCell.tsx",
+  "src/components/RunTableRowErrorBoundary.tsx",
   "src/components/RunDetailRunGovernanceDispositionActions.tsx",
   "src/components/CompareToBaselineCta.tsx",
   "src/components/wizard/ArchitectureRequestWizardHelpDrawer.tsx",
@@ -49,6 +52,9 @@ export const REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS = [
   "pick a recent run",
   "committed architecture run",
   "creating architecture run",
+  "run-level summary",
+  "this run row",
+  "review run starts",
   "architecture run",
 ] as const;
 

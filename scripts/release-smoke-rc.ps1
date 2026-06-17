@@ -22,6 +22,34 @@ $ErrorActionPreference = 'Stop'
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+. (Join-Path $scriptPath 'OperatorDiagnostics.ps1')
+
+if ($SkipE2E.IsPresent) {
+    Write-OperatorFailureTriage -Stage 'Release candidate preflight' -Category 'StrictRcValidation' `
+        -Details @(
+        'Release candidate profile is fail-closed: -SkipE2E produces Partial evidence only and cannot satisfy RC signoff lanes.'
+    ) `
+        -NextSteps @(
+        'Omit -SkipE2E and supply tenant SQL (ARCHLUCID_SMOKE_SQL or -SqlConnectionString)',
+        'Use plain release-smoke.ps1 -SkipE2E for build-only developer workflows',
+        'See docs/library/RELEASE_SMOKE.md — ReleaseCandidate profile'
+    )
+    exit 1
+}
+
+if ($SkipUi.IsPresent) {
+    Write-OperatorFailureTriage -Stage 'Release candidate preflight' -Category 'StrictRcValidation' `
+        -Details @(
+        'Release candidate profile requires UI Vitest + production build for live UI↔SQL parity evidence.'
+    ) `
+        -NextSteps @(
+        'Omit -SkipUi for RC signoff',
+        'Use plain release-smoke.ps1 -SkipUi when UI build is intentionally skipped',
+        'See docs/library/RELEASE_SMOKE.md — ReleaseCandidate profile'
+    )
+    exit 1
+}
+
 if ([string]::IsNullOrWhiteSpace($ResultOut)) {
     Write-Error 'Release candidate profile requires -ResultOut for machine-readable strict evidence (default: artifacts/release-smoke-live-ui-sql-result.json).'
     exit 1

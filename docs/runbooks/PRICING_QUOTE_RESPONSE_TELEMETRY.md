@@ -48,6 +48,12 @@ Close breach at **168h (7 days)** matches the quote-to-proof follow-up SLA in [`
 No manual SQL is required. Generate JSON + Markdown for the **previous calendar week** (Monday 00:00 UTC → next Monday 00:00 UTC, exclusive end):
 
 ```powershell
+.\scripts\Invoke-PricingQuoteResponseWeekly.ps1
+```
+
+Or invoke the Python script directly with an explicit window:
+
+```powershell
 python scripts/ci/report_pricing_quote_response_weekly.py `
   --input-json fixtures/pricing-quote-response/sample-quote-requests.json `
   --week-start 2026-06-09T00:00:00+00:00 `
@@ -56,6 +62,8 @@ python scripts/ci/report_pricing_quote_response_weekly.py `
   --json-out artifacts/pricing-quote-response/weekly-summary.json `
   --markdown-out artifacts/pricing-quote-response/weekly-summary.md
 ```
+
+Scheduled workflow: `.github/workflows/pricing-quote-response-weekly.yml` (Mondays 07:00 UTC, `workflow_dispatch`).
 
 ### Production / staging (SQL)
 

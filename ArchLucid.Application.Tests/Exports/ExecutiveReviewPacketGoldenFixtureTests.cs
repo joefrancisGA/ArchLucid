@@ -99,7 +99,7 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
             "## Manifest summary",
             "## Execution mode",
             "## Top decisions",
-            "## Run summary",
+            "## Review summary",
             "## Portfolio signals (live)",
             "## ROI basis",
             "## Sponsor artifact evidence badges",

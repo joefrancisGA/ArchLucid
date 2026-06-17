@@ -653,7 +653,7 @@ export function GraphViewer({
                         target="_blank"
                         rel="noreferrer"
                       >
-                        Open run-level summary
+                        Open review-level summary
                       </a>
                     </p>
                   ) : null}

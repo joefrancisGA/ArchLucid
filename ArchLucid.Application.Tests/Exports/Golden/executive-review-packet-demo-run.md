@@ -6,7 +6,7 @@
 
 - **System:** Claims Intake Modernization
 - **Manifest version:** claims-intake-v3-demo
-- **Run:** `claims-intake-modernization`
+- **Review ID:** `claims-intake-modernization`
 - **Status:** Committed
 
 ## Execution mode
@@ -19,11 +19,11 @@
   - Confidence: Rule audit (0.92)
   - Evidence: /governance/decision-register
 
-## Run summary
+## Review summary
 
-# Executive run summary — Claims Intake Modernization
+# Executive review summary — Claims Intake Modernization
 
-**Run:** `claims-intake-modernization`
+**Review ID:** `claims-intake-modernization`
 
 ## Findings by severity
 
@@ -46,7 +46,7 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 ---
 
-_This executive summary was generated with AI assistance from run findings and severity counts. Review before sharing with sponsors._
+_This executive summary was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
 
 ## Portfolio signals (live)
 
