@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -101,20 +102,20 @@ export function PortfolioPageView() {
 
   if (state.status === "loading") {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardContent className="pt-6">
             <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading portfolio data...</p>
           </CardContent>
         </Card>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (state.status === "configuration-required") {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card
           className="border-teal-200 bg-teal-50/60 dark:border-teal-900 dark:bg-teal-950/30"
@@ -142,13 +143,13 @@ export function PortfolioPageView() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (state.status === "error") {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardContent className="pt-6">
@@ -160,7 +161,7 @@ export function PortfolioPageView() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
@@ -168,7 +169,7 @@ export function PortfolioPageView() {
 
   if (!data.isKAnonymitySatisfied) {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardHeader>
@@ -178,12 +179,12 @@ export function PortfolioPageView() {
             </CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+    <OperatorPageContainer variant="dashboard" className="space-y-8">
       <div className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <p className="text-neutral-500 dark:text-neutral-400">
@@ -260,6 +261,6 @@ export function PortfolioPageView() {
           </CardContent>
         </Card>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

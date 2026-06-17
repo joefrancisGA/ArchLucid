@@ -48,7 +48,7 @@ export function AdminHealthPageView(props: Props) {
     m.ready !== null && isDataArchivalHealthDegraded(m.ready.entries);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6" data-testid="admin-health-page">
+    <div className="w-full max-w-3xl space-y-6" data-testid="admin-health-page">
       <div>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">System health</h1>

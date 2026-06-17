@@ -44,7 +44,7 @@ export function PricingQuoteAgingPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className="mx-auto max-w-6xl space-y-6" data-testid="pricing-quote-aging-page">
+      <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
         <p className="m-0 text-sm text-neutral-500">Loading…</p>
       </div>
     );
@@ -52,7 +52,7 @@ export function PricingQuoteAgingPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="mx-auto max-w-6xl space-y-6" data-testid="pricing-quote-aging-page">
+      <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
         <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="pricing-quote-aging-forbidden">
           This page requires tenant administrator access (AdminAuthority).
         </p>
@@ -68,7 +68,7 @@ export function PricingQuoteAgingPageView(props: Props) {
   const data = m.data;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6" data-testid="pricing-quote-aging-page">
+    <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
       <div>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Pricing quote aging</h1>

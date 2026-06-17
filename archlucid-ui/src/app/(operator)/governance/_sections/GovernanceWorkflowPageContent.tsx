@@ -473,7 +473,7 @@ export function GovernanceWorkflowPageContent() {
   return (
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
-    <div className="mx-auto max-w-4xl">
+    <div className="w-full max-w-[1200px]">
       <LayerHeader pageKey="governance-workflow" />
       <CtoDemoBuyerValueStrip stepIndex={3} />
       <CtoDemoSegregationCallout />

@@ -21,7 +21,7 @@ export function PilotValueReportPageView(props: Props) {
   const m = props.model;
 
   return (
-    <div className="mx-auto space-y-4 p-4 print:w-full">
+    <div className="w-full max-w-[1440px] space-y-4 print:w-full">
       <LayerHeader pageKey="value-report-pilot" />
       <ValueReportOutcomesNav />
       <DocumentLayout>

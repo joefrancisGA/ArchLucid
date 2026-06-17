@@ -3,7 +3,7 @@
 exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout snapshot for the demo tenant 1`] = `
 <div
   aria-busy="false"
-  class="mx-auto max-w-4xl space-y-8 p-4"
+  class="w-full max-w-[1200px] space-y-8 p-4"
   data-testid="why-archlucid-page"
 >
   <header

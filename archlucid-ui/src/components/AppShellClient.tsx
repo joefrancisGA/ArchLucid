@@ -62,6 +62,8 @@ import { TrialLimitModalHost } from "@/components/TrialLimitModal";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 
 type AppShellClientProps = {
@@ -145,7 +147,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   data-testid="app-shell-minimal-topbar"
                   className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
                 >
-                  <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
+                  <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6")}>
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                       <h1 className="m-0">
                         <Button variant="ghost" className="h-auto p-0" asChild>
@@ -191,7 +193,10 @@ function AppShellInner({ children }: AppShellClientProps) {
                 </header>
                 <LayerContextFromRoute />
               </div>
-              <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
+              <div
+                data-testid="app-shell-main"
+                className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6")}
+              >
                 <ServiceBusHealthBanner />
                 <LlmBudgetApproachingLimitBanner />
                 <TrialUsageUpgradeNudge />
@@ -251,7 +256,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             <LayerContextFromRoute />
             <CtoDemoJourneyCaptionBar />
           </div>
-          <div className="mx-auto flex w-full max-w-[1600px] flex-1">
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1")}>
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"
@@ -294,7 +299,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Trust and compliance"
             >
-              <div className="mx-auto flex max-w-[1600px] items-center justify-end gap-3 px-4 lg:px-6">
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center justify-end gap-3 px-4 lg:px-6")}>
                 <TrustCenterShellLink variant="footer" />
               </div>
             </footer>
@@ -303,7 +308,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"
             >
-              <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 lg:px-6">
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center justify-between gap-3 px-4 lg:px-6")}>
                 <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
                 <KeyboardShortcutsFooterHint />
               </div>

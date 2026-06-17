@@ -187,7 +187,7 @@ export function ProjectsRecycleBinPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
+    <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
       <div>
         <div className="flex items-start gap-2">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Projects recycle bin</h1>

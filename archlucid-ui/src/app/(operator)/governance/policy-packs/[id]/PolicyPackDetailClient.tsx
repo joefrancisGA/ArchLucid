@@ -31,7 +31,7 @@ export function PolicyPackDetailClient(props: { readonly policyPackId: string })
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
+    <div className="w-full max-w-[1200px] p-6">
       <OperatorEmptyState title={buyerPolishedShell ? "Policy rules for this workspace" : "Policy pack"}>
         <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell ? (

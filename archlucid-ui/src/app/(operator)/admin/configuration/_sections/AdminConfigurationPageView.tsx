@@ -34,7 +34,7 @@ export function AdminConfigurationPageView(props: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6" data-testid="admin-configuration-page">
+    <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-configuration-page">
       <div>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Configuration summary</h1>

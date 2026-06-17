@@ -122,7 +122,7 @@ export function AdvisorySchedulesContent() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
+    <div className="w-full max-w-[1200px] px-4 py-6">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
           <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Advisory schedules</h2>

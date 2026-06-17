@@ -18,7 +18,7 @@ type ManifestDetailPageErrorFrameProps = {
 /** Shared chrome for manifest summary error states (breadcrumb + page title). */
 export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrameProps) {
   return (
-    <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+    <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
           Home

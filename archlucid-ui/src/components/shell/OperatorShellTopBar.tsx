@@ -15,7 +15,9 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { cn } from "@/lib/utils";
 
 type OperatorShellTopBarProps = {
   readonly onOpenHelpSearch: () => void;
@@ -34,7 +36,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
       data-testid="app-shell-topbar"
       className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
     >
-      <div className="mx-auto w-full min-w-0 max-w-[1600px] overflow-x-hidden px-4 py-2.5 lg:px-6">
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "min-w-0 overflow-x-hidden px-4 py-2.5 lg:px-6")}>
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
           <div
             data-testid="app-shell-topbar-primary"

@@ -348,7 +348,7 @@ export function AlertsInboxContent() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="w-full max-w-3xl">
       <LayerHeader pageKey="alerts" />
       <div className="mb-0 flex flex-wrap items-center gap-2">
         <h2 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Alerts</h2>

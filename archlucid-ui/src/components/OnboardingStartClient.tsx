@@ -137,7 +137,7 @@ export function OnboardingStartClient() {
       : null;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="w-full max-w-3xl space-y-6">
       {loading ? <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading trial workspace…</p> : null}
 
       {error !== null && !loading && recovery !== null ? (

@@ -169,7 +169,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
   return (
     <div
-      className={`mx-auto space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
+      className={`w-full space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-[1440px]" : "max-w-[1200px]"}`}
     >
       <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />

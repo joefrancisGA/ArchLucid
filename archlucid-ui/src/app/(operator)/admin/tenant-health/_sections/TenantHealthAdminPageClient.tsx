@@ -82,7 +82,7 @@ export function TenantHealthAdminPageClient() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6" data-testid="tenant-health-admin-page">
+    <div className="w-full max-w-[1440px] space-y-6" data-testid="tenant-health-admin-page">
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Tenant health</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

@@ -7,6 +7,7 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
@@ -36,7 +37,7 @@ export function RunsPageView(props: Props) {
   const malformedMessage = m.malformedMessage;
 
   return (
-    <div>
+    <OperatorPageContainer variant="dashboard">
       <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
         title={
@@ -147,6 +148,6 @@ export function RunsPageView(props: Props) {
           nextCursor={m.nextCursorForClient}
         />
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

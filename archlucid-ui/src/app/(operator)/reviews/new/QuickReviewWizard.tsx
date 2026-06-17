@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -423,7 +424,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-4 pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
+    <OperatorPageContainer variant="workflow" className="grid gap-4 pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
       <div className="space-y-4">
       {isCtoDemoPackEnv() ? <CtoDemoFastCreatePanel /> : null}
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
@@ -638,7 +639,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       <aside className="hidden lg:block">
         <WizardPackagePreview systemName={displaySystemName} hasEvidence={evidenceAttached} />
       </aside>
-    </div>
+    </OperatorPageContainer>
   );
 }
 
@@ -677,7 +678,7 @@ export function ReviewsNewPathSwitcher() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-3">
+    <OperatorPageContainer variant="workflow" className="space-y-3">
       <Suspense fallback={null}>
         <NewReviewIntentCallout />
       </Suspense>
@@ -744,6 +745,6 @@ export function ReviewsNewPathSwitcher() {
       ) : (
         <NewRunWizardClient />
       )}
-    </div>
+    </OperatorPageContainer>
   );
 }

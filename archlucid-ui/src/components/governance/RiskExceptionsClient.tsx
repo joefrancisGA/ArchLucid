@@ -151,7 +151,7 @@ export default function RiskExceptionsClient() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 p-4">
+    <div className="w-full max-w-[1440px] space-y-4">
       <LayerHeader pageKey="governance-workflow" />
       <OperatorPageHeader title="Risk exceptions" />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>

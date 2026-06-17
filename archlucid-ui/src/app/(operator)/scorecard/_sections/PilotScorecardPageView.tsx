@@ -25,7 +25,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   } = model;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+    <div className="w-full max-w-[1440px] space-y-8 px-4 py-8">
       <ValueReportOutcomesNav />
       <header>
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Pilot scorecard</h1>

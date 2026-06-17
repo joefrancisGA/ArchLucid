@@ -70,7 +70,7 @@ export function AdminEvidenceProposalsPageClient() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6" data-testid="admin-evidence-proposals-page">
+    <div className="w-full max-w-3xl space-y-6" data-testid="admin-evidence-proposals-page">
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Evidence proposals</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

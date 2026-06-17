@@ -14,7 +14,7 @@ export default function ManifestDetailLoading() {
 
   return (
     <div
-      className="mx-auto max-w-4xl space-y-4 px-1 py-6 sm:px-0"
+      className="w-full max-w-[1200px] space-y-4 px-1 py-6 sm:px-0"
       data-testid="manifest-detail-loading-shell"
       role="status"
       aria-live="polite"

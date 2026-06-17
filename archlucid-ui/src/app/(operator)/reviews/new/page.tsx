@@ -1,3 +1,4 @@
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function NewRunPage() {
   return (
-    <div>
+    <OperatorPageContainer variant="workflow">
       <div className="mb-1 flex flex-wrap items-baseline gap-3">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>New Architecture Review</h2>
         <ContextualHelp helpKey="new-run-wizard" />
@@ -30,6 +31,6 @@ export default function NewRunPage() {
           <ReviewsNewPathSwitcher />
         </Suspense>
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

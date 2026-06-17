@@ -107,7 +107,7 @@ export function OperatorBillingPlansClient() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8" data-testid="operator-billing-plans-page">
+    <div className="w-full max-w-[1440px] space-y-6 px-4 py-8" data-testid="operator-billing-plans-page">
       <header className="space-y-2">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
           Billing & plans

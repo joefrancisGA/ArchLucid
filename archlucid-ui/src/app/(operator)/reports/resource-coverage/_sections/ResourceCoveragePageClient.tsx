@@ -41,7 +41,7 @@ export function ResourceCoveragePageClient() {
   }, [load]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6" data-testid="resource-coverage-page">
+    <div className="w-full max-w-[1200px] space-y-6" data-testid="resource-coverage-page">
       <header>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Resource type coverage</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

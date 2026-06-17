@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -14,6 +15,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, BUYER_GRAPH_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import {
@@ -82,7 +84,9 @@ export function GraphPageContent() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const canMutateEnterpriseShell = useOperateCapability();
-  const graphMainColumnMaxClass = buyerPolishedShell ? "max-w-6xl" : "max-w-4xl";
+  const graphMainColumnMaxClass = buyerPolishedShell
+    ? OPERATOR_PAGE_CONTAINER.variant.dashboard
+    : OPERATOR_PAGE_CONTAINER.variant.workflow;
   const defaultSelectedGraphNodeId =
     urlGraphNodeId.length > 0
       ? urlGraphNodeId
@@ -509,7 +513,7 @@ export function GraphPageContent() {
   const buyerTraceOnlyIdle = buyerTraceWithoutGraph;
 
   return (
-    <div>
+    <OperatorPageContainer variant="dashboard">
       {buyerPolishedShell ? <GraphEvidenceTrailGuidanceDisclosure /> : <LayerHeader pageKey="graph" />}
       <CtoDemoBuyerValueStrip stepIndex={2} />
       <OperatorPageHeader
@@ -595,6 +599,6 @@ export function GraphPageContent() {
         />
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

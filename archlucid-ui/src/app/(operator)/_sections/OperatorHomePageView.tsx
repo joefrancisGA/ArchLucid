@@ -10,6 +10,7 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
@@ -85,9 +86,9 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
-      <div className={OPERATOR_LAYOUT.majorSectionGap}>
+      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
-      </div>
+      </OperatorPageContainer>
     </OperatorHomeGate>
   );
 }

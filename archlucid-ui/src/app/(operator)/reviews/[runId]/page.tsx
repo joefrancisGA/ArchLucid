@@ -26,7 +26,7 @@ export default async function RunDetailPage({
   if (result.kind === "not-found") {
     return (
       <RunDetailMinimalChromeMount>
-        <div className="mx-auto max-w-4xl px-1 py-2 sm:px-0">
+        <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0">
           <OperatorBrandedNotFound showProcessingHint retryLabel="Retry loading review" />
         </div>
       </RunDetailMinimalChromeMount>

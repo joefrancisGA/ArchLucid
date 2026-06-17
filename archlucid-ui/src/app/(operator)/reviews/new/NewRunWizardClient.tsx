@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ArchitectureRequestWizardHelpDrawer } from "@/components/wizard/ArchitectureRequestWizardHelpDrawer";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -680,7 +681,7 @@ export function NewRunWizardClient() {
   return (
     <FormProvider {...form}>
       <WizardAiSuggestedFieldsProvider>
-      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-36">
+      <OperatorPageContainer ref={wizardReadyRef} variant="workflow" className="space-y-4 pb-36">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
           ) : null}
@@ -961,7 +962,7 @@ export function NewRunWizardClient() {
               <LlmUsageBandHint />
             </div>
           ) : null}
-        </div>
+        </OperatorPageContainer>
       </WizardAiSuggestedFieldsProvider>
       </FormProvider>
   );

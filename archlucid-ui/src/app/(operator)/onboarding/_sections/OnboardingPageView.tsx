@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
 import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
@@ -22,7 +23,7 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
   const { fromRegistration } = model;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 px-1 sm:px-0">
+    <OperatorPageContainer variant="reading" className="space-y-8">
       <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
         Onboarding
       </h1>
@@ -50,6 +51,6 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
       <FinishSetupWizardPanel />
       <TryCliDemoCard />
       <UnifiedFirstPilotProgressPanel checklistVariant="full" />
-    </div>
+    </OperatorPageContainer>
   );
 }

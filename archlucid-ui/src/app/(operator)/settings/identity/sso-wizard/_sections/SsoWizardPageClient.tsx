@@ -245,7 +245,7 @@ export function SsoWizardPageClient() {
   }, [state]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="w-full max-w-3xl space-y-6">
       <div>
         <p className="m-0 text-sm">
           <Link href="/settings/identity-providers" className="text-teal-700 underline-offset-2 hover:underline">
