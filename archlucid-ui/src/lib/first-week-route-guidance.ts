@@ -65,7 +65,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "review-detail-committed": {
     useWhen: "The manifest is committed and you need sponsor-ready exports or an executive summary.",
     bridgeCopy:
-      "This review package is complete — downloads and executive summary live on this page before you explore Operate.",
+      "This review package is complete — downloads and executive summary live on this page before you explore Operate. Use 'Copy for AI assistant' in the exports section to paste findings into Claude, GPT, or Gemini.",
     primaryAction: { label: "Open exports section", href: "#artifacts-exports" },
     operateDeferralNote: "Operate surfaces unlock in the sidebar after your first committed review when you need compare, graph, or digests.",
   },

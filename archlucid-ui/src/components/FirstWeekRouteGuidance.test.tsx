@@ -59,6 +59,8 @@ describe("FirstWeekRouteGuidance", () => {
       "href",
       "#artifacts-exports",
     );
+    expect(screen.getByText(/Copy for AI assistant/i)).toBeInTheDocument();
+    expect(screen.getByText(/Claude, GPT, or Gemini/i)).toBeInTheDocument();
   });
 
   it("renders onboarding guidance with new review route CTA", () => {
