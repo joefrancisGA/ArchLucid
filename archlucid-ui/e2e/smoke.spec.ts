@@ -106,7 +106,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
       page.getByRole("main").getByRole("heading", {
         level: 2,
         name:
-          /Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
+          /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),
     ).toBeVisible();
     await expect(

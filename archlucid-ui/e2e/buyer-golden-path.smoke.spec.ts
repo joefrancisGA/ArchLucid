@@ -50,7 +50,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await expect(
       page.getByRole("main").getByRole("heading", {
         level: 2,
-        name: /Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
+        name: /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),
     ).toBeVisible();
     await expect(

@@ -58,7 +58,7 @@ test.describe("live-api-buyer-golden-path", () => {
     await expect(
       page.getByRole("main").getByRole("heading", {
         level: 2,
-        name: /Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
+        name: /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),
     ).toBeVisible({ timeout: 60_000 });
     await expect(

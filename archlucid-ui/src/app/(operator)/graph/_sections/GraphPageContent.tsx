@@ -11,7 +11,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_GRAPH_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, BUYER_GRAPH_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -36,12 +36,14 @@ import {
 } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
 import { GraphArchitectureNoteBanner } from "@/app/(operator)/graph/_sections/GraphArchitectureNoteBanner";
+import { GraphEvidenceTrailGuidanceDisclosure } from "@/app/(operator)/graph/_sections/GraphEvidenceTrailGuidanceDisclosure";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/graph/_sections/GraphFetchStatusAlerts";
 import { GraphIdlePlaceholder } from "@/app/(operator)/graph/_sections/GraphIdlePlaceholder";
 import {
   applyProvenanceDemoPresentationIfEligible,
   buildGraphSavedViewPayload,
   resolveGraphIdleEmptyPreset,
+  type EvidenceTrailPresentationView,
   type GraphMode,
   type GraphSavedViewState,
 } from "@/app/(operator)/graph/_sections/graph-page-helpers";
@@ -49,7 +51,7 @@ import { GraphLoadedExperience } from "@/app/(operator)/graph/_sections/GraphLoa
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/graph/_sections/GraphModeAuxiliaryFields";
 import { GraphPageControls } from "@/app/(operator)/graph/_sections/GraphPageControls";
 import { GraphPageIntroParagraph } from "@/app/(operator)/graph/_sections/GraphPageIntroParagraph";
-import { GraphViewerLegend } from "@/components/usability/GraphViewerLegend";
+import { EvidenceTrailTracePanel } from "@/app/(operator)/graph/_sections/EvidenceTrailTracePanel";
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
@@ -74,6 +76,7 @@ export function GraphPageContent() {
   const [typeFilter, setTypeFilter] = useState("");
   const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
+  const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>("trace");
 
   const loadGenRef = useRef(0);
 
@@ -87,6 +90,27 @@ export function GraphPageContent() {
           canonicalizeDemoRunId(runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
         ? SHOWCASE_PHI_FINDING_GRAPH_NODE_ID
         : undefined;
+
+  const graphEndpointHint = useMemo((): string => {
+    const rid = runId.trim();
+
+    if (rid.length === 0) {
+      return "";
+    }
+
+    switch (mode) {
+      case "provenance-full":
+        return `/v1/provenance/runs/${rid}/graph`;
+      case "decision-subgraph":
+        return `/v1/graph/runs/${rid}/decisions/${decisionId.trim() || "{decisionId}"}`;
+      case "node-neighborhood":
+        return `/v1/graph/runs/${rid}/nodes/${nodeId.trim() || "{nodeId}"}/neighborhood`;
+      case "architecture":
+        return `/v1/graph/runs/${rid}`;
+      default:
+        return `/v1/graph/runs/${rid}`;
+    }
+  }, [decisionId, mode, nodeId, runId]);
 
   const handleGraphInteractiveSurfaceReady = useCallback(() => {
     setGraphInteractiveReady(true);
@@ -292,6 +316,15 @@ export function GraphPageContent() {
       setLoadFailure(toApiLoadFailure(err));
       setGraph(null);
       tryStaticProvenance();
+
+      if (gen === loadGenRef.current && effectiveMode === "provenance-full") {
+        const rid = effectiveRunId.trim();
+        const prov = tryStaticDemoProvenanceGraph(rid);
+
+        if (prov !== null) {
+          setLoadFailure(null);
+        }
+      }
     } finally {
       if (gen === loadGenRef.current) {
         setLoading(false);
@@ -337,14 +370,27 @@ export function GraphPageContent() {
     setGraph(applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid));
   }, [runId, mode]);
 
-  const showIdleCard =
-    effectiveGraph === null && !loading && loadFailure === null && malformedMessage === null;
-
   const demoUi =
     isBuyerPolishedOperatorShellEnv() ||
     isNextPublicDemoMode() ||
     isStaticDemoPayloadFallbackEnabled() ||
     isStaticDemoPayloadFallbackActiveForRun(runId.trim());
+
+  const buyerTraceWithoutGraph =
+    buyerPolishedShell &&
+    presentationView === "trace" &&
+    effectiveGraph === null &&
+    runId.trim().length > 0 &&
+    !loading &&
+    loadFailure === null &&
+    malformedMessage === null;
+
+  const showIdleCard =
+    effectiveGraph === null &&
+    !loading &&
+    loadFailure === null &&
+    malformedMessage === null &&
+    !buyerTraceWithoutGraph;
 
   useEffect(() => {
     if (!demoUi && !buyerPolishedShell) {
@@ -371,15 +417,27 @@ export function GraphPageContent() {
         ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
         : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
-  const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;
+  const pageTitle = buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
 
-  const loadButtonLabel = loading ? "Loading…" : "Load graph";
+  const loadButtonLabel = buyerPolishedShell
+    ? loading
+      ? "Loading…"
+      : "Load evidence trail"
+    : loading
+      ? "Loading…"
+      : "Load graph";
 
   const showLoadButton =
     !(demoUi && mode === "provenance-full") &&
     (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
 
-  const showSavedViews = canMutateEnterpriseShell && !buyerPolishedShell && !demoUi;
+  const showSavedViews =
+    canMutateEnterpriseShell &&
+    !buyerPolishedShell &&
+    !demoUi &&
+    effectiveGraph !== null;
+
+  const showLoadFailureAlert = loadFailure !== null && effectiveGraph === null;
 
   const getGraphSavedViewPayload = useCallback(
     () =>
@@ -440,31 +498,35 @@ export function GraphPageContent() {
       showLoadButton={showLoadButton}
       loadButtonLabel={loadButtonLabel}
       loading={loading}
-      onLoadGraph={performGraphLoad}
+      onLoadGraph={() => void performGraphLoad()}
       decisionId={decisionId}
       nodeId={nodeId}
+      presentationView={presentationView}
+      onPresentationViewChange={setPresentationView}
     />
   );
 
+  const buyerTraceOnlyIdle = buyerTraceWithoutGraph;
+
   return (
     <div>
-      <LayerHeader pageKey="graph" />
+      {buyerPolishedShell ? <GraphEvidenceTrailGuidanceDisclosure /> : <LayerHeader pageKey="graph" />}
       <CtoDemoBuyerValueStrip stepIndex={2} />
       <OperatorPageHeader
         title={pageTitle}
+        subtitle={buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE : undefined}
         helpKey="architecture-graph"
         buyerTitleHint={
           buyerPolishedShell
-            ? "Use the canvas to open evidence, findings, decisions, and manifest outputs — detail appears in the side panel."
+            ? "This graph links your architecture inputs, pipeline steps, findings, and the signed manifest."
             : undefined
         }
       />
-      {effectiveGraph === null ? (
+      {effectiveGraph === null && !buyerPolishedShell ? (
         <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
       ) : null}
-      <GraphViewerLegend />
 
-      {effectiveGraph === null ? (
+      {buyerPolishedShell || effectiveGraph === null ? (
         <>
           {savedViewsBar}
           {controls}
@@ -486,13 +548,22 @@ export function GraphPageContent() {
 
       <GraphFetchStatusAlerts
         loading={loading}
-        loadFailure={loadFailure}
+        loadFailure={showLoadFailureAlert ? loadFailure : null}
         malformedMessage={malformedMessage}
         buyerPolishedShell={buyerPolishedShell}
+        runId={runId}
+        onRetry={() => void performGraphLoad()}
+        graphEndpointHint={graphEndpointHint}
       />
 
       {showIdleCard ? (
         <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />
+      ) : null}
+
+      {buyerTraceOnlyIdle ? (
+        <div className={graphMainColumnMaxClass}>
+          <EvidenceTrailTracePanel runId={runId} onOpenGraphView={() => setPresentationView("graph")} />
+        </div>
       ) : null}
 
       {architectureGraphNote && (
@@ -519,6 +590,8 @@ export function GraphPageContent() {
           controls={controls}
           leadIntro={leadIntro}
           defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
+          presentationView={presentationView}
+          onPresentationViewChange={setPresentationView}
         />
         </>
       ) : null}
