@@ -189,7 +189,7 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
 
     expect(trigger).toHaveTextContent("Sample workspace: Claims Intake");
     expect(trigger).toHaveAttribute("aria-label", "Active workspace: Sample workspace: Claims Intake");
-    expect(screen.getByText("Sample workspace")).toBeInTheDocument();
+    expect(trigger.querySelectorAll("span")).toHaveLength(1);
 
     fireEvent.click(trigger);
 

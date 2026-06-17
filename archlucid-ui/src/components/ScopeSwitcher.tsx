@@ -23,7 +23,6 @@ import {
   BUYER_SCOPE_CURRENT_WORKSPACE_TITLE,
   BUYER_SCOPE_LIST_UNAVAILABLE,
   BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
@@ -571,11 +570,6 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             >
               {triggerLabel}
             </span>
-            {isSampleWorkspaceSession ? (
-              <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-                {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
-              </span>
-            ) : null}
           </Button>
         </span>
         {scopePanel != null && typeof document !== "undefined" ? createPortal(scopePanel, document.body) : null}

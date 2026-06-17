@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { AUTH_MODE } from "@/lib/auth-config";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import {
   isLikelySignedIn,
@@ -45,7 +45,8 @@ export function AuthPanel() {
     if (
       process.env.NODE_ENV !== "development" ||
       process.env.NEXT_PUBLIC_HIDE_ENV_BADGE === "true" ||
-      isNextPublicDemoMode()
+      isNextPublicDemoMode() ||
+      isBuyerPolishedOperatorShellEnv()
     ) {
       return null;
     }
