@@ -21,6 +21,8 @@ describe("PilotCommandCenterCard", () => {
     );
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
+    expect(screen.getByText("Evidence gaps")).toBeInTheDocument();
+    expect(screen.getByText("Decision impact")).toBeInTheDocument();
     expect(screen.queryByText("Optional setup")).toBeNull();
   });
 

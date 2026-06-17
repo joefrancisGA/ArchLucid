@@ -73,6 +73,8 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
   "Hidden risks",
   "Cost drivers",
   "Governance gaps",
+  "Evidence gaps",
+  "Decision impact",
 ] as const;
 
 export const PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL = "Setup options";
