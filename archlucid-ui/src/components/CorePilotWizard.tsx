@@ -1,6 +1,5 @@
 "use client";
 
-import { Compass } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useReducer, useState } from "react";
@@ -162,7 +161,7 @@ function wizardHiddenForAutomation(): boolean {
   return false;
 }
 
-/** Modal Core Pilot navigator + FAB launcher persisted under `archlucid.corePilotWizard.v1`. */
+/** Modal Core Pilot navigator — dialog only; opens via `CORE_PILOT_WIZARD_OPEN_EVENT` or Help/Onboarding links. */
 export function CorePilotWizardLauncher() {
   const [hydrated, setHydrated] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -253,32 +252,8 @@ export function CorePilotWizardLauncher() {
     return null;
   }
 
-  const resumeLabel =
-    state.status === "completed"
-      ? "Review guide"
-      : `Guided review (${Math.min(state.stepIndex + 1, CORE_PILOT_WIZARD_STEP_COUNT)}/${CORE_PILOT_WIZARD_STEP_COUNT})`;
-
   return (
     <>
-      <Button
-        type="button"
-        size="sm"
-        data-core-pilot-wizard-trigger=""
-        aria-haspopup="dialog"
-        aria-expanded={dialogOpen}
-        title={`Open guided review checklist (${state.stepIndex + 1}/${CORE_PILOT_WIZARD_STEP_COUNT})`}
-        className={`fixed bottom-5 right-4 z-40 h-11 gap-2 rounded-full px-4 shadow-lg print:!hidden lg:bottom-7 ${
-          dialogOpen ? "ring-2 ring-teal-500/70" : ""
-        }`}
-        variant="secondary"
-        onClick={() => {
-          setDialogOpen(true);
-        }}
-      >
-        <Compass className="h-4 w-4" aria-hidden />
-        <span>{resumeLabel}</span>
-      </Button>
-
       <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
         <DialogContent
           className="max-h-[calc(100vh-3rem)] w-[min(100vw-2rem,32rem)] max-w-xl overflow-y-auto pb-10 sm:p-8"
@@ -323,10 +298,12 @@ export function CorePilotWizardLauncher() {
                     setSuppressFabOffer(e.target.checked);
                   }}
                 />
-                Don&apos;t show the guided review launcher again (preference stored on this browser)
+                Don&apos;t show the guided review dialog again (preference stored on this browser)
               </label>
             ) : (
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">Close anytime — your step resumes from the Compass button.</span>
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                Close anytime — progress saves in this browser. Reopen from Help, Onboarding, or the Core Pilot checklist on Home.
+              </span>
             )}
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button

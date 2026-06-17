@@ -1,4 +1,4 @@
-/** Shared guards for pilot ROI baseline FAB, home card, and wizard chrome. */
+/** Shared guards for pilot ROI baseline home card and wizard chrome. */
 
 export function suppressPilotRoiBaselineChrome(): boolean {
   if (typeof window === "undefined") {
