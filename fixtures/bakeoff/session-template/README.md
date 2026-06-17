@@ -2,6 +2,8 @@
 
 Copy this folder to `artifacts/bakeoff/<session-label>/` before running [`docs/runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../../docs/runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md).
 
+After each session, append a row to the rolling scoreboard: [`frontier-ai-scoreboard.template.md`](../frontier-ai-scoreboard.template.md) → `artifacts/bakeoff/scoreboard/frontier-ai-scoreboard.md` (guide: [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](../../docs/go-to-market/FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md)).
+
 **Do not commit** customer-identifying content under `artifacts/`. Use sanitized labels only in version control.
 
 ## Folder layout
