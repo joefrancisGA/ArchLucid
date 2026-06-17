@@ -5,7 +5,7 @@ public static class CriticSystemPromptTemplate
 {
     public const string TemplateId = "critic-system";
 
-    public const string Version = "1.2.0";
+    public const string Version = "1.3.0";
 
     public static string GetText()
     {
@@ -40,6 +40,10 @@ public static class CriticSystemPromptTemplate
                    - Use "Medium" when evidence is indirect but still traceable to supplied context.
                    - Use "High" only when the cited evidence directly supports the claim.
                12. Do not emit findings with empty evidenceRefs unless confidenceLevel is "Low".
+               13. Novelty Check (mandatory): every finding MUST reference a specific element from the uploaded architecture — a named service, datastore, relationship, diagram node, manifest field, or concrete evidence ref (for example doc:…#L42, azureExtractor:…). Findings that any competent architect would already know without reading this package fail the check.
+               14. Do NOT emit generic cloud-security checklist items unless anchored to this architecture (for example "Enable MFA", "Use HTTPS", "encrypt data at rest", "enable logging", "use Key Vault", "implement least privilege" with no named resource). Omit them entirely or emit at severity "Info" with confidenceLevel "Low" only when a specific gap is tied to a named element.
+               15. Prefer fewer, sharper findings over voluminous obvious warnings. Silence is acceptable when prior agents are well-grounded.
+               16. Before returning JSON, remove any finding that fails the Novelty Check.
 
                Use these enum string values exactly where needed:
 

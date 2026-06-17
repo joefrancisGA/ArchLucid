@@ -22,38 +22,10 @@ public static class CriticFindingConfidenceNormalizer
 
         foreach (ArchitectureFinding finding in result.Findings)
         {
-            if (HasConcreteEvidenceCitation(finding))
+            if (CriticFindingEvidenceCitationRules.HasConcreteEvidenceCitation(finding))
                 continue;
 
             finding.ConfidenceLevel = FindingConfidenceLevel.Low;
         }
-    }
-
-    private static bool HasConcreteEvidenceCitation(ArchitectureFinding finding)
-    {
-        if (finding.EvidenceRefs.Count == 0)
-            return false;
-
-        foreach (string rawRef in finding.EvidenceRefs)
-        {
-            if (string.IsNullOrWhiteSpace(rawRef))
-                continue;
-
-            string normalized = rawRef.Trim();
-
-            if (IsGenericEvidenceRef(normalized))
-                continue;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsGenericEvidenceRef(string normalized)
-    {
-        return normalized.Equals("request", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("critic-checklist", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("architecture-request", StringComparison.OrdinalIgnoreCase);
     }
 }
