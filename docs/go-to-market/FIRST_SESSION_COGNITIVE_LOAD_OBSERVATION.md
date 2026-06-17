@@ -9,6 +9,8 @@
 
 **Path under test:** [`CORE_PILOT.md`](../CORE_PILOT.md) · [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) · [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md)
 
+**Founder operations:** [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) (3-session cohort, moderator one-pager, dismissal taxonomy, synthesis rubric) · fixtures: [`fixtures/first-session/README.md`](../../fixtures/first-session/README.md)
+
 ---
 
 ## Session parameters
@@ -133,5 +135,6 @@ Run **≥3** sessions before UI implementation batching. Implement only bottlene
 
 ## Related
 
+- [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md)
 - [`FIRST_VALUE_20_MINUTES.md`](../runbooks/FIRST_VALUE_20_MINUTES.md)
 - [`BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md`](Architect_Evaluation/BLIND_PRINCIPAL_ARCHITECT_VALIDATION_COHORT.md)
