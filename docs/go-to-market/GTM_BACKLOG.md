@@ -91,7 +91,10 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 
 | ID | Task | Owner | Priority | Status | Notes |
 |----|------|-------|----------|--------|-------|
-| G-REAL-01 | Execute credentialed real-LLM evidence gate (`scripts/Invoke-RealLlmEvidenceGate.ps1`, 5–10 min unattended) | Owner | P0 | Not started | Requires live Azure OpenAI credentials; blocks assessment gate **G5** / **TB-166** release claim |
+| G-REAL-01 | Execute credentialed real-LLM evidence gate (`scripts/Invoke-RealLlmEvidenceGate.ps1`, 5–10 min unattended) | Owner | P0 | Not started | Requires live Azure OpenAI credentials; blocks assessment gate **G5** / **TB-166** release claim; assessment **Imp-1** (2026-06-18) — set repo variable `ARCHLUCID_CI_REAL_AOAI_ENABLED=true` per [`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](../runbooks/OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md) |
+| G-REAL-05 | CPA SOC 2 CPA program kickoff (**TB-135**) — organizational, not engineering | Owner | V1.1 | Not started | Assessment **Imp-13** pending question; zero `(A)` weight per `V1_1-assurance-backlog.mdc` |
+| G-FAITH-01 | Set repo variable `ARCHLUCID_FAITHFULNESS_NIGHTLY_ENFORCE=true` after ≥5 green nightly baselines | Owner | P1 | Not started | Assessment **Imp-3** — enables `--enforce` on `golden-cohort-nightly.yml` deterministic faithfulness job |
+| G-CONTENT-01 | Enrich remaining **20** bundled policy packs (+5 curated rules each) | Owner / content | V1.1 | Not started | Assessment **Imp-4** partial — flagship packs **azure-waf**, **ai-governance**, **security-baseline** shipped 2026-06-18 |
 | G-REAL-02 | Playwright smoke sign-off — Workspace A self-demo (**M-04**) | QA / owner | P0 | Not started | Human verification after engineering **#30** |
 | G-REAL-03 | Playwright smoke sign-off — Workspace B regulated scenario (**M-05**) | QA / owner | P0 | Not started | Human verification after engineering **#30** |
 | G-REAL-04 | Review sample architecture report from Workspace B (**M-06**) | Owner | P0 | Not started | Content review against landing-page claims |
