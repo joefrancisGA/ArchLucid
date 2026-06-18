@@ -166,6 +166,13 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
           };
         }
 
+        if (url.includes("/v1/tenant/baseline")) {
+          return {
+            ok: true,
+            json: async () => ({ baselineReviewCycleHours: 40 }),
+          };
+        }
+
         return { ok: false, status: 404, json: async () => ({}) };
       }),
     );
