@@ -42,6 +42,7 @@
 
 ## Links
 
+- Cross-run faithfulness rollup (sponsor correctness verdict): [REAL_MODE_FAITHFULNESS_ROLLUP.md](REAL_MODE_FAITHFULNESS_ROLLUP.md)
 - Golden cohort gate: [GOLDEN_COHORT_REAL_LLM_GATE.md](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md)
 - Release check-in stub: [REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md](REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md)
 - Pilot ROI / sponsor narrative: [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)

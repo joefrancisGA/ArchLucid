@@ -82,6 +82,8 @@ When run 2 compares to run 1:
 
 Attach `artifacts/release/real-llm-evidence-gate.json` to release evidence per [`RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md).
 
+Then roll the per-run human-counted faithfulness signals (unsupported-claim count, wrong/overstated findings, evidence-chain completeness) into the cross-run sponsor-facing correctness verdict using [`REAL_MODE_FAITHFULNESS_ROLLUP.md`](../quality/REAL_MODE_FAITHFULNESS_ROLLUP.md).
+
 ---
 
 ## Expected artifacts (per run)
