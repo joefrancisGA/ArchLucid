@@ -49,6 +49,7 @@ import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from
 import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { OperateGovernanceUnlockPrompt } from "@/components/usability/OperateGovernanceUnlockPrompt";
+import { OperatorAdvancedModeToggle } from "@/components/OperatorAdvancedModeToggle";
 import {
   filterNavLinksByOperateUnlockPhase,
   readOperateNavUnlockPhase,
@@ -147,7 +148,8 @@ export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [navAllFeaturesExpanded, setNavAllFeaturesExpanded] = useState(false);
-  const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
+  const { showExtended, showAdvanced, setShowExtended, setShowAdvanced, setOperatorAdvancedMode } =
+    useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -480,6 +482,21 @@ export function SidebarNav() {
   }
 
   const adminLinkCount = adminNavRows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
+  const operatorAdvancedModeOn = showExtended && showAdvanced;
+
+  function toggleOperatorAdvancedMode(): void {
+    const next = !operatorAdvancedModeOn;
+
+    setNavDisclosurePathOverride(next);
+    setOperatorAdvancedMode(next);
+    setNavAllFeaturesExpanded(next);
+
+    try {
+      window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
+    } catch {
+      /* private mode */
+    }
+  }
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
@@ -487,6 +504,16 @@ export function SidebarNav() {
       <SidebarRecentActivityCard />
 
       {reviewNavRows.map((row) => renderNavCluster(row))}
+
+      {showProgressiveDisclosureChrome && !showSidebarCustomizationChrome ? (
+        <div className="mt-2 px-2" data-testid="sidebar-advanced-mode-wrap">
+          <OperatorAdvancedModeToggle
+            advancedModeOn={operatorAdvancedModeOn}
+            onToggle={toggleOperatorAdvancedMode}
+            testId="sidebar-operator-advanced-mode-toggle"
+          />
+        </div>
+      ) : null}
 
       {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">

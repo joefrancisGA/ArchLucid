@@ -162,6 +162,21 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByRole("button", { name: "Fewer sidebar links" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Show governance & analysis tools/ })).toBeNull();
     expect(screen.queryByTestId("sidebar-layout-settings-dialog")).toBeNull();
+    expect(screen.getByTestId("sidebar-operator-advanced-mode-toggle")).toBeInTheDocument();
+  });
+
+  it("reveals Analysis destinations when Advanced mode is enabled", async () => {
+    render(<SidebarNav />);
+
+    fireEvent.click(screen.getByTestId("sidebar-operator-advanced-mode-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Compare two reviews" })).toBeInTheDocument();
+    });
+
+    expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
+    expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("1");
+    expect(localStorage.getItem("archlucid-nav-expanded")).toBe("true");
   });
 
   it("does not render collapsible triggers for review-workflow nav groups", () => {
