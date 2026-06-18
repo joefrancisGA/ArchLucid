@@ -1,4 +1,4 @@
-> **Scope:** One-page expert lane for principal architects under time pressure — compresses ceremony without replacing canonical operator paths.
+> **Scope:** One-page expert lane for principal architects under time pressure — compresses ceremony without replacing canonical operator paths; audience is customer-facing evaluators, not a contributor reference.
 
 # First 15 minutes for principal architects
 
