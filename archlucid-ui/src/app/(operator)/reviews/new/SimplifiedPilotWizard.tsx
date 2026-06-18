@@ -8,6 +8,7 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExc
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
+import { WizardStepBaselineMetrics } from "@/components/wizard/steps/WizardStepBaselineMetrics";
 import { WizardStepBaselineZip } from "@/components/wizard/steps/WizardStepBaselineZip";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -24,10 +25,12 @@ import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 
 const PILOT_STEPS = [
   { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
   { label: "System & cloud", description: "Name your system and optional advanced configuration" },
+  { label: "Baseline metrics", description: "Capture review-cycle time for sponsor ROI reporting" },
   { label: "Review & submit", description: "Confirm and create the architecture review" },
 ] as const;
 
@@ -46,6 +49,15 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const [pilotStep, setPilotStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
+  const {
+    baselineReviewCycleHours,
+    setBaselineReviewCycleHours,
+    baselineConfidence,
+    setBaselineConfidence,
+    baselineMetricsError,
+    setBaselineMetricsError,
+    persistBaselineMetricsIfNeeded,
+  } = useWizardBaselineMetricsActions();
 
   const { trigger, getValues, reset } = useFormContext<WizardFormValues>();
 
@@ -61,7 +73,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
 
   useEffect(() => {
     trackWizardStepViewed(pilotStep, PILOT_STEPS[pilotStep]?.label ?? "Unknown", "SimplifiedPilot");
-    if (pilotStep !== 2) {
+    if (pilotStep !== PILOT_STEPS.length - 1) {
       setSubmitError(null);
     }
   }, [pilotStep]);
@@ -82,6 +94,18 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   };
 
   const goNext = async () => {
+    if (pilotStep === 2) {
+      const saved = await persistBaselineMetricsIfNeeded();
+
+      if (!saved) {
+        return;
+      }
+
+      setPilotStep((current) => Math.min(PILOT_STEPS.length - 1, current + 1));
+
+      return;
+    }
+
     const fieldGroup = SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS[pilotStep];
 
     if (fieldGroup != null) {
@@ -151,7 +175,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     }
   };
 
-  const isReviewStep = pilotStep === 2;
+  const isReviewStep = pilotStep === PILOT_STEPS.length - 1;
   const isFirstStep = pilotStep === 0;
 
   return (
@@ -177,7 +201,22 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
           </AdvancedOptionsAccordion>
         </div>
       ) : null}
-      {pilotStep === 2 ? <WizardStepReview /> : null}
+      {pilotStep === 2 ? (
+        <WizardStepBaselineMetrics
+          reviewCycleHours={baselineReviewCycleHours}
+          confidence={baselineConfidence}
+          fieldError={baselineMetricsError}
+          onReviewCycleHoursChange={(value) => {
+            setBaselineReviewCycleHours(value);
+
+            if (baselineMetricsError !== null) {
+              setBaselineMetricsError(null);
+            }
+          }}
+          onConfidenceChange={setBaselineConfidence}
+        />
+      ) : null}
+      {isReviewStep ? <WizardStepReview /> : null}
 
       <div
         className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 px-4 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85 lg:-mx-6 lg:px-6"

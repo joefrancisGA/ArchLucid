@@ -46,16 +46,8 @@ import {
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
   FULL_WIZARD_EVIDENCE_STEP_INDEX,
 } from "@/lib/wizard-step-fields";
-import {
-  saveTenantReviewCycleBaseline,
-  validateWizardBaselineReviewCycleHours,
-} from "@/lib/save-tenant-review-cycle-baseline";
 import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
-import {
-  type WizardBaselineConfidence,
-  wizardBaselineConfidenceSourceNote,
-} from "@/lib/wizard-baseline-confidence";
-import { PILOT_BASELINE_WIZARD_SAVED_EVENT } from "@/lib/pilot-baseline-wizard-events";
+import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -217,9 +209,15 @@ export function NewRunWizardClient() {
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
-  const [baselineReviewCycleHours, setBaselineReviewCycleHours] = useState("");
-  const [baselineConfidence, setBaselineConfidence] = useState<WizardBaselineConfidence>("unsure");
-  const [baselineMetricsError, setBaselineMetricsError] = useState<string | null>(null);
+  const {
+    baselineReviewCycleHours,
+    setBaselineReviewCycleHours,
+    baselineConfidence,
+    setBaselineConfidence,
+    baselineMetricsError,
+    setBaselineMetricsError,
+    persistBaselineMetricsIfNeeded,
+  } = useWizardBaselineMetricsActions();
   const [wizardMode, setWizardMode] = useState<"quick" | "full">(() => {
     if (typeof window === "undefined") {
       return "quick";
@@ -528,52 +526,6 @@ export function NewRunWizardClient() {
     showToast("ok", "Sample Azure package loaded — confirm identity and submit your review.");
   }, [zeroConfigDemo, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
 
-  const skipBaselineMetricsAndAdvance = () => {
-    setBaselineReviewCycleHours("");
-    setBaselineMetricsError(null);
-    setStepIndex((current) => Math.min(stepMax, current + 1));
-  };
-
-  const persistBaselineMetricsIfNeeded = useCallback(async (): Promise<boolean> => {
-    const validationError = validateWizardBaselineReviewCycleHours(baselineReviewCycleHours);
-
-    if (validationError !== null) {
-      setBaselineMetricsError(validationError);
-
-      return false;
-    }
-
-    setBaselineMetricsError(null);
-
-    const trimmed = baselineReviewCycleHours.trim();
-
-    if (trimmed.length === 0) {
-      return true;
-    }
-
-    const hours = Number(trimmed);
-    const result = await saveTenantReviewCycleBaseline({
-      baselineReviewCycleHours: hours,
-      baselineReviewCycleSourceNote: wizardBaselineConfidenceSourceNote(baselineConfidence),
-    });
-
-    if (!result.ok) {
-      setBaselineMetricsError(result.message);
-      showToast("err", result.message);
-
-      return false;
-    }
-
-    showToast("ok", "Review-cycle baseline saved for ROI reporting.");
-    setBaselineReviewCycleHours("");
-
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event(PILOT_BASELINE_WIZARD_SAVED_EVENT));
-    }
-
-    return true;
-  }, [baselineConfidence, baselineReviewCycleHours, showToast]);
-
   const goNext = async () => {
     if (stepIndex === 0) {
       setStepIndex(1);
@@ -676,7 +628,7 @@ export function NewRunWizardClient() {
   const fullWizardStepCountLabel: number = baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE.length
     : WIZARD_STEP_DEFINITIONS_FULL.length;
-  const quickModeLabel = baselineFirst ? "Pilot baseline (3 steps)" : "Quick start (3 steps)";
+  const quickModeLabel = baselineFirst ? "Pilot baseline (4 steps)" : "Quick start (3 steps)";
 
   return (
     <FormProvider {...form}>
@@ -882,7 +834,6 @@ export function NewRunWizardClient() {
                 }
               }}
               onConfidenceChange={setBaselineConfidence}
-              onSkipForNow={skipBaselineMetricsAndAdvance}
             />
           ) : null}
           {stepIndex === reviewStepIndex ? <WizardStepReview /> : null}

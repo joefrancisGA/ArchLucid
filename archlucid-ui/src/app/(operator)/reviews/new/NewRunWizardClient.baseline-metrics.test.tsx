@@ -42,24 +42,14 @@ vi.mock("@/lib/api", () => ({
   }),
 }));
 
-vi.mock("@/lib/save-tenant-review-cycle-baseline", () => ({
-  saveTenantReviewCycleBaseline: (...args: unknown[]) => saveTenantReviewCycleBaselineMock(...args),
-  validateWizardBaselineReviewCycleHours: (raw: string) => {
-    const trimmed = raw.trim();
+vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/save-tenant-review-cycle-baseline")>();
 
-    if (trimmed.length === 0) {
-      return null;
-    }
-
-    const value = Number(trimmed);
-
-    if (!Number.isFinite(value) || value <= 0) {
-      return "Review cycle time must be a positive number.";
-    }
-
-    return null;
-  },
-}));
+  return {
+    ...actual,
+    saveTenantReviewCycleBaseline: (...args: unknown[]) => saveTenantReviewCycleBaselineMock(...args),
+  };
+});
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
@@ -138,22 +128,61 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
     });
   }
 
-  it("renders the optional baseline metrics step after advanced inputs", async () => {
+  it("renders the required baseline metrics step after advanced inputs", async () => {
     await advanceToBaselineMetricsStep();
 
-    expect(screen.getByTestId("wizard-baseline-review-cycle-hours")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-baseline-review-cycle-hours")).toBeRequired();
   });
 
-  it("advances without API call when skip for now is selected", async () => {
+  it("blocks advance when baseline hours are missing and tenant has no saved baseline", async () => {
+    saveTenantReviewCycleBaselineMock.mockResolvedValue({ ok: true });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+        if (url.includes("/v1/agent-execution/cost-preview")) {
+          return {
+            ok: true,
+            json: async () => ({
+              mode: "Simulator",
+              maxCompletionTokens: 4096,
+              estimatedCostUsd: null,
+              estimatedCostUsdLow: null,
+              estimatedCostUsdHigh: null,
+              estimatedCostBasis: "Simulator",
+              pricingUsesIllustrativeUsdRates: true,
+              deploymentName: null,
+            }),
+          };
+        }
+
+        if (url.includes("/v1/tenant/baseline")) {
+          return {
+            ok: true,
+            json: async () => ({ baselineReviewCycleHours: null }),
+          };
+        }
+
+        return { ok: false, status: 404, json: async () => ({}) };
+      }),
+    );
+
     await advanceToBaselineMetricsStep();
 
-    fireEvent.click(screen.getByTestId("wizard-baseline-metrics-skip"));
+    await clickPrimaryForward();
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
+      expect(screen.getByTestId("wizard-baseline-metrics-error")).toHaveTextContent(
+        /Enter how many hours a typical architecture review takes/i,
+      );
     });
 
     expect(saveTenantReviewCycleBaselineMock).not.toHaveBeenCalled();
+    expect(screen.queryByRole("heading", { name: "Review & submit" })).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
   });
 
   it("persists baseline hours when Next is clicked with valid input", async () => {

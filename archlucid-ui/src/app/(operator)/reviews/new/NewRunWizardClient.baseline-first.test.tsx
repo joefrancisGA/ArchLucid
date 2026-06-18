@@ -4,9 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const baselineSearchParams = new URLSearchParams("baseline=1");
 
-const { createArchitectureRunMock, getRunSummaryMock } = vi.hoisted(() => ({
+const { createArchitectureRunMock, getRunSummaryMock, saveTenantReviewCycleBaselineMock } = vi.hoisted(() => ({
   createArchitectureRunMock: vi.fn(),
   getRunSummaryMock: vi.fn(),
+  saveTenantReviewCycleBaselineMock: vi.fn(),
 }));
 
 vi.mock("next/link", () => ({
@@ -40,6 +41,15 @@ vi.mock("@/lib/api", () => ({
     hasMore: false,
   }),
 }));
+
+vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/save-tenant-review-cycle-baseline")>();
+
+  return {
+    ...actual,
+    saveTenantReviewCycleBaseline: (...args: unknown[]) => saveTenantReviewCycleBaselineMock(...args),
+  };
+});
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
@@ -81,10 +91,18 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
           };
         }
 
+        if (url.includes("/v1/tenant/baseline")) {
+          return {
+            ok: true,
+            json: async () => ({ baselineReviewCycleHours: null }),
+          };
+        }
+
         return { ok: false, status: 404, json: async () => ({}) };
       }),
     );
     createArchitectureRunMock.mockResolvedValue({ run: { runId: "baseline-run-1" } });
+    saveTenantReviewCycleBaselineMock.mockResolvedValue({ ok: true });
     getRunSummaryMock.mockResolvedValue({
       runId: "baseline-run-1",
       projectId: "default",
@@ -100,16 +118,16 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     vi.unstubAllGlobals();
   });
 
-  it("defaults to the simplified pilot wizard, prefills from ZIP, and submits in three steps", async () => {
+  it("defaults to the simplified pilot wizard, prefills from ZIP, captures baseline, and submits in four steps", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId("simplified-pilot-wizard")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 3/i);
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 4/i);
     expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Pilot baseline (3 steps)" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Pilot baseline (4 steps)" })).toHaveAttribute("aria-pressed", "true");
 
     const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByTestId("wizard-baseline-zip-field-input");
     const zipFile = makeArchLucidPackageZip();
@@ -126,7 +144,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
 
-    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 3/i);
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 2 of 4/i);
 
     const systemName = screen.getByLabelText("System name") as HTMLInputElement;
     expect(systemName.value).toBe("MyRg");
@@ -135,7 +153,25 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
 
-    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 3 of 3/i);
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 3 of 4/i);
+    expect(screen.getByTestId("wizard-baseline-metrics-step")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId("wizard-baseline-review-cycle-hours"), {
+      target: { value: "40" },
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    await waitFor(() => {
+      expect(saveTenantReviewCycleBaselineMock).toHaveBeenCalledWith({
+        baselineReviewCycleHours: 40,
+        baselineReviewCycleSourceNote: "wizard: Not sure (leave blank)",
+      });
+    });
+
+    expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 4 of 4/i);
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
