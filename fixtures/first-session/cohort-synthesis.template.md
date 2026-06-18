@@ -48,6 +48,15 @@
 | --- | --- | --- |
 | | | founder / product / engineering |
 
+## Product decision gate (one row per confirmed bottleneck)
+
+See `FIRST_SESSION_DISMISSAL_PLAYBOOK.md` § Product decision gate. A confirmed bottleneck does **not**
+automatically justify a change — it must clear this gate as **Justified now** first.
+
+| Confirmed bottleneck | Uncertainty type (design / market) | Observed evidence (sessions + codes + verbatim) | Change justified now? (Y/N) | Smallest viable change | Do NOT change yet | Gate outcome (Justified now / Observe more / Watch) |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | |
+
 ## Watch list (1 session only)
 
 - 
@@ -60,8 +69,8 @@
 
 ## UI / engineering batch gate
 
-- [ ] **Hold** — no repeated bottleneck; do not open UI batch
-- [ ] **Ready for product review** — ≥1 confirmed bottleneck; schedule design review only (no implementation until owner approves)
+- [ ] **Hold** — no repeated bottleneck, or no confirmed bottleneck cleared the product decision gate as **Justified now**; do not open UI batch
+- [ ] **Ready for product review** — ≥1 confirmed bottleneck cleared the product decision gate as **Justified now**; schedule design review only (no implementation until owner approves)
 
 ## Executive one-paragraph summary
 

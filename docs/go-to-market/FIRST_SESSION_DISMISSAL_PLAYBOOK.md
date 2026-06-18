@@ -174,12 +174,40 @@ After **3** sessions, complete [`fixtures/first-session/cohort-synthesis.templat
 | Issue in **1** session only | Log as **watch** — no UI batch |
 | Zero sessions committed | Cohort **FAIL** — fix environment/brief before UI work |
 
+### Product decision gate
+
+Synthesis without a decision gate becomes anecdote collection. After promotion, run **every confirmed
+bottleneck** (≥2 sessions) through this gate **before** any UI/product work is scoped. One row per
+confirmed bottleneck in the cohort-synthesis "Product decision gate" table.
+
+| Gate field | Question to answer | Why it matters |
+| --- | --- | --- |
+| **Uncertainty type** | Is this **design uncertainty** (we know it's broken; a UI/copy change fixes it) or **market uncertainty** (we don't yet know if the behavior persists or is buyer-acceptable)? | Design → may justify a change now; market → needs more observed evidence, not code |
+| **Observed evidence** | Exact sessions + codes + verbatim signal (no paraphrase inflation) | Prevents promoting a vibe into a backlog item |
+| **Change justified?** | **Y / N** — is a product change warranted *now*, or only after more sessions? | The gate's core go/no-go |
+| **Smallest viable change** | If Y: the minimal copy/UX change (not a redesign) | Keeps the batch surgical |
+| **Do NOT change yet** | What looks tempting but lacks ≥2-session evidence — explicitly parked | Stops scope creep and one-off-driven churn |
+
+**Gate decision rules**
+
+| Condition | Gate outcome |
+| --- | --- |
+| Confirmed bottleneck **and** design uncertainty **and** smallest viable change is copy/UX-local | **Justified now** — eligible for the UI batch |
+| Confirmed bottleneck **but** market uncertainty (behavior may not persist / may be buyer-acceptable) | **Observe more** — schedule additional sessions; do not code |
+| Promoted from **1** session only | **Watch** — never enters the gate; no change |
+| Conflicting evidence across sessions | **Observe more** — resolve before scoping |
+
+A confirmed bottleneck does **not** automatically justify a change. Only bottlenecks that clear this
+gate as **Justified now** may proceed to the engineering batch gate below.
+
 ### Engineering batch gate
 
 **Do not** open a UI implementation batch until:
 
 1. Cohort synthesis is complete, and
-2. At least one confirmed bottleneck exists **or** cohort documents zero bottlenecks with 3× PASS.
+2. At least one confirmed bottleneck exists **or** cohort documents zero bottlenecks with 3× PASS, and
+3. At least one confirmed bottleneck has cleared the **product decision gate** above as **Justified now**
+   (a confirmed bottleneck still in **Observe more** or **Watch** does not authorize a batch).
 
 ---
 
