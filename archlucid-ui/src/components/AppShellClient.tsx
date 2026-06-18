@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 import { Suspense, useLayoutEffect, useRef, useState, useCallback, type ReactNode } from "react";
@@ -30,12 +31,9 @@ import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
-import { OnboardingTour } from "@/components/OnboardingTour";
-import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
 import { CtoDemoJourneyCaptionBar } from "@/components/cto-demo/CtoDemoJourneyCaptionBar";
 import { CtoDemoOfflineAutoFallbackListener } from "@/components/cto-demo/CtoDemoOfflineAutoFallbackListener";
 import { CtoDemoPanicModeBanner } from "@/components/cto-demo/CtoDemoPanicModeBanner";
-import { CtoDemoSpotlightOverlay } from "@/components/cto-demo/CtoDemoSpotlightOverlay";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
@@ -67,6 +65,24 @@ import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HEL
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
+
+const OnboardingTour = dynamic(
+  () => import("@/components/OnboardingTour").then((module) => module.OnboardingTour),
+  { ssr: false },
+);
+
+const BuyerCtoDemoTourOverlay = dynamic(
+  () => import("@/components/BuyerCtoDemoTourOverlay").then((module) => module.BuyerCtoDemoTourOverlay),
+  { ssr: false },
+);
+
+const CtoDemoSpotlightOverlay = dynamic(
+  () =>
+    import("@/components/cto-demo/CtoDemoSpotlightOverlay").then(
+      (module) => module.CtoDemoSpotlightOverlay,
+    ),
+  { ssr: false },
+);
 
 type AppShellClientProps = {
   children: ReactNode;

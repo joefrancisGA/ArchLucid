@@ -1,9 +1,24 @@
+import dynamic from "next/dynamic";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { RunDetailAiReadinessGateCard } from "@/components/RunDetailAiReadinessGateCard";
 import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer-polish-copy";
+
+const EmailRunToSponsorBanner = dynamic(
+  () => import("@/components/EmailRunToSponsorBanner").then((module) => module.EmailRunToSponsorBanner),
+  {
+    loading: () => (
+      <div
+        className="rounded-md border border-neutral-200 p-4 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+        role="status"
+        aria-live="polite"
+      >
+        Loading sponsor briefing…
+      </div>
+    ),
+  },
+);
 
 type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
