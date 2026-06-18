@@ -26,15 +26,15 @@ public static class RunWriteLifecycleRoutes
         new RunWriteRoute(
             "create",
             "v{version:apiVersion}/architecture/request",
-            ["v{version:apiVersion}/requests"]),
+            []),
         new RunWriteRoute(
             "execute",
             "v{version:apiVersion}/architecture/run/{runId}/execute",
-            ["v{version:apiVersion}/runs/{runId}/submit"]),
+            []),
         new RunWriteRoute(
             "commit",
             "v{version:apiVersion}/architecture/run/{runId}/commit",
-            ["v{version:apiVersion}/runs/{runId}/manifest/finalize"]),
+            []),
     ];
 
     /// <summary>All canonical run-lifecycle write operations and their deprecated aliases.</summary>

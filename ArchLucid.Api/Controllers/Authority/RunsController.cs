@@ -96,7 +96,6 @@ public sealed partial class RunsController(
     ///     keying are identical.
     /// </remarks>
     [HttpPost("request")]
-    [HttpPost("/v{version:apiVersion}/requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
@@ -384,7 +383,6 @@ public sealed partial class RunsController(
     ///     <b>deprecated</b> (TB-305 / ADR 0042) and emits <c>Deprecation</c> headers; both bind to this single action.
     /// </remarks>
     [HttpPost("run/{runId}/execute")]
-    [HttpPost("/v{version:apiVersion}/runs/{runId}/submit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -456,7 +454,6 @@ public sealed partial class RunsController(
     /// </remarks>
     // idempotency-posture: explicit-idempotency-key
     [HttpPost("run/{runId}/commit")]
-    [HttpPost("/v{version:apiVersion}/runs/{runId}/manifest/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
