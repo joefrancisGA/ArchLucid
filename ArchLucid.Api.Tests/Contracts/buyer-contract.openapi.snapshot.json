@@ -20613,6 +20613,14 @@
       "ServiceType": {
         "type": "integer"
       },
+      "SetAppearancePreferenceRequest": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SimulatedAlertOutcome": {
         "properties": {
           "comparedToRunId": {
@@ -22929,6 +22937,14 @@
       },
       "UsageMeterKind": {
         "type": "integer"
+      },
+      "UserPreferencesResponse": {
+        "properties": {
+          "appearancePreference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "WeeklyDigestHealthResponse": {
         "properties": {
@@ -25431,6 +25447,9 @@
     },
     {
       "name": "TrustCenterEvidencePack"
+    },
+    {
+      "name": "UserPreferences"
     },
     {
       "name": "ValueReport"
