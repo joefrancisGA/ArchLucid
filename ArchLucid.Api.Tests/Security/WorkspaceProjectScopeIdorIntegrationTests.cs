@@ -1,30 +1,36 @@
 using System.Net;
-using System.Net.Http.Json;
 
-using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
-using ArchLucid.TestSupport;
 
 using FluentAssertions;
-
-using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Tests.Security;
 
 /// <summary>
 ///     Same-tenant workspace/project IDOR regression guard for high-value read/export routes.
 /// </summary>
+/// <remarks>
+///     All six assertions share one <see cref="IdorSeedFixture" /> (one greenfield SQL catalog,
+///     one warmup, one seeded run) so the class takes ~2 min instead of ~46 min on a normal CI
+///     shard. CI #2235 shard 5/6 root causes were:
+///     <list type="bullet">
+///         <item>Each test created its own factory — six cold DbUp cycles + twelve architecture
+///         request POSTs.</item>
+///         <item><see cref="AuthorityPipelineWorkHostedService" /> (Combined role default) polled
+///         <c>dbo.AuthorityPipelineWorkOutbox</c> every 2 s with UPDLOCK/ROWLOCK, racing the
+///         create-run SQL and causing <c>Execution Timeout Expired</c> on the outbox CTE.
+///         Fixed by <see cref="IdorGreenfieldSqlApiFactory" /> setting
+///         <c>Hosting:Role=Api</c>.</item>
+///     </list>
+/// </remarks>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Collection("ArchLucidEnvMutation")]
-public sealed class WorkspaceProjectScopeIdorIntegrationTests
+public sealed class WorkspaceProjectScopeIdorIntegrationTests(IdorSeedFixture seed)
+    : IClassFixture<IdorSeedFixture>
 {
     private const string SqlExplicitUnavailable =
-        "Workspace/project IDOR tests: set "
-        + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
-        + " or "
-        + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
-        + " to a reachable SQL instance.";
+        "Workspace/project IDOR tests: SQL integration env not configured.";
 
     private static readonly Guid AlternateWorkspace = Guid.Parse("44444444-4444-4444-4444-444444444444");
     private static readonly Guid AlternateProject = Guid.Parse("55555555-5555-5555-5555-555555555555");
@@ -77,61 +83,31 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests
             static (client, runId) => client.GetAsync($"/v1/artifacts/runs/{runId}/export"));
     }
 
-    private static async Task AssertWrongWorkspaceRouteDeniedAsync(
+    private async Task AssertWrongWorkspaceRouteDeniedAsync(
         string routeFamily,
         Func<HttpClient, string, Task<HttpResponseMessage>> send)
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.If(seed.ShardWarmupTimedOut, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
+        Skip.IfNot(seed.SqlReachable, SqlExplicitUnavailable);
 
-        await using GreenfieldSqlApiFactory factory = new();
-        using (HttpClient primer = factory.CreateClient())
-        {
-            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
-        }
+        // Factory or seed run absent means InitializeAsync threw — fail fast with a clear message
+        // rather than a NullReferenceException deep in the assertion.
+        if (seed.Factory is null || seed.SeedRunId is null || seed.SeedRequestId is null)
+            throw new InvalidOperationException(
+                "IdorSeedFixture did not produce a seed run. "
+                + "Check fixture initialization output for the setup exception.");
 
-        await EnsureAlternateWorkspaceInSameTenantAsync(factory.SqlConnectionString);
-
-        ScopedRunSeed seed = await SeedDefaultWorkspaceRunAsync(factory);
-
-        using HttpClient wrongScopeClient = factory.CreateClient();
+        using HttpClient wrongScopeClient = seed.Factory.CreateClient();
         WireScope(wrongScopeClient, ScopeIds.DefaultTenant, AlternateWorkspace, AlternateProject);
 
-        HttpResponseMessage response = await send(wrongScopeClient, seed.RunId);
+        using HttpResponseMessage response = await send(wrongScopeClient, seed.SeedRunId);
 
         response.StatusCode.Should().BeOneOf(
             [HttpStatusCode.NotFound, HttpStatusCode.Forbidden],
             because: $"{routeFamily} must not resolve for same-tenant wrong workspace/project scope.");
 
         string body = await response.Content.ReadAsStringAsync();
-        body.Should().NotContain(seed.RequestId, because: "wrong-scope denial must not leak request id.");
-    }
-
-    private sealed record ScopedRunSeed(string RunId, string RequestId);
-
-    private static async Task<ScopedRunSeed> SeedDefaultWorkspaceRunAsync(GreenfieldSqlApiFactory factory)
-    {
-        using HttpClient client = factory.CreateClient();
-        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
-
-        string requestId = "REQ-WSPROJ-IDOR-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            client,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
-        await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
-
-        return new ScopedRunSeed(created!.Run.RunId, requestId);
-    }
-
-    private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
-    {
-        string idempotencyKey = "wsproj-idor-" + Guid.NewGuid().ToString("N");
-
-        return ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
-            client,
-            body,
-            idempotencyKey);
+        body.Should().NotContain(seed.SeedRequestId, because: "wrong-scope denial must not leak request id.");
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)
@@ -142,53 +118,5 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests
         _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-tenant-id", tenantId.ToString("D"));
         _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-workspace-id", workspaceId.ToString("D"));
         _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-project-id", projectId.ToString("D"));
-    }
-
-    private static async Task EnsureAlternateWorkspaceInSameTenantAsync(string connectionString)
-    {
-        await using SqlConnection connection = new(connectionString);
-        await connection.OpenAsync();
-
-        await using SqlCommand cmd = connection.CreateCommand();
-        cmd.CommandText =
-            """
-            IF NOT EXISTS (SELECT 1 FROM dbo.TenantWorkspaces WHERE Id = @Wid)
-                INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
-                VALUES (@Wid, @Tid, N'Workspace scope IDOR alt', @Pid);
-            IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
-               AND NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @Pid)
-                INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
-                VALUES (@Pid, @Tid, @Wid, N'alt-default', SYSUTCDATETIME(), 0);
-            """;
-        cmd.Parameters.AddWithValue("@Tid", ScopeIds.DefaultTenant);
-        cmd.Parameters.AddWithValue("@Wid", AlternateWorkspace);
-        cmd.Parameters.AddWithValue("@Pid", AlternateProject);
-        _ = await cmd.ExecuteNonQueryAsync();
-    }
-
-    private static bool IsSqlServerReachableWithShortTimeout()
-    {
-        if (string.IsNullOrWhiteSpace(
-                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable))
-            && string.IsNullOrWhiteSpace(
-                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
-        {
-            return false;
-        }
-
-        try
-        {
-            string connectionString =
-                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
-            using SqlConnection connection = new(builder.ConnectionString);
-            connection.Open();
-
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }
