@@ -43,6 +43,18 @@
 **Biggest friction (one sentence):**  
 **Would-send reason:**  
 
+## Founder-narration dependency ledger
+
+See `FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md` § Founder-narration dependency ledger. Log **every**
+facilitator utterance that is not the scripted opening.
+
+| Time (UTC) | Trigger | Intervention verbatim | Type (safety-blocker / navigation-hint / product-explanation) | Could continue without it? (Y/N) |
+| --- | --- | --- | --- | --- |
+| | | | | |
+
+**Session founder-dependency verdict:** Product-led / Mixed / Founder-led
+**Narration leaks (navigation-hint + product-explanation):** count = 
+
 ## Facilitator judgment
 
 **Near-dismissal:** Y / N  

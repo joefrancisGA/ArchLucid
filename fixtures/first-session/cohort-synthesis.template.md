@@ -15,6 +15,8 @@
 | Dismissal / near-dismissal rate | /3 | Primary D1–D7 |
 | Median time to commit (min) | | |
 | Sessions requiring button-level rescue | /3 | |
+| Founder-narration leak rate | /3 | Sessions with ≥1 navigation-hint or product-explanation |
+| Founder-dependency verdict spread | P / M / F | Product-led / Mixed / Founder-led counts |
 
 ## Hesitation frequency
 

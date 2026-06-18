@@ -69,6 +69,49 @@ Record timestamp + marker when observed:
 
 ---
 
+## Founder-narration dependency ledger
+
+If ArchLucid only reaches value when a founder explains it, voluntary usage and scalable sales fail.
+This ledger separates **product-led** progress (the participant advanced from the one-sentence context)
+from **founder-led** progress (the participant advanced only because the facilitator explained the
+product). It extends — does not replace — the `Button-level rescue required` field in session notes.
+
+**Rule:** the facilitator may intervene only on safety/blockers. Every intervention beyond that is a
+**leak** and must be logged. Log **every** facilitator utterance that is not the scripted opening.
+
+| Ledger field | Capture |
+| --- | --- |
+| Time (UTC) | Timestamp of the intervention |
+| Trigger | What the participant was doing / stuck on |
+| Intervention verbatim | Exactly what the facilitator said |
+| **Type** | **safety-blocker** \| **navigation-hint** \| **product-explanation** |
+| Could participant have continued without it? | **Y / N** (facilitator judgment) |
+
+**Intervention type definitions**
+
+| Type | Definition | Counts as founder-narration leak? |
+| --- | --- | --- |
+| **safety-blocker** | Environment/data/safety fix the participant could not resolve (e.g. broken stack, auth loop) | No |
+| **navigation-hint** | Pointed at a button/route the participant could not find | **Yes** (wayfinding leak) |
+| **product-explanation** | Explained a product noun, concept, or value the participant did not grasp | **Yes** (narration leak) |
+
+### Session founder-dependency verdict
+
+| Verdict | Criteria |
+| --- | --- |
+| **Product-led** | Reached committed manifest + located export with **zero** navigation-hint / product-explanation interventions (safety-blocker fixes allowed) |
+| **Mixed** | Reached value but needed **1** navigation-hint or product-explanation the participant could not have worked around |
+| **Founder-led** | Needed **≥2** narration leaks, **or** could not have continued without a product-explanation at a core step |
+
+### Cohort rule
+
+Report the **founder-narration leak rate** = sessions with ≥1 narration leak / sessions completed.
+A repeated leak (same trigger in **≥2** sessions) is a confirmed bottleneck — route it through
+[`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](FIRST_SESSION_DISMISSAL_PLAYBOOK.md) § Product decision gate
+before scoping any onboarding/copy change. Do **not** "fix" a one-off explanation with UI work.
+
+---
+
 ## Success / fail criteria
 
 ### Session PASS (directional)
