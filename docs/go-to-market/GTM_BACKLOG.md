@@ -168,6 +168,7 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-32 | Reference customer / design partner case study publication | V1.1 | Depends on signed pilot and `reference-customers/PUBLICATION_CHECKLIST.md` clearance |
 | M-33 | Cross-tenant portfolio ROI analytics marketing claim | V2 | Cross-tenant analytics deferred to V2 per `V1_DEFERRED.md` |
 | M-37 | Real decision-delta cohort (10 paid pilots) using `DECISION_DELTA_INTERVIEW.md` and bakeoff packet discipline | V1.1 | Market-validation motion prioritized for V1.1; do not treat as an (A) V1 headline-readiness penalty |
+| M-43 | Run real (human-led) principal-architect frontier-AI bakeoff sessions per `docs/runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`; recruit regulated/compliance buyers first; append rows to the real scoreboard at `artifacts/bakeoff/scoreboard/frontier-ai-scoreboard.md` | V1.1 | Supersedes the synthetic AI dry-run (design-uncertainty only). Produces the **market** evidence (real participants, real decisions) the dry-run cannot; do not treat its absence as an (A) V1 headline-readiness penalty |
 
 ---
 
