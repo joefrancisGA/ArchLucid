@@ -6,6 +6,7 @@ This folder is the **commit-safe** home for **sanitized** summaries of validatio
 
 - Blind principal-architect cohort rollups.
 - Decision-delta interview summaries from paid pilots.
+- Paid-pilot conversion evidence ledger rollups (monthly aggregates).
 - First-non-obvious-moment and dismissal-trigger aggregates.
 
 It exists because [`../DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) and the cohort playbook point here for stored summaries.
@@ -27,6 +28,7 @@ Do **not** re-create protocol assets — they already exist:
 - Blind protocol: [`../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
 - Pre-registered tracker (fill this before scoring): [`BLIND_DECISION_DELTA_COHORT_TRACKER.md`](BLIND_DECISION_DELTA_COHORT_TRACKER.md)
 - Per-session dismissal capture + weekly triage: [`../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md)
+- Paid-pilot conversion ledger (per-row + monthly rollup): [`../validation/PAID_PILOT_EVIDENCE_LEDGER.md`](../validation/PAID_PILOT_EVIDENCE_LEDGER.md)
 
 ## Guardrail
 
