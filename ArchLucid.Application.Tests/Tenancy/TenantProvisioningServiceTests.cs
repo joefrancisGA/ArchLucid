@@ -32,6 +32,7 @@ public sealed class TenantProvisioningServiceTests
     public async Task ProvisionAsync_is_idempotent_by_slug()
     {
         InMemoryTenantRepository repo = new();
+        InMemoryTenantSettingsRepository settingsRepo = new();
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("admin@test");
         Mock<IAuditService> audit = new();
@@ -60,7 +61,8 @@ public sealed class TenantProvisioningServiceTests
             options.Object,
             sqlCatalog.Object,
             packSeeder.Object,
-            new Mock<IMarketingAttributionService>().Object);
+            new Mock<IMarketingAttributionService>().Object,
+            settingsRepo);
 
         TenantProvisioningRequest req = new()
         {
@@ -103,7 +105,8 @@ public sealed class TenantProvisioningServiceTests
             options.Object,
             Mock.Of<ITenantSqlCatalogProvisioner>(),
             Mock.Of<IDefaultPolicyPackSeeder>(),
-            new Mock<IMarketingAttributionService>().Object);
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
 
         TenantProvisioningRequest req =
             new() { Name = "R Co", AdminEmail = "root@example.com", Tier = TenantTier.Standard, DataRegion = "eastus" };
@@ -156,7 +159,8 @@ public sealed class TenantProvisioningServiceTests
             options.Object,
             sqlCatalog.Object,
             packSeeder.Object,
-            new Mock<IMarketingAttributionService>().Object);
+            new Mock<IMarketingAttributionService>().Object,
+            settingsRepo);
 
         TenantProvisioningRequest req = new()
 
@@ -251,7 +255,8 @@ public sealed class TenantProvisioningServiceTests
             options.Object,
             sqlCatalog.Object,
             packSeeder.Object,
-            new Mock<IMarketingAttributionService>().Object);
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
 
         TenantProvisioningRequest req = new()
         {
@@ -340,7 +345,8 @@ public sealed class TenantProvisioningServiceTests
             options.Object,
             sqlCatalog.Object,
             packSeeder.Object,
-            new Mock<IMarketingAttributionService>().Object);
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
 
         TenantProvisioningRequest req = new()
         {

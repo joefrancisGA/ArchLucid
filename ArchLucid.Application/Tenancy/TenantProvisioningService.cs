@@ -8,6 +8,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,7 +25,8 @@ public sealed class TenantProvisioningService(
     IOptionsMonitor<TenantProvisioningOptions> tenantProvisioningOptions,
     ITenantSqlCatalogProvisioner tenantSqlCatalogProvisioner,
     IDefaultPolicyPackSeeder defaultPolicyPackSeeder,
-    IMarketingAttributionService marketingAttributionService) : ITenantProvisioningService
+    IMarketingAttributionService marketingAttributionService,
+    ITenantSettingsRepository tenantSettingsRepository) : ITenantProvisioningService
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -45,6 +47,9 @@ public sealed class TenantProvisioningService(
 
     private readonly IMarketingAttributionService _marketingAttributionService =
         marketingAttributionService ?? throw new ArgumentNullException(nameof(marketingAttributionService));
+
+    private readonly ITenantSettingsRepository _tenantSettingsRepository =
+        tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
 
     /// <inheritdoc/>
     public async Task<TenantProvisioningResult> ProvisionAsync(TenantProvisioningRequest request, CancellationToken ct)
@@ -97,6 +102,10 @@ public sealed class TenantProvisioningService(
                 await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
 
                 await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct);
+
+                // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
+                await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct);
+                await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct);
 
                 if (request.FirstTouch is not null)
                 {
