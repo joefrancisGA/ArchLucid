@@ -15,9 +15,6 @@ public sealed class AuditSqlRetryPolicyProvider : IAuditSqlRetryPolicyProvider
                 ex.Number == 10928 || ex.Number == 10929 ||
                 // Network-layer connection failures
                 ex.Number == 10060 || ex.Number == 10053 || ex.Number == 10054 || ex.Number == 233 ||
-                // Client-side command timeout (ADO.NET -2): SQL Server did not respond within commandTimeout.
-                // Retrying is safe for idempotent INSERTs with a unique EventId primary key.
-                ex.Number == -2 ||
                 // Server-side session abort (severity 20, number 0): SQL Server killed the connection
                 // under resource pressure.  The INSERT is idempotent via EventId PK; retry is safe.
                 ex.Number == 0)

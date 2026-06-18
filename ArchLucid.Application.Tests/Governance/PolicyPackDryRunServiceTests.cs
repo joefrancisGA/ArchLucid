@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Transactions;
 
 using FluentAssertions;
 
@@ -264,6 +265,9 @@ public sealed class PolicyPackDryRunServiceTests
             LastEvent = auditEvent;
             return Task.CompletedTask;
         }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct) =>
+            LogAsync(auditEvent, ct);
     }
 
     private sealed class FakeRunDetailQueryService : IRunDetailQueryService

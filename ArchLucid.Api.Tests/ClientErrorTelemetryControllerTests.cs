@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Telemetry;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 
 using FluentAssertions;
 
@@ -44,6 +45,9 @@ public sealed class ClientErrorTelemetryControllerTests
     private sealed class NullAuditService : IAuditService
     {
         public Task LogAsync(AuditEvent auditEvent, CancellationToken ct) => Task.CompletedTask;
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct) =>
+            LogAsync(auditEvent, ct);
     }
 
     private sealed class CapturingAuditService : IAuditService
@@ -55,6 +59,9 @@ public sealed class ClientErrorTelemetryControllerTests
             Events.Add(auditEvent);
             return Task.CompletedTask;
         }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct) =>
+            LogAsync(auditEvent, ct);
     }
 
     private static IActorContext CreateDefaultActorContext()

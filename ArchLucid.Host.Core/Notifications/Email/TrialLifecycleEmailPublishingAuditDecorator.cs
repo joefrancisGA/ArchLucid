@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.IntegrationOutbox;
 
@@ -36,11 +37,31 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public async Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+    public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(auditEvent);
 
-        await _inner.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
+        return LogAsyncCore(auditEvent, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(auditEvent);
+        ArgumentNullException.ThrowIfNull(unitOfWork);
+
+        return LogAsyncCore(auditEvent, cancellationToken, unitOfWork);
+    }
+
+    private async Task LogAsyncCore(
+        AuditEvent auditEvent,
+        CancellationToken cancellationToken,
+        IArchLucidUnitOfWork? unitOfWork = null)
+    {
+        if (unitOfWork is null)
+            await _inner.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
+        else
+            await _inner.LogAsync(auditEvent, unitOfWork, cancellationToken).ConfigureAwait(false);
 
         try
         {

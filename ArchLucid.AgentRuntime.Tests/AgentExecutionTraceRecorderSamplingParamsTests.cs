@@ -5,6 +5,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Application.Agents;
 using ArchLucid.Persistence.Data.Repositories;
@@ -101,5 +102,8 @@ public sealed class AgentExecutionTraceRecorderSamplingParamsTests
     private sealed class NoOpAuditService : IAuditService
     {
         public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken) => Task.CompletedTask;
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
     }
 }

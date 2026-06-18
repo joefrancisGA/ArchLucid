@@ -4,6 +4,7 @@ using System.Security.Claims;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Audit;
 
 namespace ArchLucid.Host.Core.Auth.Services;
@@ -17,8 +18,33 @@ public sealed class AuditService(
     IScopeContextProvider scopeProvider)
     : IAuditService
 {
-    public async Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
+    public Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
     {
+        EnrichAuditEvent(auditEvent);
+        return repo.AppendAsync(auditEvent, ct);
+    }
+
+    public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(unitOfWork);
+        EnrichAuditEvent(auditEvent);
+
+        if (unitOfWork.SupportsExternalTransaction)
+        {
+            return repo.AppendAsync(
+                auditEvent,
+                ct,
+                unitOfWork.Connection,
+                unitOfWork.Transaction);
+        }
+
+        return repo.AppendAsync(auditEvent, ct);
+    }
+
+    private void EnrichAuditEvent(AuditEvent auditEvent)
+    {
+        ArgumentNullException.ThrowIfNull(auditEvent);
+
         bool systemCircuitBreaker = string.Equals(
             auditEvent.ActorUserName,
             "CircuitBreakerGate",
@@ -82,7 +108,5 @@ public sealed class AuditService(
                     ?? Activity.Current?.Id;
             }
         }
-
-        await repo.AppendAsync(auditEvent, ct);
     }
 }

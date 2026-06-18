@@ -1,6 +1,7 @@
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Host.Core.Hosted;
 
 using FluentAssertions;
@@ -115,6 +116,9 @@ public sealed class ArchitectureProjectRetentionPurgeBackgroundWorkTests
 
             return Task.CompletedTask;
         }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
     }
 
     private sealed class FixedOptionsMonitor(ArchitectureProjectRetentionPurgeOptions value) : IOptionsMonitor<ArchitectureProjectRetentionPurgeOptions>

@@ -263,6 +263,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                             },
                             AuditJsonSerializationOptions.Instance),
                     },
+                    uow,
                     token);
         }, ct);
 
@@ -298,6 +299,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                         },
                         AuditJsonSerializationOptions.Instance)
                 },
+                uow,
                 token);
 
             ctx.Manifest = manifest;
@@ -333,6 +335,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                             new { reason = ex.GetType().Name },
                             AuditJsonSerializationOptions.Instance),
                     },
+                    uow,
                     token);
 
                 throw;
@@ -353,6 +356,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                             new { artifactBundle.BundleId, artifactBundle.Trace.TraceId },
                             AuditJsonSerializationOptions.Instance),
                     },
+                    uow,
                     token);
 
             if (_logger.IsEnabled(LogLevel.Information))
@@ -381,6 +385,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                         },
                         AuditJsonSerializationOptions.Instance)
                 },
+                uow,
                 token);
 
             ctx.ArtifactBundle = artifactBundle;

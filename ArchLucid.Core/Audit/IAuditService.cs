@@ -1,3 +1,5 @@
+using ArchLucid.Core.Transactions;
+
 namespace ArchLucid.Core.Audit;
 
 /// <summary>
@@ -6,4 +8,9 @@ namespace ArchLucid.Core.Audit;
 public interface IAuditService
 {
     Task LogAsync(AuditEvent auditEvent, CancellationToken ct);
+
+    /// <summary>
+    ///     Appends on the unit-of-work SQL connection when supported; otherwise falls back to an autonomous append.
+    /// </summary>
+    Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct);
 }

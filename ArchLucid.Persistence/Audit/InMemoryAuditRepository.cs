@@ -1,3 +1,4 @@
+using System.Data;
 using System.Runtime.CompilerServices;
 
 using ArchLucid.Core.Audit;
@@ -18,7 +19,11 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
     private readonly Lock _gate = new();
 
-    public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
+    public Task AppendAsync(
+        AuditEvent auditEvent,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ct.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(auditEvent);

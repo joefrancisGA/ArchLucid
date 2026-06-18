@@ -1,4 +1,5 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Transactions;
 
 namespace ArchLucid.TestSupport.GoldenCorpus;
 
@@ -22,4 +23,8 @@ public sealed class CollectingAuditService : IAuditService
         _eventTypes.Add(auditEvent.EventType.Trim());
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken ct) =>
+        LogAsync(auditEvent, ct);
 }
