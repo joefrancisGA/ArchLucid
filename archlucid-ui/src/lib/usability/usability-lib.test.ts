@@ -18,6 +18,13 @@ describe("usability lib", () => {
     expect(phase1.map((l) => l.href)).toEqual(["/compare"]);
   });
 
+  it("filterNavLinksByOperateUnlockPhase keeps recurrence schedules visible in phase 1", () => {
+    const links = [{ href: "/compare" }, { href: "/governance/recurrence-schedules" }, { href: "/audit" }];
+    const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);
+
+    expect(phase1.map((l) => l.href)).toEqual(["/compare", "/governance/recurrence-schedules"]);
+  });
+
   it("pageHelpTopicForPathname maps review routes", () => {
     expect(pageHelpTopicForPathname("/reviews/new")?.slug).toBe("evidence-intake");
   });

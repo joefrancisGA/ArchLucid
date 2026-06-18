@@ -76,7 +76,6 @@
     "Planning/RetrievalController.cs": "/search",
     "Roi/RoiController.cs": "/dashboard",
     "Tenancy/CorePilotTeamChecklistController.cs": "/onboarding",
-    "Tenancy/TenantBaselineController.cs": "/settings/baseline",
     "Tenancy/TenantCostEstimateController.cs": "/settings/tenant-cost",
     "Tenancy/TenantMeasuredRoiController.cs": "/value-report/roi",
     "Tenancy/TenantPilotValueReportController.cs": "/value-report/pilot",

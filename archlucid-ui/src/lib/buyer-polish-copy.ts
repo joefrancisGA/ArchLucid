@@ -64,8 +64,6 @@ export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
 export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try with Sample Data";
 
-export const PILOT_COMMAND_CENTER_HELP_LINK = "How it works";
-
 export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
 
 export const PILOT_COMMAND_CENTER_OUTCOMES = [
@@ -77,7 +75,7 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
   "Decision impact",
 ] as const;
 
-export const PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL = "Setup options";
+export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 

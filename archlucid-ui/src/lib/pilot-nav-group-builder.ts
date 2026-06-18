@@ -1,13 +1,13 @@
 import {
   AlertCircle,
   BarChart3,
+  CalendarClock,
   ClipboardList,
   GitGraph,
   Home,
   LayoutDashboard,
   ListOrdered,
   Rocket,
-  Settings2,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -28,7 +28,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Portfolio overview → Review packages → Evidence trail → Start review for net-new input; then onboarding, findings, and ROI baselines.",
+        "Buyer-first path: Home → Start review → Evidence trail → Review packages → Portfolio overview; then onboarding and governance follow-up.",
       links: [
         {
           href: "/",
@@ -40,22 +40,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: isCtoDemoPresenterSafeModeEnv() ? getShowcaseExecutiveHref() : "/dashboard",
-          label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
-          title: PORTFOLIO_OVERVIEW_NAV_TITLE,
-          icon: LayoutDashboard,
-          tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
-        },
-        {
-          href: "/reviews?projectId=default",
-          label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
+          href: "/reviews/new",
+          label: OPERATOR_NAV_LINK_LABELS.capture,
           title: this.shortcutTitle(
-            "Review packages — open review detail, architecture package, artifacts, exports",
-            "alt+r",
+            "Start review — Quick review, Guided intake, or full wizard",
+            "alt+n",
           ),
-          keyShortcut: "alt+r",
-          icon: ListOrdered,
+          keyShortcut: "alt+n",
+          icon: Rocket,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },
@@ -72,14 +64,22 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/reviews/new",
-          label: OPERATOR_NAV_LINK_LABELS.capture,
+          href: "/reviews?projectId=default",
+          label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle(
-            "Start review — Quick review, Guided intake, or full wizard",
-            "alt+n",
+            "Review packages — open review detail, architecture package, artifacts, exports",
+            "alt+r",
           ),
-          keyShortcut: "alt+n",
-          icon: Rocket,
+          keyShortcut: "alt+r",
+          icon: ListOrdered,
+          tier: "essential",
+          defaultVisibleInCollapsedSidebar: true,
+        },
+        {
+          href: isCtoDemoPresenterSafeModeEnv() ? getShowcaseExecutiveHref() : "/dashboard",
+          label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
+          title: PORTFOLIO_OVERVIEW_NAV_TITLE,
+          icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,
         },
@@ -113,17 +113,18 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/settings/baseline",
-          label: OPERATOR_NAV_LINK_LABELS.pilotBaselines,
-          title: "ROI baselines — tenant anchors required before sponsor PDF with dollar claims",
-          icon: Settings2,
-          tier: "essential",
-        },
-        {
           href: "/scorecard",
           label: OPERATOR_NAV_LINK_LABELS.scorecard,
           title: "Pilot scorecard — finalized-review metrics and ROI baselines",
           icon: BarChart3,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/recurrence-schedules",
+          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
+          title: "Recurrence schedules — automated follow-up architecture reviews after commit",
+          icon: CalendarClock,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

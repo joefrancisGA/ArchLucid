@@ -55,4 +55,24 @@ describe("RecurrenceSchedulePostCommitCard", () => {
 
     expect(await screen.findByText("API down")).toBeInTheDocument();
   });
+
+  it("links to the management page when a schedule already exists", async () => {
+    vi.mocked(governanceApi.listArchitectureReviewRecurrenceSchedules).mockResolvedValue([
+      {
+        scheduleId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        sourceRunId: runId,
+        name: "Weekly architecture review",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        nextRunUtc: "2026-06-09T08:00:00Z",
+      },
+    ]);
+
+    render(<RecurrenceSchedulePostCommitCard runId={runId} hasStickinessPrompt />);
+
+    expect(await screen.findByTestId("recurrence-schedule-manage-link")).toHaveAttribute(
+      "href",
+      "/governance/recurrence-schedules",
+    );
+  });
 });

@@ -1,12 +1,25 @@
 /** Core Pilot surfaces: essential-tier nav only (no Show more / extended / advanced links). */
 const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
   "/",
+  "/dashboard",
   "/onboarding",
   "/reviews/new",
   "/reviews",
   "/settings/extract-upload",
   "/graph",
 ]);
+
+function isCorePilotEssentialOnlyPathname(pathname: string): boolean {
+  if (CORE_PILOT_ESSENTIAL_ONLY_PATHS.has(pathname)) {
+    return true;
+  }
+
+  if (pathname === "/help" || pathname.startsWith("/help/")) {
+    return true;
+  }
+
+  return false;
+}
 
 /**
  * On Core Pilot surfaces, show only essential-tier nav links so the sidebar matches polished home
@@ -19,7 +32,7 @@ export function effectiveNavDisclosureForPathname(
 ): { showExtended: boolean; showAdvanced: boolean } {
   const normalized = pathname ?? "";
 
-  if (CORE_PILOT_ESSENTIAL_ONLY_PATHS.has(normalized)) {
+  if (isCorePilotEssentialOnlyPathname(normalized)) {
     return { showExtended: false, showAdvanced: false };
   }
 

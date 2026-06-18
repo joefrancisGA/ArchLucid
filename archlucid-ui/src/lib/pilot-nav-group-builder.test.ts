@@ -37,4 +37,12 @@ describe("PilotNavGroupBuilder", () => {
 
     expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
   });
+
+  it("includes recurrence schedules in the pilot nav group for post-commit operating rhythm", () => {
+    const group = new PilotNavGroupBuilder().build();
+    const recurrenceLink = group.links.find((link) => link.href === "/governance/recurrence-schedules");
+
+    expect(recurrenceLink).toBeDefined();
+    expect(recurrenceLink?.label).toBe("Recurrence schedules");
+  });
 });

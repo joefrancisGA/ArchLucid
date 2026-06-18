@@ -1,3 +1,4 @@
+import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeDevSelector } from "@/components/settings/AuthorityThemeDevSelector";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,24 @@ export default function SettingsPage() {
           General operator settings.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Appearance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1 text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Color mode</p>
+              <p className="m-0">
+                Controls whether the interface uses a light or dark color scheme. &apos;System&apos; follows your
+                device setting.
+              </p>
+            </div>
+            <ColorModeToggle />
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

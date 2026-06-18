@@ -15,7 +15,7 @@ describe("PilotCommandCenterCard", () => {
       "href",
       "/reviews/new?zeroConfig=1",
     );
-    expect(screen.getByTestId("pilot-command-center-help")).toHaveAttribute("href", "/help/core-pilot");
+    expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-first-run-steps")).toHaveTextContent(
       "Open sample finding → Review evidence → See decision impact",
     );
@@ -23,12 +23,13 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
     expect(screen.getByText("Evidence gaps")).toBeInTheDocument();
     expect(screen.getByText("Decision impact")).toBeInTheDocument();
-    expect(screen.queryByText("Optional setup")).toBeNull();
+    expect(screen.getByText("Optional setup:")).toBeInTheDocument();
   });
 
-  it("exposes tertiary setup links without an optional-setup heading", () => {
+  it("exposes optional setup links inline without a disclosure", () => {
     render(<PilotCommandCenterCard />);
 
+    expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/settings/cloud-connections");
     expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", "/settings/roles");
   });

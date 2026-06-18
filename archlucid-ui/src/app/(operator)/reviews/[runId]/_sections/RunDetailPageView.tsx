@@ -477,7 +477,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           <RunDetailWhatsNextSection runId={m.routeRunId} />
           <RecurrenceSchedulePostCommitCard
             runId={m.routeRunId}
-            hasStickinessPrompt={Boolean(m.manifestId) && m.buyerPolishedArtifactTable !== true}
+            hasStickinessPrompt={Boolean(m.manifestId)}
           />
           <PostCommitHabitLoopCard
             runId={m.routeRunId}

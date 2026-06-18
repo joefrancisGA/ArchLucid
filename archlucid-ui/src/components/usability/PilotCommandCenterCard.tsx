@@ -8,13 +8,12 @@ import {
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_FIRST_RUN_STEPS,
   PILOT_COMMAND_CENTER_HEADING,
-  PILOT_COMMAND_CENTER_HELP_LINK,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_OUTCOMES,
   PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
   PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK,
-  PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL,
+  PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 import {
@@ -59,9 +58,6 @@ export function PilotCommandCenterCard(): React.JSX.Element {
                 {PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK}
               </Link>
             </Button>
-            <Link href="/help/core-pilot" className={cn(tertiaryLinkClass, "text-center sm:text-left")} data-testid="pilot-command-center-help">
-              {PILOT_COMMAND_CENTER_HELP_LINK}
-            </Link>
           </div>
 
           <p
@@ -71,31 +67,21 @@ export function PilotCommandCenterCard(): React.JSX.Element {
             {PILOT_COMMAND_CENTER_FIRST_RUN_STEPS}
           </p>
 
-          <details className="group" data-testid="pilot-command-center-setup-disclosure">
-            <summary
-              className={cn(
-                "cursor-pointer list-none text-al-text-secondary [&::-webkit-details-marker]:hidden",
-                OPERATOR_TYPE_SCALE.meta,
-                "font-medium text-al-accent-interactive hover:text-al-text-primary",
-              )}
-            >
-              {PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL}
-            </summary>
-            <p
-              className={cn("m-0 mt-2 flex flex-wrap items-center gap-x-1 gap-y-1", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
-              data-testid="pilot-command-center-tertiary-actions"
-            >
-              <Link href="/settings/cloud-connections" className={tertiaryLinkClass} data-testid="pilot-command-center-connect-azure">
-                {PILOT_COMMAND_CENTER_CONNECT_AZURE}
-              </Link>
-              <span aria-hidden className="text-al-text-secondary/50">
-                ·
-              </span>
-              <Link href="/settings/roles" className={tertiaryLinkClass} data-testid="pilot-command-center-invite-reviewer">
-                {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
-              </Link>
-            </p>
-          </details>
+          <p
+            className={cn("m-0 flex flex-wrap items-center gap-x-1 gap-y-1", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+            data-testid="pilot-command-center-tertiary-actions"
+          >
+            <span>{PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}</span>
+            <Link href="/settings/cloud-connections" className={tertiaryLinkClass} data-testid="pilot-command-center-connect-azure">
+              {PILOT_COMMAND_CENTER_CONNECT_AZURE}
+            </Link>
+            <span aria-hidden className="text-al-text-secondary/50">
+              ·
+            </span>
+            <Link href="/settings/roles" className={tertiaryLinkClass} data-testid="pilot-command-center-invite-reviewer">
+              {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
+            </Link>
+          </p>
         </div>
 
         <div className="min-w-0 lg:max-w-md lg:flex-1">

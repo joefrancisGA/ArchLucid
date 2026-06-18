@@ -5,10 +5,12 @@ const searchParamsState = {
   value: new URLSearchParams(),
 };
 
-const { createArchitectureRunMock, uploadAzureExtractorPackageMock } = vi.hoisted(() => ({
-  createArchitectureRunMock: vi.fn(),
-  uploadAzureExtractorPackageMock: vi.fn(),
-}));
+const { createArchitectureRunMock, uploadAzureExtractorPackageMock, saveTenantReviewCycleBaselineMock } =
+  vi.hoisted(() => ({
+    createArchitectureRunMock: vi.fn(),
+    uploadAzureExtractorPackageMock: vi.fn(),
+    saveTenantReviewCycleBaselineMock: vi.fn(),
+  }));
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParamsState.value,
@@ -46,6 +48,15 @@ vi.mock("@/lib/upload-azure-extractor-package", () => ({
   uploadAzureExtractorPackage: (...args: unknown[]) => uploadAzureExtractorPackageMock(...args),
 }));
 
+vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/save-tenant-review-cycle-baseline")>();
+
+  return {
+    ...actual,
+    saveTenantReviewCycleBaseline: (...args: unknown[]) => saveTenantReviewCycleBaselineMock(...args),
+  };
+});
+
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
@@ -56,6 +67,8 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
     createArchitectureRunMock.mockReset();
     uploadAzureExtractorPackageMock.mockReset();
+    saveTenantReviewCycleBaselineMock.mockReset();
+    saveTenantReviewCycleBaselineMock.mockResolvedValue({ ok: true });
 
     vi.stubGlobal(
       "fetch",
@@ -97,9 +110,22 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
       },
     });
 
-    for (let i = 0; i < 5; i += 1) {
+    for (let i = 0; i < 4; i += 1) {
       await clickPrimaryForward();
     }
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-baseline-metrics-step")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("wizard-baseline-review-cycle-hours"), {
+      target: { value: "40" },
+    });
+    fireEvent.change(screen.getByTestId("wizard-baseline-confidence"), {
+      target: { value: "measured" },
+    });
+
+    await clickPrimaryForward();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();

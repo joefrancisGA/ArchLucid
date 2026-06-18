@@ -53,7 +53,6 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
       "/reviews",
       "/dashboard",
       "/onboarding",
-      "/settings/baseline",
     ]);
   });
 

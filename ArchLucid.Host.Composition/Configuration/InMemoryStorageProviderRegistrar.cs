@@ -144,6 +144,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IReferenceEvidenceRunLookup, InMemoryReferenceEvidenceRunLookup>();
         services.AddSingleton<ITenantNotificationChannelPreferencesRepository, InMemoryTenantNotificationChannelPreferencesRepository>();
         services.AddSingleton<IOperatorSavedViewRepository, InMemoryOperatorSavedViewRepository>();
+        services.AddSingleton<IUserSettingsRepository, InMemoryUserSettingsRepository>();
         services.AddSingleton<IDraftRequestRepository, InMemoryDraftRequestRepository>();
         services.AddSingleton<ITenantTeamsIncomingWebhookConnectionRepository, InMemoryTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddSingleton<ITenantExecDigestPreferencesRepository, InMemoryTenantExecDigestPreferencesRepository>();

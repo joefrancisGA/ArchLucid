@@ -50,6 +50,7 @@ import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLin
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { UserAppearancePreferenceSync } from "@/components/UserAppearancePreferenceSync";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
@@ -137,6 +138,9 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <OperatorNavAuthorityProvider>
         <WorkspaceActiveRunProvider>
+          <AppInsightsTelemetryInit />
+          <SessionIdleTimeoutGuard />
+          <UserAppearancePreferenceSync />
           <TooltipProvider delayDuration={200}>
             <a href="#main-content" className="skip-to-main">
               Skip to main content
@@ -243,6 +247,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       <WorkspaceActiveRunProvider>
       <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
+      <UserAppearancePreferenceSync />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content

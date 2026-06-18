@@ -5,7 +5,6 @@ import { CircleHelp } from "lucide-react";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
@@ -81,7 +80,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                 <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
               </Tooltip>
               {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
-              <ColorModeToggle />
             </div>
           </div>
         </div>

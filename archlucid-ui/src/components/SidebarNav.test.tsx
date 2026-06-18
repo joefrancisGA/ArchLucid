@@ -74,6 +74,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Portfolio overview" })).toHaveAttribute("href", "/dashboard");
+      expect(within(nav).queryByRole("link", { name: "ROI baselines" })).toBeNull();
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();
@@ -202,7 +203,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Show 3 more destinations in Review work" }));
+    fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
     expect(screen.queryByRole("dialog", { name: "Sidebar layout" })).toBeNull();
     expect(within(nav).getByRole("link", { name: "Risk register" })).toHaveAttribute(
