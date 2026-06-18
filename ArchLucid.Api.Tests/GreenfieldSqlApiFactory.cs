@@ -22,6 +22,8 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
     {
+        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
+
         try
         {
             string databaseName = "ArchLucidGreenfield_" + Guid.NewGuid().ToString("N");

@@ -37,6 +37,12 @@ public sealed class ForensicsTracePartitionSeedFixture : IAsyncLifetime
         if (!SqlReachable)
             return;
 
+        if (GreenfieldSqlIntegrationWarmup.ShardWarmupTimedOut)
+        {
+            ShardWarmupTimedOut = true;
+            return;
+        }
+
         SeedFactory = new GreenfieldSqlApiFactory();
 
         using HttpClient client = SeedFactory.CreateClient();
@@ -49,6 +55,7 @@ public sealed class ForensicsTracePartitionSeedFixture : IAsyncLifetime
         }
         catch (WarmupTimedOutException)
         {
+            GreenfieldSqlIntegrationWarmup.RecordShardWarmupTimedOut();
             ShardWarmupTimedOut = true;
 
             await SeedFactory.DisposeAsync();

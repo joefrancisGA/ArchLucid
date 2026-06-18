@@ -306,6 +306,14 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string entryPointName,
         Func<CancellationToken, Task> warmupBody)
     {
+        Console.Error.WriteLine(
+            "[GreenfieldSqlWarmup] "
+            + entryPointName
+            + " starting at "
+            + DateTime.UtcNow.ToString("O")
+            + "; budget="
+            + GreenfieldSqlHostBootstrapBudget);
+
         using CancellationTokenSource bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         bootstrap.CancelAfter(GreenfieldSqlHostBootstrapBudget);
         CancellationToken ct = bootstrap.Token;
