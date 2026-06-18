@@ -6,6 +6,7 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
@@ -83,7 +84,7 @@ public sealed class UserPreferencesControllerTests
             new SetAppearancePreferenceRequest { Value = "sepia" },
             CancellationToken.None);
 
-        result.Should().BeOfType<BadRequestObjectResult>();
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
         repository.Verify(
             repo => repo.UpsertAsync(
@@ -100,6 +101,9 @@ public sealed class UserPreferencesControllerTests
         actorContext.Setup(context => context.GetActorId()).Returns("jwt:user-1");
         actorContext.Setup(context => context.GetActor()).Returns("operator@example.com");
 
-        return new UserPreferencesController(actorContext.Object, repository);
+        return new UserPreferencesController(actorContext.Object, repository)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
     }
 }
