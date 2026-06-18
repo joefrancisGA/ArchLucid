@@ -253,6 +253,107 @@
         }
       ],
       "priority": "P2"
+    },
+    {
+      "id": "waf-az-013",
+      "title": "Sovereign region pinning for regulated data planes",
+      "description": "When governance.ComplianceTags imply sovereignty or residency constraints, every inventoried data plane in resources.json must stay inside the declared geography; cross-region replication requires an explicit exception narrative.",
+      "severity": "Critical",
+      "remediationGuidance": "Map datastores[].Region and services[].Region against governance.ComplianceTags; flag paired-region DR only when metadata.ChangeDescription cites an approved residency exception.",
+      "evidenceHints": [
+        "datastores[].Region",
+        "services[].Region",
+        "governance.ComplianceTags",
+        "azureExtractor.manifest.ScopeDescriptor",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Security \u2014 Data sovereignty and residency (pillar theme)"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "waf-az-014",
+      "title": "Customer-managed key rotation cadence",
+      "description": "Stateful services using CMK encryption must document rotation ownership and maximum key age; silent long-lived keys are a review blocker for regulated tiers.",
+      "severity": "High",
+      "remediationGuidance": "Reference Key Vault key names in governance.RequiredControls and tie rotation cadence to governance.PolicyConstraints; cite resources.json Key Vault and storage encryption rows when present.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Security \u2014 Protect data with encryption and key governance (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-az-015",
+      "title": "Idle and orphaned spend retirement policy",
+      "description": "Advisor cost and orphan-candidate rows in the extractor ZIP must map to an explicit retirement or exemption decision — not linger as unnamed technical debt.",
+      "severity": "Medium",
+      "remediationGuidance": "Link orphan-candidates.json and advisor-cost.json entries to findings with owner and target retirement date; use governance.CostClassification to mark accepted carry cost.",
+      "evidenceHints": [
+        "azureExtractor.manifest.SwitchesUsed",
+        "governance.CostClassification",
+        "metadata.ChangeDescription",
+        "findings[].Recommendation"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Cost Optimization \u2014 Eliminate waste and orphaned resources (pillar theme)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "waf-az-016",
+      "title": "Generative AI endpoint rate and quota guardrails",
+      "description": "Architecture narratives that expose LLM or embedding endpoints must document per-tenant throttling, budget cutoffs, and abuse detection — not unbounded inference surfaces.",
+      "severity": "High",
+      "remediationGuidance": "Record quota and budget policies on services[].Tags for Azure OpenAI / AI Search hosts; align with governance.PolicyConstraints for PilotStrict or production inference tiers.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].Purpose",
+        "governance.PolicyConstraints",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Reliability \u2014 Protect workloads with rate limits and capacity guardrails (pillar theme)"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "waf-az-017",
+      "title": "Hub-spoke peering and firewall inspection path",
+      "description": "Multi-subscription or hub-spoke designs must show which traffic paths are inspected by Azure Firewall or NVA — peering alone is not a security control.",
+      "severity": "High",
+      "remediationGuidance": "Document inspection points in relationships[].relationshipType and governance.RequiredControls; correlate Microsoft.Network/virtualNetworks and firewall resources from resources.json.",
+      "evidenceHints": [
+        "relationships[].relationshipType",
+        "governance.RequiredControls",
+        "azureExtractor.manifest.RawJson",
+        "topology.Resources"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Microsoft Azure Well-Architected",
+          "requirement": "Security \u2014 Network segmentation and inspected east-west paths (pillar theme)"
+        }
+      ],
+      "priority": "P1"
     }
   ]
 }

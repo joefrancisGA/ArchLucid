@@ -30,7 +30,12 @@
     "sec-base-027",
     "sec-base-028",
     "sec-base-029",
-    "sec-base-030"
+    "sec-base-030",
+    "sec-base-031",
+    "sec-base-032",
+    "sec-base-033",
+    "sec-base-034",
+    "sec-base-035"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
