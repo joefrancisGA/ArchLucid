@@ -50,6 +50,13 @@ public sealed class ArchitectureRunDetail
         set;
     } = [];
 
+    /// <summary>Summed LLM token usage and USD estimate from persisted execution traces (TB-106).</summary>
+    public ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate
+    {
+        get;
+        set;
+    }
+
     /// <summary>Convenience accessor: <see langword="true" /> when the run has a committed manifest.</summary>
     public bool IsCommitted => Manifest is not null;
 
