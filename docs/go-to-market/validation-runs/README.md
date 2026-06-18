@@ -26,6 +26,7 @@ Do **not** re-create protocol assets — they already exist:
 - Scorecard: [`../Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](../Architect_Evaluation/PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
 - Blind protocol: [`../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md`](../Architect_Evaluation/BLIND_INSIGHT_VALIDATION_PROTOCOL.md)
 - Pre-registered tracker (fill this before scoring): [`BLIND_DECISION_DELTA_COHORT_TRACKER.md`](BLIND_DECISION_DELTA_COHORT_TRACKER.md)
+- Per-session dismissal capture + weekly triage: [`../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](../validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md)
 
 ## Guardrail
 

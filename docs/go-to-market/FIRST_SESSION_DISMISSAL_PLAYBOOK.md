@@ -125,6 +125,7 @@ Print or keep on second monitor. **Do not** deviate into feature tours.
 
 - [ ] Complete `session-NN-notes.md`
 - [ ] File `dismissal-trigger.json` if dismissal or near-dismissal observed (template: `fixtures/first-session/dismissal-trigger.template.json`)
+- [ ] File full dismissal assessment via [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) + JSON template (confidence, contradicting signals, evidence-trail walkthrough timing)
 - [ ] Mark session PASS / FAIL per protocol criteria
 
 ---
@@ -217,4 +218,5 @@ gate as **Justified now** may proceed to the engineering batch gate below.
 - [`SPONSOR_EXPORT_DISCOVERY_TEST.md`](SPONSOR_EXPORT_DISCOVERY_TEST.md) — focused ~10-min export-discovery micro-test (scoped regression for the H5/D4 export moment)
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — GTM tracking
 - [`templates/pilot-dismissal-trigger.template.json`](templates/pilot-dismissal-trigger.template.json) — JSON capture (optional adjunct)
+- [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) — per-session dismissal assessment + weekly top-2 triage runbook (assessment Improvement #2)
 - [`FIRST_VALUE_20_MINUTES.md`](../runbooks/FIRST_VALUE_20_MINUTES.md)
