@@ -214,6 +214,7 @@ gate as **Justified now** may proceed to the engineering batch gate below.
 ## Related
 
 - [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) — protocol detail
+- [`SPONSOR_EXPORT_DISCOVERY_TEST.md`](SPONSOR_EXPORT_DISCOVERY_TEST.md) — focused ~10-min export-discovery micro-test (scoped regression for the H5/D4 export moment)
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — GTM tracking
 - [`templates/pilot-dismissal-trigger.template.json`](templates/pilot-dismissal-trigger.template.json) — JSON capture (optional adjunct)
 - [`FIRST_VALUE_20_MINUTES.md`](../runbooks/FIRST_VALUE_20_MINUTES.md)
