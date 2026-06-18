@@ -61,12 +61,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Deterministic faithfulness trend (warn-only — Phase B soak)
+      - name: Deterministic faithfulness trend (Phase B — enforce when repo var set)
         run: |
           set -euo pipefail
-          python3 scripts/ci/eval_agent_faithfulness.py
+          if [ "${{ vars.ARCHLUCID_FAITHFULNESS_NIGHTLY_ENFORCE }}" = "true" ]; then
+            python3 scripts/ci/eval_agent_faithfulness.py --enforce
+            ENFORCE_LABEL=", enforce"
+          else
+            python3 scripts/ci/eval_agent_faithfulness.py
+            ENFORCE_LABEL=", warn-only"
+          fi
           if [ -f docs/quality/faithfulness-report.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
-            echo "## Agent faithfulness (nightly warn-only)" >> "$GITHUB_STEP_SUMMARY"
+            echo "## Agent faithfulness (nightly${ENFORCE_LABEL})" >> "$GITHUB_STEP_SUMMARY"
             head -n 40 docs/quality/faithfulness-report.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
