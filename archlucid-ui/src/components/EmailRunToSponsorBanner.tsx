@@ -342,7 +342,7 @@ export function EmailRunToSponsorBanner({
             data-testid="email-run-to-sponsor-estimated-usd-savings"
             className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
           >
-            {formatUsd(estimatedUsdSavings)} projected savings
+            {formatUsd(estimatedUsdSavings)} projected savings (estimate)
           </span>
         ) : null}
         {executionModeLabel !== null ? (

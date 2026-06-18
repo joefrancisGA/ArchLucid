@@ -13,13 +13,18 @@ export type ShowcaseOutcomeStripProps = {
    * {@link import("@/lib/operator-static-demo").isStaticDemoPayloadFallbackEnabled} from a server parent.
    */
   readonly isRunDetailAvailable?: boolean;
+  /** Public demo / marketing preview — soften deliverable copy so it is not read as a live customer outcome. */
+  readonly illustrativeSample?: boolean;
 };
 
 /**
  * Primary CTAs for the public showcase — deep-links into operator routes used by the mock / pilot flows.
  */
 export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactElement {
-  const { runId, manifestId, primaryFindingId, isRunDetailAvailable = true } = props;
+  const { runId, manifestId, primaryFindingId, isRunDetailAvailable = true, illustrativeSample = false } = props;
+  const governanceSubtitle = illustrativeSample
+    ? "Sample deliverables — illustrative only"
+    : "Board-ready & audit-ready deliverables";
   const encRun = encodeURIComponent(runId);
   const hasManifest = typeof manifestId === "string" && manifestId.trim().length > 0;
   const encFinding =
@@ -90,12 +95,12 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/governance?runId=${encRun}`}>
           <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Board-ready &amp; audit-ready deliverables</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">{governanceSubtitle}</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
           <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Deliverables on the finalized signed manifest</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">{governanceSubtitle}</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
