@@ -102,6 +102,7 @@ Update the rollup section at the bottom of the scoreboard file.
 3. Append one row to `artifacts/bakeoff/scoreboard/frontier-ai-scoreboard.md`.
 4. After session 3, refresh cohort rollup and review positioning signals.
 5. Do **not** quote timing medians externally unless basis = measured for majority of rows.
+6. Follow monthly minimum and urgent re-run rules in [`validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md`](validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md).
 
 ---
 
@@ -116,6 +117,6 @@ Update the rollup section at the bottom of the scoreboard file.
 
 ## Related
 
-- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-40** tracks scoreboard maintenance
+- [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — **M-40** tracks scoreboard maintenance per [`validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md`](validation/FRONTIER_AI_COUNTERFACTUAL_CADENCE.md)
 - [`DECISION_DELTA_INTERVIEW.md`](DECISION_DELTA_INTERVIEW.md)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md)

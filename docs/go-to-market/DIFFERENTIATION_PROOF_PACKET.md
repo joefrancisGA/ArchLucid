@@ -43,7 +43,8 @@ Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDE
 2. **Execute** agents on uploaded Azure evidence or accepted demo workspace.
 3. **Commit** manifest — note manifest id and run id.
 4. **Collect proof** with `-RunId` — open **`first-pilot-command-center.md`** for SEND/HOLD/DEFERRED_SCOPE.
-5. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
+5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`validation/DECISION_CHANGE_ADDENDUM.md`](validation/DECISION_CHANGE_ADDENDUM.md).
+6. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
 
 Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-proof-packets/README.md)
 

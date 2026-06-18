@@ -55,4 +55,4 @@ Within **7 days** of sponsor PDF or proof-packet handoff on a **paid** Readiness
 | **WARN** | Outputs confirmatory only — still valuable for packaging/audit |
 | **FAIL** | Participant would not run review #2; primary reason recorded |
 
-Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit customer-identifying content without permission). Merge outcomes into the per-pilot row in [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md).
+Store summaries under `docs/go-to-market/validation-runs/` (local; do not commit customer-identifying content without permission). Merge outcomes into the per-pilot row in [`validation/PAID_PILOT_EVIDENCE_LEDGER.md`](validation/PAID_PILOT_EVIDENCE_LEDGER.md). Attach a buyer-safe [`validation/DECISION_CHANGE_ADDENDUM.md`](validation/DECISION_CHANGE_ADDENDUM.md) to the proof packet when decision delta is material.
