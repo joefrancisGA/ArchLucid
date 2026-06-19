@@ -25,6 +25,7 @@ export default [
       "**/*.generated.ts",
       "**/api-types.generated.ts",
       "**/help-index.generated.ts",
+      "**/review-terminology-surfaces.ts",
     ],
     plugins: {
       "buyer-review-terminology": buyerReviewTerminology,
