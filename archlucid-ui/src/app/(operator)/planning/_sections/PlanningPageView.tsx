@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -11,7 +11,7 @@ import { PlanningExportReadinessNote } from "@/components/planning/PlanningExpor
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
-import { PLANNING_EMPTY } from "@/lib/empty-state-presets";
+import { PLANNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 
@@ -87,7 +87,7 @@ export function PlanningPageView(props: Props) {
 
       {m.empty && !m.loading ? (
         <>
-          <EmptyState {...PLANNING_EMPTY} />
+          <EnterpriseCompactEmptyState {...PLANNING_EMPTY_COMPACT} />
           <OperatorTryNext>
             Capture or import pilot feedback on{" "}
             <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">

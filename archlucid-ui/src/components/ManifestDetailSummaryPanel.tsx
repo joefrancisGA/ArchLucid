@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { ManifestJsonActions } from "@/components/ManifestJsonActions";
 import { Button } from "@/components/ui/button";
 import { getBundleDownloadUrl } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -45,6 +46,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const decisionRestCount = Math.max(0, decisionLinesAll.length - decisionLinesPreview.length);
   const warningLines = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES] : [];
   const detailOpenDefault = !(buyerPolishedLayout ?? false) || isCuratedDemo;
+
+  const manifestJsonActions =
+    summary.runId.trim().length > 0 ? <ManifestJsonActions runId={summary.runId} className="mt-3" /> : null;
 
   const operatorSummary =
     summary.operatorSummary ? (
@@ -335,6 +339,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     return (
       <>
         {operatorSummary}
+        {manifestJsonActions}
         {buyerRecordedOutcomes}
         {buyerPolicyPackCallout}
         {relatedFinding}
@@ -347,6 +352,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   return (
     <>
       {operatorSummary}
+      {manifestJsonActions}
       {countsGrid}
       {policyLine}
       {decisionsBlock}

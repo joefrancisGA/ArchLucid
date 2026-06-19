@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 
-import { CopyManifestButton } from "@/components/CopyManifestButton";
-import { DownloadManifestButton } from "@/components/DownloadManifestButton";
+import { ManifestJsonActions } from "@/components/ManifestJsonActions";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
@@ -71,10 +70,7 @@ export function RunDetailManifestSummarySection(
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>
-          <div className="flex flex-wrap gap-2">
-            <DownloadManifestButton runId={manifestSummary.runId} className="space-y-0" />
-            <CopyManifestButton runId={manifestSummary.runId} className="space-y-0" />
-          </div>
+          <ManifestJsonActions runId={manifestSummary.runId} />
         </CardContent>
       </Card>
 

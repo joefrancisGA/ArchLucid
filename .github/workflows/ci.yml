@@ -253,6 +253,10 @@ jobs:
         run: npm ci
         working-directory: archlucid-ui
 
+      - name: Buyer terminology lint (TB-366)
+        run: npm run lint:terminology
+        working-directory: archlucid-ui
+
       - name: Check relative markdown links
         continue-on-error: true
         run: python scripts/ci/check_md_links.py
@@ -3175,6 +3179,7 @@ jobs:
         run: |
           npm ci
           npm run lint
+          npm run lint:terminology
           npm run typecheck
           npm run build
 

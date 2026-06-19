@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -21,7 +21,7 @@ import {
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_LIST_GLOSSARY_LEAD,
 } from "@/lib/buyer-polish-copy";
-import { RUNS_EMPTY } from "@/lib/empty-state-presets";
+import { RUNS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { RUNS_LIST_PAGE_SUBTITLE, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 import type { RunsPageModel } from "./runs-page-model";
@@ -135,7 +135,7 @@ export function RunsPageView(props: Props) {
       ) : null}
 
       {loadFailure === null && !malformedMessage && m.totalCount === 0 ? (
-        <EmptyState {...RUNS_EMPTY} />
+        <EnterpriseCompactEmptyState {...RUNS_EMPTY_COMPACT} />
       ) : null}
 
       {!loadFailure && !malformedMessage && m.totalCount > 0 ? (

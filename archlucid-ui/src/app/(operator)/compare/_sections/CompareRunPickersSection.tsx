@@ -1,7 +1,10 @@
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
-import { COMPARE_WAITING, COMPARE_WAITING_BUYER } from "@/lib/empty-state-presets";
+import {
+  COMPARE_WAITING_BUYER_COMPACT,
+  COMPARE_WAITING_COMPACT,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import type { RunSummary } from "@/types/authority";
 
 export type CompareRunPickersSectionProps = {
@@ -149,7 +152,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
       </div>
 
       {(!leftTrim || !rightTrim) && (
-        <EmptyState {...(useBuyerFacingRunLabels ? COMPARE_WAITING_BUYER : COMPARE_WAITING)} />
+        <EnterpriseCompactEmptyState {...(useBuyerFacingRunLabels ? COMPARE_WAITING_BUYER_COMPACT : COMPARE_WAITING_COMPACT)} />
       )}
     </>
   );

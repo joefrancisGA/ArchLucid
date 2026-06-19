@@ -24,21 +24,26 @@
 .PARAMETER SkipProofCollection
   Skip collect-first-pilot-proof.ps1 and only emit the rollup scaffold.
 
+.PARAMETER ValidateOnly
+  CI/owner smoke mode: emit rollup scaffold + manifest without live AOAI or proof collection.
+  Uses placeholder run ids when -RunId is omitted.
+
 .EXAMPLE
   .\scripts\validation\run-real-mode-faithfulness.ps1 `
     -RunId '11111111-1111-1111-1111-111111111111','22222222-2222-2222-2222-222222222222','33333333-3333-3333-3333-333333333333'
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)]
-    [string[]] $RunId,
+    [Parameter(Mandatory = $false)]
+    [string[]] $RunId = @(),
 
     [int] $RunNumber = 1,
     [string] $BaseUrl = '',
     [string] $OutputDirectory = 'artifacts/validation/m49-faithfulness',
     [string] $CompareBaseRunId = '',
     [switch] $SkipProofCollection,
-    [switch] $FailOnHold
+    [switch] $FailOnHold,
+    [switch] $ValidateOnly
 )
 
 Set-StrictMode -Version Latest
@@ -46,6 +51,48 @@ $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Set-Location $root
+
+if ($ValidateOnly) {
+    if ($RunId.Count -lt 1) {
+        $RunId = @(
+            '11111111-1111-1111-1111-111111111111',
+            '22222222-2222-2222-2222-222222222222',
+            '33333333-3333-3333-3333-333333333333'
+        )
+    }
+
+    if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
+        $BaseUrl = $env:ARCHLUCID_API_URL
+    }
+
+    if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
+        $BaseUrl = 'http://localhost:5128'
+    }
+
+    $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+    $outRoot = Join-Path (Get-Location) $OutputDirectory
+    $harnessDir = Join-Path $outRoot "m49-harness-$timestamp"
+    New-Item -ItemType Directory -Force -Path $harnessDir | Out-Null
+
+    $python = $env:ARCHLUCID_PYTHON
+    if ([string]::IsNullOrWhiteSpace($python)) {
+        $python = 'python'
+    }
+
+    $scaffoldScript = Join-Path $root 'scripts/validation/m49_faithfulness_scaffold.py'
+    $runIdArgs = @()
+    foreach ($id in $RunId) {
+        $runIdArgs += @('--run-id', $id.Trim())
+    }
+
+    & $python $scaffoldScript --output-directory $harnessDir @runIdArgs --base-url $BaseUrl
+    if ($LASTEXITCODE -ne 0) {
+        throw "m49_faithfulness_scaffold.py failed (exit $LASTEXITCODE)."
+    }
+
+    Write-Host "M-49 validate-only harness complete." -ForegroundColor Green
+    exit 0
+}
 
 . (Join-Path $root 'scripts/Import-LocalRealAoaiEnv.ps1') -RepoRoot $root
 
@@ -83,7 +130,7 @@ $normalizedRunIds = @(
 )
 
 if ($normalizedRunIds.Count -lt 1) {
-    throw 'At least one RunId is required.'
+    throw 'At least one RunId is required (or use -ValidateOnly).'
 }
 
 $proofFolders = [System.Collections.Generic.List[string]]::new()

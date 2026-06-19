@@ -1,6 +1,6 @@
 "use client";
 
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
   semanticSearchPageDeploymentNoteDev,
   semanticSearchPageSubtitleOperator,
 } from "@/lib/enterprise-controls-context-copy";
-import { SEARCH_EMPTY } from "@/lib/search-empty-preset";
+import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 
@@ -119,7 +119,9 @@ export function SearchPageView({ model }: SearchPageViewProps) {
         </div>
       ) : null}
 
-      {hasSearched && failure === null && results.length === 0 ? <EmptyState {...SEARCH_EMPTY} /> : null}
+      {hasSearched && failure === null && results.length === 0 ? (
+        <EnterpriseCompactEmptyState {...SEARCH_EMPTY_COMPACT} />
+      ) : null}
 
       <div className="grid gap-3">
         {results.map((hit) => (

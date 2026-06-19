@@ -10724,3 +10724,71 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - Operators can copy the raw manifest JSON directly to their clipboard with one click.
 
 **Size estimate:** S
+
+---
+
+## TB-366 — CI: Wire `lint:terminology` into UI guard pipeline (P1)
+
+**Status:** **Done (2026-06-19)** — `npm run lint:terminology` in doc-markdown-links and ui lint/build CI jobs.
+
+**Problem:** TB-355 added `npm run lint:terminology` (Vitest global terminology guard + ESLint rule), but it is not invoked in CI — regressions can merge without a local `npm run lint:terminology` pass.
+
+**Scope:**
+1. Add a CI step (archlucid-ui lint job or `run_guards_pre_corset.sh` after `npm ci`) that runs `npm run lint:terminology` from `archlucid-ui/`.
+2. Fail the build on any terminology violation.
+
+**Acceptance criteria:**
+- CI fails when buyer-facing copy reintroduces primary “run” terminology on guarded surfaces.
+
+**Size estimate:** S
+
+---
+
+## TB-367 — UI: Enterprise Empty States — Reviews, Search, Planning, Compare (P2)
+
+**Status:** **Done (2026-06-19)** — `EnterpriseCompactEmptyState` on reviews list, search, planning, and compare picker surfaces.
+
+**Problem:** Following TB-360/363 migrated Governance, Ask, Alerts, and Risk Exceptions to `EnterpriseCompactEmptyState`, but high-traffic operator routes still use centered `EmptyState` cards.
+
+**Scope:**
+1. Replace `EmptyState` with `EnterpriseCompactEmptyState` on the four surfaces above.
+2. Preserve existing CTAs and buyer-polished copy variants.
+
+**Acceptance criteria:**
+- All four surfaces use the standardized compact enterprise empty pattern with working action links.
+
+**Size estimate:** S
+
+---
+
+## TB-368 — UI: Manifest JSON actions on manifest detail page (P2)
+
+**Status:** **Done (2026-06-19)** — `ManifestJsonActions` on review detail and `ManifestDetailSummaryPanel`.
+
+**Problem:** TB-361/365 added download + clipboard copy on review detail only; manifest detail lacked the same affordances.
+
+**Scope:**
+1. Extract a reusable `ManifestJsonActions` component (download + copy).
+2. Render it on manifest detail when `summary.runId` is available.
+
+**Acceptance criteria:**
+- Operators can download or copy raw manifest JSON from both review detail and manifest detail.
+
+**Size estimate:** S
+
+---
+
+## TB-369 — CI: M-49 faithfulness harness validate-only smoke (P2)
+
+**Status:** **Done (2026-06-19)** — `-ValidateOnly` on harness ps1; `m49_faithfulness_scaffold.py` + `smoke_m49_harness_validate_only.py` in pre-corset guards.
+
+**Problem:** TB-357 shipped the M-49 harness, but CI never exercised scaffold generation.
+
+**Scope:**
+1. Add validate-only mode that writes rollup scaffold/manifest without live AOAI or proof collection.
+2. Wire CI smoke that asserts expected artifact files exist.
+
+**Acceptance criteria:**
+- CI smoke-tests the M-49 harness without live AOAI credentials.
+
+**Size estimate:** S
