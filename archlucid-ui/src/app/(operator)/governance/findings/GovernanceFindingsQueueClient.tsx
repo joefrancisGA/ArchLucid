@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -820,7 +821,14 @@ export default function GovernanceFindingsQueueClient() {
                     </Link>
                   </CardTitle>
                   <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-                    {buyerPolishedShell ? row.runLabel : `${row.runLabel} · ${row.findingId}`}
+                    {buyerPolishedShell ? (
+                      row.runLabel
+                    ) : (
+                      <span className="inline-flex flex-wrap items-center gap-1">
+                        <span>{`${row.runLabel} · ${row.findingId}`}</span>
+                        <CopyIdButton value={row.findingId} aria-label="Copy finding ID" />
+                      </span>
+                    )}
                   </p>
                   <div className="mt-2 grid gap-3 border-t border-neutral-100 pt-2 text-xs sm:grid-cols-3 dark:border-neutral-800">
                     {buyerPolishedShell ? null : (

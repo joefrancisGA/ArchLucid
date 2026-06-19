@@ -13,6 +13,8 @@ if str(_CI_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_DIR))
 
 import check_control_flow_spacing as control_flow  # noqa: E402
+import check_csharp_is_null as csharp_is_null  # noqa: E402
+import check_no_console_writeline as no_console  # noqa: E402
 import check_single_class_per_file as single_class  # noqa: E402
 
 
@@ -69,6 +71,53 @@ public void Demo()
 """
 
         self.assertEqual(control_flow.scan_source(source), [5])
+
+
+class TestCsharpIsNullGuard(unittest.TestCase):
+    def test_allows_is_null_pattern(self) -> None:
+        source = """
+public void Demo(object value)
+{
+    if (value is null)
+    {
+    }
+
+    if (value is not null)
+    {
+    }
+}
+"""
+
+        self.assertEqual(csharp_is_null.scan_source(source), [])
+
+    def test_flags_equality_null(self) -> None:
+        source = """
+public void Demo(object value)
+{
+    if (value == null)
+    {
+    }
+}
+"""
+
+        self.assertEqual(csharp_is_null.scan_source(source), [4])
+
+
+class TestNoConsoleWriteGuard(unittest.TestCase):
+    def test_excludes_test_paths(self) -> None:
+        self.assertFalse(no_console.should_scan_path("ArchLucid.Core.Tests/FooTests.cs"))
+        self.assertFalse(no_console.should_scan_path("ArchLucid.Cli/Program.cs"))
+        self.assertTrue(no_console.should_scan_path("ArchLucid.Api/Controllers/HealthController.cs"))
+
+    def test_flags_console_write_line(self) -> None:
+        source = """
+public void Demo()
+{
+    Console.WriteLine("debug");
+}
+"""
+
+        self.assertEqual(no_console.scan_source(source), [4])
 
 
 if __name__ == "__main__":

@@ -10792,3 +10792,70 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - CI smoke-tests the M-49 harness without live AOAI credentials.
 
 **Size estimate:** S
+
+---
+
+## TB-370 — CI Guard: Enforce `is null` Pattern Matching (P2)
+
+**Status:** **Done (2026-06-19)** — `check_csharp_is_null.py` / `.ps1`; diff-scoped guard in pre-corset when `ARCHLUCID_GIT_DIFF_RANGE` is set.
+
+**Problem:** Workspace C# rules prefer `is null` / `is not null` over equality operators on references.
+
+**Scope:**
+1. Diff-scoped scanner for `== null` / `!= null` in changed `.cs` files.
+2. Wire into `scripts/ci/run_guards_pre_corset.sh`.
+
+**Acceptance criteria:**
+- CI fails when `== null` or `!= null` is introduced in changed C# files.
+
+**Size estimate:** S
+
+---
+
+## TB-371 — CI Guard: Block `Console.WriteLine` in Product Code (P2)
+
+**Status:** **Done (2026-06-19)** — `check_no_console_writeline.py` / `.ps1`; excludes tests, CLI, and benchmarks; diff-scoped pre-corset guard.
+
+**Problem:** Debug console prints bypass structured logging.
+
+**Scope:**
+1. Reject `Console.Write` / `Console.WriteLine` in changed product `.cs` files.
+2. Exclude `*Tests.cs`, `*Test.cs`, `ArchLucid.Cli`, and `ArchLucid.Benchmarks`.
+
+**Acceptance criteria:**
+- CI fails if console prints are introduced in core domain, application, or API projects.
+
+**Size estimate:** S
+
+---
+
+## TB-372 — UI: Standardize `CopyIdButton` usage across operator tables (P3)
+
+**Status:** **Done (2026-06-19)** — `RiskExceptionsClient`, `GovernanceFindingsQueueDesktopTable`, and mobile rows in `GovernanceFindingsQueueClient` use shared `CopyIdButton`.
+
+**Problem:** Ad-hoc copy buttons and missing finding-ID copy affordances in governance tables.
+
+**Scope:**
+1. Replace custom copy logic in `RiskExceptionsClient.tsx`.
+2. Add `CopyIdButton` for finding IDs in governance findings queue (desktop + mobile).
+
+**Acceptance criteria:**
+- Operator tables consistently use `CopyIdButton` for entity IDs.
+
+**Size estimate:** S
+
+---
+
+## TB-373 — UI: Surface `CopyIdButton` for Run and Manifest IDs (P3)
+
+**Status:** **Done (2026-06-19)** — Review/manifest ID copy in `RunDetailPageHeader`, `RunDetailManifestSummarySection`, and `ManifestDetailSummaryPanel` verification appendix.
+
+**Problem:** Operators had to manually select UUIDs for API/ITSM workflows.
+
+**Scope:**
+1. One-click copy for run and manifest IDs on review detail header and manifest summary surfaces.
+
+**Acceptance criteria:**
+- Operators can copy Run ID and Manifest ID with one click.
+
+**Size estimate:** S

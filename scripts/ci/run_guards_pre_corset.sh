@@ -30,10 +30,13 @@ if [[ -n "${ARCHLUCID_GIT_DIFF_RANGE:-}" ]]; then
   python3 scripts/ci/assert_tenant_table_isolation_classifications.py
   python3 scripts/ci/check_single_class_per_file.py
   python3 scripts/ci/check_control_flow_spacing.py
+  python3 scripts/ci/check_csharp_is_null.py
+  python3 scripts/ci/check_no_console_writeline.py
 fi
 
 python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
 python -m unittest discover -s scripts/ci/tests -p "test_assert_tenant_table_isolation_classifications.py"
+python -m unittest discover -s scripts/ci/tests -p "test_csharp_style_guards.py"
 
 python3 scripts/ci/check_migration_numbering.py || true
 python3 scripts/ci/check_test_configure_await.py

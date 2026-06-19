@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { LayerHeader } from "@/components/LayerHeader";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -104,14 +105,6 @@ export default function RiskExceptionsClient() {
     [records],
   );
 
-  async function copyFindingId(findingId: string): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(findingId);
-    } catch {
-      // Clipboard may be unavailable in non-secure contexts; ignore.
-    }
-  }
-
   async function submitRenew(record: RiskExceptionRecord): Promise<void> {
     setBusyId(record.riskExceptionId);
     setLoadError(null);
@@ -205,14 +198,7 @@ export default function RiskExceptionsClient() {
                   <EnterpriseTableCell>
                     <div className="flex flex-wrap items-center gap-2">
                       <code className="font-mono text-xs">{truncateMiddle(record.findingId, 24)}</code>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void copyFindingId(record.findingId)}
-                      >
-                        Copy
-                      </Button>
+                      <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
                     </div>
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{record.ownerUserId}</EnterpriseTableCell>

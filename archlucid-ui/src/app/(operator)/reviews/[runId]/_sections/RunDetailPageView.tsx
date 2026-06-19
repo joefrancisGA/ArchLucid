@@ -159,6 +159,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}
         runId={m.resolvedDetail.run.runId}
+        manifestId={m.manifestId}
         headline={m.headline}
         hasGoldenManifest={Boolean(m.manifestId)}
         executionFlavorBuyerSummary={m.resolvedDetail.executionFlavorBuyerSummary}

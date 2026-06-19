@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -242,8 +243,9 @@ export function GovernanceFindingsQueueDesktopTable(
                     </div>
                   ) : null}
                   {buyerPolishedShell ? null : (
-                    <div className="mt-0.5 font-mono text-[11px] font-normal text-al-text-secondary">
-                      {row.findingId}
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1 font-mono text-[11px] font-normal text-al-text-secondary">
+                      <span>{row.findingId}</span>
+                      <CopyIdButton value={row.findingId} aria-label="Copy finding ID" />
                     </div>
                   )}
                   {evidenceChipHref !== null ? (

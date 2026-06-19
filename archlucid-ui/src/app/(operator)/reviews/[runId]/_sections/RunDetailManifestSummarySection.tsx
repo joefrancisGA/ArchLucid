@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { ManifestJsonActions } from "@/components/ManifestJsonActions";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
@@ -47,6 +48,20 @@ export function RunDetailManifestSummarySection(
             </p>
           ) : null}
           <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
+            {!buyerPolishedShell ? (
+              <>
+                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Review ID</dt>
+                <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
+                  <code className="min-w-0 break-all font-mono text-xs">{manifestSummary.runId}</code>
+                  <CopyIdButton value={manifestSummary.runId} aria-label="Copy review ID" />
+                </dd>
+                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
+                <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
+                  <code className="min-w-0 break-all font-mono text-xs">{manifestSummary.manifestId}</code>
+                  <CopyIdButton value={manifestSummary.manifestId} aria-label="Copy manifest ID" />
+                </dd>
+              </>
+            ) : null}
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
               {manifestStatusForDisplay(manifestSummary.status)}

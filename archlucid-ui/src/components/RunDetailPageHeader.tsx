@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpButton } from "@/components/ui/help-button";
@@ -68,6 +69,8 @@ function RunPackageExportButtons({ runId }: { runId: string }) {
 export type RunDetailPageHeaderProps = {
   runSummary: RunSummary;
   runId: string;
+  /** Shown with copy affordance when the review has a finalized manifest. */
+  manifestId?: string | null;
   headline: string;
   hasGoldenManifest: boolean;
   executionFlavorBuyerSummary?: string | null;
@@ -88,6 +91,7 @@ export type RunDetailPageHeaderProps = {
 export function RunDetailPageHeader({
   runSummary,
   runId,
+  manifestId,
   headline,
   hasGoldenManifest,
   executionFlavorBuyerSummary,
@@ -100,6 +104,8 @@ export function RunDetailPageHeader({
   const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
   const showExecutionFlavorOperator =
     Boolean(executionFlavorBuyerSummary) && buyerPolishedShell !== true;
+  const trimmedManifestId = (manifestId ?? "").trim();
+  const showOperatorIdentifiers = buyerPolishedShell !== true;
 
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -174,6 +180,25 @@ export function RunDetailPageHeader({
               ) : null}
               {buyerPolishedShell !== true ? (
                 <StructuralExecutionModeBadge structuralExecutionMode={runSummary.structuralExecutionMode} />
+              ) : null}
+            </div>
+          ) : null}
+          {showOperatorIdentifiers ? (
+            <div
+              className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600 dark:text-neutral-400"
+              data-testid="run-detail-header-identifiers"
+            >
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</span>
+                <code className="max-w-[14rem] truncate font-mono">{runId}</code>
+                <CopyIdButton value={runId} aria-label="Copy review ID" />
+              </span>
+              {trimmedManifestId.length > 0 ? (
+                <span className="inline-flex min-w-0 items-center gap-1">
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</span>
+                  <code className="max-w-[14rem] truncate font-mono">{trimmedManifestId}</code>
+                  <CopyIdButton value={trimmedManifestId} aria-label="Copy manifest ID" />
+                </span>
               ) : null}
             </div>
           ) : null}
