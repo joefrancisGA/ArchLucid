@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 type TrialNextAction = {
@@ -39,18 +39,7 @@ export function PersistentTrialStatusStrip() {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(
-        "/api/proxy/v1/tenant/trial-status",
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
-
-      if (!res.ok) {
-        setPayload(null);
-
-        return;
-      }
-
-      setPayload((await res.json()) as TenantTrialStatusPayload);
+      setPayload(await fetchTenantTrialStatusCached());
     } catch {
       setPayload(null);
     }

@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { AUTH_MODE } from "@/lib/auth-config";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  fetchTenantTrialStatusCached,
+  shouldSkipTenantTrialStatusFetch,
+} from "@/lib/tenant-trial-status-client";
 
 /** Session-only: dismiss hides the banner until the browser tab/session ends. */
 const SESSION_DISMISS_KEY = "archlucid_trial_expiry_banner_dismissed_session";
@@ -31,26 +31,14 @@ export function TrialExpiryBanner() {
   const [payload, setPayload] = useState<TrialStatusPayload | null>(null);
 
   const refresh = useCallback(async () => {
-    if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
+    if (shouldSkipTenantTrialStatusFetch()) {
       setPayload(null);
 
       return;
     }
 
     try {
-      const res = await fetch(
-        "/api/proxy/v1/tenant/trial-status",
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
-
-      if (!res.ok) {
-        setPayload(null);
-
-        return;
-      }
-
-      const json = (await res.json()) as TrialStatusPayload;
-      setPayload(json);
+      setPayload(await fetchTenantTrialStatusCached());
     } catch {
       setPayload(null);
     }
