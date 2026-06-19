@@ -121,7 +121,12 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Recent reviews" })).toBeInTheDocument();
+    const recentReviewsHeading = screen.getByRole("heading", { name: "Recent reviews" });
+    expect(recentReviewsHeading).toBeInTheDocument();
+
+    const exampleRequestPanel = screen.getByTestId("operator-home-example-request-panel");
+    expect(screen.getByTestId("pilot-command-center-card").compareDocumentPosition(exampleRequestPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(exampleRequestPanel.compareDocumentPosition(recentReviewsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();

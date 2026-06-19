@@ -1,0 +1,43 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { OperatorHomeExampleRequestPanel } from "@/components/operator-home/OperatorHomeExampleRequestPanel";
+import {
+  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+} from "@/lib/operator-home-example-request";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+const committedReviewMock = vi.hoisted(() => ({ value: false }));
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => committedReviewMock.value,
+}));
+
+describe("OperatorHomeExampleRequestPanel (TB-348)", () => {
+  it("renders the example brief and CTAs for first-run tenants", () => {
+    committedReviewMock.value = false;
+
+    render(<OperatorHomeExampleRequestPanel />);
+
+    expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
+    expect(screen.getByText("Example request")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-example-request-use")).toHaveAttribute(
+      "href",
+      `/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`,
+    );
+    expect(screen.getByTestId("operator-home-example-request-completed")).toHaveAttribute(
+      "href",
+      `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+    );
+  });
+
+  it("hides once the tenant has a committed architecture review", () => {
+    committedReviewMock.value = true;
+
+    render(<OperatorHomeExampleRequestPanel />);
+
+    expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
+  });
+});

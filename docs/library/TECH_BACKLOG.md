@@ -10379,7 +10379,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-348 ? Promote example request above the fold on operator home (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — `OperatorHomeExampleRequestPanel` renders below hero / `PilotCommandCenterCard`, before delta and **Recent reviews**; removed from `RunsDashboardPanel`; first-run guard via `useNavCommittedArchitectureReview`.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
