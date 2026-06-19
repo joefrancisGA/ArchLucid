@@ -29,6 +29,11 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Start with one sample find
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
   "See what ArchLucid surfaces in the first five minutes — one finding, the evidence behind it, and the decision it changes.";
 
+export const OPERATOR_HOME_SAMPLE_REVIEW_DISCOVERED_SUMMARY =
+  "Representative discoveries from the example review — severity, evidence basis, and governance posture before you open the full package.";
+
+export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open full example review";
+
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
   "Demo-derived sample only — labels execution mode and evidence basis on the full review package.";
 

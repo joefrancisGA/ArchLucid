@@ -10520,7 +10520,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-353 ? Add substantive "show me value" sample review on home (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — `OperatorHomeSampleReviewPreview` shows primary aha moment plus two compact secondary findings from `SHOWCASE_HOME_SAMPLE_FINDINGS`; **Open full example review** links to `SHOWCASE_STATIC_DEMO_RUN_ID`; first-run guard unchanged.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
