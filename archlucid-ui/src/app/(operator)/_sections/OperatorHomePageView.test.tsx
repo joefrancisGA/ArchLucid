@@ -9,8 +9,10 @@ vi.mock("@/components/operator-home/BuyerPolishedHomeHeroSection", () => ({
   ),
 }));
 
-vi.mock("@/components/operator-home/RunsDashboardPanel", () => ({
-  RunsDashboardPanel: () => <div data-testid="home-block-runs-dashboard" />,
+vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
+  OperatorHomeDeltaPanel: () => <div data-testid="home-block-delta-panel" />,
+  OperatorHomeRunsPanel: () => <div data-testid="home-block-runs-dashboard" />,
+  OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeExampleRequestPanel", () => ({
