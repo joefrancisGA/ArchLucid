@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -57,6 +58,11 @@ public sealed class RunDetailQueryServiceTests
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
 
+        Mock<IAgentExecutionTraceRepository> executionTraceRepo = new();
+        executionTraceRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         _sut = new RunDetailQueryService(
             _runRepo.Object,
             scopeProvider.Object,
@@ -65,6 +71,8 @@ public sealed class RunDetailQueryServiceTests
             _unifiedManifestReader.Object,
             _authorityTraceRepo.Object,
             _muteRepo.Object,
+            executionTraceRepo.Object,
+            new Mock<ILlmCostEstimator>().Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
 

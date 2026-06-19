@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -45,8 +46,13 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
         Mock<IDecisionTraceRepository> authorityTraceRepo = new();
         Mock<IFindingRecordMuteRepository> muteRepo = new();
+        Mock<IAgentExecutionTraceRepository> executionTraceRepo = new();
+        Mock<ILlmCostEstimator> llmCostEstimator = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        executionTraceRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         RunRecord record = new()
         {
@@ -76,6 +82,8 @@ public sealed class RunDetailQueryServiceApplicationTests
             unifiedReader.Object,
             authorityTraceRepo.Object,
             muteRepo.Object,
+            executionTraceRepo.Object,
+            llmCostEstimator.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
@@ -103,8 +111,13 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
         Mock<IDecisionTraceRepository> authorityTraceRepo = new();
         Mock<IFindingRecordMuteRepository> muteRepo = new();
+        Mock<IAgentExecutionTraceRepository> executionTraceRepo = new();
+        Mock<ILlmCostEstimator> llmCostEstimator = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        executionTraceRepo
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         RunRecord record = new()
         {
@@ -154,6 +167,8 @@ public sealed class RunDetailQueryServiceApplicationTests
             unifiedReader.Object,
             authorityTraceRepo.Object,
             muteRepo.Object,
+            executionTraceRepo.Object,
+            llmCostEstimator.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
