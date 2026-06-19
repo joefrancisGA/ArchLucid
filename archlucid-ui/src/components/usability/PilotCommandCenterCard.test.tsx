@@ -13,6 +13,7 @@ describe("PilotCommandCenterCard", () => {
 
     expect(screen.getByText(PILOT_COMMAND_CENTER_OUTCOMES_HEADING)).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-action-row")).toBeInTheDocument();
 
     for (const outcome of PILOT_COMMAND_CENTER_OUTCOMES) {
       expect(screen.getByText(outcome)).toBeInTheDocument();
@@ -21,5 +22,12 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByText("What you'll get")).not.toBeInTheDocument();
     expect(screen.queryByText("Governed decision record")).not.toBeInTheDocument();
     expect(screen.queryByText("Review trail")).not.toBeInTheDocument();
+  });
+
+  it("keeps Start review as the primary action above the compact action row", () => {
+    render(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("pilot-command-center-primary")).toHaveTextContent("Start review");
+    expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
   });
 });

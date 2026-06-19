@@ -10322,7 +10322,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-346 ? Compress operator home hero card (~40% vertical) (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — compact `PilotCommandCenterCard` layout: title + CTAs row, combined outcomes/stepper row, Setup disclosure for tertiary links.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 

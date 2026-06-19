@@ -23,15 +23,16 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
     expect(screen.getByText("Evidence gaps")).toBeInTheDocument();
     expect(screen.getByText("Decision impact")).toBeInTheDocument();
-    expect(screen.getByText("Optional setup:")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-action-row")).toBeInTheDocument();
   });
 
-  it("exposes optional setup links inline without a disclosure", () => {
+  it("tucks optional setup links behind a Setup disclosure (TB-346)", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();
+    expect(screen.getByTestId("pilot-command-center-setup-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/settings/cloud-connections");
     expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", "/settings/roles");
+    expect(screen.queryByText("Optional setup:")).not.toBeInTheDocument();
   });
 });
 

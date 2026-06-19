@@ -77,6 +77,8 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
 
 export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
+export const PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL = "Setup";
+
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
 export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
