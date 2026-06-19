@@ -1,5 +1,7 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -21,13 +23,15 @@ vi.mock("@/lib/trial-upgrade-nudge-telemetry", () => ({
 import { recordTrialUpgradeNudgeClicked, recordTrialUpgradeNudgeShown } from "@/lib/trial-upgrade-nudge-telemetry";
 import { TrialUsageUpgradeNudge } from "@/components/TrialUsageUpgradeNudge";
 import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 const mockShown = vi.mocked(recordTrialUpgradeNudgeShown);
 const mockClicked = vi.mocked(recordTrialUpgradeNudgeClicked);
 
 describe("TrialUsageUpgradeNudge", () => {
-  beforeEach(() => {
-    invalidateTenantTrialStatusCache();
+  beforeEach(async () => {
+    resetOperatorQueryClientForTests();
+    await invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     sessionStorage.clear();
     localStorage.clear();
@@ -60,7 +64,7 @@ describe("TrialUsageUpgradeNudge", () => {
       }),
     );
 
-    render(<TrialUsageUpgradeNudge />);
+    renderWithOperatorQuery(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -83,7 +87,7 @@ describe("TrialUsageUpgradeNudge", () => {
       }),
     );
 
-    render(<TrialUsageUpgradeNudge />);
+    renderWithOperatorQuery(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-usage-upgrade-nudge")).toBeInTheDocument();
@@ -109,7 +113,7 @@ describe("TrialUsageUpgradeNudge", () => {
       }),
     );
 
-    render(<TrialUsageUpgradeNudge />);
+    renderWithOperatorQuery(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -132,7 +136,7 @@ describe("TrialUsageUpgradeNudge", () => {
       }),
     );
 
-    render(<TrialUsageUpgradeNudge />);
+    renderWithOperatorQuery(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-expired-upgrade-modal")).toBeInTheDocument();
@@ -161,7 +165,7 @@ describe("TrialUsageUpgradeNudge", () => {
       }),
     );
 
-    render(<TrialUsageUpgradeNudge />);
+    renderWithOperatorQuery(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -186,7 +190,7 @@ describe("TrialUsageUpgradeNudge", () => {
       }),
     );
 
-    render(<TrialUsageUpgradeNudge />);
+    renderWithOperatorQuery(<TrialUsageUpgradeNudge />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-usage-upgrade-nudge")).toBeInTheDocument();

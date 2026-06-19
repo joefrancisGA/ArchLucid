@@ -4,6 +4,7 @@ import {
   fetchTenantTrialStatusCached,
   invalidateTenantTrialStatusCache,
 } from "@/lib/tenant-trial-status-client";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -18,8 +19,9 @@ vi.mock("@/lib/oidc/session", () => ({
 }));
 
 describe("fetchTenantTrialStatusCached", () => {
-  beforeEach(() => {
-    invalidateTenantTrialStatusCache();
+  beforeEach(async () => {
+    resetOperatorQueryClientForTests();
+    await invalidateTenantTrialStatusCache();
   });
 
   afterEach(() => {

@@ -1,4 +1,7 @@
 import { apiGet } from "@/lib/api";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
 export const LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH = "/v1/admin/llm-monthly-dollar-budget-status";
 
@@ -16,39 +19,31 @@ export type LlmMonthlyDollarBudgetStatus = {
   warnFraction: number | null;
 };
 
-const CACHE_TTL_MS = 60_000;
+/** Raw fetch for TanStack Query `queryFn` and imperative callers. */
+export async function fetchLlmMonthlyDollarBudgetStatus(): Promise<LlmMonthlyDollarBudgetStatus> {
+  return apiGet<LlmMonthlyDollarBudgetStatus>(LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH);
+}
 
-let cachedStatus: LlmMonthlyDollarBudgetStatus | null = null;
-let cachedAtMs = 0;
-let inflight: Promise<LlmMonthlyDollarBudgetStatus> | null = null;
-
-/** Client-side cache so settings and run wizards share one lightweight status read per minute. */
+/** Imperative read through the shared TanStack Query cache. */
 export async function fetchLlmMonthlyDollarBudgetStatusCached(
   options?: { force?: boolean },
 ): Promise<LlmMonthlyDollarBudgetStatus> {
-  const force = options?.force === true;
-  const now = Date.now();
+  const queryClient = getOperatorQueryClient();
 
-  if (!force && cachedStatus !== null && now - cachedAtMs < CACHE_TTL_MS) {
-    return cachedStatus;
+  if (options?.force === true) {
+    await queryClient.invalidateQueries({ queryKey: operatorQueryKeys.llmMonthlyBudgetStatus });
   }
 
-  if (!force && inflight !== null) {
-    return inflight;
-  }
+  return queryClient.fetchQuery({
+    queryKey: operatorQueryKeys.llmMonthlyBudgetStatus,
+    queryFn: fetchLlmMonthlyDollarBudgetStatus,
+    staleTime: OPERATOR_QUERY_STALE_MS,
+  });
+}
 
-  inflight = apiGet<LlmMonthlyDollarBudgetStatus>(LLM_MONTHLY_DOLLAR_BUDGET_STATUS_PATH)
-    .then((data) => {
-      cachedStatus = data;
-      cachedAtMs = Date.now();
-
-      return data;
-    })
-    .finally(() => {
-      inflight = null;
-    });
-
-  return inflight;
+/** Clears cached LLM budget status (for example in Vitest). */
+export async function invalidateLlmMonthlyBudgetStatusCache(): Promise<void> {
+  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.llmMonthlyBudgetStatus });
 }
 
 export type LlmBudgetUtilizationTone = "ok" | "warn" | "critical";

@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,11 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import {
-  fetchTenantTrialStatusCached,
-  shouldSkipTenantTrialStatusFetch,
-} from "@/lib/tenant-trial-status-client";
 import { startTrialBillingCheckout } from "@/lib/trial-billing-checkout";
 import {
   dismissTrialUpgradeNudge24h,
@@ -94,80 +91,58 @@ function isExpiredTrial(payload: TrialUpgradeNudgeStatusPayload): boolean {
  * run usage, seat usage, or expiry crosses documented thresholds.
  */
 export function TrialUsageUpgradeNudge() {
-  const [hydrated, setHydrated] = useState(false);
-  const [payload, setPayload] = useState<TrialUpgradeNudgeStatusPayload | null>(null);
+  const { data: payload, isFetched } = useTenantTrialStatusQuery();
   const [activeTrigger, setActiveTrigger] = useState<TrialUpgradeNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);
   const [dismissedLocally, setDismissedLocally] = useState(false);
   const [expiredModalOpen, setExpiredModalOpen] = useState(false);
+  const evaluatedPayloadRef = useRef<TrialUpgradeNudgeStatusPayload | null | undefined>(undefined);
 
-  const refresh = useCallback(async () => {
-    if (shouldSkipTenantTrialStatusFetch()) {
-      setPayload(null);
-      setActiveTrigger(null);
+  useEffect(() => {
+    if (!isFetched) {
+      return;
+    }
+
+    if (evaluatedPayloadRef.current === payload) {
+      return;
+    }
+
+    evaluatedPayloadRef.current = payload ?? null;
+
+    const json = payload ?? null;
+    const trigger = resolveTrialUpgradeNudgeTrigger(json);
+
+    setActiveTrigger(trigger);
+
+    if (trigger === null || json === null) {
       setVisible(false);
       setExpiredModalOpen(false);
 
       return;
     }
 
-    try {
-      const json = await fetchTenantTrialStatusCached();
-
-      if (json === null) {
-        setPayload(null);
-        setActiveTrigger(null);
-        setVisible(false);
-        setExpiredModalOpen(false);
-
-        return;
-      }
-
-      const trigger = resolveTrialUpgradeNudgeTrigger(json);
-
-      setPayload(json);
-      setActiveTrigger(trigger);
-
-      if (trigger === null) {
-        setVisible(false);
-        setExpiredModalOpen(false);
-
-        return;
-      }
-
-      if (isExpiredTrial(json)) {
-        setVisible(true);
-        setExpiredModalOpen(true);
-        recordTrialUpgradeNudgeShown(trigger);
-
-        return;
-      }
-
-      if (isTrialUpgradeNudgeDismissed(trigger) || wasTrialUpgradeNudgeShownThisSession(trigger)) {
-        setVisible(false);
-        setExpiredModalOpen(false);
-
-        return;
-      }
-
+    if (isExpiredTrial(json)) {
       setVisible(true);
-      setExpiredModalOpen(trigger === "expiry");
-      markTrialUpgradeNudgeShownThisSession(trigger);
+      setExpiredModalOpen(true);
       recordTrialUpgradeNudgeShown(trigger);
-    } catch {
-      setPayload(null);
-      setActiveTrigger(null);
+
+      return;
+    }
+
+    if (isTrialUpgradeNudgeDismissed(trigger) || wasTrialUpgradeNudgeShownThisSession(trigger)) {
       setVisible(false);
       setExpiredModalOpen(false);
+
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    setHydrated(true);
-    void refresh();
-  }, [refresh]);
+    setVisible(true);
+    setExpiredModalOpen(trigger === "expiry");
+    markTrialUpgradeNudgeShownThisSession(trigger);
+    recordTrialUpgradeNudgeShown(trigger);
+  }, [isFetched, payload]);
 
-  if (!hydrated || !visible || dismissedLocally || activeTrigger === null || payload === null) {
+  if (!visible || dismissedLocally || activeTrigger === null || payload === null) {
     return null;
   }
 

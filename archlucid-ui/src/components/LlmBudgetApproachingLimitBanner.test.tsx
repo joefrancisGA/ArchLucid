@@ -1,19 +1,40 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   LlmBudgetApproachingLimitBanner,
   shouldShowLlmBudgetApproachingBanner,
 } from "@/components/LlmBudgetApproachingLimitBanner";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
-const fetchCached = vi.hoisted(() => vi.fn());
+const fetchStatus = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
 
   return {
     ...actual,
-    fetchLlmMonthlyDollarBudgetStatusCached: fetchCached,
+    fetchLlmMonthlyDollarBudgetStatus: fetchStatus,
+  };
+});
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isNextPublicDemoMode: () => false,
+    isBuyerPolishedOperatorShellEnv: () => false,
+  };
+});
+
+vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+
+  return {
+    ...actual,
+    isStaticDemoPayloadFallbackEnabled: () => false,
   };
 });
 
@@ -55,7 +76,8 @@ describe("shouldShowLlmBudgetApproachingBanner", () => {
 
 describe("LlmBudgetApproachingLimitBanner", () => {
   beforeEach(() => {
-    fetchCached.mockResolvedValue({
+    resetOperatorQueryClientForTests();
+    fetchStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -74,7 +96,7 @@ describe("LlmBudgetApproachingLimitBanner", () => {
   });
 
   it("shows warning copy when utilization crosses warn fraction", async () => {
-    render(<LlmBudgetApproachingLimitBanner />);
+    renderWithOperatorQuery(<LlmBudgetApproachingLimitBanner />);
 
     expect(
       await screen.findByTestId("llm-budget-approaching-limit-banner"),
@@ -82,7 +104,7 @@ describe("LlmBudgetApproachingLimitBanner", () => {
   });
 
   it("hides for the session after dismiss", async () => {
-    render(<LlmBudgetApproachingLimitBanner />);
+    renderWithOperatorQuery(<LlmBudgetApproachingLimitBanner />);
 
     expect(await screen.findByTestId("llm-budget-approaching-limit-banner")).toBeInTheDocument();
 

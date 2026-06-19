@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { findHealthReadyEntryByName, type HealthReadyResponse } from "@/lib/health-dashboard-types";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { findHealthReadyEntryByName } from "@/lib/health-dashboard-types";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 
@@ -39,58 +39,33 @@ type SystemHealthStatusStripProps = {
 
 /** Readiness as inline metadata (no card chrome) — only shown when a real status is available. */
 export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripProps) {
-  const [phase, setPhase] = useState<"loading" | "ready" | "unavailable">("loading");
-  const [ready, setReady] = useState<HealthReadyResponse | null>(null);
+  const queryEnabled =
+    !isNextPublicDemoMode() && !isStaticDemoPayloadFallbackEnabled() && !isBuyerPolishedOperatorShellEnv();
 
-  useEffect(() => {
-    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
-      return;
+  const { data: ready, isPending } = useHealthReadySummaryQuery({ enabled: queryEnabled });
+
+  const phase = useMemo(() => {
+    if (!queryEnabled) {
+      return "unavailable" as const;
     }
 
-    let cancelled = false;
-
-    async function load() {
-      setPhase("loading");
-
-      try {
-        const body = await fetchHealthReadySummary();
-
-        if (cancelled) {
-          return;
-        }
-
-        if (body === null) {
-          setReady(null);
-          setPhase("unavailable");
-
-          return;
-        }
-
-        setReady(body);
-        setPhase("ready");
-      } catch {
-        if (cancelled) {
-          return;
-        }
-
-        setReady(null);
-        setPhase("unavailable");
-      }
+    if (isPending) {
+      return "loading" as const;
     }
 
-    void load();
+    if (ready === null) {
+      return "unavailable" as const;
+    }
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return "ready" as const;
+  }, [isPending, queryEnabled, ready]);
 
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
+  if (!queryEnabled) {
     return null;
   }
 
   const overall = ready?.status?.trim() ?? "";
-  const archival = ready !== null ? findHealthReadyEntryByName(ready.entries, "data_archival") : null;
+  const archival = ready !== null && ready !== undefined ? findHealthReadyEntryByName(ready.entries, "data_archival") : null;
   const archivalStatus = archival?.status?.trim() ?? "";
 
   if (phase !== "ready" || overall.length === 0) {

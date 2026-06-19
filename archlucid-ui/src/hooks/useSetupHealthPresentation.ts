@@ -1,45 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
-import {
-  resolveSetupHealthPresentation,
-  type SetupHealthPresentation,
-} from "@/lib/setup-health-present";
-
-type SetupHealthLoadPhase = "loading" | "ready";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { resolveSetupHealthPresentation } from "@/lib/setup-health-present";
 
 export type UseSetupHealthPresentationResult = {
-  readonly phase: SetupHealthLoadPhase;
-  readonly presentation: SetupHealthPresentation | null;
+  readonly phase: "loading" | "ready";
+  readonly presentation: ReturnType<typeof resolveSetupHealthPresentation>;
 };
 
 /** Loads `/health/ready` once and resolves operator setup-health presentation. */
 export function useSetupHealthPresentation(): UseSetupHealthPresentationResult {
-  const [phase, setPhase] = useState<SetupHealthLoadPhase>("loading");
-  const [presentation, setPresentation] = useState<SetupHealthPresentation | null>(null);
+  const { data, isPending } = useHealthReadySummaryQuery();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load(): Promise<void> {
-      const body = await fetchHealthReadySummary().catch(() => null);
-
-      if (cancelled) {
-        return;
-      }
-
-      setPresentation(resolveSetupHealthPresentation(body));
-      setPhase("ready");
+  return useMemo(() => {
+    if (isPending) {
+      return { phase: "loading" as const, presentation: null };
     }
 
-    void load();
-
-    return () => {
-      cancelled = true;
+    return {
+      phase: "ready" as const,
+      presentation: resolveSetupHealthPresentation(data ?? null),
     };
-  }, []);
-
-  return { phase, presentation };
+  }, [data, isPending]);
 }

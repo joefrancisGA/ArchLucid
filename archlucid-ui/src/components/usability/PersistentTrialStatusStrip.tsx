@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
-import { fetchTenantTrialStatusCached } from "@/lib/tenant-trial-status-client";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 type TrialNextAction = {
@@ -35,21 +35,9 @@ function resolveTrialNextAction(payload: TenantTrialStatusPayload | null): Trial
 /** Persistent trial strip with days remaining and a single primary next action (all operator routes). */
 export function PersistentTrialStatusStrip() {
   const pathname = usePathname();
-  const [payload, setPayload] = useState<TenantTrialStatusPayload | null>(null);
+  const { data: payload } = useTenantTrialStatusQuery();
 
-  const refresh = useCallback(async () => {
-    try {
-      setPayload(await fetchTenantTrialStatusCached());
-    } catch {
-      setPayload(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh, pathname]);
-
-  if (payload === null || payload.status === "None" || payload.status === "Converted") {
+  if (payload === null || payload === undefined || payload.status === "None" || payload.status === "Converted") {
     return null;
   }
 

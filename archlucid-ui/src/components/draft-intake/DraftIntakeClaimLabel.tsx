@@ -8,8 +8,8 @@ export type DraftIntakeClaimSurface =
   | "spawned-review";
 
 const SURFACE_COPY: Record<DraftIntakeClaimSurface, string> = {
-  "structural-admission": "Admission check — not committed review evidence",
-  "llm-intake-reasoning": "LLM-assisted intake support — manual review required",
+  "structural-admission": "Draft guidance only — nothing here is added to your review evidence until you submit.",
+  "llm-intake-reasoning": "Intake assistant notes — not part of the review evidence trail.",
   "redirected-draft": "Intake decision receipt — not an architecture finding",
   "admitted-draft": "Admitted draft — confirm execution mode on review detail before sponsor export",
   "spawned-review": "Review queued — confirm execution mode on review detail before sponsor export",

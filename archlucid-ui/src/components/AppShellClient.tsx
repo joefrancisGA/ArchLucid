@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
 import { AppToaster } from "@/components/AppToaster";
+import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
@@ -26,34 +27,19 @@ import {
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
-import { SidebarNav } from "@/components/SidebarNav";
-import { CtoDemoJourneyCaptionBar } from "@/components/cto-demo/CtoDemoJourneyCaptionBar";
-import { CtoDemoOfflineAutoFallbackListener } from "@/components/cto-demo/CtoDemoOfflineAutoFallbackListener";
-import { CtoDemoPanicModeBanner } from "@/components/cto-demo/CtoDemoPanicModeBanner";
-import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
-import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
-import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { UserAppearancePreferenceSync } from "@/components/UserAppearancePreferenceSync";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
-import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
-import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
-import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
-import { TrialBanner } from "@/components/TrialBanner";
-import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
-import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
-import { TrialUsageUpgradeNudge } from "@/components/TrialUsageUpgradeNudge";
-import { TrialLimitModalHost } from "@/components/TrialLimitModal";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -99,6 +85,61 @@ const PilotBaselineWizardLauncher = dynamic(
   () =>
     import("@/components/PilotBaselineWizardLauncher").then(
       (module) => module.PilotBaselineWizardLauncher,
+    ),
+  { ssr: false },
+);
+
+const SidebarNav = dynamic(
+  () => import("@/components/SidebarNav").then((module) => module.SidebarNav),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="min-h-[12rem] animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"
+        aria-hidden
+      />
+    ),
+  },
+);
+
+const AppShellStatusBanners = dynamic(
+  () => import("@/components/shell/AppShellStatusBanners").then((module) => module.AppShellStatusBanners),
+  { ssr: false },
+);
+
+const TrialLimitModalHost = dynamic(
+  () => import("@/components/TrialLimitModal").then((module) => module.TrialLimitModalHost),
+  { ssr: false },
+);
+
+const RegistrationOnboardingTourAutoStart = dynamic(
+  () =>
+    import("@/components/usability/RegistrationOnboardingTourAutoStart").then(
+      (module) => module.RegistrationOnboardingTourAutoStart,
+    ),
+  { ssr: false },
+);
+
+const CtoDemoJourneyCaptionBar = dynamic(
+  () =>
+    import("@/components/cto-demo/CtoDemoJourneyCaptionBar").then(
+      (module) => module.CtoDemoJourneyCaptionBar,
+    ),
+  { ssr: false },
+);
+
+const CtoDemoOfflineAutoFallbackListener = dynamic(
+  () =>
+    import("@/components/cto-demo/CtoDemoOfflineAutoFallbackListener").then(
+      (module) => module.CtoDemoOfflineAutoFallbackListener,
+    ),
+  { ssr: false },
+);
+
+const CtoDemoPanicModeBanner = dynamic(
+  () =>
+    import("@/components/cto-demo/CtoDemoPanicModeBanner").then(
+      (module) => module.CtoDemoPanicModeBanner,
     ),
   { ssr: false },
 );
@@ -162,9 +203,11 @@ type AppShellClientProps = {
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   return (
-    <OperatorChromeModeProvider>
-      <AppShellInner>{children}</AppShellInner>
-    </OperatorChromeModeProvider>
+    <OperatorQueryProvider>
+      <OperatorChromeModeProvider>
+        <AppShellInner>{children}</AppShellInner>
+      </OperatorChromeModeProvider>
+    </OperatorQueryProvider>
   );
 }
 
@@ -289,11 +332,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 data-testid="app-shell-main"
                 className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6")}
               >
-                <ServiceBusHealthBanner />
-                <LlmBudgetApproachingLimitBanner />
-                <TrialUsageUpgradeNudge />
-                <TeamExpansionNudge />
-                <TrialExpiryBanner />
+                <AppShellStatusBanners variant="minimal" />
                 <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
@@ -348,15 +387,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <SidebarNav />
             </nav>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
-              <CtoDemoStaticFallbackPresenterBanner />
-              <ServiceBusHealthBanner />
-              <SetupHealthShellBanner />
-              <LlmBudgetApproachingLimitBanner />
-              <TrialUsageUpgradeNudge />
-              <TeamExpansionNudge />
-              <TrialExpiryBanner />
-              <PersistentTrialStatusStrip />
-              <TrialBanner />
+              <AppShellStatusBanners variant="full" />
               <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"

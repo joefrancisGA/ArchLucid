@@ -2,14 +2,11 @@
 
 import { X } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { AUTH_MODE } from "@/lib/auth-config";
+import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   dismissTeamExpansionNudge24h,
   isTeamExpansionNudgeDismissed,
@@ -60,67 +57,43 @@ function nudgeCopy(
  * documented thresholds; trials remain owned by {@link TrialUsageUpgradeNudge}.
  */
 export function TeamExpansionNudge() {
-  const [hydrated, setHydrated] = useState(false);
-  const [payload, setPayload] = useState<TeamExpansionNudgeStatusPayload | null>(null);
+  const { data: payload, isFetched } = useTenantUsageStatusQuery();
   const [activeTrigger, setActiveTrigger] = useState<TeamExpansionNudgeTrigger | null>(null);
   const [visible, setVisible] = useState(false);
   const [dismissedLocally, setDismissedLocally] = useState(false);
+  const evaluatedPayloadRef = useRef<TeamExpansionNudgeStatusPayload | null | undefined>(undefined);
 
-  const refresh = useCallback(async () => {
-    if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
-      setPayload(null);
-      setActiveTrigger(null);
+  useEffect(() => {
+    if (!isFetched) {
+      return;
+    }
+
+    if (evaluatedPayloadRef.current === payload) {
+      return;
+    }
+
+    evaluatedPayloadRef.current = payload;
+
+    const trigger = resolveTeamExpansionNudgeTrigger(payload ?? null);
+
+    setActiveTrigger(trigger);
+
+    if (
+      trigger === null ||
+      isTeamExpansionNudgeDismissed(trigger) ||
+      wasTeamExpansionNudgeShownThisSession(trigger)
+    ) {
       setVisible(false);
 
       return;
     }
 
-    try {
-      const res = await fetch(
-        "/api/proxy/v1/tenant/usage-status",
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
+    setVisible(true);
+    markTeamExpansionNudgeShownThisSession(trigger);
+    recordTeamExpansionNudgeShown(trigger);
+  }, [isFetched, payload]);
 
-      if (!res.ok) {
-        setPayload(null);
-        setActiveTrigger(null);
-        setVisible(false);
-
-        return;
-      }
-
-      const json = (await res.json()) as TeamExpansionNudgeStatusPayload;
-      const trigger = resolveTeamExpansionNudgeTrigger(json);
-
-      setPayload(json);
-      setActiveTrigger(trigger);
-
-      if (
-        trigger === null ||
-        isTeamExpansionNudgeDismissed(trigger) ||
-        wasTeamExpansionNudgeShownThisSession(trigger)
-      ) {
-        setVisible(false);
-
-        return;
-      }
-
-      setVisible(true);
-      markTeamExpansionNudgeShownThisSession(trigger);
-      recordTeamExpansionNudgeShown(trigger);
-    } catch {
-      setPayload(null);
-      setActiveTrigger(null);
-      setVisible(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    setHydrated(true);
-    void refresh();
-  }, [refresh]);
-
-  if (!hydrated || !visible || dismissedLocally || activeTrigger === null || payload === null) {
+  if (!visible || dismissedLocally || activeTrigger === null || payload === null) {
     return null;
   }
 

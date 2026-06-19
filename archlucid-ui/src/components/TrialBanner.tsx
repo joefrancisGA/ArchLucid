@@ -3,21 +3,17 @@
 import { X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import {
-  fetchTenantTrialStatusCached,
-  shouldSkipTenantTrialStatusFetch,
-} from "@/lib/tenant-trial-status-client";
 import {
   formatTrialExportOnlyPurgeHeadline,
   TRIAL_EXPORT_ONLY_SUPPORTING_LINE,
 } from "@/lib/trial-export-only-banner-copy";
 import { isTrialBannerSnoozed, snoozeTrialBanner24h } from "@/lib/trial-banner-dismiss";
 import { showError, showSuccess } from "@/lib/toast";
-import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 
 function shouldShowTrialStrip(status: string | undefined): boolean {
   if (!status || status === "None" || status === "Converted") {
@@ -73,61 +69,30 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
 /** Sticky trial callout in the operator shell; dismiss hides non–export-only states for 24h. */
 export function TrialBanner() {
   const pathname = usePathname();
-  const [visible, setVisible] = useState(false);
-  const [payload, setPayload] = useState<TenantTrialStatusPayload | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+  const { data: payload, isFetched } = useTenantTrialStatusQuery();
+  const [dismissed, setDismissed] = useState(false);
 
-  const refresh = useCallback(async () => {
-    if (shouldSkipTenantTrialStatusFetch()) {
-      setVisible(false);
-      setPayload(null);
-
-      return;
+  const showHomeStrip = useMemo(() => {
+    if (payload === null || payload === undefined) {
+      return false;
     }
 
-    try {
-      const json = await fetchTenantTrialStatusCached();
-
-      if (json === null) {
-        setVisible(false);
-        setPayload(null);
-
-        return;
-      }
-
-      setPayload(json);
-
-      if (isExportOnlyStatus(json.status)) {
-        setVisible(true);
-
-        return;
-      }
-
-      if (isTrialBannerSnoozed()) {
-        setVisible(false);
-
-        return;
-      }
-
-      const days = json.daysRemaining;
-
-      if (json.status === "Active" && typeof days === "number" && days >= 0 && days <= 7) {
-        setVisible(false);
-
-        return;
-      }
-
-      setVisible(shouldShowTrialStrip(json.status));
-    } catch {
-      setVisible(false);
-      setPayload(null);
+    if (isExportOnlyStatus(payload.status)) {
+      return false;
     }
-  }, []);
 
-  useEffect(() => {
-    setHydrated(true);
-    void refresh();
-  }, [refresh]);
+    if (isTrialBannerSnoozed() || dismissed) {
+      return false;
+    }
+
+    const days = payload.daysRemaining;
+
+    if (payload.status === "Active" && typeof days === "number" && days >= 0 && days <= 7) {
+      return false;
+    }
+
+    return shouldShowTrialStrip(payload.status);
+  }, [dismissed, payload]);
 
   const onConvert = async () => {
     try {
@@ -157,7 +122,7 @@ export function TrialBanner() {
     }
   };
 
-  if (!hydrated || !payload) {
+  if (!isFetched || payload === null || payload === undefined) {
     return null;
   }
 
@@ -165,7 +130,7 @@ export function TrialBanner() {
     return <TrialExportOnlyBanner daysRemaining={payload.daysRemaining} />;
   }
 
-  if (!visible || pathname !== "/") {
+  if (!showHomeStrip || pathname !== "/") {
     return null;
   }
 
@@ -203,7 +168,7 @@ export function TrialBanner() {
         aria-label="Dismiss trial banner for 24 hours"
         onClick={() => {
           snoozeTrialBanner24h();
-          setVisible(false);
+          setDismissed(true);
         }}
       >
         <X className="h-4 w-4" aria-hidden />

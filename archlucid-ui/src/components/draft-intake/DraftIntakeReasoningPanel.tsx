@@ -32,7 +32,6 @@ export type DraftIntakeReasoningPanelProps = {
  */
 export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps) {
   const [message, setMessage] = useState(DEFAULT_INTAKE_QUESTION);
-  const [conversationThreadId, setConversationThreadId] = useState<string | null>(null);
   const [turns, setTurns] = useState<DraftIntakeReasonTurn[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
@@ -55,7 +54,6 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
 
     try {
       const response = await reasonDraftRequest(props.draftId, trimmed);
-      setConversationThreadId(response.conversationThreadId);
       setTurns((previous) => [...previous, { message: trimmed, answer: response.answer }]);
       setMessage("");
     } catch (submitError: unknown) {
@@ -78,18 +76,9 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
   }
 
   return (
-    <CollapsibleSection title="Reason about this draft" defaultOpen={props.defaultOpen === true}>
+    <CollapsibleSection title="Intake assistant notes" defaultOpen={props.defaultOpen === true}>
       <div className="draft-intake-reasoning-panel space-y-4" data-testid="draft-intake-reasoning-panel">
-        <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Manifest-free intake reasoning — grounded on your draft document, not a committed golden manifest.
-        </p>
         <DraftIntakeClaimLabel surface="llm-intake-reasoning" />
-
-        {conversationThreadId !== null ? (
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-            Conversation thread: {conversationThreadId}
-          </p>
-        ) : null}
 
         {turns.length > 0 ? (
           <ol className="m-0 list-none space-y-4 p-0">
@@ -118,6 +107,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
             rows={4}
             value={message}
             disabled={panelDisabled}
+            placeholder="Ask ArchLucid to clarify a gap or risk in your draft answer…"
             data-testid="draft-intake-reason-input"
             onChange={(event) => {
               setMessage(event.target.value);
@@ -143,7 +133,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
             void submitMessage();
           }}
         >
-          {busy ? "Reasoning…" : "Ask"}
+          {busy ? "Asking…" : "Ask intake assistant"}
         </Button>
       </div>
     </CollapsibleSection>

@@ -50,7 +50,10 @@ const INTAKE_STEPS = [
     label: "Intent, outcome & actors",
     description: "Describe what you are building, the business result, and who uses the system.",
   },
-  { label: "MUST questions", description: "Answer pack-driven intake questions before the review starts." },
+  {
+    label: "Required clarifications",
+    description: "Answer a few clarifying questions so ArchLucid can produce a precise review package.",
+  },
   { label: "Start review", description: "Submit the admitted draft to the authority pipeline." },
 ] as const;
 
@@ -144,7 +147,7 @@ export function SocraticIntakeWizard() {
       setPendingQuestions(admission.pendingMustQuestions);
       await refreshQuestions(id);
       setStep(1);
-      showSuccess("Draft admitted — answer the MUST questions to continue.");
+      showSuccess("Draft admitted — answer the required clarifications to continue.");
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
@@ -390,17 +393,14 @@ export function SocraticIntakeWizard() {
             <CardTitle>{INTAKE_STEPS[1].label}</CardTitle>
             <CardDescription>
               {pendingQuestions.length === 0
-                ? "All MUST questions are answered or explicitly skipped."
-                : `${pendingQuestions.length} MUST question(s) remaining.`}
+                ? "All required clarifications are answered or skipped. You can continue."
+                : `${pendingQuestions.length} required clarification${pendingQuestions.length === 1 ? "" : "s"} remaining before review.`}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {pendingQuestions.map((question) => (
               <div key={question.questionKey} className="space-y-2 rounded-md border p-3" data-testid="socratic-question">
                 <p className="text-sm font-medium">{question.prompt}</p>
-                <p className="text-xs text-neutral-500">
-                  {question.tier} · {question.source}
-                </p>
                 <Textarea
                   value={answers[question.questionKey] ?? ""}
                   onChange={(event) =>
@@ -422,7 +422,7 @@ export function SocraticIntakeWizard() {
                       void saveAnswer(question.questionKey);
                     }}
                   >
-                    Save answer
+                    Save and continue
                   </Button>
                   <Button
                     type="button"
@@ -433,19 +433,26 @@ export function SocraticIntakeWizard() {
                       void skipQuestion(question.questionKey);
                     }}
                   >
-                    Skip (trail)
+                    Skip for now
                   </Button>
                 </div>
               </div>
             ))}
-            <Button
-              type="button"
-              disabled={!allMustAnswered || busy}
-              onClick={() => setStep(2)}
-              data-testid="socratic-questions-done"
-            >
-              Review & submit
-            </Button>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                disabled={!allMustAnswered || busy}
+                onClick={() => setStep(2)}
+                data-testid="socratic-questions-done"
+              >
+                Review & submit
+              </Button>
+              {!allMustAnswered ? (
+                <p className="m-0 text-sm text-neutral-500" data-testid="socratic-submit-hint">
+                  Answer or skip all required clarifications to continue.
+                </p>
+              ) : null}
+            </div>
           </CardContent>
         </Card>
       ) : null}

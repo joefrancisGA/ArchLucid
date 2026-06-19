@@ -1,5 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -26,10 +28,12 @@ vi.mock("@/lib/toast", () => ({
 
 import { TrialBanner } from "./TrialBanner";
 import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 describe("TrialBanner", () => {
-  beforeEach(() => {
-    invalidateTenantTrialStatusCache();
+  beforeEach(async () => {
+    resetOperatorQueryClientForTests();
+    await invalidateTenantTrialStatusCache();
     usePathnameMock.mockReturnValue("/");
 
     vi.stubGlobal(
@@ -57,7 +61,7 @@ describe("TrialBanner", () => {
       }),
     );
 
-    render(<TrialBanner />);
+    renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -89,7 +93,7 @@ describe("TrialBanner", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<TrialBanner />);
+    renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(screen.getByRole("region", { name: /Trial subscription/i })).toBeInTheDocument();
@@ -118,7 +122,7 @@ describe("TrialBanner", () => {
       }),
     );
 
-    render(<TrialBanner />);
+    renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-export-only-banner")).toBeInTheDocument();
@@ -142,7 +146,7 @@ describe("TrialBanner", () => {
       }),
     );
 
-    render(<TrialBanner />);
+    renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -161,7 +165,7 @@ describe("TrialBanner", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const { unmount } = render(<TrialBanner />);
+    const { unmount } = renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(screen.getByRole("region", { name: /Trial subscription/i })).toBeInTheDocument();
@@ -174,7 +178,7 @@ describe("TrialBanner", () => {
     });
 
     unmount();
-    render(<TrialBanner />);
+    renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(screen.queryByRole("region", { name: /Trial subscription/i })).not.toBeInTheDocument();

@@ -1,5 +1,7 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -20,12 +22,16 @@ vi.mock("@/lib/team-expansion-nudge-telemetry", () => ({
 
 import { recordTeamExpansionNudgeClicked, recordTeamExpansionNudgeShown } from "@/lib/team-expansion-nudge-telemetry";
 import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
+import { invalidateTenantUsageStatusCache } from "@/lib/tenant-usage-status-client";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 const mockShown = vi.mocked(recordTeamExpansionNudgeShown);
 const mockClicked = vi.mocked(recordTeamExpansionNudgeClicked);
 
 describe("TeamExpansionNudge", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    resetOperatorQueryClientForTests();
+    await invalidateTenantUsageStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     sessionStorage.clear();
     localStorage.clear();
@@ -57,7 +63,7 @@ describe("TeamExpansionNudge", () => {
       }),
     );
 
-    render(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -84,7 +90,7 @@ describe("TeamExpansionNudge", () => {
       }),
     );
 
-    render(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge />);
 
     await waitFor(() => {
       expect(screen.getByTestId("team-expansion-nudge")).toBeInTheDocument();
@@ -114,7 +120,7 @@ describe("TeamExpansionNudge", () => {
       }),
     );
 
-    render(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -141,7 +147,7 @@ describe("TeamExpansionNudge", () => {
       }),
     );
 
-    render(<TeamExpansionNudge />);
+    renderWithOperatorQuery(<TeamExpansionNudge />);
 
     await waitFor(() => {
       expect(screen.getByTestId("team-expansion-nudge")).toBeInTheDocument();

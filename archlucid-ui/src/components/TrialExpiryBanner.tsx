@@ -2,51 +2,26 @@
 
 import { X } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import {
-  fetchTenantTrialStatusCached,
-  shouldSkipTenantTrialStatusFetch,
-} from "@/lib/tenant-trial-status-client";
 
 /** Session-only: dismiss hides the banner until the browser tab/session ends. */
 const SESSION_DISMISS_KEY = "archlucid_trial_expiry_banner_dismissed_session";
 
 const URGENT_TRIAL_DAYS_MAX = 7;
 
-type TrialStatusPayload = {
-  status?: string;
-  daysRemaining?: number | null;
-};
-
 /**
  * When the tenant trial has **7 or fewer days left**, shows a compact strip on **every** operator page
  * (not only home). Uses `GET /v1/tenant/trial-status` — same source as {@link TrialBanner}.
  */
 export function TrialExpiryBanner() {
-  const [hydrated, setHydrated] = useState(false);
+  const { data: payload, isFetched } = useTenantTrialStatusQuery();
   const [dismissed, setDismissed] = useState(false);
-  const [payload, setPayload] = useState<TrialStatusPayload | null>(null);
-
-  const refresh = useCallback(async () => {
-    if (shouldSkipTenantTrialStatusFetch()) {
-      setPayload(null);
-
-      return;
-    }
-
-    try {
-      setPayload(await fetchTenantTrialStatusCached());
-    } catch {
-      setPayload(null);
-    }
-  }, []);
 
   useEffect(() => {
-    setHydrated(true);
-
     try {
       if (typeof window !== "undefined" && window.sessionStorage.getItem(SESSION_DISMISS_KEY) === "1") {
         setDismissed(true);
@@ -54,11 +29,9 @@ export function TrialExpiryBanner() {
     } catch {
       setDismissed(false);
     }
+  }, []);
 
-    void refresh();
-  }, [refresh]);
-
-  if (!hydrated || dismissed) {
+  if (!isFetched || dismissed) {
     return null;
   }
 

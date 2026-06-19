@@ -1,10 +1,10 @@
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 
 import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
-import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
@@ -51,7 +51,6 @@ import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfC
 import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
-import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphSection";
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
@@ -79,6 +78,29 @@ import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConve
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import type { RunDetailPageModel } from "./run-detail-page-model";
+
+const RunDetailArchitectureGraphSection = dynamic(
+  () =>
+    import("./RunDetailArchitectureGraphSection").then(
+      (module) => module.RunDetailArchitectureGraphSection,
+    ),
+  {
+    loading: () => (
+      <section id="architecture-graph" className="scroll-mt-24">
+        <div
+          className="h-64 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+          role="status"
+          aria-label="Loading architecture graph"
+        />
+      </section>
+    ),
+  },
+);
+
+const BeforeAfterDeltaPanel = dynamic(
+  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
+  { loading: () => null },
+);
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
 export function RunDetailPageView(props: { readonly model: RunDetailPageModel }): React.JSX.Element {

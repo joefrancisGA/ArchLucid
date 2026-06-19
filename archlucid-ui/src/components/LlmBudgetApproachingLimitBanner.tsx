@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetUtilizationPercent,
   resolveLlmBudgetUtilizationTone,
 } from "@/lib/llm-monthly-budget-status";
@@ -20,63 +20,29 @@ const LLM_BUDGET_WARN_POLL_MS = 60_000;
  * Dismiss hides the banner for the current browser session only.
  */
 export function LlmBudgetApproachingLimitBanner() {
-  const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const queryEnabled =
+    !dismissed &&
+    !isNextPublicDemoMode() &&
+    !isStaticDemoPayloadFallbackEnabled() &&
+    !isBuyerPolishedOperatorShellEnv();
 
-  useEffect(() => {
-    if (
-      dismissed ||
-      isNextPublicDemoMode() ||
-      isStaticDemoPayloadFallbackEnabled() ||
-      isBuyerPolishedOperatorShellEnv()
-    ) {
-      return;
+  const { data: status } = useLlmMonthlyBudgetStatusQuery({
+    enabled: queryEnabled,
+    refetchIntervalMs: queryEnabled ? LLM_BUDGET_WARN_POLL_MS : false,
+  });
+
+  const visible = useMemo(() => {
+    if (!status?.monthlyBudgetMonitoringActive) {
+      return false;
     }
 
-    let cancelled = false;
+    const tone = resolveLlmBudgetUtilizationTone(status);
 
-    async function load() {
-      try {
-        const status = await fetchLlmMonthlyDollarBudgetStatusCached();
+    return tone === "warn" || tone === "critical";
+  }, [status]);
 
-        if (cancelled) {
-          return;
-        }
-
-        if (!status.monthlyBudgetMonitoringActive) {
-          setVisible(false);
-
-          return;
-        }
-
-        const tone = resolveLlmBudgetUtilizationTone(status);
-
-        setVisible(tone === "warn" || tone === "critical");
-      } catch {
-        if (!cancelled) {
-          setVisible(false);
-        }
-      }
-    }
-
-    void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, LLM_BUDGET_WARN_POLL_MS);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(timer);
-    };
-  }, [dismissed]);
-
-  if (
-    dismissed ||
-    isNextPublicDemoMode() ||
-    isStaticDemoPayloadFallbackEnabled() ||
-    isBuyerPolishedOperatorShellEnv() ||
-    !visible
-  ) {
+  if (!queryEnabled || !visible) {
     return null;
   }
 
@@ -106,7 +72,6 @@ export function LlmBudgetApproachingLimitBanner() {
         aria-label="Dismiss LLM budget warning for this session"
         onClick={() => {
           setDismissed(true);
-          setVisible(false);
         }}
       >
         <X className="h-4 w-4" aria-hidden />

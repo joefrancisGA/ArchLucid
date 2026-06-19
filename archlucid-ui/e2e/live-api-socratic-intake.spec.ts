@@ -45,7 +45,7 @@ test.describe("live-api-socratic-intake", () => {
     const questionCount = await questionBlocks.count();
 
     for (let index = 0; index < questionCount; index++) {
-      await questionBlocks.nth(index).getByRole("button", { name: "Skip (trail)" }).click();
+      await questionBlocks.nth(index).getByRole("button", { name: "Skip for now" }).click();
     }
 
     await page.getByTestId("socratic-questions-done").click();

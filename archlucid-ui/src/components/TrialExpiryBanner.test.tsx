@@ -1,5 +1,7 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 vi.mock("@/lib/auth-config", () => ({
   AUTH_MODE: "development-bypass",
@@ -15,10 +17,12 @@ vi.mock("@/lib/oidc/session", () => ({
 
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
 import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 describe("TrialExpiryBanner", () => {
-  beforeEach(() => {
-    invalidateTenantTrialStatusCache();
+  beforeEach(async () => {
+    resetOperatorQueryClientForTests();
+    await invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     vi.stubGlobal(
       "fetch",
@@ -44,7 +48,7 @@ describe("TrialExpiryBanner", () => {
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
-    render(<TrialExpiryBanner />);
+    renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -54,7 +58,7 @@ describe("TrialExpiryBanner", () => {
   });
 
   it("renders when trial is active and days remaining is within urgent window", async () => {
-    render(<TrialExpiryBanner />);
+    renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-expiry-banner")).toBeInTheDocument();
@@ -66,7 +70,7 @@ describe("TrialExpiryBanner", () => {
 
   it("does not render when session dismissed", async () => {
     sessionStorage.setItem("archlucid_trial_expiry_banner_dismissed_session", "1");
-    render(<TrialExpiryBanner />);
+    renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -76,7 +80,7 @@ describe("TrialExpiryBanner", () => {
   });
 
   it("dismiss sets session flag and hides banner", async () => {
-    render(<TrialExpiryBanner />);
+    renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("trial-expiry-banner")).toBeInTheDocument();
@@ -102,7 +106,7 @@ describe("TrialExpiryBanner", () => {
       }),
     );
 
-    render(<TrialExpiryBanner />);
+    renderWithOperatorQuery(<TrialExpiryBanner />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
