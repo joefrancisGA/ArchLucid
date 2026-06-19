@@ -4,6 +4,12 @@ import { notFound } from "next/navigation";
 
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
+export {
+  dynamic,
+  fetchCache,
+  revalidate,
+} from "@/lib/next/operator-data-route-policy";
+
 export const metadata: Metadata = {
   title: "Plan detail",
   description: "Read-only improvement plan: steps, priority, and evidence link counts (59R).",

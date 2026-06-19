@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
+export {
+  dynamic,
+  fetchCache,
+  revalidate,
+} from "@/lib/next/operator-data-route-policy";
+
 export default async function GovernanceApprovalLineageLayout({
   children,
   params,
