@@ -10034,7 +10034,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-336 ? Worker/Jobs.Cli observability config parity verification (P2)
 
-**Status:** Open ? Tier 2.
+**Status:** **Done (2026-06-19)** — `appsettings.Production.json` Observability sections for Worker and Jobs.Cli; per-host parity table + gap notes in `report_observability_export_readiness.py`; BUILD.md + OBSERVABILITY.md production runbook parity; Python drift tests extended.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 

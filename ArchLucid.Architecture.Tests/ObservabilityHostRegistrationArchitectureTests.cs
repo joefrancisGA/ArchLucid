@@ -31,4 +31,16 @@ public sealed class ObservabilityHostRegistrationArchitectureTests
         extensions.Should().Contain("AddAzureMonitorMetricExporter");
         extensions.Should().Contain("AddOtlpExporter");
     }
+
+    [SkippableFact]
+    public void WorkerAndJobsCli_ProductionAppsettings_IncludeObservabilitySection()
+    {
+        string workerProduction = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Worker", "appsettings.Production.json"));
+        string jobsProduction = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Jobs.Cli", "appsettings.Production.json"));
+
+        workerProduction.Should().Contain("\"Observability\"");
+        jobsProduction.Should().Contain("\"Observability\"");
+    }
 }

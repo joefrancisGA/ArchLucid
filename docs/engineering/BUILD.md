@@ -138,7 +138,20 @@ The API registers meter **`ArchLucid`** (`ArchLucidInstrumentation.MeterName`). 
 | `archlucid_governance_pack_content_deserialize_cache_hits` / `_misses` | In-resolve dedupe when the same pack **version** appears on multiple assignments (not HTTP-scope cache — see **`NEXT_REFACTORINGS.md`** §230). |
 | `archlucid_llm_prompt_tokens_total` / `archlucid_llm_completion_tokens_total` | Aggregate by default; with **`LlmTelemetry:RecordPerTenantTokens=true`**, also emitted **with** `tenant_id` label (cardinality). |
 
-Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archlucid-slo.json`**. Production export injection, verification queries, and correlation regression tests: **[`docs/library/OBSERVABILITY.md`](../library/OBSERVABILITY.md)** (ADR 0053 / TB-329–334).
+Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archlucid-slo.json`**. Production export injection, verification queries, and correlation regression tests: **[`docs/library/OBSERVABILITY.md`](../library/OBSERVABILITY.md)** (ADR 0053 / TB-329–336).
+
+### Worker and Jobs.Cli telemetry parity (TB-336)
+
+**ArchLucid.Worker** and **ArchLucid.Jobs.Cli** register the same **`AddArchLucidOpenTelemetry`** wiring as **ArchLucid.Api**, but they do not share the Api host’s configuration merge chain (`appsettings.Advanced.json` / `appsettings.SaaS.json` are Api-only). In production, **each container** (Api, Worker, Container Apps Jobs) must receive the **same** telemetry export settings — typically **`APPLICATIONINSIGHTS_CONNECTION_STRING`** on every replica and job definition, not only on the Api app.
+
+Verify parity before release:
+
+```bash
+python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md
+python scripts/ci/tests/test_report_observability_export_readiness.py
+```
+
+When **`ProductionValidation:RequireTelemetryExport=true`**, misconfigured Worker or Jobs.Cli hosts **fail startup** the same way as Api (`ProductionDangerousMisconfigurationLint`).
 
 ## SQL Server for integration tests (Dapper + API)
 

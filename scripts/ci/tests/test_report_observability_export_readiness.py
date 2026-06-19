@@ -54,6 +54,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             self.assertIn("ArchLucid.Api", text)
             self.assertIn("ArchLucid.Worker", text)
             self.assertIn("ArchLucid.Jobs.Cli", text)
+            self.assertIn("Host configuration parity (TB-336)", text)
             self.assertIn("archlucid_agent_output_structural_completeness_ratio", text)
             self.assertIn("archlucid_agent_output_quality_gate_total", text)
             self.assertIn("archlucid_agent_trace_blob_upload_failures_total", text)
@@ -93,6 +94,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             self.assertIn("| **ArchLucid.Api** | **no** |", text)
             self.assertIn("| **ArchLucid.Worker** | **no** |", text)
             self.assertIn("| **ArchLucid.Jobs.Cli** | **no** |", text)
+            self.assertIn("| **ArchLucid.Worker** | **yes** | **no** |", text)
             self.assertIn("**Telemetry export readiness verdict:** **WARN**", text)
 
     def test_strict_exit_code_fails_when_json_only_and_no_exporter(self):
@@ -175,6 +177,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             load_errors=[],
             active_exports=[],
             export_warnings=["x"],
+            observability_section_in_json=True,
         )
         worker = _M.HostReport(
             files_attempted=[],
@@ -182,6 +185,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             load_errors=[],
             active_exports=["OTLP"],
             export_warnings=[],
+            observability_section_in_json=True,
         )
         jobs_cli = _M.HostReport(
             files_attempted=[],
@@ -189,6 +193,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             load_errors=[],
             active_exports=["OTLP"],
             export_warnings=[],
+            observability_section_in_json=True,
         )
 
         v, reasons = _M.compute_release_verdict(
@@ -240,6 +245,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             load_errors=[],
             active_exports=[],
             export_warnings=["x"],
+            observability_section_in_json=False,
         )
         worker = _M.HostReport(
             files_attempted=[],
@@ -247,6 +253,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             load_errors=[],
             active_exports=[],
             export_warnings=["x"],
+            observability_section_in_json=False,
         )
         jobs_cli = _M.HostReport(
             files_attempted=[],
@@ -254,6 +261,7 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
             load_errors=[],
             active_exports=[],
             export_warnings=["x"],
+            observability_section_in_json=False,
         )
 
         v, reasons = _M.compute_release_verdict(

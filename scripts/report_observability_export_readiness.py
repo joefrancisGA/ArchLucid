@@ -329,10 +329,42 @@ class HostReport:
     load_errors: list[str]
     active_exports: list[str]
     export_warnings: list[str]
+    observability_section_in_json: bool
 
     @property
     def has_export(self) -> bool:
         return len(self.active_exports) > 0
+
+
+def observability_section_present(cfg: dict[str, Any]) -> bool:
+    obs = cfg.get("Observability")
+
+    return isinstance(obs, dict) and len(obs) > 0
+
+
+def build_parity_gap_notes(
+    *,
+    api: HostReport,
+    worker: HostReport,
+    jobs_cli: HostReport,
+) -> list[str]:
+    """TB-336: surface committed JSON parity gaps independent of shared process env."""
+    notes: list[str] = []
+
+    if api.observability_section_in_json and not worker.observability_section_in_json:
+        notes.append(
+            "Committed **ArchLucid.Worker** appsettings lack an `Observability` section while **ArchLucid.Api** "
+            "includes one — verify the Worker Container App receives the **same** export env vars as Api "
+            "(`APPLICATIONINSIGHTS_CONNECTION_STRING`, `Observability__Otlp__Endpoint`, …)."
+        )
+
+    if api.observability_section_in_json and not jobs_cli.observability_section_in_json:
+        notes.append(
+            "Committed **ArchLucid.Jobs.Cli** appsettings lack an `Observability` section while **ArchLucid.Api** "
+            "includes one — scheduled/repair jobs need the same telemetry export injection as Api and Worker."
+        )
+
+    return notes
 
 
 def compute_release_verdict(
@@ -410,6 +442,12 @@ def compute_release_verdict(
             "from production triage unless the job host receives the same telemetry export settings. Treat as **WARN**."
         )
 
+    parity_gaps = build_parity_gap_notes(api=api, worker=worker, jobs_cli=jobs_cli)
+
+    for note in parity_gaps:
+        if note not in reasons:
+            reasons.append(note)
+
     if api.load_errors or worker.load_errors or jobs_cli.load_errors:
         return "WARN", reasons
 
@@ -441,6 +479,7 @@ def build_host_report(
         load_errors=rel_errors,
         active_exports=active,
         export_warnings=warnings,
+        observability_section_in_json=observability_section_present(merged),
     )
 
 
@@ -491,6 +530,18 @@ def render_markdown(
             f"| **ArchLucid.Api** | {'**yes**' if api.has_export else '**no**'} | {', '.join(api.active_exports) if api.active_exports else '*none*'} |",
             f"| **ArchLucid.Worker** | {'**yes**' if worker.has_export else '**no**'} | {', '.join(worker.active_exports) if worker.active_exports else '*none*'} |",
             f"| **ArchLucid.Jobs.Cli** | {'**yes**' if jobs_cli.has_export else '**no**'} | {', '.join(jobs_cli.active_exports) if jobs_cli.active_exports else '*none*'} |",
+            "",
+            "### Host configuration parity (TB-336)",
+            "",
+            "| Host | `Observability` section in committed JSON | Durable export (merged view) |",
+            "|------|------------------------------------------|------------------------------|",
+            f"| **ArchLucid.Api** | {'**yes**' if api.observability_section_in_json else '**no**'} | {'**yes**' if api.has_export else '**no**'} |",
+            f"| **ArchLucid.Worker** | {'**yes**' if worker.observability_section_in_json else '**no**'} | {'**yes**' if worker.has_export else '**no**'} |",
+            f"| **ArchLucid.Jobs.Cli** | {'**yes**' if jobs_cli.observability_section_in_json else '**no**'} | {'**yes**' if jobs_cli.has_export else '**no**'} |",
+            "",
+            "Production deployments must inject the **same** Application Insights connection string (or active OTLP/Prometheus "
+            "settings) into **Api**, **Worker**, and **Jobs.Cli** container definitions — the repo report uses one process "
+            "environment overlay for all hosts and cannot detect per-container env drift.",
             "",
             "**Durable export** means at least one of: Application Insights connection string, OTLP endpoint (not kill-switched), or Prometheus scrape enabled. "
             "Console-only export in Development does not satisfy production trending.",
@@ -581,8 +632,8 @@ def render_markdown(
     lines.extend(
         [
             "",
-            "Committed **Worker** appsettings omit `Observability` - production typically injects the same keys "
-            "via Container App / Key Vault env vars (`APPLICATIONINSIGHTS_CONNECTION_STRING`, "
+            "Committed **Worker** `appsettings.Production.json` documents the `Observability` key shape; production still "
+            "injects connection strings via Container App / Key Vault env vars (`APPLICATIONINSIGHTS_CONNECTION_STRING`, "
             "`Observability__Otlp__Endpoint`, etc.). Enable **process environment overlay** above or verify deployment env.",
             "",
             "## ArchLucid.Jobs.Cli",
@@ -625,8 +676,9 @@ def render_markdown(
     lines.extend(
         [
             "",
-            "Committed **Jobs.Cli** appsettings may rely on deployment-time injection for telemetry. Production job runners should receive the same "
-            "Application Insights / OTLP / Prometheus settings as Api and Worker when job-originated spans matter for release triage.",
+            "Committed **Jobs.Cli** `appsettings.Production.json` documents the `Observability` key shape. Production job runners "
+            "should receive the same Application Insights / OTLP / Prometheus settings as Api and Worker when job-originated "
+            "spans matter for release triage.",
             "",
             "## Agent-output metrics (after successful execute)",
             "",

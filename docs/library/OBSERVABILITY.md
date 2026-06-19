@@ -377,14 +377,22 @@ traces
 
 ## Production operator runbook (TB-333)
 
-### 1. Inject Application Insights (Api + Worker)
+### 1. Inject Application Insights (Api + Worker + Jobs.Cli)
 
 | Priority | Setting |
 | --- | --- |
 | 1 | **`APPLICATIONINSIGHTS_CONNECTION_STRING`** (Container Apps / App Service env) |
 | 2 | **`ApplicationInsights:ConnectionString`** or **`Observability:AzureMonitor:ApplicationInsightsConnectionString`** in merged config |
 
-**Worker parity:** both **Api** and **Worker** hosts must export telemetry in production-like profiles. A configured Api with a blind Worker breaks background review lifecycle visibility.
+**Host parity (TB-336):** **Api**, **Worker**, and **Jobs.Cli** must each export telemetry in production-like profiles. Inject the **same** connection string (or OTLP/Prometheus settings) on every container definition — not only the Api app. A configured Api with a blind Worker breaks background review lifecycle visibility (outbox processors, integration events, deferred authority work). Container Apps Jobs running **`ArchLucid.Jobs.Cli`** need the same injection or job-originated spans disappear from triage.
+
+**Parity audit (repo-local, no secrets printed):**
+
+```bash
+python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md
+```
+
+The report Summary table lists per-host durable export status; the **Host configuration parity (TB-336)** table shows whether committed JSON includes an `Observability` section. Re-run **without** `--no-process-environment` on a shell that mirrors production env when validating deploy-time injection.
 
 ### 2. Verify export before sign-off
 
