@@ -655,8 +655,12 @@ export function ReviewsNewPathSwitcher() {
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
+    const pathQuery = searchParams?.get("path")?.trim().toLowerCase() ?? "";
 
-    if (baselineFirst) {
+    if (pathQuery === "quick-review") {
+      setActivePath("quick-review");
+      persistActivePath("quick-review");
+    } else if (baselineFirst) {
       setActivePath("detailed");
       persistActivePath("detailed");
     } else if (presetGreenfield) {
@@ -670,7 +674,7 @@ export function ReviewsNewPathSwitcher() {
     }
 
     setReady(true);
-  }, [baselineFirst, presetGreenfield]);
+  }, [baselineFirst, presetGreenfield, searchParams]);
 
   const selectPath = (path: ReviewsNewActivePath) => {
     setActivePath(path);

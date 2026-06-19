@@ -46,7 +46,10 @@ import {
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
   FULL_WIZARD_EVIDENCE_STEP_INDEX,
 } from "@/lib/wizard-step-fields";
-import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
+import {
+  uploadWizardPendingAzureEvidence,
+  uploadWizardPendingDocumentEvidence,
+} from "@/lib/wizard-pending-evidence-upload";
 import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
@@ -203,6 +206,7 @@ export function NewRunWizardClient() {
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
+  const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
   const [evidenceUploadError, setEvidenceUploadError] = useState<{
     message: string;
@@ -459,37 +463,71 @@ export function NewRunWizardClient() {
     setStepIndex((current) => Math.max(0, current - 1));
   };
 
-  const uploadPendingEvidence = useCallback(async (runIdValue: string, file: File): Promise<void> => {
+  const uploadPendingEvidence = useCallback(async (runIdValue: string): Promise<void> => {
+    const azureFile = pendingEvidenceFile;
+    const documentFiles = pendingDocumentFiles;
+    const hasAzure = azureFile !== null;
+    const hasDocuments = documentFiles.length > 0;
+
+    if (!hasAzure && !hasDocuments) {
+      return;
+    }
+
     setEvidenceUploadState("uploading");
     setEvidenceUploadError(null);
 
-    const result = await uploadAzureExtractorPackage(file, { runId: runIdValue });
+    if (hasAzure && azureFile !== null) {
+      const azureResult = await uploadWizardPendingAzureEvidence(runIdValue, azureFile);
 
-    if (result.ok) {
-      setEvidenceUploadState("success");
+      if (!azureResult.ok) {
+        setEvidenceUploadState("failed");
+        setEvidenceUploadError({
+          message: azureResult.message,
+          problem: azureResult.problem,
+          correlationId: azureResult.correlationId,
+        });
+
+        return;
+      }
+
       setPendingEvidenceFile(null);
-
-      return;
     }
 
-    setEvidenceUploadState("failed");
-    setEvidenceUploadError({
-      message: result.message,
-      problem: result.problem,
-      correlationId: result.correlationId,
-    });
-  }, []);
+    if (documentFiles.length > 0) {
+      const documentResult = await uploadWizardPendingDocumentEvidence(runIdValue, documentFiles);
+
+      if (!documentResult.ok) {
+        setEvidenceUploadState("failed");
+        setEvidenceUploadError({
+          message: documentResult.message,
+          problem: documentResult.problem,
+          correlationId: documentResult.correlationId,
+        });
+
+        return;
+      }
+
+      setPendingDocumentFiles([]);
+    }
+
+    setEvidenceUploadState("success");
+  }, [pendingDocumentFiles, pendingEvidenceFile]);
 
   const retryEvidenceUpload = useCallback(async () => {
-    if (runId === null || pendingEvidenceFile === null) {
+    if (runId === null) {
       return;
     }
 
-    await uploadPendingEvidence(runId, pendingEvidenceFile);
-  }, [pendingEvidenceFile, runId, uploadPendingEvidence]);
+    if (pendingEvidenceFile === null && pendingDocumentFiles.length === 0) {
+      return;
+    }
+
+    await uploadPendingEvidence(runId);
+  }, [pendingDocumentFiles, pendingEvidenceFile, runId, uploadPendingEvidence]);
 
   const skipEvidenceAndAdvance = () => {
     setPendingEvidenceFile(null);
+    setPendingDocumentFiles([]);
     setStepIndex((current) => Math.min(stepMax, current + 1));
   };
 
@@ -600,8 +638,8 @@ export function NewRunWizardClient() {
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
 
-      if (pendingEvidenceFile !== null) {
-        await uploadPendingEvidence(id, pendingEvidenceFile);
+      if (pendingEvidenceFile !== null || pendingDocumentFiles.length > 0) {
+        await uploadPendingEvidence(id);
       }
     } catch (error: unknown) {
       setSubmitError(error);
@@ -806,7 +844,9 @@ export function NewRunWizardClient() {
           {stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !baselineFirst ? (
             <WizardStepEvidenceUpload
               pendingFile={pendingEvidenceFile}
+              pendingDocumentFiles={pendingDocumentFiles}
               onPendingFileChange={handlePendingEvidenceFileChange}
+              onPendingDocumentFilesChange={setPendingDocumentFiles}
               onTrySampleData={tryWithSampleData}
               onSkipDemoData={skipEvidenceAndAdvance}
             />
@@ -841,6 +881,7 @@ export function NewRunWizardClient() {
             <>
               <WizardPostCreateEvidenceUploadPanel
                 pendingFile={pendingEvidenceFile}
+                pendingDocumentFileCount={pendingDocumentFiles.length}
                 uploadState={evidenceUploadState}
                 uploadError={evidenceUploadError}
                 onRetry={() => {

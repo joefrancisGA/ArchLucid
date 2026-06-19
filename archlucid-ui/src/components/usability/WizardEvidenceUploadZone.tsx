@@ -7,13 +7,17 @@ import { Button } from "@/components/ui/button";
 import { showSuccess } from "@/lib/toast";
 
 type WizardEvidenceUploadZoneProps = {
+  readonly title?: string;
+  readonly description?: string;
+  readonly accept?: string;
   readonly onFilesSelected?: (files: File[]) => void;
 };
 
-const ACCEPTED_EXTENSIONS = ".pdf,.docx,.md,.txt,.json,.yaml,.yml,.png,.jpg,.jpeg";
+const DEFAULT_ACCEPTED_EXTENSIONS = ".pdf,.docx,.md,.txt,.json,.yaml,.yml,.png,.jpg,.jpeg";
 
 /** Drag-drop evidence upload with format hints for the review wizard. */
 export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
+  const acceptedExtensions = props.accept ?? DEFAULT_ACCEPTED_EXTENSIONS;
   const [fileNames, setFileNames] = useState<string[]>([]);
 
   const handleFiles = useCallback(
@@ -42,9 +46,12 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
         handleFiles(event.dataTransfer.files);
       }}
     >
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Attach evidence (optional)</p>
+      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+        {props.title ?? "Attach evidence (optional)"}
+      </p>
       <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-        Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images. Drag files here or browse.
+        {props.description ??
+          "Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images. Drag files here or browse."}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button type="button" variant="outline" size="sm" asChild>
@@ -54,7 +61,7 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
               type="file"
               className="sr-only"
               multiple
-              accept={ACCEPTED_EXTENSIONS}
+              accept={acceptedExtensions}
               onChange={(event) => handleFiles(event.target.files)}
             />
           </label>

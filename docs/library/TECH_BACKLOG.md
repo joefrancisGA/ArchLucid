@@ -10182,7 +10182,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-341 ? Multi-source evidence picker with honest V1.1 badges (P1)
 
-**Status:** Open ? P1.
+**Status:** **Done (2026-06-19)** — selectable evidence-source picker in `WizardStepEvidenceUpload.tsx` (`wizard-evidence-source-options.ts`); Brief/Documents/Diagrams/IaC/Azure/Demo panels wired to guided brief, `WizardEvidenceUploadZone`, Azure ZIP dropzone, and demo sample paths; V1.1 sources disabled with badges; post-create bulk document upload via `wizard-pending-evidence-upload.ts`; `?path=quick-review` deeplink on path switcher.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
