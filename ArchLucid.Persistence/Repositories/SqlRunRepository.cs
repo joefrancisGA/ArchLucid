@@ -877,7 +877,8 @@ public sealed class SqlRunRepository(
                                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc,
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId,
-                               CurrentManifestVersion, OtelTraceId, StructuralExecutionMode
+                               CurrentManifestVersion, OtelTraceId, StructuralExecutionMode,
+                               EngineProvenanceJson
                            FROM dbo.Runs
                            WHERE RunId = @RunId
                              AND TenantId = @TenantId

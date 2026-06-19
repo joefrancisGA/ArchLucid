@@ -28,9 +28,10 @@ class TestAdoptionBatch5AO(unittest.TestCase):
         self.assertIn("EnterpriseTable", text)
 
     def test_tb_222_nav_link(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("/governance/recurrence-schedules", text)
+        # Recurrence schedules live in the Pilot nav group only (nav-config.structure forbids duplicate hrefs).
+        operate_path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"
+        operate_text = operate_path.read_text(encoding="utf-8")
+        self.assertNotIn("/governance/recurrence-schedules", operate_text)
 
     def test_tb_222_pilot_nav_link(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "pilot-nav-group-builder.ts"

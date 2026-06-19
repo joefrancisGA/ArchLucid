@@ -305,12 +305,11 @@ public sealed class AuthorityPipelineStagesExecutor(
             ctx.Manifest = manifest;
             ctx.Trace = trace;
 
-            if (trace is not RuleAuditTraceDto ruleAuditTrace)
+            if (trace is not RuleAuditTraceDto)
                 throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
 
-            run.DecisionTraceId = ruleAuditTrace.RuleAudit.DecisionTraceId;
-            run.GoldenManifestId = manifest.ManifestId;
-            await UpdateRunAsync(run, uow, token);
+            // Defer DecisionTraceId / GoldenManifestId header writes until artifacts completes so TB-310 anchor
+            // columns are sealed in one UpdateAsync together with ArtifactBundleId.
         }, ct);
 
         await ExecuteStageAsync(ctx, "authority.artifacts", "artifacts", async (_, token) =>
@@ -391,6 +390,11 @@ public sealed class AuthorityPipelineStagesExecutor(
 
             ctx.ArtifactBundle = artifactBundle;
 
+            if (ctx.Trace is not RuleAuditTraceDto ruleAuditTrace)
+                throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+            run.DecisionTraceId = ruleAuditTrace.RuleAudit.DecisionTraceId;
+            run.GoldenManifestId = ctx.Manifest!.ManifestId;
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, uow, token);
         }, ct);

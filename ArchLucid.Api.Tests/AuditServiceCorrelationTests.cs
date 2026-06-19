@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -37,8 +38,8 @@ public sealed class AuditServiceCorrelationTests
         AuditEvent? captured = null;
         Mock<IAuditRepository> repo = new();
         repo
-            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            .Callback<AuditEvent, CancellationToken, IDbConnection?, IDbTransaction?>((e, _, _, _) => captured = e)
             .Returns(Task.CompletedTask);
 
         Mock<IHttpContextAccessor> httpAccessor = new();
@@ -73,8 +74,8 @@ public sealed class AuditServiceCorrelationTests
         AuditEvent? captured = null;
         Mock<IAuditRepository> repo = new();
         repo
-            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>(), It.IsAny<IDbConnection>(), It.IsAny<IDbTransaction>()))
+            .Callback<AuditEvent, CancellationToken, IDbConnection?, IDbTransaction?>((e, _, _, _) => captured = e)
             .Returns(Task.CompletedTask);
 
         DefaultHttpContext httpContext = new() { TraceIdentifier = "trace-from-kestrel" };
