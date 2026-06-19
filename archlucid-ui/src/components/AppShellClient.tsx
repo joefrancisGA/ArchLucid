@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { Suspense, useLayoutEffect, useRef, useState, useCallback, type ReactNode } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode } from "react";
 
 import { usePathname } from "next/navigation";
 
@@ -16,12 +16,8 @@ import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { HelpPanel } from "@/components/HelpPanel";
-import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
-import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
-import { PilotBaselineWizardLauncher } from "@/components/PilotBaselineWizardLauncher";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import {
   OperatorChromeModeProvider,
@@ -83,6 +79,77 @@ const CtoDemoSpotlightOverlay = dynamic(
     ),
   { ssr: false },
 );
+
+const HelpSearchPanel = dynamic(
+  () => import("@/components/HelpSearchPanel").then((module) => module.HelpSearchPanel),
+  { ssr: false },
+);
+
+const HelpPanel = dynamic(
+  () => import("@/components/HelpPanel").then((module) => module.HelpPanel),
+  { ssr: false },
+);
+
+const CorePilotWizardLauncher = dynamic(
+  () => import("@/components/CorePilotWizard").then((module) => module.CorePilotWizardLauncher),
+  { ssr: false },
+);
+
+const PilotBaselineWizardLauncher = dynamic(
+  () =>
+    import("@/components/PilotBaselineWizardLauncher").then(
+      (module) => module.PilotBaselineWizardLauncher,
+    ),
+  { ssr: false },
+);
+
+type AppShellHelpOverlaysProps = {
+  helpDocSearchOpen: boolean;
+  helpGuidesOpen: boolean;
+  onHelpDocSearchOpenChange: (open: boolean) => void;
+  onHelpGuidesOpenChange: (open: boolean) => void;
+};
+
+/** Defers help panel chunks until the operator first opens search or guides. */
+function AppShellHelpOverlays({
+  helpDocSearchOpen,
+  helpGuidesOpen,
+  onHelpDocSearchOpenChange,
+  onHelpGuidesOpenChange,
+}: AppShellHelpOverlaysProps) {
+  const [searchMounted, setSearchMounted] = useState(false);
+  const [guidesMounted, setGuidesMounted] = useState(false);
+
+  useEffect(() => {
+    if (helpDocSearchOpen) {
+      setSearchMounted(true);
+    }
+  }, [helpDocSearchOpen]);
+
+  useEffect(() => {
+    if (helpGuidesOpen) {
+      setGuidesMounted(true);
+    }
+  }, [helpGuidesOpen]);
+
+  return (
+    <>
+      {searchMounted ? (
+        <HelpSearchPanel
+          open={helpDocSearchOpen}
+          onOpenChange={onHelpDocSearchOpenChange}
+          onOpenGuidesPanel={() => {
+            setGuidesMounted(true);
+            onHelpGuidesOpenChange(true);
+          }}
+        />
+      ) : null}
+      {guidesMounted ? (
+        <HelpPanel open={helpGuidesOpen} onOpenChange={onHelpGuidesOpenChange} />
+      ) : null}
+    </>
+  );
+}
 
 type AppShellClientProps = {
   children: ReactNode;
@@ -244,14 +311,12 @@ function AppShellInner({ children }: AppShellClientProps) {
             <AppToaster />
             <RouteAnnouncer />
             <TrialLimitModalHost />
-            <HelpSearchPanel
-              open={helpDocSearchOpen}
-              onOpenChange={setHelpDocSearchOpen}
-              onOpenGuidesPanel={() => {
-                setHelpGuidesOpen(true);
-              }}
+            <AppShellHelpOverlays
+              helpDocSearchOpen={helpDocSearchOpen}
+              helpGuidesOpen={helpGuidesOpen}
+              onHelpDocSearchOpenChange={setHelpDocSearchOpen}
+              onHelpGuidesOpenChange={setHelpGuidesOpen}
             />
-            <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
           </TooltipProvider>
         </WorkspaceActiveRunProvider>
       </OperatorNavAuthorityProvider>
@@ -336,14 +401,12 @@ function AppShellInner({ children }: AppShellClientProps) {
         <AppToaster />
         <RouteAnnouncer />
         <TrialLimitModalHost />
-        <HelpSearchPanel
-          open={helpDocSearchOpen}
-          onOpenChange={setHelpDocSearchOpen}
-          onOpenGuidesPanel={() => {
-            setHelpGuidesOpen(true);
-          }}
+        <AppShellHelpOverlays
+          helpDocSearchOpen={helpDocSearchOpen}
+          helpGuidesOpen={helpGuidesOpen}
+          onHelpDocSearchOpenChange={setHelpDocSearchOpen}
+          onHelpGuidesOpenChange={setHelpGuidesOpen}
         />
-        <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
         <CorePilotWizardLauncher />
         <PilotBaselineWizardLauncher />
         <OnboardingTour />
