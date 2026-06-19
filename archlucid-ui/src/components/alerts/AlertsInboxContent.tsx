@@ -7,7 +7,8 @@ import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints"
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +34,6 @@ import {
   alertsInboxGettingStartedOperator,
   alertsInboxGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
-import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
 import {
   alertsFilteredEmptyDescriptionOperator,
   alertsFilteredEmptyDescriptionReader,
@@ -207,40 +207,39 @@ export function AlertsInboxContent() {
     return parts.length > 0 ? parts.join(" · ") : null;
   }, [visibleAlerts]);
 
-  const emptyFilteredProps = useMemo(() => {
+  const emptyFilteredProps = useMemo((): EnterpriseCompactEmptyStateProps => {
     if (buyerPolishedShell) {
       return {
-        ...ALERTS_EMPTY_FILTERED,
+        testId: "alerts-inbox-empty-state",
         title: "No alerts in this sample",
         description:
           "The walkthrough focuses on the governed review package first. Live alert traffic may be empty for this tenant snapshot.",
-        actions: [{ label: "Continue to reviews", href: "/reviews?projectId=default", variant: "primary" as const }],
+        actions: [{ label: "Continue to reviews", href: "/reviews?projectId=default", variant: "primary" }],
       };
     }
 
-    const description = canMutateAlertInbox
+    const gettingStarted = canMutateAlertInbox ? alertsInboxGettingStartedOperator : alertsInboxGettingStartedReader;
+    const descriptionBase = canMutateAlertInbox
       ? alertsFilteredEmptyDescriptionOperator
       : alertsFilteredEmptyDescriptionReader;
+    const description = `${descriptionBase} ${gettingStarted.steps.join(" ")}`;
 
     const actions = canMutateAlertInbox
       ? [
-          { label: "Set up alert rules", href: "/alerts?tab=rules" },
+          { label: "Set up alert rules", href: "/alerts?tab=rules", variant: "primary" as const },
           { label: "Add routing (optional)", href: "/alerts?tab=routing", variant: "outline" as const },
           { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" as const },
         ]
       : [
-          { label: "Review alert rules", href: "/alerts?tab=rules" },
+          { label: "Review alert rules", href: "/alerts?tab=rules", variant: "primary" as const },
           { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" as const },
         ];
 
-    const gettingStarted = canMutateAlertInbox ? alertsInboxGettingStartedOperator : alertsInboxGettingStartedReader;
-
     return {
-      ...ALERTS_EMPTY_FILTERED,
+      testId: "alerts-inbox-empty-state",
       title: "No alerts match this filter",
       description,
       actions,
-      gettingStarted,
     };
   }, [buyerPolishedShell, canMutateAlertInbox]);
 
@@ -520,7 +519,9 @@ export function AlertsInboxContent() {
           )
         ) : null}
 
-        {!loading && failure === null && visibleAlerts.length === 0 ? <EmptyState {...emptyFilteredProps} /> : null}
+        {!loading && failure === null && visibleAlerts.length === 0 ? (
+          <EnterpriseCompactEmptyState {...emptyFilteredProps} />
+        ) : null}
 
         {visibleAlerts.length > 0
           ? visibleAlerts.map((alert) => {

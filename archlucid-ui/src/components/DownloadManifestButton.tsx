@@ -3,18 +3,12 @@
 import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
-import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+import { fetchManifestJsonText, manifestJsonDownloadFileName } from "@/lib/manifest-json-fetch";
 
 type DownloadManifestButtonProps = {
   readonly runId: string;
   readonly className?: string;
 };
-
-function manifestDownloadFileName(runId: string): string {
-  const safe = runId.trim().replace(/[^\w.-]+/g, "-");
-
-  return `${safe.length > 0 ? safe : "review"}-manifest.json`;
-}
 
 /** One-click browser download of the committed golden manifest JSON for a review package. */
 export function DownloadManifestButton(props: DownloadManifestButtonProps): ReactElement {
@@ -23,23 +17,16 @@ export function DownloadManifestButton(props: DownloadManifestButtonProps): Reac
   const [error, setError] = useState<string | null>(null);
 
   const onDownload = async (): Promise<void> => {
-    const trimmedRunId = runId.trim();
-
-    if (trimmedRunId.length === 0) {
-      setError("Review id is missing — refresh the page and try again.");
-      return;
-    }
-
     setDownloading(true);
     setError(null);
 
     try {
-      const manifestJson = await getAuthorityRunManifest(trimmedRunId);
-      const blob = new Blob([JSON.stringify(manifestJson, null, 2)], { type: "application/json" });
+      const jsonText = await fetchManifestJsonText(runId);
+      const blob = new Blob([jsonText], { type: "application/json" });
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = objectUrl;
-      anchor.download = manifestDownloadFileName(trimmedRunId);
+      anchor.download = manifestJsonDownloadFileName(runId);
       anchor.click();
       URL.revokeObjectURL(objectUrl);
     } catch (downloadError) {

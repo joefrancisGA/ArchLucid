@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,9 +173,14 @@ export default function RiskExceptionsClient() {
       {loadError ? <p className="m-0 text-sm text-red-700 dark:text-red-400">{loadError}</p> : null}
 
       {records.length === 0 ? (
-        <OperatorEmptyState
+        <EnterpriseCompactEmptyState
+          testId="risk-exceptions-empty-state"
           title="No active risk exceptions"
           description="Waivers created from the finding inspector appear here when they are active in this scope."
+          actions={[
+            { label: "View findings", href: "/governance/findings", variant: "primary" },
+            { label: "Governance workflow", href: "/governance", variant: "outline" },
+          ]}
         />
       ) : (
         <EnterpriseTable ariaLabel="Risk exceptions">

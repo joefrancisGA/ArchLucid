@@ -10652,3 +10652,75 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - Users can download the raw JSON manifest directly from the review detail page.
 
 **Size estimate:** M
+
+---
+
+## TB-362 — CI Guard: Enforce Single Class Per File Rule (P2)
+
+**Status:** **Done (2026-06-19)** — `check_single_class_per_file.py` / `.ps1` diff-scoped guard wired into `run_guards_pre_corset.sh`.
+
+**Problem:** A core workspace rule states that "each class must be in its own file," but developers occasionally group multiple helper classes or records in the same `.cs` file, making discovery harder.
+
+**Scope:**
+1. Create a CI scanner (`scripts/ci/check_single_class_per_file.py` or `.ps1`).
+2. Parse `.cs` files (using regex or simple syntax heuristics) to flag files that contain multiple root-level `class`, `record`, or `struct` declarations (ignoring nested classes).
+3. Wire this into `scripts/ci/run_guards_pre_corset.sh` to fail the build if violations are found.
+
+**Acceptance criteria:**
+- CI fails when multiple types are declared at the root level of a single `.cs` file.
+
+**Size estimate:** S
+
+---
+
+## TB-363 — UI: Enterprise Empty States for Alerts and Risk Exceptions (P2)
+
+**Status:** **Done (2026-06-19)** — `EnterpriseCompactEmptyState` on `AlertsInboxContent` and `RiskExceptionsClient`.
+
+**Problem:** Following TB-360, `AlertsInboxContent.tsx` and `RiskExceptionsClient.tsx` still use older or generic empty state components instead of the new IBM Carbon-aligned `EnterpriseCompactEmptyState`.
+
+**Scope:**
+1. Audit `archlucid-ui/src/components/alerts/AlertsInboxContent.tsx` and `archlucid-ui/src/components/governance/RiskExceptionsClient.tsx`.
+2. Replace their empty states with `EnterpriseCompactEmptyState`.
+3. Provide appropriate `actions` (e.g., "Review alert routing rules" or "View all findings") where applicable.
+
+**Acceptance criteria:**
+- Alerts and Risk Exceptions views render the standardized, compact enterprise empty state.
+
+**Size estimate:** S
+
+---
+
+## TB-364 — CI Guard: Enforce Blank Line Before Control Flow (P2)
+
+**Status:** **Done (2026-06-19)** — `check_control_flow_spacing.py` / `.ps1` diff-scoped guard wired into `run_guards_pre_corset.sh`.
+
+**Problem:** A workspace formatting rule requires that `if` and `foreach` statements have a blank line in front of them (unless they are the first line of code in a method), but this is frequently missed during rapid development.
+
+**Scope:**
+1. Write a script (`scripts/ci/check_control_flow_spacing.py`) that scans `.cs` files.
+2. Flag any `if (` or `foreach (` that immediately follows a non-empty, non-brace line (i.e., missing a preceding blank line).
+3. Add it to the CI pre-corset guard suite.
+
+**Acceptance criteria:**
+- CI enforces a blank line before `if` and `foreach` statements.
+
+**Size estimate:** S
+
+---
+
+## TB-365 — UI: "Copy Manifest JSON to Clipboard" Affordance (P3)
+
+**Status:** **Done (2026-06-19)** — `CopyManifestButton` beside download on `RunDetailManifestSummarySection`.
+
+**Problem:** TB-361 added the ability to download the Golden Manifest as a file, but operators frequently just need to paste the JSON payload into an ITSM ticket, Slack, or a local scratchpad without cluttering their downloads folder.
+
+**Scope:**
+1. Create a `CopyManifestButton.tsx` component (or add a dropdown to the existing `DownloadManifestButton`).
+2. Reuse `getAuthorityRunManifest` to fetch the payload, but write the stringified JSON to the navigator clipboard instead of triggering a download.
+3. Show a temporary "Copied!" success state on the button.
+
+**Acceptance criteria:**
+- Operators can copy the raw manifest JSON directly to their clipboard with one click.
+
+**Size estimate:** S

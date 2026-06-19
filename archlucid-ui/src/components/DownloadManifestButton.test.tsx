@@ -3,15 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 
 import { DownloadManifestButton } from "@/components/DownloadManifestButton";
 
-vi.mock("@/lib/api/architecture-runs", () => ({
-  getAuthorityRunManifest: vi.fn(),
+vi.mock("@/lib/manifest-json-fetch", () => ({
+  fetchManifestJsonText: vi.fn(),
+  manifestJsonDownloadFileName: vi.fn((runId: string) => `${runId}-manifest.json`),
 }));
 
-import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+import { fetchManifestJsonText } from "@/lib/manifest-json-fetch";
 
 describe("DownloadManifestButton", () => {
   it("downloads manifest JSON with a run-scoped file name", async () => {
-    vi.mocked(getAuthorityRunManifest).mockResolvedValue({ manifestId: "m-1", decisions: [] });
+    vi.mocked(fetchManifestJsonText).mockResolvedValue('{"manifestId":"m-1","decisions":[]}');
 
     const createObjectUrl = vi.fn(() => "blob:mock");
     const revokeObjectUrl = vi.fn();
@@ -27,7 +28,7 @@ describe("DownloadManifestButton", () => {
     fireEvent.click(screen.getByTestId("download-manifest-json-button"));
 
     await waitFor(() => {
-      expect(getAuthorityRunManifest).toHaveBeenCalledWith("run-abc-123");
+      expect(fetchManifestJsonText).toHaveBeenCalledWith("run-abc-123");
     });
 
     expect(anchor.download).toBe("run-abc-123-manifest.json");
@@ -40,7 +41,7 @@ describe("DownloadManifestButton", () => {
   });
 
   it("surfaces API failures", async () => {
-    vi.mocked(getAuthorityRunManifest).mockRejectedValue(new Error("Manifest not found"));
+    vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Manifest not found"));
 
     render(<DownloadManifestButton runId="missing-run" />);
 
