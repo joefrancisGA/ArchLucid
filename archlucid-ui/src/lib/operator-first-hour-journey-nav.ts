@@ -1,6 +1,6 @@
 /**
  * Canonical four-step first-hour operator path — keep in sync with docs/library/FIRST_HOUR_OPERATOR_PATH.md
- * and SidebarNav quick actions for non-buyer-polished shells.
+ * and in-page journey chrome (`OperatorFirstHourJourneyStrip`, route-adjacent next/prev).
  */
 export const OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS = [
   {

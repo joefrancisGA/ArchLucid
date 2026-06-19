@@ -62,7 +62,7 @@ describe("SidebarNav (primary navigation)", () => {
       const nav = screen.getByRole("navigation", { name: "Review work" });
       expect(nav).toBeInTheDocument();
 
-      // Capture also appears under Quick actions (`/reviews/new`); scope essentials to this group.
+      // Scope essentials to Review work — Start review lives in that group only (TB-345: no sidebar journey duplicate).
       const homeLink = within(nav).getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
@@ -188,6 +188,16 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.getByText("Review work")).toBeInTheDocument();
   });
 
+  it("does not duplicate the numbered first-hour journey strip in the sidebar (TB-345)", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByTestId("sidebar-quick-actions")).not.toBeInTheDocument();
+    expect(screen.queryByText("First-hour path")).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "First-hour path" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Review journey" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /1\.\s*New architecture request/i })).not.toBeInTheDocument();
+  });
+
   it('reveals extended Review work links when "N more" is clicked in Review work', async () => {
     render(<SidebarNav />);
 
@@ -306,5 +316,13 @@ describe("SidebarNav buyer-polished desktop shell", () => {
 
     expect(screen.queryByTestId("sidebar-buyer-help-link")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Help" })).not.toBeInTheDocument();
+  });
+
+  it("does not duplicate the numbered review journey strip in the sidebar (TB-345)", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByTestId("sidebar-quick-actions")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review journey")).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Review journey" })).not.toBeInTheDocument();
   });
 });

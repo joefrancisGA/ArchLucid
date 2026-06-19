@@ -10294,7 +10294,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-345 ? Operator home sidebar: drop duplicate first-hour path rail (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — removed `sidebar-quick-actions` numbered journey strip from `SidebarNav`; Review work nav group retained; Vitest regression guards (TB-345).
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
@@ -10928,5 +10928,76 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Acceptance criteria:**
 - Pressing `/` outside of text inputs immediately focuses the search bar.
+
+**Size estimate:** S
+
+---
+
+## TB-378 — CI Guard: Block `async void` methods (P2)
+
+**Status:** Open — **P2**
+
+**Problem:** `async void` methods cannot be reliably awaited, and unhandled exceptions within them will crash the process. They should only be used for UI event handlers, which are not present in this backend.
+
+**Scope:**
+1. Create a diff-scoped CI scanner (`scripts/ci/check_no_async_void.py` / `.ps1`).
+2. Scan changed `.cs` files for `async void`.
+3. Wire into `scripts/ci/run_guards_pre_corset.sh`.
+
+**Acceptance criteria:**
+- CI fails if `async void` methods are introduced in changed C# files.
+
+**Size estimate:** S
+
+---
+
+## TB-379 — CI Guard: Prevent Sync-over-Async (`.GetAwaiter().GetResult()`) (P2)
+
+**Status:** Open — **P2**
+
+**Problem:** Synchronously waiting on asynchronous tasks using `.GetAwaiter().GetResult()` or `.Wait()` can cause thread pool starvation and deadlocks in ASP.NET Core applications.
+
+**Scope:**
+1. Create a diff-scoped CI scanner (`scripts/ci/check_no_sync_over_async.py` / `.ps1`).
+2. Scan changed `.cs` files for `\.GetAwaiter\(\)\.GetResult\(\)` and `\.Wait\(\)`.
+3. Exclude `ArchLucid.Cli` and `*Tests.cs` if needed.
+4. Wire into `scripts/ci/run_guards_pre_corset.sh`.
+
+**Acceptance criteria:**
+- CI fails if synchronous waiting on tasks is introduced in core domain, application, or API projects.
+
+**Size estimate:** S
+
+---
+
+## TB-380 — UI: Standardize boolean status chips across tables (P3)
+
+**Status:** Open — **P3**
+
+**Problem:** Boolean flags (like "Active" vs "Inactive", "Yes" vs "No") are displayed using ad-hoc text or varying badge styles across different operator tables.
+
+**Scope:**
+1. Create a reusable `BooleanStatusChip` component in `archlucid-ui/src/components/ui/` that maps true/false to standardized visual treatments (e.g., green/neutral or neutral/red depending on semantics).
+2. Migrate at least two existing tables (like Risk Exceptions or Settings grids) to use this component for boolean columns.
+
+**Acceptance criteria:**
+- New component exists and enforces consistent visual weight for boolean states.
+
+**Size estimate:** S
+
+---
+
+## TB-381 — UI: Surface `CopyIdButton` for Policy Pack IDs (P3)
+
+**Status:** Open — **P3**
+
+**Problem:** Operators need to copy Policy Pack IDs to use them in CLI automation and API requests, but the IDs are not easily selectable with one click.
+
+**Scope:**
+1. In the Policy Packs listing page and detail views, add the `<CopyIdButton>` next to the rendered `policyPackId`.
+2. Ensure layout remains compact and consistent with Review/Manifest ID copy affordances.
+
+**Acceptance criteria:**
+- Operators can copy Policy Pack IDs with one click.
 
 **Size estimate:** S
