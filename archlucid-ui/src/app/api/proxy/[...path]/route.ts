@@ -13,8 +13,8 @@ import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
-/** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`DELETE`). */
-type ForwardMethod = "GET" | "POST" | "PUT" | "DELETE";
+/** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`PATCH`/`DELETE`). */
+type ForwardMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 /**
  * Builds headers for the upstream C# API request.
@@ -89,10 +89,10 @@ function respondWithProxyProblem(
   return res;
 }
 
-/** Forwards `POST`/`PUT` with JSON (or other) body and size limits identical to historical POST behavior. */
+/** Forwards `POST`/`PUT`/`PATCH` with JSON (or other) body and size limits identical to historical POST behavior. */
 async function forwardMutatingWithBody(
   request: NextRequest,
-  method: "POST" | "PUT",
+  method: "POST" | "PUT" | "PATCH",
   pathForLog: string,
   correlationId: string,
   targetUrl: string,
@@ -194,7 +194,7 @@ async function forwardMutatingWithBody(
   return passThrough(res);
 }
 
-/** Forwards GET/POST/PUT/DELETE after applying rate limits, sandbox mocks, and upstream config validation. */
+/** Forwards GET/POST/PUT/PATCH/DELETE after applying rate limits, sandbox mocks, and upstream config validation. */
 async function forward(
   request: NextRequest,
   pathSegments: string[],
@@ -242,7 +242,7 @@ async function forward(
 
   const headers = upstreamHeaders;
 
-  if (method === "POST" || method === "PUT") {
+  if (method === "POST" || method === "PUT" || method === "PATCH") {
     return forwardMutatingWithBody(request, method, pathForLog, correlationId, targetUrl, headers);
   }
 
@@ -419,6 +419,14 @@ export async function PUT(
   context: { params: Promise<{ path: string[] }> },
 ) {
   return handleRateLimitedForward(request, context, "PUT");
+}
+
+/** Handles PATCH requests (draft intake, run pin, alert archive, etc.) from browser-safe same-origin callers. */
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  return handleRateLimitedForward(request, context, "PATCH");
 }
 
 /** Handles DELETE requests (resource teardown) from browser-safe same-origin callers. */
