@@ -160,5 +160,5 @@ No per-pilot quotes or names in the rollup.
 | [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) | Per-handoff interview — feeds `decisionChanged` (execution: **M-45**) |
 | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../COMMERCIAL_CONVERSION_CHECKLIST.md) | Sponsor close-out sequence — feeds `conversionStatus` |
 | [`templates/paid-pilot-baseline.template.json`](../templates/paid-pilot-baseline.template.json) | ROI baseline capture — feeds `baselineSourceConfidence` |
-| [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) | ROI framing and confidence boundaries |
+| [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) | ROI framing and confidence boundaries |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-37** | Cohort execution — populate ledger across ≥10 paid pilots (V1.1) |

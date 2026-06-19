@@ -322,6 +322,8 @@ public sealed class AuthorityPipelineStagesExecutor(
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                // Log without UoW: synthesis failed so the active transaction may already be
+                // aborting; use the standalone overload to ensure the audit event persists.
                 await _auditService.LogAsync(
                     new AuditEvent
                     {
@@ -335,7 +337,6 @@ public sealed class AuthorityPipelineStagesExecutor(
                             new { reason = ex.GetType().Name },
                             AuditJsonSerializationOptions.Instance),
                     },
-                    uow,
                     token);
 
                 throw;

@@ -97,7 +97,7 @@ Apply honestly — never omit losing sessions.
 | --- | --- |
 | [`FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md`](../FRONTIER_AI_COUNTERFACTUAL_SCOREBOARD.md) | Per-session rows + cohort rollup |
 | [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](../GENERIC_AI_BAKEOFF_PROTOCOL.md) | Session protocol |
-| [`../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) | Five-step runbook |
+| [`../../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md`](../../runbooks/PRINCIPAL_ARCHITECT_FRONTIER_AI_BAKEOFF.md) | Five-step runbook |
 | [`WHAT_NOT_TO_PROMISE.md`](../WHAT_NOT_TO_PROMISE.md) | Claim boundaries |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-40** | Scoreboard maintenance execution (V1.1) |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-43** | Real human-led bakeoff sessions (V1.1) |

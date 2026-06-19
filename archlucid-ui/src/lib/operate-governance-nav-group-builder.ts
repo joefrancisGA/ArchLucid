@@ -1,5 +1,6 @@
 import {
   Bell,
+  CalendarClock,
   FileSearch,
   FileText,
   GitBranch,
@@ -103,6 +104,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           icon: FileText,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/governance/recurrence-schedules",
+          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
+          title: "Recurrence schedules — automated follow-up architecture reviews after commit",
+          icon: CalendarClock,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
         },
       ],
     };

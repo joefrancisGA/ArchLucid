@@ -134,7 +134,7 @@ Select **at most two** recurring triggers to act on this week:
 | Asset | Role |
 | --- | --- |
 | [`FIRST_SESSION_DISMISSAL_PLAYBOOK.md`](../FIRST_SESSION_DISMISSAL_PLAYBOOK.md) | 3-session cohort protocol + D1–D8 taxonomy + product decision gate |
-| [`fixtures/first-session/dismissal-trigger.template.json`](../../fixtures/first-session/dismissal-trigger.template.json) | Lighter first-session JSON (hesitation codes, no confidence/contradiction fields) |
+| [`fixtures/first-session/dismissal-trigger.template.json`](../../../fixtures/first-session/dismissal-trigger.template.json) | Lighter first-session JSON (hesitation codes, no confidence/contradiction fields) |
 | [`templates/pilot-dismissal-trigger.template.json`](../templates/pilot-dismissal-trigger.template.json) | Paid-pilot adjunct |
 | [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) | Timestamped hesitation observation protocol |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-44** | Live cohort execution (V1.1) |

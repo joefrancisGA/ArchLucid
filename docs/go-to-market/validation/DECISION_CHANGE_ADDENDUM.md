@@ -103,5 +103,5 @@ Store full addenda locally. Commit only sanitized aggregates per [`../validation
 | [`DECISION_DELTA_INTERVIEW.md`](../DECISION_DELTA_INTERVIEW.md) | Source interview — feeds all four sections |
 | [`PAID_PILOT_EVIDENCE_LEDGER.md`](PAID_PILOT_EVIDENCE_LEDGER.md) | Conversion rollup — `decisionChanged` field |
 | [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) | Proof packet context |
-| [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) | Sponsor handoff bundle |
+| [`../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) | Sponsor handoff bundle |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-45** | Live interview + addendum population (V1.1) |
