@@ -58,6 +58,8 @@ export type DraftIntakeWhatIfBranchPanelProps = {
   readonly outcome: string;
   readonly systemName: string;
   readonly questionOptions: DraftElicitationQuestion[];
+  /** Hides clarification-answer override while the main intake flow still has pending questions. */
+  readonly suppressQuestionAnswerOverride?: boolean;
   readonly onBranched: (response: BranchDraftResponse) => void;
 };
 
@@ -65,12 +67,35 @@ export type DraftIntakeWhatIfBranchPanelProps = {
  * What-if branching via POST /v1/architecture/draft/{draftId}/branch (R12).
  * A branch is a ceteris-paribus draft clone — submit it as a separate review, then Compare.
  */
+function resolveInitialOverrideKind(
+  suppressQuestionAnswerOverride: boolean | undefined,
+): DraftBranchOverrideKind {
+  if (suppressQuestionAnswerOverride === true) {
+    return "BusinessOutcome";
+  }
+
+  return "QuestionAnswer";
+}
+
 export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanelProps) {
   const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
+  const suppressQuestionAnswerOverride = props.suppressQuestionAnswerOverride === true;
 
-  const [overrideKind, setOverrideKind] = useState<DraftBranchOverrideKind>("QuestionAnswer");
+  const availableOverrideKinds = useMemo(() => {
+    if (!suppressQuestionAnswerOverride) {
+      return OVERRIDE_KIND_OPTIONS;
+    }
+
+    return OVERRIDE_KIND_OPTIONS.filter((option) => option.value !== "QuestionAnswer");
+  }, [suppressQuestionAnswerOverride]);
+
+  const [overrideKind, setOverrideKind] = useState<DraftBranchOverrideKind>(() =>
+    resolveInitialOverrideKind(suppressQuestionAnswerOverride),
+  );
   const [overrideKey, setOverrideKey] = useState(defaultQuestionKey);
-  const [overrideValue, setOverrideValue] = useState("");
+  const [overrideValue, setOverrideValue] = useState(() =>
+    resolveInitialOverrideKind(suppressQuestionAnswerOverride) === "BusinessOutcome" ? props.outcome : "",
+  );
   const [busy, setBusy] = useState(false);
   const [quota, setQuota] = useState<DraftBranchQuotaResponse | null>(null);
   const [quotaError, setQuotaError] = useState<string | null>(null);
@@ -112,9 +137,19 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     };
   }, [props.draftId]);
 
+  useEffect(() => {
+    if (suppressQuestionAnswerOverride && overrideKind === "QuestionAnswer") {
+      setOverrideKind("BusinessOutcome");
+      setOverrideValue(props.outcome);
+    }
+  }, [overrideKind, props.outcome, suppressQuestionAnswerOverride]);
+
   const selectedKindMeta = useMemo(
-    () => OVERRIDE_KIND_OPTIONS.find((option) => option.value === overrideKind) ?? OVERRIDE_KIND_OPTIONS[0],
-    [overrideKind],
+    () =>
+      availableOverrideKinds.find((option) => option.value === overrideKind) ??
+      availableOverrideKinds[0] ??
+      OVERRIDE_KIND_OPTIONS[0],
+    [availableOverrideKinds, overrideKind],
   );
 
   const canBranch = useMemo(() => {
@@ -230,7 +265,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
               <SelectValue placeholder="Choose override" />
             </SelectTrigger>
             <SelectContent>
-              {OVERRIDE_KIND_OPTIONS.map((option) => (
+              {availableOverrideKinds.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>

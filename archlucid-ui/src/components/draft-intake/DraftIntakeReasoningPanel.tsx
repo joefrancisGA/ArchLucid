@@ -27,6 +27,8 @@ export type DraftIntakeReasoningPanelProps = {
   readonly draftId: string;
   readonly disabled?: boolean;
   readonly defaultOpen?: boolean;
+  /** When true, renders as a subsection inside Advanced options (no outer collapsible). */
+  readonly embedded?: boolean;
 };
 
 function summarizeLatestTurn(turns: DraftIntakeReasonTurn[]): string {
@@ -94,6 +96,98 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
     }
   }
 
+  const panelContent = (
+    <div className="draft-intake-reasoning-panel space-y-4">
+      <DraftIntakeClaimLabel surface="llm-intake-reasoning" />
+
+      {turns.length > 0 ? (
+        <ol className="m-0 list-none space-y-4 p-0">
+          {turns.map((turn, index) => (
+            <li
+              key={`${index}-${turn.message.slice(0, 24)}`}
+              className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+            >
+              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                You asked
+              </p>
+              <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">{turn.message}</p>
+              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Answer
+              </p>
+              <AskAssistantMessageBody content={turn.answer} />
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{NO_SUGGESTIONS_COPY}</p>
+      )}
+
+      <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+        <summary
+          className="cursor-pointer select-none text-sm font-medium text-al-text-primary"
+          data-testid="draft-intake-reason-follow-up-toggle"
+        >
+          Ask a follow-up
+        </summary>
+
+        <div className="mt-3 space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor={`draft-intake-reason-${props.draftId}`}>Your question</Label>
+            <Textarea
+              id={`draft-intake-reason-${props.draftId}`}
+              rows={4}
+              value={message}
+              disabled={panelDisabled}
+              placeholder="Ask ArchLucid to clarify a gap or risk in your draft answer…"
+              data-testid="draft-intake-reason-input"
+              onChange={(event) => {
+                setMessage(event.target.value);
+              }}
+            />
+          </div>
+
+          {error !== null ? (
+            <OperatorApiProblem
+              problem={error.problem}
+              fallbackMessage={error.message}
+              correlationId={error.correlationId}
+            />
+          ) : null}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={panelDisabled || message.trim().length === 0}
+            data-testid="draft-intake-reason-submit"
+            onClick={() => {
+              void submitMessage();
+            }}
+          >
+            {busy ? "Asking…" : "Ask intake assistant"}
+          </Button>
+        </div>
+      </details>
+    </div>
+  );
+
+  if (props.embedded === true) {
+    return (
+      <div className="draft-intake-reasoning-embedded space-y-3" data-testid="draft-intake-reasoning-panel">
+        <div>
+          <p className="m-0 text-sm font-semibold text-al-text-primary">{ASSISTANT_NOTES_TITLE}</p>
+          <p
+            className="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+            data-testid="draft-intake-reasoning-summary"
+          >
+            {summaryStatus}
+          </p>
+        </div>
+        {panelContent}
+      </div>
+    );
+  }
+
   return (
     <details
       className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
@@ -115,80 +209,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
         </div>
       </summary>
 
-      {panelOpen ? (
-        <div className="draft-intake-reasoning-panel mt-3 space-y-4">
-          <DraftIntakeClaimLabel surface="llm-intake-reasoning" />
-
-          {turns.length > 0 ? (
-            <ol className="m-0 list-none space-y-4 p-0">
-              {turns.map((turn, index) => (
-                <li
-                  key={`${index}-${turn.message.slice(0, 24)}`}
-                  className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
-                >
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                    You asked
-                  </p>
-                  <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">{turn.message}</p>
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                    Answer
-                  </p>
-                  <AskAssistantMessageBody content={turn.answer} />
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{NO_SUGGESTIONS_COPY}</p>
-          )}
-
-          <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-            <summary
-              className="cursor-pointer select-none text-sm font-medium text-al-text-primary"
-              data-testid="draft-intake-reason-follow-up-toggle"
-            >
-              Ask a follow-up
-            </summary>
-
-            <div className="mt-3 space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor={`draft-intake-reason-${props.draftId}`}>Your question</Label>
-                <Textarea
-                  id={`draft-intake-reason-${props.draftId}`}
-                  rows={4}
-                  value={message}
-                  disabled={panelDisabled}
-                  placeholder="Ask ArchLucid to clarify a gap or risk in your draft answer…"
-                  data-testid="draft-intake-reason-input"
-                  onChange={(event) => {
-                    setMessage(event.target.value);
-                  }}
-                />
-              </div>
-
-              {error !== null ? (
-                <OperatorApiProblem
-                  problem={error.problem}
-                  fallbackMessage={error.message}
-                  correlationId={error.correlationId}
-                />
-              ) : null}
-
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                disabled={panelDisabled || message.trim().length === 0}
-                data-testid="draft-intake-reason-submit"
-                onClick={() => {
-                  void submitMessage();
-                }}
-              >
-                {busy ? "Asking…" : "Ask intake assistant"}
-              </Button>
-            </div>
-          </details>
-        </div>
-      ) : null}
+      {panelOpen ? <div className="mt-3">{panelContent}</div> : null}
     </details>
   );
 }

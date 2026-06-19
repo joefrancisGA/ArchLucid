@@ -85,9 +85,9 @@ export function SocraticIntakeWizard() {
 
   const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
   const resolvedClarificationCount = Math.max(0, totalRequiredClarifications - pendingQuestions.length);
-  const visiblePendingQuestions = viewAllClarifications
-    ? pendingQuestions
-    : pendingQuestions.slice(0, 1);
+  const primaryPendingQuestion = pendingQuestions[0] ?? null;
+  const otherPendingQuestions =
+    viewAllClarifications && pendingQuestions.length > 1 ? pendingQuestions.slice(1) : [];
 
   const canAdvanceIntent =
     freeTextIntent.trim().length >= MIN_INTENT_CHARS &&
@@ -388,14 +388,15 @@ export function SocraticIntakeWizard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {visiblePendingQuestions.map((question, index) => (
+            {primaryPendingQuestion !== null ? (
               <DraftIntakeRequiredClarificationField
-                key={question.questionKey}
-                question={question}
-                answer={answers[question.questionKey] ?? ""}
+                key={primaryPendingQuestion.questionKey}
+                question={primaryPendingQuestion}
+                answer={answers[primaryPendingQuestion.questionKey] ?? ""}
                 busy={busy}
-                clarificationIndex={resolvedClarificationCount + index + 1}
+                clarificationIndex={resolvedClarificationCount + 1}
                 clarificationTotal={totalRequiredClarifications}
+                isPrimary
                 compactActions={viewAllClarifications}
                 onAnswerChange={(questionKey, value) => {
                   setAnswers((current) => ({
@@ -410,7 +411,7 @@ export function SocraticIntakeWizard() {
                   void skipQuestion(questionKey);
                 }}
               />
-            ))}
+            ) : null}
 
             {pendingQuestions.length > 1 ? (
               <Button
@@ -427,41 +428,72 @@ export function SocraticIntakeWizard() {
               </Button>
             ) : null}
 
+            {otherPendingQuestions.length > 0 ? (
+              <div className="space-y-3" data-testid="socratic-other-clarifications">
+                <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Other clarifications
+                </p>
+                {otherPendingQuestions.map((question, index) => (
+                  <DraftIntakeRequiredClarificationField
+                    key={question.questionKey}
+                    question={question}
+                    answer={answers[question.questionKey] ?? ""}
+                    busy={busy}
+                    clarificationIndex={resolvedClarificationCount + index + 2}
+                    clarificationTotal={totalRequiredClarifications}
+                    isPrimary={false}
+                    compactActions
+                    onAnswerChange={(questionKey, value) => {
+                      setAnswers((current) => ({
+                        ...current,
+                        [questionKey]: value,
+                      }));
+                    }}
+                    onSave={(questionKey) => {
+                      void saveAnswer(questionKey);
+                    }}
+                    onSkip={(questionKey) => {
+                      void skipQuestion(questionKey);
+                    }}
+                  />
+                ))}
+              </div>
+            ) : null}
+
             <div className="space-y-2">
+              {!allMustAnswered ? (
+                <p className="m-0 text-sm text-neutral-500" data-testid="socratic-submit-hint">
+                  Answer or skip all required clarifications to continue.
+                </p>
+              ) : null}
               <Button
                 type="button"
+                variant="primary"
                 disabled={!allMustAnswered || busy}
                 onClick={() => setStep(2)}
                 data-testid="socratic-questions-done"
               >
                 Review & submit
               </Button>
-              {!allMustAnswered ? (
-                <p className="m-0 text-sm text-neutral-500" data-testid="socratic-submit-hint">
-                  Answer or skip all required clarifications to continue.
-                </p>
-              ) : null}
             </div>
           </CardContent>
         </Card>
       ) : null}
 
       {draftId !== null && step === 1 ? (
-        <DraftIntakeReasoningPanel
-          draftId={draftId}
-          disabled={busy || blocksLlmExecution}
-          defaultOpen={false}
-        />
-      ) : null}
-
-      {draftId !== null && step === 1 ? (
         <DraftIntakeAdvancedSection defaultOpen={false}>
+          <DraftIntakeReasoningPanel
+            draftId={draftId}
+            disabled={busy || blocksLlmExecution}
+            embedded
+          />
           <DraftIntakeWhatIfBranchPanel
             draftId={draftId}
             intent={freeTextIntent}
             outcome={businessOutcome}
             systemName={systemName}
             questionOptions={allQuestions}
+            suppressQuestionAnswerOverride={pendingQuestions.length > 0}
             disabled={busy}
             onBranched={(response) => {
               void applyBranchDraft(response);

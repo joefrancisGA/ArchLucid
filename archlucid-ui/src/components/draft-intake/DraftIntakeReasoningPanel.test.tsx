@@ -42,4 +42,12 @@ describe("DraftIntakeReasoningPanel", () => {
 
     expect(screen.getByTestId("draft-intake-reasoning-summary")).toHaveTextContent(/data residency/i);
   });
+
+  it("renders embedded mode without an outer collapsible wrapper", () => {
+    render(<DraftIntakeReasoningPanel draftId="draft-1" embedded />);
+
+    expect(screen.getByTestId("draft-intake-reasoning-panel").tagName).toBe("DIV");
+    expect(screen.getByText("Intake assistant notes")).toBeInTheDocument();
+    expect(screen.getByTestId("draft-intake-reason-follow-up-toggle")).toBeInTheDocument();
+  });
 });

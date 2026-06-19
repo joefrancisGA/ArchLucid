@@ -13,7 +13,7 @@ export type DraftIntakeAdvancedSectionProps = {
 export function DraftIntakeAdvancedSection(props: DraftIntakeAdvancedSectionProps) {
   return (
     <CollapsibleSection
-      title="Advanced"
+      title="Advanced options"
       defaultOpen={props.defaultOpen === true}
       sectionTestId="draft-intake-advanced-section"
     >

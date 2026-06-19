@@ -184,6 +184,11 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("socratic-submit-hint")).toHaveTextContent(
       /answer or skip all required clarifications to continue/i,
     );
+
+    const hint = screen.getByTestId("socratic-submit-hint");
+    const reviewButton = screen.getByTestId("socratic-questions-done");
+
+    expect(hint.compareDocumentPosition(reviewButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
