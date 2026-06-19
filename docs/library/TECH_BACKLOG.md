@@ -10151,7 +10151,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-340 — Make `cloudProvider` optional at intake for non-cloud reviews (P1, owner-confirm)
 
-**Status:** Open — P1. **Blocked on PQ-DRIFT-01** (owner) — see below.
+**Status:** **Done (2026-06-18 Imp-17)** — `CloudProvider.None` at intake; Azure only when Azure extractor evidence is attached.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
