@@ -1,0 +1,19 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
+import {
+  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
+} from "@/lib/buyer-polish-copy";
+
+describe("OperatorHomeWorkspaceEmptyState (TB-352)", () => {
+  it("uses the compact enterprise empty pattern without duplicate CTAs", () => {
+    render(<OperatorHomeWorkspaceEmptyState />);
+
+    expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
+    expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+});

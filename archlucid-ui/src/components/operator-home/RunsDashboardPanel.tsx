@@ -36,6 +36,9 @@ import {
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
+  BUYER_RUNS_DASHBOARD_TAB_APPROVED,
+  BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
+  BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -84,7 +87,19 @@ function isRunNeedingAttention(run: RunSummary): boolean {
   return run.hasFindingsSnapshot === true && run.hasGoldenManifest !== true;
 }
 
-function runsDashboardTabLabel(tabId: TabId): string {
+function runsDashboardTabLabel(tabId: TabId, buyerPolishedShell: boolean): string {
+  if (buyerPolishedShell) {
+    if (tabId === "recent") {
+      return BUYER_RUNS_DASHBOARD_TAB_APPROVED;
+    }
+
+    if (tabId === "attention") {
+      return BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION;
+    }
+
+    return BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING;
+  }
+
   if (tabId === "recent") {
     return RUNS_DASHBOARD_LABELS.tabRecent;
   }
@@ -354,7 +369,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   setTab(id);
                 }}
               >
-                {runsDashboardTabLabel(id)}
+                {runsDashboardTabLabel(id, buyerPolishedShell)}
               </button>
             ))}
           </div>

@@ -313,6 +313,36 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
+  it("uses buyer-polished tab labels with stable test ids (TB-352)", async () => {
+    runsDashBuyerPolishedForced.on = true;
+
+    listRuns.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    render(<RunsDashboardPanel />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "Approved" })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-tab-recent",
+      );
+      expect(screen.getByRole("tab", { name: "Action needed" })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-tab-attention",
+      );
+      expect(screen.getByRole("tab", { name: "Approved with monitoring" })).toHaveAttribute(
+        "data-testid",
+        "runs-dashboard-tab-outcomes",
+      );
+    });
+  });
+
   it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
     runsDashBuyerPolishedForced.on = true;
 

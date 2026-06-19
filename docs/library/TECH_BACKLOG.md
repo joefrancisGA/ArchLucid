@@ -10492,7 +10492,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-352 ? Enrich operator home review list / empty state cards (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — populated rows show findings/governance insight lines and `StatusTag` badges; home empty state uses `EnterpriseCompactEmptyState`; buyer-polished tabs use Approved / Action needed / Approved with monitoring with stable `runs-dashboard-tab-*` test ids.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
