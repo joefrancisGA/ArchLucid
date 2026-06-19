@@ -142,7 +142,7 @@ export function TrialUsageUpgradeNudge() {
     recordTrialUpgradeNudgeShown(trigger);
   }, [isFetched, payload]);
 
-  if (!visible || dismissedLocally || activeTrigger === null || payload === null) {
+  if (!visible || dismissedLocally || activeTrigger === null || payload == null) {
     return null;
   }
 

@@ -1,10 +1,12 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SignupForm } from "@/components/marketing/SignupForm";
 import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPage";
 import { TrialBanner } from "@/components/TrialBanner";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 expect.extend(toHaveNoViolations);
 
@@ -33,6 +35,12 @@ vi.mock("@/lib/oidc/session", () => ({
 }));
 
 describe("trial + marketing — axe (Vitest)", () => {
+  useOperatorQueryTestLifecycle();
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("WelcomeMarketingPage has no serious axe violations", async () => {
     vi.stubGlobal(
       "fetch",
@@ -48,18 +56,17 @@ describe("trial + marketing — axe (Vitest)", () => {
       }),
     );
 
-    const { container } = render(
+    const { container } = renderWithOperatorQuery(
       <div>
         <WelcomeMarketingPage />
       </div>,
     );
 
     expect(await axe(container)).toHaveNoViolations();
-    vi.unstubAllGlobals();
   });
 
   it("SignupForm has no serious axe violations", async () => {
-    const { container } = render(
+    const { container } = renderWithOperatorQuery(
       <div>
         <SignupForm />
       </div>,
@@ -80,13 +87,12 @@ describe("trial + marketing — axe (Vitest)", () => {
       }),
     );
 
-    const { container } = render(<TrialBanner />);
+    const { container } = renderWithOperatorQuery(<TrialBanner />);
 
     await waitFor(() => {
       expect(screen.getByRole("region", { name: /Trial subscription/i })).toBeInTheDocument();
     });
 
     expect(await axe(container)).toHaveNoViolations();
-    vi.unstubAllGlobals();
   });
 });

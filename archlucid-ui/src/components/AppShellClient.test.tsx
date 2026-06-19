@@ -1,12 +1,15 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
-const fetchBudgetCached = vi.hoisted(() => vi.fn());
+const fetchBudgetStatus = vi.hoisted(() => vi.fn());
+const fetchBudgetStatusCached = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -23,7 +26,17 @@ vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
 
   return {
     ...actual,
-    fetchLlmMonthlyDollarBudgetStatusCached: fetchBudgetCached,
+    fetchLlmMonthlyDollarBudgetStatus: fetchBudgetStatus,
+    fetchLlmMonthlyDollarBudgetStatusCached: fetchBudgetStatusCached,
+  };
+});
+
+vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+
+  return {
+    ...actual,
+    isStaticDemoPayloadFallbackEnabled: () => false,
   };
 });
 
@@ -55,9 +68,20 @@ vi.mock("@/components/SidebarNav", () => ({
 }));
 
 describe("AppShellClient — LLM budget chrome", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     buyerPolishedMock.value = false;
-    fetchBudgetCached.mockResolvedValue({
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (url.includes("/api/proxy/health/ready")) {
+        return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
+      }
+
+      return new Response("not found", { status: 404 });
+    }) as unknown as typeof fetch;
+    const budgetStatus = {
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,
       utcMonth: "2026-05",
@@ -68,11 +92,14 @@ describe("AppShellClient — LLM budget chrome", () => {
       assumedNextCallReservationUsd: 1,
       hardCapUtilizationFraction: 0.76,
       warnFraction: 0.75,
-    });
+    };
+
+    fetchBudgetStatus.mockResolvedValue(budgetStatus);
+    fetchBudgetStatusCached.mockResolvedValue(budgetStatus);
   });
 
   it("shows budget pill and approaching banner in operator shell mode", async () => {
-    render(
+    renderWithOperatorQuery(
       <AppShellClient>
         <div>child</div>
       </AppShellClient>,
@@ -85,7 +112,7 @@ describe("AppShellClient — LLM budget chrome", () => {
   it("hides budget pill in buyer-polished shell mode", async () => {
     buyerPolishedMock.value = true;
 
-    render(
+    renderWithOperatorQuery(
       <AppShellClient>
         <div>child</div>
       </AppShellClient>,

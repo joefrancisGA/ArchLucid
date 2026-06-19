@@ -1,5 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const listRunsByProjectPaged = vi.fn();
 const getPilotScorecard = vi.fn();
@@ -79,9 +82,33 @@ beforeEach(() => {
     hasMore: false,
   });
   getPilotScorecard.mockResolvedValue(null);
+
+  globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+    if (url.includes("/api/proxy/health/ready")) {
+      return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
+    }
+
+    if (url.includes("/api/proxy/v1/tenant/roi-baseline")) {
+      return new Response(JSON.stringify({ complete: true }), { status: 200 });
+    }
+
+    if (url.includes("/api/proxy/v1/tenant/trial-status")) {
+      return new Response(JSON.stringify({ status: "None" }), { status: 200 });
+    }
+
+    if (url.includes("/api/proxy/v1/pilots/runs/recent-deltas")) {
+      return new Response(JSON.stringify({ runs: [] }), { status: 200 });
+    }
+
+    return new Response("not found", { status: 404 });
+  }) as unknown as typeof fetch;
 });
 
 describe("HomePage — buyer-polished shell", () => {
+  useOperatorQueryTestLifecycle();
+
   afterEach(() => {
     vi.unstubAllEnvs();
   });
@@ -89,7 +116,7 @@ describe("HomePage — buyer-polished shell", () => {
   it("keeps the home launchpad focused on hero, reviews, and collapsed advanced guidance", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
 
-    render(<HomePage />);
+    renderWithOperatorQuery(<HomePage />);
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
@@ -107,8 +134,10 @@ describe("HomePage — buyer-polished shell", () => {
 });
 
 describe("HomePage (55R smoke — landing)", () => {
+  useOperatorQueryTestLifecycle();
+
   it("renders compact hero, reviews panel, and collapsed advanced guidance", async () => {
-    render(<HomePage />);
+    renderWithOperatorQuery(<HomePage />);
 
     expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
@@ -129,7 +158,7 @@ describe("HomePage (55R smoke — landing)", () => {
   });
 
   it("exposes create-first-request CTA from runs empty state", async () => {
-    render(<HomePage />);
+    renderWithOperatorQuery(<HomePage />);
 
     const runsLinks = screen
       .getAllByRole("link")
@@ -142,7 +171,7 @@ describe("HomePage (55R smoke — landing)", () => {
   });
 
   it("exposes primary workflow destinations matching shell review paths", async () => {
-    render(<HomePage />);
+    renderWithOperatorQuery(<HomePage />);
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Open full reviews list" })).toHaveAttribute(

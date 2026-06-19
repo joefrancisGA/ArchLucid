@@ -1,11 +1,16 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 
 const originalFetch = globalThis.fetch;
 
 describe("SetupHealthShellBanner", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -23,7 +28,7 @@ describe("SetupHealthShellBanner", () => {
   });
 
   it("shows a warning banner when setup is not healthy", async () => {
-    render(<SetupHealthShellBanner />);
+    renderWithOperatorQuery(<SetupHealthShellBanner />);
 
     await waitFor(() => {
       expect(screen.getByTestId("setup-health-shell-banner")).toBeInTheDocument();
@@ -46,7 +51,7 @@ describe("SetupHealthShellBanner", () => {
       return new Response("not found", { status: 404 });
     }) as unknown as typeof fetch;
 
-    render(<SetupHealthShellBanner />);
+    renderWithOperatorQuery(<SetupHealthShellBanner />);
 
     await waitFor(() => {
       expect(globalThis.fetch).toHaveBeenCalled();

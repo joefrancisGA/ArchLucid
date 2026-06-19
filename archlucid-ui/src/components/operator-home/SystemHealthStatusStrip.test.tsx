@@ -1,11 +1,16 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 import { SystemHealthStatusStrip } from "./SystemHealthStatusStrip";
 
 const originalFetch = globalThis.fetch;
 
 describe("SystemHealthStatusStrip", () => {
+  useOperatorQueryTestLifecycle();
+
   beforeEach(() => {
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -45,7 +50,7 @@ describe("SystemHealthStatusStrip", () => {
       return new Response("not found", { status: 404 });
     }) as unknown as typeof fetch;
 
-    render(<SystemHealthStatusStrip />);
+    renderWithOperatorQuery(<SystemHealthStatusStrip />);
 
     await waitFor(() => {
       expect(screen.getByTestId("command-center-health-card")).toBeInTheDocument();
@@ -54,7 +59,7 @@ describe("SystemHealthStatusStrip", () => {
   });
 
   it("hides the strip when readiness is fully healthy", async () => {
-    render(<SystemHealthStatusStrip />);
+    renderWithOperatorQuery(<SystemHealthStatusStrip />);
 
     await waitFor(() => {
       expect(globalThis.fetch).toHaveBeenCalled();
@@ -80,7 +85,7 @@ describe("SystemHealthStatusStrip", () => {
       return new Response("not found", { status: 404 });
     }) as unknown as typeof fetch;
 
-    render(<SystemHealthStatusStrip />);
+    renderWithOperatorQuery(<SystemHealthStatusStrip />);
 
     await waitFor(() => {
       expect(screen.getByTestId("command-center-data-archival-health")).toBeInTheDocument();
@@ -105,7 +110,7 @@ describe("SystemHealthStatusStrip", () => {
       return new Response("not found", { status: 404 });
     }) as unknown as typeof fetch;
 
-    render(<SystemHealthStatusStrip />);
+    renderWithOperatorQuery(<SystemHealthStatusStrip />);
 
     await waitFor(() => {
       expect(screen.getByText(/\(warning\)/i)).toBeInTheDocument();
