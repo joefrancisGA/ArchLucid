@@ -149,6 +149,7 @@ public sealed class TenantProvisioningServiceTests
 
         Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
         InMemoryArchitectureProjectRepository projects = new();
+        InMemoryTenantSettingsRepository settingsRepo = new();
 
         TenantProvisioningService sut = new(
             repo,
