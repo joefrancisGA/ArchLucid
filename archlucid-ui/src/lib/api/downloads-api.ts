@@ -1,12 +1,24 @@
-import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
+import { captureTraceContextFromResponse } from "@/lib/correlation";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   apiPostNoContent,
+  applyCorrelationHeaders,
   ensureOidcBearerReady,
   getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "./http";
+
+async function fetchBrowserDownload(
+  url: string,
+  init: RequestInit,
+): Promise<{ response: Response; correlationId: string }> {
+  const { headers, correlationId } = applyCorrelationHeaders(new Headers(init.headers));
+  const response = await fetch(url, { ...init, headers });
+  captureTraceContextFromResponse(response);
+
+  return { response, correlationId };
+}
 
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {
   return `/api/proxy/v1/artifacts/manifests/${manifestId}/artifact/${artifactId}`;
@@ -46,13 +58,11 @@ export async function downloadTerraformAdvisoryExportZip(runId: string): Promise
     credentials: "same-origin",
     cache: "no-store",
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "GET", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "GET" });
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const fileName =
@@ -150,13 +160,11 @@ export async function downloadConsultingArchitectureReportDocx(
     cache: "no-store",
     body: JSON.stringify(bodyPayload),
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "POST", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const fileName =
@@ -195,13 +203,11 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
     cache: "no-store",
     body: JSON.stringify({}),
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "POST", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const fileName =
@@ -239,13 +245,11 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
     cache: "no-store",
     body: JSON.stringify({ persist: true }),
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "POST", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const comparisonRecordId = response.headers.get("x-archlucid-comparison-record-id");
@@ -312,13 +316,11 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
     credentials: "same-origin",
     cache: "no-store",
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "POST", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const fileName =
@@ -357,13 +359,11 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
     cache: "no-store",
     body: JSON.stringify({ year, quarter }),
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "POST", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const fileName =
@@ -400,9 +400,7 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
     credentials: "same-origin",
     cache: "no-store",
   });
-  const h = new Headers(init.headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
-  const response = await fetch(url, { ...init, method: "POST", headers: h });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
 
   if (response.status === 202) {
     throw new Error(
@@ -412,7 +410,7 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
 
   if (!response.ok) {
     const errText = await response.text();
-    throwApiRequestError(response, errText);
+    throwApiRequestError(response, errText, correlationId);
   }
 
   const fileName =

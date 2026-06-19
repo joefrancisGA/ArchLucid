@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GET, POST } from "./[...path]/route";
-import { CORRELATION_ID_HEADER } from "@/lib/correlation";
+import { CORRELATION_ID_HEADER, TRACE_PARENT_HEADER } from "@/lib/correlation";
 import * as correlation from "@/lib/correlation";
 import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
 
@@ -76,5 +76,30 @@ describe("proxy route X-Correlation-ID", () => {
     const init = fetchMock.mock.calls[0]![1] as RequestInit;
     const headers = init.headers as Headers;
     expect(headers.get(CORRELATION_ID_HEADER)).toBe(browserId);
+  });
+
+  it("forwards valid browser traceparent on upstream fetch (GET)", async () => {
+    const traceParent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
+    const req = new NextRequest(`http://localhost/api/proxy/health/live`, {
+      headers: { [TRACE_PARENT_HEADER]: traceParent },
+    });
+
+    await GET(req, { params: Promise.resolve({ path: ["api", "health"] }) });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get(TRACE_PARENT_HEADER)).toBe(traceParent);
+  });
+
+  it("ignores invalid browser traceparent on upstream fetch", async () => {
+    const req = new NextRequest(`http://localhost/api/proxy/health/live`, {
+      headers: { [TRACE_PARENT_HEADER]: "not-a-traceparent" },
+    });
+
+    await GET(req, { params: Promise.resolve({ path: ["api", "health"] }) });
+
+    const init = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = init.headers as Headers;
+    expect(headers.get(TRACE_PARENT_HEADER)).toBeNull();
   });
 });

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   CORRELATION_ID_HEADER,
+  TRACE_PARENT_HEADER,
   generateCorrelationId,
   isSafeCorrelationId,
+  isValidTraceParent,
 } from "@/lib/correlation";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
@@ -55,6 +57,12 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
       ? incomingCorrelation.trim()
       : generateCorrelationId();
   h.set(CORRELATION_ID_HEADER, correlationId);
+
+  const incomingTraceParent = request.headers.get(TRACE_PARENT_HEADER);
+
+  if (isValidTraceParent(incomingTraceParent)) {
+    h.set(TRACE_PARENT_HEADER, incomingTraceParent.trim());
+  }
 
   return h;
 }

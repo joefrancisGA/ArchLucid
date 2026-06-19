@@ -489,6 +489,30 @@ resolve: {
 **Cause:** Browser code is calling the C# API directly instead of going through the proxy.  
 **Fix:** All `fetch()` calls from `api.ts` should go through `/api/proxy` when `isBrowser()` is true. If you added a new fetch call, make sure it uses `apiGet()` or `apiPostJson()`, not raw `fetch()`.
 
+### Linking browser actions to App Insights traces (TB-335)
+
+**Behavior:** The operator UI does **not** ship the browser Application Insights SDK. Instead, distributed trace context is propagated manually:
+
+1. Every API response includes **`traceparent`** (W3C) and **`X-Trace-Id`** (see `TraceResponseHeaderMiddleware` on the .NET host).
+2. Browser JSON helpers in `src/lib/api/http.ts` call `captureTraceContextFromResponse()` and persist the last valid **`traceparent`** in **`sessionStorage`** for the tab (`archlucid.session.traceparent`).
+3. Subsequent same-tab calls via `applyCorrelationHeaders()` attach that **`traceparent`** alongside a fresh **`X-Correlation-ID`**.
+4. The Next.js BFF proxy (`src/app/api/proxy/[...path]/route.ts`) forwards a valid inbound **`traceparent`** to the upstream C# API.
+
+**Limitations:**
+
+- Trace continuity applies only after the first API response in a tab captures context; the very first request in a cold tab has no prior **`traceparent`** to send.
+- Ad-hoc `fetch()` calls that bypass `http.ts` / `applyCorrelationHeaders()` will not participate unless you add the same headers.
+- A sampled-out trace may still show the response id in headers but not appear in App Insights until sampling includes it.
+
+**Manual verification (hosted / staging):**
+
+1. Open DevTools → Network, perform an operator action (for example create or list a review).
+2. Confirm the proxied response includes **`traceparent`** and **`X-Trace-Id`**.
+3. Trigger a follow-on API call in the same tab; confirm the request carries **`traceparent`**.
+4. In Application Insights → **Transaction search**, search by the 32-char trace id from **`X-Trace-Id`** and confirm the server request span appears.
+
+Vitest coverage: `correlation.test.ts`, `http.correlation.test.ts`, `proxy-route-correlation.test.ts`.
+
 ### "TypeError: Cannot read properties of undefined (reading 'runId')"
 
 **Cause:** The API returned a different shape than expected, and the code did not check for it.  

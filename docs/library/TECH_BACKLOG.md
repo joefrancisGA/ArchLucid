@@ -10008,7 +10008,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-335 ? Browser W3C traceparent propagation (P2)
 
-**Status:** Open ? Tier 2 (high-value next wave).
+**Status:** **Done (2026-06-19)** — `correlation.ts` session capture + `http.ts` outbound attach; BFF proxy forwards valid inbound `traceparent`; binary downloads use shared helper; Vitest guards + manual App Insights verification documented in `archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
