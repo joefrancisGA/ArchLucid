@@ -8,6 +8,7 @@ import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
+import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const showDevOperatorChrome = !buyerPolished;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
+
+  useSearchShortcut();
 
   return (
     <header

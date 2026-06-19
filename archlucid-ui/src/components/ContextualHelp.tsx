@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 
 import { CircleHelp } from "lucide-react";
 
+import { ExternalLink } from "@/components/ui/external-link";
 import {
   contextualHelpByKey,
   contextualHelpTriggerAriaLabel,
@@ -177,14 +178,12 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
         <div className="m-0 text-xs text-neutral-700 dark:text-neutral-200">{text}</div>
         {moreHref != null && (
           <div className="m-0 mt-2 text-xs">
-            <a
+            <ExternalLink
               className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300"
               href={moreHref}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               Learn more →
-            </a>
+            </ExternalLink>
           </div>
         )}
       </div>

@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { ExternalLink } from "@/components/ui/external-link";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buildGithubBlobHref } from "@/lib/docs-public-base";
@@ -26,14 +25,12 @@ export function HelpTopicSourceFooter(props: HelpTopicSourceFooterProps): React.
   return (
     <footer className="mt-10 border-t border-neutral-200 pt-4 dark:border-neutral-800">
       <p className={`m-0 ${OPERATOR_TYPOGRAPHY.meta}`}>
-        <Link
+        <ExternalLink
           href={buildGithubBlobHref(primarySource)}
           className={`underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}
-          rel="noopener noreferrer"
-          target="_blank"
         >
           View source documentation on GitHub
-        </Link>
+        </ExternalLink>
         <span className="text-neutral-500 dark:text-neutral-400"> — engineering contributors only.</span>
       </p>
     </footer>

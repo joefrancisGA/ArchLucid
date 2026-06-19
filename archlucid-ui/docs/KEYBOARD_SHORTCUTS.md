@@ -20,6 +20,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 | Surface | Behavior | Visible label |
 |---------|----------|----------------|
 | Header trigger ([`CommandPalette.tsx`](../src/components/CommandPalette.tsx)) | **Ctrl+K** and **⌘K** (macOS `metaKey`) both open/close the palette | Always **`Ctrl+K`** in chips and tooltips — never the ⌘ glyph ([`keyboard-shortcut-display.ts`](../src/lib/keyboard-shortcut-display.ts)) |
+| Global search ([`GlobalSearchBar.tsx`](../src/components/GlobalSearchBar.tsx)) | **`/`** focuses the header search input when focus is not in a text field ([`useSearchShortcut`](../src/hooks/useSearchShortcut.ts)) | Not shown as a chip; documented here |
 | Sidebar footer | *(removed)* | No duplicate “Search pages” hint in the nav column |
 
 `aria-keyshortcuts` uses `Control+K`; `aria-label` omits the combo so native browser tooltips do not substitute ⌘ on macOS.

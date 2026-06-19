@@ -10859,3 +10859,74 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - Operators can copy Run ID and Manifest ID with one click.
 
 **Size estimate:** S
+
+---
+
+## TB-374 — CI Guard: Prevent throwing base `Exception` (P2)
+
+**Status:** **Done (2026-06-19)** — `check_no_base_exception.py` / `.ps1`; diff-scoped pre-corset guard.
+
+**Problem:** Throwing `new Exception(...)` forces catch-all blocks and hides specific error semantics. Code should throw specific types (e.g., `InvalidOperationException`, `ArgumentException`).
+
+**Scope:**
+1. Create a diff-scoped CI scanner (`scripts/ci/check_no_base_exception.py` / `.ps1`).
+2. Scan changed `.cs` files for `throw new Exception(`.
+3. Wire into `scripts/ci/run_guards_pre_corset.sh`.
+
+**Acceptance criteria:**
+- CI fails when `throw new Exception` is introduced in changed C# files.
+
+**Size estimate:** S
+
+---
+
+## TB-375 — CI Guard: Block `DateTime.Now` and `DateTime.Today` (P2)
+
+**Status:** **Done (2026-06-19)** — `check_datetime_now.py` / `.ps1`; excludes test paths; diff-scoped pre-corset guard.
+
+**Problem:** Implicit local time usage (`DateTime.Now` / `DateTime.Today`) causes timezone bugs and untestable code. Developers should use `DateTime.UtcNow` or a clock abstraction.
+
+**Scope:**
+1. Create a diff-scoped CI scanner (`scripts/ci/check_datetime_now.py` / `.ps1`).
+2. Scan changed `.cs` files for `DateTime.Now` and `DateTime.Today` (exclude `*Tests.cs`).
+3. Wire into `scripts/ci/run_guards_pre_corset.sh`.
+
+**Acceptance criteria:**
+- CI fails if local time access is introduced in core domain or API projects.
+
+**Size estimate:** S
+
+---
+
+## TB-376 — UI: Standardize `ExternalLink` component (P3)
+
+**Status:** **Done (2026-06-19)** — `ExternalLink` in `components/ui/`; migrated help button, contextual help, help topic footer, and wizard help drawer.
+
+**Problem:** Hardcoded `<a target="_blank">` tags throughout the UI often miss the security best practice `rel="noopener noreferrer"`.
+
+**Scope:**
+1. Create a reusable `<ExternalLink>` component in `archlucid-ui/src/components/ui/` wrapping `<a>` with forced `target="_blank"` and `rel="noopener noreferrer"`.
+2. Migrate existing hardcoded `<a target="_blank">` tags (e.g., in documentation popovers, help links) to use this component.
+
+**Acceptance criteria:**
+- New component exists and common surfaces are migrated to use it.
+
+**Size estimate:** S
+
+---
+
+## TB-377 — UI: Keyboard shortcut `/` to focus Search (P3)
+
+**Status:** **Done (2026-06-19)** — `useSearchShortcut` wired in `OperatorShellTopBar`; documented in `KEYBOARD_SHORTCUTS.md`.
+
+**Problem:** Operators navigating the large dataset via the keyboard need quick access to the search bar without tabbing through the entire nav.
+
+**Scope:**
+1. Add a global keyboard event listener (likely via a hook like `useSearchShortcut`) that listens for the `/` key.
+2. If the user is not currently inside an input/textarea, prevent default and call `.focus()` on the main search input.
+3. Document in `KEYBOARD_SHORTCUTS.md`.
+
+**Acceptance criteria:**
+- Pressing `/` outside of text inputs immediately focuses the search bar.
+
+**Size estimate:** S

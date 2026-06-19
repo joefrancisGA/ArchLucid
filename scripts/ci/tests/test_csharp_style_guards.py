@@ -14,6 +14,8 @@ if str(_CI_DIR) not in sys.path:
 
 import check_control_flow_spacing as control_flow  # noqa: E402
 import check_csharp_is_null as csharp_is_null  # noqa: E402
+import check_datetime_now as datetime_now  # noqa: E402
+import check_no_base_exception as no_base_exception  # noqa: E402
 import check_no_console_writeline as no_console  # noqa: E402
 import check_single_class_per_file as single_class  # noqa: E402
 
@@ -118,6 +120,44 @@ public void Demo()
 """
 
         self.assertEqual(no_console.scan_source(source), [4])
+
+
+class TestNoBaseExceptionGuard(unittest.TestCase):
+    def test_allows_specific_exception(self) -> None:
+        source = """
+public void Demo()
+{
+    throw new InvalidOperationException("bad");
+}
+"""
+
+        self.assertEqual(no_base_exception.scan_source(source), [])
+
+    def test_flags_base_exception(self) -> None:
+        source = """
+public void Demo()
+{
+    throw new Exception("bad");
+}
+"""
+
+        self.assertEqual(no_base_exception.scan_source(source), [4])
+
+
+class TestDateTimeNowGuard(unittest.TestCase):
+    def test_excludes_test_paths(self) -> None:
+        self.assertFalse(datetime_now.should_scan_path("ArchLucid.Core.Tests/FooTests.cs"))
+        self.assertTrue(datetime_now.should_scan_path("ArchLucid.Application/Services/Demo.cs"))
+
+    def test_flags_datetime_now(self) -> None:
+        source = """
+public void Demo()
+{
+    var stamp = DateTime.Now;
+}
+"""
+
+        self.assertEqual(datetime_now.scan_source(source), [4])
 
 
 if __name__ == "__main__":

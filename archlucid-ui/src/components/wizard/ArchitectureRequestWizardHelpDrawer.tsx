@@ -1,10 +1,10 @@
 "use client";
 
 import { BookOpen } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ExternalLink } from "@/components/ui/external-link";
 import {
   Dialog,
   DialogContent,
@@ -81,14 +81,12 @@ export function ArchitectureRequestWizardHelpDrawer() {
                 <li key={item.docPath}>
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{item.title}</p>
                   <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{item.blurb}</p>
-                  <Link
+                  <ExternalLink
                     className="mt-2 inline-block text-sm font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-400"
                     href={href}
-                    target="_blank"
-                    rel="noreferrer"
                   >
                     View doc
-                  </Link>
+                  </ExternalLink>
                 </li>
               );
             })}
