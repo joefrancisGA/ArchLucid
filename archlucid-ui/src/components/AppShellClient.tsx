@@ -12,9 +12,7 @@ import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit"
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import { AuthPanel } from "@/components/AuthPanel";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
-import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
+import { AppShellMainAffordances } from "@/components/shell/AppShellMainAffordances";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
@@ -31,9 +29,6 @@ import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
-import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
-import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
-import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -394,13 +389,8 @@ function AppShellInner({ children }: AppShellClientProps) {
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
-                    <Breadcrumbs />
+                    <AppShellMainAffordances />
                     <SyncActiveRunFromPathname />
-                    <OperatorRecentViewsTracker />
-                    <ReviewsListReturnStateTracker />
-                    <FirstVisitHelpAutoOpen />
-                    <ExplainThisViewBanner />
-                    <ContextualPageHintStrip />
                     <DemoStrictNavigationGate>
                       <OperatorRoleGate>{children}</OperatorRoleGate>
                     </DemoStrictNavigationGate>

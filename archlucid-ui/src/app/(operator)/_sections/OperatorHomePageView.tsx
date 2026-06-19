@@ -1,11 +1,13 @@
-import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
 import { OperatorHomeAdvancedGuidanceSection } from "@/components/operator-home/OperatorHomeAdvancedGuidanceSection";
 import { OperatorHomeExampleRequestPanel } from "@/components/operator-home/OperatorHomeExampleRequestPanel";
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
-import { OperatorHomeWorkspaceStatusSection } from "@/components/operator-home/OperatorHomeWorkspaceStatusSection";
+import {
+  OperatorHomeDeltaPanel,
+  OperatorHomeRunsPanel,
+  OperatorHomeWorkspaceStatusPanel,
+} from "@/components/operator-home/OperatorHomeDeferredPanels";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
-import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
@@ -37,11 +39,11 @@ function BuyerPolishedHomePageBody() {
       <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
 
-      <BeforeAfterDeltaPanel />
+      <OperatorHomeDeltaPanel />
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        <RunsDashboardPanel hideHeading />
+        <OperatorHomeRunsPanel hideHeading />
       </section>
 
       <OperatorHomeAdvancedGuidanceSection buyerPolishedShell checklistVariant="compact" />
@@ -60,11 +62,11 @@ function OperatorHomePageBody() {
       <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
 
-      <BeforeAfterDeltaPanel />
+      <OperatorHomeDeltaPanel />
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
-        <RunsDashboardPanel hideHeading />
+        <OperatorHomeRunsPanel hideHeading />
       </section>
 
       <OperatorHomeAdvancedGuidanceSection
@@ -73,7 +75,7 @@ function OperatorHomePageBody() {
         checklistVariant={fullOperatorShell ? "full" : "compact"}
       />
 
-      {fullOperatorShell ? <OperatorHomeWorkspaceStatusSection /> : null}
+      {fullOperatorShell ? <OperatorHomeWorkspaceStatusPanel /> : null}
     </>
   );
 }

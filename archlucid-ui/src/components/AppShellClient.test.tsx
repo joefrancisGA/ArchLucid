@@ -106,7 +106,12 @@ describe("AppShellClient — LLM budget chrome", () => {
     );
 
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
-    expect(await screen.findByTestId("llm-budget-approaching-limit-banner")).toBeInTheDocument();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("llm-budget-approaching-limit-banner")).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   });
 
   it("hides budget pill in buyer-polished shell mode", async () => {
