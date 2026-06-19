@@ -54,11 +54,13 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             <GlobalSearchBar />
           </div>
 
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
+          <div
+            data-testid="app-shell-topbar-session"
+            className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:ml-auto"
+          >
             <ExecutiveOperatorShellSwitcher />
             <ScopeSwitcher density="compact" />
             <AuthPanel />
-            {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
             <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -80,6 +82,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                 <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
               </Tooltip>
               {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
+              {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
             </div>
           </div>
         </div>

@@ -85,6 +85,24 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
   });
 
+  it("renders workspace chrome before the deprioritized allowance pill", async () => {
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    const sessionRail = screen.getByTestId("app-shell-topbar-session");
+    const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
+    const allowancePill = await screen.findByTestId("llm-budget-status-pill");
+    const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
+
+    expect(sessionRail.contains(scopeTrigger)).toBe(true);
+    expect(sessionRail.contains(allowancePill)).toBe(true);
+    expect(scopeTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(helpTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("omits dev-only chrome in buyer-polished shell mode but keeps help", () => {
     buyerPolishedMock.value = true;
 

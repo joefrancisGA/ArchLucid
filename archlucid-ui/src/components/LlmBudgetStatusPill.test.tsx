@@ -63,7 +63,7 @@ describe("LlmBudgetStatusPill", () => {
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
 
-    expect(pill).toHaveTextContent("Monthly analysis allowance: 24% left");
+    expect(pill).toHaveTextContent("24% left");
     expect(pill.className).toMatch(/amber/);
   });
 
@@ -141,6 +141,6 @@ describe("LlmBudgetStatusPill", () => {
 
     render(<LlmBudgetStatusPill />);
 
-    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("Monthly analysis allowance: 0% left — paused");
+    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("0% left — paused");
   });
 });
