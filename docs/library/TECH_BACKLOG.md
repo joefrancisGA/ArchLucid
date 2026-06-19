@@ -10241,7 +10241,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-343 ? Reconcile cloud-connections "cloud providers" plural with Azure-only reality (P2)
 
-**Status:** Open ? P2.
+**Status:** **Done (2026-06-19)** — evidence-first intro copy; Azure Tier 2 wizard unchanged; disabled AWS/GCP V1.1 rows via `forthcoming-cloud-provider-rows.ts`; Vitest drift guards in `CloudConnectionsPageClient.test.tsx` and `forthcoming-cloud-provider-rows.test.ts`.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 

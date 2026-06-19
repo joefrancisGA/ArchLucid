@@ -49,6 +49,12 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByTestId("cloud-provider-row-aws")).toHaveTextContent("V1.1");
     expect(screen.getByTestId("cloud-provider-row-gcp")).toHaveTextContent("V1.1");
     expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();
+
+    const intro = screen.getByTestId("cloud-connections-page").textContent ?? "";
+    expect(intro).toMatch(/Optional continuous ingestion from Azure/i);
+    expect(intro).not.toMatch(/cloud providers/i);
+    expect(intro).not.toMatch(/Configure continuous ingestion from your/i);
+    expect(screen.getByText(/More providers \(V1\.1\)/i)).toBeInTheDocument();
   });
 
   it("surfaces misconfigured tenant and client GUID validation on the connection step", async () => {
