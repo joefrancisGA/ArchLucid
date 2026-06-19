@@ -400,7 +400,7 @@ export function EmailRunToSponsorBanner({
           <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
             This review is labeled{" "}
             <strong>{executionModeLabel ?? "non-Real"}</strong>. Simulator, Fallback, and Mixed modes may be used for
-            internal walkthroughs only — re-run on Real mode or label exports explicitly before external sponsor send.
+            internal walkthroughs only — re-execute in Real mode or label exports explicitly before external sponsor send.
           </p>
         </div>
       ) : null}

@@ -9,6 +9,7 @@ import { PILOT_PATH_PREVIEW_STEPS } from "@/lib/buyer-polish-copy";
 import {
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
   REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS,
+  REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
 } from "@/lib/review-terminology-surfaces";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -58,6 +59,16 @@ describe("review terminology guard", () => {
       const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
 
       expect(source, relativePath).not.toContain("architecture run");
+    }
+  });
+
+  it("first-hour Core Pilot surfaces avoid legacy run-primary labels", () => {
+    for (const relativePath of REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS) {
+      const source = readFileSync(path.join(process.cwd(), relativePath), "utf8").toLowerCase();
+
+      for (const pattern of REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS) {
+        expect(source, `${relativePath} should not contain "${pattern}"`).not.toContain(pattern);
+      }
     }
   });
 

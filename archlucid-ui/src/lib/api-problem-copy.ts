@@ -5,6 +5,7 @@ import {
   isHttpRequestValidationFailure,
   sanitizeOperatorFacingText,
 } from "@/lib/api-validation-problem";
+import { buyerFacingReviewTerminology } from "@/lib/review-terminology-copy";
 
 export type OperatorProblemCopy = {
   heading: string;
@@ -132,7 +133,9 @@ export function operatorCopyForProblem(
   fallbackMessage: string,
   context: OperatorProblemCopyContext = {},
 ): OperatorProblemCopy {
-  const trimmedFallback = sanitizeOperatorFacingText(fallbackMessage.trim() || "Request failed.");
+  const trimmedFallback = buyerFacingReviewTerminology(
+    sanitizeOperatorFacingText(fallbackMessage.trim() || "Request failed."),
+  );
   const httpStatus = context.httpStatus ?? problem?.status ?? null;
 
   if (problem != null && isHttpRequestValidationFailure(httpStatus, problem)) {
@@ -200,16 +203,16 @@ export function operatorCopyForProblem(
 
   const code = problem.errorCode?.trim();
   const fromCode = code ? ERROR_CODE_HEADINGS[code] : undefined;
-  const heading = fromCode ?? sanitizeOperatorFacingText(problem.title?.trim() ?? "Request failed");
-  const body = sanitizeOperatorFacingText(
-    problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback,
+  const heading = buyerFacingReviewTerminology(fromCode ?? sanitizeOperatorFacingText(problem.title?.trim() ?? "Request failed"));
+  const body = buyerFacingReviewTerminology(
+    sanitizeOperatorFacingText(problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback),
   );
 
   const apiHint = problem.supportHint?.trim();
   const fallbackHint = code ? ERROR_CODE_REMEDIATION[code] : undefined;
-  const hint = apiHint || fallbackHint;
+  const hint = buyerFacingReviewTerminology(apiHint || fallbackHint || "");
 
-  const base: OperatorProblemCopy = hint ? { heading, body, hint } : { heading, body };
+  const base: OperatorProblemCopy = hint.length > 0 ? { heading, body, hint } : { heading, body };
 
   return mergeRateLimitCopy(base, context, problem);
 }

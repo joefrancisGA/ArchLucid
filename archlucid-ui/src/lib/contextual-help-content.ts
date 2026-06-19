@@ -121,10 +121,19 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
 };
 
+/** Accessible name fallbacks when help copy is empty — avoids legacy run-primary aria labels. */
+const CONTEXTUAL_HELP_KEY_FALLBACK_LABEL: Partial<Record<string, string>> = {
+  "new-run-wizard": "new review wizard",
+  "runs-list-overview": "reviews list overview",
+  "run-pipeline-status": "review pipeline status",
+  "compare-runs": "compare reviews",
+  "replay-run": "replay review",
+};
+
 /** First sentence (or short excerpt) of help copy — used for the trigger’s accessible name. */
 export function contextualHelpTriggerSummary(text: string, helpKey: string): string {
   if (text.trim().length === 0) {
-    return helpKey.replace(/-/g, " ");
+    return CONTEXTUAL_HELP_KEY_FALLBACK_LABEL[helpKey] ?? helpKey.replace(/-/g, " ");
   }
 
   const dot = text.indexOf(".");

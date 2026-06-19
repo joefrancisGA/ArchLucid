@@ -16,8 +16,8 @@ export const GLOSSARY_TERMS = {
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   golden_manifest: {
-    term: "Signed review record",
-    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise.",
+    term: "Golden manifest",
+    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise. Treat “manifest” alone as ambiguous until provenance semantics are stated.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   review_package: {
@@ -42,7 +42,7 @@ export const GLOSSARY_TERMS = {
   },
   decision_trace: {
     term: "Decision trace",
-    definition: "A structured log of decisioning for a run—rules, applied findings, and outcome—used for provenance and replay.",
+    definition: "A structured log of decisioning for a review—rules, applied findings, and outcome—used for provenance and replay.",
     docLink: "/docs/library/GLOSSARY.md#decision-trace",
   },
   provenance: {
@@ -110,7 +110,7 @@ export const GLOSSARY_TERMS = {
   },
   manifest_diff: {
     term: "Manifest diff",
-    definition: "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between runs.",
+    definition: "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between reviews.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {

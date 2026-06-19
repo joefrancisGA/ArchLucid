@@ -32,7 +32,7 @@ export const FIRST_VALUE_LANE_PHASES: readonly FirstValueLanePhase[] = [
   {
     id: "execute-review",
     title: "Execute review",
-    summary: "Run the assessment and track coordinator progress until results are ready.",
+    summary: "Execute the review and track coordinator progress until results are ready.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open reviews",
     advancedNote: "Compare, replay, and graph views are optional — out of lane until after first commit.",
@@ -138,7 +138,8 @@ export function resolveFirstValueLanePhases(signals: FirstValueLaneSignals): Fir
         break;
 
       default: {
-        const exhaustive: never = phase.id;
+        const _exhaustive: never = phase.id;
+        void _exhaustive;
 
         return { ...phase, status: "not_started", statusLabel: STATUS_LABELS.not_started };
       }

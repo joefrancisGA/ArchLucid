@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   contextualHelpByKey,
@@ -84,7 +84,7 @@ describe("contextualHelpTriggerSummary", () => {
   });
 
   it("falls back to helpKey words when text is empty", () => {
-    expect(contextualHelpTriggerSummary("   ", "new-run-wizard")).toBe("new run wizard");
+    expect(contextualHelpTriggerSummary("   ", "new-run-wizard")).toBe("new review wizard");
   });
 });
 

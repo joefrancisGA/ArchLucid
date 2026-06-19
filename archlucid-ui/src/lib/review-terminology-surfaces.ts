@@ -56,6 +56,13 @@ export const REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS = [
   "this run row",
   "review run starts",
   "architecture run",
+  "starter run",
+  "separate run",
+  "parent run",
+  "run-create",
+  "re-run on real",
+  "run the assessment",
+  "new run wizard",
 ] as const;
 
 export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
@@ -64,4 +71,24 @@ export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
   "src/components/EmailRunToSponsorBanner.tsx",
   "src/app/(marketing)/get-started/page.tsx",
   "src/app/(marketing)/signup/page.tsx",
+] as const;
+
+/** Core Pilot first-hour surfaces — `/reviews/new`, review detail handoff, sponsor export, home strip. */
+export const REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS = [
+  "src/lib/first-value-lane.ts",
+  "src/lib/core-pilot-first-review-copy.ts",
+  "src/lib/operator-co-architect-copy.ts",
+  "src/lib/contextual-help-content.ts",
+  "src/lib/glossary-terms.ts",
+  "src/lib/architecture-review-vocabulary.ts",
+  "src/components/OperatorFirstRunWorkflowPanel.tsx",
+  "src/components/WelcomeBanner.tsx",
+  "src/components/EmailRunToSponsorBanner.tsx",
+  "src/components/CorePilotNextStepsCard.tsx",
+  "src/components/CommitRunButton.tsx",
+  "src/components/RunAgentQualityWarningsPanel.tsx",
+  "src/app/(operator)/reviews/new/SocraticIntakeWizard.tsx",
+  "src/app/(operator)/reviews/new/QuickStartWizard.tsx",
+  "src/app/(operator)/reviews/new/QuickReviewWizard.tsx",
+  "src/app/(operator)/reviews/RunsListClient.tsx",
 ] as const;

@@ -65,7 +65,7 @@ export type DraftIntakeWhatIfBranchPanelProps = {
 
 /**
  * What-if branching via POST /v1/architecture/draft/{draftId}/branch (R12).
- * A branch is a ceteris-paribus draft clone — submit it as a separate run, then Compare.
+ * A branch is a ceteris-paribus draft clone — submit it as a separate review, then Compare.
  */
 export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanelProps) {
   const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
