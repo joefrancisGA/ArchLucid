@@ -65,6 +65,7 @@ describe("LlmBudgetStatusPill", () => {
 
     expect(pill).toHaveTextContent("24% left");
     expect(pill.className).toMatch(/amber/);
+    expect(pill.className).toMatch(/text-\[11px\]/);
   });
 
   it("opens popover with utilization meter", async () => {

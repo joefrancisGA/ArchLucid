@@ -10435,7 +10435,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-350 ? Deprioritize monthly analysis allowance in operator shell chrome (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — allowance pill moved to far-right utility cluster with compact label; workspace + persona precede it; hidden on buyer-polished shell; reachable via **Settings → Cost reporting** and pill popover **Manage budget**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
