@@ -6,12 +6,19 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 import { OperatorHomeWorkspaceStatusSection } from "@/components/operator-home/OperatorHomeWorkspaceStatusSection";
 
+const committedReviewMock = vi.hoisted(() => ({ value: true }));
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => committedReviewMock.value,
+}));
+
 const originalFetch = globalThis.fetch;
 
 describe("OperatorHomeWorkspaceStatusSection", () => {
   useOperatorQueryTestLifecycle();
 
   beforeEach(() => {
+    committedReviewMock.value = true;
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
@@ -37,5 +44,14 @@ describe("OperatorHomeWorkspaceStatusSection", () => {
     await waitFor(() => {
       expect(screen.getByText(/setup needs attention — open troubleshooting/i)).toBeInTheDocument();
     });
+  });
+
+  it("uses first-run collapsed summary without ROI baseline before a committed review (TB-349)", () => {
+    committedReviewMock.value = false;
+
+    renderWithOperatorQuery(<OperatorHomeWorkspaceStatusSection />);
+
+    expect(screen.getByText("Workspace readiness signals.")).toBeInTheDocument();
+    expect(screen.queryByText(/ROI baseline/i)).toBeNull();
   });
 });

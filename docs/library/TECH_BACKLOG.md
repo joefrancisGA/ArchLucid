@@ -10407,7 +10407,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-349 ? Hide ROI estimate pending until first committed review (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — `PilotRoiBaselineReadinessCard` gated on `useNavCommittedArchitectureReview`; readiness cockpit omits `roi-baselines` until first commit; workspace status first-run collapsed summary drops ROI mention.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 

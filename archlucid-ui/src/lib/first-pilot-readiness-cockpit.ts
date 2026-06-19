@@ -86,7 +86,7 @@ export function buildFirstPilotReadinessRows(input: {
     : "/reviews?projectId=default";
   const configLintCopy = mapConfigLintReadinessForShell({ canAdmin, lint: input.configLint });
 
-  return applyHomeReadinessRowPresentation([
+  const rows = applyHomeReadinessRowPresentation([
     {
       id: "api-ready",
       label: "API and platform readiness",
@@ -241,4 +241,10 @@ export function buildFirstPilotReadinessRows(input: {
       cta: "Start second review",
     },
   ]);
+
+  if (input.signals.hasCommittedManifest) {
+    return rows;
+  }
+
+  return rows.filter((row) => row.id !== "roi-baselines");
 }

@@ -106,8 +106,23 @@ describe("buildFirstPilotReadinessRows", () => {
 
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("attention");
     expect(rows.find((r) => r.id === "review-pipeline")?.status).toBe("attention");
-    expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("attention");
+    expect(rows.find((r) => r.id === "roi-baselines")).toBeUndefined();
     expect(rows.find((r) => r.id === "review-pipeline")?.summary).toContain("Read-only role cannot execute or finalize");
+  });
+
+  it("omits ROI baseline readiness before the first committed review package (TB-349)", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Healthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal: principal(AUTHORITY_RANK.ExecuteAuthority),
+      signals: signals({ hasCommittedManifest: false, firstCommittedRunId: null }),
+      scorecard: scorecard(false),
+      scorecardLoadFailed: false,
+      configLint: null,
+    });
+
+    expect(rows.find((r) => r.id === "roi-baselines")).toBeUndefined();
   });
 
   it("routes admins to config lint on system health", () => {
@@ -201,7 +216,7 @@ describe("buildFirstPilotReadinessRows", () => {
     expect(rows.find((r) => r.id === "api-ready")?.status).toBe("unknown");
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("unknown");
     expect(rows.find((r) => r.id === "azure-extractor")?.status).toBe("unknown");
-    expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("unknown");
+    expect(rows.find((r) => r.id === "roi-baselines")).toBeUndefined();
     expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("unknown");
   });
 });

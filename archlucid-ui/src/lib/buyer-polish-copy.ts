@@ -101,6 +101,9 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_TITLE = "Workspace status";
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
   "ROI baseline and workspace readiness signals.";
 
+export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
+  "Workspace readiness signals.";
+
 export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished package";

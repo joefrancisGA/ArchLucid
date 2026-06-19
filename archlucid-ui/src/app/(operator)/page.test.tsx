@@ -128,6 +128,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.getByTestId("pilot-command-center-card").compareDocumentPosition(exampleRequestPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(exampleRequestPanel.compareDocumentPosition(recentReviewsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
     expect(screen.queryByText(/AI co-architect/i)).toBeNull();
@@ -159,6 +160,7 @@ describe("HomePage (55R smoke — landing)", () => {
     );
     expect(screen.getByRole("link", { name: "Open sample finding" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });
 

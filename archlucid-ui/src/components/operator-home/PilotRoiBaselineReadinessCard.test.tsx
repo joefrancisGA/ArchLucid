@@ -71,6 +71,15 @@ describe("PilotRoiBaselineReadinessCard", () => {
     window.removeEventListener(PILOT_BASELINE_WIZARD_OPEN_EVENT, listener);
   });
 
+  it("hides compact ROI pending strip when dismissed before a committed review (TB-349)", () => {
+    committedReviewMock.value = false;
+    localStorage.setItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY, "1");
+
+    render(<PilotRoiBaselineReadinessCard />);
+
+    expect(screen.queryByTestId("pilot-roi-baseline-readiness-compact")).not.toBeInTheDocument();
+  });
+
   it("shows compact row after dismiss for this review", async () => {
     render(<PilotRoiBaselineReadinessCard />);
     fireEvent.click(screen.getByTestId("pilot-roi-baseline-readiness-skip"));
