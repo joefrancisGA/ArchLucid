@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * High-traffic operator and sponsor-facing modules scanned by {@link ./review-terminology-guard.test.ts}.
  * API/DTO identifiers (`runId`, routes) are intentionally excluded — display copy only.

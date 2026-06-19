@@ -139,7 +139,7 @@ export function AskPageContent() {
 
       setListFailure(toApiLoadFailure(e));
     }
-  }, []);
+  }, [buyerPolishedShell]);
 
   useEffect(() => {
     void loadThreads();

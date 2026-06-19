@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { LayerHeader } from "@/components/LayerHeader";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import {

@@ -46,13 +46,13 @@ describe("contextualHelpByKey", () => {
   });
 
   it("does not leak engineering-only doc paths in visible help copy", () => {
-    const forbiddenInText = [/docs\/library\//i, /\.csproj\b/i, /github\.com\//i];
+    const forbiddenInText = ["docs/library/", ".csproj", "github.com/"];
 
     for (const key of Object.keys(contextualHelpByKey)) {
       const entry = contextualHelpByKey[key];
 
       for (const pattern of forbiddenInText) {
-        expect(entry.text, key).not.toMatch(pattern);
+        expect(entry.text.toLowerCase(), key).not.toContain(pattern);
       }
     }
   });

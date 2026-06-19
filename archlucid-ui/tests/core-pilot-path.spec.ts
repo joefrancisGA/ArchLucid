@@ -18,9 +18,9 @@ import {
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
 } from "../e2e/helpers/buyer-golden-path";
 
-const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`);
+const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
 const MANIFEST_URL_PATTERN = new RegExp(
-  `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest)`,
+  `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}/manifest)`,
 );
 
 test.describe("Core pilot path (mock API, buyer-polished shell)", () => {

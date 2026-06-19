@@ -19,7 +19,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
-    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
+    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`));
 
     await expect(
       page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
@@ -41,7 +41,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await expect(page).toHaveURL(
       new RegExp(
-        `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest)`,
+        `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}/manifest)`,
       ),
       { timeout: 60_000 },
     );
@@ -57,7 +57,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await expect(reviewLink).toBeVisible({ timeout: 60_000 });
     await reviewLink.click();
-    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`), {
+    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`), {
       timeout: 60_000,
     });
 
