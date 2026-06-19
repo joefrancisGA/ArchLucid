@@ -41,7 +41,7 @@ export function WhatIfBranchCompareBanner(props: WhatIfBranchCompareBannerProps)
   const compareHref = comparePageHrefAdaptive(parentRunId, props.currentRunId);
 
   let statusMessage =
-    "This review is a what-if branch — compare it to the parent run once both manifests are finalized.";
+    "This review is a what-if branch — compare it to the parent review once both manifests are finalized.";
 
   if (autoCompareEnabled && autoComparePhase === "polling") {
     statusMessage = "Waiting for both reviews to finalize — Compare will open automatically when ready.";

@@ -57,7 +57,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
         <div className={colBeforeCls}>
           <div className={labelCls}>Before (plan &amp; baseline)</div>
           <p className="mb-2 text-stone-700 dark:text-stone-300">
-            This run re-reads the architecture for a baseline that the source plan associated with the candidate.
+            This review re-reads the architecture for a baseline that the source plan associated with the candidate.
           </p>
           <ul className="m-0 pl-[18px] text-stone-600 dark:text-stone-400">
             <li>

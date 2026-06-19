@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeDecisionReceiptCard } from "@/components/draft-intake/DraftIntakeDecisionReceiptCard";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
+import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -76,8 +78,16 @@ export function SocraticIntakeWizard() {
   const [redirectReason, setRedirectReason] = useState<string | null>(null);
   const [redirectVerdict, setRedirectVerdict] = useState<ManifestFeasibilityVerdict | null>(null);
   const [allQuestions, setAllQuestions] = useState<DraftElicitationQuestion[]>([]);
+  const [requiredMustQuestionKeys, setRequiredMustQuestionKeys] = useState<string[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [viewAllClarifications, setViewAllClarifications] = useState(false);
+
+  const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
+  const resolvedClarificationCount = Math.max(0, totalRequiredClarifications - pendingQuestions.length);
+  const visiblePendingQuestions = viewAllClarifications
+    ? pendingQuestions
+    : pendingQuestions.slice(0, 1);
 
   const canAdvanceIntent =
     freeTextIntent.trim().length >= MIN_INTENT_CHARS &&
@@ -93,6 +103,7 @@ export function SocraticIntakeWizard() {
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
     setAllQuestions(questions.selection.allQuestions);
+    setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
     setPendingQuestions(questions.selection.pendingMustQuestions);
   }, []);
 
@@ -145,7 +156,9 @@ export function SocraticIntakeWizard() {
       }
 
       setPendingQuestions(admission.pendingMustQuestions);
+      setRequiredMustQuestionKeys(admission.requiredMustQuestionKeys);
       await refreshQuestions(id);
+      setViewAllClarifications(false);
       setStep(1);
       showSuccess("Draft admitted — answer the required clarifications to continue.");
     } catch (error) {
@@ -281,35 +294,12 @@ export function SocraticIntakeWizard() {
                   >
                     {parentSpawnedRunId}
                   </Link>{" "}
-                  is already spawned — after submit you can diff manifests immediately.
+                  is already spawned — after submit you can compare outcomes immediately.
                 </>
               ) : null}
             </CardDescription>
           </CardHeader>
         </Card>
-      ) : null}
-
-      {draftId !== null && step >= 1 ? (
-        <DraftIntakeReasoningPanel
-          draftId={draftId}
-          disabled={busy || blocksLlmExecution}
-          defaultOpen={false}
-        />
-      ) : null}
-
-      {draftId !== null && step >= 1 ? (
-        <DraftIntakeWhatIfBranchPanel
-          draftId={draftId}
-          intent={freeTextIntent}
-          outcome={businessOutcome}
-          systemName={systemName}
-          questionOptions={allQuestions}
-          disabled={busy}
-          defaultOpen={false}
-          onBranched={(response) => {
-            void applyBranchDraft(response);
-          }}
-        />
       ) : null}
 
       {redirectReason !== null && redirectVerdict !== null && draftId !== null ? (
@@ -398,46 +388,45 @@ export function SocraticIntakeWizard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {pendingQuestions.map((question) => (
-              <div key={question.questionKey} className="space-y-2 rounded-md border p-3" data-testid="socratic-question">
-                <p className="text-sm font-medium">{question.prompt}</p>
-                <Textarea
-                  value={answers[question.questionKey] ?? ""}
-                  onChange={(event) =>
-                    setAnswers((current) => ({
-                      ...current,
-                      [question.questionKey]: event.target.value,
-                    }))
-                  }
-                  rows={2}
-                  disabled={busy}
-                  aria-label={question.prompt}
-                />
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    disabled={busy}
-                    onClick={() => {
-                      void saveAnswer(question.questionKey);
-                    }}
-                  >
-                    Save and continue
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    disabled={busy}
-                    onClick={() => {
-                      void skipQuestion(question.questionKey);
-                    }}
-                  >
-                    Skip for now
-                  </Button>
-                </div>
-              </div>
+            {visiblePendingQuestions.map((question, index) => (
+              <DraftIntakeRequiredClarificationField
+                key={question.questionKey}
+                question={question}
+                answer={answers[question.questionKey] ?? ""}
+                busy={busy}
+                clarificationIndex={resolvedClarificationCount + index + 1}
+                clarificationTotal={totalRequiredClarifications}
+                compactActions={viewAllClarifications}
+                onAnswerChange={(questionKey, value) => {
+                  setAnswers((current) => ({
+                    ...current,
+                    [questionKey]: value,
+                  }));
+                }}
+                onSave={(questionKey) => {
+                  void saveAnswer(questionKey);
+                }}
+                onSkip={(questionKey) => {
+                  void skipQuestion(questionKey);
+                }}
+              />
             ))}
+
+            {pendingQuestions.length > 1 ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                data-testid="socratic-view-all-clarifications"
+                onClick={() => {
+                  setViewAllClarifications((current) => !current);
+                }}
+              >
+                {viewAllClarifications ? "Show one at a time" : "View all clarifications"}
+              </Button>
+            ) : null}
+
             <div className="space-y-2">
               <Button
                 type="button"
@@ -455,6 +444,30 @@ export function SocraticIntakeWizard() {
             </div>
           </CardContent>
         </Card>
+      ) : null}
+
+      {draftId !== null && step === 1 ? (
+        <DraftIntakeReasoningPanel
+          draftId={draftId}
+          disabled={busy || blocksLlmExecution}
+          defaultOpen={false}
+        />
+      ) : null}
+
+      {draftId !== null && step === 1 ? (
+        <DraftIntakeAdvancedSection defaultOpen={false}>
+          <DraftIntakeWhatIfBranchPanel
+            draftId={draftId}
+            intent={freeTextIntent}
+            outcome={businessOutcome}
+            systemName={systemName}
+            questionOptions={allQuestions}
+            disabled={busy}
+            onBranched={(response) => {
+              void applyBranchDraft(response);
+            }}
+          />
+        </DraftIntakeAdvancedSection>
       ) : null}
 
       {step === 2 ? (

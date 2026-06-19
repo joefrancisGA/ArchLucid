@@ -22,7 +22,7 @@ export const REVIEW_PATH_TIME_ESTIMATES: readonly ReviewPathTimeEstimate[] = [
     pathId: "guided-intake",
     minutesLow: 5,
     minutesHigh: 12,
-    outcome: "Admission + MUST questions before execution",
+    outcome: "Admission + required clarifications before execution",
   },
   {
     pathId: "detailed",

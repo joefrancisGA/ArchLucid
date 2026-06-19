@@ -12,6 +12,7 @@ import {
   REVIEW_TERMINOLOGY_FIRST_HOUR_SURFACE_PATHS,
   REVIEW_TERMINOLOGY_HIGH_TRAFFIC_SURFACE_PATHS,
 } from "@/lib/review-terminology-surfaces";
+import { scanGlobalBuyerSurfaces } from "@/lib/review-terminology-scanner";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
@@ -75,5 +76,14 @@ describe("review terminology guard", () => {
   it("canonical product terms export audit trail label constant", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed manifest");
+  });
+
+  it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", () => {
+    const violations = scanGlobalBuyerSurfaces();
+
+    expect(
+      violations,
+      violations.map((v) => `${v.relativePath}:${v.line} "${v.pattern}" — ${v.excerpt}`).join("\n"),
+    ).toEqual([]);
   });
 });

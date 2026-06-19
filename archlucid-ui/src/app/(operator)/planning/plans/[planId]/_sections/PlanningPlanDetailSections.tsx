@@ -49,7 +49,7 @@ export function PlanningPlanDetailSections({ plan }: PlanningPlanDetailSectionsP
         <ul className="m-0 pl-5 text-neutral-700 dark:text-neutral-300 leading-relaxed">
           <li>Pilot signals: {plan.evidenceCounts.linkedSignalCount}</li>
           <li>Artifacts: {plan.evidenceCounts.linkedArtifactCount}</li>
-          <li>Architecture runs: {plan.evidenceCounts.linkedArchitectureRunCount}</li>
+          <li>Architecture reviews: {plan.evidenceCounts.linkedArchitectureRunCount}</li>
         </ul>
       </section>
 

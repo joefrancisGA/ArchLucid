@@ -42,7 +42,7 @@ export const GLOSSARY_TERMS = {
   },
   decision_trace: {
     term: "Decision trace",
-    definition: "A structured log of decisioning for a review—rules, applied findings, and outcome—used for provenance and replay.",
+    definition: "A structured log of decisioning for a run—rules, applied findings, and outcome—used for provenance and replay.",
     docLink: "/docs/library/GLOSSARY.md#decision-trace",
   },
   provenance: {
@@ -110,7 +110,7 @@ export const GLOSSARY_TERMS = {
   },
   manifest_diff: {
     term: "Manifest diff",
-    definition: "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between reviews.",
+    definition: "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between runs.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {

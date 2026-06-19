@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -32,8 +31,8 @@ const OVERRIDE_KIND_OPTIONS: ReadonlyArray<{
 }> = [
   {
     value: "QuestionAnswer",
-    label: "MUST question answer",
-    description: "Relax or change one answered intake question.",
+    label: "Required clarification answer",
+    description: "Relax or change one answered clarification.",
   },
   {
     value: "BusinessOutcome",
@@ -55,7 +54,6 @@ const OVERRIDE_KIND_OPTIONS: ReadonlyArray<{
 export type DraftIntakeWhatIfBranchPanelProps = {
   readonly draftId: string;
   readonly disabled?: boolean;
-  readonly defaultOpen?: boolean;
   readonly intent: string;
   readonly outcome: string;
   readonly systemName: string;
@@ -186,12 +184,14 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   }
 
   return (
-    <CollapsibleSection title="Explore a what-if branch" defaultOpen={props.defaultOpen === true}>
-      <div className="draft-intake-what-if-panel space-y-4" data-testid="draft-intake-what-if-panel">
-        <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+    <div className="draft-intake-what-if-panel space-y-4" data-testid="draft-intake-what-if-panel">
+      <div>
+        <p className="m-0 text-sm font-semibold text-al-text-primary">Explore a what-if branch</p>
+        <p className="mt-1 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
           Clone this admitted draft with one change, submit it as a separate architecture review, then use{" "}
-          <strong>Compare two reviews</strong> to diff the committed manifests (R12).
+          <strong>Compare two reviews</strong> to see how the outcomes differ.
         </p>
+      </div>
 
         {quota !== null ? (
           <p
@@ -254,7 +254,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
                 id={`draft-intake-what-if-key-${props.draftId}`}
                 data-testid="draft-intake-what-if-question"
               >
-                <SelectValue placeholder="Select a MUST question" />
+                <SelectValue placeholder="Select a clarification" />
               </SelectTrigger>
               <SelectContent>
                 {props.questionOptions.map((question) => (
@@ -301,7 +301,6 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
         >
           {busy ? "Branching…" : "Create what-if branch"}
         </Button>
-      </div>
-    </CollapsibleSection>
+    </div>
   );
 }

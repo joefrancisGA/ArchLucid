@@ -5,6 +5,7 @@ const admitDraftRequest = vi.fn();
 const createDraftRequest = vi.fn();
 const getDraftQuestions = vi.fn();
 const patchDraftRequest = vi.fn();
+const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
 
@@ -26,7 +27,7 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   patchDraftRequest: (...args: unknown[]) => patchDraftRequest(...args),
   getDraftQuestions: (...args: unknown[]) => getDraftQuestions(...args),
   answerDraftQuestion: vi.fn(),
-  skipDraftQuestion: vi.fn(),
+  skipDraftQuestion: (...args: unknown[]) => skipDraftQuestion(...args),
   submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
 }));
 
@@ -49,6 +50,12 @@ vi.mock("@/components/draft-intake/DraftIntakeReasoningPanel", () => ({
   DraftIntakeReasoningPanel: () => <div data-testid="draft-intake-reasoning-stub">Reasoning stub</div>,
 }));
 
+vi.mock("@/components/draft-intake/DraftIntakeAdvancedSection", () => ({
+  DraftIntakeAdvancedSection: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="draft-intake-advanced-stub">{children}</div>
+  ),
+}));
+
 vi.mock("@/components/draft-intake/DraftIntakeWhatIfBranchPanel", () => ({
   DraftIntakeWhatIfBranchPanel: () => <div data-testid="draft-intake-what-if-stub">What-if stub</div>,
 }));
@@ -59,6 +66,15 @@ import {
 } from "@/lib/guided-intake-copy";
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
+
+const sampleQuestion = {
+  questionKey: "l0.pillar.security",
+  prompt: "How is data protected?",
+  tier: "Must" as const,
+  answerKind: "FreeText" as const,
+  source: "L0Universal" as const,
+  ruleKeys: [],
+};
 
 describe("SocraticIntakeWizard", () => {
   it("shows guided placeholders and Continue on step 1", () => {
@@ -82,6 +98,7 @@ describe("SocraticIntakeWizard", () => {
     admitDraftRequest.mockResolvedValue({
       admitted: true,
       pendingMustQuestions: [],
+      requiredMustQuestionKeys: [],
       draft: { draftId: "draft-1" },
       verdict: { kind: "Feasible", summary: "ok" },
     });
@@ -89,16 +106,7 @@ describe("SocraticIntakeWizard", () => {
       draftId: "draft-1",
       status: "Admitted",
       selection: {
-        allQuestions: [
-          {
-            questionKey: "l0.pillar.security",
-            prompt: "How is data protected?",
-            tier: "Must",
-            answerKind: "FreeText",
-            source: "L0Universal",
-            ruleKeys: [],
-          },
-        ],
+        allQuestions: [sampleQuestion],
         requiredMustQuestionKeys: [],
         pendingMustQuestions: [],
       },
@@ -132,7 +140,50 @@ describe("SocraticIntakeWizard", () => {
 
     expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(/step 2 of 3/i);
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("draft-intake-advanced-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-what-if-stub")).toBeInTheDocument();
+  });
+
+  it("shows one required clarification at a time with progress copy", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion],
+        requiredMustQuestionKeys: ["l0.pillar.security"],
+        pendingMustQuestions: [sampleQuestion],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Modernize the claims intake workflow for analysts." },
+    });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-question-progress")).toHaveTextContent(
+        /required clarification 1 of 1/i,
+      );
+    });
+
+    expect(screen.getAllByTestId("socratic-question")).toHaveLength(1);
+    expect(screen.getByTestId("socratic-submit-hint")).toHaveTextContent(
+      /answer or skip all required clarifications to continue/i,
+    );
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
@@ -141,6 +192,7 @@ describe("SocraticIntakeWizard", () => {
     admitDraftRequest.mockResolvedValue({
       admitted: true,
       pendingMustQuestions: [],
+      requiredMustQuestionKeys: [],
       draft: { draftId: "draft-1" },
       verdict: { kind: "Feasible", summary: "ok" },
     });

@@ -252,7 +252,7 @@ export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
     }
   }
 
-  const contextAi = narrativePieces.length > 0 ? narrativePieces.join("\n\n") : "_No aggregate AI narrative was available for this run._";
+  const contextAi = narrativePieces.length > 0 ? narrativePieces.join("\n\n") : "_No aggregate AI narrative was available for this review._";
 
   const themes =
     exp !== null && exp.themeSummaries.length > 0

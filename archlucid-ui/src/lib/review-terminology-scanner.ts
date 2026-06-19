@@ -1,0 +1,207 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
+
+import {
+  REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
+} from "@/lib/review-terminology-surfaces";
+
+const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
+
+const EXCLUDED_FILE_SUFFIXES = [
+  ".test.ts",
+  ".test.tsx",
+  ".generated.ts",
+  ".generated.tsx",
+] as const;
+
+const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
+  "/api-types.generated.ts",
+  "/help-index.generated.ts",
+  "/packages/api-types/",
+  "/review-terminology-surfaces.ts",
+  "/review-terminology-scanner.ts",
+  "/review-terminology-copy.ts",
+  "/lib/api/",
+  "/committed-run-picker.ts",
+  "/operator-run-picker-client.ts",
+  "/draft-branch-compare-navigation.ts",
+] as const;
+
+/** Buyer-facing UI roots scanned by the global terminology guard (TB-355). */
+export const REVIEW_TERMINOLOGY_GLOBAL_SCAN_ROOTS = [
+  "src/app/(operator)",
+  "src/app/(marketing)",
+  "src/app/(executive)",
+  "src/components",
+  "src/lib",
+] as const;
+
+const LINE_SAFELIST_PATTERNS = [
+  /\brunid\b/i,
+  /\brun-id\b/i,
+  /\brun_id\b/i,
+  /\/reviews\//i,
+  /\/v1\//i,
+  /data-testid/i,
+  /^import\s+/,
+  /^export\s+/,
+  /from\s+["']/,
+  /className=/,
+  /^\s*\/\//,
+  /^\s*\*/,
+  /@\/components\/Run/i,
+  /@\/lib\/.*run/i,
+  /RunDetail/i,
+  /RunTable/i,
+  /RunProgress/i,
+  /RunAgent/i,
+  /RunEstimated/i,
+  /RunExplanation/i,
+  /RunSavings/i,
+  /RunRetrieval/i,
+  /CommitRun/i,
+  /EmailRun/i,
+  /RunsList/i,
+  /RunsDashboard/i,
+  /QuickReview/i,
+  /QuickStart/i,
+  /operator-static-demo/i,
+  /SHOWCASE_STATIC_DEMO_RUN_ID/i,
+  /sandbox-api-mocks/i,
+  /architecture-runs\.ts/i,
+] as const;
+
+export type ReviewTerminologyViolation = {
+  readonly relativePath: string;
+  readonly line: number;
+  readonly pattern: string;
+  readonly excerpt: string;
+};
+
+function shouldExcludeFile(relativePath: string): boolean {
+  const normalized = relativePath.replace(/\\/g, "/");
+
+  for (const suffix of EXCLUDED_FILE_SUFFIXES) {
+    if (normalized.endsWith(suffix)) {
+      return true;
+    }
+  }
+
+  for (const fragment of EXCLUDED_RELATIVE_PATH_FRAGMENTS) {
+    if (normalized.includes(fragment)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function listFilesRecursive(rootDir: string, relativeRoot: string): string[] {
+  const absoluteRoot = path.join(rootDir, relativeRoot);
+  const files: string[] = [];
+
+  for (const entry of readdirSync(absoluteRoot)) {
+    const absolutePath = path.join(absoluteRoot, entry);
+    const relativePath = path.join(relativeRoot, entry).replace(/\\/g, "/");
+    const stats = statSync(absolutePath);
+
+    if (stats.isDirectory()) {
+      files.push(...listFilesRecursive(rootDir, relativePath));
+      continue;
+    }
+
+    if (!SOURCE_EXTENSIONS.has(path.extname(relativePath))) {
+      continue;
+    }
+
+    if (shouldExcludeFile(relativePath)) {
+      continue;
+    }
+
+    files.push(relativePath);
+  }
+
+  return files.sort();
+}
+
+export function listGlobalBuyerSurfaceFiles(cwd: string = process.cwd()): string[] {
+  const files = new Set<string>();
+
+  for (const root of REVIEW_TERMINOLOGY_GLOBAL_SCAN_ROOTS) {
+    for (const relativePath of listFilesRecursive(cwd, root)) {
+      files.add(relativePath);
+    }
+  }
+
+  return [...files].sort();
+}
+
+function patternMatchesLine(line: string, pattern: string): boolean {
+  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`\\b${escaped}\\b`, "i");
+
+  return regex.test(line);
+}
+
+function isCommentLine(line: string): boolean {
+  const trimmed = line.trim();
+
+  return (
+    trimmed.startsWith("//") ||
+    trimmed.startsWith("/*") ||
+    trimmed.startsWith("*") ||
+    trimmed.startsWith("*/")
+  );
+}
+
+function isSafelistedLine(line: string): boolean {
+  for (const pattern of LINE_SAFELIST_PATTERNS) {
+    if (pattern.test(line)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function scanBuyerFacingTerminology(
+  relativePath: string,
+  source: string,
+): ReviewTerminologyViolation[] {
+  const violations: ReviewTerminologyViolation[] = [];
+  const lines = source.split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? "";
+
+    if (isCommentLine(line) || isSafelistedLine(line)) {
+      continue;
+    }
+
+    for (const pattern of REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS) {
+      if (!patternMatchesLine(line, pattern)) {
+        continue;
+      }
+
+      violations.push({
+        relativePath,
+        line: index + 1,
+        pattern,
+        excerpt: line.trim().slice(0, 160),
+      });
+    }
+  }
+
+  return violations;
+}
+
+export function scanGlobalBuyerSurfaces(cwd: string = process.cwd()): ReviewTerminologyViolation[] {
+  const violations: ReviewTerminologyViolation[] = [];
+
+  for (const relativePath of listGlobalBuyerSurfaceFiles(cwd)) {
+    const source = readFileSync(path.join(cwd, relativePath), "utf8");
+    violations.push(...scanBuyerFacingTerminology(relativePath, source));
+  }
+
+  return violations;
+}

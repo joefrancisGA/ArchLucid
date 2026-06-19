@@ -42,7 +42,6 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
         intent="Keep latency under three seconds."
         outcome="Reduce triage time."
         systemName="Claims intake"
-        defaultOpen
         questionOptions={[
           {
             questionKey: "l0.pillar.security",
@@ -90,7 +89,6 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
         intent="Intent"
         outcome="Outcome"
         systemName=""
-        defaultOpen
         questionOptions={[]}
         onBranched={vi.fn()}
       />,
