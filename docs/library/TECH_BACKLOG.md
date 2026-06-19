@@ -10464,7 +10464,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-351 ? Replace hero "What you'll get" with discovery-value outcomes (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — `PILOT_COMMAND_CENTER_OUTCOMES_HEADING` is **What ArchLucid discovers**; bullets are discovery-value outcomes in `buyer-polish-copy.ts`; Vitest guards in `PilotCommandCenterCard.test.tsx` and `buyer-polish-copy-pilot-outcomes.test.ts`.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
