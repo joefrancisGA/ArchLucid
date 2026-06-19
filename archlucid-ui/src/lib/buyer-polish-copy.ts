@@ -297,7 +297,10 @@ export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture rev
 export const BUYER_HOME_WELCOME_LEAD =
   "Start with the executive view, then the signed manifest, audit trail, and prioritized findings.";
 
-export const BUYER_HOME_REVIEWS_SECTION_HEADING = "Workspace activity";
+/** Canonical home reviews zone heading — both operator shells (TB-347). */
+export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";
+
+export const BUYER_HOME_REVIEWS_SECTION_HEADING = OPERATOR_HOME_RECENT_REVIEWS_HEADING;
 
 export const BUYER_HOME_SECONDARY_CTA = "Create from evidence";
 

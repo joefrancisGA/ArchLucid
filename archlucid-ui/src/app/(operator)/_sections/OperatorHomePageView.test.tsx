@@ -57,8 +57,26 @@ vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
 }));
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
+import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
+import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 describe("OperatorHomePageView", () => {
+  it("renders an elevated Recent reviews section heading in buyer-polished home (TB-347)", () => {
+    render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
+
+    const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING });
+
+    expect(heading).toHaveAttribute("id", "operator-home-reviews-heading");
+    expect(heading.className).toContain("font-bold");
+    expect(OPERATOR_HOME_PRIMARY_SECTION_HEADING).toContain("font-bold");
+  });
+
+  it("renders the same Recent reviews heading in full operator home (TB-347)", () => {
+    render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
+  });
+
   it("orders buyer-polished home as hero, first-value sample surfaces, reviews, then collapsed advanced guidance", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
 

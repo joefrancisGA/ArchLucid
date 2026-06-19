@@ -114,7 +114,7 @@ export const OPERATOR_TYPE_SCALE = {
 
 /** Zone headings on operator/buyer home — primary workspace surface (TB-347). */
 export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
-  "m-0 text-xl font-semibold leading-snug tracking-tight text-al-text-primary";
+  "m-0 text-xl font-bold leading-snug tracking-tight text-al-text-primary";
 
 /** Zone headings on operator/buyer home — one step below {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
 export const OPERATOR_HOME_SECTION_HEADING =

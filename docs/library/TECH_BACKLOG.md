@@ -10351,7 +10351,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-347 ? Rename and elevate home reviews section heading (P0)
 
-**Status:** Open ? **P0**.
+**Status:** **Done (2026-06-19)** — canonical **Recent reviews** in `buyer-polish-copy.ts`; `OPERATOR_HOME_PRIMARY_SECTION_HEADING` uses bold `text-xl` for home reviews zone.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 

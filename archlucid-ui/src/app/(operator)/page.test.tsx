@@ -121,7 +121,7 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent reviews" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
@@ -139,7 +139,7 @@ describe("HomePage (55R smoke — landing)", () => {
   it("renders compact hero, reviews panel, and collapsed advanced guidance", async () => {
     renderWithOperatorQuery(<HomePage />);
 
-    expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent reviews" })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
