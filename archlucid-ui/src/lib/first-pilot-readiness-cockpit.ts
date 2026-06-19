@@ -7,6 +7,11 @@ import {
 } from "@/lib/first-pilot-diagnostics-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
+import {
+  buildReadinessAzureExtractorSummary,
+  READINESS_AZURE_EXTRACTOR_CTA,
+  READINESS_AZURE_EXTRACTOR_LABEL,
+} from "@/lib/onboarding-secondary-surfaces";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { applyHomeReadinessRowPresentation } from "@/lib/home-readiness-row-present";
@@ -163,14 +168,12 @@ export function buildFirstPilotReadinessRows(input: {
     },
     {
       id: "azure-extractor",
-      label: "Azure extractor evidence",
+      label: READINESS_AZURE_EXTRACTOR_LABEL,
       group: "execution" as const,
       status: input.signals.evidenceReady ? "ready" : input.runsLoadFailed ? "unknown" : "attention",
-      summary: input.signals.evidenceReady
-        ? "Evidence is attached, acknowledged, or already committed for the pilot path."
-        : "Upload an extractor ZIP or use the sample package. No customer-tenant write role is required.",
+      summary: buildReadinessAzureExtractorSummary(input.signals.evidenceReady, input.runsLoadFailed),
       href: "/settings/extract-upload",
-      cta: "Extract and upload",
+      cta: READINESS_AZURE_EXTRACTOR_CTA,
     },
     {
       id: "roi-baselines",

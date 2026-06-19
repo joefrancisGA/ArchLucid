@@ -12,8 +12,8 @@ import {
   isFirstVisitHelpSessionDone,
   markFirstVisitHelpSessionDone,
 } from "@/lib/usability/first-visit-help";
+import { FIRST_VISIT_HELP_THREE_THINGS } from "@/lib/onboarding-secondary-surfaces";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 /** Auto-surfaces contextual help once per session on operator home; remembers dismissal per path. */
 export function FirstVisitHelpAutoOpen() {
@@ -52,8 +52,7 @@ export function FirstVisitHelpAutoOpen() {
       data-testid="first-visit-help-auto-open"
     >
       <p className="m-0 text-al-text-primary">
-        <span className="font-medium">3 things to know:</span> start one review package, explore a sample package if you
-        are not ready to connect a cloud environment, then invite a reviewer when you want governance sign-off.
+        <span className="font-medium">3 things to know:</span> {FIRST_VISIT_HELP_THREE_THINGS}
       </p>
       <div className="flex flex-wrap gap-2">
         <Button asChild type="button" size="sm">

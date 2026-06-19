@@ -68,14 +68,15 @@ describe("OptInTour rendering (controlled)", () => {
     expect(step0.textContent).not.toContain("<<tour");
   });
 
-  it("renders hosted SaaS step 2 copy (upload context, not API keys)", () => {
+  it("renders evidence-first step 2 copy (TB-342)", () => {
     render(<OptInTour isOpen={true} onClose={() => {}} />);
 
     fireEvent.click(screen.getByTestId("opt-in-tour-next"));
 
     const step1 = screen.getByTestId("opt-in-tour-step-1");
-    expect(step1.textContent).toContain("Upload your architecture context");
-    expect(step1.textContent).toContain("Get-ArchLucidAzurePackage.ps1");
+    expect(step1.textContent).toContain("Provide architecture evidence");
+    expect(step1.textContent).toContain("Extract & upload");
+    expect(step1.textContent?.toLowerCase()).not.toContain("needs to know about your azure environment");
     expect(step1.textContent).not.toMatch(/API [Kk]ey/);
   });
 

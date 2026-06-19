@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { OPT_IN_TOUR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
 
 /**
  * In-product opt-in tour (PENDING_QUESTIONS.md item 38 — owner Q8 + Q9; copy approved 2026-04-24).
@@ -22,9 +23,7 @@ export interface OptInTourStep {
   readonly body: string;
 }
 
-/**
- * Six-step opt-in tour script.
- */
+/** Six-step opt-in tour script. */
 export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "1. Operator home",
@@ -33,9 +32,8 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "The analysis and governance sections below are optional until your first review is finalized.",
   },
   {
-    title: "2. Upload your architecture context",
-    body:
-      "ArchLucid needs to know about your Azure environment. Run Get-ArchLucidAzurePackage.ps1 from Settings → Extract & Upload, then upload the ZIP — or seed a sample review from the Reviews page to explore without setup.",
+    title: OPT_IN_TOUR_EVIDENCE_STEP.title,
+    body: OPT_IN_TOUR_EVIDENCE_STEP.body,
   },
   {
     title: "3. Start a review",
@@ -62,7 +60,6 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "tickets. Most pages also include a link to the relevant documentation. The How it works button on Home re-opens this tour anytime.",
   },
 ];
-
 export interface OptInTourProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;

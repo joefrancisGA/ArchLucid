@@ -6,6 +6,10 @@ import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import {
+  ONBOARDING_TOUR_NEW_REVIEW_BODY,
+  ONBOARDING_TOUR_WELCOME_BODY,
+} from "@/lib/onboarding-secondary-surfaces";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHLUCID_ONBOARDING_TOUR_START_EVENT,
@@ -25,15 +29,13 @@ const OPERATOR_ONBOARDING_STEPS: TourStep[] = [
   {
     id: "welcome",
     title: "Welcome to ArchLucid",
-    body:
-      "This checklist is your Core Pilot path — from an architecture request to a reviewed, exportable package. Complete the steps in order, or jump ahead when you are comfortable.",
+    body: ONBOARDING_TOUR_WELCOME_BODY,
     targetSelector: '[data-onboarding="tour-core-pilot"]',
   },
   {
     id: "new-run",
     title: "Create your first architecture review",
-    body:
-      "Each review starts as an architecture request. Use New request in the sidebar (desktop) or the navigation menu on small screens to open the guided wizard.",
+    body: ONBOARDING_TOUR_NEW_REVIEW_BODY,
     targetSelector: '[data-onboarding="tour-new-run"]',
   },
   {

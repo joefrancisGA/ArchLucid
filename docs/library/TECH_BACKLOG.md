@@ -10211,7 +10211,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-342 ? Onboarding secondary-surface copy sweep (evidence-first) (P1)
 
-**Status:** **Partial (2026-06-15)** ? `first-pilot-buyer-copy.ts`, operating-rail ingest label, quick-review placeholder; welcome/tour sweep remains open.
+**Status:** **Done (2026-06-19)** — `onboarding-secondary-surfaces.ts` centralizes evidence-first copy for opt-in tour, welcome modal, onboarding tour, first-visit help, readiness cockpit, and home row presentation; banned Azure-prerequisite phrase guard + Vitest drift tests.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 

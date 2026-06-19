@@ -32,6 +32,25 @@ describe("first-pilot-buyer-copy", () => {
     expect(ingest?.shortBody.toLowerCase()).toContain("brief");
   });
 
+  it("readiness cockpit azure row uses evidence-first optional framing", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Healthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal,
+      signals,
+      scorecard: null,
+      scorecardLoadFailed: false,
+      configLint: null,
+    });
+
+    const azureRow = rows.find((row) => row.id === "azure-extractor");
+
+    expect(azureRow?.label).toContain("Optional Azure export");
+    expect(azureRow?.cta?.toLowerCase()).toBe("add evidence");
+    expect(azureRow?.summary.toLowerCase()).toContain("brief");
+  });
+
   it("readiness cockpit proof and second-review rows use buyer-safe vocabulary", () => {
     const rows = buildFirstPilotReadinessRows({
       healthStatus: "Healthy",

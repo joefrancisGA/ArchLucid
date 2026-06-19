@@ -32,7 +32,7 @@ describe("WelcomeModal", () => {
     render(<WelcomeModal open onDismiss={onDismiss} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    expect(screen.getByText("Define your architecture")).toBeInTheDocument();
+    expect(screen.getByText("Provide architecture evidence")).toBeInTheDocument();
     expect(screen.getByText(/Each architecture review is tracked as one run/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Skip tour" }));
