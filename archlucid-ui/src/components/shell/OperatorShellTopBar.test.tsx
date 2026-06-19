@@ -93,12 +93,15 @@ describe("OperatorShellTopBar", () => {
     );
 
     const sessionRail = screen.getByTestId("app-shell-topbar-session");
+    const personaSwitcher = screen.getByTestId("executive-operator-shell-switcher");
     const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
     const allowancePill = await screen.findByTestId("llm-budget-status-pill");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
 
+    expect(sessionRail.contains(personaSwitcher)).toBe(true);
     expect(sessionRail.contains(scopeTrigger)).toBe(true);
     expect(sessionRail.contains(allowancePill)).toBe(true);
+    expect(personaSwitcher.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(scopeTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(helpTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
