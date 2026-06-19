@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Audit;
 
@@ -41,7 +43,11 @@ public sealed class CapturingAuditRepository : IAuditRepository
     private readonly List<AuditEvent> _events = [];
     private readonly Lock _gate = new();
 
-    public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
+    public Task AppendAsync(
+        AuditEvent auditEvent,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(auditEvent);
 
