@@ -1,15 +1,10 @@
 import { Suspense } from "react";
-import dynamic from "next/dynamic";
 
-import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
-import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
-import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
-import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
 import { CommitBlockingFindingsBanner } from "@/components/usability/CommitBlockingFindingsBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { StalledReviewGuidanceCallout } from "@/components/usability/StalledReviewGuidanceCallout";
@@ -27,12 +22,8 @@ import { RunAgentResultsSummaryCard } from "@/components/RunAgentResultsSummaryC
 import { RunDetailLastFailureCard, resolveRunDetailLastFailureSummary } from "@/components/RunDetailLastFailureCard";
 import { RunRetrievalGroundingSummaryCard } from "@/components/RunRetrievalGroundingSummaryCard";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
-import { RunSavingsSummary } from "@/components/RunSavingsSummary";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
-import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
-import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarningsSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
-import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 import {
   buyerHeaderStatusTwinPillCaption,
 } from "@/lib/review-buyer-disposition-line";
@@ -45,68 +36,44 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
-import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
 import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
-import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
-import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
 import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
-import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
-import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
-import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
-import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
-import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
-import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPipelineToolsCollapsible";
-import { RunDetailOperatorTechnicalFooter } from "./RunDetailOperatorTechnicalFooter";
-import { RunDetailPipelineTimelineSection } from "./RunDetailPipelineTimelineSection";
-import { RunDetailPipelineStagesSection } from "./RunDetailPipelineStagesSection";
-import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptyState";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
-import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
-import { RunDetailRetrievalGroundingSection } from "./RunDetailRetrievalGroundingSection";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
-import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
-import type { RunDetailPageModel } from "./run-detail-page-model";
+import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
+import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
+import { RunDetailBelowFoldDeferredSkeleton, RunDetailMidDeferredSkeleton } from "./RunDetailDeferredSkeleton";
+import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
-const RunDetailArchitectureGraphSection = dynamic(
-  () =>
-    import("./RunDetailArchitectureGraphSection").then(
-      (module) => module.RunDetailArchitectureGraphSection,
-    ),
-  {
-    loading: () => (
-      <section id="architecture-graph" className="scroll-mt-24">
-        <div
-          className="h-64 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-          role="status"
-          aria-label="Loading architecture graph"
-        />
-      </section>
-    ),
-  },
-);
-
-const BeforeAfterDeltaPanel = dynamic(
-  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
-  { loading: () => null },
-);
+function toDeferredSectionContext(model: RunDetailPageModel): RunDetailDeferredSectionContext {
+  return {
+    routeRunId: model.routeRunId,
+    resolvedDetail: model.resolvedDetail,
+    usedStaticDemoRun: model.usedStaticDemoRun,
+    buyerPolishedArtifactTable: model.buyerPolishedArtifactTable,
+    manifestId: model.manifestId,
+    artifacts: model.artifacts,
+  };
+}
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
 export function RunDetailPageView(props: { readonly model: RunDetailPageModel }): React.JSX.Element {
   const m = props.model;
+  const deferredContext = toDeferredSectionContext(m);
   const { baselineAnnualCostUsd, isIllustrativePricing } = deriveRunDetailBaselineAnnualCostUsd({
-    savingsSummaryAnnualizedUsd: m.savingsSummary?.annualizedUsd,
+    savingsSummaryAnnualizedUsd: undefined,
     goldenManifestJson: m.goldenManifestJsonForExport,
   });
   const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(m.resolvedDetail);
@@ -119,16 +86,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         manifestId={m.manifestId}
         artifactCount={m.artifacts.length}
         findingCount={m.findingCountDisplay}
-      />
-    ) : null;
-
-  const changesSinceLastReviewBannerEl =
-    m.changesSinceLastReviewBanner !== null ? (
-      <ChangesSinceLastReviewBanner
-        priorReviewDateLabel={m.changesSinceLastReviewBanner.priorReviewDateLabel}
-        priorRunId={m.changesSinceLastReviewBanner.priorRunId}
-        currentRunId={m.changesSinceLastReviewBanner.currentRunId}
-        copy={m.changesSinceLastReviewBanner.copy}
       />
     ) : null;
 
@@ -308,7 +265,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <RunExplanationConfidenceBanner summary={m.explanationSummary} />
       ) : null}
 
-      {changesSinceLastReviewBannerEl}
+      <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
+        <RunDetailMidDeferredSections context={deferredContext} />
+      </Suspense>
 
       {!m.buyerPolishedArtifactTable ? (
         <Suspense fallback={null}>
@@ -318,8 +277,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           />
         </Suspense>
       ) : null}
-
-      {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
       {governanceAlertsEl}
       {outcomeCardsEl}
@@ -427,187 +384,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
       ) : null}
 
-      <RunDetailPipelineTimelineSection
-        runId={m.routeRunId}
-        buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-        pipelineTimelineFailure={m.pipelineTimelineFailure}
-        pipelineTimelineForUi={m.pipelineTimelineForUi}
-      />
-
-      <RunDetailPipelineStagesSection
-        stageTimeline={m.stageTimelineForUi}
-        otelTraceId={m.resolvedDetail.run.otelTraceId ?? m.runDetailTraceId}
-      />
-
-      {m.resolvedDetail.run.graphSnapshotId ? (
-        <RunDetailArchitectureGraphSection
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          anchorRunCreatedUtc={m.resolvedDetail.run.createdUtc}
-          graphHistoryMinCreatedUtc={m.architectureGraphTemporalMinUtc}
-          disableTemporalBrowsing={m.usedStaticDemoRun}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable && m.resolvedDetail.run.operatorGovernanceDecision ? (
-        <GovernanceApprovalAttestationBlock
-          decision={m.resolvedDetail.run.operatorGovernanceDecision}
-          approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
-          decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
-          rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
-          runId={m.resolvedDetail.run.runId}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailProvenanceSummaryCard
-          runId={m.routeRunId}
-          run={m.resolvedDetail.run}
-          engineProvenance={m.resolvedDetail.engineProvenance ?? null}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <ReviewChainOfCustodySection
-          run={m.resolvedDetail.run}
-          manifestId={m.manifestId ?? null}
-          ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-          ruleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <ReviewCliReproduceSection
-          runId={m.resolvedDetail.run.runId}
-          ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
-        />
-      ) : null}
-
-      {!m.manifestId ? <RunDetailPreFinalizedEmptyState /> : null}
-
-      <RunDetailManifestSummaryAlerts
-        manifestSummaryFailure={m.manifestSummaryFailure}
-        manifestSummaryMalformed={m.manifestSummaryMalformed}
-      />
-
-      {m.manifestId ? (
-        <>
-          <RunDetailWhatsNextSection runId={m.routeRunId} />
-          <RecurrenceSchedulePostCommitCard
-            runId={m.routeRunId}
-            hasStickinessPrompt={Boolean(m.manifestId)}
-          />
-          <PostCommitHabitLoopCard
-            runId={m.routeRunId}
-            showCompareCta={m.canShowCompareReviewButton}
-            buyerShowcaseQuickLinks={m.usedStaticDemoRun}
-            goldenManifestId={m.manifestId}
-          />
-        </>
-      ) : null}
-
-      {m.manifestId ? (
-        <RunDetailArtifactsExportsSection
-          manifestId={m.manifestId}
-          runId={m.resolvedDetail.run.runId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          artifacts={m.artifacts}
-          artifactsFailure={m.artifactsFailure}
-          artifactsMalformed={m.artifactsMalformed}
-          goldenManifestJsonForExport={m.goldenManifestJsonForExport}
-          manifestSummaryForUi={m.manifestSummaryForUi}
-          manifestSummary={m.manifestSummary}
-          trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
-          samplePolicyPackContextLine={
-            m.usedStaticDemoRun === true
-              ? m.buyerPolishedArtifactTable === true
-                ? BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE
-                : "Policy pack used for this sample review."
-              : null
-          }
-          requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailRunExplanationCollapsible
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          quickDecisionFindings={m.quickDecisionFindings}
-          quickDecisionFromExplanationFallback={m.quickDecisionFromExplanationFallback}
-          findingWireSnapshots={m.findingWireSnapshots}
-          findingCountDisplay={m.findingCountDisplay}
-          warningCountDisplay={m.warningCountDisplay}
-          explanationSummary={m.explanationSummary}
-          explanationFailure={m.explanationFailure}
-          baselineAnnualCostUsd={baselineAnnualCostUsd}
-          isIllustrativePricing={isIllustrativePricing}
-          decisionExplainability={decisionExplainability}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailRetrievalGroundingSection
-          runId={m.routeRunId}
-          showWhenFaithfulnessWarning={
-            typeof m.explanationSummary?.faithfulnessWarning === "string"
-            && m.explanationSummary.faithfulnessWarning.trim().length > 0
-          }
-        />
-      ) : null}
-
-      {m.showPilotScorecardPackageCta && m.manifestId ? (
-        <RunDetailSponsorBriefingSection
-          runId={m.routeRunId}
-          manifestId={m.manifestId}
-          curatedSampleRun={m.usedStaticDemoRun}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          sponsorDocxAvailable={m.artifacts.some(
-            (artifact) => artifact.artifactId === "architecture-review-board",
-          )}
-        />
-      ) : null}
-
-      {m.manifestId && !m.buyerPolishedArtifactTable ? (
-        <BeforeAfterDeltaPanel variant="inline" runId={m.routeRunId} />
-      ) : null}
-
-      {m.manifestId ? (
-        <RunDetailAdvancedAnalysisSection
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? <RunAgentQualityWarningsSection runId={m.routeRunId} /> : null}
-
-      {!m.buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={m.routeRunId} /> : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailRunActionsSection
-          runId={m.resolvedDetail.run.runId}
-          systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
-          manifestId={m.manifestId}
-          hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-          operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailOperatorTechnicalFooter
-          runId={m.resolvedDetail.run.runId}
-          projectId={m.resolvedDetail.run.projectId}
-          createdLabel={m.createdLabel}
-        />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailOperatorPipelineToolsCollapsible runId={m.resolvedDetail.run.runId} />
-      ) : null}
+      <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
+        <RunDetailBelowFoldSections model={m} context={deferredContext} />
+      </Suspense>
     </div>
   );
 }

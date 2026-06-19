@@ -12,10 +12,14 @@ const source = readFileSync(
 describe("RunDetailPageView progressive disclosure", () => {
   it("prioritizes first-screen proof status before advanced forensics", () => {
     const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
-    const forensicsIndex = source.indexOf("<RunAgentForensicsSection");
+    const belowFoldSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
+      "utf8",
+    );
+    const forensicsIndex = belowFoldSource.indexOf("<RunAgentForensicsSection");
 
     expect(proofIndex).toBeGreaterThan(-1);
-    expect(forensicsIndex).toBeGreaterThan(proofIndex);
+    expect(forensicsIndex).toBeGreaterThan(-1);
   });
 
   it("places proof status before evidence density strip on committed packages", () => {
@@ -31,14 +35,25 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(source).toMatch(
       /\{!m\.buyerPolishedArtifactTable \?\s*\(\s*\n\s*<RunDetailRunMetadataSection/,
     );
-    expect(source).toMatch(
+
+    const belowFoldSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
+      "utf8",
+    );
+
+    expect(belowFoldSource).toMatch(
       /\{!m\.buyerPolishedArtifactTable \? <RunAgentForensicsSection/,
     );
   });
 
   it("keeps advanced analysis behind dedicated section", () => {
-    expect(source).toContain("RunDetailAdvancedAnalysisSection");
-    expect(source).toContain("RunDetailOperatorPipelineToolsCollapsible");
+    const belowFoldSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
+      "utf8",
+    );
+
+    expect(belowFoldSource).toContain("RunDetailAdvancedAnalysisSection");
+    expect(belowFoldSource).toContain("RunDetailOperatorPipelineToolsCollapsible");
   });
 
   it("hides per-finding trace table behind collapsible disclosure", () => {

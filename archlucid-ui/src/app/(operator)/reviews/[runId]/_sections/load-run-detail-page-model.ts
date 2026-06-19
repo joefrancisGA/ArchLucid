@@ -3,24 +3,18 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBrowser } from "@/lib/api/http";
 import {
   type ApiResponseWithTrace,
-  compareRuns,
   getManifestSummary,
   getBuyerRunDetailSummary,
   getRunDetail,
   getRunExplanationSummary,
-  getRunPipelineTimeline,
-  getRunStageTimeline,
   getRunSummary,
   listArtifacts,
-  listRunsByProject,
 } from "@/lib/api";
 import { buildAdrGeneratorRunInput } from "@/lib/adr-from-run";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { deriveChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
-import { findPriorCommittedRun } from "@/lib/find-prior-committed-run";
 import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -28,7 +22,6 @@ import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scoreca
 import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
-  coerceRunComparison,
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import {
@@ -36,7 +29,6 @@ import {
   tryStaticDemoExplanationSummary,
   tryStaticDemoGoldenManifestJsonForExport,
   tryStaticDemoManifestSummary,
-  tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -47,7 +39,6 @@ import {
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
-import { resolveRunDetailSavingsSummary } from "@/lib/run-detail-savings-summary-resolve";
 import { getScopeHeaders } from "@/lib/scope";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import {
@@ -58,14 +49,12 @@ import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
 } from "@/lib/showcase-static-demo";
-import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
-import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
-import type { StageTimelineSummary } from "@/types/stage-timeline";
+import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
 import { pipelineCompleteOnSummary } from "./pipeline-complete-on-summary";
-import type { RunDetailChangesSinceLastReviewBanner, RunDetailPageModel } from "./run-detail-page-model";
+import type { RunDetailPageModel } from "./run-detail-page-model";
 
 export type LoadRunDetailPageModelResult =
   | { kind: "not-found" }
@@ -136,66 +125,9 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     return { kind: "not-found" };
   }
 
-  let canShowCompareReviewButton = false;
-  let priorCommittedRun: RunSummary | null = null;
-  let architectureGraphTemporalMinUtc = resolvedDetail.run.createdUtc;
-
-  try {
-    const projectRuns = await listRunsByProject(resolvedDetail.run.projectId, 60);
-
-    canShowCompareReviewButton = projectRuns.length >= 2;
-
-    if (isBuyerPolishedOperatorShellEnv()) {
-      canShowCompareReviewButton = false;
-    }
-    priorCommittedRun = findPriorCommittedRun(resolvedDetail.run.runId, projectRuns);
-
-    let minUtc: string | null = null;
-
-    for (const r of projectRuns) {
-      if (r.hasGraphSnapshot !== true) {
-        continue;
-      }
-
-      if (minUtc === null || r.createdUtc < minUtc) {
-        minUtc = r.createdUtc;
-      }
-    }
-
-    if (minUtc !== null) {
-      architectureGraphTemporalMinUtc = minUtc;
-    }
-  } catch {
-    canShowCompareReviewButton = false;
-  }
-
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
 
   const manifestId = resolvedDetail.run.goldenManifestId;
-
-  let changesSinceLastReviewBanner: RunDetailChangesSinceLastReviewBanner | null = null;
-
-  if (manifestId !== undefined && manifestId !== null && manifestId.trim().length > 0 && priorCommittedRun !== null) {
-    try {
-      const rawCompare: unknown = await compareRuns(priorCommittedRun.runId, resolvedDetail.run.runId);
-      const coercedCmp = coerceRunComparison(rawCompare);
-
-      if (coercedCmp.ok) {
-        const copy = deriveChangesSinceLastReviewCopy(coercedCmp.value);
-
-        if (copy !== null) {
-          changesSinceLastReviewBanner = {
-            priorReviewDateLabel: formatInstantForLocale(priorCommittedRun.createdUtc),
-            priorRunId: priorCommittedRun.runId,
-            currentRunId: resolvedDetail.run.runId,
-            copy,
-          };
-        }
-      }
-    } catch {
-      changesSinceLastReviewBanner = null;
-    }
-  }
 
   let goldenManifestJsonForExport: unknown | null = null;
 
@@ -228,45 +160,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let artifactsMalformed: string | null = null;
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
-  let pipelineTimeline: PipelineTimelineItem[] | null = null;
-  let pipelineTimelineFailure: ApiLoadFailureState | null = null;
-
-  try {
-    pipelineTimeline = await getRunPipelineTimeline(runId);
-  } catch (e) {
-    pipelineTimelineFailure = toApiLoadFailure(e);
-
-    if (usedStaticDemoRun) {
-      const staticTimeline = tryStaticDemoPipelineTimeline(runId);
-
-      if (staticTimeline !== null && staticTimeline.length > 0) {
-        pipelineTimeline = staticTimeline;
-        pipelineTimelineFailure = null;
-      }
-    }
-  }
-
-  if (pipelineTimeline === null || pipelineTimeline.length === 0) {
-    const staticTimeline = tryStaticDemoPipelineTimeline(runId);
-
-    if (staticTimeline !== null && staticTimeline.length > 0) {
-      pipelineTimeline = staticTimeline;
-      pipelineTimelineFailure = null;
-    }
-  }
-
-  const pipelineTimelineForUi: PipelineTimelineItem[] | null = buyerPolishedArtifactTable
-    ? pipelineTimeline?.filter((e) => isTimelineMilestoneEvent(e.eventType)) ?? null
-    : pipelineTimeline;
-
-  let stageTimelineForUi: StageTimelineSummary[] = [];
-
-  try {
-    const stageTimelineRaw = await getRunStageTimeline(runId);
-    stageTimelineForUi = Array.isArray(stageTimelineRaw) ? stageTimelineRaw : [];
-  } catch {
-    stageTimelineForUi = [];
-  }
 
   if (manifestId) {
     try {
@@ -418,14 +311,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     severityLabelForFinding: severityBadgeLabel,
   });
 
-  const savingsSummary = await resolveRunDetailSavingsSummary({
-    resolvedDetail,
-    usedStaticDemoRun,
-    artifacts,
-    manifestId,
-    routeRunId: runId,
-  });
-
   const model: RunDetailPageModel = {
     routeRunId: runId,
     resolvedDetail,
@@ -435,9 +320,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     manifestId,
     headline,
     createdLabel,
-    architectureGraphTemporalMinUtc,
-    canShowCompareReviewButton,
-    changesSinceLastReviewBanner,
     goldenManifestJsonForExport,
     progressForPipelineUi,
     showProgressTracker,
@@ -450,9 +332,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     artifactsMalformed,
     explanationSummary,
     explanationFailure,
-    pipelineTimelineForUi,
-    pipelineTimelineFailure,
-    stageTimelineForUi,
     runDetailNavSections,
     findingCountDisplay,
     warningCountDisplay,
@@ -462,7 +341,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     quickDecisionFromExplanationFallback,
     findingWireSnapshots,
     adrGeneratorInput,
-    savingsSummary,
   };
 
   return { kind: "success", model };

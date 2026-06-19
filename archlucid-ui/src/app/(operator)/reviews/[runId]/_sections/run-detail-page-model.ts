@@ -1,11 +1,9 @@
 import type { RunDetailSection } from "@/components/RunDetailSectionNav";
 import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import type { RunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
-import type { StageTimelineSummary } from "@/types/stage-timeline";
+import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 export type RunDetailChangesSinceLastReviewBanner = {
@@ -25,9 +23,6 @@ export type RunDetailPageModel = {
   readonly manifestId: string | undefined | null;
   readonly headline: string;
   readonly createdLabel: string;
-  readonly architectureGraphTemporalMinUtc: string;
-  readonly canShowCompareReviewButton: boolean;
-  readonly changesSinceLastReviewBanner: RunDetailChangesSinceLastReviewBanner | null;
   readonly goldenManifestJsonForExport: unknown | null;
   readonly progressForPipelineUi: RunSummary;
   readonly showProgressTracker: boolean;
@@ -40,9 +35,6 @@ export type RunDetailPageModel = {
   readonly artifactsMalformed: string | null;
   readonly explanationSummary: RunExplanationSummary | null;
   readonly explanationFailure: ApiLoadFailureState | null;
-  readonly pipelineTimelineForUi: PipelineTimelineItem[] | null;
-  readonly pipelineTimelineFailure: ApiLoadFailureState | null;
-  readonly stageTimelineForUi: StageTimelineSummary[];
   readonly runDetailNavSections: RunDetailSection[];
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;
@@ -53,5 +45,15 @@ export type RunDetailPageModel = {
   readonly quickDecisionFromExplanationFallback: boolean;
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly adrGeneratorInput: AdrGeneratorRunInput;
-  readonly savingsSummary: RunSavingsSummaryModel | null;
 };
+
+/** Minimal context passed into deferred run-detail server sections. */
+export type RunDetailDeferredSectionContext = Pick<
+  RunDetailPageModel,
+  | "routeRunId"
+  | "resolvedDetail"
+  | "usedStaticDemoRun"
+  | "buyerPolishedArtifactTable"
+  | "manifestId"
+  | "artifacts"
+>;
