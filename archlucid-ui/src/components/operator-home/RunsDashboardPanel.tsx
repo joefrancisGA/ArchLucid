@@ -26,6 +26,7 @@ import {
 import {
   formatRunHomeListInsightLine,
   formatRunHomeListUpdatedLabel,
+  resolveRunFindingCountDisplay,
 } from "@/lib/operator-home-run-list-insight";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import { BUYER_HOME_FILTER_ACTION_NEEDED, BUYER_GOVERNANCE_MONITORING_BADGE } from "@/lib/buyer-home-status-copy";
@@ -111,9 +112,18 @@ function RunGovernanceWarningIndicator({ buyerPolishedShell }: { buyerPolishedSh
 }
 
 function RunListRowBadges({ run, className }: { run: RunSummary; className?: string }) {
+  const findingCount = resolveRunFindingCountDisplay(run);
+
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <RunStatusBadge run={run} className={className} />
+      {findingCount !== null ? (
+        <StatusTag
+          kind={run.hasGoldenManifest === true ? "ready" : "needs-attention"}
+          label={`${findingCount} finding${findingCount === 1 ? "" : "s"}`}
+          className="text-[0.6rem]"
+        />
+      ) : null}
       {run.hasGovernanceWarnings === true ? (
         <RunGovernanceWarningIndicator buyerPolishedShell={isBuyerPolishedOperatorShellEnv()} />
       ) : null}

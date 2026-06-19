@@ -108,6 +108,36 @@ describe("RunsDashboardPanel", () => {
     expect(link).toHaveAttribute("href", "/reviews/11111111-1111-1111-1111-111111111111");
   });
 
+  it("surfaces findings insight signals on populated run rows", async () => {
+    const run: RunSummary = {
+      runId: "22222222-2222-2222-2222-222222222222",
+      projectId: "default",
+      description: "Cost review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      findingCount: 4,
+      warningCount: 1,
+      hasGovernanceWarnings: true,
+    };
+    listRuns.mockResolvedValue({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    render(<RunsDashboardPanel />);
+
+    expect(await screen.findByTestId(`run-home-list-insight-${run.runId}`)).toHaveTextContent(
+      "4 findings · 1 monitored risk · package finalized",
+    );
+    expect(screen.getByText("4 findings")).toBeInTheDocument();
+    expect(screen.getByTestId("run-governance-warning-indicator")).toBeInTheDocument();
+  });
+
   it("shows empty state when there are no runs", async () => {
     const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
 
