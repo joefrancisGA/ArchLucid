@@ -16,12 +16,16 @@ describe("DownloadManifestButton", () => {
 
     const createObjectUrl = vi.fn(() => "blob:mock");
     const revokeObjectUrl = vi.fn();
-    const click = vi.fn();
 
     vi.stubGlobal("URL", { createObjectURL: createObjectUrl, revokeObjectURL: revokeObjectUrl });
 
-    const anchor = { href: "", download: "", click } as unknown as HTMLAnchorElement;
-    const createElement = vi.spyOn(document, "createElement").mockReturnValue(anchor);
+    const originalCreateElement = document.createElement.bind(document);
+    const anchor = originalCreateElement("a");
+    const clickSpy = vi.spyOn(anchor, "click").mockImplementation(() => {});
+    const createElement = vi.spyOn(document, "createElement").mockImplementation((tagName, options) => {
+      if (tagName === "a") return anchor;
+      return originalCreateElement(tagName, options);
+    });
 
     render(<DownloadManifestButton runId="run-abc-123" />);
 
@@ -32,7 +36,7 @@ describe("DownloadManifestButton", () => {
     });
 
     expect(anchor.download).toBe("run-abc-123-manifest.json");
-    expect(click).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(createObjectUrl).toHaveBeenCalledTimes(1);
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:mock");
 
