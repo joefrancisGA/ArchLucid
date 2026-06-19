@@ -27,7 +27,7 @@ export function AdminUsersPageView(props: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6" data-testid="admin-users-page">
+    <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-users-page">
       <div>
         <div className="flex items-start gap-2">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Users & roles</h1>

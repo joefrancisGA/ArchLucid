@@ -186,6 +186,7 @@ type RunDetailOptionalWireExtras = {
     savingsPricingBasisDescription?: string | null;
   } | null;
   decisionExplainability?: unknown;
+  engineProvenance?: import("@/lib/review-engine-provenance-display").ReviewRunEngineProvenance | null;
 };
 
 export type RunRetrievalGroundingSummary = {

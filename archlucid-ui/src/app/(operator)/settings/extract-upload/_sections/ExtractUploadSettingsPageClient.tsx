@@ -14,8 +14,9 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
+import { getBundledArchLucidAzurePackageSampleZipBytes } from "@/lib/arch-lucid-azure-package-sample-zip";
 import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
-import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
+import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -127,6 +128,32 @@ export function ExtractUploadSettingsPageClient() {
     await onUpload(file);
   }
 
+  async function onTryDemoData(): Promise<void> {
+    setUploadError(null);
+    setPackageId(null);
+    setFileStatuses([]);
+
+    const bytes = getBundledArchLucidAzurePackageSampleZipBytes();
+    const validation = readArchLucidAzurePackageZipFromBytes(bytes);
+
+    if (!validation.ok) {
+      setUploadError({
+        message: validation.message,
+        problem: null,
+        correlationId: null,
+      });
+      showError("Azure upload", validation.message);
+
+      return;
+    }
+
+    const demoFile = new File([new Uint8Array(bytes)], "contoso-sample-architecture.zip", {
+      type: "application/zip",
+    });
+    setSelectedFileLabel(`${demoFile.name} (bundled demo)`);
+    await onUpload(demoFile);
+  }
+
   async function onUpload(file: File) {
     setBusy(true);
 
@@ -169,14 +196,14 @@ export function ExtractUploadSettingsPageClient() {
         setPackageId(null);
       }
 
-      showSuccess("Azure package uploaded — open Reviews to attach it to a run.");
+      showSuccess("Azure package uploaded — open Reviews to attach it to a review.");
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="w-full max-w-3xl space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Extract &amp; Upload</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
@@ -233,6 +260,30 @@ export function ExtractUploadSettingsPageClient() {
           <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
             archlucid azure validate-zip --path &lt;your-package.zip&gt;
           </code>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Try it now with demo data</CardTitle>
+          <CardDescription>
+            Upload a bundled Contoso sample architecture ZIP — same schema as{" "}
+            <code>Get-ArchLucidAzurePackage.ps1</code> output — without running the extractor locally.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={busy}
+            data-testid="extract-upload-try-demo-data"
+            onClick={() => {
+              void onTryDemoData();
+            }}
+          >
+            Try with demo data
+          </Button>
         </CardContent>
       </Card>
 

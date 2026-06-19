@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { normalizeRunIdForRecurrenceApi } from "@/components/RunDetailRecurrenceScheduleCard";
@@ -110,6 +111,7 @@ export function RecurrenceSchedulePostCommitCard({
 
   return (
     <Collapsible
+      id="recurrence-schedule-post-commit-card"
       open={open}
       onOpenChange={setOpen}
       className="rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
@@ -130,6 +132,13 @@ export function RecurrenceSchedulePostCommitCard({
               {existing.name} — {existing.cronExpression}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>Next run: {formatNextRunUtc(existing.nextRunUtc)}</p>
+            <Link
+              href="/governance/recurrence-schedules"
+              className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+              data-testid="recurrence-schedule-manage-link"
+            >
+              Manage all recurrence schedules
+            </Link>
           </div>
         ) : (
           <form

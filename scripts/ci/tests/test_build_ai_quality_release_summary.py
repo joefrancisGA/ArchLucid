@@ -62,6 +62,8 @@ class AiQualityReleaseSummaryTests(unittest.TestCase):
         self.assertEqual(summary["signals"]["retrievalIr"]["evidenceMode"], "offline-fixture")
         self.assertEqual(summary["signals"]["retrievalGrounding"]["evidenceMode"], "committed-run")
         self.assertEqual(summary["signals"]["realModeAiEvidence"]["evidenceMode"], "live-real-mode")
+        self.assertEqual(summary["signals"]["materialFindingFaithfulness"]["evidenceMode"], "offline-fixture")
+        self.assertEqual(summary["signals"]["materialFindingFaithfulness"]["status"], "PASS")
         self.assertIn("Offline fixture passes do not prove live model behavior", markdown_out.read_text(encoding="utf-8"))
 
     def test_partial_bundle_reports_partial_when_committed_run_is_missing(self) -> None:
@@ -76,6 +78,7 @@ class AiQualityReleaseSummaryTests(unittest.TestCase):
         self.assertEqual(summary["rollup"], "PARTIAL")
         self.assertEqual(summary["signals"]["retrievalGrounding"]["status"], "MISSING")
         self.assertEqual(summary["signals"]["realModeAiEvidence"]["status"], "MISSING")
+        self.assertEqual(summary["signals"]["materialFindingFaithfulness"]["status"], "MISSING")
 
     def test_missing_bundle_reports_not_collected(self) -> None:
         bundle = self.temp_dir / "missing"

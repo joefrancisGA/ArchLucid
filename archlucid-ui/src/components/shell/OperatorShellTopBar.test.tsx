@@ -34,7 +34,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
   return {
     ...actual,
     useOperatorNavAuthority: () => ({
-      callerAuthorityRank: AUTHORITY_RANK.ExecuteAuthority,
+      callerAuthorityRank: AUTHORITY_RANK.AdminAuthority,
       isAuthorityLoading: false,
       currentPrincipal: operatorNavOutsideProviderPrincipal,
     }),
@@ -78,10 +78,29 @@ describe("OperatorShellTopBar", () => {
     expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
     expect(screen.queryByTestId("app-shell-topbar-secondary")).not.toBeInTheDocument();
-    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-keyshortcuts", "F1 Shift+?");
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
+  });
+
+  it("renders workspace chrome before the deprioritized allowance pill", async () => {
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    const sessionRail = screen.getByTestId("app-shell-topbar-session");
+    const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
+    const allowancePill = await screen.findByTestId("llm-budget-status-pill");
+    const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
+
+    expect(sessionRail.contains(scopeTrigger)).toBe(true);
+    expect(sessionRail.contains(allowancePill)).toBe(true);
+    expect(scopeTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(helpTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("omits dev-only chrome in buyer-polished shell mode but keeps help", () => {
@@ -93,7 +112,8 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
+    expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-keyshortcuts", "F1 Shift+?");
     expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();

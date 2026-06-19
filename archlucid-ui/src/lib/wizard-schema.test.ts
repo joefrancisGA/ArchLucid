@@ -57,4 +57,19 @@ describe("wizardFormSchema", () => {
     expect(parsed.systemName).toBe("OrderSvc");
     expect(parsed.description).toBe("a".repeat(10));
   });
+
+  it("defaults cloudProvider to None for evidence-only reviews (TB-340)", () => {
+    expect(buildDefaultWizardValues().cloudProvider).toBe("None");
+  });
+
+  it("accepts None as a first-class cloud target without Azure evidence (TB-340)", () => {
+    const base = buildDefaultWizardValues();
+    const parsed = wizardFormSchema.parse({
+      ...base,
+      cloudProvider: "None",
+      documents: [{ name: "brief.md", contentType: "text/markdown", content: "Pre-deployment architecture brief." }],
+    });
+
+    expect(parsed.cloudProvider).toBe("None");
+  });
 });

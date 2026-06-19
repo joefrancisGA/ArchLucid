@@ -34,17 +34,17 @@ describe("keyboard shortcuts registry — no collision with browser chrome (inte
     }
   });
 
-  it("uses Alt for navigation shortcuts and Shift for help only (no Ctrl/Meta on registry entries)", () => {
+  it("uses Alt for navigation shortcuts; help uses Shift+? or F1 only (no Ctrl/Meta on registry entries)", () => {
     for (const entry of SHORTCUTS) {
       const parsed = parseKeyCombo(entry.key);
 
       expect(parsed.ctrl, entry.key).toBe(false);
       expect(parsed.meta, entry.key).toBe(false);
 
-      const isHelp = normalizeCombo(entry.key) === "shift+?";
+      const normalized = normalizeCombo(entry.key);
+      const isHelp = normalized === "shift+?" || normalized === "f1";
 
       if (isHelp) {
-        expect(parsed.shift, entry.key).toBe(true);
         expect(parsed.alt, entry.key).toBe(false);
       } else {
         expect(parsed.alt, entry.key).toBe(true);
@@ -61,17 +61,17 @@ describe("keyboard shortcuts registry — no collision with browser chrome (inte
     }
   });
 
-  it("uses single-character base keys or ? for help — no F-keys that overlap refresh conventions", () => {
+  it("allows F1 as the sole function-key help shortcut; other entries use single-character keys or ?", () => {
     for (const entry of SHORTCUTS) {
       const parsed = parseKeyCombo(entry.key);
       const base = parsed.key.toLowerCase();
 
-      if (base === "?") {
+      if (base === "?" || base === "f1") {
         continue;
       }
 
       expect(base.length, entry.key).toBe(1);
-      expect(base.startsWith("f"), `${entry.key} should not use F-keys`).toBe(false);
+      expect(base.startsWith("f"), `${entry.key} should not use F-keys except F1 help`).toBe(false);
     }
   });
 });

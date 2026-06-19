@@ -1,5 +1,6 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Governance;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
@@ -241,6 +242,16 @@ public static partial class ServiceCollectionExtensions
         ArchLucidOptions archLucid = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider))
+            return;
+
+        // The processor resolves CosmosGraphSnapshotRepository (concrete) at runtime, which is only registered
+        // when GraphSnapshotsEnabled=true. Skip registration entirely when the feature is off: there are no
+        // Cosmos writes to drain, and running the hosted service would throw InvalidOperationException every
+        // poll cycle.
+        CosmosDbOptions cosmosOpts =
+            configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>() ?? new CosmosDbOptions();
+
+        if (!cosmosOpts.GraphSnapshotsEnabled)
             return;
 
         services.AddSingleton<ICosmosGraphSnapshotOutboxProcessor, CosmosGraphSnapshotOutboxProcessor>();

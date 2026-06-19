@@ -12,7 +12,7 @@ export const CORE_PILOT_WIZARD_STEP_COUNT = 7;
 export type CorePilotWizardStatus = "in_progress" | "completed";
 
 export type CorePilotWizardPreferences = {
-  /** When true the floating launcher is suppressed (operator opted out permanently). */
+  /** When true the guided review dialog is suppressed (operator opted out permanently). */
   dontShowNavigator: boolean;
 };
 
@@ -34,7 +34,7 @@ export type CorePilotWizardAction =
   | { type: "closePreserveProgress" }
   /** Completed all steps voluntarily. */
   | { type: "markCompleted" }
-  /** Operator chose not to surface the FAB / launcher again. */
+  /** Operator chose not to surface the guided review dialog again. */
   | { type: "suppressNavigator" }
   | { type: "hydrate"; state: CorePilotWizardStateV1 };
 

@@ -10,7 +10,7 @@ export type PageHelpTopic = {
 const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/", topic: { slug: "getting-started", label: "Getting started" } },
   { prefix: "/onboarding", topic: { slug: "getting-started", label: "Getting started" } },
-  { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: "Evidence intake" } },
+  { prefix: "/reviews/new", topic: { slug: "evidence-intake", label: "Start review" } },
   { prefix: "/reviews", topic: { slug: "review-packages", label: "Review packages" } },
   { prefix: "/dashboard", topic: { slug: "executive-summary", label: "Portfolio overview" } },
   { prefix: "/graph", topic: { slug: "evidence-trail", label: "Evidence trail" } },

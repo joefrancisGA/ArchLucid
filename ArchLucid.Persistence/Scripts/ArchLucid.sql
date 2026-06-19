@@ -466,7 +466,7 @@ BEGIN
     (
         RunId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         ProjectId NVARCHAR(200) NOT NULL,
-        Description NVARCHAR(4000) NULL,
+        Description NVARCHAR(MAX) NULL,
         CreatedUtc DATETIME2 NOT NULL,
         ContextSnapshotId UNIQUEIDENTIFIER NULL,
         GraphSnapshotId UNIQUEIDENTIFIER NULL,
@@ -575,6 +575,11 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'RetryCount') IS NULL
     ALTER TABLE dbo.Runs ADD RetryCount INT NOT NULL CONSTRAINT DF_Runs_RetryCount_Master DEFAULT (0);
+
+/* Brownfield: run-level engine provenance JSON (DbUp 252 parity). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'EngineProvenanceJson') IS NULL
+    ALTER TABLE dbo.Runs ADD EngineProvenanceJson NVARCHAR(MAX) NULL;
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL

@@ -92,7 +92,7 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
         Your first architecture review is ready — open it
       </p>
       <p className="mt-1 mb-3 text-sm text-emerald-900/90 dark:text-emerald-200/90">
-        A committed golden manifest is on your tenant. Open the pre-seeded welcome review to see findings and next steps.
+        A committed signed review record is on your tenant. Open the pre-seeded welcome review to see findings and next steps.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <Button asChild size="sm">

@@ -49,7 +49,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 #### 2.1 Review lifecycle: request → execute → commit
 
-- Create a **review** from a structured **architecture request** (`POST /v1/architecture/request`).
+- Create a **review** from a structured **architecture request** (`POST /v1/architecture/request`) **or** from the operator **guided intake** path (`POST /v1/architecture/draft` → admit → submit).
 - Drive the **review** through **execution** so agent work completes under the configured **simulator or real** execution mode.
 - **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - End-to-end request → execute → commit behavior, including convergence on manifests and artifacts, is described in [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
@@ -218,7 +218,7 @@ Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / S
 - **Not in V1.1:** production hosting of ArchLucid on AWS or GCP; Entra ID replacement; Service Bus / Azure SQL / Blob / Azure AI Search replacement for the **product** control plane.
 - **Not in V1.1 unless separately promoted:** ArchLucid-held live inventory connectors (long-lived IAM into customer AWS/GCP); single review merging Azure + AWS + GCP graphs; AWS/GCP-native Well-Architected certification parity.
 
-**V1 GA posture:** **Azure-only** `CloudProvider` enum value and Azure-first extractor (**§2.16**) remain the shipped contract. AWS/GCP-primary buyers are a **V1.1** fit, not a V1 GA gap for headline readiness assessments once **§2.19** is authoritative (*owner scope 2026-05-19*).
+**V1 GA posture:** **`CloudProvider.None`** for evidence-only reviews (brief, documents, diagrams, IaC) and **`CloudProvider.Azure`** for Azure-target or Azure-extractor evidence; AWS/GCP enum values and analysis remain **V1.1** ([§2.19](#219-multi-cloud-architecture-analysis-aws-and-gcp-targets-azure-hosted-product)). AWS/GCP-primary buyers are a **V1.1** fit, not a V1 GA gap for headline readiness assessments once **§2.19** is authoritative (*owner scope 2026-05-19*).
 
 ---
 

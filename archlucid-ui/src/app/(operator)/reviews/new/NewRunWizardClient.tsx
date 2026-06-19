@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ArchitectureRequestWizardHelpDrawer } from "@/components/wizard/ArchitectureRequestWizardHelpDrawer";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -45,16 +46,8 @@ import {
   FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
   FULL_WIZARD_EVIDENCE_STEP_INDEX,
 } from "@/lib/wizard-step-fields";
-import {
-  saveTenantReviewCycleBaseline,
-  validateWizardBaselineReviewCycleHours,
-} from "@/lib/save-tenant-review-cycle-baseline";
 import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
-import {
-  type WizardBaselineConfidence,
-  wizardBaselineConfidenceSourceNote,
-} from "@/lib/wizard-baseline-confidence";
-import { PILOT_BASELINE_WIZARD_SAVED_EVENT } from "@/lib/pilot-baseline-wizard-events";
+import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -66,6 +59,11 @@ import {
   type WizardFormValues,
 } from "@/lib/wizard-schema";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
+import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import {
+  applyBundledSamplePackageToWizard,
+  isZeroConfigDemoQuery,
+} from "@/lib/zero-config-demo-mode";
 
 import { QuickStartWizard } from "./QuickStartWizard";
 import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
@@ -73,10 +71,10 @@ import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Choose starting point", description: "Template, import, or blank" },
-  { label: "Evidence (optional)", description: "Azure extractor ZIP or demo data" },
+  { label: "Evidence (optional)", description: "Brief, docs, IaC, cloud export, or demo" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
-  { label: "Ingest Azure context", description: "Packager command (optional)" },
+  { label: "Optional enrichment", description: "Azure inventory or supporting files — not required" },
   { label: "Advanced", description: "Optional context" },
   { label: "Baseline metrics (optional)", description: "ROI reporting inputs" },
   { label: "Review", description: "Confirm & create" },
@@ -85,7 +83,7 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
 
 const WIZARD_STEP_DEFINITIONS_BASELINE = [
   WIZARD_STEP_DEFINITIONS_FULL[0],
-  { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
+  { label: "Add evidence", description: "Upload a file or use sample review evidence" },
   WIZARD_STEP_DEFINITIONS_FULL[2],
   WIZARD_STEP_DEFINITIONS_FULL[3],
   WIZARD_STEP_DEFINITIONS_FULL[4],
@@ -193,6 +191,8 @@ export function NewRunWizardClient() {
 
     return tryParseSampleRunQuery(raw);
   }, [searchParams]);
+  const zeroConfigDemo = useMemo(() => isZeroConfigDemoQuery(searchParams), [searchParams]);
+  const zeroConfigAppliedRef = useRef(false);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
   const reviewStepIndex: number = 7;
@@ -209,9 +209,15 @@ export function NewRunWizardClient() {
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
-  const [baselineReviewCycleHours, setBaselineReviewCycleHours] = useState("");
-  const [baselineConfidence, setBaselineConfidence] = useState<WizardBaselineConfidence>("unsure");
-  const [baselineMetricsError, setBaselineMetricsError] = useState<string | null>(null);
+  const {
+    baselineReviewCycleHours,
+    setBaselineReviewCycleHours,
+    baselineConfidence,
+    setBaselineConfidence,
+    baselineMetricsError,
+    setBaselineMetricsError,
+    persistBaselineMetricsIfNeeded,
+  } = useWizardBaselineMetricsActions();
   const [wizardMode, setWizardMode] = useState<"quick" | "full">(() => {
     if (typeof window === "undefined") {
       return "quick";
@@ -236,6 +242,10 @@ export function NewRunWizardClient() {
     wizardReadyRef.current?.setAttribute("data-wizard-ready", "true");
   }, []);
 
+  useEffect(() => {
+    trackWizardStepViewed(stepIndex, stepDefinitions[stepIndex]?.label ?? "Unknown", "FullGuided");
+  }, [stepIndex, stepDefinitions]);
+
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled: runId !== null && (wizardMode === "quick" ? true : stepIndex === trackStepIndex),
   });
@@ -247,6 +257,16 @@ export function NewRunWizardClient() {
   });
 
   const { trigger, getValues, setValue, reset, control } = form;
+  const handlePendingEvidenceFileChange = useCallback(
+    (file: File | null) => {
+      setPendingEvidenceFile(file);
+
+      if (file !== null) {
+        setValue("cloudProvider", "Azure", { shouldValidate: true, shouldDirty: true });
+      }
+    },
+    [setValue],
+  );
 
   const recapSystemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
   const recapEnvironment = useWatch({ control, name: "environment" })?.trim() ?? "";
@@ -473,51 +493,38 @@ export function NewRunWizardClient() {
     setStepIndex((current) => Math.min(stepMax, current + 1));
   };
 
-  const skipBaselineMetricsAndAdvance = () => {
-    setBaselineReviewCycleHours("");
-    setBaselineMetricsError(null);
+  const tryWithSampleData = useCallback(() => {
+    const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange);
+
+    if (!applied.ok) {
+      showToast("err", applied.message);
+
+      return;
+    }
+
+    showToast("ok", "Sample Azure package loaded — it uploads automatically after the review is created.");
     setStepIndex((current) => Math.min(stepMax, current + 1));
-  };
+  }, [handlePendingEvidenceFileChange, setValue, showToast, stepMax]);
 
-  const persistBaselineMetricsIfNeeded = useCallback(async (): Promise<boolean> => {
-    const validationError = validateWizardBaselineReviewCycleHours(baselineReviewCycleHours);
-
-    if (validationError !== null) {
-      setBaselineMetricsError(validationError);
-
-      return false;
+  useEffect(() => {
+    if (!zeroConfigDemo || zeroConfigAppliedRef.current) {
+      return;
     }
 
-    setBaselineMetricsError(null);
+    zeroConfigAppliedRef.current = true;
+    persistWizardMode("full");
 
-    const trimmed = baselineReviewCycleHours.trim();
+    const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange);
 
-    if (trimmed.length === 0) {
-      return true;
+    if (!applied.ok) {
+      showToast("err", applied.message);
+
+      return;
     }
 
-    const hours = Number(trimmed);
-    const result = await saveTenantReviewCycleBaseline({
-      baselineReviewCycleHours: hours,
-      baselineReviewCycleSourceNote: wizardBaselineConfidenceSourceNote(baselineConfidence),
-    });
-
-    if (!result.ok) {
-      setBaselineMetricsError(result.message);
-      showToast("err", result.message);
-
-      return false;
-    }
-
-    showToast("ok", "Review-cycle baseline saved for ROI reporting.");
-    setBaselineReviewCycleHours("");
-
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event(PILOT_BASELINE_WIZARD_SAVED_EVENT));
-    }
-
-    return true;
-  }, [baselineConfidence, baselineReviewCycleHours, showToast]);
+    setStepIndex(2);
+    showToast("ok", "Sample Azure package loaded — confirm identity and submit your review.");
+  }, [zeroConfigDemo, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
 
   const goNext = async () => {
     if (stepIndex === 0) {
@@ -541,6 +548,12 @@ export function NewRunWizardClient() {
     if (fieldGroup != null) {
       const ok = await trigger(fieldGroup, { shouldFocus: true });
       if (!ok) {
+        trackWizardValidationFailed(
+          "FullGuided",
+          stepIndex,
+          stepDefinitions[stepIndex]?.label ?? "Unknown",
+          "field_validation",
+        );
         showToast("err", "Fix the highlighted fields before continuing.");
         return;
       }
@@ -583,6 +596,7 @@ export function NewRunWizardClient() {
 
       setRunId(id);
       setStepIndex(trackStepIndex);
+      trackWizardCompleted("FullGuided");
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
 
@@ -614,12 +628,12 @@ export function NewRunWizardClient() {
   const fullWizardStepCountLabel: number = baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE.length
     : WIZARD_STEP_DEFINITIONS_FULL.length;
-  const quickModeLabel = baselineFirst ? "Pilot baseline (3 steps)" : "Quick start (3 steps)";
+  const quickModeLabel = baselineFirst ? "Pilot baseline (4 steps)" : "Quick start (3 steps)";
 
   return (
     <FormProvider {...form}>
       <WizardAiSuggestedFieldsProvider>
-      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-36">
+      <OperatorPageContainer ref={wizardReadyRef} variant="workflow" className="space-y-4 pb-36">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
           ) : null}
@@ -628,7 +642,7 @@ export function NewRunWizardClient() {
               className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
               data-testid="new-run-follow-up-source-run-id"
             >
-              Follow-up review for prior run{" "}
+              Follow-up review for prior review package{" "}
               <span className="font-mono text-xs">{followUpSourceRunId}</span>. Source context is stored for a
               future wizard prefill.
             </p>
@@ -792,7 +806,8 @@ export function NewRunWizardClient() {
           {stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !baselineFirst ? (
             <WizardStepEvidenceUpload
               pendingFile={pendingEvidenceFile}
-              onPendingFileChange={setPendingEvidenceFile}
+              onPendingFileChange={handlePendingEvidenceFileChange}
+              onTrySampleData={tryWithSampleData}
               onSkipDemoData={skipEvidenceAndAdvance}
             />
           ) : null}
@@ -819,7 +834,6 @@ export function NewRunWizardClient() {
                 }
               }}
               onConfidenceChange={setBaselineConfidence}
-              onSkipForNow={skipBaselineMetricsAndAdvance}
             />
           ) : null}
           {stepIndex === reviewStepIndex ? <WizardStepReview /> : null}
@@ -899,7 +913,7 @@ export function NewRunWizardClient() {
               <LlmUsageBandHint />
             </div>
           ) : null}
-        </div>
+        </OperatorPageContainer>
       </WizardAiSuggestedFieldsProvider>
       </FormProvider>
   );

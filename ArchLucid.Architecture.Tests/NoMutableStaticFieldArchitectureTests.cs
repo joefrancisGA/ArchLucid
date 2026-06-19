@@ -58,7 +58,8 @@ public sealed class NoMutableStaticFieldArchitectureTests
                     if (line.Contains(" static readonly ", StringComparison.Ordinal)
                         || line.Contains(" static const ", StringComparison.Ordinal)
                         || line.Contains(" static extern ", StringComparison.Ordinal)
-                        || line.Contains(" static event ", StringComparison.Ordinal))
+                        || line.Contains(" static event ", StringComparison.Ordinal)
+                        || line.Contains(" static partial ", StringComparison.Ordinal))
                         continue;
 
                     violations.Add($"{Path.GetRelativePath(root, path)}: {line}");

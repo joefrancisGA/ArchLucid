@@ -1,6 +1,6 @@
 /**
  * Pre-built architecture briefs for the quick-start wizard (common enterprise scenarios).
- * Briefs stay generic ("Organization") and align with `WizardFormValues.description` limits (max 4000 chars).
+ * Briefs stay generic ("Organization") and align with `WizardFormValues.description` limits (max 10 000 chars).
  */
 
 export type ArchitectureReviewTemplateCategory =

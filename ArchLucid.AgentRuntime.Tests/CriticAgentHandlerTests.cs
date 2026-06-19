@@ -266,6 +266,8 @@ public sealed class CriticAgentHandlerTests
         prompt.Should().Contain("Do NOT treat prior agent outputs as correct by default");
         prompt.Should().Contain("missing failure mode");
         prompt.Should().Contain("emit a \"Critical\" severity finding");
+        prompt.Should().Contain("Novelty Check");
+        prompt.Should().Contain("Enable MFA");
         prompt.Should().NotContain("Prefer conservative, review-oriented findings");
     }
 

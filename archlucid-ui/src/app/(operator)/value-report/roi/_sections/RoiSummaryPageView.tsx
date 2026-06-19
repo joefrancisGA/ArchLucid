@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
@@ -20,29 +21,29 @@ export function RoiSummaryPageView(props: Props) {
 
   if (m.demo) {
     return (
-      <div className="mx-auto space-y-4 p-4">
+      <OperatorPageContainer variant="dashboard" className="space-y-4">
         <LayerHeader pageKey="value-report-roi" />
         <ValueReportOutcomesNav />
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">ROI summary not available in demo mode.</p>
         </div>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (m.state.status === "loading") {
     return (
-      <div className="mx-auto space-y-4 p-4">
+      <OperatorPageContainer variant="dashboard" className="space-y-4">
         <LayerHeader pageKey="value-report-roi" />
         <ValueReportOutcomesNav />
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading ROI summary…</p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (m.state.status === "error") {
     return (
-      <div className="mx-auto space-y-4 p-4">
+      <OperatorPageContainer variant="dashboard" className="space-y-4">
         <LayerHeader pageKey="value-report-roi" />
         <ValueReportOutcomesNav />
         <OperatorApiProblem
@@ -53,14 +54,14 @@ export function RoiSummaryPageView(props: Props) {
         <Button type="button" variant="secondary" onClick={() => void m.load()}>
           Retry
         </Button>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   const { rolling30, pilotToDate } = m.state;
 
   return (
-    <div className="mx-auto space-y-4 p-4">
+    <OperatorPageContainer variant="dashboard" className="space-y-4">
       <LayerHeader pageKey="value-report-roi" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
@@ -115,6 +116,6 @@ export function RoiSummaryPageView(props: Props) {
           />
         </div>
       </DocumentLayout>
-    </div>
+    </OperatorPageContainer>
   );
 }

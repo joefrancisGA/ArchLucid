@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-14 (after observability assessment — **ADR 0053**, **TB-329–336**). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-16 (operator home first-run UX — **TB-345–353**, external product review; all **P0**). Prior: 2026-06-15 product-drift / onboarding narrative realignment — **TB-337–344**. **~47 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -11,8 +11,8 @@
 | Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
-| Architectural integrity | 4 |
-| Adoption friction | 4 |
+| Architectural integrity | 6 |
+| Adoption friction | 19 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
@@ -27,7 +27,7 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~30** |
+| **Total (unique)** | **~47** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283–288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **TB-165** (assessment score consistency guard) or **TB-138** (owner-gated Azure OpenAI golden-cohort secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -133,6 +133,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **TB-317 – TB-324** were added 2026-06-12 from a clean-slate weighted release-readiness assessment (`docs/assessments/latest_202606122049.md`, `(A)` headline readiness 81.57%, recent-weight model). Most top improvements already map to existing backlog items: AI faithfulness (**TB-255–257**), real-mode evidence (**TB-137–140**), trial preseed hardening (**TB-258–259**), buyer-demo truthfulness (**TB-273/TB-275**), run-detail fidelity (**TB-106–113**), recurrence loop (**TB-261–263**), RAG quality (**TB-046/TB-049**), procurement pack strictness (**TB-159–160/TB-162/TB-165–166**), executive sponsor polish (**TB-267–269**), and in-app help (**TB-143–148**). New entries only cover gaps not already represented: RC evidence bundle composition (**TB-317**), V1 automation handoff pack (**TB-318**), pilot-critical performance evidence (**TB-319**), and correctness guardrails (**TB-320–324**). V1.1/V2 non-gates remain excluded from `(A)`: first-party connectors, MCP, multi-cloud target analysis, live commerce un-hold, public references., SOC 2 CPA, and external pen-test execution.
 
 **TB-329 – TB-336** were added 2026-06-14 from a focused **diagnostic logging and observability coverage** assessment (readiness score **72/100**). Owner decision: **near-perfect diagnostic logging** is now an architectural requirement — see **[ADR 0053](../architecture/adrs/0053-enterprise-diagnostic-logging-observability-posture.md)**. The codebase already ships Serilog + OpenTelemetry + Azure Monitor export, GenAI semantic conventions, durable audit, and redaction infrastructure; gaps are **concentrated** (tenant/workspace absent from Activity tags, evidence-package identity not on spans, no canonical Do Not Log policy artifact, incomplete production operator runbook). **TB-329** (P0) and **TB-330** (P0) are V1 blockers per ADR 0053; **TB-331–334** (P1) close remaining Tier 1 gaps; **TB-335–336** (P2) are high-value next wave. Does not duplicate **TB-004** (OTel exporter wiring — Done), **TB-124–128** (audit coverage drift / triage docs), or **TB-250** (pipeline stage UI timeline — Done). Cross-ref [`OBSERVABILITY.md`](OBSERVABILITY.md), [`TB-128`](TECH_BACKLOG.md#tb-128--supportaudit-triage-one-pager).
+
+**TB-345 – TB-353** were added 2026-06-16 from an external **operator home first-run UX** review (voluntary usage, executive purchase probability, first-time architect adoption). All nine items are **P0** for fast pickup. They tighten the buyer-polished home narrative already improved in recent sessions: remove sidebar **First-hour path** duplication (**TB-345**), compress the **Start your first review** hero (**TB-346**), strengthen the reviews list section (**TB-347**, **TB-352**), promote the **example request** above the fold (**TB-348**), hide **ROI estimate pending** until a committed review exists (**TB-349**), deprioritize **monthly analysis allowance** in shell chrome (**TB-350**), replace **What you'll get** artifact copy with **What ArchLucid discovers** value claims (**TB-351**), and add a substantive **show me value** sample review surface (**TB-353**). **Excluded:** context-aware **Guided review recap** button relabel (reviewer item #7 — different audience/moment; not backlog-tracked). Does not duplicate **TB-337–339** (evidence-first empty state / Core Pilot), **TB-169** (Operate progressive disclosure), **TB-218** (demo viewer CTA), or **TB-270** (wizard entry-point disambiguation). Cross-ref `PilotCommandCenterCard`, `SidebarNav`, `RunsDashboardPanel`, `PilotRoiBaselineReadinessCard`, `buyer-polish-copy.ts`, [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**TB-337 – TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model — the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition — without weakening the Azure onboarding experience. **TB-337–339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** — that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) §6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure — different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards — same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) §7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) §2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
 
 **TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard — partial-failure surfacing and sentinel exclusion were already shipped).
 
@@ -1018,7 +1022,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-140 — Real-LLM eval corpus: real-mode scenarios + nightly scoring (TB-007 Gap C)
 
-**Status:** Open. All `tests/eval-corpus/` scenarios remain `"mode": "simulator"`. No CI job asserts real-model finding quality against keyword expectations.
+**Status:** **Partial (2026-06-18 Imp-18)** — 18 committed `*.real.json` exemplars, manifest real-mode scenarios, and `golden-cohort-expanded-nightly.yml` scoring. Live credentialed API invoke remains **G-REAL-01** (owner).
 
 **Pick up when:**
 
@@ -10052,3 +10056,490 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Refs:** ADR 0053, TB-004, TB-333.
 
 **Size estimate:** S
+
+---
+
+## TB-337 — Evidence-first first-run empty-state copy (P0)
+
+**Status:** **Done (2026-06-15)** — evidence-first `FIRST_RUN_STEPS` + neutral icon in `OperatorHomeFirstReviewEmptyState.tsx`.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** The operator first-run empty state (shown to every operator with zero reviews) leads with an Azure-assessment mental model. Its `FIRST_RUN_STEPS[0].label` is literally `"Upload your Azure environment"` and step 2 example is `"Azure CIS"`. A first-time architect, governance reviewer, or AWS-shop evaluator files the product under "cloud scanner" on screen one, and the differentiated review/governance/decision/audit value reads as bolted-on. This is the single highest-leverage divergence point between the product *mission* (multi-source architecture review) and the lived *first-run story*.
+
+**Scope:**
+
+1. Rewrite `FIRST_RUN_STEPS` in `OperatorHomeAzureExtractorEmptyState.tsx` to evidence-first:
+   - Step 1 — **"Provide architecture evidence"**: "Paste a brief, drop design docs, ADRs, diagrams, or IaC — or upload an Azure export. *Connected to Azure? The read-only extractor is the fastest path to production-faithful evidence (no credentials leave your tenant).*"
+   - Step 2 — **"Set review scope"**: "Choose the governance / policy packs to apply." List Azure CIS as *one of several* examples, not the lead.
+   - Step 3 — **"Get your first finding"**: keep (already cloud-neutral).
+2. Keep the Azure extractor mention as the named *accelerated* option inside step 1 — do **not** delete it (preserve the Azure onboarding strength).
+3. Keep the existing primary CTA "Begin architecture review" → `/reviews/new`; the `CloudUpload` icon should become a neutral evidence icon (e.g. `FileSearch`/`FileStack`) to stop signalling "cloud upload" as *the* action.
+
+**Acceptance criteria:**
+
+- First-run empty state step 1 does not name Azure as the only/first action; Azure appears as the "fastest path" accelerator.
+- An AWS-only or pre-deployment (no-cloud) operator sees a step 1 they can immediately act on.
+- Existing empty-state snapshot/`data-testid` tests updated; no other behavior change.
+
+**Likely files:** `archlucid-ui/src/components/operator-home/OperatorHomeAzureExtractorEmptyState.tsx`, `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx` (renders it), `archlucid-ui/src/lib/welcome-marketing-copy.ts` (reuse canonical `Capture → Evidence → Review` spine wording).
+
+**Refs:** TB-338 (component rename — pair), TB-342 (copy sweep), POSITIONING.md §7, UI_DESIGN_SYSTEM.md.
+
+**Size estimate:** S
+
+---
+
+## TB-338 — Rename `OperatorHomeAzureExtractorEmptyState` → `OperatorHomeFirstReviewEmptyState` (P0)
+
+**Status:** **Done (2026-06-15)** — renamed to `OperatorHomeFirstReviewEmptyState`; `data-testid="operator-home-first-review-empty-state"`.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** The product's opening screen is, at the code level, *named after Azure extraction*. A component name is a durable signal of intent to every future contributor and AI agent; as long as the first-run empty state is called `…AzureExtractorEmptyState`, new code and copy will keep gravitating to Azure-first framing. The name encodes the drift.
+
+**Scope:**
+
+1. Rename the component file and symbol `OperatorHomeAzureExtractorEmptyState` → `OperatorHomeFirstReviewEmptyState`.
+2. Update the import in `RunsDashboardPanel.tsx` and any other references (grep `OperatorHomeAzureExtractor`).
+3. Update `data-testid="operator-home-azure-extractor-empty-state"` → `operator-home-first-review-empty-state` and the matching selector in tests (coordinate with `UI-Stable-Selectors-And-Snapshots.mdc`).
+4. Pure rename + selector change — no rendered behavior change beyond TB-337 copy.
+
+**Acceptance criteria:**
+
+- No symbol, filename, or test id references "AzureExtractor" for the generic first-run empty state.
+- `npm run build` / type-check pass; selector tests updated in the same change.
+
+**Likely files:** `archlucid-ui/src/components/operator-home/OperatorHomeAzureExtractorEmptyState.tsx` (→ new name), `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, related Vitest/Playwright selectors.
+
+**Refs:** TB-337, `.cursor/rules/UI-Stable-Selectors-And-Snapshots.mdc`.
+
+**Size estimate:** XS
+
+---
+
+## TB-339 — Evidence-first Core Pilot step 1 reframe (P0)
+
+**Status:** **Done (2026-06-15)** — `CORE_PILOT_STEPS[0]` evidence-first; primary CTA `/reviews/new` ("Start a review").
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** The Core Pilot checklist (the canonical "first review checklist" on operator home and the `/onboarding` page) opens with `CORE_PILOT_STEPS[0].title = "Upload Azure architecture context"` and `primaryLabel = "Upload Azure package"`. This teaches that an Azure subscription is a prerequisite to starting a review, excluding pre-deployment, paper-architecture, and non-Azure reviews from the guided path.
+
+**Scope:**
+
+1. Rewrite `CORE_PILOT_STEPS[0]` in `core-pilot-steps.ts`:
+   - `title` → **"Provide architecture evidence"**
+   - `shortBody` → brief/docs/diagrams/IaC first; Azure extractor named as the *fastest* path to production-faithful evidence.
+   - `primaryLabel` → **"Add evidence"** (or "Provide evidence"); keep `primaryHref` pointing at the evidence/extract-upload entry, but ensure the extract-upload page is framed as one option, not the only one.
+2. Keep `EXTRACT_UPLOAD_SETTINGS_PATH` and the Azure extractor walkthrough reachable from inside step 1 (do not remove the Azure path).
+3. Leave steps 2–5 unchanged (already review-package framed).
+
+**Acceptance criteria:**
+
+- Core Pilot step 1 title/label no longer require Azure to begin a review.
+- The Azure extractor remains one click away as the accelerated option.
+- `CORE_PILOT_STEP_COUNT` invariant still holds; checklist tests updated.
+
+**Likely files:** `archlucid-ui/src/lib/core-pilot-steps.ts`, `archlucid-ui/src/components/CorePilotChecklist.tsx`, `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingPageView.tsx`.
+
+**Refs:** TB-337, TB-342, TB-169 (progressive disclosure — different axis), CANONICAL_FIRST_RUN_PATH.md, CORE_PILOT.md.
+
+**Size estimate:** S
+
+---
+
+## TB-340 — Make `cloudProvider` optional at intake for non-cloud reviews (P1, owner-confirm)
+
+**Status:** **Done (2026-06-18 Imp-17)** — `CloudProvider.None` at intake; Azure only when Azure extractor evidence is attached.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** The new-review wizard schema hard-codes `cloudProvider: z.literal("Azure")` (`wizard-schema.ts`). This is the architectural encoding of the drift: an *evidence source* (one of many) is baked into the product's primary intake as "*the* environment." It makes a paper-architecture or pre-deployment review — arguably the highest-value governance use case (review *before* you build) — impossible to represent honestly at intake, even though the request already accepts cloud-neutral `documents[]` and `infrastructureDeclarations[]` inputs.
+
+**Scope (V1-safe — no multi-cloud analysis):**
+
+1. Allow `cloudProvider` to be optional / `"NotApplicable"` (or null) in `wizard-schema.ts` so a review with brief/docs/diagram evidence and no cloud environment is a first-class submission.
+2. Default to `"Azure"` only when the operator chooses the Azure extractor / Azure-targeted path — do **not** expose AWS/GCP as *analysis* targets (V1 deep analysis stays Azure-only per `V1_SCOPE.md` §2.19).
+3. Ensure downstream payload mapping and `WizardStepEvidenceUpload` copy ("Upload Azure evidence (optional)") read as "evidence (optional) — Azure extractor accelerates it", not "Azure is the evidence".
+4. Add wizard schema/unit tests for the no-cloud-provider review path.
+
+**Pending question — PQ-DRIFT-01 (owner):** `V1_SCOPE.md` §2.19 states the Azure-only `CloudProvider` enum is the shipped contract. Confirm that allowing an *optional/`NotApplicable`* provider **at intake** (while keeping Azure as the only deep target-analysis provider) is acceptable, or whether this must wait for the V1.1 multi-cloud window. Do not implement the schema change until resolved.
+
+**Acceptance criteria:**
+
+- A review can be created with evidence and no cloud provider (when PQ-DRIFT-01 approves).
+- No AWS/GCP *analysis* capability is implied or added; `V1_SCOPE.md` §2.19 honored.
+- API contract (`architecture-runs.ts` union already allows the values) stays consistent with `CloudProvider` enum reality.
+
+**Likely files:** `archlucid-ui/src/lib/wizard-schema.ts`, `archlucid-ui/src/app/(operator)/reviews/new/QuickReviewWizard.tsx` (hard-coded `cloudProvider: "Azure"`), `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`, `ArchLucid.Contracts` `CloudProvider` enum (confirm `NotApplicable`/optional handling).
+
+**Refs:** TB-214 (non-Azure ingest — DEFERRED, do not duplicate), V1_SCOPE.md §2.19, V1_DEFERRED.md §6n, FIRST_RUN_WIZARD.md (Step 5 documents[]/infrastructureDeclarations[]).
+
+**Size estimate:** M
+
+---
+
+## TB-341 — Multi-source evidence picker with honest V1.1 badges (P1)
+
+**Status:** Open — P1.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** The wizard's evidence step is effectively "Azure ZIP or demo data", so the UI never *teaches* that ArchLucid reviews multiple evidence types. Making the plurality visible (even where sources are not yet shipped) is what aligns the user's mental model with the platform mission — without overclaiming.
+
+**Scope:**
+
+1. In the new-review evidence step, render an explicit evidence-source picker: **Brief · Documents · Diagrams · IaC / Terraform · Azure export (fastest) · Demo**.
+2. Sources not shippable in V1 (AWS/GCP connect, Structurizr/ArchiMate import, generic non-Azure JSON) appear **disabled with a "V1.1" tag** — honest, not hidden. This teaches "multi-source review platform" while respecting `POSITIONING.md` §7 (do not imply capabilities that do not exist).
+3. Wire the enabled options to existing paths: brief → `QuickReviewWizard` brief step; documents/diagrams → `WizardEvidenceUploadZone` (already accepts PDF/DOCX/MD/TXT/JSON/YAML/images); Azure export → extract-upload; demo → demo seed.
+4. Reuse the existing upload components — do not build a parallel uploader (aggressive reuse).
+
+**Acceptance criteria:**
+
+- Evidence step visibly presents ≥4 source types with Azure labelled "fastest", not "only".
+- Unshipped sources are clearly badged "V1.1" and disabled (no dead clicks, no false promise).
+- Extends TB-215 (upload mechanic) without duplicating it.
+
+**Likely files:** `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`, `archlucid-ui/src/components/usability/WizardEvidenceUploadZone.tsx`, `archlucid-ui/src/app/(operator)/reviews/new/QuickReviewWizard.tsx`, `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx`.
+
+**Refs:** TB-215 (evidence upload in wizard — extend), TB-214 (non-Azure ingest backend — DEFERRED, badge only), INTEGRATION_CATALOG.md (Planned import rows), POSITIONING.md §7.
+
+**Size estimate:** M
+
+---
+
+## TB-342 — Onboarding secondary-surface copy sweep (evidence-first) (P1)
+
+**Status:** **Partial (2026-06-15)** — `first-pilot-buyer-copy.ts`, operating-rail ingest label, quick-review placeholder; welcome/tour sweep remains open.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** Beyond the empty state and Core Pilot, several secondary onboarding surfaces still lead with Azure-upload phrasing, so the Azure-first model is reinforced even after TB-337–339. The fix is to make the operator first-run surfaces say what the marketing surfaces already say (`Capture → Evidence → Review → Findings → Decisions → Report`).
+
+**Scope (relabel toward the "evidence" verb; keep Azure as the named accelerator):**
+
+1. `first-pilot-operating-rail-steps.ts` / `first-pilot-buyer-copy.ts` — ingest step `primaryLabel "Extract and upload"` and `ingestEvidenceWithoutUpload` copy → evidence-first with Azure as fastest path.
+2. `welcome-modal.tsx` — operator step copy and final CTA already mostly review-framed; ensure no Azure-as-prerequisite wording.
+3. `FirstVisitHelpAutoOpen.tsx` — "...explore a sample package if you are not ready to connect Azure..." → "...if you are not ready to connect a cloud environment...".
+4. `OnboardingTour.tsx` — verify no Azure-prerequisite framing in operator (non-buyer) variant.
+5. `buyer-polish-copy.ts` — promote the already-good "Connect environment or upload evidence" phrasing as the standard; keep "Connect Azure" only as one tertiary connector, not the headline.
+
+**Acceptance criteria:**
+
+- No operator onboarding surface implies Azure is required to start a review.
+- "Connect Azure" survives only as a named connector/accelerator, never the sole/lead action.
+- Snapshot/copy tests updated.
+
+**Likely files:** `archlucid-ui/src/lib/first-pilot-operating-rail-steps.ts`, `archlucid-ui/src/lib/first-pilot-buyer-copy.ts`, `archlucid-ui/src/components/FirstPilotOperatingRail.tsx`, `archlucid-ui/src/components/ui/welcome-modal.tsx`, `archlucid-ui/src/components/usability/FirstVisitHelpAutoOpen.tsx`, `archlucid-ui/src/components/OnboardingTour.tsx`, `archlucid-ui/src/lib/buyer-polish-copy.ts`.
+
+**Refs:** TB-337, TB-339, welcome-marketing-copy.ts (canonical spine), POSITIONING.md §7.
+
+**Size estimate:** M
+
+---
+
+## TB-343 — Reconcile cloud-connections "cloud providers" plural with Azure-only reality (P2)
+
+**Status:** Open — P2.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** `CloudConnectionsPageClient.tsx` says "Configure continuous ingestion from your cloud **providers**" (plural) but ships only "Connect Azure (Tier 2)". This both over-promises (violating `POSITIONING.md` §7) and, paradoxically, reinforces Azure-centrality by making Azure the *only* realized connector under a plural promise.
+
+**Scope:**
+
+1. Either (a) change copy to "Configure continuous ingestion from Azure (more providers in V1.1)", or (b) add disabled "V1.1" provider rows (AWS/GCP) consistent with TB-341's honest-badge approach. Prefer (b) for mental-model consistency.
+2. Keep the Azure WIF guided setup exactly as-is (no functional change to the Azure connector).
+
+**Acceptance criteria:**
+
+- Page copy matches shipped reality; no implied multi-cloud connector that does not exist.
+- If V1.1 rows are shown, they are clearly disabled/badged.
+
+**Likely files:** `archlucid-ui/src/app/(operator)/settings/cloud-connections/_sections/CloudConnectionsPageClient.tsx`.
+
+**Refs:** TB-341, POSITIONING.md §7, MULTI_CLOUD_ANALYSIS_V1_1.md.
+
+**Size estimate:** XS
+
+---
+
+## TB-344 — Onboarding narrative-spine drift guard (P2)
+
+**Status:** **Done (2026-06-15)** — `ONBOARDING_NARRATIVE_SPINE_CONTRACT.json` + Vitest guard in `onboarding-narrative-spine-contract.ts`.
+
+**Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
+
+**Problem:** The Azure-first drift accumulated silently over time because nothing guarded the first-run narrative. After TB-337–339 realign it, a future change can re-introduce "Upload your Azure environment" as step 1 with no signal. Same guard *pattern* as TB-320/321/328 (KPI/route/severity contracts), applied to the onboarding spine.
+
+**Scope:**
+
+1. Add a canonical contract file `docs/library/ONBOARDING_NARRATIVE_SPINE_CONTRACT.json` listing the first-run surfaces (empty state, Core Pilot step 1, operating-rail ingest step) and the **rule**: step 1 of each must use the evidence-first verb and must not name a single cloud provider as the *only*/lead action (Azure permitted only as a labelled accelerator).
+2. Add a Vitest/architecture test (and optional `scripts/ci/tests/test_onboarding_narrative_spine.py`) asserting the rendered step-1 copy for those components satisfies the contract (e.g. step-1 label matches the evidence-first allowlist; "Upload your Azure environment"-style strings are not the first step).
+3. Document the guard briefly in `archlucid-ui/AGENTS.md` UI section (link the contract, no duplicate prose).
+
+**Acceptance criteria:**
+
+- CI fails if any guarded first-run surface regresses step 1 to single-cloud-only lead framing.
+- Contract is the one grep-able source of truth for "what the onboarding spine must teach".
+
+**Likely files:** `docs/library/ONBOARDING_NARRATIVE_SPINE_CONTRACT.json`, `archlucid-ui/src/lib/onboarding-narrative-spine-contract.ts` (+ Vitest), `scripts/ci/tests/test_onboarding_narrative_spine.py`, `archlucid-ui/AGENTS.md`.
+
+**Refs:** TB-337, TB-338, TB-339, TB-342, TB-320/321/328 (drift-guard pattern), UI-Stable-Selectors-And-Snapshots.mdc.
+
+**Size estimate:** M
+
+---
+
+## TB-345 — Operator home sidebar: drop duplicate first-hour path rail (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** The left sidebar renders a **First-hour path** (or buyer-polished **Review journey**) numbered 1–4 list that duplicates the first-hour path already shown in the home body (`OperatorFirstHourJourneyStrip` / advanced guidance). The duplication consumes vertical sidebar space without adding navigation value on home; returning users see permanent onboarding chrome.
+
+**Scope:**
+
+1. In buyer-polished shell: keep primary **Review Work** nav group; remove the numbered quick-action strip (`sidebar-quick-actions` first-hour / review-journey block) from `SidebarNav.tsx`.
+2. In full operator shell: rename the sidebar section label from **First-hour path** to **Review work** (or merge into the existing Pilot/review nav group) — do **not** remove deep links to `/reviews/new`, `/reviews`, `/manifests`; only remove the redundant labeled duplicate rail when the home body already teaches the path.
+3. Preserve `OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS` for in-page journey strip and route-adjacent next/prev chrome (`resolveOperatorFirstHourJourneyNav`).
+
+**Acceptance criteria:**
+
+- Sidebar no longer shows a numbered 1–4 first-hour list that mirrors the home-body journey strip on `/`.
+- Primary review destinations remain one click away via **Review Work** (or equivalent) nav.
+- Vitest/snapshot coverage for `SidebarNav` buyer-polished and operator modes updated.
+
+**Likely files:** `archlucid-ui/src/components/SidebarNav.tsx`, `archlucid-ui/src/lib/operator-first-hour-journey-nav.ts`, `archlucid-ui/src/components/OperatorFirstHourJourneyStrip.tsx`.
+
+**Refs:** TB-169, TB-337–339, [`NAV_CONFIG_CONTRACT.md`](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md).
+
+**Size estimate:** S
+
+---
+
+## TB-346 — Compress operator home hero card (~40% vertical) (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** `PilotCommandCenterCard` (**Start your first review**) stacks title, lead paragraph, primary/secondary buttons, tertiary links, a bordered two-column **What you'll get** grid, and a **3 steps** stepper — leaving ~150–200px of empty vertical space and pushing the reviews list below the fold.
+
+**Scope:**
+
+1. Tighten vertical rhythm: reduce `mt-*` gaps; consider dropping or shortening `PILOT_COMMAND_CENTER_LEAD` on buyer-polished home (headline + CTA may suffice).
+2. Place primary CTA, outcome chips (Findings / Decision record / Review trail), and the 3-step preview on one compact row at `sm+` breakpoints (wrap on narrow viewports).
+3. Move **Connect Azure** / **Invite reviewer** tertiary links behind a single "Setup" disclosure or into advanced guidance — not in the hero fold.
+4. Keep `data-testid="pilot-command-center-*"` stable or update tests in the same change.
+
+**Acceptance criteria:**
+
+- Hero card height on a 1080p viewport is materially shorter (~40%) vs current without losing primary CTA discoverability.
+- Primary **Start review** remains the dominant action.
+- No regression to accessibility (heading order, focus order, touch targets).
+
+**Likely files:** `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`, `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/components/usability/PilotPathPreviewStepper.tsx`.
+
+**Refs:** TB-351 (outcomes copy — pair in same sprint), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) compact spacing.
+
+**Size estimate:** S
+
+---
+
+## TB-347 — Rename and elevate home reviews section heading (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** The most important home section reads as **Your reviews** / **Your review packages** with standard section heading weight. Visually it loses to the hero; architects scan for **recent reviews**, not possessive "your" framing, and the heading does not signal that this is the primary workspace surface.
+
+**Scope:**
+
+1. Buyer-polished: change `BUYER_HOME_REVIEWS_SECTION_HEADING` to **Recent reviews** (or **Recent review packages** if product language requires "package").
+2. Full operator shell: align `OperatorHomePageView` section title to the same canonical string (single source in `buyer-polish-copy.ts`).
+3. Increase visual hierarchy: apply a stronger type scale or weight than `OPERATOR_HOME_SECTION_HEADING` for this section only (still Carbon-neutral; no decorative cards).
+
+**Acceptance criteria:**
+
+- Home reviews section uses **Recent reviews** (or approved variant) in both shell modes.
+- Heading is visually stronger than secondary sections (example request, advanced guidance).
+- Copy/snapshot tests updated.
+
+**Likely files:** `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`, `archlucid-ui/src/lib/design-tokens.ts`.
+
+**Refs:** TB-352 (card richness — pair), POSITIONING.md §7 product language.
+
+**Size estimate:** XS
+
+---
+
+## TB-348 — Promote example request above the fold on operator home (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** The inline **Example request** block (`OPERATOR_HOME_EXAMPLE_*` in `RunsDashboardPanel`) sits below the reviews tabs/empty state — too low to answer "what kind of thing do I put in here?" for first-time architects. The hero already exposes **Open example review**, but the concrete sample query text is buried.
+
+**Scope:**
+
+1. Move the example-request panel (sample query + description) to render **directly below** `PilotCommandCenterCard` / hero on buyer-polished home — before `BeforeAfterDeltaPanel` and before the reviews section.
+2. Keep **Open example review** in the hero as a secondary path; ensure the inline example and the static demo run link tell a consistent story.
+3. Do not duplicate the full `RunsDashboardPanel` — extract a reusable `OperatorHomeExampleRequestPanel` if needed.
+
+**Acceptance criteria:**
+
+- First-time user sees a concrete example architecture question without scrolling on a typical laptop viewport.
+- Example request remains hidden or de-emphasized once the tenant has ≥1 real (non-demo) review if that guard already exists — preserve current behavior.
+- Vitest coverage for section order / test ids.
+
+**Likely files:** `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`, `archlucid-ui/src/lib/operator-home-example-request.ts`.
+
+**Refs:** TB-353 (sample review depth — pair), `SHOWCASE_STATIC_DEMO_RUN_ID`.
+
+**Size estimate:** S
+
+---
+
+## TB-349 — Hide ROI estimate pending until first committed review (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** `PilotRoiBaselineReadinessCard` surfaces **ROI estimate pending** / **Add ROI assumptions** on home (and in workspace status disclosure) before the operator has any committed review package. New users read this as product incompleteness or a blocking setup step.
+
+**Scope:**
+
+1. Gate `PilotRoiBaselineReadinessCard` (and buyer-polished equivalents in workspace status) on **≥1 committed review package** for the tenant — reuse existing run/commit queries or setup-health signals; do not add a new API if a client-side run list suffices.
+2. When gated off: render **nothing** (no compact "ROI estimate pending" strip after dismiss).
+3. After first commit: existing prompt/wizard behavior unchanged.
+
+**Acceptance criteria:**
+
+- Zero committed reviews → no ROI baseline / ROI estimate pending chrome on home or collapsed workspace status.
+- After first commit with incomplete baselines → existing readiness prompt returns.
+- Demo mode suppression unchanged.
+
+**Likely files:** `archlucid-ui/src/components/operator-home/PilotRoiBaselineReadinessCard.tsx`, `archlucid-ui/src/components/operator-home/OperatorHomeWorkspaceStatusSection.tsx`, `archlucid-ui/src/hooks/use-pilot-roi-baseline-completeness.ts`.
+
+**Refs:** TB-238 (wizard baseline capture — complementary), TB-169.
+
+**Size estimate:** S
+
+---
+
+## TB-350 — Deprioritize monthly analysis allowance in operator shell chrome (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** **Monthly analysis allowance** (quota meter) appears with high visual priority in the shell header/sidebar (alongside workspace / persona labels). Most first-time architects are not quota-aware until they are engaged; leading with allowance reads as a countdown meter.
+
+**Scope:**
+
+1. Reorder shell chrome so **Workspace** and **Operator/Executive** persona labels precede allowance.
+2. Reduce allowance prominence: move to far-right of header, smaller type, or account/settings menu on buyer-polished shell.
+3. Do not remove quota enforcement — UI priority only.
+4. Preserve accessibility (meter still discoverable from settings/billing).
+
+**Acceptance criteria:**
+
+- On first load, workspace identity is the leftmost / highest-weight chrome element; allowance is not the first thing read.
+- Allowance remains reachable within two clicks from settings or header overflow.
+- Snapshot tests for shell layout updated.
+
+**Likely files:** Operator shell header components (grep `allowance`, `quota`, `analysis allowance`), `archlucid-ui/src/components/SidebarNav.tsx`, settings/billing surfaces.
+
+**Refs:** TB-014 (token wallet — backend), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Size estimate:** S
+
+---
+
+## TB-351 — Replace hero "What you'll get" with discovery-value outcomes (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** `PILOT_COMMAND_CENTER_OUTCOMES_HEADING` (**What you'll get**) lists delivery artifacts — Findings, Decisions, Review trail, Governed decision record — which describe output format, not buyer value. Architects purchase insight ("the thing I forgot"), not a review trail.
+
+**Scope:**
+
+1. Change heading to **What ArchLucid discovers** (or product-approved variant aligned with POSITIONING.md §7 — no overclaim).
+2. Replace outcome bullets with value-oriented discoveries, e.g. **Missing dependencies**, **Hidden risks**, **Cost drivers**, **Governance gaps** — verify each is defensible for V1 shipped analysis (adjust list if any item overclaims).
+3. Update Vitest/copy tests referencing `PILOT_COMMAND_CENTER_OUTCOMES`.
+
+**Acceptance criteria:**
+
+- Hero outcomes block uses discovery framing, not artifact receipts.
+- No POSITIONING.md §7 violations (capabilities implied must exist in V1).
+- Pair cleanly with TB-346 compressed layout.
+
+**Likely files:** `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`.
+
+**Refs:** TB-346, POSITIONING.md §7, TB-134 (overclaim guard).
+
+**Size estimate:** XS
+
+---
+
+## TB-352 — Enrich operator home review list / empty state cards (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** The home reviews section presents as a tab strip, filter chips, and a large empty card — visually weaker than the hero. When reviews exist, cards lack insight density (findings count, risk posture, last action) that would reinforce product value.
+
+**Scope:**
+
+1. Strengthen `OperatorHomeFirstReviewEmptyState` and populated run rows in `RunsDashboardPanel`: show findings/severity summary, governance status, and last-updated when data exists.
+2. Reduce empty-state vertical dead space; prefer a compact illustration-free enterprise empty pattern per UI_DESIGN_SYSTEM.
+3. Ensure buyer-polished tabs (**Needs attention** / **Under monitoring** / **Approved**) retain stable `data-testid`s.
+
+**Acceptance criteria:**
+
+- Empty home reviews section no longer reads as a "giant blank card."
+- Populated rows surface at least one insight signal (e.g. findings count or monitored-risk badge) without raw internal ids.
+- axe + snapshot tests pass.
+
+**Likely files:** `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, `archlucid-ui/src/components/operator-home/OperatorHomeFirstReviewEmptyState.tsx`, `archlucid-ui/src/lib/buyer-polish-copy.ts`.
+
+**Refs:** TB-347, TB-116/117 (StatusTag / EnterpriseTable), TB-273 (buyer-demo truthfulness).
+
+**Size estimate:** M
+
+---
+
+## TB-353 — Add substantive "show me value" sample review on home (P0)
+
+**Status:** Open — **P0**.
+
+**Assessment source:** External operator home first-run UX review 2026-06-16.
+
+**Problem:** **Open example review** links to `SHOWCASE_STATIC_DEMO_RUN_ID`, but the home page does not preview *why* that review matters — findings, risks discovered, governance outcome — so first-time users must navigate away before seeing value.
+
+**Scope:**
+
+1. Add a compact **sample review preview** on home (below hero or paired with TB-348 example request): 2–3 real findings from the static demo run, severity tags, and one-line "what ArchLucid found" summary — all buyer-safe/static-demo gated.
+2. Primary CTA: **Open full example review** → existing demo run route.
+3. Reuse static demo payloads (`tryStaticDemoRunSummariesPaged`, showcase run detail fragments) — no live API dependency for buyer-polished mode.
+
+**Acceptance criteria:**
+
+- First-time user sees concrete discovered risks/findings on home without opening the full review workspace.
+- Static demo / buyer-polished gating unchanged; no fabricated metrics on live tenants.
+- Copy and counts match the linked showcase run (drift test or snapshot).
+
+**Likely files:** `archlucid-ui/src/lib/showcase-static-demo.ts`, `archlucid-ui/src/lib/operator-static-demo.ts`, `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`, new `OperatorHomeSampleReviewPreview` component.
+
+**Refs:** TB-348, TB-218, TB-273 (demo truthfulness), TB-351 (discovery framing).
+
+**Size estimate:** M

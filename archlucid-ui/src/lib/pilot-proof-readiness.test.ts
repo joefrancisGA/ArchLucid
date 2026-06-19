@@ -1,6 +1,8 @@
 import {
   describeSponsorProofReadiness,
+  formatStructuralExecutionModeLabel,
   isAgentOutputPilotStrictSponsorSafe,
+  isExternalSponsorPdfBlockedForExecutionMode,
   isProjectedDollarClaimsSponsorSafe,
 } from "@/lib/pilot-proof-readiness";
 import { describe, expect, it } from "vitest";
@@ -24,6 +26,42 @@ describe("isProjectedDollarClaimsSponsorSafe", () => {
     ).toBe(false);
 
     expect(isProjectedDollarClaimsSponsorSafe(null)).toBe(false);
+  });
+});
+
+describe("isExternalSponsorPdfBlockedForExecutionMode", () => {
+  it("blocks Simulator, Fallback, Mixed, and real-mode fallback substitution", () => {
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ structuralExecutionMode: "Simulator" }),
+    ).toBe(true);
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ structuralExecutionMode: 0 }),
+    ).toBe(true);
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ structuralExecutionMode: "Fallback" }),
+    ).toBe(true);
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ structuralExecutionMode: "Mixed" }),
+    ).toBe(true);
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ realModeFellBackToSimulator: true, structuralExecutionMode: "Real" }),
+    ).toBe(true);
+  });
+
+  it("allows Real mode without fallback substitution", () => {
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ structuralExecutionMode: "Real" }),
+    ).toBe(false);
+    expect(
+      isExternalSponsorPdfBlockedForExecutionMode({ structuralExecutionMode: 1 }),
+    ).toBe(false);
+  });
+});
+
+describe("formatStructuralExecutionModeLabel", () => {
+  it("normalizes enum names and numeric wire values", () => {
+    expect(formatStructuralExecutionModeLabel({ structuralExecutionMode: 1 })).toBe("Real");
+    expect(formatStructuralExecutionModeLabel({ structuralExecutionMode: "Simulator" })).toBe("Simulator");
   });
 });
 

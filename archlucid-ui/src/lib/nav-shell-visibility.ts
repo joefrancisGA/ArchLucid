@@ -2,13 +2,14 @@ import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-con
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
+import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committed-architecture-review-promotion";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 
-/** Buyer default shell: omit pilot distractions — golden path uses Reviews cluster + journey strip (`SidebarNav`). */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/", "/onboarding", "/reviews/new", "/compare"]);
+/** Buyer default shell: hide Compare only; golden-path links render in the fixed sidebar cluster. */
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/compare"]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
@@ -144,7 +145,8 @@ export function filterNavLinksForOperatorShell(
   applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
-  const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
+  const promoted = applyCommittedArchitectureReviewNavPromotions(links, hasCommittedArchitectureReview);
+  const gated = filterNavLinksByCommittedArchitectureReviewGate(promoted, hasCommittedArchitectureReview);
 
   let tiered: NavLinkItem[] = filterNavLinksByAuthority(
     filterNavLinksByTier(gated, showExtended, showAdvanced),

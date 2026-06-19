@@ -24,6 +24,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Public web workload on Azure with common platform services.",
     values: {
       systemName: "CustomerWebApp",
+      cloudProvider: "Azure",
       description:
         "Greenfield customer-facing web application with authenticated APIs, need scalable hosting on Azure, SOC-friendly defaults, and cost visibility under $2k/month.",
       constraints: ["Must run on Azure", "Budget < $2000/month"],
@@ -51,6 +52,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Queues, topics, and async boundaries between services on Azure.",
     values: {
       systemName: "EventDrivenPlatform",
+      cloudProvider: "Azure",
       description:
         "Event-driven architecture integrating multiple bounded contexts via a message bus (Azure Service Bus or Event Hubs), idempotent consumers, dead-letter handling, observability for end-to-end traces, and clear ownership of schemas.",
       constraints: ["Azure-native messaging", "At-least-once delivery acceptable with idempotent handlers"],
@@ -64,6 +66,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Ingestion, storage tiers, and curated layers for batch and near-real-time analytics.",
     values: {
       systemName: "AnalyticsDataLake",
+      cloudProvider: "Azure",
       description:
         "Enterprise analytics platform landing raw and curated datasets in Azure Data Lake Storage, orchestrated pipelines (ADF or Synapse), Spark or SQL pools for transformation, and governed access for BI tools with row-level security expectations.",
       constraints: ["Data residency and encryption at rest", "PII classification and retention policies"],

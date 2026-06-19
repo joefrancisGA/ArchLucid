@@ -20,4 +20,14 @@ describe("wizard-payload", () => {
     expect(payload.requestSource).toBeUndefined();
     expect(payload.wizardPresetUsed).toBeUndefined();
   });
+
+  it("maps None cloudProvider for evidence-only intake (TB-340)", () => {
+    const payload = wizardValuesToCreateRunPayload({
+      ...buildDefaultWizardValues(),
+      cloudProvider: "None",
+      documents: [{ name: "brief.md", contentType: "text/markdown", content: "Pre-deployment architecture brief." }],
+    });
+
+    expect(payload.cloudProvider).toBe("None");
+  });
 });

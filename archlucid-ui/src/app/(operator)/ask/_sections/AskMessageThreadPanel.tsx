@@ -3,6 +3,7 @@ import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { cn } from "@/lib/utils";
 import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/ask/_sections/ask-page-constants";
@@ -16,6 +17,7 @@ export type AskMessageThreadPanelProps = {
   showPostAssistantFollowUps: boolean;
   runMissing: boolean;
   onMergePromptLine: (line: string) => void;
+  retrievalDegraded?: boolean;
 };
 
 function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string {
@@ -39,13 +41,23 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     showPostAssistantFollowUps,
     runMissing,
     onMergePromptLine,
+    retrievalDegraded = false,
   } = props;
 
   return (
     <div className="space-y-3 pt-1">
-      <h3 className="mb-3 m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-        {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
-      </h3>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
+        </h3>
+        {retrievalDegraded ? (
+          <StatusTag
+            kind="needs-attention"
+            label="Vector search unavailable; using fallback text search."
+            data-testid="ask-retrieval-degraded-badge"
+          />
+        ) : null}
+      </div>
       <div className="grid gap-3">
         {messages.length === 0 ? <EmptyState {...ASK_CONVERSATION_EMPTY} /> : null}
         {messages.map((message) => (

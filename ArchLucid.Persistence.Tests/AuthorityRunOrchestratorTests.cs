@@ -185,7 +185,8 @@ public sealed class AuthorityRunOrchestratorTests
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
 
         result.ProjectId.Should().Be(request.ProjectId);
-        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        // Inline path commits run header, then finalizes on a second unit-of-work scope.
+        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
         workRepo.Verify(
             x => x.EnqueueAsync(
@@ -798,8 +799,9 @@ public sealed class AuthorityRunOrchestratorTests
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("pipeline failed");
 
+        // Run header commits before inline stages; failure rolls back the persist unit of work.
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static void StubRunRepositoryListByProjectEmpty(Mock<IRunRepository> runRepo)
@@ -920,8 +922,9 @@ public sealed class AuthorityRunOrchestratorTests
 
         await act.Should().ThrowAsync<OperationCanceledException>();
 
+        // Run header commits before stages; timeout rolls back the persist unit of work.
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]

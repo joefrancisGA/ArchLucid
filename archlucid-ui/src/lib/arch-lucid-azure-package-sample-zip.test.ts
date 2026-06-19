@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import {
   BUNDLED_ARCH_LUCID_AZURE_PACKAGE_SAMPLE_MANIFEST,
+  createBundledArchLucidAzurePackageSampleZipFile,
   getBundledArchLucidAzurePackageSampleZipBytes,
 } from "@/lib/arch-lucid-azure-package-sample-zip";
 import { readArchLucidAzurePackageZipFromBytes } from "@/lib/read-arch-lucid-azure-package-zip";
+import { unzipSync } from "fflate";
 
 describe("arch-lucid-azure-package-sample-zip", () => {
   it("ships a valid packager ZIP that prefills SampleRg", () => {
@@ -21,5 +23,21 @@ describe("arch-lucid-azure-package-sample-zip", () => {
 
     const prefill = buildWizardPrefillFromArchLucidAzureManifest(result.manifest);
     expect(prefill.systemName).toBe("SampleRg");
+  });
+
+  it("includes resources, diagram, and readme entries for zero-config demo", () => {
+    const entries = unzipSync(getBundledArchLucidAzurePackageSampleZipBytes());
+
+    expect(entries["manifest.json"]).toBeDefined();
+    expect(entries["resources.json"]).toBeDefined();
+    expect(entries["README.txt"]).toBeDefined();
+    expect(entries["architecture-diagram.mmd"]).toBeDefined();
+  });
+
+  it("creates a File suitable for post-create upload", () => {
+    const file = createBundledArchLucidAzurePackageSampleZipFile();
+
+    expect(file.name).toContain("sample");
+    expect(file.size).toBeGreaterThan(0);
   });
 });

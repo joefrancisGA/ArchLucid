@@ -55,7 +55,7 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
 function isHelpShortcutKey(key: string): boolean {
   const normalized = key.toLowerCase().trim();
 
-  return normalized === "shift+?";
+  return normalized === "shift+?" || normalized === "f1";
 }
 
 function noop(): void {

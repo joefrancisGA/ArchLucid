@@ -14,9 +14,11 @@ vi.mock("@/lib/oidc/session", () => ({
 }));
 
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
+import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 
 describe("TrialExpiryBanner", () => {
   beforeEach(() => {
+    invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     vi.stubGlobal(
       "fetch",

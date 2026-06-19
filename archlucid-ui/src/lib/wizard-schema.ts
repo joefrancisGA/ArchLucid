@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import {
+  ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH,
+  ARCHITECTURE_REQUEST_INLINE_REQUIREMENT_MAX_LENGTH,
+} from "@/lib/architecture-request-limits";
+
 const wizardDocumentSchema = z.object({
   name: z.string(),
   contentType: z.string(),
@@ -29,8 +34,8 @@ function isPriorManifestVersionValid(value: string): boolean {
 }
 
 /**
- * Zod model for the new-run wizard — mirrors `CreateArchitectureRunRequestPayload` (`api.ts`) with
- * `cloudProvider` fixed to Azure. Array fields are required; use `buildDefaultWizardValues()` or presets for empties.
+ * Zod model for the new-run wizard — mirrors `CreateArchitectureRunRequestPayload` (`api.ts`).
+ * `cloudProvider` is `None` for evidence-only reviews or `Azure` when Azure evidence is selected.
  */
 export const wizardFormSchema = z.object({
   requestId: z.string().min(1),
@@ -42,7 +47,7 @@ export const wizardFormSchema = z.object({
         .string()
         .min(1, "Required")
         .min(10, "Brief must be at least 10 characters for agents to have enough context.")
-        .max(4000, "Description is too long."),
+        .max(ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH, "Description is too long."),
     ),
   systemName: z
     .string()
@@ -54,14 +59,21 @@ export const wizardFormSchema = z.object({
         .min(2, "System name must be at least 2 characters — use a short project slug, e.g. OrderService."),
     ),
   environment: z.string().min(1, "Required"),
-  cloudProvider: z.literal("Azure"),
+  cloudProvider: z.enum(["None", "Azure"]),
   constraints: z.array(z.string()),
   requiredCapabilities: z.array(z.string()),
   assumptions: z.array(z.string()),
   priorManifestVersion: z.string().refine(isPriorManifestVersionValid, {
     message: "Use a valid UUID, or leave blank for greenfield.",
   }),
-  inlineRequirements: z.array(z.string()),
+  inlineRequirements: z.array(
+    z
+      .string()
+      .max(
+        ARCHITECTURE_REQUEST_INLINE_REQUIREMENT_MAX_LENGTH,
+        "Each inline requirement is too long.",
+      ),
+  ),
   documents: z.array(wizardDocumentSchema),
   policyReferences: z.array(z.string()),
   topologyHints: z.array(z.string()),
@@ -73,7 +85,7 @@ export type WizardFormValues = z.infer<typeof wizardFormSchema>;
 
 /**
  * Fresh wizard state: new `requestId` (32-char hex, no dashes — aligns with .NET `Guid.ToString("N")`),
- * Azure + staging, empty lists, placeholder text satisfying validation minima.
+ * None + staging for evidence-first intake, empty lists, placeholder text satisfying validation minima.
  */
 export function buildDefaultWizardValues(): WizardFormValues {
   const requestId: string = crypto.randomUUID().replace(/-/g, "");
@@ -84,7 +96,7 @@ export function buildDefaultWizardValues(): WizardFormValues {
       "Describe the system, scope, and what the architecture must achieve (at least ten characters).",
     systemName: "TargetSystem",
     environment: "staging",
-    cloudProvider: "Azure",
+    cloudProvider: "None",
     priorManifestVersion: "",
     constraints: [],
     requiredCapabilities: [],

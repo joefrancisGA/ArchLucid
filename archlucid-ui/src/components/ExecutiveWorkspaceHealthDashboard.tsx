@@ -170,7 +170,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
   if (state.status === "loading" || state.status === "idle") {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 p-4">
+      <div className="w-full max-w-[1440px] space-y-4">
         <LayerHeader pageKey="governance-dashboard" />
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
@@ -181,7 +181,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
   if (state.status === "error") {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 p-4">
+      <div className="w-full max-w-[1440px] space-y-4">
         <LayerHeader pageKey="governance-dashboard" />
         <OperatorApiProblem
           fallbackMessage={state.message}
@@ -240,7 +240,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     : `≥ ${blocked30d.count} (sampled lower bound; audit paging reached safety cap)`;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4">
+    <div className="w-full max-w-[1440px] space-y-6">
       <LayerHeader pageKey="governance-dashboard" />
 
       <header className="space-y-2">

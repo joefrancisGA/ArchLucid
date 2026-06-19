@@ -1449,7 +1449,7 @@
       "commercial_tier": "none",
       "class_policy": "Authorize",
       "exemption": null,
-      "nav_operator_href": "/settings/baseline"
+      "nav_operator_href": null
     },
     {
       "controller_file": "Tenancy/TenantCostEstimateController.cs",
@@ -1588,6 +1588,16 @@
       "normalized_prefix": "/v1/tenant/workspaces",
       "commercial_tier": "none",
       "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "User/UserPreferencesController.cs",
+      "class_name": "UserPreferencesController",
+      "route_template": "v{version:apiVersion}/user/preferences",
+      "normalized_prefix": "/v1/user/preferences",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
       "exemption": null,
       "nav_operator_href": null
     },

@@ -6,10 +6,11 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { AUTH_MODE } from "@/lib/auth-config";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  fetchTenantTrialStatusCached,
+  shouldSkipTenantTrialStatusFetch,
+} from "@/lib/tenant-trial-status-client";
 import {
   formatTrialExportOnlyPurgeHeadline,
   TRIAL_EXPORT_ONLY_SUPPORTING_LINE,
@@ -77,7 +78,7 @@ export function TrialBanner() {
   const [hydrated, setHydrated] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
+    if (shouldSkipTenantTrialStatusFetch()) {
       setVisible(false);
       setPayload(null);
 
@@ -85,19 +86,15 @@ export function TrialBanner() {
     }
 
     try {
-      const res = await fetch(
-        "/api/proxy/v1/tenant/trial-status",
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
+      const json = await fetchTenantTrialStatusCached();
 
-      if (!res.ok) {
+      if (json === null) {
         setVisible(false);
         setPayload(null);
 
         return;
       }
 
-      const json = (await res.json()) as TenantTrialStatusPayload;
       setPayload(json);
 
       if (isExportOnlyStatus(json.status)) {

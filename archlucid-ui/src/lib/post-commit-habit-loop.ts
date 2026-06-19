@@ -93,6 +93,22 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
 
   if (hasManifest(input.manifestId)) {
     optional.push({
+      id: "schedule-recurrence",
+      kind: "optional",
+      label: "Schedule recurring review",
+      href: "#recurrence-schedule-post-commit-card",
+      description: "Set a weekly cadence so the next review clones this package automatically.",
+    });
+
+    optional.push({
+      id: "recurrence-schedules",
+      kind: "optional",
+      label: "Manage recurrence schedules",
+      href: "/governance/recurrence-schedules",
+      description: "View, enable, or disable automated follow-up reviews for this tenant.",
+    });
+
+    optional.push({
       id: "evidence-chain",
       kind: "optional",
       label: "Open evidence chain",

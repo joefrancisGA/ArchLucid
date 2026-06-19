@@ -13,7 +13,7 @@ describe("architecture-request-create-guard", () => {
   });
 
   it("exposes operator guidance for duplicate-safe recovery", () => {
-    expect(ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE).toContain("Runs dashboard");
+    expect(ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE).toContain("Reviews list");
     expect(ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE).toContain("avoid duplicates");
   });
 });

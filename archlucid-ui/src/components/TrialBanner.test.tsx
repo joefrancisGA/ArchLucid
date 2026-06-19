@@ -25,9 +25,11 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 import { TrialBanner } from "./TrialBanner";
+import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 
 describe("TrialBanner", () => {
   beforeEach(() => {
+    invalidateTenantTrialStatusCache();
     usePathnameMock.mockReturnValue("/");
 
     vi.stubGlobal(

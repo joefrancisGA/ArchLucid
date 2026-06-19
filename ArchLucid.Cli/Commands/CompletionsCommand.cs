@@ -17,6 +17,8 @@ public static class CompletionsCommand
         "explain-operator-model",
         "try",
         "second-run",
+        "draft",
+        "request",
         "trial",
         "agent-eval",
         "roi-bulletin",

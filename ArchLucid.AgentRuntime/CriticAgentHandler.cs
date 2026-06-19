@@ -86,6 +86,7 @@ public sealed class CriticAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                logger: null,
                 cancellationToken);
 
             lastCompletionJson = rawJson;
@@ -115,6 +116,7 @@ public sealed class CriticAgentHandler(
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
             CriticFindingConfidenceNormalizer.Apply(parsed);
+            CriticFindingObviousnessPruner.Apply(parsed);
 
             return parsed;
         }
@@ -200,6 +202,9 @@ public sealed class CriticAgentHandler(
         sb.AppendLine("- Identify omissions that could materially weaken a secure Azure architecture.");
         sb.AppendLine("- Favor findings and warnings over redesign.");
         sb.AppendLine("- If observability, identity, or secret management are clearly under-specified, call that out.");
+        sb.AppendLine("- Every finding must pass a Novelty Check: cite a specific service, resource, diagram element, or evidence ref from the uploaded package.");
+        sb.AppendLine("- Do NOT emit generic checklist advice (for example Enable MFA, Use HTTPS, encrypt data at rest) unless you tie it to a named element in this architecture.");
+        sb.AppendLine("- Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.");
         sb.AppendLine("- Return JSON only.");
 
         return sb.ToString();

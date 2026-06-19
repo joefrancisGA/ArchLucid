@@ -195,7 +195,13 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
-        services.AddSingleton<IRequestContentSafetyPrecheck, DefaultRequestContentSafetyPrecheck>();
+        services.AddSingleton<DefaultRequestContentSafetyPrecheck>();
+        services.AddSingleton<LlmSemanticAdmissionGate>();
+        services.AddSingleton<IRequestContentSafetyPrecheck>(sp => new CompositeRequestContentSafetyPrecheck(
+        [
+            sp.GetRequiredService<DefaultRequestContentSafetyPrecheck>(),
+            sp.GetRequiredService<LlmSemanticAdmissionGate>()
+        ]));
         services.Configure<EvidenceInjectionMitigationOptions>(
             configuration.GetSection(EvidenceInjectionMitigationOptions.SectionPath));
         services.AddSingleton<IEvidencePackageInjectionMitigator, EvidencePackageInjectionMitigator>();
@@ -211,6 +217,7 @@ public static partial class ServiceCollectionExtensions
             ArchLucid.Application.Runs.Feasibility.ArchitectureRequestIntakeTrailProvider>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
+        services.AddScoped<IRunEngineProvenanceCaptureService, RunEngineProvenanceCaptureService>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<PostCommitProjectionEnqueuer>();

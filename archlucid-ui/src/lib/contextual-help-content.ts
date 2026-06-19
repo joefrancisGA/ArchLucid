@@ -12,7 +12,7 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "new-run-wizard": {
-    text: "Create an architecture request for what ArchLucid should analyze. Reference starters, Quick shapes, and industry templates pre-fill the form — edit anything before submit.",
+    text: "Create an architecture request for what ArchLucid should analyze. Guided intake covers intent, actors, and constraints. Quick review accepts a pasted brief.",
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
   "runs-list-overview": {
@@ -20,7 +20,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md",
   },
   "run-pipeline-status": {
-    text: "The pipeline shows each AI agent's progress. When all steps complete, the architecture review is ready to finalize. Elapsed labels (when shown) are wall time since the prior event — useful for sponsor readouts.",
+    text: "The pipeline shows each agent step. When all complete, the review is ready to finalize. Elapsed labels (when shown) are wall time since the prior event.",
     learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
   },
   "commit-manifest": {
@@ -90,7 +90,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
   "tenant-cost-settings": {
-    text: "Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot run deltas and executive ROI. 1.0 = Retail list; lower applies EA-adjusted Cost-category savings only.",
+    text: "Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot review deltas and executive ROI. 1.0 = Retail list; lower applies EA-adjusted Cost-category savings only.",
     learnMoreUrl: "/docs/go-to-market/ROI_MODEL.md",
   },
   "admin-configuration": {
@@ -121,10 +121,19 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
 };
 
+/** Accessible name fallbacks when help copy is empty — avoids legacy run-primary aria labels. */
+const CONTEXTUAL_HELP_KEY_FALLBACK_LABEL: Partial<Record<string, string>> = {
+  "new-run-wizard": "new review wizard",
+  "runs-list-overview": "reviews list overview",
+  "run-pipeline-status": "review pipeline status",
+  "compare-runs": "compare reviews",
+  "replay-run": "replay review",
+};
+
 /** First sentence (or short excerpt) of help copy — used for the trigger’s accessible name. */
 export function contextualHelpTriggerSummary(text: string, helpKey: string): string {
   if (text.trim().length === 0) {
-    return helpKey.replace(/-/g, " ");
+    return CONTEXTUAL_HELP_KEY_FALLBACK_LABEL[helpKey] ?? helpKey.replace(/-/g, " ");
   }
 
   const dot = text.indexOf(".");

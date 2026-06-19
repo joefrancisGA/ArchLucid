@@ -37,6 +37,7 @@ export type AskMainPanelProps = {
   streamingAssistantContent: string | null;
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   showPostAssistantFollowUps: boolean;
+  retrievalDegraded?: boolean;
 };
 
 export function AskMainPanel(props: AskMainPanelProps) {
@@ -66,6 +67,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     streamingAssistantContent,
     askAssistantGroundingLinks,
     showPostAssistantFollowUps,
+    retrievalDegraded = false,
   } = props;
 
   const messageThreadPanel = (
@@ -77,6 +79,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
       showPostAssistantFollowUps={showPostAssistantFollowUps}
       runMissing={runMissing}
       onMergePromptLine={onMergePromptLine}
+      retrievalDegraded={retrievalDegraded}
     />
   );
 

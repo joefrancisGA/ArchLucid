@@ -25,6 +25,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'ApiIntegrationTestShardSupport.ps1')
+. (Join-Path $PSScriptRoot 'CiSqlServerDiagnostics.ps1')
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 Set-Location -LiteralPath $repoRoot
@@ -72,6 +73,15 @@ Write-Host (
     $allClassNames.Count
 )
 
+Write-Host 'Shard identity:'
+Write-Host ("  ShardIndex (0-based): {0}" -f $ShardIndex)
+Write-Host ("  ShardIndex (display):  {0}/{1}" -f ($ShardIndex + 1), $ShardCount)
+Write-Host ("  Assigned classes ({0}):" -f $shardClassNames.Count)
+
+foreach ($className in $shardClassNames) {
+    Write-Host ("    - {0}" -f $className)
+}
+
 if ($shardClassNames.Count -eq 0) {
     Write-Host 'Nothing to run on this shard.'
     exit 0
@@ -97,6 +107,12 @@ foreach ($filter in $filterChunks) {
         Write-Host "::group::$chunkLabel"
     }
 
+    Write-Host ("[{0}] Starting chunk {1}/{2} at {3}" -f
+        $chunkLabel,
+        $chunkNumber,
+        $filterChunks.Count,
+        (Get-Date -Format 'HH:mm:ss'))
+
     try {
         & dotnet test $ProjectPath `
             --no-build `
@@ -119,6 +135,26 @@ foreach ($filter in $filterChunks) {
     finally {
         if ($inGitHubActions) {
             Write-Host '::endgroup::'
+        }
+
+        # On failure or blame-hang dump: emit SQL Server diagnostics so the next hang shows which
+        # sessions were active/blocked and how many catalogs had accumulated on the container.
+        if ($failed -and ($IsLinux -or $inGitHubActions)) {
+            Write-CiSqlServerHangDiagnostics
+        }
+
+        Write-Host ("[{0}] Chunk {1}/{2} finalised at {3} (failed: {4})" -f
+            $chunkLabel,
+            $chunkNumber,
+            $filterChunks.Count,
+            (Get-Date -Format 'HH:mm:ss'),
+            $failed)
+
+        if ($IsLinux -or $inGitHubActions) {
+            # Kill orphaned testhost/dotnet processes that prevent the GitHub Actions step from finishing
+            Get-Process -Name 'dotnet', 'testhost' -ErrorAction SilentlyContinue |
+                Where-Object { $_.Id -ne $PID } |
+                Stop-Process -Force -ErrorAction SilentlyContinue
         }
     }
 }

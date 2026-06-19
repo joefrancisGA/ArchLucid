@@ -1,6 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/api/user-preferences", () => ({
+  getUserPreferences: vi.fn().mockRejectedValue(new Error("offline")),
+  setUserAppearancePreference: vi.fn().mockResolvedValue(undefined),
+}));
+
 import {
   ColorModeToggle,
   buildColorModeToggleLabel,

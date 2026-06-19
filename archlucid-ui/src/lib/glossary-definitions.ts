@@ -13,13 +13,13 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Architecture review",
     shortDefinition: "The end-to-end work unit from intake through finalized outputs for one architecture question.",
     longDefinition:
-      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a golden manifest you can govern and compare.",
+      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a signed review record you can govern and compare.",
   },
   manifest: {
-    displayLabel: "Golden manifest",
+    displayLabel: "Signed review record",
     shortDefinition: "The finalized, signed architecture package treated as source of truth for a review.",
     longDefinition:
-      "The golden manifest is the immutable, versioned design package for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
+      "The signed review record is the immutable, versioned design package for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",
@@ -29,19 +29,19 @@ export const GLOSSARY_DEFINITIONS = {
   },
   artifact: {
     displayLabel: "Artifact",
-    shortDefinition: "Generated output from a run—diagrams, documents, JSON, or bundles for sponsors.",
+    shortDefinition: "Generated output from a review—diagrams, documents, JSON, or bundles for sponsors.",
     longDefinition:
       "Artifacts are versioned deliverables produced after decisioning—anything from diagrams to narrative packs—packaged for download or downstream systems.",
   },
   evidence_package: {
     displayLabel: "Evidence package",
-    shortDefinition: "The curated trace bundle proving how conclusions were reached for a run.",
+    shortDefinition: "The curated trace bundle proving how conclusions were reached for a review.",
     longDefinition:
       "An evidence package aggregates citations, snapshots, and decision traces so sponsors and auditors can verify claims without replaying the entire pipeline.",
   },
   authority_chain: {
     displayLabel: "Authority chain",
-    shortDefinition: "The ordered pipeline that applies policies and records authoritative outcomes for a run.",
+    shortDefinition: "The ordered pipeline that applies policies and records authoritative outcomes for a review.",
     longDefinition:
       "The authority chain is the trusted sequence from context through engines and governance: each step declares inputs, rules, and outputs so overrides and replay stay explainable.",
   },
@@ -61,7 +61,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Comparison",
     shortDefinition: "A structured diff between two finalized manifests or persisted comparison results.",
     longDefinition:
-      "Comparison highlights field-level and semantic deltas across runs or snapshots so teams see what changed in decisions, findings, and evidence without re-running agents.",
+      "Comparison highlights field-level and semantic deltas across reviews or snapshots so teams see what changed in decisions, findings, and evidence without re-running agents.",
   },
   replay: {
     displayLabel: "Replay",

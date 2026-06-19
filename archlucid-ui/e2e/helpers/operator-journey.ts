@@ -58,6 +58,27 @@ export function governancePageMainHeading(page: Page): Locator {
 }
 
 /**
+ * `/graph` readiness: interactive canvas, explicit load affordance, or buyer-polished trace-table default.
+ * Buyer-polished demo builds default to the trace table before graph view — older specs only matched canvas / Load graph.
+ */
+export function graphPageReadySurface(page: Page): Locator {
+  const main = page.getByRole("main");
+
+  return main
+    .getByTestId("graph-canvas-ready")
+    .first()
+    .or(main.getByTestId("evidence-trail-trace-table").first())
+    .or(main.getByTestId("evidence-trail-trace-empty").first())
+    .or(main.getByTestId("graph-viewer-chunk-loading").first())
+    .or(main.getByRole("button", { name: /^Load graph$/i }).first())
+    .or(main.getByRole("button", { name: /^Load evidence trail$/i }).first());
+}
+
+export async function expectGraphPageReadySurface(page: Page, options?: { timeout?: number }): Promise<void> {
+  await expect(graphPageReadySurface(page)).toBeVisible(options);
+}
+
+/**
  * Optional narrative action on `/compare` — buyer-polished shell labels this **Summarize for leadership**;
  * full-operator shell uses **Summarize for sponsor**.
  */

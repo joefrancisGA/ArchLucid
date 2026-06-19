@@ -22,7 +22,38 @@ export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
   "Review a completed example package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
-export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
+export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Start with one sample finding";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
+  "See what ArchLucid surfaces in the first five minutes — one finding, the evidence behind it, and the decision it changes.";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
+  "Demo-derived sample only — labels execution mode and evidence basis on the full review package.";
+
+export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
+
+export const SAMPLE_REVIEW_AHA_WHY_LABEL = "Why it matters";
+
+export const SAMPLE_REVIEW_AHA_EVIDENCE_LABEL = "Evidence support";
+
+export const SAMPLE_REVIEW_AHA_DECISION_LABEL = "Decision change";
+
+export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Demo-derived sample";
+
+export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
+
+export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
+  "This sample review package leads with one decision-changing finding — expand evidence and exports below when ready.";
+
+export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
+
+export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
+  "Start your first review or open the example review package.";
+
+export const PILOT_COMMAND_CENTER_FIRST_RUN_STEPS =
+  "Open sample finding → Review evidence → See decision impact";
 
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
@@ -31,18 +62,20 @@ export const PILOT_COMMAND_CENTER_LEAD =
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
-export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Open example review";
+export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try with Sample Data";
 
-export const PILOT_COMMAND_CENTER_HELP_LINK = "How it works";
-
-export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What you'll get";
+export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
 
 export const PILOT_COMMAND_CENTER_OUTCOMES = [
-  "Findings",
-  "Decisions",
-  "Review trail",
-  "Governed decision record",
+  "Missing dependencies",
+  "Hidden risks",
+  "Cost drivers",
+  "Governance gaps",
+  "Evidence gaps",
+  "Decision impact",
 ] as const;
+
+export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
@@ -262,7 +295,7 @@ export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture rev
 export const BUYER_HOME_WELCOME_LEAD =
   "Start with the executive view, then the signed manifest, audit trail, and prioritized findings.";
 
-export const BUYER_HOME_REVIEWS_SECTION_HEADING = "Your review packages";
+export const BUYER_HOME_REVIEWS_SECTION_HEADING = "Workspace activity";
 
 export const BUYER_HOME_SECONDARY_CTA = "Create from evidence";
 
@@ -415,9 +448,39 @@ export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";
 
+export const BUYER_WORKSPACE_SHORT_NAME = "Claims Intake";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE = "Sample workspace";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_BODY =
+  "You are viewing the Claims Intake sample workspace. Workspace switching is disabled in this local demo.";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT =
+  "In a connected tenant, this menu lets you switch between workspaces and projects.";
+
+/** Shown only inside the sample-workspace popover technical-details disclosure. */
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS =
+  "Scope headers (tenant, workspace, project) route API requests. The workspace directory API is not available in this local demo, so the sample workspace stays active.";
+
+export const BUYER_SCOPE_SWITCHER_CONTINUE = "Continue";
+
+export const BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES = "Learn about workspaces";
+
+export const BUYER_SCOPE_SWITCHER_CONNECTED_INTRO = "Choose a workspace and project.";
+
+export const BUYER_SCOPE_CURRENT_WORKSPACE_TITLE = "Current workspace";
+
+export const BUYER_SCOPE_CURRENT_WORKSPACE_BODY =
+  "You are viewing the active workspace and project for this tenant.";
+
+export const BUYER_SCOPE_SWITCHER_LOAD_ERROR =
+  "We couldn't load workspaces for this tenant. Try again or contact support if the problem continues.";
+
+/** Legacy intro — prefer {@link BUYER_SCOPE_SAMPLE_WORKSPACE_BODY} in sample popovers. */
 export const BUYER_SCOPE_SWITCHER_INTRO =
   "This walkthrough uses the Claims Intake sample workspace. Switching live tenant scope is not required.";
 
+/** Legacy list-unavailable copy — keep for technical disclosures only. */
 export const BUYER_SCOPE_LIST_UNAVAILABLE =
   "Workspace directory is unavailable in this environment. The sample workspace remains active for the demonstration.";
 
@@ -494,14 +557,49 @@ export const BUYER_MANIFEST_DOWNLOAD_PREPARING = "Download is being prepared whe
 
 export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review package (ZIP)";
 
-export const BUYER_GRAPH_PAGE_LEAD =
-  "Decision traceability graph for this architecture review package — evidence, decisions, and governance links.";
+export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence trail";
 
-export const BUYER_GRAPH_LOAD_ERROR =
-  "We couldn't render the evidence graph. Check connectivity and try again.";
+export const BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE =
+  "Trace findings back to architecture inputs, review steps, evidence, and the signed review package.";
 
-export const BUYER_GRAPH_IDLE_DESCRIPTION =
-  "Load the decision traceability graph from a finalized review package. Open the signed manifest or audit trail to continue diligence.";
+export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "How evidence traceability works";
+
+export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence trail";
+
+export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample trail";
+
+export const BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE = "Open review package";
+
+export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review selected";
+
+export const BUYER_EVIDENCE_TRAIL_EMPTY_BODY =
+  "Start a review or open the Claims Intake sample package to inspect its evidence trail.";
+
+export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No reviews yet";
+
+export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY =
+  "Start a review or open the sample package to inspect how findings link to evidence.";
+
+export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Evidence trail unavailable";
+
+export const BUYER_EVIDENCE_TRAIL_ERROR_BODY =
+  "We could not load the graph for this review. Confirm the review package exists, then retry.";
+
+export const BUYER_EVIDENCE_TRAIL_VIEW_TRACE = "Trace table";
+
+export const BUYER_EVIDENCE_TRAIL_VIEW_GRAPH = "Graph view";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_FINDING = "Finding provenance";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_DECISION = "Decision traceability";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_ARCHITECTURE = "Architecture context";
+
+export const BUYER_GRAPH_PAGE_LEAD = BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE;
+
+export const BUYER_GRAPH_LOAD_ERROR = BUYER_EVIDENCE_TRAIL_ERROR_BODY;
+
+export const BUYER_GRAPH_IDLE_DESCRIPTION = BUYER_EVIDENCE_TRAIL_EMPTY_BODY;
 
 export const BUYER_GOVERNANCE_GOVERNED_USE_NOTES =
   "Governed-use record aligned with this architecture review package.";

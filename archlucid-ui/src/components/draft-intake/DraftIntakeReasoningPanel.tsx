@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
 const DEFAULT_INTAKE_QUESTION =
-  "What gaps or risks do you see in my intent and outcome before I start the architecture run?";
+  "What gaps or risks do you see in my intent and outcome before I start the architecture review?";
 
 type DraftIntakeReasonTurn = {
   message: string;
@@ -82,6 +83,7 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
         <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
           Manifest-free intake reasoning — grounded on your draft document, not a committed golden manifest.
         </p>
+        <DraftIntakeClaimLabel surface="llm-intake-reasoning" />
 
         {conversationThreadId !== null ? (
           <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">

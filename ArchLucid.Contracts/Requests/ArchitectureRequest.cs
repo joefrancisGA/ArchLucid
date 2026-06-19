@@ -22,10 +22,12 @@ public sealed class ArchitectureRequest
 
     /// <summary>
     ///     Natural-language description of the system and what the architecture must achieve.
-    ///     Minimum 10 characters; maximum 4 000 characters.
+    ///     Minimum <see cref="ArchitectureRequestFieldLimits.MinDescriptionLength" /> characters;
+    ///     maximum <see cref="ArchitectureRequestFieldLimits.MaxDescriptionLength" /> characters.
     /// </summary>
     [Required]
-    [MinLength(10)]
+    [MinLength(ArchitectureRequestFieldLimits.MinDescriptionLength)]
+    [MaxLength(ArchitectureRequestFieldLimits.MaxDescriptionLength)]
     public string Description
     {
         get;
@@ -48,13 +50,13 @@ public sealed class ArchitectureRequest
         set;
     } = "prod";
 
-    /// <summary>Primary cloud provider for the target architecture.</summary>
+    /// <summary>Primary cloud provider for the target architecture, or <see cref="CloudProvider.None" /> for evidence-only reviews.</summary>
     [Required]
     public CloudProvider CloudProvider
     {
         get;
         set;
-    } = CloudProvider.Azure;
+    } = CloudProvider.None;
 
     /// <summary>Hard constraints the architecture must satisfy (max 50 items).</summary>
     public List<string> Constraints
@@ -87,7 +89,10 @@ public sealed class ArchitectureRequest
         set;
     }
 
-    /// <summary>Free-text requirements supplementing the description (max 100 items, each max 4 000 characters).</summary>
+    /// <summary>
+    ///     Free-text requirements supplementing the description (max 100 items, each max
+    ///     <see cref="ArchitectureRequestFieldLimits.MaxInlineRequirementLength" /> characters).
+    /// </summary>
     public List<string> InlineRequirements
     {
         get;

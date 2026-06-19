@@ -159,22 +159,6 @@ public sealed class AuthorityRunOrchestrator(
                     scope.TenantId,
                     scope.WorkspaceId);
 
-
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.RunStarted,
-                    RunId = run.RunId,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            run.ProjectId,
-                            Queued = false
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                },
-                pipelineCt);
-
             request.RunId = run.RunId;
 
             bool queue = await asyncAuthorityPipelineModeResolver.ShouldQueueContextAndGraphStagesAsync(pipelineCt)
@@ -241,58 +225,80 @@ public sealed class AuthorityRunOrchestrator(
                     + "Enable FeatureManagement:FeatureFlags:AsyncAuthorityPipeline for SQL storage.");
             }
 
-            await using IAsyncDisposable executionConcurrencyLease =
-                await _tenantAuthorityPipelineConcurrencyGate.AcquireExecutionSlotAsync(
-                    scope.TenantId,
-                    run.RunId,
-                    authorityPipelineOptions.CurrentValue.Concurrency.RejectInlineCreateWhenConcurrencyUnavailable,
-                    pipelineCt);
+            // Commit the run persist so the lock is released; otherwise, audit events in stages will deadlock.
+            await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RunStarted,
+                    RunId = run.RunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            run.ProjectId,
+                            Queued = false
+                        },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                pipelineCt);
 
-            if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
-                await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
-
-
-            AuthorityPipelineContext ctx = new()
+            IArchLucidUnitOfWork stagesUow = await unitOfWorkFactory.CreateAsync(pipelineCt);
+            try
             {
-                Run = run,
-                Request = request,
-                UnitOfWork = uow,
-                Scope = scope,
-                RunActivity = runActivity
-            };
+                await using IAsyncDisposable executionConcurrencyLease =
+                    await _tenantAuthorityPipelineConcurrencyGate.AcquireExecutionSlotAsync(
+                        scope.TenantId,
+                        run.RunId,
+                        authorityPipelineOptions.CurrentValue.Concurrency.RejectInlineCreateWhenConcurrencyUnavailable,
+                        pipelineCt);
 
-            AuthorityPipelineStagesExecutionResult stageResult =
-                await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
 
-            if (stageResult.NeedsFinalizeOnCurrentUnitOfWork)
-            {
-                LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
-                    "(none)");
+                AuthorityPipelineContext ctx = new()
+                {
+                    Run = run,
+                    Request = request,
+                    UnitOfWork = stagesUow,
+                    Scope = scope,
+                    RunActivity = runActivity
+                };
 
-                RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
-                    run,
-                    ctx.ContextSnapshot!,
-                    ctx.FindingsSnapshot!,
-                    ctx.Manifest!,
-                    ctx.Trace!,
-                    scope,
-                    uow,
-                    pipelineCt);
+                AuthorityPipelineStagesExecutionResult stageResult =
+                    await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
 
-                LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_finalize", "authority_pipeline_committed",
-                    "(none)");
+                if (stageResult.NeedsFinalizeOnCurrentUnitOfWork)
+                {
+                    LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
+                        "(none)");
 
-                return finalized;
+                    RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
+                        run,
+                        ctx.ContextSnapshot!,
+                        ctx.FindingsSnapshot!,
+                        ctx.Manifest!,
+                        ctx.Trace!,
+                        scope,
+                        stagesUow,
+                        pipelineCt);
+
+                    LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_finalize", "authority_pipeline_committed",
+                        "(none)");
+
+                    return finalized;
+                }
+
+                if (stageResult.CompletedRun is null)
+                    throw new InvalidOperationException("Authority pipeline stages completed without a run record.");
+
+                LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages",
+                    "authority_pipeline_finished_out_of_band", "(none)");
+
+                return stageResult.CompletedRun;
             }
-
-            if (stageResult.CompletedRun is null)
-                throw new InvalidOperationException("Authority pipeline stages completed without a run record.");
-
-            LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages",
-                "authority_pipeline_finished_out_of_band", "(none)");
-
-            return stageResult.CompletedRun;
+            finally
+            {
+                await stagesUow.DisposeAsync();
+            }
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {

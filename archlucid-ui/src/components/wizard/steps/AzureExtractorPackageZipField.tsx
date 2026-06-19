@@ -10,15 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
-import { getBundledArchLucidAzurePackageSampleZipBytes } from "@/lib/arch-lucid-azure-package-sample-zip";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { recordPilotBaselineZipApplied } from "@/lib/pilot-baseline-zip-signal";
 import {
-  readArchLucidAzurePackageZipFromBytes,
   readArchLucidAzurePackageZipFromFile,
 } from "@/lib/read-arch-lucid-azure-package-zip";
 import { showError, showSuccess } from "@/lib/toast";
+import { applyBundledSamplePackageToWizard } from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type AzureExtractorPackageZipFieldProps = {
@@ -27,7 +26,7 @@ export type AzureExtractorPackageZipFieldProps = {
 
 /**
  * Client-side unpack of the read-only Azure packager ZIP to read `manifest.json` and prefill wizard fields
- * that map to the architecture run create payload (description, optional system name, topology hints).
+ * that map to the architecture review create payload (description, optional system name, topology hints).
  */
 export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFieldProps) {
   const { variant } = props;
@@ -64,16 +63,20 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     setBusy(true);
 
     try {
-      const result = readArchLucidAzurePackageZipFromBytes(getBundledArchLucidAzurePackageSampleZipBytes());
+      const applied = applyBundledSamplePackageToWizard(setValue, (file) => {
+        if (file !== null) {
+          recordPilotBaselineZipApplied();
+        }
+      });
 
-      if (!result.ok) {
-        setLocalError(result.message);
-        showError("Extractor ZIP", result.message);
+      if (!applied.ok) {
+        setLocalError(applied.message);
+        showError("Extractor ZIP", applied.message);
 
         return;
       }
 
-      applyManifestToWizard(result.manifest);
+      showSuccess(successMessage);
     } finally {
       setBusy(false);
     }
@@ -104,7 +107,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
               </code>{" "}
               (read-only inventory). Maximum size {maxMb} MB (matches server upload limit). Only{" "}
               <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">manifest.json</code>{" "}
-              is parsed in the browser; upload the full ZIP to ingestion when your run is configured.
+              is parsed in the browser; upload the full ZIP to ingestion when your review is configured.
             </p>
             {variant === "baseline" ? (
               <Button

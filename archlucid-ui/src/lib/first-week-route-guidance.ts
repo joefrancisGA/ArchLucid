@@ -36,7 +36,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review package.",
     bridgeCopy:
-      "Each architecture review is tracked as one review package — the same object from capture through signed manifest and export.",
+      "Each architecture review is tracked as one review package — the same object from capture through signed manifest and export. Start with briefs, diagrams, or IaC only (evidence-only); Azure extractor ZIP is optional when you need live topology or cost grounding.",
     primaryAction: { label: "Start new review", href: "/reviews/new" },
     operateDeferralNote:
       "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
@@ -51,22 +51,21 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
     bridgeCopy:
-      "ArchLucid will create a review package with findings, evidence, governance context, and executive-ready outputs.",
+      "ArchLucid produces a defensible review package — committed findings, evidence trail, and sponsor-ready exports. Default to evidence-only (no cloud target) unless you attach Azure extractor output.",
     operateDeferralNote:
-      "Policy packs and deeper governance can wait until after your first committed package unless your pilot requires them.",
+      "Policy packs and deeper governance can wait until after your first committed package. Azure extractor ZIP is optional — see the InfoSec pre-read if security must approve the script.",
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review package.",
     bridgeCopy:
-      "The list shows every review package in this workspace — each with its own signed manifest and exports.",
-    primaryAction: { label: "Start new review", href: "/reviews/new" },
-    operateDeferralNote: "Compare is optional — not required for first-pilot success.",
+      "Each package gives you the review record, findings, evidence trail, manifest, and exports.",
+    operateDeferralNote: "",
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {
     useWhen: "The manifest is committed and you need sponsor-ready exports or an executive summary.",
     bridgeCopy:
-      "This review package is complete — downloads and executive summary live on this page before you explore Operate.",
+      "This review package is complete — downloads and executive summary live on this page before you explore Operate. Use 'Copy for AI assistant' in the exports section to paste findings into Claude, GPT, or Gemini.",
     primaryAction: { label: "Open exports section", href: "#artifacts-exports" },
     operateDeferralNote: "Operate surfaces unlock in the sidebar after your first committed review when you need compare, graph, or digests.",
   },

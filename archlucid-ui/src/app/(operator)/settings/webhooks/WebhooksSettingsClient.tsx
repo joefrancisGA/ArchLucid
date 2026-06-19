@@ -160,7 +160,7 @@ export function WebhooksSettingsClient() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="w-full max-w-3xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
       <header className="flex flex-wrap items-start gap-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 dark:bg-neutral-900">
           <Webhook className="h-6 w-6 text-neutral-700 dark:text-neutral-200" aria-hidden />

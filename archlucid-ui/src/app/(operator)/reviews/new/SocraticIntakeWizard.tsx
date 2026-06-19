@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeDecisionReceiptCard } from "@/components/draft-intake/DraftIntakeDecisionReceiptCard";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
@@ -248,6 +249,7 @@ export function SocraticIntakeWizard() {
       <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="socratic-intake-progress">
         {stepLabel} — {INTAKE_STEPS[step]?.label}
       </p>
+      <DraftIntakeClaimLabel surface="structural-admission" />
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
 
@@ -265,11 +267,11 @@ export function SocraticIntakeWizard() {
           <CardHeader>
             <CardTitle className="text-base">What-if branch</CardTitle>
             <CardDescription>
-              Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate run, then Compare.
+              Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate review, then Compare.
               {parentSpawnedRunId !== null ? (
                 <>
                   {" "}
-                  Parent run{" "}
+                  Parent review{" "}
                   <Link
                     href={comparePageHrefAdaptive(parentSpawnedRunId)}
                     className="font-medium text-sky-900 underline dark:text-sky-200"
@@ -453,7 +455,7 @@ export function SocraticIntakeWizard() {
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[2].label}</CardTitle>
             <CardDescription>
-              Submit launches the canonical run-create path — same authority pipeline as other review entry points.
+              Submit launches the canonical review-create path — same authority pipeline as other review entry points.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

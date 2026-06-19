@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -169,6 +170,8 @@ export function FindingExplainabilityDialog({
                 </p>
               ) : null}
             </section>
+
+            <ExplainabilityTraceTree data={data} />
 
             <details className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40">
               <summary className="cursor-pointer select-none rounded-md px-3 py-2 text-sm font-semibold text-neutral-900 marker:text-neutral-400 dark:text-neutral-100">

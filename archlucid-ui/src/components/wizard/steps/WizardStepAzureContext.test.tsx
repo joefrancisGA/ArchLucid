@@ -20,12 +20,73 @@ describe("WizardStepAzureContext", () => {
     });
   });
 
+  it("renders the optional enrichment heading", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    expect(screen.getByRole("heading", { name: "Optional evidence enrichment" })).toBeInTheDocument();
+  });
+
+  it("renders helper copy indicating the brief is sufficient without uploading", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    expect(
+      screen.getByText(/continue with the pasted architecture brief without uploading anything/i),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the Azure ZIP disclosure toggle labeled 'Add Azure inventory ZIP'", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    expect(screen.getByTestId("wizard-azure-optional-toggle")).toBeInTheDocument();
+    expect(screen.getByText("Add Azure inventory ZIP")).toBeInTheDocument();
+    expect(screen.getByText("optional")).toBeInTheDocument();
+  });
+
+  it("starts with the Azure ZIP section collapsed (aria-expanded=false)", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    const toggle = screen.getByTestId("wizard-azure-optional-toggle");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("expands the Azure ZIP section when the toggle is clicked", () => {
+    render(
+      <WizardFormTestHarness>
+        <WizardStepAzureContext />
+      </WizardFormTestHarness>,
+    );
+
+    const toggle = screen.getByTestId("wizard-azure-optional-toggle");
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
+
   it("shows the extractor command with the active tenant id prefilled and copies it", async () => {
     render(
       <WizardFormTestHarness>
         <WizardStepAzureContext />
       </WizardFormTestHarness>,
     );
+
+    fireEvent.click(screen.getByTestId("wizard-azure-optional-toggle"));
 
     await waitFor(() => {
       expect(screen.getByText(new RegExp(`-SubscriptionId '${DEV_SCOPE_TENANT_ID}'`))).toBeInTheDocument();

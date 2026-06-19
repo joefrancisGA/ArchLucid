@@ -53,7 +53,7 @@ export function FirstVisitHelpAutoOpen() {
     >
       <p className="m-0 text-al-text-primary">
         <span className="font-medium">3 things to know:</span> start one review package, explore a sample package if you
-        are not ready to connect Azure, then invite a reviewer when you want governance sign-off.
+        are not ready to connect a cloud environment, then invite a reviewer when you want governance sign-off.
       </p>
       <div className="flex flex-wrap gap-2">
         <Button asChild type="button" size="sm">

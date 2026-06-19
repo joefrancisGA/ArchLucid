@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   COMMAND_PALETTE_DISPLAY_SHORTCUT,
+  OPERATOR_HELP_ARIA_KEYSHORTCUTS,
+  OPERATOR_HELP_ARIA_LABEL,
   commandPaletteOpenAriaLabel,
   commandPaletteTooltipLine,
 } from "@/lib/keyboard-shortcut-display";
@@ -25,5 +27,10 @@ describe("keyboard-shortcut-display", () => {
   it("keeps aria labels free of embedded shortcut glyphs", () => {
     expect(commandPaletteOpenAriaLabel("Open command palette")).toBe("Open command palette");
     expect(commandPaletteOpenAriaLabel("Open command palette")).not.toMatch(/Ctrl|⌘/);
+  });
+
+  it("exposes operator help aria label and shortcuts", () => {
+    expect(OPERATOR_HELP_ARIA_LABEL).toBe("Help (F1)");
+    expect(OPERATOR_HELP_ARIA_KEYSHORTCUTS).toContain("F1");
   });
 });

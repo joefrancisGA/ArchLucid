@@ -43,7 +43,7 @@ public sealed class TemplateProviderTests
             request.Should().NotBeNull();
             request.RequestId.Should().NotBeNullOrWhiteSpace();
             request.RequestId.Length.Should().BeLessOrEqualTo(64);
-            request.Description.Length.Should().BeInRange(10, 4000);
+            request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
             request.SystemName.Should().NotBeNullOrWhiteSpace();
             request.Environment.Should().NotBeNullOrWhiteSpace();
             request.CloudProvider.Should().Be(CloudProvider.Azure);

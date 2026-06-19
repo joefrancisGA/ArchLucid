@@ -27,7 +27,7 @@ export default async function ManifestDetailPage({
 
   if (result.kind === "not-found") {
     return (
-      <div className="mx-auto max-w-4xl px-1 py-2 sm:px-0">
+      <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0">
         <OperatorBrandedNotFound showProcessingHint retryLabel="Retry loading manifest" />
       </div>
     );

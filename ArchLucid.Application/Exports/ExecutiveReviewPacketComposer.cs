@@ -38,6 +38,10 @@ public static class ExecutiveReviewPacketComposer
         sb.AppendLine($"**Generated (UTC):** {generatedUtc:yyyy-MM-dd HH:mm:ss} Z");
         sb.AppendLine();
         AppendManifestSummarySection(sb, detail);
+
+        if (detail.Run is not null)
+            SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, detail.Run);
+
         AppendTopDecisionsSection(sb, topDecisions);
         AppendRunSummarySection(sb, detail, executiveSummary, topFindingTitles);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
@@ -212,7 +216,7 @@ public static class ExecutiveReviewPacketComposer
         sb.AppendLine();
         sb.AppendLine($"- **System:** {manifest.SystemName}");
         sb.AppendLine($"- **Manifest version:** {manifestVersion}");
-        sb.AppendLine($"- **Run:** `{runId}`");
+        sb.AppendLine($"- **Review ID:** `{runId}`");
         sb.AppendLine($"- **Status:** {statusLabel}");
         sb.AppendLine();
     }
@@ -226,7 +230,7 @@ public static class ExecutiveReviewPacketComposer
         RunSummaryOnePagerDocumentModel onePager =
             RunSummaryOnePagerDocumentFactory.Create(detail, executiveSummary, topFindingTitles);
 
-        sb.AppendLine("## Run summary");
+        sb.AppendLine("## Review summary");
         sb.AppendLine();
         sb.AppendLine(RunSummaryOnePagerMarkdownRenderer.Render(onePager).TrimEnd());
         sb.AppendLine();
@@ -234,7 +238,11 @@ public static class ExecutiveReviewPacketComposer
 
     private static void AppendRoiBasisSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)
     {
+        SponsorRoiClaimDisposition disposition = SponsorRoiExecutivePacketDispositionResolver.Resolve(roiSummary);
+
         sb.AppendLine("## ROI basis");
+        sb.AppendLine();
+        sb.AppendLine($"**ROI claim disposition:** {SponsorRoiClaimDispositionRules.DescribeLeadLine(disposition)}");
         sb.AppendLine();
         sb.AppendLine($"**Savings pricing basis:** {roiSummary.SavingsPricingBasis}");
         sb.AppendLine(
@@ -249,8 +257,16 @@ public static class ExecutiveReviewPacketComposer
                 $"**Cost evidence freshness:** {roiSummary.CostEvidenceFreshnessStatus} (stale after {roiSummary.CostEvidenceStaleAfterDays.ToString(CultureInfo.InvariantCulture)} days)");
         }
 
+        string savingsQualifier = disposition switch
+        {
+            SponsorRoiClaimDisposition.Pass => "sponsor-quotable after human redaction",
+            SponsorRoiClaimDisposition.Warn => "estimate-basis — not a customer-specific savings attestation",
+            SponsorRoiClaimDisposition.Hold => "internal planning only — do not circulate projected savings externally",
+            _ => throw new ArgumentOutOfRangeException(nameof(disposition), disposition, null),
+        };
+
         sb.AppendLine(
-            $"**Estimated savings (USD):** {roiSummary.TotalEstimatedUsdSavings.ToString("N2", CultureInfo.InvariantCulture)}");
+            $"**Estimated savings (USD):** {roiSummary.TotalEstimatedUsdSavings.ToString("N2", CultureInfo.InvariantCulture)} ({savingsQualifier})");
     }
 
     private static void AppendRealizedValueSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)

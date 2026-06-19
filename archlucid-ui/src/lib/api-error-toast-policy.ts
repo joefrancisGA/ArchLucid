@@ -1,5 +1,12 @@
 import type { ApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
+import {
+  buildValidationProblemDisplayCopy,
+  isHttpRequestValidationFailure,
+  sanitizeOperatorFacingText,
+} from "@/lib/api-validation-problem";
+import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 
 export type ApiRequestErrorToastPlan =
   | { readonly action: "suppress" }
@@ -8,6 +15,8 @@ export type ApiRequestErrorToastPlan =
       readonly title: string;
       readonly detail: string;
       readonly type: "error" | "warning";
+      readonly endpointLine?: string | null;
+      readonly validationFields?: readonly ApiValidationFieldError[];
     };
 
 export type ApiConnectivityFailureKind =
@@ -123,8 +132,50 @@ export function resolveApiRequestErrorToastPlan(
 
   return {
     action: "show",
-    title: "Server error",
-    detail: err.message,
+    title: resolveNonConnectivityToastTitle(err),
+    detail: resolveNonConnectivityToastDetail(err),
     type: "error",
+    endpointLine: resolveValidationEndpointLine(err),
+    validationFields: resolveValidationFields(err),
   };
+}
+
+function resolveNonConnectivityToastTitle(err: ApiRequestError): string {
+  if (isHttpRequestValidationFailure(err.httpStatus, err.problem)) {
+    return buildValidationProblemDisplayCopy(err.problem, { httpStatus: err.httpStatus }).heading;
+  }
+
+  const copy = operatorCopyForProblem(err.problem, err.message, { httpStatus: err.httpStatus });
+
+  return copy.heading;
+}
+
+function resolveNonConnectivityToastDetail(err: ApiRequestError): string {
+  if (isHttpRequestValidationFailure(err.httpStatus, err.problem)) {
+    const copy = buildValidationProblemDisplayCopy(err.problem, { httpStatus: err.httpStatus });
+
+    if (copy.fieldErrors.length > 0) {
+      return "The request body failed server-side validation. See each field below.";
+    }
+  }
+
+  return sanitizeOperatorFacingText(err.message);
+}
+
+function resolveValidationEndpointLine(err: ApiRequestError): string | null {
+  if (!isHttpRequestValidationFailure(err.httpStatus, err.problem)) {
+    return null;
+  }
+
+  return buildValidationProblemDisplayCopy(err.problem, { httpStatus: err.httpStatus }).endpointLine;
+}
+
+function resolveValidationFields(err: ApiRequestError): readonly ApiValidationFieldError[] | undefined {
+  if (!isHttpRequestValidationFailure(err.httpStatus, err.problem)) {
+    return undefined;
+  }
+
+  const fields = buildValidationProblemDisplayCopy(err.problem, { httpStatus: err.httpStatus }).fieldErrors;
+
+  return fields.length > 0 ? fields : undefined;
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
+import { FORTHCOMING_CLOUD_PROVIDER_ROWS } from "@/lib/forthcoming-cloud-provider-rows";
 
 import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
 
@@ -50,13 +51,14 @@ export function CloudConnectionsPageClient() {
   }, [refreshConnections]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6" data-testid="cloud-connections-page">
+    <div className="w-full max-w-3xl space-y-6" data-testid="cloud-connections-page">
       <div>
         <div className="flex items-start gap-2">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cloud connections</h1>
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Configure continuous ingestion from your cloud providers.
+          Optional continuous ingestion from Azure when you want production-faithful evidence. Brief, documents, diagrams,
+          and IaC reviews do not require a cloud connection.
         </p>
       </div>
 
@@ -70,6 +72,34 @@ export function CloudConnectionsPageClient() {
         </CardHeader>
         <CardContent>
           <Tier2ConnectionWizard onSaved={handleSaved} />
+        </CardContent>
+      </Card>
+
+      <Card data-testid="cloud-connections-forthcoming-providers">
+        <CardHeader>
+          <CardTitle>More providers (V1.1)</CardTitle>
+          <CardDescription>
+            Azure is the only continuous-ingestion connector in V1. Additional providers are on the roadmap and appear here
+            as disabled placeholders.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {FORTHCOMING_CLOUD_PROVIDER_ROWS.map((provider) => (
+            <div
+              key={provider.id}
+              className="rounded-md border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+              data-testid={`cloud-provider-row-${provider.id}`}
+              aria-disabled="true"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="m-0 font-semibold text-neutral-800 dark:text-neutral-100">{provider.name}</p>
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                  V1.1
+                </span>
+              </div>
+              <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{provider.description}</p>
+            </div>
+          ))}
         </CardContent>
       </Card>
 

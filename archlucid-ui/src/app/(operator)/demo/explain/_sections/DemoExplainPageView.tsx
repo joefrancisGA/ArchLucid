@@ -20,7 +20,7 @@ export function DemoExplainPageView(props: Props) {
   return (
     <>
       <div
-        className="mx-auto max-w-6xl space-y-6 p-4 pb-28 md:pb-24"
+        className="w-full max-w-[1440px] space-y-6 p-4 pb-28 md:pb-24"
         data-testid="demo-explain-page"
         aria-busy={state.loading}
       >

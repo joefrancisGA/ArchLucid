@@ -9,9 +9,20 @@ const { mockPathname } = vi.hoisted(() => ({
   mockPathname: vi.fn((): string => "/"),
 }));
 
+const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
+
 vi.mock("next/navigation", () => ({
   usePathname: (): string => mockPathname(),
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.value,
+  };
+});
 
 vi.mock("next/link", () => ({
   default: ({
@@ -34,6 +45,7 @@ vi.mock("next/link", () => ({
 
 describe("SidebarNav (primary navigation)", () => {
   beforeEach(() => {
+    buyerPolishedMock.value = false;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     mockPathname.mockReturnValue("/");
 
@@ -54,14 +66,15 @@ describe("SidebarNav (primary navigation)", () => {
       const homeLink = within(nav).getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(within(nav).getByRole("link", { name: "Evidence intake" })).toHaveAttribute("href", "/reviews/new");
-      expect(within(nav).getByRole("link", { name: "Evidence intake" })).toHaveAttribute(
+      expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+      expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute(
         "title",
-        "Evidence intake — start a new architecture review (guided wizard through review progress tracking) (Alt+N)",
+        "Start review — Quick review, Guided intake, or full wizard (Alt+N)",
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
-      expect(within(nav).getByRole("link", { name: "Architecture reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Portfolio overview" })).toHaveAttribute("href", "/dashboard");
+      expect(within(nav).queryByRole("link", { name: "ROI baselines" })).toBeNull();
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();
@@ -112,17 +125,12 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
       expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
 
-      fireEvent.click(screen.getByRole("button", { name: "Governance" }));
-
       const governanceNav = screen.getByRole("navigation", { name: "Governance" });
 
       expect(governanceNav).toBeInTheDocument();
       expect(within(governanceNav).getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
       expect(within(governanceNav).getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/audit");
-      expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
-        "title",
-        "Policy, audit, alerts, and trust controls.",
-      );
+      expect(screen.queryByRole("button", { name: "Governance" })).toBeNull();
       expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
     },
@@ -149,11 +157,35 @@ describe("SidebarNav (primary navigation)", () => {
   it("does not show V1 sidebar customization controls on the home sidebar", () => {
     render(<SidebarNav />);
 
-    expect(screen.queryByTestId("sidebar-show-all-features-toggle")).toBeNull();
+    expect(screen.queryByTestId("nav-advanced-unlock")).toBeNull();
     expect(screen.queryByRole("button", { name: "Sidebar layout" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Fewer sidebar links" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Show governance & analysis tools/ })).toBeNull();
     expect(screen.queryByTestId("sidebar-layout-settings-dialog")).toBeNull();
+    expect(screen.getByTestId("sidebar-operator-advanced-mode-toggle")).toBeInTheDocument();
+  });
+
+  it("reveals Analysis destinations when Advanced mode is enabled", async () => {
+    render(<SidebarNav />);
+
+    fireEvent.click(screen.getByTestId("sidebar-operator-advanced-mode-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Compare two reviews" })).toBeInTheDocument();
+    });
+
+    expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
+    expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("1");
+    expect(localStorage.getItem("archlucid-nav-expanded")).toBe("true");
+  });
+
+  it("does not render collapsible triggers for review-workflow nav groups", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByRole("button", { name: /^Review work$/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Analysis$/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Governance$/i })).toBeNull();
+    expect(screen.getByText("Review work")).toBeInTheDocument();
   });
 
   it('reveals extended Review work links when "N more" is clicked in Review work', async () => {
@@ -186,7 +218,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Show 3 more destinations in Review work" }));
+    fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
     expect(screen.queryByRole("dialog", { name: "Sidebar layout" })).toBeNull();
     expect(within(nav).getByRole("link", { name: "Risk register" })).toHaveAttribute(
@@ -203,6 +235,7 @@ describe("SidebarNav (primary navigation)", () => {
 
 describe("SidebarNav progressive disclosure without navigation presets", () => {
   beforeEach(() => {
+    buyerPolishedMock.value = false;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     mockPathname.mockReturnValue("/");
     localStorage.clear();
@@ -233,10 +266,45 @@ describe("SidebarNav progressive disclosure without navigation presets", () => {
     });
     expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");
 
-    fireEvent.click(screen.getByRole("button", { name: "Governance" }));
-
     const governanceNav = screen.getByRole("navigation", { name: "Governance" });
 
     expect(within(governanceNav).getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/audit");
+  });
+});
+
+describe("SidebarNav buyer-polished desktop shell", () => {
+  beforeEach(() => {
+    buyerPolishedMock.value = true;
+    delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+    mockPathname.mockReturnValue("/");
+    localStorage.clear();
+  });
+
+  it("keeps label-based review nav visible without a collapsible group trigger", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByRole("button", { name: /Review work/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Reviews$/i })).toBeNull();
+    expect(screen.getByText("Reviews")).toBeInTheDocument();
+
+    const nav = screen.getByRole("navigation", { name: "Review work" });
+    const homeLink = within(nav).getByRole("link", { name: "Home" });
+    expect(homeLink).toHaveAttribute("href", "/");
+    expect(homeLink).toHaveAttribute("aria-current", "page");
+    expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
+    expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute(
+      "href",
+      "/reviews?projectId=default",
+    );
+    expect(within(nav).getByRole("link", { name: "Portfolio overview" })).toHaveAttribute("href", "/dashboard");
+    expect(within(nav).getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
+  });
+
+  it("does not show Help in the sidebar — help is top-bar only", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByTestId("sidebar-buyer-help-link")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Help" })).not.toBeInTheDocument();
   });
 });

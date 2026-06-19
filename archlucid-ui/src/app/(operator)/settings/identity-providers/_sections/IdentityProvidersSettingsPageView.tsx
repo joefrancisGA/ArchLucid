@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
+import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
@@ -31,7 +32,7 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
   } = model;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="w-full max-w-3xl space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Identity providers</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
@@ -114,6 +115,8 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
       {samlOperationalHealthLoaded ? (
         <SamlOperationalHealthStrip payload={samlOperationalHealth} fetchNote={samlOperationalHealthNote} />
       ) : null}
+
+      <AuthTokenTestMappingCard />
     </div>
   );
 }

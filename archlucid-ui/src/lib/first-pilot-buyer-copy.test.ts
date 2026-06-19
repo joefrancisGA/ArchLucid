@@ -28,6 +28,8 @@ describe("first-pilot-buyer-copy", () => {
 
     expect(ingest?.shortBody).toBe(FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload);
     expect(ingest?.shortBody.toLowerCase()).not.toContain("dry run");
+    expect(ingest?.primaryLabel.toLowerCase()).toBe("add evidence");
+    expect(ingest?.shortBody.toLowerCase()).toContain("brief");
   });
 
   it("readiness cockpit proof and second-review rows use buyer-safe vocabulary", () => {

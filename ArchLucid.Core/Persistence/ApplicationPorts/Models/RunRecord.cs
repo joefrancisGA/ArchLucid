@@ -180,6 +180,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>JSON-serialized <see cref="ArchLucid.Contracts.Runs.ReviewRunEngineProvenance" />; null until execute completes.</summary>
+    public string? EngineProvenanceJson
+    {
+        get;
+        set;
+    }
+
     /// <summary>Count of user/API-initiated retries after <see cref="LegacyRunStatus" /> <c>Failed</c>.</summary>
     public int RetryCount
     {

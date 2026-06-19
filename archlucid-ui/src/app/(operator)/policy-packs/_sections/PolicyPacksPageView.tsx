@@ -113,6 +113,7 @@ export function PolicyPacksPageView(props: Props) {
             buyerPolishedShell={m.buyerPolishedShell}
             canMutatePacks={m.canMutatePacks}
             packs={m.packs}
+            effectivePackIds={new Set((m.effective?.packs ?? []).map((p) => p.policyPackId))}
             selectedPackId={m.selectedPackId}
             onSelectedPackIdChange={m.setSelectedPackId}
           />

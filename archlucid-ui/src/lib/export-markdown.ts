@@ -756,7 +756,7 @@ export function formatGoldenManifestMarkdown(
     body = formatManifestSummaryFallback(options.manifestSummaryFallback, options.runId ?? null);
   } else {
     body =
-      `# Golden manifest export\n\n` +
+      `# Signed review record export\n\n` +
       `Manifest JSON was not available and no summary fallback was provided.\n`;
   }
 

@@ -5,7 +5,7 @@
 
 Use this page when you need the **Core** first-pilot workflow — the canonical four-step path from “new review” to committed manifest + review package. It is **not** one template among many: **Specialty** accelerator templates (Azure SaaS, AI governance, healthcare) are optional buyer-job narratives you choose **after** Core first value or when the buyer’s job clearly matches that template.
 
-The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); evaluators may start from [`onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) (compact path, not a second checklist). This page only explains the shape of first value. For a **one-sitting** time-boxed path with timing guidance, see [`runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md`](runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md).
+The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); evaluators may start from [`onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) (compact path, not a second checklist). This page only explains the shape of first value. For a **one-sitting** time-boxed path with timing guidance, see [`runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md`](runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md). Principal architects under time pressure should start from [`library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md`](library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md) (seven-step expert lane with stop-if-value-not-seen checkpoint).
 
 **Input:** buyer architecture evidence or an explicitly accepted demo workspace.  
 **Output:** one defensible architecture review package with committed findings, evidence labels, artifacts, and sponsor handoff material.
@@ -67,3 +67,17 @@ Four steps — canonical sequence for sponsor-facing copy:
 **Sponsor-visible artifact:** after commit, use the operator **review detail** (**“Email this review to your sponsor”** banner when manifest exists) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.
 
 `runId` is still the API/CLI tracking id. Use it in support tickets and commands, but keep buyer copy centered on the architecture review package.
+
+---
+
+## Evidence-only path (no Azure extractor)
+
+Use this path when security has not yet approved the Azure extractor script, or when your first session only has briefs, diagrams, IaC, or policy documents.
+
+| Step | Action |
+|------|--------|
+| 1 | Create a review with **`cloudProvider: None`** (operator wizard: **No cloud / evidence-only**). |
+| 2 | Upload evidence files or paste the architecture brief — extractor ZIP is **not** required. |
+| 3 | Execute → finalize → export the sponsor packet. |
+
+**When to add Azure extractor later:** live subscription inventory, cost lines, or orphan-resource findings. Share [`go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md) with InfoSec before Phase B of [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md).

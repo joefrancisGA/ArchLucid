@@ -52,9 +52,15 @@ function Get-FirstPilotFindingPhaseMap {
         'ai-quality-proof',
         'ai-readiness-gate',
         'roi-basis-labels',
+        'paid-pilot-baseline-readiness',
+        'first-non-obvious-moment',
+        'pilot-dismissal-trigger',
+        'top-severity-finding-challenge',
+        'pilot-reuse-cohort-tracker',
         'pilot-llm-cost-summary',
         'demo-derived-roi-validation',
-        'retrieval-ir-evidence'
+        'retrieval-ir-evidence',
+        'pilot-decision-ledger'
     )) {
         $map[$name] = 'sponsor-package'
     }

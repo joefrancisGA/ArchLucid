@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
@@ -47,7 +48,7 @@ function ExecutiveRoiDashboardSections({
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   return (
-    <div className={isExecutiveSurface ? "mx-auto max-w-6xl space-y-4" : "mx-auto max-w-6xl space-y-4 px-4 py-4"}>
+    <OperatorPageContainer variant="dashboard" className="space-y-4">
       <ExecutiveDashboardBaselineWarningBanner />
       {isExecutiveSurface ? (
         <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} roiSummary={summary} />
@@ -100,7 +101,7 @@ function ExecutiveRoiDashboardSections({
         <ExecutiveRoiTrendSection defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
         <ExecutiveRoiEnvironmentSavingsSection />
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }
 

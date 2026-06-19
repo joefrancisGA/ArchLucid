@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpDocsClient } from "./HelpDocsClient";
 import { HelpProductGuide } from "./HelpProductGuide";
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 /** Product guidance (guide tab default) + documentation index tab. */
 export default function HelpPage() {
   return (
-    <div className={OPERATOR_LAYOUT.majorSectionGap}>
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Help</h1>
@@ -25,6 +26,6 @@ export default function HelpPage() {
       </div>
 
       <HelpTabsShell guide={<HelpProductGuide />} docs={<HelpDocsClient />} />
-    </div>
+    </OperatorPageContainer>
   );
 }

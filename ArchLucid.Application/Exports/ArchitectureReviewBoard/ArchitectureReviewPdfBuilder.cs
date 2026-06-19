@@ -115,6 +115,15 @@ public sealed class ArchitectureReviewPdfBuilder
                     .FitArea();
                 column.Item().Height(16);
             }
+            else
+            {
+                column.Item()
+                    .Text(ArchitectureReviewBoardCoverPageContent.LogoPlaceholderLabel)
+                    .FontSize(9)
+                    .FontColor(Colors.Grey.Darken2)
+                    .Italic();
+                column.Item().Height(16);
+            }
 
             column.Item().Text(cover.Title).Bold().FontSize(22);
             column.Item().Height(8);

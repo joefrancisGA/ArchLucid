@@ -57,7 +57,7 @@ describe("FirstPilotOperatingRail", () => {
     expect(screen.getByRole("heading", { name: "Full operating path" })).toBeInTheDocument();
     expect(screen.getByText(/V1\.1 connectors/i)).toBeInTheDocument();
     expect(screen.getByText(/Execute the review pipeline/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Extract and upload" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Add evidence" })).toBeInTheDocument();
   });
 
   it("shows buyer-safe copy and hides github troubleshoot links in buyer-polished shell", async () => {

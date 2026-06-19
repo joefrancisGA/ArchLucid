@@ -30,6 +30,27 @@ public sealed class OidcAuthorityMetadataProbeTests
     }
 
     [Fact]
+    public async Task ProbeAsync_skips_when_local_jwt_signing_pem_path_is_configured()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "JwtBearer",
+                ["ArchLucidAuth:Authority"] = "https://login.example.com/tenant/v2.0",
+                ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = "/tmp/ci-jwt-pub.pem",
+            })
+            .Build();
+
+        HttpClient client = new(new StubHttpMessageHandler(_ => throw new InvalidOperationException("HTTP must not run.")));
+
+        OidcAuthorityMetadataProbe.ProbeResult result =
+            await OidcAuthorityMetadataProbe.ProbeAsync(configuration, client, CancellationToken.None);
+
+        result.IsApplicable.Should().BeFalse();
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task ProbeAsync_returns_success_when_discovery_document_is_reachable()
     {
         IConfiguration configuration = new ConfigurationBuilder()

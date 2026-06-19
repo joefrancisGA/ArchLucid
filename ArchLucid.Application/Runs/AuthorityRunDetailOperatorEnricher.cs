@@ -56,6 +56,8 @@ public sealed class AuthorityRunDetailOperatorEnricher(
     {
         ArgumentNullException.ThrowIfNull(detail);
 
+        detail.EngineProvenance = ReviewRunEngineProvenanceJson.TryDeserialize(detail.Run.EngineProvenanceJson);
+
         string runHex = detail.Run.RunId.ToString("N");
 
         detail.LastAgentExecutionFailure =

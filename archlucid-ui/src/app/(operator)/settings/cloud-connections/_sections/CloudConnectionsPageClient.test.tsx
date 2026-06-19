@@ -45,6 +45,9 @@ describe("CloudConnectionsPageClient", () => {
     });
 
     expect(screen.getByText("Security review checklist")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-forthcoming-providers")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-provider-row-aws")).toHaveTextContent("V1.1");
+    expect(screen.getByTestId("cloud-provider-row-gcp")).toHaveTextContent("V1.1");
     expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();
   });
 

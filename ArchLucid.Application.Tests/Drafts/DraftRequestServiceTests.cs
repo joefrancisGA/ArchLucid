@@ -62,6 +62,7 @@ public sealed class DraftRequestServiceTests
         _service = new DraftRequestService(
             _repository,
             _admissionGate,
+            new PassThroughDraftSemanticAdmissionEvaluator(),
             new QuestionSelectionEngine(_governanceLoader.Object),
             _projector,
             _runCreateOrchestrator.Object,

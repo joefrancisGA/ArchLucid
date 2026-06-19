@@ -101,13 +101,14 @@ public sealed class TopologyAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                _logger,
                 cancellationToken);
 
             lastCompletionJson = rawJson;
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
+            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             await traceRecorder.RecordAsync(
@@ -134,7 +135,7 @@ public sealed class TopologyAgentHandler(
         }
         catch (Exception ex)
         {
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
+            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             if (ex is AgentResultSchemaViolationException sv)

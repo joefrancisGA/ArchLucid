@@ -27,10 +27,25 @@ describe("not-found", () => {
     render(<NotFound />);
 
     expect(screen.getByTestId("branded-not-found")).toHaveTextContent("Page not found");
-    expect(screen.getByText("We could not find that in ArchLucid")).toBeInTheDocument();
+    expect(screen.getByText("We could not find that ArchLucid artifact")).toBeInTheDocument();
+    expect(
+      screen.getByText(/review package, evidence item, finding, or workspace item/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/If the review was just created, wait a moment and retry/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/open Review packages and confirm the workspace selector is set correctly/i),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByTestId("not-found-home")).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
-    expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByTestId("not-found-review-packages")).toHaveAttribute(
+      "href",
+      "/reviews?projectId=default",
+    );
+    expect(screen.getByTestId("not-found-start-review")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("not-found-sample-review")).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
+    expect(screen.queryByRole("link", { name: "Risk register" })).not.toBeInTheDocument();
   });
 });

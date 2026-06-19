@@ -13,12 +13,17 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 {
+    private const string LogPrefix = nameof(GreenfieldSqlApiFactory);
+
+    private readonly IntegrationTestWebAppFactoryHostLifecycle _hostLifecycle = new();
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("Sql");
     private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
 
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
     {
+        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
+
         try
         {
             string databaseName = "ArchLucidGreenfield_" + Guid.NewGuid().ToString("N");
@@ -75,6 +80,11 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         settings["ArchLucidAuth:Mode"] = "DevelopmentBypass";
         settings["Authentication:ApiKey:DevelopmentBypassAll"] = "true";
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        // 300 s covers sp_getapplock wait (DistributedIdempotencyLockTimeoutMilliseconds = 180 s + 120 s ADO headroom)
+        // and heavy migration queries.  Individual repositories that must fail fast under CI SQL pressure
+        // (e.g. DapperAuditRepository.AppendAsync) must set an explicit commandTimeout on their CommandDefinition
+        // rather than relying on this global.  Do NOT raise this value without also reviewing audit / outbox
+        // commandTimeout caps — they intentionally do NOT inherit the global to avoid consuming the pipeline budget.
         settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300";
         settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
         // Keep lock wait below slow-shard hang guards; 3 min is enough for one winner + idempotent replays in CI.
@@ -114,5 +124,16 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         {
             // Best-effort cleanup (SQL Server may be unavailable on teardown).
         }
+    }
+
+    /// <summary>
+    ///     Bounds host teardown so a wedged SQL hosted service or connection cannot consume the CI
+    ///     blame-hang inactivity window. Mirrors the guard added to <see cref="AlertLifecycleWebAppFactory" />
+    ///     for CI #2168/#2195 — applied here because greenfield SQL host teardown is heavier (active
+    ///     connections, outbox workers) and the missing cap was identified in CI #2224.
+    /// </summary>
+    public override ValueTask DisposeAsync()
+    {
+        return _hostLifecycle.DisposeHostAsync(LogPrefix, () => base.DisposeAsync());
     }
 }

@@ -112,6 +112,7 @@ public sealed class ComplianceAgentHandler(
                 baseUserPrompt,
                 request.MaxTokensOverride,
                 remediationClient,
+                _logger,
                 cancellationToken);
 
             lastCompletionJson = rawJson;
@@ -119,7 +120,7 @@ public sealed class ComplianceAgentHandler(
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
             RecordRetrievalFaithfulness(policyPackHits, parsedJson, tenantId);
 
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
+            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             await traceRecorder.RecordAsync(
@@ -146,7 +147,7 @@ public sealed class ComplianceAgentHandler(
         }
         catch (Exception ex)
         {
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
+            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
             AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             if (ex is AgentResultSchemaViolationException sv)

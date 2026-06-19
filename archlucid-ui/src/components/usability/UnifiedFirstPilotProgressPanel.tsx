@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { FirstPilotOperatingRail } from "@/components/FirstPilotOperatingRail";
+import { FirstValueLanePanel } from "@/components/usability/FirstValueLanePanel";
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
 import { InProductEvidenceChecklist } from "@/components/usability/InProductEvidenceChecklist";
 import { StatusVocabularyLegend } from "@/components/usability/StatusVocabularyLegend";
@@ -64,6 +65,7 @@ export function UnifiedFirstPilotProgressPanel(props: UnifiedFirstPilotProgressP
         className={cn(activeTab === "path" ? "block space-y-3" : "hidden")}
         data-testid="unified-progress-tab-path"
       >
+        <FirstValueLanePanel />
         <FirstPilotOperatingRail />
         <InProductEvidenceChecklist />
       </div>

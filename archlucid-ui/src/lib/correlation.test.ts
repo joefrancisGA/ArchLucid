@@ -1,60 +1,53 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
-  CORRELATION_ID_HEADER,
-  generateCorrelationId,
-  isSafeCorrelationId,
-} from "./correlation";
+  TRACE_PARENT_HEADER,
+  applyTraceParentHeader,
+  captureTraceContextFromResponse,
+  isValidTraceParent,
+  readSessionTraceParent,
+  storeSessionTraceParent,
+} from "@/lib/correlation";
 
-describe("CORRELATION_ID_HEADER", () => {
-  it("matches API middleware header name", () => {
-    expect(CORRELATION_ID_HEADER).toBe("X-Correlation-ID");
-  });
-});
-
-describe("isSafeCorrelationId", () => {
-  it("rejects null, undefined, empty, and whitespace-only", () => {
-    expect(isSafeCorrelationId(null)).toBe(false);
-    expect(isSafeCorrelationId(undefined)).toBe(false);
-    expect(isSafeCorrelationId("")).toBe(false);
-    expect(isSafeCorrelationId("   ")).toBe(false);
-  });
-
-  it("rejects ids longer than 64 characters", () => {
-    expect(isSafeCorrelationId("a".repeat(65))).toBe(false);
-  });
-
-  it("rejects characters outside allowed set", () => {
-    expect(isSafeCorrelationId("abc def")).toBe(false);
-    expect(isSafeCorrelationId("a/b")).toBe(false);
-    expect(isSafeCorrelationId("x@y")).toBe(false);
-  });
-
-  it("accepts UUID and simple alphanumeric with separators", () => {
-    expect(isSafeCorrelationId("550e8400-e29b-41d4-a716-446655440000")).toBe(true);
-    expect(isSafeCorrelationId("abc-123.X_y")).toBe(true);
-  });
-});
-
-describe("generateCorrelationId", () => {
+describe("correlation traceparent", () => {
   afterEach(() => {
-    vi.unstubAllGlobals();
+    sessionStorage.clear();
   });
 
-  it("returns a value that passes isSafeCorrelationId", () => {
-    const id = generateCorrelationId();
-
-    expect(id.length).toBeGreaterThan(0);
-    expect(id.length).toBeLessThanOrEqual(64);
-    expect(isSafeCorrelationId(id)).toBe(true);
+  it("validates W3C traceparent format", () => {
+    expect(isValidTraceParent("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01")).toBe(true);
+    expect(isValidTraceParent("not-a-traceparent")).toBe(false);
   });
 
-  it("uses crypto.randomUUID when available", () => {
-    vi.stubGlobal("crypto", {
-      randomUUID: vi.fn().mockReturnValue("11111111-1111-4111-8111-111111111111"),
-      getRandomValues: vi.fn(),
-    });
+  it("stores traceparent from API responses and reuses it on follow-on requests", () => {
+    const traceParent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
+    const headers = new Headers({ [TRACE_PARENT_HEADER]: traceParent });
+    const response = new Response(null, { headers });
 
-    expect(generateCorrelationId()).toBe("11111111-1111-4111-8111-111111111111");
+    captureTraceContextFromResponse(response);
+
+    expect(readSessionTraceParent()).toBe(traceParent);
+
+    const outbound = new Headers();
+    applyTraceParentHeader(outbound);
+
+    expect(outbound.get(TRACE_PARENT_HEADER)).toBe(traceParent);
+  });
+
+  it("falls back to X-Trace-Id when traceparent is absent", () => {
+    const traceId = "a1b2c3d4e5f678901234567890abcdef";
+    const headers = new Headers({ "X-Trace-Id": traceId });
+    const response = new Response(null, { headers });
+
+    captureTraceContextFromResponse(response);
+
+    expect(readSessionTraceParent()).toBe(`00-${traceId}-0000000000000001-01`);
+  });
+
+  it("clears invalid stored traceparent values", () => {
+    storeSessionTraceParent("bad-value");
+    storeSessionTraceParent(null);
+
+    expect(readSessionTraceParent()).toBeNull();
   });
 });

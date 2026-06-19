@@ -31,7 +31,7 @@ export function CostReportingSettingsPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className="mx-auto max-w-5xl space-y-6" data-testid="cost-reporting-page">
+      <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
         <p className="m-0 text-sm text-neutral-500">Loading…</p>
       </div>
     );
@@ -39,7 +39,7 @@ export function CostReportingSettingsPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className="mx-auto max-w-5xl space-y-6" data-testid="cost-reporting-page">
+      <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
         <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="cost-reporting-forbidden">
           This page requires tenant administrator access (AdminAuthority). Sign in with an admin-ranked account or API key.
         </p>
@@ -55,7 +55,7 @@ export function CostReportingSettingsPageView(props: Props) {
   const data = m.data;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6" data-testid="cost-reporting-page">
+    <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
       <div>
         <div className="flex items-start gap-2">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cost reporting</h1>

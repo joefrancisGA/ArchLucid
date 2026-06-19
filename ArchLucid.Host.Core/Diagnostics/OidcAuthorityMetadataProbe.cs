@@ -31,6 +31,17 @@ public static class OidcAuthorityMetadataProbe
                 Detail: $"Auth mode is '{mode}' — OIDC metadata probe not applicable.");
         }
 
+        string? pemPath =
+            ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPemPath");
+
+        if (!string.IsNullOrWhiteSpace(pemPath))
+        {
+            return new ProbeResult(
+                IsApplicable: false,
+                Succeeded: true,
+                Detail: "Local JWT signing key is configured — OIDC metadata probe not applicable.");
+        }
+
         string? authority =
             ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority");
 

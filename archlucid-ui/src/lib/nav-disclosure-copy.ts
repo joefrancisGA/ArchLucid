@@ -17,6 +17,16 @@ export const V1_SIDEBAR_CUSTOMIZATION_VISIBLE = false;
 
 export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
 
+export const OPERATOR_ADVANCED_MODE = {
+  /** Single disclosure control — replaces separate extended/advanced toggles in V1. */
+  show: "Advanced mode",
+  hide: "Essential mode only",
+  title:
+    "Show governance, audit, compare, replay, and deeper analysis destinations in the sidebar.",
+  assistiveOn: "Advanced mode on. Governance and analysis tools are visible.",
+  assistiveOff: "Essential mode. Core Pilot destinations only until Advanced mode is on.",
+} as const;
+
 export const NAV_DISCLOSURE = {
   extended: {
     /** Collapsed: reveal extended-tier links (analysis / investigation). */

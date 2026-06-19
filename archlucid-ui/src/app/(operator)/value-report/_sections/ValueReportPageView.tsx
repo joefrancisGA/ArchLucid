@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
@@ -27,7 +28,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   } = model;
 
   return (
-    <div className="mx-auto space-y-4 p-4 print:w-full">
+    <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full">
       <LayerHeader pageKey="value-report" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
@@ -83,6 +84,6 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
           />
         ) : null}
       </DocumentLayout>
-    </div>
+    </OperatorPageContainer>
   );
 }

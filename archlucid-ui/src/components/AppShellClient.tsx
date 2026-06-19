@@ -1,12 +1,14 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { Suspense, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode } from "react";
 
 import { usePathname } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
 import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -14,12 +16,8 @@ import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { HelpPanel } from "@/components/HelpPanel";
-import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
-import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
-import { PilotBaselineWizardLauncher } from "@/components/PilotBaselineWizardLauncher";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import {
   OperatorChromeModeProvider,
@@ -29,12 +27,9 @@ import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
-import { OnboardingTour } from "@/components/OnboardingTour";
-import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
 import { CtoDemoJourneyCaptionBar } from "@/components/cto-demo/CtoDemoJourneyCaptionBar";
 import { CtoDemoOfflineAutoFallbackListener } from "@/components/cto-demo/CtoDemoOfflineAutoFallbackListener";
 import { CtoDemoPanicModeBanner } from "@/components/cto-demo/CtoDemoPanicModeBanner";
-import { CtoDemoSpotlightOverlay } from "@/components/cto-demo/CtoDemoSpotlightOverlay";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
@@ -49,6 +44,7 @@ import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLin
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { UserAppearancePreferenceSync } from "@/components/UserAppearancePreferenceSync";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
@@ -61,7 +57,99 @@ import { TrialLimitModalHost } from "@/components/TrialLimitModal";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
+import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
+
+const OnboardingTour = dynamic(
+  () => import("@/components/OnboardingTour").then((module) => module.OnboardingTour),
+  { ssr: false },
+);
+
+const BuyerCtoDemoTourOverlay = dynamic(
+  () => import("@/components/BuyerCtoDemoTourOverlay").then((module) => module.BuyerCtoDemoTourOverlay),
+  { ssr: false },
+);
+
+const CtoDemoSpotlightOverlay = dynamic(
+  () =>
+    import("@/components/cto-demo/CtoDemoSpotlightOverlay").then(
+      (module) => module.CtoDemoSpotlightOverlay,
+    ),
+  { ssr: false },
+);
+
+const HelpSearchPanel = dynamic(
+  () => import("@/components/HelpSearchPanel").then((module) => module.HelpSearchPanel),
+  { ssr: false },
+);
+
+const HelpPanel = dynamic(
+  () => import("@/components/HelpPanel").then((module) => module.HelpPanel),
+  { ssr: false },
+);
+
+const CorePilotWizardLauncher = dynamic(
+  () => import("@/components/CorePilotWizard").then((module) => module.CorePilotWizardLauncher),
+  { ssr: false },
+);
+
+const PilotBaselineWizardLauncher = dynamic(
+  () =>
+    import("@/components/PilotBaselineWizardLauncher").then(
+      (module) => module.PilotBaselineWizardLauncher,
+    ),
+  { ssr: false },
+);
+
+type AppShellHelpOverlaysProps = {
+  helpDocSearchOpen: boolean;
+  helpGuidesOpen: boolean;
+  onHelpDocSearchOpenChange: (open: boolean) => void;
+  onHelpGuidesOpenChange: (open: boolean) => void;
+};
+
+/** Defers help panel chunks until the operator first opens search or guides. */
+function AppShellHelpOverlays({
+  helpDocSearchOpen,
+  helpGuidesOpen,
+  onHelpDocSearchOpenChange,
+  onHelpGuidesOpenChange,
+}: AppShellHelpOverlaysProps) {
+  const [searchMounted, setSearchMounted] = useState(false);
+  const [guidesMounted, setGuidesMounted] = useState(false);
+
+  useEffect(() => {
+    if (helpDocSearchOpen) {
+      setSearchMounted(true);
+    }
+  }, [helpDocSearchOpen]);
+
+  useEffect(() => {
+    if (helpGuidesOpen) {
+      setGuidesMounted(true);
+    }
+  }, [helpGuidesOpen]);
+
+  return (
+    <>
+      {searchMounted ? (
+        <HelpSearchPanel
+          open={helpDocSearchOpen}
+          onOpenChange={onHelpDocSearchOpenChange}
+          onOpenGuidesPanel={() => {
+            setGuidesMounted(true);
+            onHelpGuidesOpenChange(true);
+          }}
+        />
+      ) : null}
+      {guidesMounted ? (
+        <HelpPanel open={helpGuidesOpen} onOpenChange={onHelpGuidesOpenChange} />
+      ) : null}
+    </>
+  );
+}
 
 type AppShellClientProps = {
   children: ReactNode;
@@ -85,6 +173,9 @@ function AppShellInner({ children }: AppShellClientProps) {
   const chromeMode = useOperatorChromeMode();
   const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
+  const openHelpSearch = useCallback(() => {
+    setHelpDocSearchOpen(true);
+  }, []);
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
@@ -130,6 +221,9 @@ function AppShellInner({ children }: AppShellClientProps) {
     return (
       <OperatorNavAuthorityProvider>
         <WorkspaceActiveRunProvider>
+          <AppInsightsTelemetryInit />
+          <SessionIdleTimeoutGuard />
+          <UserAppearancePreferenceSync />
           <TooltipProvider delayDuration={200}>
             <a href="#main-content" className="skip-to-main">
               Skip to main content
@@ -144,7 +238,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   data-testid="app-shell-minimal-topbar"
                   className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
                 >
-                  <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
+                  <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6")}>
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                       <h1 className="m-0">
                         <Button variant="ghost" className="h-auto p-0" asChild>
@@ -173,15 +267,16 @@ function AppShellInner({ children }: AppShellClientProps) {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            aria-label="Help and documentation"
+                            aria-label={OPERATOR_HELP_ARIA_LABEL}
+                            aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
                             onClick={() => {
-                              setHelpDocSearchOpen(true);
+                              openHelpSearch();
                             }}
                           >
                             <CircleHelp className="h-4 w-4" aria-hidden />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
+                        <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
                       </Tooltip>
                       {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
                       <ColorModeToggle />
@@ -190,17 +285,16 @@ function AppShellInner({ children }: AppShellClientProps) {
                 </header>
                 <LayerContextFromRoute />
               </div>
-              <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
+              <div
+                data-testid="app-shell-main"
+                className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6")}
+              >
                 <ServiceBusHealthBanner />
                 <LlmBudgetApproachingLimitBanner />
                 <TrialUsageUpgradeNudge />
                 <TeamExpansionNudge />
                 <TrialExpiryBanner />
-                <KeyboardShortcutProvider
-                  onHelpRequested={() => {
-                    setHelpDocSearchOpen(true);
-                  }}
-                >
+                <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
                     tabIndex={-1}
@@ -217,14 +311,12 @@ function AppShellInner({ children }: AppShellClientProps) {
             <AppToaster />
             <RouteAnnouncer />
             <TrialLimitModalHost />
-            <HelpSearchPanel
-              open={helpDocSearchOpen}
-              onOpenChange={setHelpDocSearchOpen}
-              onOpenGuidesPanel={() => {
-                setHelpGuidesOpen(true);
-              }}
+            <AppShellHelpOverlays
+              helpDocSearchOpen={helpDocSearchOpen}
+              helpGuidesOpen={helpGuidesOpen}
+              onHelpDocSearchOpenChange={setHelpDocSearchOpen}
+              onHelpGuidesOpenChange={setHelpGuidesOpen}
             />
-            <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
           </TooltipProvider>
         </WorkspaceActiveRunProvider>
       </OperatorNavAuthorityProvider>
@@ -234,22 +326,20 @@ function AppShellInner({ children }: AppShellClientProps) {
   return (
     <OperatorNavAuthorityProvider>
       <WorkspaceActiveRunProvider>
+      <AppInsightsTelemetryInit />
       <SessionIdleTimeoutGuard />
+      <UserAppearancePreferenceSync />
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
         <div ref={shellRootRef} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
           <div className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
-            <OperatorShellTopBar
-              onOpenHelpSearch={() => {
-                setHelpDocSearchOpen(true);
-              }}
-            />
+            <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
             <LayerContextFromRoute />
             <CtoDemoJourneyCaptionBar />
           </div>
-          <div className="mx-auto flex w-full max-w-[1600px] flex-1">
+          <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-1")}>
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"
@@ -267,7 +357,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <TrialExpiryBanner />
               <PersistentTrialStatusStrip />
               <TrialBanner />
-              <KeyboardShortcutProvider>
+              <KeyboardShortcutProvider onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"
                   tabIndex={-1}
@@ -292,7 +382,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Trust and compliance"
             >
-              <div className="mx-auto flex max-w-[1600px] items-center justify-end gap-3 px-4 lg:px-6">
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center justify-end gap-3 px-4 lg:px-6")}>
                 <TrustCenterShellLink variant="footer" />
               </div>
             </footer>
@@ -301,7 +391,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"
             >
-              <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 lg:px-6">
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center justify-between gap-3 px-4 lg:px-6")}>
                 <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
                 <KeyboardShortcutsFooterHint />
               </div>
@@ -311,14 +401,12 @@ function AppShellInner({ children }: AppShellClientProps) {
         <AppToaster />
         <RouteAnnouncer />
         <TrialLimitModalHost />
-        <HelpSearchPanel
-          open={helpDocSearchOpen}
-          onOpenChange={setHelpDocSearchOpen}
-          onOpenGuidesPanel={() => {
-            setHelpGuidesOpen(true);
-          }}
+        <AppShellHelpOverlays
+          helpDocSearchOpen={helpDocSearchOpen}
+          helpGuidesOpen={helpGuidesOpen}
+          onHelpDocSearchOpenChange={setHelpDocSearchOpen}
+          onHelpGuidesOpenChange={setHelpGuidesOpen}
         />
-        <HelpPanel open={helpGuidesOpen} onOpenChange={setHelpGuidesOpen} />
         <CorePilotWizardLauncher />
         <PilotBaselineWizardLauncher />
         <OnboardingTour />

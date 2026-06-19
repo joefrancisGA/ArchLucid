@@ -121,7 +121,7 @@ public sealed class SqlRunRepository(
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                    IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
-                                   RetryCount, LastFailureReason,
+                                   RetryCount, LastFailureReason, EngineProvenanceJson,
                                    OperatorGovernanceDecision, OperatorGovernanceDecisionRationale,
                                    OperatorGovernanceDecisionUtc, OperatorGovernanceDecisionByUserId,
                                    RowVersionStamp AS RowVersion,
@@ -172,7 +172,7 @@ public sealed class SqlRunRepository(
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                    IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
-                                   RetryCount, LastFailureReason,
+                                   RetryCount, LastFailureReason, EngineProvenanceJson,
                                    RowVersionStamp AS RowVersion,
                                    CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings,
                                    CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords ar WITH (NOLOCK) WHERE ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open') THEN 1 ELSE 0 END AS HasGovernanceWarnings
@@ -219,7 +219,7 @@ public sealed class SqlRunRepository(
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                    IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
-                                   RetryCount, LastFailureReason,
+                                   RetryCount, LastFailureReason, EngineProvenanceJson,
                                    RowVersionStamp AS RowVersion,
                                    CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings,
                                    CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords ar WITH (NOLOCK) WHERE ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open') THEN 1 ELSE 0 END AS HasGovernanceWarnings
@@ -523,7 +523,8 @@ public sealed class SqlRunRepository(
                                PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
                                StructuralExecutionMode = @StructuralExecutionMode,
                                RetryCount = @RetryCount,
-                               LastFailureReason = @LastFailureReason
+                               LastFailureReason = @LastFailureReason,
+                               EngineProvenanceJson = @EngineProvenanceJson
                            OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                            WHERE RunId = @RunId
                              AND TenantId = @TenantId
@@ -848,7 +849,8 @@ public sealed class SqlRunRepository(
             run.PilotAoaiDeploymentSnapshot,
             StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
             run.RetryCount,
-            run.LastFailureReason
+            run.LastFailureReason,
+            run.EngineProvenanceJson
         };
     }
 
@@ -939,6 +941,7 @@ public sealed class SqlRunRepository(
                         StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
                         run.RetryCount,
                         run.LastFailureReason,
+                        run.EngineProvenanceJson,
                         run.RowVersion
                     },
                     transaction,

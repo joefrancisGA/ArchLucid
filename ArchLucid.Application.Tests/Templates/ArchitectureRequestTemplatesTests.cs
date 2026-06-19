@@ -32,7 +32,7 @@ public sealed class ArchitectureRequestTemplatesTests
         request.RequestId.Should().NotBeNullOrWhiteSpace();
         request.RequestId.Length.Should().BeLessOrEqualTo(64);
         request.Description.Should().NotBeNullOrWhiteSpace();
-        request.Description.Length.Should().BeInRange(10, 4000);
+        request.Description.Length.Should().BeInRange(ArchitectureRequestFieldLimits.MinDescriptionLength, ArchitectureRequestFieldLimits.MaxDescriptionLength);
         request.SystemName.Should().NotBeNullOrWhiteSpace();
         request.SystemName.Length.Should().BeLessOrEqualTo(200);
         request.Environment.Should().NotBeNullOrWhiteSpace();

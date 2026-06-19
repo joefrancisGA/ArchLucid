@@ -114,7 +114,7 @@ export function WhyArchLucidPage() {
 
   return (
     <div
-      className="mx-auto max-w-4xl space-y-8 p-4"
+      className="w-full max-w-[1200px] space-y-8 p-4"
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
     >

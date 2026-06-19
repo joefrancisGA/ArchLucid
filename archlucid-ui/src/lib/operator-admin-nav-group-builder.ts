@@ -143,14 +143,6 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/settings/baseline",
-          label: "Baseline settings",
-          title: "Baseline settings — ROI measurement inputs",
-          icon: BarChart3,
-          tier: "extended",
-          requiredAuthority: "ExecuteAuthority",
-        },
-        {
           href: "/settings/webhooks",
           label: "Webhooks",
           title: "Webhooks — outbound HTTPS subscriptions, secrets, and connectivity tests",

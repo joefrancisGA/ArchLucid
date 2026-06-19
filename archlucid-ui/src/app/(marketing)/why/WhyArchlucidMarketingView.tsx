@@ -193,7 +193,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           <a className="font-medium text-sky-800 underline underline-offset-2 dark:text-sky-300" href="/demo/preview">
             public demo preview
           </a>{" "}
-          (manifest excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table (five
+          (manifest excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
           detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in
           your environment, use the contact path on the getting started page.
         </p>
@@ -211,11 +211,11 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
 
       <section className="mt-10" aria-labelledby="why-demo-heading">
         <h2 id="why-demo-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          See a real finalized-manifest page
+          See a finalized sample review page
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Anonymous read-only preview of a finalized sample review record—same layout as the product workspace, no
-          sign-in.
+          Anonymous read-only preview of an illustrative sample review record — same layout as the product workspace, not
+          a live customer outcome; no sign-in required.
         </p>
         {showDemoEmbed ? (
           <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">

@@ -1,5 +1,7 @@
 "use client";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +9,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { tryParseApiProblemDetails } from "@/lib/api-problem";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 import { AlertCircle, Info } from "lucide-react";
 
 const CROSS_TENANT_PORTFOLIO_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiCrossTenantPortfolio}`;
@@ -26,11 +29,43 @@ export type CrossTenantPortfolioSummaryResponse = {
   isKAnonymitySatisfied: boolean;
 };
 
+type TenantBaselineResponse = {
+  baselineReviewCycleHours?: unknown;
+  manualPrepHoursPerReview?: unknown;
+};
+
+type RoiBaselineStatus = "configured" | "not-configured" | "unknown";
+
 type PortfolioLoadState =
-  | { status: "loading" }
-  | { status: "ready"; data: CrossTenantPortfolioSummaryResponse }
-  | { status: "configuration-required"; detail: string; title: string | null }
-  | { status: "error"; message: string };
+  | { status: "loading"; roiBaselineStatus: RoiBaselineStatus }
+  | { status: "ready"; data: CrossTenantPortfolioSummaryResponse; roiBaselineStatus: RoiBaselineStatus }
+  | { status: "configuration-required"; detail: string; title: string | null; roiBaselineStatus: RoiBaselineStatus }
+  | { status: "error"; message: string; roiBaselineStatus: RoiBaselineStatus };
+
+async function loadRoiBaselineStatus(): Promise<RoiBaselineStatus> {
+  try {
+    const baselineRes = await fetch(
+      "/api/proxy/v1/tenant/baseline",
+      mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
+    );
+
+    if (!baselineRes.ok) {
+      return "unknown";
+    }
+
+    const baselineBodyText = await baselineRes.text();
+    const baselineData = JSON.parse(baselineBodyText) as TenantBaselineResponse;
+
+    return isPilotRoiBaselineComplete({
+      baselineReviewCycleHours: baselineData.baselineReviewCycleHours,
+      manualPrepHoursPerReview: baselineData.manualPrepHoursPerReview,
+    })
+      ? "configured"
+      : "not-configured";
+  } catch {
+    return "unknown";
+  }
+}
 
 function formatUsd(value: number): string {
   if (!Number.isFinite(value)) {
@@ -45,6 +80,8 @@ function formatUsd(value: number): string {
 }
 
 async function loadPortfolioSummary(): Promise<PortfolioLoadState> {
+  const roiBaselineStatus = await loadRoiBaselineStatus();
+
   try {
     const res = await fetch(
       CROSS_TENANT_PORTFOLIO_SUMMARY_PATH,
@@ -61,6 +98,7 @@ async function loadPortfolioSummary(): Promise<PortfolioLoadState> {
           status: "configuration-required",
           detail: problem.detail,
           title: problem.title ?? null,
+          roiBaselineStatus,
         };
       }
     }
@@ -71,17 +109,36 @@ async function loadPortfolioSummary(): Promise<PortfolioLoadState> {
 
     const json = JSON.parse(bodyText) as CrossTenantPortfolioSummaryResponse;
 
-    return { status: "ready", data: json };
+    return { status: "ready", data: json, roiBaselineStatus };
   } catch (e: unknown) {
     return {
       status: "error",
       message: e instanceof Error ? e.message : "Failed to load cross-tenant portfolio summary.",
+      roiBaselineStatus,
     };
   }
 }
 
+function PortfolioRoiBaselineSetupCard(): React.JSX.Element {
+  return (
+    <Card data-testid="portfolio-roi-baseline-setup-card">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">ROI baseline not configured</CardTitle>
+        <CardDescription>
+          Add baseline assumptions to calculate estimated savings and sponsor ROI.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <Button asChild variant="primary" size="sm">
+          <Link href="/settings/baseline">Configure ROI baseline</Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function PortfolioPageView() {
-  const [state, setState] = useState<PortfolioLoadState>({ status: "loading" });
+  const [state, setState] = useState<PortfolioLoadState>({ status: "loading", roiBaselineStatus: "unknown" });
 
   useEffect(() => {
     let cancelled = false;
@@ -101,20 +158,20 @@ export function PortfolioPageView() {
 
   if (state.status === "loading") {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardContent className="pt-6">
             <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading portfolio data...</p>
           </CardContent>
         </Card>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (state.status === "configuration-required") {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card
           className="border-teal-200 bg-teal-50/60 dark:border-teal-900 dark:bg-teal-950/30"
@@ -142,13 +199,14 @@ export function PortfolioPageView() {
             </p>
           </CardContent>
         </Card>
-      </div>
+        {state.roiBaselineStatus === "not-configured" ? <PortfolioRoiBaselineSetupCard /> : null}
+      </OperatorPageContainer>
     );
   }
 
   if (state.status === "error") {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardContent className="pt-6">
@@ -160,7 +218,8 @@ export function PortfolioPageView() {
             </div>
           </CardContent>
         </Card>
-      </div>
+        {state.roiBaselineStatus === "not-configured" ? <PortfolioRoiBaselineSetupCard /> : null}
+      </OperatorPageContainer>
     );
   }
 
@@ -168,7 +227,7 @@ export function PortfolioPageView() {
 
   if (!data.isKAnonymitySatisfied) {
     return (
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+      <OperatorPageContainer variant="dashboard" className="space-y-8">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardHeader>
@@ -178,12 +237,13 @@ export function PortfolioPageView() {
             </CardDescription>
           </CardHeader>
         </Card>
-      </div>
+        {state.roiBaselineStatus === "not-configured" ? <PortfolioRoiBaselineSetupCard /> : null}
+      </OperatorPageContainer>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+    <OperatorPageContainer variant="dashboard" className="space-y-8">
       <div className="flex flex-col gap-2">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <p className="text-neutral-500 dark:text-neutral-400">
@@ -232,6 +292,8 @@ export function PortfolioPageView() {
         </Card>
       </div>
 
+      {state.roiBaselineStatus === "not-configured" ? <PortfolioRoiBaselineSetupCard /> : null}
+
       {data.topSystemicIssues.length > 0 ? (
         <Card>
           <CardHeader>
@@ -260,6 +322,6 @@ export function PortfolioPageView() {
           </CardContent>
         </Card>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

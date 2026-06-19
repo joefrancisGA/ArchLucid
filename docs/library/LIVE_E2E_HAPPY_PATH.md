@@ -15,6 +15,7 @@
 |------|------------|---------|
 | `archlucid-ui/e2e/live-api-apikey-auth.spec.ts` | `live-api-apikey-auth` | **ApiKey-only** (skipped without `LIVE_API_KEY`): anonymous `/health/ready`, 401 without key / bad key, admin list 200, optional readonly **403** on create. See **`docs/LIVE_E2E_AUTH_ASSUMPTIONS.md`**. |
 | `archlucid-ui/e2e/live-api-jwt-auth.spec.ts` | `live-api-jwt-auth` | **JWT-only** (skipped without `LIVE_JWT_TOKEN`): Bearer list/create parity vs ApiKey lane. See **`docs/LIVE_E2E_JWT_SETUP.md`**. |
+| `archlucid-ui/e2e/live-api-socratic-intake.spec.ts` | `live-api-socratic-intake` | V1 Socratic first-use path: guided intake UI → draft admit → MUST questions → submit → spawned review (live API + SQL). |
 | `archlucid-ui/e2e/live-api-journey.spec.ts` | `live-api-journey` | Operator happy path (create → commit → manifest → export → governance approve → audit UI). |
 | `archlucid-ui/e2e/live-api-conflict-journey.spec.ts` | `live-api-conflict-journey` | Second **commit** → **200** (idempotent, same `manifestVersion`); **ManifestGenerated** audit count unchanged; run detail UI still **Committed**. **404** `#run-not-found` on commit for a random missing `runId`. |
 | `archlucid-ui/e2e/live-api-governance-rejection.spec.ts` | `live-api-governance-rejection` | Governance **submit → reject** (`e2e-rejector`); audit **`GovernanceApprovalRejected`**; **400** on approve-after-reject and duplicate reject; **`/governance`** UI shows **Rejected**. |

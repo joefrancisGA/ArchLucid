@@ -71,6 +71,27 @@ export const OPERATOR_LAYOUT = {
   },
 } as const;
 
+/** Operator workflow page width variants — left-aligned rails (no `mx-auto`). */
+export type OperatorPageContainerVariant = "full" | "workflow" | "dashboard" | "reading";
+
+export const OPERATOR_PAGE_CONTAINER = {
+  /** Shared operator page rail — shell already applies horizontal padding. */
+  base: "w-full",
+  variant: {
+    /** Tables, filters, and multi-column workflow surfaces. */
+    full: "w-full",
+    /** Wizards and step-based flows (~1120px). */
+    workflow: "w-full max-w-[1200px]",
+    /** Portfolio, ROI dashboards, evidence trail (~1440px). */
+    dashboard: "w-full max-w-[1440px]",
+    /** Onboarding, settings forms, help prose (~768px) — still left-aligned to the rail. */
+    reading: "w-full max-w-3xl",
+  },
+} as const;
+
+/** Max shell width shared by operator top bar, sidebar row, and footer. */
+export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
+
 /**
  * Four-tier operator typography (home + governance surfaces).
  * Prefer these over ad-hoc `text-xs` / `text-[10px]` on composed pages.
@@ -90,6 +111,10 @@ export const OPERATOR_TYPE_SCALE = {
   /** Timestamps, KPI labels, dense metadata (11px). */
   micro: "text-[11px] font-normal leading-snug text-al-text-secondary",
 } as const;
+
+/** Zone headings on operator/buyer home — primary workspace surface (TB-347). */
+export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
+  "m-0 text-xl font-semibold leading-snug tracking-tight text-al-text-primary";
 
 /** Zone headings on operator/buyer home — one step below {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
 export const OPERATOR_HOME_SECTION_HEADING =

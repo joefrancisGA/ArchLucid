@@ -73,14 +73,6 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/governance/recurrence-schedules",
-          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
-          title: "Recurrence schedules — automated follow-up architecture reviews",
-          icon: FileText,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
           href: "/governance/first-30-days",
           label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
           title: "First 30 days — minimal governance operating preset after pilot",

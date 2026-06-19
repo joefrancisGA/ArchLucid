@@ -421,6 +421,10 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_claim_evidence_consistency.py"
 
+      - name: First-value lane alignment gate
+        continue-on-error: true
+        run: python scripts/ci/validate_first_value_lane.py
+
       - name: Commercial closeout batch unit tests (TB-129-134)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_closeout_batch.py"
@@ -774,9 +778,14 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_pricing_json_checkout_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_data_consistency_mode_readiness_report.py"
           python -m unittest discover -s scripts/ci/tests -p "test_report_observability_export_readiness.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_report_pricing_quote_response_weekly.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_accessibility_route_evidence_freshness.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_pilot_ui_env_posture.py"
           python -m unittest discover -s scripts/ci/tests -p "test_invoke_real_llm_evidence_gate.py"
           python -m unittest discover -s scripts/ci/tests -p "test_production_profile_preflight_md.py"
+
+      - name: Pilot UI env posture (buyer-default shell)
+        run: python scripts/ci/assert_pilot_ui_env_posture.py
 
       - name: Procurement doc freshness guard (warn-only)
         continue-on-error: true
@@ -1190,9 +1199,9 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: terraform init (no backend)
-        working-directory: infra/terraform-private
-        run: terraform init -backend=false
+      - uses: ./.github/actions/terraform-init
+        with:
+          working-directory: infra/terraform-private
 
       - name: terraform validate
         working-directory: infra/terraform-private
@@ -1227,6 +1236,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      # Throttle parallel registry.terraform.io downloads (grafana/azurerm) to avoid HTTP 429.
+      max-parallel: 4
       matrix:
         directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod]
     steps:
@@ -1236,9 +1247,9 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: terraform init (no backend)
-        working-directory: ${{ matrix.directory }}
-        run: terraform init -backend=false
+      - uses: ./.github/actions/terraform-init
+        with:
+          working-directory: ${{ matrix.directory }}
 
       - name: terraform validate
         working-directory: ${{ matrix.directory }}
@@ -2040,6 +2051,10 @@ jobs:
           -BlameHangTimeout 75min
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
+      - name: SQL Server hang diagnostics (on failure or timeout)
+        if: failure() || cancelled()
+        uses: ./.github/actions/sqlserver-hang-diagnostics
+
       - uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -2126,6 +2141,11 @@ jobs:
           --collect:"XPlat Code Coverage"
           --results-directory "${{ runner.temp }}/coverage-full-core-api-unit"
           --logger "trx;LogFilePrefix=full-core-api-unit-"
+          --blame-hang --blame-hang-timeout 10m --blame-hang-dump-type mini
+
+      - name: SQL Server hang diagnostics (on failure)
+        if: failure()
+        uses: ./.github/actions/sqlserver-hang-diagnostics
 
       - uses: actions/upload-artifact@v6
         if: always()
@@ -2133,6 +2153,20 @@ jobs:
           name: dotnet-trx-full-core-api-unit
           path: ${{ runner.temp }}/coverage-full-core-api-unit/**/*.trx
           if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-blame-core-api-unit
+          path: ${{ runner.temp }}/coverage-full-core-api-unit/**/Sequence_*.xml
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-hangdumps-core-api-unit
+          path: ${{ runner.temp }}/coverage-full-core-api-unit/**/*.dmp
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v6
         with:
@@ -2303,6 +2337,10 @@ jobs:
           --logger "trx;LogFilePrefix=full-slow-api-"
           --diag "${{ runner.temp }}/vstest-slow-api.diag.log"
           --blame-hang --blame-hang-timeout 105min
+
+      - name: SQL Server hang diagnostics (on failure)
+        if: failure()
+        uses: ./.github/actions/sqlserver-hang-diagnostics
 
       - uses: actions/upload-artifact@v6
         if: always()
@@ -3832,7 +3870,7 @@ jobs:
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -4141,6 +4179,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v5
+
       - name: Write workflow summary
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}

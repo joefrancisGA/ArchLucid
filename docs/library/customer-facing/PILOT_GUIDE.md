@@ -80,6 +80,16 @@ After the first golden manifest commit, the operator-shell **review detail** pag
 
 Sponsors who do not have an operator install can preview a real commit page at **`/demo/preview`** on your marketing host (URL as deployed); the data is the **ArchLucid demo seed**, not your tenant. See **`docs/DEMO_PREVIEW.md`**.
 
+## Evidence-only first pilot (no Azure extractor)
+
+When InfoSec has not approved the Azure extractor script, or you only have briefs, diagrams, and IaC:
+
+1. Create a review with **`cloudProvider: None`** (operator wizard: **No cloud / evidence-only** — the quick-review default).
+2. Skip Phase B extractor upload in [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md); use demo evidence only for internal dry-runs.
+3. Complete execute → commit → sponsor export on uploaded documents alone.
+
+When you need live Azure topology or cost grounding, share the InfoSec pre-read with security reviewers: [`go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](../../go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md).
+
 ## Pull-request decoration in your CI
 
 ArchLucid surfaces **`GET /v1/compare`** Markdown in CI/CD for both GitHub Actions and Azure DevOps Pipelines — pick the entry point that matches your vendor:

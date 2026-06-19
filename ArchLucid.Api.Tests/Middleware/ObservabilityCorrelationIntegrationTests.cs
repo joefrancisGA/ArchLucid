@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Tests.Controllers;
+using ArchLucid.Api.Tests.Http;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Middleware;
@@ -88,13 +89,14 @@ public sealed class ObservabilityCorrelationIntegrationTests
         TraceResponseHeaderMiddleware trace = new(_ => Task.CompletedTask);
         CorrelationIdMiddleware correlation = new(trace.InvokeAsync, scopeProvider.Object);
 
-        DefaultHttpContext context = new();
+        DefaultHttpContext context =
+            OnStartingCapturingHttpResponseFeature.CreateContext(out OnStartingCapturingHttpResponseFeature capture);
         context.Request.Headers["x-tenant-id"] = tenantId.ToString("D");
         context.Request.Headers["x-workspace-id"] = workspaceId.ToString("D");
         context.Request.Headers[CorrelationIdHeaderParser.HeaderName] = "scope-tag-probe";
 
         await correlation.InvokeAsync(context);
-        await context.Response.StartAsync();
+        await capture.InvokeOnStartingCallbacksAsync();
 
         parent!.GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
         parent.GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));

@@ -1,5 +1,6 @@
 "use client";
 
+import { ApiValidationFieldErrorList } from "@/components/ApiValidationFieldErrorList";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
@@ -60,10 +61,14 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
     retryAfterSeconds = props.retryAfterSeconds ?? null;
   }
 
-  const { heading, body, hint } = operatorCopyForProblem(problem, fallbackMessage, {
-    httpStatus,
-    retryAfterSeconds,
-  });
+  const { heading, body, hint, endpointLine, validationFields, isValidationFailure } = operatorCopyForProblem(
+    problem,
+    fallbackMessage,
+    {
+      httpStatus,
+      retryAfterSeconds,
+    },
+  );
   const Callout = variant === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
   const trimmedCorrelation = ensureCorrelationId(correlationId ?? problem?.correlationId);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
@@ -77,7 +82,16 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
   return (
     <Callout>
       <strong>{heading}</strong>
-      <p className="mt-2">{body}</p>
+      {endpointLine ? (
+        <p className="mt-2 font-mono text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">{endpointLine}</p>
+      ) : null}
+      {isValidationFailure && validationFields && validationFields.length > 0 ? (
+        <div className="mt-3">
+          <ApiValidationFieldErrorList fieldErrors={validationFields} testId="operator-api-problem-validation" />
+        </div>
+      ) : (
+        <p className="mt-2">{body}</p>
+      )}
       {hint ? (
         <p className="mt-2.5 text-sm leading-normal">{hint}</p>
       ) : null}

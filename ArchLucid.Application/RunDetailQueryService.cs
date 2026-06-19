@@ -15,6 +15,8 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Application.Agents;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Logging;
 
@@ -42,12 +44,20 @@ public sealed class RunDetailQueryService(
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IDecisionTraceRepository authorityDecisionTraceRepository,
     IFindingRecordMuteRepository findingRecordMuteRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    ILlmCostEstimator llmCostEstimator,
     ILogger<RunDetailQueryService> logger) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
     private readonly IDecisionTraceRepository _authorityDecisionTraceRepository =
         authorityDecisionTraceRepository ?? throw new ArgumentNullException(nameof(authorityDecisionTraceRepository));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly ILlmCostEstimator _llmCostEstimator =
+        llmCostEstimator ?? throw new ArgumentNullException(nameof(llmCostEstimator));
 
     private readonly IFindingRecordMuteRepository _findingRecordMuteRepository =
         findingRecordMuteRepository ?? throw new ArgumentNullException(nameof(findingRecordMuteRepository));
@@ -107,6 +117,24 @@ public sealed class RunDetailQueryService(
                 decisionTraces = [authorityTrace];
         }
 
+        IReadOnlyList<AgentExecutionTrace> executionTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? costEstimate = null;
+        if (executionTraces.Count > 0)
+        {
+            AgentExecutionTraceRunLlmCostSummary costSummary = AgentExecutionTraceRunLlmCostAggregator.Compute(executionTraces, _llmCostEstimator);
+            costEstimate = new ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto
+            {
+                EstimatedCostUsd = costSummary.EstimatedCostUsd,
+                TokenCounts = new ArchLucid.Contracts.Runs.RunLlmTokenCountsDto
+                {
+                    Prompt = costSummary.PromptTokens,
+                    Completion = costSummary.CompletionTokens
+                },
+                Model = costSummary.ModelLabel,
+                CostEstimationBasis = costSummary.CostEstimationBasis
+            };
+        }
+
         return new ArchitectureRunDetail
         {
             Run = run,
@@ -114,6 +142,7 @@ public sealed class RunDetailQueryService(
             Results = results,
             Manifest = manifest,
             DecisionTraces = decisionTraces,
+            AgentExecutionLlmCostEstimate = costEstimate,
             HasBrokenManifestReference = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
         };
     }

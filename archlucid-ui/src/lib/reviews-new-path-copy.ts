@@ -6,17 +6,13 @@ export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
 
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
-  "quick-review":
-    "First Pilot path: create a review from a short brief, then execute and commit. Choose simulator for dry runs or live when real-mode proof is required.",
   "guided-intake":
-    "Structured Pilot intake — clarifying questions and evidence checks before the review package is generated.",
+    "Guided intake takes about 5–12 minutes and asks for intent, business outcome, actors, and required review questions before analysis.",
+  "quick-review":
+    "Paste a complete architecture brief to start analysis in a few minutes. Best when you already have a full description ready.",
   detailed:
-    "Advanced path: imports, presets, and export-ready packages. Use after your first committed Pilot proof.",
+    "Use templates, imports, and evidence upload when you need an export-ready review package with full configuration.",
 };
-
-/** First-session guidance shown on the new-review page. */
-export const REVIEWS_NEW_FIRST_SESSION_GUIDANCE =
-  "Your first session: Create review → Execute → Commit → Sponsor packet. Operate surfaces (compare, replay, governance) stay hidden until after commit — Help → Pilot path.";
 
 /** Proof collection reminder after commit (operator copy). */
 export const REVIEWS_NEW_PROOF_COLLECTION_HINT =

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
@@ -44,20 +44,6 @@ async function enableExtendedNavTierViaReviewWorkDisclosure(page: Page): Promise
     await expect(reviewMore).toBeVisible();
     await reviewMore.click();
     await expect(page.getByRole("navigation", { name: "Analysis" })).toBeVisible();
-  }).toPass({ timeout: 30_000 });
-}
-
-/** Collapsible triggers detach when /me refetch re-mounts sidebar clusters; scroll + toPass avoids Playwright flake. */
-async function clickSidebarDisclosureTrigger(sidebarNav: Locator, ariaControlsId: string): Promise<void> {
-  await expect(async () => {
-    await sidebarNav.evaluate((element) => {
-      element.scrollTop = 0;
-    });
-
-    const trigger = sidebarNav.locator(`[aria-controls="${ariaControlsId}"]`);
-
-    await expect(trigger).toHaveCount(1);
-    await trigger.click({ timeout: 5_000 });
   }).toPass({ timeout: 30_000 });
 }
 
@@ -120,16 +106,9 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await enableExtendedNavTierViaReviewWorkDisclosure(page);
 
-    const sidebarNavEl = page.getByTestId("sidebar-nav");
-
-    await expect(sidebarNavEl.locator('[aria-controls="sidebar-group-operate-governance-content"]')).toBeVisible({
-      timeout: 15_000,
-    });
-    await clickSidebarDisclosureTrigger(sidebarNavEl, "sidebar-group-operate-governance-content");
-
     const analysisNav = page.getByRole("navigation", { name: "Analysis" });
 
-    await expect(analysisNav).toBeVisible();
+    await expect(analysisNav).toBeVisible({ timeout: 15_000 });
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
 

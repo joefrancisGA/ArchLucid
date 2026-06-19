@@ -100,6 +100,26 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");
+
+        ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
+
+        TopFindingEvidenceSufficiency? sufficiency =
+            TopFindingEvidenceSufficiencyClassifier.Classify(deltas, proof, basisRun);
+
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Evidence sufficiency (top finding) | {TopFindingEvidenceSufficiencyClassifier.DescribeForMarkdownTable(sufficiency)} |");
+
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Confidence class (machine-readable) | `{TopFindingEvidenceSufficiencyClassifier.DescribeConfidenceClass(sufficiency)}` |");
+
+        if (sufficiency is TopFindingEvidenceSufficiency.Low or TopFindingEvidenceSufficiency.Insufficient)
+        {
+            sb.AppendLine(
+                "| Sponsor guard label | **Not definitive** — low-evidence top finding; disclose basis before executive circulation. |");
+        }
+
         sb.AppendLine("| Human qualitative review | **Required** — automation does not replace sponsor judgment. |");
         sb.AppendLine();
     }

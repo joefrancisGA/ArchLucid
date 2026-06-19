@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
@@ -14,18 +13,16 @@ export type WizardStepBaselineMetricsProps = {
   confidence: WizardBaselineConfidence;
   onReviewCycleHoursChange: (value: string) => void;
   onConfidenceChange: (value: WizardBaselineConfidence) => void;
-  onSkipForNow: () => void;
   fieldError: string | null;
 };
 
-/** Optional ROI baseline capture before review submit in the full wizard (TB-238). */
+/** Required ROI baseline capture before review submit in pilot wizards (TB-238). */
 export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps) {
   const {
     reviewCycleHours,
     confidence,
     onReviewCycleHoursChange,
     onConfidenceChange,
-    onSkipForNow,
     fieldError,
   } = props;
 
@@ -37,13 +34,14 @@ export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps)
       <div className="space-y-4" data-testid="wizard-baseline-metrics-step">
         <div className="space-y-2">
           <Label htmlFor="wizard-baseline-review-cycle-hours">
-            Current review cycle time (hours)
+            Current review cycle time (hours) <span className="text-red-600">*</span>
           </Label>
           <Input
             id="wizard-baseline-review-cycle-hours"
             inputMode="decimal"
             placeholder="e.g. 40"
             value={reviewCycleHours}
+            required
             data-testid="wizard-baseline-review-cycle-hours"
             onChange={(event) => {
               onReviewCycleHoursChange(event.target.value);
@@ -51,8 +49,7 @@ export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps)
           />
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
             How many hours does a typical architecture review currently take your team (request to approved
-            manifest)? Used to calculate time savings in your first-value report. Leave blank to use industry
-            defaults.
+            manifest)? Required for sponsor-ready ROI reporting in your first-value report.
           </p>
           {fieldError !== null ? (
             <p className="m-0 text-sm text-red-600" role="alert" data-testid="wizard-baseline-metrics-error">
@@ -79,15 +76,6 @@ export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps)
             ))}
           </select>
         </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          data-testid="wizard-baseline-metrics-skip"
-          onClick={onSkipForNow}
-        >
-          Skip for now
-        </Button>
       </div>
     </WizardStepPanel>
   );

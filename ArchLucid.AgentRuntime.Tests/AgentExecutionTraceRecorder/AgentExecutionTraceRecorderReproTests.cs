@@ -11,6 +11,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -474,10 +475,11 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
     private sealed class NoOpAuditService : IAuditService
     {
-        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken) =>
+            Task.CompletedTask;
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
     }
 
     private sealed class SpyAuditService : IAuditService
@@ -494,6 +496,9 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
             return Task.CompletedTask;
         }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
     }
 
     private sealed class RecordingAuditService : IAuditService
@@ -509,6 +514,9 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
             return Task.CompletedTask;
         }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
     }
 
     /// <summary>Forces SQL inline patch to throw while delegating other trace operations to memory.</summary>

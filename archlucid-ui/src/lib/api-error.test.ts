@@ -25,6 +25,23 @@ describe("formatApiFailureMessage", () => {
       "Request failed (502 Bad Gateway)",
     );
   });
+
+  it("joins ASP.NET validation errors when detail is absent", () => {
+    expect(
+      formatApiFailureMessage(
+        {
+          title: "One or more validation errors occurred.",
+          status: 400,
+          errors: ["Description must not exceed 4000 characters."],
+        },
+        400,
+        "Bad Request",
+        "",
+      ),
+    ).toBe(
+      "Request validation failed (HTTP 400): request body: Description must not exceed 4000 characters.",
+    );
+  });
 });
 
 describe("buildApiRequestErrorFromParts", () => {

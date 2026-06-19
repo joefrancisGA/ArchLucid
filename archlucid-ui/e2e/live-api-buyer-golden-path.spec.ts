@@ -12,7 +12,7 @@ import {
   expectBuyerGoldenJourneyStepper,
   expectNoGenericErrorBoundary,
 } from "./helpers/buyer-golden-path";
-import { askPageMainHeading, comparePageMainHeading, governancePageMainHeading } from "./helpers/operator-journey";
+import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 import { liveApiBase } from "./helpers/live-api-client";
 
 test.describe("live-api-buyer-golden-path", () => {
@@ -58,16 +58,10 @@ test.describe("live-api-buyer-golden-path", () => {
     await expect(
       page.getByRole("main").getByRole("heading", {
         level: 2,
-        name: /Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
+        name: /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
       }),
     ).toBeVisible({ timeout: 60_000 });
-    await expect(
-      page
-        .getByRole("main")
-        .getByTestId("graph-canvas-ready")
-        .first()
-        .or(page.getByRole("main").getByRole("button", { name: /^Load graph$/i }).first()),
-    ).toBeVisible({ timeout: 60_000 });
+    await expectGraphPageReadySurface(page, { timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

@@ -26,5 +26,7 @@ describe("CompareToBaselineCta", () => {
     const link = screen.getByTestId("compare-to-baseline-link");
     expect(link).toHaveAttribute("href", expect.stringContaining("baseline-1"));
     expect(link.getAttribute("href")).toContain("run-b");
+    expect(screen.getByTestId("compare-to-baseline-banner")).toHaveTextContent("prior review");
+    expect(screen.getByTestId("compare-to-baseline-banner").textContent?.toLowerCase()).not.toContain("prior run");
   });
 });

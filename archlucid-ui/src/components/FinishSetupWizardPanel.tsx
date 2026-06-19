@@ -54,10 +54,10 @@ const SETUP_STEPS: SetupStep[] = [
   },
   {
     id: "extract",
-    label: "Upload Azure extractor (optional)",
-    description: "Speed up Tier-1 evidence intake with a pre-built extractor ZIP.",
+    label: "Add Azure export evidence (optional)",
+    description: "Optional accelerator: upload an Azure extractor ZIP for production-faithful subscription inventory.",
     href: "/settings/extract-upload",
-    cta: "Upload extractor",
+    cta: "Add evidence",
     isDone: () => false,
   },
 ];

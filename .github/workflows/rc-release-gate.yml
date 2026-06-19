@@ -125,6 +125,7 @@ jobs:
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_release_evidence*.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_rc_strict_signoff.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_report_pricing_quote_response_weekly.py"
           python -m unittest discover -s scripts/ci/tests -p "test_check_proof_confidence_taxonomy_drift.py"
           python -m unittest discover -s scripts/ci/tests -p "test_emit_real_model_canary_gate.py"
 

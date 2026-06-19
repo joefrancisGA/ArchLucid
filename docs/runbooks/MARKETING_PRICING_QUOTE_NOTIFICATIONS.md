@@ -61,3 +61,10 @@ Operational hygiene (not a product change):
 5. **Alert:** **`ArchLucidPricingQuoteAcknowledgementBreach`** in **`infra/prometheus/archlucid-alerts.yml`** fires when any row exceeds **24 hours** unanswered.
 
 **Escalation:** On `warn at 18h`, assign or ping the pricing-quote owner; on `breach at 24h`, page sales leadership and clear or backdate only after a logged human response (do not delete rows for SLA gaming).
+
+## Weekly owner telemetry
+
+For **time-to-first-response** and **time-to-close** rollups (previous calendar week, no manual SQL):
+
+- Runbook: [`PRICING_QUOTE_RESPONSE_TELEMETRY.md`](PRICING_QUOTE_RESPONSE_TELEMETRY.md)
+- Generator: `python scripts/ci/report_pricing_quote_response_weekly.py` with `--input-json` (fixture/export) or `ARCHLUCID_PRICING_QUOTE_TELEMETRY_SQL` (read-only ODBC)

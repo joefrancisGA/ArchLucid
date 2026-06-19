@@ -61,6 +61,20 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 
 ---
 
+## Pilot UI deployment (buyer-default shell)
+
+Before provisioning a **pilot or staging tenant UI**, confirm the build **does not** set `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`. When that flag is unset, the operator shell uses buyer-polished labels (no AI budget pill in the header, outcome-first pipeline status copy). Local engineers keep the dense shell via `archlucid-ui/.env.development` only.
+
+| Check | Pass criteria |
+| --- | --- |
+| Env template | Use [`archlucid-ui/.env.pilot.example`](../../archlucid-ui/.env.pilot.example) as the starting point — flag absent |
+| CI guard | `python scripts/ci/assert_pilot_ui_env_posture.py` exits 0 |
+| Symptom if misconfigured | Header shows **AI budget** pill; nav uses **Evidence intake** / pipeline jargon |
+
+Canonical reference: [`OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_EXPERIENCE_MODES.md).
+
+---
+
 ## Phase A — Platform ready
 
 | Step | Action | Success signal | Surface |
@@ -84,7 +98,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| B1 | Run **Azure extractor Tier 1** in the **customer** subscription (read-only PowerShell; no ArchLucid secrets in customer tenant). | ZIP contains `manifest.json` and cost/inventory payloads. | Customer script · [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) |
+| B1 | Run **Azure extractor Tier 1** in the **customer** subscription (read-only PowerShell; no ArchLucid secrets in customer tenant). Share [`AZURE_EXTRACTOR_INFOSEC_PREREAD.md`](../go-to-market/AZURE_EXTRACTOR_INFOSEC_PREREAD.md) with InfoSec if approval is required. | ZIP contains `manifest.json` and cost/inventory payloads. | Customer script · [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · InfoSec pre-read |
 | B2 | *(Alternative)* Use **demo evidence** only for evaluator dry-runs: open Workspace A Product Tour review (no extractor required). | Review detail shows committed manifest + artifacts. | UI · [`go-to-market/DEMO_WORKSPACES.md`](../go-to-market/DEMO_WORKSPACES.md) |
 
 **Failure recovery (Phase B):** extractor script errors → [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) § troubleshooting · wrong scope headers on demo URLs → DEMO_WORKSPACES scope triplet table.

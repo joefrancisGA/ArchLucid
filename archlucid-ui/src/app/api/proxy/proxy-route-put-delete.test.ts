@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DELETE, PUT } from "./[...path]/route";
+import { DELETE, PATCH, PUT } from "./[...path]/route";
 import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 import { resetProxyRateLimitStateForTests } from "@/lib/proxy-rate-limit";
 
-describe("proxy route PUT/DELETE forwarding", () => {
+describe("proxy route PUT/PATCH/DELETE forwarding", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
@@ -42,6 +42,29 @@ describe("proxy route PUT/DELETE forwarding", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [, init] = fetchMock.mock.calls[0]!;
     expect((init as RequestInit).method).toBe("PUT");
+    expect(((init as RequestInit).headers as Headers).get(CORRELATION_ID_HEADER)).toBe(browserId);
+  });
+
+  it("forwards PATCH body and browser correlation id", async () => {
+    const browserId = "eeeeeeee-eeee-4eee-eeee-eeeeeeeeeeee";
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/draft/draft-1", {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        "content-length": "18",
+        [CORRELATION_ID_HEADER]: browserId,
+      },
+      body: '{"freeTextIntent":""}',
+    });
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({ path: ["v1", "architecture", "draft", "draft-1"] }),
+    });
+
+    expect(res.status).toBe(204);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, init] = fetchMock.mock.calls[0]!;
+    expect((init as RequestInit).method).toBe("PATCH");
     expect(((init as RequestInit).headers as Headers).get(CORRELATION_ID_HEADER)).toBe(browserId);
   });
 

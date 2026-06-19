@@ -15,6 +15,7 @@ function pipelineSemanticClass(status: string): string {
       return "border-amber-600/40 bg-al-surface-raised text-al-text-primary shadow-sm dark:border-amber-700/50";
     case "In pipeline":
     case "In flight":
+    case "In review":
       return "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
     case "Starting":
       return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";

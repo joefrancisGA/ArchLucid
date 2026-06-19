@@ -30,6 +30,7 @@ public static class CommittedRunHeaderAnchorRegistry
         "ArtifactBundleId",
         "CurrentManifestVersion",
         "StructuralExecutionMode",
-        "OtelTraceId"
+        "OtelTraceId",
+        "EngineProvenanceJson"
     ];
 }

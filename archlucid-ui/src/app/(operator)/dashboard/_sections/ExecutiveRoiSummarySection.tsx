@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 
 import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
@@ -11,7 +12,22 @@ import {
   executiveSummaryMarkdownFilename,
   type ExecutiveRoiSummary,
 } from "@/lib/executive-summary-markdown";
-import { ExecutiveRoiSystemicIssueTrendChart } from "@/components/ExecutiveRoiSystemicIssueTrendChart";
+const ExecutiveRoiSystemicIssueTrendChart = dynamic(
+  () =>
+    import("@/components/ExecutiveRoiSystemicIssueTrendChart").then(
+      (module) => module.ExecutiveRoiSystemicIssueTrendChart,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-64 w-full animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"
+        role="status"
+        aria-label="Loading systemic issue trend chart"
+      />
+    ),
+  },
+);
 import {
   formatExecutiveRoiPricingBasisLabel,
   formatRoiCostEvidenceFreshnessWarning,

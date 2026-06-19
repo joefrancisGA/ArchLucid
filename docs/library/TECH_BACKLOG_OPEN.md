@@ -58,8 +58,6 @@ Register: [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN
 
 | ID | Title | SAQ |
 | --- | --- | --- |
-| TB-314 | ADR 0048 catalog economics tripwires in capacity playbook | SAQ-003, SAQ-009 |
-| TB-315 | ARCH006 TenantScopeExempt growth tripwire | SAQ-004 |
 | TB-317 | Workspace/project IDOR V1 pilot posture | SAQ-006 |
 | TB-318 | Sonnet SAQ review cadence before RC signoff | (process) |
 

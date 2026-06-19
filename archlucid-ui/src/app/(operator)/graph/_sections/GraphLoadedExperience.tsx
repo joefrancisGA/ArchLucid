@@ -4,8 +4,9 @@ import Link from "next/link";
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import { GraphReviewTrailLegendChips } from "@/components/GraphReviewTrailLegendChips";
 import { Button } from "@/components/ui/button";
+import { GraphViewerLegend } from "@/components/usability/GraphViewerLegend";
+import { EvidenceTrailTracePanel } from "@/app/(operator)/graph/_sections/EvidenceTrailTracePanel";
 import {
-  BUYER_GRAPH_FILTER_SUMMARY,
   BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED,
   BUYER_GRAPH_GOVERNANCE_NEXT_PENDING,
   BUYER_GRAPH_WHAT_THIS_PROVES,
@@ -22,7 +23,7 @@ import {
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
 import { cn } from "@/lib/utils";
-import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
+import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/graph/_sections/GraphInteractiveCanvas";
 import type { GraphViewModel } from "@/types/graph";
 
@@ -44,6 +45,8 @@ export type GraphLoadedExperienceProps = {
   leadIntro: string;
   /** Deep-link: pre-select this graph node id in buyer-trail presentation when it exists on the loaded graph. */
   defaultSelectedGraphNodeId?: string;
+  presentationView?: EvidenceTrailPresentationView;
+  onPresentationViewChange?: (view: EvidenceTrailPresentationView) => void;
 };
 
 export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
@@ -64,171 +67,179 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     controls,
     leadIntro,
     defaultSelectedGraphNodeId,
+    presentationView = "trace",
+    onPresentationViewChange,
   } = props;
 
   const runTrim = runId.trim();
   const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
   const buyerTrailPresentation = demoUi || (buyerPolishedShell && showcaseRun);
 
+  const buyerTraceView = buyerPolishedShell && presentationView === "trace";
+  const buyerGraphView = buyerPolishedShell && presentationView === "graph";
+
   return (
     <>
       {buyerPolishedShell ? (
         <div className={cn("mb-6 space-y-3", graphMainColumnMaxClass)}>
-          <div>
-            <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              What this graph proves
-            </p>
-            <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-              {BUYER_GRAPH_WHAT_THIS_PROVES}
-            </p>
-          </div>
-          {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
-            <GraphReviewTrailLegendChips buyerPolished />
-          ) : (
-            <GraphNodeKindLegendChips />
-          )}
+          {buyerTraceView ? (
+            <EvidenceTrailTracePanel
+              runId={runTrim}
+              onOpenGraphView={() => onPresentationViewChange?.("graph")}
+            />
+          ) : null}
+          {buyerGraphView && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
+            <div>
+              <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                What this graph proves
+              </p>
+              <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                {BUYER_GRAPH_WHAT_THIS_PROVES}
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : null}
-      {buyerPolishedShell ? (
-        <details
-          className={cn(
-            "mb-6 rounded-lg border border-neutral-200 bg-white/40 dark:border-neutral-700 dark:bg-neutral-900/30",
-            graphMainColumnMaxClass,
-          )}
-        >
-          <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-            {BUYER_GRAPH_FILTER_SUMMARY}
-          </summary>
-          <div className="border-t border-neutral-200 px-2 pb-3 pt-1 dark:border-neutral-700">{controls}</div>
-        </details>
-      ) : (
-        controls
+      {!buyerPolishedShell ? controls : null}
+      {buyerTraceView ? null : (
+        <>
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            {!buyerPolishedShell ? (
+              <label>
+                Filter by type{" "}
+                <select value={typeFilter} onChange={(e) => onTypeFilterChange(e.target.value)} className="ml-2 p-1.5">
+                  <option value="">All types</option>
+                  {nodeTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {buyerPolishedShell ? buyerGraphNodeTypeLabel(t) : t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <span className="text-neutral-500 dark:text-neutral-400 text-sm">
+              {buyerPolishedShell
+                ? graphInteractiveReady && !loading
+                  ? `${graph.nodes.length} linked evidence and decision records in this view`
+                  : "Rendering interactive graph…"
+                : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
+            </span>
+            {!buyerPolishedShell ? (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label="Download the visible graph as JSON"
+                  onClick={() => {
+                    const slug = safeGraphExportFilenameSegment(runTrim);
+                    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+                    const metaUtc = new Date().toISOString();
+                    const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
+                    const tf = typeFilter.trim();
+
+                    downloadBrowserTextFile(
+                      `graph-${slug}-${mode}-${stamp}.json`,
+                      graphViewModelToJsonSnapshot(snapshot, {
+                        runId: runTrim,
+                        mode,
+                        generatedAtUtc: metaUtc,
+                        typeFilterApplied: tf.length > 0 ? tf : null,
+                      }),
+                      "application/json;charset=utf-8",
+                    );
+                  }}
+                >
+                  Export JSON
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label="Download a Mermaid flowchart for the visible graph"
+                  onClick={() => {
+                    const slug = safeGraphExportFilenameSegment(runTrim);
+                    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+                    const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
+
+                    downloadBrowserTextFile(
+                      `graph-${slug}-${mode}-${stamp}.mmd`,
+                      graphViewModelToMermaidFlowchart(snapshot),
+                      "text/plain;charset=utf-8",
+                    );
+                  }}
+                >
+                  Export Mermaid
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label="Download the visible graph as PNG"
+                  onClick={async () => {
+                    const element = document.getElementById("knowledge-graph-canvas");
+
+                    if (element) {
+                      const html2canvas = (await import("html2canvas")).default;
+                      const canvas = await html2canvas(element, { useCORS: true });
+                      const dataUrl = canvas.toDataURL("image/png");
+                      const slug = safeGraphExportFilenameSegment(runTrim);
+                      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+                      const link = document.createElement("a");
+                      link.download = "graph-" + slug + "-" + mode + "-" + stamp + ".png";
+                      link.href = dataUrl;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }
+                  }}
+                >
+                  Export PNG
+                </Button>
+              </div>
+            ) : null}
+          </div>
+          {!buyerPolishedShell ? (
+            <div className={cn("mb-3", graphMainColumnMaxClass)}>
+              <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
+              {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
+                <GraphReviewTrailLegendChips />
+              ) : (
+                <GraphNodeKindLegendChips />
+              )}
+            </div>
+          ) : buyerGraphView ? (
+            <div className={cn("mb-3 space-y-2", graphMainColumnMaxClass)}>
+              {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
+                <GraphReviewTrailLegendChips buyerPolished />
+              ) : (
+                <GraphNodeKindLegendChips />
+              )}
+              <GraphViewerLegend />
+            </div>
+          ) : null}
+          <GraphInteractiveCanvas
+            graphSurfaceKey={graphSurfaceKey}
+            buyerPolishedShell={buyerPolishedShell}
+            graph={graph}
+            typeFilter={typeFilter}
+            runIdTrimmed={runTrim}
+            presentation={buyerTrailPresentation ? "buyerTrail" : "operator"}
+            onInteractiveSurfaceReady={buyerPolishedShell ? onGraphInteractiveSurfaceReady : undefined}
+            defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
+          />
+          {buyerPolishedShell && buyerGraphView ? (
+            <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
+              <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
+              <Button type="button" asChild variant="default" size="sm">
+                <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
+                  {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
+                </Link>
+              </Button>
+            </div>
+          ) : null}
+        </>
       )}
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        {!buyerPolishedShell ? (
-          <label>
-            Filter by type{" "}
-            <select value={typeFilter} onChange={(e) => onTypeFilterChange(e.target.value)} className="ml-2 p-1.5">
-              <option value="">All types</option>
-              {nodeTypes.map((t) => (
-                <option key={t} value={t}>
-                  {buyerPolishedShell ? buyerGraphNodeTypeLabel(t) : t}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
-        <span className="text-neutral-500 dark:text-neutral-400 text-sm">
-          {buyerPolishedShell
-            ? graphInteractiveReady && !loading
-              ? `${graph.nodes.length} linked evidence and decision records in this view`
-              : "Rendering interactive graph…"
-            : `${graph.nodes.length} nodes, ${graph.edges.length} edges (before filter)`}
-        </span>
-        {!buyerPolishedShell ? (
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label="Download the visible graph as JSON"
-              onClick={() => {
-                const slug = safeGraphExportFilenameSegment(runTrim);
-                const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-                const metaUtc = new Date().toISOString();
-                const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
-                const tf = typeFilter.trim();
-
-                downloadBrowserTextFile(
-                  `graph-${slug}-${mode}-${stamp}.json`,
-                  graphViewModelToJsonSnapshot(snapshot, {
-                    runId: runTrim,
-                    mode,
-                    generatedAtUtc: metaUtc,
-                    typeFilterApplied: tf.length > 0 ? tf : null,
-                  }),
-                  "application/json;charset=utf-8",
-                );
-              }}
-            >
-              Export JSON
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label="Download a Mermaid flowchart for the visible graph"
-              onClick={() => {
-                const slug = safeGraphExportFilenameSegment(runTrim);
-                const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-                const snapshot = graphViewModelFilteredByNodeType(graph, typeFilter);
-
-                downloadBrowserTextFile(
-                  `graph-${slug}-${mode}-${stamp}.mmd`,
-                  graphViewModelToMermaidFlowchart(snapshot),
-                  "text/plain;charset=utf-8",
-                );
-              }}
-            >
-              Export Mermaid
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              aria-label="Download the visible graph as PNG"
-              onClick={async () => {
-                const element = document.getElementById("knowledge-graph-canvas");
-                if (element) {
-                  const html2canvas = (await import("html2canvas")).default;
-                  const canvas = await html2canvas(element, { useCORS: true });
-                  const dataUrl = canvas.toDataURL("image/png");
-                  const slug = safeGraphExportFilenameSegment(runTrim);
-                  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-                  const link = document.createElement("a");
-                  link.download = "graph-" + slug + "-" + mode + "-" + stamp + ".png";
-                  link.href = dataUrl;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }
-              }}
-            >
-              Export PNG
-            </Button>
-          </div>
-        ) : null}
-      </div>
-      {!buyerPolishedShell ? (
-        <div className={cn("mb-3", graphMainColumnMaxClass)}>
-          <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
-          {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
-            <GraphReviewTrailLegendChips />
-          ) : (
-            <GraphNodeKindLegendChips />
-          )}
-        </div>
-      ) : null}
-      <GraphInteractiveCanvas
-        graphSurfaceKey={graphSurfaceKey}
-        buyerPolishedShell={buyerPolishedShell}
-        graph={graph}
-        typeFilter={typeFilter}
-        runIdTrimmed={runTrim}
-        presentation={buyerTrailPresentation ? "buyerTrail" : "operator"}
-        onInteractiveSurfaceReady={buyerPolishedShell ? onGraphInteractiveSurfaceReady : undefined}
-        defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
-      />
-      {buyerPolishedShell ? (
-        <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
-          <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
-          <Button type="button" asChild variant="default" size="sm">
-            <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
-              {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
-            </Link>
-          </Button>
-        </div>
-      ) : null}
       {demoUi && !buyerPolishedShell ? (
         <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           Use the controls above to switch reviews or exploration mode — the Claims Intake sample loads this graph

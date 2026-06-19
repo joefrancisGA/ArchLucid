@@ -3,7 +3,7 @@
 exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side provenance + explanation layout for the demo tenant 1`] = `
 <div
   aria-busy="false"
-  class="mx-auto max-w-6xl space-y-6 p-4 pb-28 md:pb-24"
+  class="w-full max-w-[1440px] space-y-6 p-4 pb-28 md:pb-24"
   data-testid="demo-explain-page"
 >
   <header

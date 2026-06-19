@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -39,7 +40,11 @@ public sealed class DapperAuditRepository(
 
     private readonly Polly.IAsyncPolicy _retryPolicy = retryPolicyProvider?.GetRetryPolicy() ?? Polly.Policy.NoOpAsync();
 
-    public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
+    public async Task AppendAsync(
+        AuditEvent auditEvent,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(auditEvent);
 
@@ -64,10 +69,29 @@ public sealed class DapperAuditRepository(
 
         try
         {
+            if (connection is not null && transaction is not null)
+            {
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        sql,
+                        auditEvent,
+                        transaction,
+                        commandTimeout: 30,
+                        cancellationToken: ct));
+
+                return;
+            }
+
             await _retryPolicy.ExecuteAsync(async () =>
             {
-                await using SqlConnection connection = await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
-                await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
+                await using SqlConnection autonomousConnection =
+                    await _writeConnectionFactory.CreateOpenConnectionAsync(ct);
+
+                // Explicit short timeout so a blocked audit INSERT never consumes the caller's full
+                // pipeline budget (global DefaultSqlCommandTimeoutSeconds is intentionally long for
+                // sp_getapplock and migration queries; audit writes must fail fast under SQL pressure).
+                await autonomousConnection.ExecuteAsync(
+                    new CommandDefinition(sql, auditEvent, commandTimeout: 30, cancellationToken: ct));
             });
         }
         finally

@@ -2,10 +2,10 @@
 """
 Emit a Markdown readiness report for OpenTelemetry metric export configuration (repo-local, no network).
 
-Evaluates whether ArchLucid.Api and ArchLucid.Worker have at least one durable export path enabled:
+Evaluates whether ArchLucid.Api, ArchLucid.Worker, and ArchLucid.Jobs.Cli have at least one durable export path enabled:
   Application Insights connection string, OTLP endpoint, or Prometheus scrape.
 
-Sources JSON the same order as hosts load files (Api: base, environment, Advanced, SaaS; Worker: base, environment).
+Sources JSON the same order as hosts load files (Api: base, environment, Advanced, SaaS; Worker/Jobs.Cli: base, environment).
 Optionally overlays process environment variables using ASP.NET Core's double-underscore key shape (values never printed).
 """
 
@@ -25,6 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 API_DIR = REPO_ROOT / "ArchLucid.Api"
 WORKER_DIR = REPO_ROOT / "ArchLucid.Worker"
+JOBS_CLI_DIR = REPO_ROOT / "ArchLucid.Jobs.Cli"
 
 AGENT_OUTPUT_METRICS: tuple[tuple[str, str], ...] = (
     (
@@ -314,6 +315,13 @@ def worker_config_paths(env: str) -> list[Path]:
     ]
 
 
+def jobs_cli_config_paths(env: str) -> list[Path]:
+    return [
+        JOBS_CLI_DIR / "appsettings.json",
+        JOBS_CLI_DIR / f"appsettings.{env}.json",
+    ]
+
+
 @dataclass(frozen=True)
 class HostReport:
     files_attempted: list[Path]
@@ -331,12 +339,13 @@ def compute_release_verdict(
     *,
     api: HostReport,
     worker: HostReport,
+    jobs_cli: HostReport,
     include_process_environment: bool,
     honor_require_telemetry_export_config: bool = False,
     require_telemetry_export_from_config: bool = False,
 ) -> tuple[str, list[str]]:
     """
-    PASS — Api and Worker both have ≥1 durable export path and no JSON merge errors.
+    PASS — Api, Worker, and Jobs.Cli all have ≥1 durable export path and no JSON merge errors.
     WARN — partial coverage, merge noise, or JSON-only ambiguity.
     FAIL — Api lacks a durable export with process environment overlay on (simulates deploy-like check).
     """
@@ -347,6 +356,9 @@ def compute_release_verdict(
 
     if worker.load_errors:
         reasons.append(f"ArchLucid.Worker appsettings merge issues ({len(worker.load_errors)}) — see Worker section.")
+
+    if jobs_cli.load_errors:
+        reasons.append(f"ArchLucid.Jobs.Cli appsettings merge issues ({len(jobs_cli.load_errors)}) — see Jobs.Cli section.")
 
     json_only = not include_process_environment
 
@@ -361,6 +373,12 @@ def compute_release_verdict(
                 reasons.append(
                     "ArchLucid.Worker also shows no exporter in JSON-only mode — same caveat; Worker appsettings "
                     "often omit `Observability` entirely in-repo."
+                )
+
+            if not jobs_cli.has_export:
+                reasons.append(
+                    "ArchLucid.Jobs.Cli also shows no exporter in JSON-only mode — same caveat; job appsettings "
+                    "often rely on deployment environment injection."
                 )
 
             if honor_require_telemetry_export_config and require_telemetry_export_from_config:
@@ -386,7 +404,13 @@ def compute_release_verdict(
             "integration events) may be missing from the same backend unless scraped separately. Treat as **WARN**."
         )
 
-    if api.load_errors or worker.load_errors:
+    if not jobs_cli.has_export:
+        reasons.append(
+            "ArchLucid.Jobs.Cli has no durable export in this merged view — scheduled/repair job spans may be orphaned "
+            "from production triage unless the job host receives the same telemetry export settings. Treat as **WARN**."
+        )
+
+    if api.load_errors or worker.load_errors or jobs_cli.load_errors:
         return "WARN", reasons
 
     if reasons:
@@ -425,6 +449,7 @@ def render_markdown(
     env: str,
     api: HostReport,
     worker: HostReport,
+    jobs_cli: HostReport,
     include_process_environment: bool,
     verdict: str,
     verdict_reasons: list[str],
@@ -453,7 +478,7 @@ def render_markdown(
     elif v_upper == "PASS":
         lines.extend(
             [
-                "**Why:** ArchLucid.Api and ArchLucid.Worker each have at least one durable export path in the merged view, "
+                "**Why:** ArchLucid.Api, ArchLucid.Worker, and ArchLucid.Jobs.Cli each have at least one durable export path in the merged view, "
                 "and appsettings JSON layers merged without errors.",
                 "",
             ]
@@ -465,6 +490,7 @@ def render_markdown(
             "|------|------------------------|----------------|",
             f"| **ArchLucid.Api** | {'**yes**' if api.has_export else '**no**'} | {', '.join(api.active_exports) if api.active_exports else '*none*'} |",
             f"| **ArchLucid.Worker** | {'**yes**' if worker.has_export else '**no**'} | {', '.join(worker.active_exports) if worker.active_exports else '*none*'} |",
+            f"| **ArchLucid.Jobs.Cli** | {'**yes**' if jobs_cli.has_export else '**no**'} | {', '.join(jobs_cli.active_exports) if jobs_cli.active_exports else '*none*'} |",
             "",
             "**Durable export** means at least one of: Application Insights connection string, OTLP endpoint (not kill-switched), or Prometheus scrape enabled. "
             "Console-only export in Development does not satisfy production trending.",
@@ -558,6 +584,49 @@ def render_markdown(
             "Committed **Worker** appsettings omit `Observability` - production typically injects the same keys "
             "via Container App / Key Vault env vars (`APPLICATIONINSIGHTS_CONNECTION_STRING`, "
             "`Observability__Otlp__Endpoint`, etc.). Enable **process environment overlay** above or verify deployment env.",
+            "",
+            "## ArchLucid.Jobs.Cli",
+            "",
+            "### Merged JSON files",
+            "",
+        ]
+    )
+
+    if jobs_cli.files_loaded:
+        lines.extend(f"- `{p.relative_to(REPO_ROOT).as_posix()}`" for p in jobs_cli.files_loaded)
+    else:
+        lines.append("- *No appsettings files found on disk for this host.*")
+
+    lines.append("")
+
+    if jobs_cli.load_errors:
+        lines.append("### JSON load issues")
+        lines.append("")
+
+        for err in jobs_cli.load_errors:
+            lines.append(f"- WARNING: {err}")
+
+        lines.append("")
+
+    lines.append("### Export path analysis")
+    lines.append("")
+
+    if jobs_cli.has_export:
+        for pth in jobs_cli.active_exports:
+            lines.append(f"- OK: {pth}")
+    else:
+        lines.append("- WARNING: No active export path from merged configuration.")
+
+    lines.append("")
+
+    for w in jobs_cli.export_warnings:
+        lines.append(f"- WARNING: {w}")
+
+    lines.extend(
+        [
+            "",
+            "Committed **Jobs.Cli** appsettings may rely on deployment-time injection for telemetry. Production job runners should receive the same "
+            "Application Insights / OTLP / Prometheus settings as Api and Worker when job-originated spans matter for release triage.",
             "",
             "## Agent-output metrics (after successful execute)",
             "",
@@ -658,6 +727,10 @@ def main() -> int:
         json_paths=worker_config_paths(env_name),
         include_process_environment=include_env,
     )
+    jobs_cli_report = build_host_report(
+        json_paths=jobs_cli_config_paths(env_name),
+        include_process_environment=include_env,
+    )
 
     merged_api_cfg, _ = load_merged_json_objects(api_config_paths(env_name))
     effective_api_cfg = (
@@ -670,6 +743,7 @@ def main() -> int:
     verdict, verdict_reasons = compute_release_verdict(
         api=api_report,
         worker=worker_report,
+        jobs_cli=jobs_cli_report,
         include_process_environment=include_env,
         honor_require_telemetry_export_config=args.honor_require_telemetry_export_config,
         require_telemetry_export_from_config=require_telemetry_flag,
@@ -679,6 +753,7 @@ def main() -> int:
         env=env_name,
         api=api_report,
         worker=worker_report,
+        jobs_cli=jobs_cli_report,
         include_process_environment=include_env,
         verdict=verdict,
         verdict_reasons=verdict_reasons,

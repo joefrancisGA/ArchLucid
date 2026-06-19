@@ -65,7 +65,7 @@ export type DraftIntakeWhatIfBranchPanelProps = {
 
 /**
  * What-if branching via POST /v1/architecture/draft/{draftId}/branch (R12).
- * A branch is a ceteris-paribus draft clone — submit it as a separate run, then Compare.
+ * A branch is a ceteris-paribus draft clone — submit it as a separate review, then Compare.
  */
 export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanelProps) {
   const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
@@ -189,7 +189,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     <CollapsibleSection title="Explore a what-if branch" defaultOpen={props.defaultOpen === true}>
       <div className="draft-intake-what-if-panel space-y-4" data-testid="draft-intake-what-if-panel">
         <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Clone this admitted draft with one change, submit it as a separate architecture run, then use{" "}
+          Clone this admitted draft with one change, submit it as a separate architecture review, then use{" "}
           <strong>Compare two reviews</strong> to diff the committed manifests (R12).
         </p>
 

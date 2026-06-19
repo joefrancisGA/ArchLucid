@@ -117,4 +117,22 @@ describe("keyboard shortcuts global (integration)", () => {
     expect(screen.getByRole("heading", { name: "Keyboard shortcuts" })).toBeInTheDocument();
   });
 
+  it("invokes onHelpRequested for F1 and Shift+? when the shell wires help search", () => {
+    const onHelpRequested = vi.fn();
+
+    render(
+      <KeyboardShortcutProvider onHelpRequested={onHelpRequested}>
+        <div>test</div>
+      </KeyboardShortcutProvider>,
+    );
+
+    fireCombo("f1");
+    expect(onHelpRequested).toHaveBeenCalledTimes(1);
+
+    onHelpRequested.mockClear();
+    fireCombo("shift+?");
+    expect(onHelpRequested).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
 });

@@ -32,6 +32,12 @@ class TestAdoptionBatch5AO(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("/governance/recurrence-schedules", text)
 
+    def test_tb_222_pilot_nav_link(self) -> None:
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "pilot-nav-group-builder.ts"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("/governance/recurrence-schedules", text)
+        self.assertIn("recurrenceSchedules", text)
+
 
 if __name__ == "__main__":
     unittest.main()

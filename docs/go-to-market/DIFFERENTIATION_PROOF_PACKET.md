@@ -43,7 +43,8 @@ Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDE
 2. **Execute** agents on uploaded Azure evidence or accepted demo workspace.
 3. **Commit** manifest — note manifest id and run id.
 4. **Collect proof** with `-RunId` — open **`first-pilot-command-center.md`** for SEND/HOLD/DEFERRED_SCOPE.
-5. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
+5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`validation/DECISION_CHANGE_ADDENDUM.md`](validation/DECISION_CHANGE_ADDENDUM.md).
+6. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
 
 Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-proof-packets/README.md)
 
@@ -52,6 +53,8 @@ Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-pr
 ## Generic-AI comparison exercise (validation guidance)
 
 Use this when an evaluator asks: *"Why not Claude/GPT/Gemini with a good prompt?"*
+
+**Message test (3 sponsor conversations):** [`MODEL_SEATS_COUNTER_POSITIONING_TEST.md`](MODEL_SEATS_COUNTER_POSITIONING_TEST.md) — three concise scripts, disqualifying objections, next-question flow; fixtures: [`fixtures/model-seats-counter-positioning/`](../../fixtures/model-seats-counter-positioning/). Execution: **GTM M-42**.
 
 This is **validation guidance**, not a claim that ArchLucid always beats frontier AI. Do not publish benchmark superiority without data. See [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
 

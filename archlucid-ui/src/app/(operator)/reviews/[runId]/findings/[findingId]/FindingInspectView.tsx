@@ -52,7 +52,7 @@ export function FindingInspectView({
 
   if (failure || !payload) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 p-6">
+      <div className="w-full max-w-[1440px] space-y-4 p-6">
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
         <OperatorApiProblem
           problem={failure?.problem ?? null}
@@ -65,7 +65,7 @@ export function FindingInspectView({
 
   if (!sameAuthorityRunId(payload.runId, runId)) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 p-6">
+      <div className="w-full max-w-[1440px] space-y-4 p-6">
         <p className="text-sm text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
             ? "This finding belongs to a different review package than the one in this URL."
@@ -89,7 +89,7 @@ export function FindingInspectView({
 
   if (!findingIdsAlignForInspectRoute(decodedFindingId, payload.findingId)) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 p-6">
+      <div className="w-full max-w-[1440px] space-y-4 p-6">
         <p className="text-sm text-neutral-700 dark:text-neutral-300">
           This inspection payload corresponds to finding{" "}
           <span className="font-mono">{payload.findingId}</span>, not{" "}
@@ -109,7 +109,7 @@ export function FindingInspectView({
   const inspectHeroTitle = buyerPolishedShell ? "Evidence trace" : `${findingTitle} — evidence & trace`;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 p-4">
+    <div className="w-full max-w-[1440px] space-y-4 p-4">
       {buyerPolishedShell ? (
         <div className="flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
           <span className="rounded-sm bg-neutral-200 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { AUTH_MODE } from "@/lib/auth-config";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import {
   isLikelySignedIn,
@@ -12,7 +11,7 @@ import {
   signOutAndRedirectHome,
 } from "@/lib/oidc/session";
 
-/** Inline shell chrome (top bar): dev bypass notice, or OIDC sign-in / sign-out + display name. */
+/** Inline shell chrome (top bar): OIDC sign-in / sign-out + display name. */
 export function AuthPanel() {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
@@ -40,26 +39,9 @@ export function AuthPanel() {
     return () => window.removeEventListener("focus", onFocus);
   }, [refresh]);
 
-  // Amber strip is dev-local only — hide in production screenshots and omit from customer builds.
+  // Sample workspace state lives on ScopeSwitcher — no separate dev top-bar badge.
   if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
-    if (
-      process.env.NODE_ENV !== "development" ||
-      process.env.NEXT_PUBLIC_HIDE_ENV_BADGE === "true" ||
-      isNextPublicDemoMode()
-    ) {
-      return null;
-    }
-
-    return (
-      <div
-        role="status"
-        aria-label="Environment mode"
-        className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full border border-amber-600/40 bg-al-surface-raised px-2 py-0 text-[11px] font-semibold text-al-text-primary dark:border-amber-700/50"
-      >
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
-        Sample workspace
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -59,6 +59,8 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         <p className="font-semibold">Healthcare claims sample — public evaluation preview</p>
         <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="see-it-preview-disclosure">
           {source === "snapshot" ? <span data-testid="see-it-snapshot-notice">{previewDisclosure}</span> : previewDisclosure}
+          {" "}
+          Numbers and outcomes are illustrative only until you run the same path on buyer evidence.
         </p>
       </div>
 

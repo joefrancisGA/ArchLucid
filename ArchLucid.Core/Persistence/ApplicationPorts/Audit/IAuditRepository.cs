@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Persistence.Audit;
@@ -14,7 +16,16 @@ public interface IAuditRepository
     /// </summary>
     /// <param name="auditEvent">The event to append.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task AppendAsync(AuditEvent auditEvent, CancellationToken ct);
+    /// <param name="connection">
+    ///     When set with <paramref name="transaction" />, appends on the caller's unit-of-work connection so
+    ///     <c>FK_AuditEvents_Runs_RunId</c> sees uncommitted <c>dbo.Runs</c> rows inside the same SQL transaction.
+    /// </param>
+    /// <param name="transaction">Ambient transaction paired with <paramref name="connection" />.</param>
+    Task AppendAsync(
+        AuditEvent auditEvent,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     ///     Returns up to <paramref name="take" /> audit events for the given scope, ordered by

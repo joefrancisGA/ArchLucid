@@ -1,7 +1,7 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
   governanceWorkflowIdleGettingStartedReader,
@@ -11,12 +11,12 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No reviews yet",
+  title: "No review packages yet",
   description:
-    "Core Pilot path: create an architecture review request, let the pipeline finish, finalize when ready, then open your review package. You can start here, open the sample review package, or submit via the CLI or API.",
+    "Start an architecture review to generate a package with findings, evidence, manifest, and exports. Or open the sample package to see the completed flow.",
   actions: [
-    { label: "Create request", href: "/reviews/new" },
-    { label: "View sample review package", href: "/reviews/claims-intake-modernization", variant: "outline" },
+    { label: "Start architecture review", href: "/reviews/new" },
+    { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };
@@ -51,10 +51,17 @@ export const GRAPH_IDLE: EmptyStateProps = {
 /** Buyer-polished graph idle: no runId/query jargon or signed-manifest shortcut. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
-  title: "No evidence graph loaded",
+  title: "No review selected",
   description:
-    "Choose a finalized review above to see how captured context, findings, and decisions connect. If you have not started a review yet, open the reviews list first.",
-  actions: [{ label: "View reviews", href: "/reviews?projectId=default" }],
+    "Start a review or open the Claims Intake sample package to inspect its evidence trail.",
+  actions: [
+    { label: "Start review", href: "/reviews/new" },
+    {
+      label: "Open sample trail",
+      href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      variant: "outline" as const,
+    },
+  ],
 };
 
 export const COMPARE_WAITING: EmptyStateProps = {

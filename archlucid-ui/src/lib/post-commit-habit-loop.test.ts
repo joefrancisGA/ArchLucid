@@ -19,6 +19,8 @@ describe("buildPostCommitHabitLoop", () => {
     expect(loop.primary.id).toBe("sponsor-packet");
     expect(loop.primary.kind).toBe("primary");
     expect(loop.optional.some((action) => action.id === "compare")).toBe(true);
+    expect(loop.optional.some((action) => action.id === "schedule-recurrence")).toBe(true);
+    expect(loop.optional.some((action) => action.id === "recurrence-schedules")).toBe(true);
     expect(loop.optional.some((action) => action.id === "evidence-chain")).toBe(true);
     expect(loop.optional.some((action) => action.id === "value-delta")).toBe(true);
     expect(loop.optional.some((action) => action.id === "second-review")).toBe(true);

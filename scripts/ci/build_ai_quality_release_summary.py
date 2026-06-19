@@ -254,7 +254,7 @@ def build_summary(root: Path, bundle_dir: Path) -> dict[str, Any]:
     material_path, material_source = first_existing(
         root,
         bundle_dir,
-        ["material-finding-faithfulness-summary.json"],
+        ["material-finding-faithfulness-summary.json", "docs/quality/material-finding-faithfulness-summary.json"],
     )
 
     retrieval_ir = parse_retrieval_ir(read_json(ir_summary_path) if ir_summary_path else None, ir_report_path is not None)

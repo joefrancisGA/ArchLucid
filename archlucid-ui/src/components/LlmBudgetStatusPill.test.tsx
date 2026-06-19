@@ -42,7 +42,7 @@ vi.mock("@/lib/auth-config", () => ({
 describe("LlmBudgetStatusPill", () => {
   beforeEach(() => {
     buyerPolishedMock.value = false;
-    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.AdminAuthority;
     navAuthMock.isAuthorityLoading = false;
     fetchCached.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
@@ -63,7 +63,7 @@ describe("LlmBudgetStatusPill", () => {
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
 
-    expect(pill).toHaveTextContent("AI budget: 24% left");
+    expect(pill).toHaveTextContent("24% left");
     expect(pill.className).toMatch(/amber/);
   });
 
@@ -113,8 +113,8 @@ describe("LlmBudgetStatusPill", () => {
     expect(fetchCached).not.toHaveBeenCalled();
   });
 
-  it("renders nothing below ExecuteAuthority", async () => {
-    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ReadAuthority;
+  it("renders nothing below AdminAuthority", async () => {
+    navAuthMock.callerAuthorityRank = AUTHORITY_RANK.ExecuteAuthority;
 
     render(<LlmBudgetStatusPill />);
 
@@ -141,6 +141,6 @@ describe("LlmBudgetStatusPill", () => {
 
     render(<LlmBudgetStatusPill />);
 
-    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("AI budget: 0% left — paused");
+    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("0% left — paused");
   });
 });

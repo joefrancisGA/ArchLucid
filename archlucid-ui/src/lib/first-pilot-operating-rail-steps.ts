@@ -34,7 +34,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     title: "Ingest architecture evidence",
     shortBody: FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload,
     primaryHref: "/settings/extract-upload",
-    primaryLabel: "Extract and upload",
+    primaryLabel: "Add evidence",
     troubleshootHelpSlug: "evidence-intake",
   },
   {
@@ -56,7 +56,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
   {
     id: "finalize-package",
     title: "Finalize the review package",
-    shortBody: "Commit the golden manifest on review detail to lock artifacts and exports.",
+    shortBody: "Finalize the signed review record on review detail to lock artifacts and exports.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Finalize on review detail",
     troubleshootHelpSlug: "governance-approval",

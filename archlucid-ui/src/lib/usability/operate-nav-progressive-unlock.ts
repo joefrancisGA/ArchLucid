@@ -6,7 +6,7 @@ export type OperateNavUnlockPhase = 1 | 2;
 
 export const OPERATE_NAV_UNLOCK_STORAGE_KEY = "archlucid.operateNavUnlockPhase.v1";
 
-/** Hrefs hidden until phase 2 (governance cluster). */
+/** Hrefs hidden until phase 2 (governance cluster). Recurrence schedules stay in phase 1 — operating rhythm, not deep governance. */
 const GOVERNANCE_PHASE_HREFS = new Set<string>([
   "/alerts",
   "/policy-packs",
@@ -14,7 +14,6 @@ const GOVERNANCE_PHASE_HREFS = new Set<string>([
   "/governance",
   "/audit",
   "/governance/decision-register",
-  "/governance/recurrence-schedules",
   "/governance/first-30-days",
   "/workspace/security-trust",
   "/integrations/teams",

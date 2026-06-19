@@ -484,7 +484,7 @@ BEGIN
     (
         RunId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         ProjectId NVARCHAR(200) NOT NULL,
-        Description NVARCHAR(4000) NULL,
+        Description NVARCHAR(MAX) NULL,
         CreatedUtc DATETIME2 NOT NULL,
         ContextSnapshotId UNIQUEIDENTIFIER NULL,
         GraphSnapshotId UNIQUEIDENTIFIER NULL,

@@ -1,16 +1,15 @@
 import type { EmptyStateProps } from "@/components/EmptyState";
-import { BUYER_GRAPH_IDLE_DESCRIPTION } from "@/lib/buyer-polish-copy";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import {
+  BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY,
+  BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE,
+  BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
+} from "@/lib/buyer-polish-copy";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { applyBuyerLabelsToProvenanceGraphViewModel } from "@/lib/provenance-graph-presentation";
-import {
-  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-  SHOWCASE_STATIC_DEMO_RUN_ID,
-} from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
 
 /** Graph visualization mode: which endpoint to query and what graph subset to display. */
@@ -19,6 +18,17 @@ export type GraphMode =
   | "decision-subgraph"
   | "node-neighborhood"
   | "architecture";
+
+/** Buyer evidence trail: finding-centric table vs visual graph exploration. */
+export type EvidenceTrailPresentationView = "trace" | "graph";
+
+export const BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS: Readonly<
+  { mode: GraphMode; label: string }[]
+> = [
+  { mode: "provenance-full", label: "Finding provenance" },
+  { mode: "decision-subgraph", label: "Decision traceability" },
+  { mode: "architecture", label: "Architecture context" },
+];
 
 export type GraphSavedViewState = {
   runId: string;
@@ -55,16 +65,17 @@ export type GraphIdleEmptyPresetOptions = {
 /** Resolves graph idle empty-state copy — showcase demo override, then buyer preset, then operator default. */
 export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions): EmptyStateProps {
   if (options.demoUi && options.showIdleCard) {
-    const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
-    const auditHref = `/audit?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
-
     return {
-      ...GRAPH_IDLE,
-      title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-      description: BUYER_GRAPH_IDLE_DESCRIPTION,
+      ...GRAPH_IDLE_BUYER,
+      title: BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE,
+      description: BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY,
       actions: [
-        { label: "Open signed manifest", href: manifestHref },
-        { label: "Open audit trail", href: auditHref, variant: "outline" as const },
+        { label: "Start review", href: "/reviews/new" },
+        {
+          label: BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
+          href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+          variant: "outline" as const,
+        },
       ],
     };
   }

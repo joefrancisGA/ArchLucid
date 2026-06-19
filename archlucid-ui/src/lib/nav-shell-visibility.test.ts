@@ -535,7 +535,7 @@ describe("committed architecture review gate — operator shell composition", ()
       false,
     );
 
-    expect(rows.map((r) => r.group.id)).toEqual(["pilot"]);
+    expect(rows.map((r) => r.group.id)).toEqual(["pilot", "operator-admin"]);
     expect(rows[0]!.visibleLinks.map((l) => l.href)).toEqual([
       "/",
       "/reviews/new",
@@ -543,7 +543,10 @@ describe("committed architecture review gate — operator shell composition", ()
       "/reviews?projectId=default",
       "/dashboard",
       "/onboarding",
-      "/help",
+    ]);
+    expect(rows[1]!.visibleLinks.map((l) => l.href)).toEqual([
+      "/settings/tenant",
+      "/settings/tenant/recycle-bin",
     ]);
   });
 });

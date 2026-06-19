@@ -20,12 +20,14 @@ vi.mock("@/lib/trial-upgrade-nudge-telemetry", () => ({
 
 import { recordTrialUpgradeNudgeClicked, recordTrialUpgradeNudgeShown } from "@/lib/trial-upgrade-nudge-telemetry";
 import { TrialUsageUpgradeNudge } from "@/components/TrialUsageUpgradeNudge";
+import { invalidateTenantTrialStatusCache } from "@/lib/tenant-trial-status-client";
 
 const mockShown = vi.mocked(recordTrialUpgradeNudgeShown);
 const mockClicked = vi.mocked(recordTrialUpgradeNudgeClicked);
 
 describe("TrialUsageUpgradeNudge", () => {
   beforeEach(() => {
+    invalidateTenantTrialStatusCache();
     vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "operator");
     sessionStorage.clear();
     localStorage.clear();

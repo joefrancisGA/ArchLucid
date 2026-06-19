@@ -248,9 +248,8 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   },
   graph: {
     layerBadge: "Evidence trail",
-    headline: "Decision traceability graph for the Claims Intake review package.",
-    useWhen:
-      "Walk the same milestones as the signed architecture snapshot and audit trail — as a connected decision trace.",
+    headline: "Trace findings to source evidence and the signed review package.",
+    useWhen: "Pick a review, inspect provenance links, and open related findings.",
     firstPilotNote: null,
   },
   compare: {

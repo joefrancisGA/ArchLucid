@@ -713,6 +713,102 @@
         }
       ],
       "priority": "P2"
+    },
+    {
+      "id": "sec-base-031",
+      "title": "Break-glass account monitoring and time-bound use",
+      "description": "Emergency access accounts must be monitored and time-bound; standing break-glass without alerting is a critical finding.",
+      "severity": "Critical",
+      "remediationGuidance": "Document break-glass lifecycle in governance.PolicyConstraints; require alert routing for activation events.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "1 Emergency access governance themes"
+        }
+      ],
+      "priority": "P0"
+    },
+    {
+      "id": "sec-base-032",
+      "title": "TLS minimum version and cipher policy at ingress",
+      "description": "Internet-facing endpoints must declare TLS 1.2+ minimum and modern cipher policies — legacy termination is not acceptable for regulated tiers.",
+      "severity": "High",
+      "remediationGuidance": "Capture TLS policy on services[].Tags for App Gateway, Front Door, and API Management rows in resources.json.",
+      "evidenceHints": [
+        "services[].Tags",
+        "azureExtractor.manifest.RawJson",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V9 Communications security (thematic)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "sec-base-033",
+      "title": "Secretless workload identity preferred over client secrets",
+      "description": "Long-lived client secrets in application tiers should be replaced with federated workload identity where platforms support it.",
+      "severity": "High",
+      "remediationGuidance": "Note federated identity posture in governance.PolicyConstraints; flag Key Vault secret references without rotation metadata.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].RequiredControls",
+        "azureExtractor.manifest.ScopeDescriptor"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "9 Identity and credential hygiene themes"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "sec-base-034",
+      "title": "East-west micro-segmentation for tier-0 services",
+      "description": "Tier-0 services (identity, secrets, billing) require explicit east-west deny rules — flat network trust is insufficient.",
+      "severity": "High",
+      "remediationGuidance": "Map NSG or Azure Firewall application rules to topology relationships; document exceptions in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "relationships[].relationshipType",
+        "topology.Resources",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP ASVS",
+          "requirement": "V1 Architecture and network segmentation (thematic)"
+        }
+      ],
+      "priority": "P1"
+    },
+    {
+      "id": "sec-base-035",
+      "title": "Immutable audit export for security-relevant mutations",
+      "description": "Security-relevant configuration changes must be reconstructable from append-only audit — reconstructing from logs alone is insufficient for tier-1 reviews.",
+      "severity": "Medium",
+      "remediationGuidance": "Reference audit event coverage and correlation IDs in governance.RequiredControls; align with pre-commit governance gate settings when enabled.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Azure Foundations",
+          "control": "6 Logging and audit immutability themes"
+        }
+      ],
+      "priority": "P2"
     }
   ]
 }

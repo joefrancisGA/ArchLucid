@@ -12,21 +12,44 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
     /// <summary>Appends a conservative sponsor-facing completeness section derived from persisted tenant ROI baseline posture.</summary>
     public static void AppendMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
     {
+        AppendMarkdownSection(sb, snapshot, disposition: null);
+    }
+
+    /// <summary>Appends completeness section with explicit ROI narrative disposition.</summary>
+    public static void AppendMarkdownSection(
+        StringBuilder sb,
+        ValueReportSnapshot snapshot,
+        SponsorRoiClaimDispositionResult? disposition)
+    {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(snapshot);
-        (string headline, string body) = Describe(snapshot);
+        (string headline, string body) = Describe(snapshot, disposition);
         sb.AppendLine("## ROI evidence completeness");
         sb.AppendLine();
         sb.AppendLine(
             "**Indicator:** Quantitative deltas use ArchLucid-persisted run facts; comparative dollar narratives inherit baseline posture captured for this tenant. Summarizes **confidence** — not a financial attestation.");
         sb.AppendLine();
         sb.AppendLine($"**Status:** **{headline}**");
+
+        if (disposition is not null)
+        {
+            sb.AppendLine();
+            sb.AppendLine($"**Claim disposition:** {disposition.DispositionLeadLine}");
+        }
+
         sb.AppendLine();
         sb.AppendLine(body);
         sb.AppendLine();
     }
 
     internal static (string Headline, string Body) Describe(ValueReportSnapshot snapshot)
+    {
+        return Describe(snapshot, disposition: null);
+    }
+
+    internal static (string Headline, string Body) Describe(
+        ValueReportSnapshot snapshot,
+        SponsorRoiClaimDispositionResult? disposition)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         PilotRoiEvidenceConfidence tier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
@@ -42,6 +65,9 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
                 "No tenant baseline measurements were captured for this cohort window; treat ROI tables as "
                 + "**illustrative / internal planning only** unless operators attach external baseline artefacts.",
         };
+
+        if (disposition is not null)
+            body = $"{body} {disposition.NarrativeBlock}";
 
         return (headline, body);
     }

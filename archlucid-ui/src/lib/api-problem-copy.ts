@@ -1,9 +1,19 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
+import {
+  buildValidationProblemDisplayCopy,
+  isHttpRequestValidationFailure,
+  sanitizeOperatorFacingText,
+} from "@/lib/api-validation-problem";
+import { buyerFacingReviewTerminology } from "@/lib/review-terminology-copy";
 
 export type OperatorProblemCopy = {
   heading: string;
   body: string;
   hint?: string;
+  endpointLine?: string;
+  validationFields?: readonly ApiValidationFieldError[];
+  isValidationFailure?: boolean;
 };
 
 /** Optional HTTP context for operator copy (e.g. 429 + `Retry-After`). */
@@ -123,7 +133,31 @@ export function operatorCopyForProblem(
   fallbackMessage: string,
   context: OperatorProblemCopyContext = {},
 ): OperatorProblemCopy {
-  const trimmedFallback = fallbackMessage.trim() || "Request failed.";
+  const trimmedFallback = buyerFacingReviewTerminology(
+    sanitizeOperatorFacingText(fallbackMessage.trim() || "Request failed."),
+  );
+  const httpStatus = context.httpStatus ?? problem?.status ?? null;
+
+  if (problem != null && isHttpRequestValidationFailure(httpStatus, problem)) {
+    const validationCopy = buildValidationProblemDisplayCopy(problem, { httpStatus });
+    const fieldLines = validationCopy.fieldErrors.flatMap((entry) => entry.messages);
+
+    return mergeRateLimitCopy(
+      {
+        heading: validationCopy.heading,
+        body:
+          fieldLines.length > 0
+            ? "The request body failed server-side validation. See each field below."
+            : sanitizeOperatorFacingText(problem.detail?.trim() ?? trimmedFallback),
+        hint: validationCopy.hint,
+        endpointLine: validationCopy.endpointLine ?? undefined,
+        validationFields: validationCopy.fieldErrors,
+        isValidationFailure: true,
+      },
+      context,
+      problem,
+    );
+  }
 
   if (problem == null) {
     const status = context.httpStatus ?? null;
@@ -169,15 +203,16 @@ export function operatorCopyForProblem(
 
   const code = problem.errorCode?.trim();
   const fromCode = code ? ERROR_CODE_HEADINGS[code] : undefined;
-  const heading = fromCode ?? problem.title?.trim() ?? "Request failed";
-  const body =
-    problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback;
+  const heading = buyerFacingReviewTerminology(fromCode ?? sanitizeOperatorFacingText(problem.title?.trim() ?? "Request failed"));
+  const body = buyerFacingReviewTerminology(
+    sanitizeOperatorFacingText(problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback),
+  );
 
   const apiHint = problem.supportHint?.trim();
   const fallbackHint = code ? ERROR_CODE_REMEDIATION[code] : undefined;
-  const hint = apiHint || fallbackHint;
+  const hint = buyerFacingReviewTerminology(apiHint || fallbackHint || "");
 
-  const base: OperatorProblemCopy = hint ? { heading, body, hint } : { heading, body };
+  const base: OperatorProblemCopy = hint.length > 0 ? { heading, body, hint } : { heading, body };
 
   return mergeRateLimitCopy(base, context, problem);
 }

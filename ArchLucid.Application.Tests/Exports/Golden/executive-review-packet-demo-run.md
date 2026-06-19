@@ -6,8 +6,12 @@
 
 - **System:** Claims Intake Modernization
 - **Manifest version:** claims-intake-v3-demo
-- **Run:** `claims-intake-modernization`
+- **Review ID:** `claims-intake-modernization`
 - **Status:** Committed
+
+## Execution mode
+
+**Simulator** — **Not real-mode AI** — deterministic simulator; do not claim live model quality.
 
 ## Top decisions
 
@@ -15,11 +19,11 @@
   - Confidence: Rule audit (0.92)
   - Evidence: /governance/decision-register
 
-## Run summary
+## Review summary
 
-# Executive run summary — Claims Intake Modernization
+# Executive review summary — Claims Intake Modernization
 
-**Run:** `claims-intake-modernization`
+**Review ID:** `claims-intake-modernization`
 
 ## Findings by severity
 
@@ -42,7 +46,7 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 ---
 
-_This executive summary was generated with AI assistance from run findings and severity counts. Review before sharing with sponsors._
+_This executive summary was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
 
 ## Portfolio signals (live)
 
@@ -57,11 +61,13 @@ _This executive summary was generated with AI assistance from run findings and s
 
 ## ROI basis
 
+**ROI claim disposition:** **WARN** — ROI narratives must carry estimate labels; do not lead sponsor readouts with projected dollar savings.
+
 **Savings pricing basis:** EA-adjusted
 **EA discount multiplier:** 0.85
 **Pricing basis note:** Cost-category findings use EA-adjusted Azure Retail rates for the demo tenant.
 **Cost evidence freshness:** Fresh (stale after 90 days)
-**Estimated savings (USD):** 8,400.00
+**Estimated savings (USD):** 8,400.00 (estimate-basis — not a customer-specific savings attestation)
 
 ## Sponsor artifact evidence badges
 

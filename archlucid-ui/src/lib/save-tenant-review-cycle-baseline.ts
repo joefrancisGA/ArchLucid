@@ -74,3 +74,35 @@ export function validateWizardBaselineReviewCycleHours(raw: string): string | nu
 
   return null;
 }
+
+export function validateMandatoryWizardBaselineReviewCycleHours(raw: string): string | null {
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return validateWizardBaselineReviewCycleHours(raw);
+}
+
+/** Returns persisted review-cycle hours when the tenant already captured a baseline. */
+export async function getTenantReviewCycleBaselineHours(): Promise<number | null> {
+  const response = await fetch("/api/proxy/v1/tenant/baseline", {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = (await response.json()) as { baselineReviewCycleHours?: unknown };
+  const hours = data.baselineReviewCycleHours;
+
+  if (typeof hours !== "number" || !Number.isFinite(hours) || hours <= 0) {
+    return null;
+  }
+
+  return hours;
+}

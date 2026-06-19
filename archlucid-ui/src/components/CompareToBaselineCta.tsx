@@ -54,7 +54,7 @@ export function CompareToBaselineCta(props: { currentRunId: string }) {
       data-testid="compare-to-baseline-banner"
     >
       <span className="text-neutral-700 dark:text-neutral-200">
-        A baseline review is selected in this browser — open Compare with it as the prior run.
+        A baseline review is selected in this browser — open Compare with it as the prior review.
       </span>
       <Button variant="secondary" size="sm" asChild>
         <Link href={comparePageHrefAdaptive(baseline, props.currentRunId)} data-testid="compare-to-baseline-link">

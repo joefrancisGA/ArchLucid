@@ -38,7 +38,7 @@ export function DocumentLayout({ children, tocItems, className }: DocumentLayout
   return (
     <div
       className={cn(
-        "mx-auto w-full print:max-w-none",
+        "w-full print:max-w-none",
         showToc && "flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-10",
         className,
       )}

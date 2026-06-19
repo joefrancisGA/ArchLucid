@@ -240,7 +240,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
     if (trimmedRun.length === 0) {
       setSimulateFailure(
-        uiFailureFromMessage("Enter a run id to evaluate this policy content against that architecture snapshot."),
+        uiFailureFromMessage("Enter a review ID to evaluate this policy content against that architecture snapshot."),
       );
 
       return;
@@ -260,7 +260,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       const result: components["schemas"]["PolicyPackGovernanceDryRunResult"] =
         await simulatePolicyPackAgainstRun(body);
       setSimulateResult(result);
-      showSuccess("Policy test completed for the selected run.");
+      showSuccess("Policy test completed for the selected review.");
     } catch (e: unknown) {
       setSimulateFailure(toApiLoadFailure(e));
     } finally {
@@ -286,7 +286,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
         Rule authoring wizard
       </h3>
       <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-        Design custom policy content, evaluate it against a committed architecture run (golden snapshot lineage), then
+        Design custom policy content, evaluate it against a committed architecture review (golden snapshot lineage), then
         create or publish through the same durable policy-pack versioning as platform defaults.
       </p>
 
@@ -308,7 +308,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             variant={step === 2 ? "default" : "secondary"}
             onClick={() => setStep(2)}
           >
-            2 — Test on run
+            2 — Test on review
           </Button>
         </li>
         <li>
@@ -553,7 +553,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           )}
 
           <Button type="button" size="sm" variant="secondary" onClick={() => setStep(2)}>
-            Next: test on run
+            Next: test on review
           </Button>
         </div>
       ) : null}
@@ -569,7 +569,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           <div className="flex flex-wrap gap-2 items-end">
             <div className="space-y-1">
               <label htmlFor="wizard-run-id" className="text-sm font-medium">
-                Architecture run id
+                Review ID
               </label>
               <Input
                 id="wizard-run-id"
@@ -580,7 +580,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               />
             </div>
             <Button type="button" size="sm" variant="secondary" onClick={() => void loadRecentRuns()}>
-              Load recent runs
+              Load recent reviews
             </Button>
           </div>
 
@@ -590,7 +590,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
           {recentRuns.length > 0 ? (
             <label className="block text-sm">
-              Pick a recent run
+              Pick a recent review
               <select
                 className="block mt-1 p-2 w-full max-w-xl"
                 value=""

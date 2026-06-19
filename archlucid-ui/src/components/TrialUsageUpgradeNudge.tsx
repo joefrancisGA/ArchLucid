@@ -13,11 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AUTH_MODE } from "@/lib/auth-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isJwtAuthMode } from "@/lib/oidc/config";
-import { isLikelySignedIn } from "@/lib/oidc/session";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  fetchTenantTrialStatusCached,
+  shouldSkipTenantTrialStatusFetch,
+} from "@/lib/tenant-trial-status-client";
 import { startTrialBillingCheckout } from "@/lib/trial-billing-checkout";
 import {
   dismissTrialUpgradeNudge24h,
@@ -102,7 +102,7 @@ export function TrialUsageUpgradeNudge() {
   const [expiredModalOpen, setExpiredModalOpen] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
+    if (shouldSkipTenantTrialStatusFetch()) {
       setPayload(null);
       setActiveTrigger(null);
       setVisible(false);
@@ -112,12 +112,9 @@ export function TrialUsageUpgradeNudge() {
     }
 
     try {
-      const res = await fetch(
-        "/api/proxy/v1/tenant/trial-status",
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
+      const json = await fetchTenantTrialStatusCached();
 
-      if (!res.ok) {
+      if (json === null) {
         setPayload(null);
         setActiveTrigger(null);
         setVisible(false);
@@ -126,7 +123,6 @@ export function TrialUsageUpgradeNudge() {
         return;
       }
 
-      const json = (await res.json()) as TrialUpgradeNudgeStatusPayload;
       const trigger = resolveTrialUpgradeNudgeTrigger(json);
 
       setPayload(json);

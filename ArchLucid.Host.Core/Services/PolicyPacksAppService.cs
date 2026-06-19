@@ -98,7 +98,7 @@ public sealed class PolicyPacksAppService(
             return null;
 
         PolicyPackAssignment assignment = await managementService
-                .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
+                .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, isEnabled: true, ct)
             ;
 
         await auditService.LogAsync(

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, wizardFormSchema } from "@/lib/wizard-schema";
 
@@ -25,7 +26,7 @@ describe("architectureReviewTemplates", () => {
       expect(t.name.length).toBeGreaterThan(0);
       expect(t.description.length).toBeGreaterThan(10);
       expect(t.briefText.trim().length).toBeGreaterThanOrEqual(10);
-      expect(t.briefText.length).toBeLessThanOrEqual(4000);
+      expect(t.briefText.length).toBeLessThanOrEqual(ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH);
       expect(t.suggestedTitle.length).toBeGreaterThan(0);
       expect(categories).toContain(t.category);
 
@@ -55,7 +56,7 @@ describe("architectureReviewTemplates", () => {
       expect(payload.description).toBe(t.briefText.trim());
       expect(payload.systemName).toBe(suggestedSystemNameFromTemplateId(t.id));
       expect(payload.requestId.length).toBeGreaterThanOrEqual(32);
-      expect(payload.cloudProvider).toBe("Azure");
+      expect(payload.cloudProvider).toBe("None");
       expect(payload.environment.length).toBeGreaterThan(0);
     }
   });

@@ -1,0 +1,119 @@
+using ArchLucid.AgentRuntime;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+
+using FluentAssertions;
+
+namespace ArchLucid.AgentRuntime.Tests;
+
+[Trait("Suite", "Core")]
+public sealed class CriticFindingObviousnessPrunerTests
+{
+    [Fact]
+    public void Apply_removes_obvious_generic_advice_without_architecture_anchor()
+    {
+        AgentResult result = BuildCriticResult(
+            new ArchitectureFinding
+            {
+                FindingId = "f-generic-mfa",
+                Severity = FindingSeverity.Error,
+                Message = "Enable MFA for all user accounts.",
+                EvidenceRefs = ["critic-checklist"],
+            },
+            new ArchitectureFinding
+            {
+                FindingId = "f-specific",
+                Severity = FindingSeverity.Warning,
+                Message = "ObservabilityUnderSpecified",
+                EvidenceRefs = ["doc:azure-networking-bicep#L42"],
+            });
+
+        CriticFindingObviousnessPruner.Apply(result);
+
+        result.Findings.Should().HaveCount(1);
+        result.Findings[0].FindingId.Should().Be("f-specific");
+    }
+
+    [Fact]
+    public void Apply_downgrades_obvious_advice_when_named_service_is_present()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-mfa-checkout",
+            Severity = FindingSeverity.Error,
+            Message = "Enable MFA on CheckoutApi before production rollout.",
+            EvidenceRefs = ["request"],
+            ConfidenceLevel = FindingConfidenceLevel.Medium,
+        };
+
+        AgentResult result = BuildCriticResult(finding);
+
+        CriticFindingObviousnessPruner.Apply(result);
+
+        result.Findings.Should().HaveCount(1);
+        result.Findings[0].Severity.Should().Be(FindingSeverity.Info);
+        result.Findings[0].ConfidenceLevel.Should().Be(FindingConfidenceLevel.Low);
+    }
+
+    [Fact]
+    public void Apply_preserves_architecture_specific_under_specified_findings()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-obs",
+            Severity = FindingSeverity.Warning,
+            Message = "SecretManagementUnderSpecified",
+            EvidenceRefs = ["doc:manifest.json#services"],
+        };
+
+        AgentResult result = BuildCriticResult(finding);
+
+        CriticFindingObviousnessPruner.Apply(result);
+
+        result.Findings.Should().HaveCount(1);
+        result.Findings[0].Severity.Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public void Apply_no_op_for_non_critic_results()
+    {
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "f-1",
+                    Message = "Enable MFA for all users.",
+                },
+            ],
+        };
+
+        CriticFindingObviousnessPruner.Apply(result);
+
+        result.Findings.Should().HaveCount(1);
+    }
+
+    [Theory]
+    [InlineData("Use HTTPS for all public endpoints.")]
+    [InlineData("Implement encryption at rest for all data stores.")]
+    [InlineData("Follow security best practices for Azure workloads.")]
+    public void IsObviousGenericAdvice_detects_checklist_phrasing(string message)
+    {
+        CriticFindingObviousnessPatterns.IsObviousGenericAdvice(message).Should().BeTrue();
+    }
+
+    private static AgentResult BuildCriticResult(params ArchitectureFinding[] findings)
+    {
+        return new AgentResult
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            RunId = AgentHandlerTestRunIds.Run001,
+            AgentType = AgentType.Critic,
+            Findings = findings.ToList(),
+        };
+    }
+}

@@ -8,11 +8,14 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Core.Hosted;
 
-/// <summary>Loads persisted LLM USD/M rate overrides into <see cref="LlmCostEstimationUsdRateOverrideCache" /> at startup.</summary>
+/// <summary>
+///     Loads persisted LLM USD/M rate overrides into <see cref="LlmCostEstimationUsdRateOverrideCache" />
+///     on a background thread so host startup is not blocked.
+/// </summary>
 public sealed class LlmCostEstimationUsdRateOverrideWarmupHostedService(
     IServiceScopeFactory scopeFactory,
     LlmCostEstimationUsdRateOverrideCache cache,
-    ILogger<LlmCostEstimationUsdRateOverrideWarmupHostedService> logger) : IHostedService
+    ILogger<LlmCostEstimationUsdRateOverrideWarmupHostedService> logger) : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
@@ -24,7 +27,7 @@ public sealed class LlmCostEstimationUsdRateOverrideWarmupHostedService(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
@@ -32,7 +35,7 @@ public sealed class LlmCostEstimationUsdRateOverrideWarmupHostedService(
             ILlmCostEstimationUsdRateOverrideRepository repository =
                 scope.ServiceProvider.GetRequiredService<ILlmCostEstimationUsdRateOverrideRepository>();
 
-            LlmCostEstimationUsdRateOverrideRow? row = await repository.TryGetAsync(cancellationToken);
+            LlmCostEstimationUsdRateOverrideRow? row = await repository.TryGetAsync(stoppingToken).ConfigureAwait(false);
 
             _cache.Set(row);
 
@@ -53,7 +56,4 @@ public sealed class LlmCostEstimationUsdRateOverrideWarmupHostedService(
                 _logger.LogWarning(ex, "Failed to load persisted LLM USD/M rate override; using appsettings-only rates until fixed.");
         }
     }
-
-    /// <inheritdoc />
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

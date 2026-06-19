@@ -133,6 +133,31 @@ describe("tryParseApiProblemDetails", () => {
     expect(problem).toEqual({ title: "T" });
   });
 
+  it("parses ASP.NET model-state errors object into errors array", () => {
+    const problem = tryParseApiProblemDetails(
+      JSON.stringify({
+        title: "One or more validation errors occurred.",
+        status: 400,
+        errors: {
+          Description: ["Description must not exceed 10000 characters."],
+        },
+      }),
+      "application/problem+json",
+    );
+
+    expect(problem).toMatchObject({
+      title: "One or more validation errors occurred.",
+      status: 400,
+      errors: ["description: Description must not exceed 10000 characters."],
+      fieldErrors: [
+        {
+          field: "Description",
+          messages: ["Description must not exceed 10000 characters."],
+        },
+      ],
+    });
+  });
+
   it("reads blockExplanation from root and extensions", () => {
     const fromRoot = tryParseApiProblemDetails(
       JSON.stringify({

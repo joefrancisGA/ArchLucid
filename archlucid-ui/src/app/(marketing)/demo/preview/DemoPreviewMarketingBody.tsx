@@ -189,6 +189,7 @@ export function DemoPreviewMarketingBody({
             : undefined
         }
         isRunDetailAvailable={isRunDetailAvailable}
+        illustrativeSample={demoMode}
       />
 
       {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} buyerAudienceChrome={demoMode} />}

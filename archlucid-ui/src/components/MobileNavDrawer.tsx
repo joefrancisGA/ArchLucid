@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
+import { OperatorAdvancedModeToggle } from "@/components/OperatorAdvancedModeToggle";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -26,7 +27,6 @@ import {
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -98,7 +98,7 @@ function renderMobileNavBlock(
 export function MobileNavDrawer() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const { showExtended, showAdvanced, setShowAdvanced } = useNavProgressiveDisclosure();
+  const { showExtended, showAdvanced, setOperatorAdvancedMode } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const demoUi = isStaticDemoPayloadFallbackEnabled();
@@ -111,6 +111,11 @@ export function MobileNavDrawer() {
 
   const extendedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
   const advancedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const operatorAdvancedModeOn = showExtended && showAdvanced;
+
+  function toggleOperatorAdvancedMode(): void {
+    setOperatorAdvancedMode(!operatorAdvancedModeOn);
+  }
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -170,26 +175,11 @@ export function MobileNavDrawer() {
               </div>
             ) : null}
             {demoUi || buyerPolishedShell ? null : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="sidebar-disclosure-trigger w-full justify-start px-3 py-2 text-left text-xs font-medium text-neutral-900 shadow-none dark:text-neutral-100"
-                aria-pressed={shellShowAdvanced}
-                aria-label={
-                  shellShowAdvanced
-                    ? NAV_DISCLOSURE.advancedOperationsSidebar.hide
-                    : `${NAV_DISCLOSURE.advancedOperationsSidebar.show}. ${NAV_DISCLOSURE.advancedOperationsSidebar.assistiveCollapsed}`
-                }
-                data-testid="mobile-nav-show-advanced-operations-toggle"
-                onClick={() => {
-                  setShowAdvanced(!showAdvanced);
-                }}
-              >
-                {shellShowAdvanced
-                  ? NAV_DISCLOSURE.advancedOperationsSidebar.hide
-                  : NAV_DISCLOSURE.advancedOperationsSidebar.show}
-              </Button>
+              <OperatorAdvancedModeToggle
+                advancedModeOn={operatorAdvancedModeOn}
+                onToggle={toggleOperatorAdvancedMode}
+                testId="mobile-operator-advanced-mode-toggle"
+              />
             )}
             {buyerPolishedShell ? null : (
               <p className="text-xs text-neutral-700 dark:text-neutral-300" aria-keyshortcuts="Shift+?">

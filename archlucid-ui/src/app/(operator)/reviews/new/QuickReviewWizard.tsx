@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +15,12 @@ import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_FIRST_SESSION_GUIDANCE, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { showApiRequestErrorToast } from "@/lib/api-error-toast";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { QuickReviewAdvancedConfigAccordion } from "@/components/usability/QuickReviewAdvancedConfigAccordion";
@@ -51,10 +56,13 @@ import {
   QUICK_REVIEW_SAMPLE_BRIEFS,
 } from "@/lib/quick-review-sample-briefs";
 
-/** Persisted when the operator switches paths; missing key defaults to Quick review (onboarding-friendly). */
+/** Persisted when the operator switches paths; missing key defaults to guided intake (onboarding-friendly). */
 const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
 
 type ReviewsNewPathMode = "quick-review" | "full-guided";
+
+/** Active creation path — maps to persisted storage keys and wizard component. */
+type ReviewsNewActivePath = "guided-intake" | "quick-review" | "detailed";
 
 export { CONTOSO_RETAIL_SAMPLE_BRIEF };
 
@@ -68,7 +76,7 @@ const QUICK_REVIEW_STEPS = [
 
 function readStoredPathMode(): ReviewsNewPathMode {
   if (typeof window === "undefined") {
-    return "quick-review";
+    return "full-guided";
   }
 
   try {
@@ -95,7 +103,30 @@ function readStoredPathMode(): ReviewsNewPathMode {
     /* ignore */
   }
 
-  return "quick-review";
+  return "full-guided";
+}
+
+function readStoredActivePath(): ReviewsNewActivePath {
+  const pathMode = readStoredPathMode();
+
+  if (pathMode === "quick-review") {
+    return "quick-review";
+  }
+
+  const subMode = readStoredFullGuidedSubMode();
+
+  return subMode === "detailed" ? "detailed" : "guided-intake";
+}
+
+function persistActivePath(path: ReviewsNewActivePath): void {
+  if (path === "quick-review") {
+    persistPathMode("quick-review");
+
+    return;
+  }
+
+  persistPathMode("full-guided");
+  persistFullGuidedSubMode(path === "detailed" ? "detailed" : "guided-intake");
 }
 
 function persistPathMode(mode: ReviewsNewPathMode): void {
@@ -138,6 +169,9 @@ function persistFullGuidedSubMode(mode: FullGuidedSubMode): void {
   }
 }
 
+/** V1 evidence-first default; Azure is set when Azure extractor evidence is attached. */
+const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
+
 function buildQuickReviewPayload(
   brief: string,
   titleTrimmed: string,
@@ -150,7 +184,7 @@ function buildQuickReviewPayload(
     description: brief.trim(),
     systemName,
     environment: "staging",
-    cloudProvider: "Azure",
+    cloudProvider: V1_DEFAULT_CLOUD_PROVIDER,
     constraints: [],
     requiredCapabilities,
     assumptions: [],
@@ -200,13 +234,14 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [runTitle, setRunTitle] = useState("");
   const [scope, setScope] = useState<Record<string, string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>(initialWizardState.executionMode);
   const [evidenceAttached, setEvidenceAttached] = useState(false);
   const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(initialWizardState.proofScope);
   const [advancedConfigExpanded, setAdvancedConfigExpanded] = useState(initialWizardState.advancedConfigExpanded);
   const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
 
-  const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS;
+  const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS && briefText.trim().length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
 
   const persistWizardPreferences = useCallback(() => {
@@ -292,6 +327,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   const goNext = () => {
+    if (step === 0 && briefText.trim().length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
+      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+
+      return;
+    }
+
     if (step === 0 && !briefOk) {
       showToast("err", `Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
 
@@ -317,6 +358,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   const submitRun = async () => {
+    if (briefText.trim().length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
+      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+
+      return;
+    }
+
     if (!briefOk) {
       showToast("err", `Brief must be at least ${MIN_BRIEF_CHARS} characters.`);
 
@@ -330,6 +377,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     }
 
     setSubmitting(true);
+    setSubmitError(null);
 
     try {
       const body = buildQuickReviewPayload(
@@ -357,6 +405,14 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
       router.push(`/reviews/${encodeURIComponent(id)}`);
     } catch (error: unknown) {
+      setSubmitError(error);
+
+      if (isApiRequestError(error)) {
+        showApiRequestErrorToast(error, "Quick review");
+
+        return;
+      }
+
       const message =
         error && typeof error === "object" && "message" in error
           ? String((error as { message?: string }).message)
@@ -368,7 +424,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-4 pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
+    <OperatorPageContainer variant="workflow" className="grid gap-4 pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
       <div className="space-y-4">
       {isCtoDemoPackEnv() ? <CtoDemoFastCreatePanel /> : null}
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
@@ -415,12 +471,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                   setActiveSampleBriefId(null);
                 }}
                 className="min-h-[220px] font-mono text-sm"
-                placeholder="Example: Document the target architecture for a customer-facing retail API on Azure — App Service for APIs, Azure SQL for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
+                placeholder="Example: Document the target architecture for a customer-facing retail API — containerized services behind an API gateway, relational store for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
                 aria-describedby="quick-review-brief-hint"
                 autoComplete="off"
               />
               <p id="quick-review-brief-hint" className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum. Paste an executive summary or detailed
+                {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum ({ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} max). Paste an executive summary or detailed
                 brief — it becomes the review description sent to the API.
                 {activeSampleBriefId !== null ? (
                   <span className="mt-1 block text-xs text-neutral-500 dark:text-neutral-400">
@@ -523,6 +579,28 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 minutesEstimate={`First package typically ready in ${reviewPathTimeEstimate("quick-review").minutesLow}–${reviewPathTimeEstimate("quick-review").minutesHigh} minutes`}
               />
             ) : null}
+            {submitError !== null ? (
+              <div data-testid="quick-review-submit-error">
+                {isApiRequestError(submitError) ? (
+                  <OperatorApiProblem
+                    problem={submitError.problem}
+                    fallbackMessage={submitError.message}
+                    correlationId={submitError.correlationId}
+                    httpStatus={submitError.httpStatus}
+                    retryAfterSeconds={submitError.retryAfterSeconds}
+                  />
+                ) : (
+                  <OperatorApiProblem
+                    problem={null}
+                    fallbackMessage={
+                      submitError && typeof submitError === "object" && "message" in submitError
+                        ? String((submitError as { message?: string }).message)
+                        : "Request failed."
+                    }
+                  />
+                )}
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       ) : null}
@@ -561,79 +639,49 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       <aside className="hidden lg:block">
         <WizardPackagePreview systemName={displaySystemName} hasEvidence={evidenceAttached} />
       </aside>
-    </div>
+    </OperatorPageContainer>
   );
 }
 
 /**
- * Toggle at the top of `/reviews/new`: Quick review (default) vs full detailed wizard (existing client).
+ * Path switcher at the top of `/reviews/new`: guided intake (default), quick review, or templates wizard.
  */
 export function ReviewsNewPathSwitcher() {
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
-  const [pathMode, setPathMode] = useState<ReviewsNewPathMode>("quick-review");
-  const [fullGuidedSubMode, setFullGuidedSubMode] = useState<FullGuidedSubMode>("guided-intake");
+  const [activePath, setActivePath] = useState<ReviewsNewActivePath>("guided-intake");
   const [ready, setReady] = useState(false);
-  const [tourActive, setTourActive] = useState(false);
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
-    setTourActive(activeTour);
 
     if (baselineFirst) {
-      setPathMode("full-guided");
-      setFullGuidedSubMode("detailed");
-      persistPathMode("full-guided");
-      persistFullGuidedSubMode("detailed");
+      setActivePath("detailed");
+      persistActivePath("detailed");
     } else if (presetGreenfield) {
-      setPathMode("quick-review");
-      persistPathMode("quick-review");
+      setActivePath("quick-review");
+      persistActivePath("quick-review");
     } else if (activeTour) {
-      setPathMode("quick-review");
-      persistPathMode("quick-review");
+      setActivePath("quick-review");
+      persistActivePath("quick-review");
     } else {
-      setPathMode(readStoredPathMode());
-      setFullGuidedSubMode(readStoredFullGuidedSubMode());
+      setActivePath(readStoredActivePath());
     }
 
     setReady(true);
   }, [baselineFirst, presetGreenfield]);
 
-  const selectQuick = () => {
-    setPathMode("quick-review");
-    persistPathMode("quick-review");
+  const selectPath = (path: ReviewsNewActivePath) => {
+    setActivePath(path);
+    persistActivePath(path);
   };
-
-  const selectFullGuided = () => {
-    setPathMode("full-guided");
-    persistPathMode("full-guided");
-  };
-
-  const selectGuidedIntake = () => {
-    setFullGuidedSubMode("guided-intake");
-    persistFullGuidedSubMode("guided-intake");
-  };
-
-  const selectDetailed = () => {
-    setFullGuidedSubMode("detailed");
-    persistFullGuidedSubMode("detailed");
-  };
-
-  const activePathHintKey =
-    pathMode === "quick-review" ? "quick-review" : fullGuidedSubMode === "detailed" ? "detailed" : "guided-intake";
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4">
+    <OperatorPageContainer variant="workflow" className="space-y-3">
       <Suspense fallback={null}>
         <NewReviewIntentCallout />
       </Suspense>
-      <p
-        className="rounded-md border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-200"
-        data-testid="reviews-new-first-session-guidance"
-      >
-        {REVIEWS_NEW_FIRST_SESSION_GUIDANCE}
-      </p>
       {ready ? (
         <div
           className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -644,10 +692,25 @@ export function ReviewsNewPathSwitcher() {
           <Button
             type="button"
             role="tab"
-            aria-selected={pathMode === "quick-review"}
-            variant={pathMode === "quick-review" ? "default" : "outline"}
+            aria-selected={activePath === "guided-intake"}
+            variant={activePath === "guided-intake" ? "default" : "outline"}
             className="min-w-[10rem]"
-            onClick={selectQuick}
+            onClick={() => {
+              selectPath("guided-intake");
+            }}
+            data-testid="reviews-new-path-guided-intake"
+          >
+            Guided intake
+          </Button>
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={activePath === "quick-review"}
+            variant={activePath === "quick-review" ? "default" : "outline"}
+            className="min-w-[10rem]"
+            onClick={() => {
+              selectPath("quick-review");
+            }}
             data-testid="reviews-new-path-quick"
           >
             Quick review
@@ -655,32 +718,12 @@ export function ReviewsNewPathSwitcher() {
           <Button
             type="button"
             role="tab"
-            aria-selected={pathMode === "full-guided"}
-            variant={pathMode === "full-guided" ? "default" : "outline"}
+            aria-selected={activePath === "detailed"}
+            variant={activePath === "detailed" ? "default" : "outline"}
             className="min-w-[10rem]"
-            onClick={selectFullGuided}
-            data-testid="reviews-new-path-full-guided"
-          >
-            Full guided review
-          </Button>
-        </div>
-      ) : null}
-      {ready && pathMode === "full-guided" ? (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Full guided review options">
-          <Button
-            type="button"
-            size="sm"
-            variant={fullGuidedSubMode === "guided-intake" ? "default" : "outline"}
-            onClick={selectGuidedIntake}
-            data-testid="reviews-new-path-guided-intake"
-          >
-            Guided intake
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={fullGuidedSubMode === "detailed" ? "default" : "outline"}
-            onClick={selectDetailed}
+            onClick={() => {
+              selectPath("detailed");
+            }}
             data-testid="reviews-new-path-detailed"
           >
             Templates and imports
@@ -688,21 +731,20 @@ export function ReviewsNewPathSwitcher() {
         </div>
       ) : null}
       {ready ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
-          {REVIEWS_NEW_PATH_HINTS[activePathHintKey]}
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
+          {REVIEWS_NEW_PATH_HINTS[activePath]}
         </p>
       ) : null}
-      {ready ? <ReviewPathTimeEstimateBanner pathId={activePathHintKey} /> : null}
       {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
-      {!ready ? null : pathMode === "quick-review" ? (
+      {!ready ? null : activePath === "quick-review" ? (
         <QuickReviewWizard />
-      ) : fullGuidedSubMode === "guided-intake" ? (
+      ) : activePath === "guided-intake" ? (
         <SocraticIntakeWizard />
       ) : (
         <NewRunWizardClient />
       )}
-    </div>
+    </OperatorPageContainer>
   );
 }

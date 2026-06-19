@@ -5,4 +5,5 @@ export const SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof Wi
   0: null,
   1: ["systemName", "environment", "cloudProvider", "priorManifestVersion", "description", "inlineRequirements"],
   2: null,
+  3: null,
 };

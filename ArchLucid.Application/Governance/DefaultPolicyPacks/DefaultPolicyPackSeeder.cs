@@ -76,6 +76,7 @@ public sealed class DefaultPolicyPackSeeder(
             "1.0.0",
             GovernanceScopeLevel.Project,
             isPinned: false,
+            isEnabled: DefaultPolicyPackCatalog.IsStandardBaselineDisplayName(displayName),
             ct);
 
         if (_logger.IsEnabled(LogLevel.Information))

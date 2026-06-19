@@ -25,4 +25,17 @@ describe("showApiError", () => {
 
     expect(spy).toHaveBeenCalledWith("Server error — Database timeout");
   });
+
+  it("uses rich toast content when validation field errors are present", () => {
+    const spy = vi.spyOn(sonner.toast, "error").mockImplementation(() => "id");
+
+    showApiError("Request validation failed (HTTP 400)", {
+      detail: "The request body failed server-side validation. See each field below.",
+      endpointLine: "POST /v1/architecture/request returned HTTP 400 — correct the fields below and retry.",
+      validationFields: [{ field: "Description", messages: ["Description must not exceed 4000 characters."] }],
+    });
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(typeof spy.mock.calls[0]?.[0]).toBe("function");
+  });
 });

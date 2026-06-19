@@ -60,6 +60,6 @@ describe("ServiceBusHealthBanner", () => {
     await waitFor(() => {
       expect(screen.getByTestId("service-bus-health-degraded-banner")).toBeInTheDocument();
     });
-    expect(screen.getByRole("alert")).toHaveTextContent(/azure service bus messaging is degraded/i);
+    expect(screen.getByRole("alert")).toHaveTextContent(/some analysis tasks are delayed/i);
   });
 });

@@ -36,7 +36,7 @@ export type CommitRunButtonProps = {
 };
 
 /**
- * Commits the architecture run via POST /v1/architecture/run/{runId}/commit (ExecuteAuthority).
+ * Finalizes the architecture review via POST /v1/architecture/run/{runId}/commit (ExecuteAuthority).
  */
 export function CommitRunButton({ runId, disabled, commitBlockedReason = null }: CommitRunButtonProps) {
   const router = useRouter();

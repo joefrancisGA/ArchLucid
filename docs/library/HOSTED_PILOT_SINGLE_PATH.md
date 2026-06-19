@@ -8,6 +8,8 @@
 
 **Do not branch** until this path completes or emits an explicit **HOLD** with remediation.
 
+**Naive operator UI path (before strict script):** use `/reviews/new` → **Guided intake (recommended)** → admit draft → answer/skip MUST questions → submit → execute → commit. Live E2E coverage: `archlucid-ui/e2e/live-api-socratic-intake.spec.ts`.
+
 ---
 
 ## Prerequisites (one checklist)

@@ -44,7 +44,7 @@ export function ProvenanceNodeExplainCell({ runId, nodeId }: Props) {
             target="_blank"
             rel="noreferrer"
           >
-            Open run-level summary
+            Open review-level summary
           </a>
         </p>
       ) : null}

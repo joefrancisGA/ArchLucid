@@ -31,4 +31,6 @@ export type AskResponse = {
   referencedArtifacts: string[];
   /** Present when the ask request compared baseRunId and targetRunId. */
   comparisonNarrative?: string | null;
+  /** True when vector retrieval failed and SQL text fallback was used. */
+  retrievalDegraded?: boolean;
 };

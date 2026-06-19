@@ -47,6 +47,58 @@ export function isProjectedDollarClaimsSponsorSafe(
   return payload?.proofPackageCompleteness?.roiBaselineInputs?.projectedDollarClaimsSponsorSafe === true;
 }
 
+/** Human-readable execution mode from persisted pilot-run-deltas (Real / Simulator / Fallback / Mixed). */
+export function formatStructuralExecutionModeLabel(
+  payload: PilotRunDeltasProofSummaryJson | null,
+): string {
+  const raw = (payload as { structuralExecutionMode?: string | number } | null)?.structuralExecutionMode;
+
+  if (raw === undefined || raw === null || raw === "") {
+    return "Unknown";
+  }
+
+  if (raw === 0 || raw === "0" || raw === "Simulator") {
+    return "Simulator";
+  }
+
+  if (raw === 1 || raw === "1" || raw === "Real") {
+    return "Real";
+  }
+
+  if (raw === 2 || raw === "2" || raw === "Fallback") {
+    return "Fallback";
+  }
+
+  if (raw === 3 || raw === "3" || raw === "Mixed") {
+    return "Mixed";
+  }
+
+  return String(raw);
+}
+
+/**
+ * G1 execution-mode honesty — block external sponsor PDF when mode is not Real without curated-sample override.
+ * Aligns with {@link SPONSOR_CLAIM_LABEL_AUDIT} rule 1 and run-detail first-screen HOLD posture.
+ */
+export function isExternalSponsorPdfBlockedForExecutionMode(
+  payload: PilotRunDeltasProofSummaryJson | null,
+): boolean {
+  const fellBack =
+    (payload as { realModeFellBackToSimulator?: boolean } | null)?.realModeFellBackToSimulator === true;
+
+  if (fellBack) {
+    return true;
+  }
+
+  const label = formatStructuralExecutionModeLabel(payload);
+
+  if (label === "Unknown") {
+    return false;
+  }
+
+  return label !== "Real";
+}
+
 /** When false, PilotStrict quality signals failed — withhold sponsor PDF on real-mode hosts. */
 export function isAgentOutputPilotStrictSponsorSafe(
   payload: PilotRunDeltasProofSummaryJson | null,

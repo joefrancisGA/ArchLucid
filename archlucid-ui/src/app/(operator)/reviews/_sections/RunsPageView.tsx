@@ -7,26 +7,22 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { RunsListProofHeadline } from "@/components/RunsListProofHeadline";
 import { RunsPageBuyerHelpTip } from "@/components/RunsPageBuyerHelpTip";
-import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
-import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
-  BUYER_RUNS_GETTING_STARTED_GUIDE,
   BUYER_RUNS_LIST_GLOSSARY_LEAD,
-  BUYER_SEED_EXAMPLE_REVIEW_CTA,
-  BUYER_SEED_EXAMPLE_REVIEW_HINT,
 } from "@/lib/buyer-polish-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
-import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { RUNS_LIST_PAGE_SUBTITLE, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -41,7 +37,7 @@ export function RunsPageView(props: Props) {
   const malformedMessage = m.malformedMessage;
 
   return (
-    <div>
+    <OperatorPageContainer variant="dashboard">
       <OperatorWelcomeOnboarding serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
         title={
@@ -49,6 +45,7 @@ export function RunsPageView(props: Props) {
             ? RUNS_LIST_PAGE_TITLES.buyerPolished
             : RUNS_LIST_PAGE_TITLES.fullOperator
         }
+        subtitle={RUNS_LIST_PAGE_SUBTITLE}
         metadata={
           <>
             <span>{m.projectTitle}</span>
@@ -63,34 +60,27 @@ export function RunsPageView(props: Props) {
           <FirstWeekRouteGuidance variant="reviews-list" />
         </div>
       ) : null}
-      <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        {isBuyerPolishedOperatorShellEnv() ? (
-          m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
+      {isBuyerPolishedOperatorShellEnv() && m.totalCount > 0 ? (
+        <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
+          {m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
             <span className="inline-flex flex-wrap items-center gap-x-1">
               {BUYER_RUNS_DASHBOARD_RECENT_SUMMARY}
               <RunsPageBuyerHelpTip variant="sample-workspace" />
             </span>
           ) : (
-            <>
-              <span className="inline-flex flex-wrap items-center gap-x-1">
-                <GlossaryTooltip termKey="review_package">{BUYER_RUNS_LIST_GLOSSARY_LEAD}</GlossaryTooltip>
-                <RunsPageBuyerHelpTip variant="search" />
-              </span>
-            </>
-          )
-        ) : (
-          <>
-            Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> to inspect its manifest,
-            artifacts, findings, and exports.
-          </>
-        )}
-      </p>
+            <span className="inline-flex flex-wrap items-center gap-x-1">
+              <GlossaryTooltip termKey="review_package">{BUYER_RUNS_LIST_GLOSSARY_LEAD}</GlossaryTooltip>
+              <RunsPageBuyerHelpTip variant="search" />
+            </span>
+          )}
+        </p>
+      ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {!isBuyerSafeDemoMarketingChromeEnv() ? (
           <div className="inline-flex items-center gap-1.5">
             <Button variant="outline" size="sm" asChild>
               <Link href="/reviews/new" className="no-underline">
-                {isBuyerPolishedOperatorShellEnv() ? "New review" : "New request"}
+                Start architecture review
               </Link>
             </Button>
             {isBuyerPolishedOperatorShellEnv() ? null : (
@@ -145,55 +135,7 @@ export function RunsPageView(props: Props) {
       ) : null}
 
       {loadFailure === null && !malformedMessage && m.totalCount === 0 ? (
-        <>
-          <div
-            className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-4 max-w-prose px-3 py-2 text-sm leading-snug"
-            data-testid="runs-empty-core-pilot-hint"
-          >
-            <strong className="font-semibold">Start your first architecture review:</strong> use{" "}
-            <strong className="font-semibold">New review</strong> (or onboarding), run the pipeline, finalize, then review the package on
-            architecture review detail (see the{" "}
-            <a
-              href={resolveInAppDocHref("/docs/CORE_PILOT.md")}
-              className="font-medium text-teal-800 underline dark:text-teal-300"
-            >
-              {BUYER_RUNS_GETTING_STARTED_GUIDE}
-            </a>
-            ). Compare and heavy governance surfaces can wait until after your first committed package.
-          </div>
-          <EmptyState
-            {...RUNS_EMPTY}
-            title="No reviews yet"
-            description={
-              isBuyerPolishedOperatorShellEnv()
-                ? `Each review package is tracked in this workspace for manifest, evidence, findings, and deliverables.\n\n${RUNS_EMPTY.description}`
-                : (
-                    <>
-                      Each architecture review is tracked in this workspace. Your{" "}
-                      <GlossaryTooltip termKey="run">Review ID</GlossaryTooltip> appears in metadata for support and
-                      diagnostics.
-                      {"\n\n"}
-                      {RUNS_EMPTY.description}
-                    </>
-                  )
-            }
-            actions={
-              RUNS_EMPTY.actions === undefined
-                ? undefined
-                : RUNS_EMPTY.actions.map((action, index) =>
-                    index === 0 ? { ...action, label: "Start Architecture Review" } : action,
-                  )
-            }
-          />
-          {isBuyerPolishedOperatorShellEnv() ? (
-            <div className="mt-3 flex flex-col items-center gap-2" data-testid="seed-sample-review-empty-state">
-              <SeedSampleReviewButton label={BUYER_SEED_EXAMPLE_REVIEW_CTA} />
-              <p className="max-w-md text-center text-xs text-neutral-600 dark:text-neutral-400">
-                {BUYER_SEED_EXAMPLE_REVIEW_HINT}
-              </p>
-            </div>
-          ) : null}
-        </>
+        <EmptyState {...RUNS_EMPTY} />
       ) : null}
 
       {!loadFailure && !malformedMessage && m.totalCount > 0 ? (
@@ -206,6 +148,6 @@ export function RunsPageView(props: Props) {
           nextCursor={m.nextCursorForClient}
         />
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

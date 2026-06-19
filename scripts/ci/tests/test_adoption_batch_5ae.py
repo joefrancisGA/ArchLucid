@@ -30,7 +30,7 @@ class TestAdoptionBatch5AE(unittest.TestCase):
 
         self.assertIn("DemoSeedStartupWork", text)
 
-        self.assertIn("IHostedService", text)
+        self.assertIn("BackgroundService", text)
 
         self.assertIn("AnonymousViewer", text)
 

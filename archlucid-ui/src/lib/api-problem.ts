@@ -2,6 +2,11 @@
  * Subset of RFC 9457 Problem Details (obsoletes RFC 7807) plus ArchLucid API extensions (`errorCode`, `supportHint`).
  * ASP.NET Core typically serializes `ProblemDetails.Extensions` as extra root JSON properties (camelCase).
  */
+import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
+import { flattenValidationFieldErrors, parseAspNetValidationFieldErrors } from "@/lib/api-validation-problem";
+
+export type { ApiValidationFieldError };
+
 export type ApiProblemDetails = {
   type?: string;
   title?: string;
@@ -16,6 +21,8 @@ export type ApiProblemDetails = {
   failureKind?: string;
   /** Structured validation messages when returned by the API Problem Details extensions. */
   errors?: readonly string[];
+  /** ASP.NET model-state / FluentValidation field → messages (preserves field names). */
+  fieldErrors?: readonly ApiValidationFieldError[];
   /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
   blockExplanation?: string;
 };
@@ -132,7 +139,9 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
   const blockExplanation =
     readTrimmedString(record, "blockExplanation") ?? fromExt.blockExplanation;
   const failureKind = readTrimmedString(record, "failureKind") ?? fromExt.failureKind;
-  const errors = readStringArray(record.errors) ?? fromExt.errors;
+  const fieldErrorsFromBody = parseAspNetValidationFieldErrors(record.errors);
+  const flatFieldErrors = flattenValidationFieldErrors(fieldErrorsFromBody);
+  const errors = flatFieldErrors.length > 0 ? flatFieldErrors : readStringArray(record.errors) ?? fromExt.errors;
   const status = readOptionalNumber(record, "status");
 
   if (!title && !detail && !type && !errorCode) {
@@ -183,6 +192,10 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (errors) {
     problem.errors = errors;
+  }
+
+  if (fieldErrorsFromBody.length > 0) {
+    problem.fieldErrors = fieldErrorsFromBody;
   }
 
   return problem;

@@ -63,7 +63,7 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
           href="/help/evidence-intake"
           className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
         >
-          Evidence intake guide
+          Start review guide
         </Link>
       </div>
       {fileNames.length > 0 ? (

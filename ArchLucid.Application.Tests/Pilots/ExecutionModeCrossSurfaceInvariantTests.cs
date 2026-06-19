@@ -126,6 +126,27 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
     }
 
     [Fact]
+    public async Task First_value_report_includes_decision_delta_and_novelty_sections()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail(StructuralExecutionMode.Simulator, realModeFellBack: false);
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = BuildDeltas(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder markdownBuilder = CreateFirstValueSut(query.Object, deltas.Object);
+        string? markdown = await markdownBuilder.BuildMarkdownAsync("r1", "http://localhost:5000");
+
+        markdown.Should().NotBeNullOrWhiteSpace();
+        markdown.Should().Contain(SponsorDecisionDeltaNoveltyResolver.DecisionDeltaSectionHeading);
+        markdown.Should().Contain(SponsorDecisionDeltaNoveltyResolver.NoveltyConfidenceSectionHeading);
+    }
+
+    [Fact]
     public void Pilot_run_deltas_response_inherits_demo_and_llm_resolution_flags_without_mode_ambiguity()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail(StructuralExecutionMode.Mixed, realModeFellBack: false);

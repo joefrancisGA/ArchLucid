@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 using DocumentFormat.OpenXml;
@@ -81,8 +82,17 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             body.AppendChild(
                 Paragraph($"Total (composite): {snapshot.EstimatedTotalArchitectHoursSaved:0.##} architect-hours"));
 
+            SponsorRoiClaimDisposition roiDisposition =
+                SponsorRoiClaimDispositionRules.FromReviewCycleProvenance(snapshot.ReviewCycleBaselineProvenance);
+
+            body.AppendChild(Paragraph("ROI narrative claim gate", true, fontSizeHalfPoints: 28));
+            body.AppendChild(
+                Paragraph(
+                    SponsorRoiClaimDispositionRules.DescribeLeadLine(roiDisposition).Replace("**", string.Empty, StringComparison.Ordinal),
+                    italic: true));
+
             foreach (ValueReportReviewCycleParagraph p in
-                     ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot))
+                     ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot, roiDisposition))
                 body.AppendChild(Paragraph(p.Text, p.Bold, p.Italic, p.FontSizeHalfPoints));
 
             body.AppendChild(Paragraph("LLM cost (estimated)", true, fontSizeHalfPoints: 28));
@@ -93,17 +103,32 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             body.AppendChild(Paragraph("ROI vs ROI_MODEL.md baseline (annualized)", true, fontSizeHalfPoints: 28));
             body.AppendChild(
                 Paragraph(
-                    $"Annualized hours value (USD): {snapshot.AnnualizedHoursValueUsd:0.##}"));
-            body.AppendChild(Paragraph($"Annualized LLM cost (USD): {snapshot.AnnualizedLlmCostUsd:0.##}"));
-            body.AppendChild(
-                Paragraph(
-                    $"Baseline annual subscription + ops (model doc): {snapshot.BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel:0.##}"));
-            body.AppendChild(
-                Paragraph(
-                    $"Net annualized value vs baseline (USD): {snapshot.NetAnnualizedValueVersusRoiBaselineUsd:0.##}"));
-            body.AppendChild(
-                Paragraph(
-                    $"ROI vs baseline (%): {snapshot.RoiAnnualizedPercentVersusRoiBaseline:0.##}"));
+                    SponsorRoiClaimDispositionRules.DescribeAnnualizedSectionQualifier(roiDisposition),
+                    italic: true));
+
+            if (roiDisposition is not SponsorRoiClaimDisposition.Hold)
+            {
+                body.AppendChild(
+                    Paragraph(
+                        $"Annualized hours value (USD): {snapshot.AnnualizedHoursValueUsd:0.##}"));
+                body.AppendChild(Paragraph($"Annualized LLM cost (USD): {snapshot.AnnualizedLlmCostUsd:0.##}"));
+                body.AppendChild(
+                    Paragraph(
+                        $"Baseline annual subscription + ops (model doc): {snapshot.BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel:0.##}"));
+                body.AppendChild(
+                    Paragraph(
+                        $"Net annualized value vs baseline (USD): {snapshot.NetAnnualizedValueVersusRoiBaselineUsd:0.##}"));
+                body.AppendChild(
+                    Paragraph(
+                        $"ROI vs baseline (%): {snapshot.RoiAnnualizedPercentVersusRoiBaseline:0.##}"));
+            }
+            else
+            {
+                body.AppendChild(
+                    Paragraph(
+                        "(Annualized USD and ROI percentage lines suppressed — HOLD disposition until buyer baselines are collected.)",
+                        italic: true));
+            }
 
             body.AppendChild(
                 Paragraph(

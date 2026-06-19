@@ -51,6 +51,8 @@ COPY docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json /docs/library/EXECUTIVE_K
 # TB-320 / TB-328: run-detail and finding-severity semantic contracts use the same ../../../docs/library import path.
 COPY docs/library/RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json /docs/library/RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json
 COPY docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json /docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json
+# TB-344: onboarding narrative spine contract uses the same ../../../docs/library import path.
+COPY docs/library/ONBOARDING_NARRATIVE_SPINE_CONTRACT.json /docs/library/ONBOARDING_NARRATIVE_SPINE_CONTRACT.json
 
 # The pricing generator (plus `pricing_json_checkout_guard.py`) and its
 # single-source document must be present at build time. They live outside

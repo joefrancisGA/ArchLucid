@@ -38,6 +38,7 @@ export function useNavProgressiveDisclosure(): {
   showAdvanced: boolean;
   setShowExtended: (value: boolean) => void;
   setShowAdvanced: (value: boolean) => void;
+  setOperatorAdvancedMode: (enabled: boolean) => void;
 } {
   const [mounted, setMounted] = useState(false);
   const [showExtended, setShowExtendedState] = useState(false);
@@ -64,5 +65,19 @@ export function useNavProgressiveDisclosure(): {
     writeBooleanStorage(STORAGE_SHOW_ADVANCED, value);
   }, []);
 
-  return { mounted, showExtended, showAdvanced, setShowExtended, setShowAdvanced };
+  const setOperatorAdvancedMode = useCallback((enabled: boolean) => {
+    setShowExtendedState(enabled);
+    writeBooleanStorage(STORAGE_SHOW_EXTENDED, enabled);
+    setShowAdvancedState(enabled);
+    writeBooleanStorage(STORAGE_SHOW_ADVANCED, enabled);
+  }, []);
+
+  return {
+    mounted,
+    showExtended,
+    showAdvanced,
+    setShowExtended,
+    setShowAdvanced,
+    setOperatorAdvancedMode,
+  };
 }

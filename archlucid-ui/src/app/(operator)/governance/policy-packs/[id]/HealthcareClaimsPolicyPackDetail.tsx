@@ -25,7 +25,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
     : "Demonstration rule-set v3.4.1";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 p-6">
+    <div className="w-full max-w-[1200px] space-y-8 p-6">
       <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
           Active policy pack

@@ -17,6 +17,8 @@ public static class PilotRoiBaselineInputsMarkdownFormatter
         sb.AppendLine(
             "Minimum viable sponsor ROI requires buyer-provided review-cycle hours, manual prep hours per review, reviews-per-quarter cadence, and loaded architect hourly cost on the pilot scorecard. Values below are persisted posture only — not financial attestation.");
         sb.AppendLine();
+        sb.AppendLine($"**Projected dollar claim disposition:** {DescribeProjectedDollarDisposition(inputs)}");
+        sb.AppendLine();
         sb.AppendLine("| Baseline input | Basis status |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
@@ -36,5 +38,24 @@ public static class PilotRoiBaselineInputsMarkdownFormatter
             sb.AppendLine($"> {inputs.SponsorSafeFallbackCopy}");
             sb.AppendLine();
         }
+    }
+
+    private static string DescribeProjectedDollarDisposition(PilotRoiBaselineInputsStatusResponse inputs)
+    {
+        if (inputs.ProjectedDollarClaimsSponsorSafe)
+            return "**PASS** — all minimum baseline inputs are buyer-provided.";
+
+        if (HasBasis(inputs, PilotRoiBaselineInputBasis.DemoDerived) || HasBasis(inputs, PilotRoiBaselineInputBasis.NotCollected))
+            return "**HOLD** — projected dollar ROI claims are suppressed until buyer baselines are collected.";
+
+        return "**WARN** — projected dollar ROI claims require estimate labels until all inputs are buyer-provided.";
+    }
+
+    private static bool HasBasis(PilotRoiBaselineInputsStatusResponse inputs, PilotRoiBaselineInputBasis basis)
+    {
+        return inputs.ReviewCycleHoursBasis == basis
+            || inputs.ArchitectPrepHoursPerReviewBasis == basis
+            || inputs.EvidenceAssemblyEffortBasis == basis
+            || inputs.ArchitectHourlyCostBasis == basis;
     }
 }

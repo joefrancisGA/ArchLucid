@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { type LayerId } from "@/lib/getLayerForRoute";
-import { operatorSemanticBadge, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
+import { operatorSemanticBadge, OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const layerStripBase =
@@ -101,7 +101,7 @@ export function LayerContextStrip({
         data-testid="layer-context-strip"
         role="region"
       >
-        <div className="mx-auto flex min-h-9 w-full max-w-[1600px] flex-col gap-1 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6">
+        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-h-9 w-full flex-col gap-1 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6")}>
           <div className="flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5">
             <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text">
               <span className={cn("font-medium", baseStrip.labelClass)}>{orientation.label}</span>
@@ -237,7 +237,7 @@ export function LayerContextStrip({
       data-testid="layer-context-strip"
       role="region"
     >
-      <div className="mx-auto flex h-full min-h-9 max-w-[1600px] flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6">
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6")}>
         <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text">
           <span className={cn("font-medium", copy.labelClass)}>{copy.label}</span>
           <span className="text-neutral-500 dark:text-neutral-400" aria-hidden>

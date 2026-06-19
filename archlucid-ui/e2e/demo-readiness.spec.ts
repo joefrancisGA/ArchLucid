@@ -8,6 +8,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
+import { expectGraphPageReadySurface } from "./helpers/operator-journey";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
@@ -197,13 +198,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       await page.goto(path);
 
       if (path === "/graph") {
-        await expect(
-          page
-            .getByRole("main")
-            .getByTestId("graph-canvas-ready")
-            .first()
-            .or(page.getByRole("main").getByRole("button", { name: /^Load graph$/i }).first()),
-        ).toBeVisible({ timeout: 25_000 });
+        await expectGraphPageReadySurface(page, { timeout: 25_000 });
       }
 
       await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);

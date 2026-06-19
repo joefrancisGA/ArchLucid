@@ -40,6 +40,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/start_here.md": "path-chooser",
   "docs/core_pilot.md": "core-pilot",
   "docs/runbooks/first_pilot_operator_path.md": "first-pilot-path",
+  "docs/library/first_hour_operator_path.md": "first-hour-operator-path",
   "docs/runbooks/first_value_20_minutes.md": "first-value-20-minutes",
   "docs/library/governance_workflow_ui.md": "governance-approval",
   "docs/library/customer-facing/workflow_recipes_by_persona.md": "evidence-intake",

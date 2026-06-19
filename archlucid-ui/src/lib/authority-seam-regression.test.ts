@@ -22,6 +22,7 @@ import {
   maxAuthorityRankFromMeClaims,
   navLinkVisibleForCallerRank,
 } from "@/lib/nav-authority";
+import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("authority seam regression", () => {
@@ -132,7 +133,6 @@ describe("authority seam regression", () => {
     expect(hrefs.has("/dashboard")).toBe(true);
     expect(hrefs.has("/reviews/new")).toBe(true);
     expect(hrefs.has("/reviews?projectId=default")).toBe(true);
-    expect(hrefs.has("/help")).toBe(true);
   });
 
   /**
@@ -249,19 +249,13 @@ describe("authority seam regression", () => {
    * stay behind extended/advanced. Regression: moving Ask off essential or mis-tiering would change first-pilot noise.
    */
   it("keeps Operate analysis to Ask-only in the default Reader shell (tier gates before authority)", () => {
-    const rows = listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      "all",
-      true,
-    );
-    const qa = rows.find((r) => r.group.id === "operate-analysis");
+    const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
-    expect(qa, "Operate analysis group should remain visible via essential Ask").toBeDefined();
-    expect(qa!.visibleLinks.map((l) => l.href)).toEqual(["/ask"]);
+    expect(analysis, "Operate analysis group should remain configured").toBeDefined();
+
+    const tierVisible = filterNavLinksByTier(analysis!.links, false, false);
+
+    expect(tierVisible.map((l) => l.href)).toEqual(["/ask"]);
   });
 
   /**

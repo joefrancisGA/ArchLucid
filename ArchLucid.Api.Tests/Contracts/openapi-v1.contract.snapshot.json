@@ -3236,6 +3236,7 @@
             "type": "array"
           },
           "description": {
+            "maxLength": 10000,
             "minLength": 10,
             "type": "string"
           },
@@ -4021,6 +4022,9 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "retrievalDegraded": {
+            "type": "boolean"
           },
           "threadId": {
             "format": "uuid",
@@ -18149,6 +18153,74 @@
         },
         "type": "object"
       },
+      "ReviewRunEngineProvenance": {
+        "properties": {
+          "deploymentOrModelId": {
+            "type": "string"
+          },
+          "engineProfileId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "evidenceSnapshotVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "outputSchemaVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyPackVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promptPackVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerKind": {
+            "type": "string"
+          },
+          "runTimestampUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalInputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "totalOutputTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RiskExceptionRecord": {
         "properties": {
           "createdAtUtc": {
@@ -18899,6 +18971,16 @@
           },
           "degradedFindingCoverage": {
             "type": "boolean"
+          },
+          "engineProvenance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReviewRunEngineProvenance"
+              }
+            ]
           },
           "estimatedUsdSavingsSummary": {
             "oneOf": [
@@ -19824,6 +19906,12 @@
               "string"
             ]
           },
+          "engineProvenanceJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingsSnapshotId": {
             "format": "uuid",
             "type": [
@@ -20524,6 +20612,14 @@
       },
       "ServiceType": {
         "type": "integer"
+      },
+      "SetAppearancePreferenceRequest": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "SimulatedAlertOutcome": {
         "properties": {
@@ -22841,6 +22937,14 @@
       },
       "UsageMeterKind": {
         "type": "integer"
+      },
+      "UserPreferencesResponse": {
+        "properties": {
+          "appearancePreference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "WeeklyDigestHealthResponse": {
         "properties": {
@@ -64543,6 +64647,109 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/user/preferences": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "UserPreferences"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/user/preferences/appearance": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetAppearancePreferenceRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetAppearancePreferenceRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SetAppearancePreferenceRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "UserPreferences"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/value-report/generate": {
       "post": {
         "parameters": [
@@ -65673,6 +65880,9 @@
     },
     {
       "name": "TrustCenterEvidencePack"
+    },
+    {
+      "name": "UserPreferences"
     },
     {
       "name": "ValueReport"

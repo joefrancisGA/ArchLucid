@@ -8,7 +8,7 @@ export function WizardStepBaselineZip() {
   return (
     <WizardStepPanel
       title="Upload Azure extractor package"
-      description="Provide the ZIP from your read-only inventory run so we can prefill the architecture brief."
+      description="Provide the ZIP from your read-only inventory export so we can prefill the architecture brief."
     >
       <AzureExtractorPackageZipField variant="baseline" />
     </WizardStepPanel>

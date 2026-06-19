@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 export default function AdminHealthLoading() {
   return (
-    <div className="mx-auto max-w-3xl space-y-6" aria-busy>
+    <div className="w-full max-w-3xl space-y-6" aria-busy>
       <div className="space-y-2">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-full max-w-lg" />

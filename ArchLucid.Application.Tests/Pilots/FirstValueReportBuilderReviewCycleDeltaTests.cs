@@ -2,6 +2,7 @@
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 using FluentAssertions;
@@ -51,8 +52,11 @@ public sealed class FirstValueReportBuilderReviewCycleDeltaTests
             TenantBaselineManualPrepHoursPerReview: null,
             TenantBaselinePeoplePerReview: null);
 
+        SponsorRoiClaimDisposition disposition =
+            SponsorRoiClaimDispositionRules.FromReviewCycleProvenance(snapshot.ReviewCycleBaselineProvenance);
+
         StringBuilder sb = new();
-        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, snapshot);
+        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, snapshot, disposition);
         string markdown = sb.ToString();
 
         DocxValueReportRenderer renderer = new(NullLogger<DocxValueReportRenderer>.Instance);
@@ -62,7 +66,7 @@ public sealed class FirstValueReportBuilderReviewCycleDeltaTests
 
         string markdownFlat = markdown.Replace("_", "", StringComparison.Ordinal);
 
-        foreach (ValueReportReviewCycleParagraph p in ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot))
+        foreach (ValueReportReviewCycleParagraph p in ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot, disposition))
         {
             if (string.Equals(
                     p.Text,

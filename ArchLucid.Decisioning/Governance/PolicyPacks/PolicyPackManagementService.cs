@@ -187,7 +187,8 @@ public sealed class PolicyPackManagementService(
         string version,
         string scopeLevel,
         bool isPinned,
-        CancellationToken ct)
+        bool isEnabled = true,
+        CancellationToken ct = default)
     {
         string normalized = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
 
@@ -211,7 +212,7 @@ public sealed class PolicyPackManagementService(
             ProjectId = proj,
             PolicyPackId = policyPackId,
             PolicyPackVersion = version,
-            IsEnabled = true,
+            IsEnabled = isEnabled,
             ScopeLevel = normalized,
             IsPinned = isPinned,
             AssignedUtc = TimeProvider.System.UtcNowDateTime()

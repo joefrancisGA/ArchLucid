@@ -24,10 +24,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
-import {
-  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
-} from "@/lib/operator-home-example-request";
 import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
@@ -112,6 +108,36 @@ describe("RunsDashboardPanel", () => {
     expect(link).toHaveAttribute("href", "/reviews/11111111-1111-1111-1111-111111111111");
   });
 
+  it("surfaces findings insight signals on populated run rows", async () => {
+    const run: RunSummary = {
+      runId: "22222222-2222-2222-2222-222222222222",
+      projectId: "default",
+      description: "Cost review",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      findingCount: 4,
+      warningCount: 1,
+      hasGovernanceWarnings: true,
+    };
+    listRuns.mockResolvedValue({
+      items: [run],
+      totalCount: 1,
+      page: 1,
+      pageSize: 5,
+      hasMore: false,
+    });
+    stubFetchForDashboard();
+
+    render(<RunsDashboardPanel />);
+
+    expect(await screen.findByTestId(`run-home-list-insight-${run.runId}`)).toHaveTextContent(
+      "4 findings · 1 monitored risk · package finalized",
+    );
+    expect(screen.getByText("4 findings")).toBeInTheDocument();
+    expect(screen.getByTestId("run-governance-warning-indicator")).toBeInTheDocument();
+  });
+
   it("shows empty state when there are no runs", async () => {
     const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
 
@@ -128,22 +154,10 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-azure-extractor-empty-state")).toBeInTheDocument();
+        expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(screen.getByText("Start your first architecture review")).toBeInTheDocument();
-      expect(screen.getByText("Upload your Azure environment")).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Begin architecture review" })).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByRole("link", { name: "How this works" })).toHaveAttribute("href", "/help");
-      expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
-      expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
-        "href",
-        `/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`,
-      );
-      expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
-        "href",
-        "/reviews?projectId=default",
-      );
+      expect(screen.getByText("No reviews yet")).toBeInTheDocument();
+      expect(screen.getByText("Start your first review or open the example review package.")).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
     }
@@ -299,7 +313,7 @@ describe("RunsDashboardPanel", () => {
     }
   });
 
-  it("buyer-polished empty state links sample preview to manifest summary", async () => {
+  it("buyer-polished empty state shows workspace empty copy without duplicate onboarding CTAs", async () => {
     runsDashBuyerPolishedForced.on = true;
 
     const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
@@ -317,17 +331,11 @@ describe("RunsDashboardPanel", () => {
       render(<RunsDashboardPanel />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
+        expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
-      expect(
-        screen.getByText(/open the full review package above to walk a governed claims intake review end to end/i),
-      ).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "View review package" })).toHaveAttribute(
-        "href",
-        "/reviews/claims-intake-modernization",
-      );
-      expect(screen.queryByRole("link", { name: "Start executive review" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "View signed manifest" })).toBeNull();
+      expect(screen.getByText("No reviews yet")).toBeInTheDocument();
+      expect(screen.getByText("Start your first review or open the example review package.")).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {
       fallbackSpy.mockRestore();

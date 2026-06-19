@@ -64,6 +64,7 @@ public sealed class DraftRequestServiceBranchTests
         _service = new DraftRequestService(
             _repository,
             _admissionGate,
+            new PassThroughDraftSemanticAdmissionEvaluator(),
             new QuestionSelectionEngine(_governanceLoader.Object),
             new DraftRequestProjector(),
             _runCreateOrchestrator.Object,

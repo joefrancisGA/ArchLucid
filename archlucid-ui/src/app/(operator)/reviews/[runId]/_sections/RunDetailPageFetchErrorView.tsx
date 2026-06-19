@@ -13,7 +13,7 @@ export function RunDetailPageFetchErrorView(props: {
   if (props.loadFailure !== null && isApiTransientLoadFailure(props.loadFailure)) {
     return (
       <RunDetailMinimalChromeMount>
-        <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+        <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
           <OperatorBrandedTransientFailure
             failure={props.loadFailure}
@@ -26,7 +26,7 @@ export function RunDetailPageFetchErrorView(props: {
 
   return (
     <RunDetailMinimalChromeMount>
-      <div className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
+      <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
         <OperatorApiProblem
           problem={props.loadFailure?.problem ?? null}

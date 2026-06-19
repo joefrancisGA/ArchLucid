@@ -38,7 +38,19 @@ param(
     [string] $LiveUiSqlResultPath = '',
     [string] $StagingSmokeResultsPath = '',
     [string] $HostedProbeArtifactsPath = '',
-    [string] $RouteTierBaseRef = 'origin/main'
+    [string] $RouteTierBaseRef = 'origin/main',
+    [string] $PilotDecisionLedgerPath = '',
+    [switch] $SkipDecisionLedger,
+    [string] $PaidPilotBaselinePath = '',
+    [switch] $SkipBaselineReadiness,
+    [string] $FirstNonObviousMomentPath = '',
+    [switch] $SkipFirstNonObviousMoment,
+    [string] $PilotDismissalTriggerPath = '',
+    [switch] $SkipDismissalTrigger,
+    [string] $TopSeverityFindingChallengePath = '',
+    [switch] $SkipTopSeverityFindingChallenge,
+    [string] $PilotReuseCohortTrackerPath = '',
+    [switch] $SkipReuseCohortTracker
 )
 
 Set-StrictMode -Version Latest
@@ -2403,6 +2415,649 @@ function Add-PilotAcceptanceThresholdFinding {
     Add-ProofFinding -Disposition $proofDisposition -Name 'pilot-acceptance-thresholds' -Detail "Pilot acceptance HOLD ($quality) — resolve gates before sponsor commercial close." -Remediation 'See pilot-acceptance-thresholds.md and PILOT_ACCEPTANCE_THRESHOLDS.md.' -TriageCard 'FP-T018'
 }
 
+function Resolve-PilotDecisionLedgerPath {
+    param(
+        [string] $RunIdValue,
+        [string] $ExplicitPath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+        if (Test-Path -LiteralPath $ExplicitPath) {
+            return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        }
+
+        return $null
+    }
+
+    if ([string]::IsNullOrWhiteSpace($RunIdValue)) {
+        return $null
+    }
+
+    $canonicalPath = Join-Path $root "artifacts\pilot-decision-ledger\$($RunIdValue.Trim())\ledger.json"
+
+    if (Test-Path -LiteralPath $canonicalPath) {
+        return $canonicalPath
+    }
+
+    return $null
+}
+
+function Add-PilotDecisionLedgerFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $LedgerPath = '',
+        [switch] $SponsorHandoffMode,
+        [switch] $SkipLedger
+    )
+
+    if ($SkipLedger) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-decision-ledger' -Detail 'Decision-change ledger validation skipped by -SkipDecisionLedger.' -Remediation 'Re-run without -SkipDecisionLedger before paid pilot sponsor handoff.'
+        return
+    }
+
+    $resolvedLedgerPath = Resolve-PilotDecisionLedgerPath -RunIdValue $RunIdValue -ExplicitPath $LedgerPath
+    $ledgerCopyPath = Join-Path $ProofDirectory 'pilot-decision-ledger.json'
+    $reportJsonPath = Join-Path $ProofDirectory 'pilot-decision-ledger-report.json'
+    $reportMdPath = Join-Path $ProofDirectory 'pilot-decision-ledger-report.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_pilot_decision_ledger.py'
+    $strictPaidPilot = $SponsorHandoffMode -and -not [string]::IsNullOrWhiteSpace($RunIdValue)
+
+    if ($null -eq $resolvedLedgerPath) {
+        $detail = 'No pilot decision-change ledger found. Copy docs/go-to-market/templates/pilot-decision-ledger.template.json to artifacts/pilot-decision-ledger/<runId>/ledger.json and complete attribution before closeout.'
+
+        if ($strictPaidPilot) {
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'pilot-decision-ledger' -Detail $detail -Remediation 'Record top decisions under review, attributed changes, and sponsor acceptance; re-run proof collection.' -TriageCard 'FP-T024'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-decision-ledger' -Detail $detail -Remediation 'Complete ledger before sponsor handoff.'
+        return
+    }
+
+    Copy-Item -LiteralPath $resolvedLedgerPath -Destination $ledgerCopyPath -Force
+    Add-ProofArtifact -Name 'pilot-decision-ledger.json' -Path 'pilot-decision-ledger.json' -Purpose 'Operator-recorded decision-change attribution for paid pilot closeout.'
+
+    $canonicalCopyPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $canonicalCopyPath = Join-Path $root "artifacts\pilot-decision-ledger\$($RunIdValue.Trim())\ledger.json"
+    }
+
+    $args = @(
+        $scriptPath,
+        '--ledger-json', $resolvedLedgerPath,
+        '--json-out', $reportJsonPath,
+        '--markdown-out', $reportMdPath
+    )
+
+    if ($strictPaidPilot) {
+        $args += '--strict-paid-pilot'
+    }
+
+    if ($null -ne $canonicalCopyPath) {
+        $args += @('--copy-canonical-to', $canonicalCopyPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    $ledgerExit = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'pilot-decision-ledger-report.json' -Path 'pilot-decision-ledger-report.json' -Purpose 'Validation and decision-change rate summary for the pilot ledger.'
+    Add-ProofArtifact -Name 'pilot-decision-ledger-report.md' -Path 'pilot-decision-ledger-report.md' -Purpose 'Human-readable decision-change attribution summary.'
+
+    if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-decision-ledger' -Detail 'Decision-change ledger report was not generated.' -Remediation 'Repair report_pilot_decision_ledger.py.'
+        return
+    }
+
+    $report = Get-Content -LiteralPath $reportJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$report.disposition
+    $rate = [string]$report.decisionChangeRate
+    $attributed = [string]$report.metrics.attributedChangeCount
+    $decisionCount = [string]$report.metrics.decisionCount
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'pilot-decision-ledger' -Detail "Decision-change ledger PASS ($attributed/$decisionCount attributed; rate=$rate)." -Remediation ''
+        return
+    }
+
+    $proofDisposition = if ($strictPaidPilot) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofDisposition -Name 'pilot-decision-ledger' -Detail "Decision-change ledger HOLD (exit=$ledgerExit; rate=$rate). See pilot-decision-ledger-report.md." -Remediation 'Complete findingId, evidenceChainId, attributionConfidence, and sponsorAcceptance for attributed changes.' -TriageCard 'FP-T024'
+}
+
+function Resolve-PaidPilotBaselinePath {
+    param(
+        [string] $ExplicitPath,
+        [string] $RunIdValue
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+        if (Test-Path -LiteralPath $ExplicitPath) {
+            return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        }
+
+        return $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $candidate = Join-Path $root "artifacts\paid-pilot-baseline\$($RunIdValue.Trim())\baseline.json"
+
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    $defaultCandidate = Join-Path $root 'artifacts\paid-pilot-baseline\baseline.json'
+
+    if (Test-Path -LiteralPath $defaultCandidate) {
+        return (Resolve-Path -LiteralPath $defaultCandidate).Path
+    }
+
+    return $null
+}
+
+function Add-PaidPilotBaselineReadinessFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $BaselinePath = '',
+        [switch] $SponsorHandoffMode,
+        [switch] $SkipBaseline
+    )
+
+    if ($SkipBaseline) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'paid-pilot-baseline-readiness' -Detail 'Paid-pilot baseline readiness validation skipped by -SkipBaselineReadiness.' -Remediation 'Re-run without -SkipBaselineReadiness before paid pilot kickoff or sponsor handoff.'
+        return
+    }
+
+    $resolvedBaselinePath = Resolve-PaidPilotBaselinePath -RunIdValue $RunIdValue -ExplicitPath $BaselinePath
+    $baselineCopyPath = Join-Path $ProofDirectory 'paid-pilot-baseline.json'
+    $reportJsonPath = Join-Path $ProofDirectory 'paid-pilot-baseline-readiness-report.json'
+    $reportMdPath = Join-Path $ProofDirectory 'paid-pilot-baseline-readiness-report.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_paid_pilot_baseline_readiness.py'
+    $strictPaidPilot = $SponsorHandoffMode -and -not [string]::IsNullOrWhiteSpace($RunIdValue)
+
+    if ($null -eq $resolvedBaselinePath) {
+        $detail = 'No paid-pilot baseline JSON found. Copy docs/go-to-market/templates/paid-pilot-baseline.template.json to artifacts/paid-pilot-baseline/<runId>/baseline.json and record baselineReviewCycleHours + baselineReviewCycleSource before kickoff.'
+
+        if ($strictPaidPilot) {
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'paid-pilot-baseline-readiness' -Detail $detail -Remediation 'Capture buyer baselines per docs/go-to-market/BUYER_BASELINE_CAPTURE_CHECKLIST.md or document waiver rationale.' -TriageCard 'FP-T025'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'WARN' -Name 'paid-pilot-baseline-readiness' -Detail $detail -Remediation 'Complete baseline capture before sponsor handoff with projected ROI.'
+        return
+    }
+
+    Copy-Item -LiteralPath $resolvedBaselinePath -Destination $baselineCopyPath -Force
+    Add-ProofArtifact -Name 'paid-pilot-baseline.json' -Path 'paid-pilot-baseline.json' -Purpose 'Operator-recorded ROI baseline inputs for paid pilot kickoff.'
+
+    $canonicalCopyPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $canonicalCopyPath = Join-Path $root "artifacts\paid-pilot-baseline\$($RunIdValue.Trim())\baseline.json"
+    }
+
+    $args = @(
+        $scriptPath,
+        '--baseline-json', $resolvedBaselinePath,
+        '--json-out', $reportJsonPath,
+        '--markdown-out', $reportMdPath
+    )
+
+    if ($strictPaidPilot) {
+        $args += '--strict-paid-pilot'
+    }
+
+    if ($null -ne $canonicalCopyPath) {
+        $args += @('--copy-canonical-to', $canonicalCopyPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    $baselineExit = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'paid-pilot-baseline-readiness-report.json' -Path 'paid-pilot-baseline-readiness-report.json' -Purpose 'Validation summary for paid-pilot ROI baseline capture.'
+    Add-ProofArtifact -Name 'paid-pilot-baseline-readiness-report.md' -Path 'paid-pilot-baseline-readiness-report.md' -Purpose 'Human-readable paid-pilot baseline readiness summary.'
+
+    if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'paid-pilot-baseline-readiness' -Detail 'Paid-pilot baseline readiness report was not generated.' -Remediation 'Repair report_paid_pilot_baseline_readiness.py.'
+        return
+    }
+
+    $report = Get-Content -LiteralPath $reportJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$report.disposition
+    $hours = [string]$report.metrics.baselineReviewCycleHours
+    $source = [string]$report.metrics.baselineReviewCycleSource
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'paid-pilot-baseline-readiness' -Detail "Paid-pilot baseline readiness PASS (hours=$hours; source=$source)." -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'paid-pilot-baseline-readiness' -Detail "Paid-pilot baseline readiness WARN (hours=$hours; source=$source). See paid-pilot-baseline-readiness-report.md." -Remediation 'Prefer buyer-provided baselines before quoting projected dollar savings.' -TriageCard 'FP-T025'
+        return
+    }
+
+    $proofDisposition = if ($strictPaidPilot) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofDisposition -Name 'paid-pilot-baseline-readiness' -Detail "Paid-pilot baseline readiness HOLD (exit=$baselineExit; source=$source). See paid-pilot-baseline-readiness-report.md." -Remediation 'Record baselineReviewCycleHours and baselineReviewCycleSource, or document waiver rationale before kickoff.' -TriageCard 'FP-T025'
+}
+
+function Resolve-FirstNonObviousMomentPath {
+    param(
+        [string] $ExplicitPath,
+        [string] $RunIdValue
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+        if (Test-Path -LiteralPath $ExplicitPath) {
+            return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        }
+
+        return $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $candidate = Join-Path $root "artifacts\first-non-obvious-moment\$($RunIdValue.Trim())\moment.json"
+
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    return $null
+}
+
+function Add-FirstNonObviousMomentFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $MomentPath = '',
+        [switch] $SkipMoment
+    )
+
+    if ($SkipMoment) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-non-obvious-moment' -Detail 'First non-obvious moment capture skipped by -SkipFirstNonObviousMoment.' -Remediation 'Re-run without -SkipFirstNonObviousMoment for pilot debrief insight-density signal.'
+        return
+    }
+
+    $resolvedMomentPath = Resolve-FirstNonObviousMomentPath -RunIdValue $RunIdValue -ExplicitPath $MomentPath
+    $momentCopyPath = Join-Path $ProofDirectory 'first-non-obvious-moment.json'
+    $reportJsonPath = Join-Path $ProofDirectory 'first-non-obvious-moment-report.json'
+    $reportMdPath = Join-Path $ProofDirectory 'first-non-obvious-moment-report.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_first_non_obvious_moment.py'
+
+    if ($null -eq $resolvedMomentPath) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-non-obvious-moment' -Detail 'No first non-obvious moment JSON found. Copy docs/go-to-market/templates/first-non-obvious-moment.template.json to artifacts/first-non-obvious-moment/<runId>/moment.json after pilot debrief.' -Remediation 'Record the first confirmed non-obvious finding moment or set notYetObserved with rationale.' -TriageCard 'FP-T026'
+        return
+    }
+
+    Copy-Item -LiteralPath $resolvedMomentPath -Destination $momentCopyPath -Force
+    Add-ProofArtifact -Name 'first-non-obvious-moment.json' -Path 'first-non-obvious-moment.json' -Purpose 'Operator-recorded first non-obvious finding moment from pilot debrief.'
+
+    $canonicalCopyPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $canonicalCopyPath = Join-Path $root "artifacts\first-non-obvious-moment\$($RunIdValue.Trim())\moment.json"
+    }
+
+    $args = @(
+        $scriptPath,
+        '--moment-json', $resolvedMomentPath,
+        '--json-out', $reportJsonPath,
+        '--markdown-out', $reportMdPath
+    )
+
+    if ($null -ne $canonicalCopyPath) {
+        $args += @('--copy-canonical-to', $canonicalCopyPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'first-non-obvious-moment-report.json' -Path 'first-non-obvious-moment-report.json' -Purpose 'Validation summary for first non-obvious moment capture.'
+    Add-ProofArtifact -Name 'first-non-obvious-moment-report.md' -Path 'first-non-obvious-moment-report.md' -Purpose 'Pilot debrief summary surfacing the first non-obvious moment.'
+
+    if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-non-obvious-moment' -Detail 'First non-obvious moment report was not generated.' -Remediation 'Repair report_first_non_obvious_moment.py.'
+        return
+    }
+
+    $report = Get-Content -LiteralPath $reportJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$report.disposition
+    $findingId = [string]$report.metrics.findingId
+    $observed = [string]$report.metrics.observed
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'first-non-obvious-moment' -Detail "First non-obvious moment PASS (findingId=$findingId; changed planned action)." -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-non-obvious-moment' -Detail "First non-obvious moment WARN (observed=$observed; findingId=$findingId). See first-non-obvious-moment-report.md." -Remediation 'Capture participant quote and action-change signal when available.' -TriageCard 'FP-T026'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'first-non-obvious-moment' -Detail "First non-obvious moment HOLD (observed=$observed). See first-non-obvious-moment-report.md." -Remediation 'Complete required moment fields or document notYetObserved rationale.' -TriageCard 'FP-T026'
+}
+
+function Resolve-PilotDismissalTriggerPath {
+    param(
+        [string] $ExplicitPath,
+        [string] $RunIdValue
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+        if (Test-Path -LiteralPath $ExplicitPath) {
+            return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        }
+
+        return $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $candidate = Join-Path $root "artifacts\pilot-dismissal-triggers\$($RunIdValue.Trim())\dismissal.json"
+
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    return $null
+}
+
+function Add-PilotDismissalTriggerFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $CapturePath = '',
+        [switch] $SkipCapture
+    )
+
+    if ($SkipCapture) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-dismissal-trigger' -Detail 'Dismissal-trigger capture skipped by -SkipDismissalTrigger.' -Remediation 'Re-run without -SkipDismissalTrigger for pilot debrief qualification signal.'
+        return
+    }
+
+    $resolvedCapturePath = Resolve-PilotDismissalTriggerPath -RunIdValue $RunIdValue -ExplicitPath $CapturePath
+    $captureCopyPath = Join-Path $ProofDirectory 'pilot-dismissal-trigger.json'
+    $reportJsonPath = Join-Path $ProofDirectory 'pilot-dismissal-trigger-report.json'
+    $reportMdPath = Join-Path $ProofDirectory 'pilot-dismissal-trigger-report.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_pilot_dismissal_trigger.py'
+
+    if ($null -eq $resolvedCapturePath) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-dismissal-trigger' -Detail 'No pilot dismissal-trigger JSON found. Copy docs/go-to-market/templates/pilot-dismissal-trigger.template.json to artifacts/pilot-dismissal-triggers/<runId>/dismissal.json after debrief.' -Remediation 'Record primary dismissal category and evidence snippet, or set noDismissalObserved=true.' -TriageCard 'FP-T027'
+        return
+    }
+
+    Copy-Item -LiteralPath $resolvedCapturePath -Destination $captureCopyPath -Force
+    Add-ProofArtifact -Name 'pilot-dismissal-trigger.json' -Path 'pilot-dismissal-trigger.json' -Purpose 'Operator-recorded dismissal or near-dismissal trigger from pilot debrief.'
+
+    $canonicalCopyPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $canonicalCopyPath = Join-Path $root "artifacts\pilot-dismissal-triggers\$($RunIdValue.Trim())\dismissal.json"
+    }
+
+    $args = @(
+        $scriptPath,
+        '--capture-json', $resolvedCapturePath,
+        '--json-out', $reportJsonPath,
+        '--markdown-out', $reportMdPath
+    )
+
+    if ($null -ne $canonicalCopyPath) {
+        $args += @('--copy-canonical-to', $canonicalCopyPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'pilot-dismissal-trigger-report.json' -Path 'pilot-dismissal-trigger-report.json' -Purpose 'Validation summary for pilot dismissal-trigger capture.'
+    Add-ProofArtifact -Name 'pilot-dismissal-trigger-report.md' -Path 'pilot-dismissal-trigger-report.md' -Purpose 'Pilot debrief summary surfacing dismissal-trigger capture.'
+
+    if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-dismissal-trigger' -Detail 'Pilot dismissal-trigger report was not generated.' -Remediation 'Repair report_pilot_dismissal_trigger.py.'
+        return
+    }
+
+    $report = Get-Content -LiteralPath $reportJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$report.disposition
+    $category = [string]$report.metrics.primaryCategory
+    $observed = [string]$report.metrics.dismissalObserved
+
+    if ($disposition -eq 'PASS') {
+        $detail = if ($report.noDismissalObserved) {
+            'Pilot dismissal-trigger PASS (no dismissal observed).'
+        } else {
+            "Pilot dismissal-trigger PASS (category=$category)."
+        }
+
+        Add-ProofFinding -Disposition 'PASS' -Name 'pilot-dismissal-trigger' -Detail $detail -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-dismissal-trigger' -Detail "Pilot dismissal-trigger WARN (observed=$observed; category=$category). See pilot-dismissal-trigger-report.md." -Remediation 'Capture mitigation attempted and final outcome when available.' -TriageCard 'FP-T027'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'pilot-dismissal-trigger' -Detail "Pilot dismissal-trigger HOLD (observed=$observed). See pilot-dismissal-trigger-report.md." -Remediation 'Complete required dismissalCapture fields or set noDismissalObserved=true.' -TriageCard 'FP-T027'
+}
+
+function Resolve-TopSeverityFindingChallengePath {
+    param(
+        [string] $ExplicitPath,
+        [string] $RunIdValue
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+        if (Test-Path -LiteralPath $ExplicitPath) {
+            return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        }
+
+        return $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $candidate = Join-Path $root "artifacts\top-severity-finding-challenge\$($RunIdValue.Trim())\challenge.json"
+
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    return $null
+}
+
+function Add-TopSeverityFindingChallengeFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $ChallengePath = '',
+        [switch] $SponsorHandoffMode,
+        [switch] $SkipChallenge
+    )
+
+    if ($SkipChallenge) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'top-severity-finding-challenge' -Detail 'Top-severity finding challenge skipped by -SkipTopSeverityFindingChallenge.' -Remediation 'Re-run without -SkipTopSeverityFindingChallenge before sponsor handoff.'
+        return
+    }
+
+    $resolvedChallengePath = Resolve-TopSeverityFindingChallengePath -RunIdValue $RunIdValue -ExplicitPath $ChallengePath
+    $challengeCopyPath = Join-Path $ProofDirectory 'top-severity-finding-challenge.json'
+    $reportJsonPath = Join-Path $ProofDirectory 'top-severity-finding-challenge-report.json'
+    $reportMdPath = Join-Path $ProofDirectory 'top-severity-finding-challenge-report.md'
+    $appendixPath = Join-Path $ProofDirectory 'sponsor-packet-appendix-top-severity-finding-challenge.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_top_severity_finding_challenge.py'
+    $strictSponsorHandoff = $SponsorHandoffMode -and -not [string]::IsNullOrWhiteSpace($RunIdValue)
+
+    if ($null -eq $resolvedChallengePath) {
+        $detail = 'No top-severity finding challenge JSON found. Copy docs/go-to-market/templates/top-severity-finding-challenge.template.json to artifacts/top-severity-finding-challenge/<runId>/challenge.json before review closeout.'
+
+        if ($strictSponsorHandoff) {
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'top-severity-finding-challenge' -Detail $detail -Remediation 'Challenge the top-severity finding and export sponsor appendix before handoff.' -TriageCard 'FP-T028'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'WARN' -Name 'top-severity-finding-challenge' -Detail $detail -Remediation 'Complete review-close challenge before sponsor send.'
+        return
+    }
+
+    Copy-Item -LiteralPath $resolvedChallengePath -Destination $challengeCopyPath -Force
+    Add-ProofArtifact -Name 'top-severity-finding-challenge.json' -Path 'top-severity-finding-challenge.json' -Purpose 'Operator-recorded challenge/adjudication for the top-severity finding.'
+    Add-ProofArtifact -Name 'sponsor-packet-appendix-top-severity-finding-challenge.md' -Path 'sponsor-packet-appendix-top-severity-finding-challenge.md' -Purpose 'Sponsor packet appendix for top-severity finding challenge outcome.'
+
+    $canonicalCopyPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $canonicalCopyPath = Join-Path $root "artifacts\top-severity-finding-challenge\$($RunIdValue.Trim())\challenge.json"
+    }
+
+    $args = @(
+        $scriptPath,
+        '--challenge-json', $resolvedChallengePath,
+        '--json-out', $reportJsonPath,
+        '--markdown-out', $reportMdPath,
+        '--appendix-out', $appendixPath
+    )
+
+    if ($strictSponsorHandoff) {
+        $args += '--strict-sponsor-handoff'
+    }
+
+    if ($null -ne $canonicalCopyPath) {
+        $args += @('--copy-canonical-to', $canonicalCopyPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    $challengeExit = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'top-severity-finding-challenge-report.json' -Path 'top-severity-finding-challenge-report.json' -Purpose 'Validation summary for top-severity finding challenge.'
+    Add-ProofArtifact -Name 'top-severity-finding-challenge-report.md' -Path 'top-severity-finding-challenge-report.md' -Purpose 'Human-readable top-severity finding challenge summary.'
+
+    if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'top-severity-finding-challenge' -Detail 'Top-severity finding challenge report was not generated.' -Remediation 'Repair report_top_severity_finding_challenge.py.'
+        return
+    }
+
+    $report = Get-Content -LiteralPath $reportJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$report.disposition
+    $findingId = [string]$report.metrics.findingId
+    $adjudication = [string]$report.metrics.adjudication
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'top-severity-finding-challenge' -Detail "Top-severity finding challenge PASS (findingId=$findingId; adjudication=$adjudication)." -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'top-severity-finding-challenge' -Detail "Top-severity finding challenge WARN (findingId=$findingId; adjudication=$adjudication). See sponsor appendix." -Remediation 'Review evidence-chain completeness notes before sponsor send.' -TriageCard 'FP-T028'
+        return
+    }
+
+    $proofDisposition = if ($strictSponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofDisposition -Name 'top-severity-finding-challenge' -Detail "Top-severity finding challenge HOLD (exit=$challengeExit). See top-severity-finding-challenge-report.md." -Remediation 'Complete counter-argument, adjudication, rationale, and reviewer identity.' -TriageCard 'FP-T028'
+}
+
+function Resolve-PilotReuseCohortTrackerPath {
+    param(
+        [string] $ExplicitPath,
+        [string] $RunIdValue
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath)) {
+        if (Test-Path -LiteralPath $ExplicitPath) {
+            return (Resolve-Path -LiteralPath $ExplicitPath).Path
+        }
+
+        return $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $candidate = Join-Path $root "artifacts\pilot-reuse-cohort\$($RunIdValue.Trim())\tracker.json"
+
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    return $null
+}
+
+function Add-PilotReuseCohortTrackerFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $TrackerPath = '',
+        [switch] $SkipTracker
+    )
+
+    if ($SkipTracker) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail '30-day reuse cohort tracker skipped by -SkipReuseCohortTracker.' -Remediation 'Re-run without -SkipReuseCohortTracker when follow-up checkpoints are available.'
+        return
+    }
+
+    $resolvedTrackerPath = Resolve-PilotReuseCohortTrackerPath -RunIdValue $RunIdValue -ExplicitPath $TrackerPath
+    $trackerCopyPath = Join-Path $ProofDirectory 'pilot-reuse-cohort-tracker.json'
+    $reportJsonPath = Join-Path $ProofDirectory 'pilot-reuse-cohort-tracker-report.json'
+    $reportMdPath = Join-Path $ProofDirectory 'pilot-reuse-cohort-tracker-report.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_pilot_reuse_cohort_tracker.py'
+
+    if ($null -eq $resolvedTrackerPath) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail 'No 30-day reuse cohort tracker JSON found. Copy docs/go-to-market/templates/pilot-reuse-cohort-tracker.template.json to artifacts/pilot-reuse-cohort/<runId>/tracker.json and update day-7/14/30 checkpoints as follow-up dates pass.' -Remediation 'Record voluntary usage checkpoints for executive reuse cohort rollup.' -TriageCard 'FP-T029'
+        return
+    }
+
+    Copy-Item -LiteralPath $resolvedTrackerPath -Destination $trackerCopyPath -Force
+    Add-ProofArtifact -Name 'pilot-reuse-cohort-tracker.json' -Path 'pilot-reuse-cohort-tracker.json' -Purpose 'Operator-recorded day-7/14/30 voluntary reuse checkpoints.'
+
+    $canonicalCopyPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($RunIdValue)) {
+        $canonicalCopyPath = Join-Path $root "artifacts\pilot-reuse-cohort\$($RunIdValue.Trim())\tracker.json"
+    }
+
+    $args = @(
+        $scriptPath,
+        '--tracker-json', $resolvedTrackerPath,
+        '--json-out', $reportJsonPath,
+        '--markdown-out', $reportMdPath
+    )
+
+    if ($null -ne $canonicalCopyPath) {
+        $args += @('--copy-canonical-to', $canonicalCopyPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'pilot-reuse-cohort-tracker-report.json' -Path 'pilot-reuse-cohort-tracker-report.json' -Purpose 'Validation summary for 30-day reuse cohort tracker.'
+    Add-ProofArtifact -Name 'pilot-reuse-cohort-tracker-report.md' -Path 'pilot-reuse-cohort-tracker-report.md' -Purpose 'Human-readable reuse cohort tracker summary.'
+
+    if (-not (Test-Path -LiteralPath $reportJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail 'Reuse cohort tracker report was not generated.' -Remediation 'Repair report_pilot_reuse_cohort_tracker.py.'
+        return
+    }
+
+    $report = Get-Content -LiteralPath $reportJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$report.disposition
+    $trackingComplete = [string]$report.trackingComplete
+    $day30State = [string]$report.metrics.day30UsageState
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'pilot-reuse-cohort-tracker' -Detail "Reuse cohort tracker PASS (trackingComplete=$trackingComplete; day30=$day30State)." -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail "Reuse cohort tracker WARN (trackingComplete=$trackingComplete; day30=$day30State). See pilot-reuse-cohort-tracker-report.md." -Remediation 'Update follow-up checkpoints as day-7/14/30 dates pass.' -TriageCard 'FP-T029'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'pilot-reuse-cohort-tracker' -Detail "Reuse cohort tracker HOLD (trackingComplete=$trackingComplete). See pilot-reuse-cohort-tracker-report.md." -Remediation 'Complete required checkpoint fields or set usageState to not-yet-due until due.' -TriageCard 'FP-T029'
+}
+
 function Add-AiReadinessPostureFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -2890,6 +3545,45 @@ if (-not [string]::IsNullOrWhiteSpace($RunId) -and (Test-Path -LiteralPath $evid
         -RunId $RunId
 }
 
+Add-PilotDecisionLedgerFinding `
+    -ProofDirectory $proofDir `
+    -RunIdValue $RunId `
+    -LedgerPath $PilotDecisionLedgerPath `
+    -SponsorHandoffMode:$SponsorHandoff `
+    -SkipLedger:$SkipDecisionLedger
+
+Add-PaidPilotBaselineReadinessFinding `
+    -ProofDirectory $proofDir `
+    -RunIdValue $RunId `
+    -BaselinePath $PaidPilotBaselinePath `
+    -SponsorHandoffMode:$SponsorHandoff `
+    -SkipBaseline:$SkipBaselineReadiness
+
+Add-FirstNonObviousMomentFinding `
+    -ProofDirectory $proofDir `
+    -RunIdValue $RunId `
+    -MomentPath $FirstNonObviousMomentPath `
+    -SkipMoment:$SkipFirstNonObviousMoment
+
+Add-PilotDismissalTriggerFinding `
+    -ProofDirectory $proofDir `
+    -RunIdValue $RunId `
+    -CapturePath $PilotDismissalTriggerPath `
+    -SkipCapture:$SkipDismissalTrigger
+
+Add-TopSeverityFindingChallengeFinding `
+    -ProofDirectory $proofDir `
+    -RunIdValue $RunId `
+    -ChallengePath $TopSeverityFindingChallengePath `
+    -SponsorHandoffMode:$SponsorHandoff `
+    -SkipChallenge:$SkipTopSeverityFindingChallenge
+
+Add-PilotReuseCohortTrackerFinding `
+    -ProofDirectory $proofDir `
+    -RunIdValue $RunId `
+    -TrackerPath $PilotReuseCohortTrackerPath `
+    -SkipTracker:$SkipReuseCohortTracker
+
 $blockCount = @($findings | Where-Object { $_.disposition -eq 'BLOCK' }).Count
 $warnCount = @($findings | Where-Object { $_.disposition -eq 'WARN' }).Count
 $verdict = if ($blockCount -gt 0) { 'BLOCK' } elseif ($warnCount -gt 0) { 'PASS_WITH_WARNINGS' } else { 'PASS' }
@@ -3096,6 +3790,15 @@ $summary = [ordered]@{
     baselineCompletenessStatus = [string]$baselineSendEval.baselineCompletenessStatus
     sendEligible              = [bool]$baselineSendEval.sendEligible
     overrideApplied           = [bool]$baselineSendEval.overrideApplied
+    roiBaselineSendOverrideAudit = if ([bool]$baselineSendEval.overrideApplied -and (Test-Path -LiteralPath (Join-Path $proofDir 'roi-baseline-send-override.json'))) {
+        [ordered]@{
+            overridePath = 'roi-baseline-send-override.json'
+            policyRef    = 'docs/go-to-market/ROI_BASELINE_SEND_POLICY.md'
+        }
+    }
+    else {
+        $null
+    }
     sendBlockReasons          = @($baselineSendEval.sendBlockReasons)
     missingRequiredBaselineFields = @($baselineSendEval.missingRequiredBaselineFields)
     aiQualityProof            = $script:aiQualityProof

@@ -32,7 +32,7 @@ export class RunTableRowErrorBoundary extends Component<
       return (
         <tr data-testid={`runs-row-error-${this.props.runId}`}>
           <td className="px-3 py-2 align-top text-sm text-neutral-700 dark:text-neutral-200" colSpan={3}>
-            <span className="font-semibold">This run row could not be displayed.</span>{" "}
+            <span className="font-semibold">This review row could not be displayed.</span>{" "}
             <span className="font-mono text-xs text-neutral-500">({this.props.runId})</span>
           </td>
         </tr>

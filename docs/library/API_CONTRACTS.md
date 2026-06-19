@@ -313,7 +313,8 @@ Swashbuckle schema **ids** use the CLR **full type name** so colliding short nam
 
 | Field | Type | Notes |
 |-------|------|--------|
-| `inlineRequirements` | `string[]` | Each entry becomes a canonical **Requirement** (see `docs/CONTEXT_INGESTION.md`). Max **100** items, each max **4000** chars. |
+| `description` | `string` | Required. Min **10** chars; max **10 000** chars (`ArchitectureRequestFieldLimits`). Persisted on `dbo.Runs.Description` as `NVARCHAR(MAX)` (application cap 10 000). |
+| `inlineRequirements` | `string[]` | Each entry becomes a canonical **Requirement** (see `docs/CONTEXT_INGESTION.md`). Max **100** items, each max **10 000** chars. |
 | `documents` | object[] | Inline uploads: **`name`**, **`contentType`**, **`content`** (not multipart files). Max **50** documents. **`name`** and **`contentType`** must be non-empty and not whitespace-only (max **500** / **255** chars). **`contentType`** must be in **`ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All`** (today: **`text/plain`**, **`text/markdown`**). **`content`** must not be null; max **500000** chars (empty string allowed). |
 | `policyReferences` | `string[]` | Max **100** items, each max **500** chars → **PolicyControl** objects. |
 | `topologyHints` | `string[]` | Max **100** items, each max **2000** chars. |

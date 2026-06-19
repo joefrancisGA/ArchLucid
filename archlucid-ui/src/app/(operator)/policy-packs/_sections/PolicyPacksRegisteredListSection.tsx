@@ -6,18 +6,21 @@ import {
   policyPacksPackSelectReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
+import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
+import { StatusTag } from "@/components/ui/status-tag";
 import type { PolicyPack } from "@/types/policy-packs";
 
 export type PolicyPacksRegisteredListSectionProps = {
   buyerPolishedShell: boolean;
   canMutatePacks: boolean;
   packs: PolicyPack[];
+  effectivePackIds: ReadonlySet<string>;
   selectedPackId: string;
   onSelectedPackIdChange: (value: string) => void;
 };
 
 export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredListSectionProps) {
-  const { buyerPolishedShell, canMutatePacks, packs, selectedPackId, onSelectedPackIdChange } = props;
+  const { buyerPolishedShell, canMutatePacks, packs, effectivePackIds, selectedPackId, onSelectedPackIdChange } = props;
 
   return (
     <section className="mb-8" aria-labelledby="policy-packs-current-heading">
@@ -32,8 +35,22 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
         <ul>
           {packs.map((p) => (
             <li key={p.policyPackId}>
-              <strong>{p.name}</strong> — {policyPackTypeDisplayLabel(p.packType)} / {p.status} / current{" "}
-              <code>{p.currentVersion}</code>
+              <div className="flex flex-wrap items-center gap-2">
+                <strong>{p.name}</strong>
+                {isStandardBaselinePolicyPackName(p.name) ? (
+                  <StatusTag kind="ready" label="Standard baseline" data-testid={`policy-pack-baseline-${p.policyPackId}`} />
+                ) : (
+                  <StatusTag kind="neutral" label="Advanced / domain" data-testid={`policy-pack-advanced-${p.policyPackId}`} />
+                )}
+                {!effectivePackIds.has(p.policyPackId) ? (
+                  <StatusTag kind="draft" label="Disabled — opt in to enable" />
+                ) : null}
+              </div>
+              <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                {" "}
+                — {policyPackTypeDisplayLabel(p.packType)} / {p.status} / current{" "}
+                <code>{p.currentVersion}</code>
+              </span>
               <div className="text-[13px] text-neutral-600 dark:text-neutral-400">{p.description}</div>
             </li>
           ))}

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -21,8 +22,14 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
 
     /// <inheritdoc />
-    public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
+    public async Task AppendAsync(
+        AuditEvent auditEvent,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = connection;
+        _ = transaction;
         ArgumentNullException.ThrowIfNull(auditEvent);
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);

@@ -115,6 +115,10 @@ public sealed class FirstValueReportBuilder(
         SponsorSafeProofDisposition sponsorSafeDisposition = SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
         ProofPackageCompletenessResponse proofCompleteness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot, scorecardBaselines);
+        SponsorRoiClaimDispositionResult roiClaimGate = SponsorRoiClaimDispositionResolver.Resolve(
+            valueWindowSnapshot,
+            proofCompleteness.RoiBaselineInputs,
+            deltas.IsDemoTenant);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
@@ -124,8 +128,14 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
-        AppendSponsorFirstPageStatusBlock(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run);
+        AppendSponsorFirstPageStatusBlock(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run, roiClaimGate);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
+        SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proofCompleteness,
+            buyerSafeGate);
+        SponsorDecisionDeltaNoveltyMarkdownFormatter.AppendMarkdownSections(sb, decisionDeltaNovelty);
         SponsorArtifactEvidenceBadgeMarkdownFormatter.AppendMarkdownSection(
             sb,
             deltas,
@@ -152,8 +162,9 @@ public sealed class FirstValueReportBuilder(
         AppendRunSection(sb, run, manifest, baseUrl);
         AppendProofPackageContractSection(sb, deltas, proofCompleteness, manifest, run);
         AppendComputedDeltasSection(sb, deltas);
-        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
-        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
+        SponsorRoiNarrativeGateMarkdownFormatter.AppendMarkdownSection(sb, roiClaimGate);
+        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate.Disposition);
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot, roiClaimGate);
         RoiMetricSourceMarkdownFormatter.AppendMarkdownSection(
             sb,
             RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot));
@@ -230,7 +241,8 @@ public sealed class FirstValueReportBuilder(
         SponsorSafeProofDisposition disposition,
         ProofPackageCompletenessResponse proof,
         PilotRunDeltas deltas,
-        ArchitectureRun run)
+        ArchitectureRun run,
+        SponsorRoiClaimDispositionResult roiClaimGate)
     {
         sb.AppendLine("## Sponsor first-page status");
         sb.AppendLine();
@@ -240,34 +252,15 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine("| Question | Sponsor-safe answer |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
-        sb.AppendLine($"| Execution mode | {FormatSponsorExecutionMode(run)} |");
+        sb.AppendLine($"| Execution mode | {SponsorExecutionModeMarkdownFormatter.FormatSponsorExecutionMode(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
-        sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof)} |");
+        sb.AppendLine($"| ROI claim gate | {roiClaimGate.DispositionLeadLine} |");
+        sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof, roiClaimGate)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
         sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail)} |");
         sb.AppendLine($"| Deferred buyer requirements | {FormatSponsorDeferredBuyerRequirements()} |");
         sb.AppendLine($"| Recommended next action | {FormatSponsorNextAction(disposition, proof, deltas, run)} |");
         sb.AppendLine();
-    }
-
-    private static string FormatSponsorExecutionMode(ArchitectureRun run)
-    {
-        string label = StructuralExecutionModeLabels.ToDisplayLabel(run.StructuralExecutionMode);
-
-        string caveat = run.StructuralExecutionMode switch
-        {
-            StructuralExecutionMode.Real =>
-                "Live model path for agent steps (no recorded simulator substitution for this run).",
-            StructuralExecutionMode.Simulator =>
-                "**Not real-mode AI** — deterministic simulator; do not claim live model quality.",
-            StructuralExecutionMode.Fallback =>
-                "**Fallback recorded** — real path attempted but simulator substitution persisted.",
-            StructuralExecutionMode.Mixed =>
-                "**Mixed** — review per-agent traces before sponsor send.",
-            _ => StructuralExecutionModeLabels.ToOperatorDetail(run.StructuralExecutionMode),
-        };
-
-        return $"**{label}** — {caveat}";
     }
 
     private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof)
@@ -295,20 +288,23 @@ public sealed class FirstValueReportBuilder(
         return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run (zero may be valid when simulator substitution applies — see quality disposition).";
     }
 
-    private static string FormatSponsorRoiBasis(ProofPackageCompletenessResponse proof)
+    private static string FormatSponsorRoiBasis(
+        ProofPackageCompletenessResponse proof,
+        SponsorRoiClaimDispositionResult roiClaimGate)
     {
         string label = EscapeMarkdownTableCell(proof.RoiConfidenceLabel);
         string inputsSummary = proof.RoiBaselineInputs is null
             ? string.Empty
             : $" Per-field inputs: {EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
 
-        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
+        if (roiClaimGate.Disposition is SponsorRoiClaimDisposition.Pass
+            && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
             && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true)
             return $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}";
 
         string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
             ? EscapeMarkdownTableCell(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
-            : "use qualitative wording or estimate labels until buyer baselines are collected";
+            : roiClaimGate.NarrativeBlock;
 
         return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
     }

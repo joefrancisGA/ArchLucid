@@ -156,7 +156,7 @@ describe("QuickStartWizard", () => {
       expect(screen.getByTestId("quick-start-submit-error")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Role cannot create runs")).toBeInTheDocument();
+    expect(screen.getByText("Role cannot create reviews")).toBeInTheDocument();
     expect(screen.getByText(/corr-quick-1/)).toBeInTheDocument();
   });
 });

@@ -42,19 +42,19 @@ function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: 
     status.blocksAdditionalLlmExecution ||
     (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
 
-  return paused ? `AI budget: ${display} left — paused` : `AI budget: ${display} left`;
+  return paused ? `${display} left — paused` : `${display} left`;
 }
 
 function buildPillAriaLabel(remainingPercent: number | null, paused: boolean): string {
   if (remainingPercent === null) {
-    return "AI analysis budget for this month";
+    return "Monthly analysis allowance";
   }
 
   if (paused) {
-    return `AI analysis budget for this month: ${remainingPercent}% left, new runs paused`;
+    return `Monthly analysis allowance: ${remainingPercent}% left, new reviews paused`;
   }
 
-  return `AI analysis budget for this month: ${remainingPercent}% left`;
+  return `Monthly analysis allowance: ${remainingPercent}% left`;
 }
 
 function isOperatorShellAuthenticated(): boolean {
@@ -80,7 +80,7 @@ export function LlmBudgetStatusPill() {
       isBuyerPolishedOperatorShellEnv() ||
       isAuthorityLoading ||
       !isOperatorShellAuthenticated() ||
-      callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+      callerAuthorityRank < AUTHORITY_RANK.AdminAuthority
     ) {
       return;
     }
@@ -110,7 +110,7 @@ export function LlmBudgetStatusPill() {
     isBuyerPolishedOperatorShellEnv() ||
     isAuthorityLoading ||
     !isOperatorShellAuthenticated() ||
-    callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+    callerAuthorityRank < AUTHORITY_RANK.AdminAuthority
   ) {
     return null;
   }
@@ -135,7 +135,10 @@ export function LlmBudgetStatusPill() {
             type="button"
             variant="outline"
             size="sm"
-            className={cn("h-7 shrink-0 border px-2.5 text-xs font-semibold tabular-nums", pillClassForTone(tone))}
+            className={cn(
+              "h-6 shrink-0 border px-1.5 text-[10px] font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
+              pillClassForTone(tone),
+            )}
             data-testid="llm-budget-status-pill"
             aria-label={ariaLabel}
             aria-expanded={open}

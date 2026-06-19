@@ -108,7 +108,10 @@ function coerceArchitectureFindingSeverity(raw: unknown): number {
   return 0;
 }
 
-function findingTraceRowsFromSummary(summary: RunExplanationSummary | null): FindingTraceConfidenceDto[] {
+/** Resolves finding trace rows from aggregate explanation payloads (top-level or nested). */
+export function resolveFindingTraceRowsFromSummary(
+  summary: RunExplanationSummary | null,
+): FindingTraceConfidenceDto[] {
   if (summary === null) {
     return [];
   }
@@ -125,6 +128,10 @@ function findingTraceRowsFromSummary(summary: RunExplanationSummary | null): Fin
   }
 
   return [];
+}
+
+function findingTraceRowsFromSummary(summary: RunExplanationSummary | null): FindingTraceConfidenceDto[] {
+  return resolveFindingTraceRowsFromSummary(summary);
 }
 
 function severityValueFromTraceRow(row: FindingTraceConfidenceDto): number {
