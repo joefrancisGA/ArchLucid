@@ -1,0 +1,80 @@
+"use client";
+
+import { useState, type ReactElement } from "react";
+
+import { Button } from "@/components/ui/button";
+import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+
+type DownloadManifestButtonProps = {
+  readonly runId: string;
+  readonly className?: string;
+};
+
+function manifestDownloadFileName(runId: string): string {
+  const safe = runId.trim().replace(/[^\w.-]+/g, "-");
+
+  return `${safe.length > 0 ? safe : "review"}-manifest.json`;
+}
+
+/** One-click browser download of the committed golden manifest JSON for a review package. */
+export function DownloadManifestButton(props: DownloadManifestButtonProps): ReactElement {
+  const { runId, className } = props;
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onDownload = async (): Promise<void> => {
+    const trimmedRunId = runId.trim();
+
+    if (trimmedRunId.length === 0) {
+      setError("Review id is missing — refresh the page and try again.");
+      return;
+    }
+
+    setDownloading(true);
+    setError(null);
+
+    try {
+      const manifestJson = await getAuthorityRunManifest(trimmedRunId);
+      const blob = new Blob([JSON.stringify(manifestJson, null, 2)], { type: "application/json" });
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = manifestDownloadFileName(trimmedRunId);
+      anchor.click();
+      URL.revokeObjectURL(objectUrl);
+    } catch (downloadError) {
+      const message =
+        downloadError instanceof Error
+          ? downloadError.message
+          : "Could not download manifest JSON — check connectivity and try again.";
+      setError(message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div className={className ?? "space-y-2"}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        data-testid="download-manifest-json-button"
+        disabled={downloading}
+        className="border-neutral-300 dark:border-neutral-600"
+        onClick={() => void onDownload()}
+      >
+        {downloading ? "Preparing JSON…" : "Download manifest (JSON)"}
+      </Button>
+      {error !== null ? (
+        <p
+          role="alert"
+          className="m-0 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50"
+          data-testid="download-manifest-json-error"
+        >
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}

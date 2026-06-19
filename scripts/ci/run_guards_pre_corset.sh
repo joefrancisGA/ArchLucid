@@ -34,6 +34,8 @@ python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migratio
 python -m unittest discover -s scripts/ci/tests -p "test_assert_tenant_table_isolation_classifications.py"
 
 python3 scripts/ci/check_migration_numbering.py || true
+python3 scripts/ci/check_test_configure_await.py
+python3 scripts/ci/check_single_ddl_file.py
 
 python3 scripts/ci/assert_legacy_config_sunset_not_passed.py
 python3 scripts/ci/assert_agent_reference_baselines.py

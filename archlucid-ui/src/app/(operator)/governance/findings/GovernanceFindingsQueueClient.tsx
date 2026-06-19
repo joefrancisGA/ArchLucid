@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from "react";
 
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -941,7 +941,8 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {!loading && rows.length === 0 ? (
-          <EmptyState
+          <EnterpriseCompactEmptyState
+            testId="governance-findings-empty-state"
             title="No findings to display"
             description={
               loadFailed

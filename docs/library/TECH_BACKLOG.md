@@ -1,8 +1,8 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
-## Cursor-actionable backlog — remaining by architectural quality
+## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-16 (operator home first-run UX — **TB-345–353**, external product review; all **P0**). Prior: 2026-06-15 product-drift / onboarding narrative realignment — **TB-337–344**. **~47 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-16 (operator home first-run UX ? **TB-345?353**, external product review; all **P0**). Prior: 2026-06-15 product-drift / onboarding narrative realignment ? **TB-337?344**. **~47 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -29,367 +29,367 @@
 | Supportability | 7 |
 | **Total (unique)** | **~47** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283–288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **TB-165** (assessment score consistency guard) or **TB-138** (owner-gated Azure OpenAI golden-cohort secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Next recommended batch:** **TB-165** (assessment score consistency guard) or **TB-138** (owner-gated Azure OpenAI golden-cohort secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
 # Tech backlog
 
-Items here are **greenlit in principle** — the decision has been made and context is captured — but deferred for a future session rather than the current one. Pick any item up by searching the codebase for the files listed and applying the recorded approach.
+Items here are **greenlit in principle** ? the decision has been made and context is captured ? but deferred for a future session rather than the current one. Pick any item up by searching the codebase for the files listed and applying the recorded approach.
 
-**Priority order:** Items are listed highest → lowest priority. When picking up work, start at the top. Re-sort when new items are added: items that affect customer-visible correctness rank above ops/observability improvements, which rank above developer-experience polish.
+**Priority order:** Items are listed highest ? lowest priority. When picking up work, start at the top. Re-sort when new items are added: items that affect customer-visible correctness rank above ops/observability improvements, which rank above developer-experience polish.
 
-**TB-114 – TB-120** were added 2026-05-30 from the owner-ratified UI design standard (decision date 2026-05-27). They close the gap between the current Tailwind/shadcn default aesthetics and the **IBM Carbon–inspired enterprise visual language** mandated for V1 GA. Canonical standard: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **TB-114** (design tokens) and **TB-115** (surface/card pass) are foundational and should be done first; **TB-116** (status tags) and **TB-117** (data tables) unlock governance credibility; **TB-118** (spacing) and **TB-119** (typography) are polish; **TB-120** (agent rule) ensures future AI-written code stays conformant.
+**TB-114 ? TB-120** were added 2026-05-30 from the owner-ratified UI design standard (decision date 2026-05-27). They close the gap between the current Tailwind/shadcn default aesthetics and the **IBM Carbon?inspired enterprise visual language** mandated for V1 GA. Canonical standard: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **TB-114** (design tokens) and **TB-115** (surface/card pass) are foundational and should be done first; **TB-116** (status tags) and **TB-117** (data tables) unlock governance credibility; **TB-118** (spacing) and **TB-119** (typography) are polish; **TB-120** (agent rule) ensures future AI-written code stays conformant.
 
-**Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-024** (reasoning-token test coverage), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
+**Recently shipped (IDs kept for grep, ADRs, and code comments ? spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-024** (reasoning-token test coverage), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
 
-**TB-022 – TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
+**TB-022 ? TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
 
-**TB-027 – TB-032** were added 2026-05-26 from a full dependency-graph audit across all 59 `.csproj` files (239 edges). They address violations against the intended `Contracts → Core → Application → Host/Adapters` layering and close gaps in `ArchLucid.Architecture.Tests` / `DependencyConstraintTests`.
+**TB-027 ? TB-032** were added 2026-05-26 from a full dependency-graph audit across all 59 `.csproj` files (239 edges). They address violations against the intended `Contracts ? Core ? Application ? Host/Adapters` layering and close gaps in `ArchLucid.Architecture.Tests` / `DependencyConstraintTests`.
 
-**TB-033 – TB-038** were added 2026-05-26 from a replay / provenance completeness audit (`ArchLucid.Provenance` decision lineage vs `AgentRuntime` `AgentExecutionTrace` forensics). They close gaps where a single agent task cannot be fully reconstructed from durable storage. Retrieval grounding enrichment is also tracked as **RAG-V1-006** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md).
+**TB-033 ? TB-038** were added 2026-05-26 from a replay / provenance completeness audit (`ArchLucid.Provenance` decision lineage vs `AgentRuntime` `AgentExecutionTrace` forensics). They close gaps where a single agent task cannot be fully reconstructed from durable storage. Retrieval grounding enrichment is also tracked as **RAG-V1-006** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md).
 
-**TB-039 – TB-044** were added 2026-05-26 from an AgentRuntime determinism and idempotency audit (retry, fan-out, partial-failure, and authority-pipeline replay paths). They close gaps where LLM calls, token metering, or graph snapshots can be applied more than once without supersession. **TB-039** and **TB-043** are FinOps / economics fixes; **TB-041** + **TB-042** are authority-pipeline replay guards; **TB-040** and **TB-044** are metering honesty and trace deduplication. Cross-ref **TB-012** (**INV-009** idempotency) and **TB-035** (remediation attempt forensics — complementary, not duplicate).
+**TB-039 ? TB-044** were added 2026-05-26 from an AgentRuntime determinism and idempotency audit (retry, fan-out, partial-failure, and authority-pipeline replay paths). They close gaps where LLM calls, token metering, or graph snapshots can be applied more than once without supersession. **TB-039** and **TB-043** are FinOps / economics fixes; **TB-041** + **TB-042** are authority-pipeline replay guards; **TB-040** and **TB-044** are metering honesty and trace deduplication. Cross-ref **TB-012** (**INV-009** idempotency) and **TB-035** (remediation attempt forensics ? complementary, not duplicate).
 
-**TB-045 – TB-049** were added 2026-05-26 from a retrieval correctness & drift audit (`ArchLucid.Retrieval` — embedding model drift, index staleness, chunking invalidation, tenancy bleed, IR eval harness). Authoritative sub-IDs **RAG-V1-007** through **RAG-V1-011** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md). **TB-048** (tenancy) is security-critical; **TB-049** (IR eval) blocks silent retrieval regressions.
+**TB-045 ? TB-049** were added 2026-05-26 from a retrieval correctness & drift audit (`ArchLucid.Retrieval` ? embedding model drift, index staleness, chunking invalidation, tenancy bleed, IR eval harness). Authoritative sub-IDs **RAG-V1-007** through **RAG-V1-011** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md). **TB-048** (tenancy) is security-critical; **TB-049** (IR eval) blocks silent retrieval regressions.
 
-**TB-050 – TB-056** were added 2026-05-27 from a Decisioning explainability and uncertainty audit (`ArchLucid.Decisioning` — authority `RuleBasedDecisionEngine` / `RuleAuditTracePayload` vs coordinator `DecisionEngineV2` / `DecisionNode`). They close gaps where operators cannot trace manifest decisions to inputs, rules/prompts, and honest confidence. Cross-ref **TB-036** (provenance ↔ agent trace correlation), **TB-037** (provenance snapshot materialization). Canvas audit: `canvases/decisioning-explainability-audit.canvas.tsx` (IDE-only).
+**TB-050 ? TB-056** were added 2026-05-27 from a Decisioning explainability and uncertainty audit (`ArchLucid.Decisioning` ? authority `RuleBasedDecisionEngine` / `RuleAuditTracePayload` vs coordinator `DecisionEngineV2` / `DecisionNode`). They close gaps where operators cannot trace manifest decisions to inputs, rules/prompts, and honest confidence. Cross-ref **TB-036** (provenance ? agent trace correlation), **TB-037** (provenance snapshot materialization). Canvas audit: `canvases/decisioning-explainability-audit.canvas.tsx` (IDE-only).
 
-**TB-057 – TB-063** were added 2026-05-27 from a commercial stickiness review. They do **not** create a parallel GRC product. They consolidate existing signed review package primitives — findings, monitored risks, manifest decisions, governance approvals, digests, ROI, compare/drift, audit, and integration correlations — into a recurring operating workflow. **TB-063** is explicitly **V1.1** because first-party ITSM productization is release-windowed there per [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
+**TB-057 ? TB-063** were added 2026-05-27 from a commercial stickiness review. They do **not** create a parallel GRC product. They consolidate existing signed review package primitives ? findings, monitored risks, manifest decisions, governance approvals, digests, ROI, compare/drift, audit, and integration correlations ? into a recurring operating workflow. **TB-063** is explicitly **V1.1** because first-party ITSM productization is release-windowed there per [`V1_SCOPE.md`](V1_SCOPE.md) ?2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6.
 
-**TB-064 – TB-070** were added 2026-05-27 from a DDL hygiene and migration-safety audit (`ArchLucid.Persistence` DbUp + `Scripts/ArchLucid.sql` + `Persistence.MigrateVerify`). They close gaps against the repo **one DDL file per DB** rule, journal-only verification, IaC/generated-schema drift, and rolling-deploy risk from non-additive migrations. **TB-065** and **TB-068** are deploy-safety critical; **TB-064** closes the system-catalog DDL gap; **TB-066**–**TB-067** are CI/docs parity; **TB-069**–**TB-070** are maintainability hygiene. Canvas audit: `canvases/ddl-hygiene-audit.canvas.tsx` (IDE-only).
+**TB-064 ? TB-070** were added 2026-05-27 from a DDL hygiene and migration-safety audit (`ArchLucid.Persistence` DbUp + `Scripts/ArchLucid.sql` + `Persistence.MigrateVerify`). They close gaps against the repo **one DDL file per DB** rule, journal-only verification, IaC/generated-schema drift, and rolling-deploy risk from non-additive migrations. **TB-065** and **TB-068** are deploy-safety critical; **TB-064** closes the system-catalog DDL gap; **TB-066**?**TB-067** are CI/docs parity; **TB-069**?**TB-070** are maintainability hygiene. Canvas audit: `canvases/ddl-hygiene-audit.canvas.tsx` (IDE-only).
 
-**TB-071 – TB-078** were added 2026-05-27 from a multi-tenancy and blast-radius audit (API ingress → Application → Persistence → Retrieval / knowledge graph → operator UI). They close gaps where `tenantId` is derived but not enforced at the query layer, and where cross-tenant data could leak via ID-only snapshot reads, unbound auth schemes, client-controlled scope headers, or retrieval index writes. **TB-071** and **TB-072** are security-critical (P0); **TB-073**–**TB-075** are high (P1); **TB-076**–**TB-078** are defense-in-depth (P2). Cross-ref **TB-048** / **RAG-V1-010** (retrieval query filter — partial; production Azure client still missing), **TB-010** (**INV-001** tenant boundary), **TB-005** (owner pen-test). Canvas audit: `canvases/multitenant-blast-radius-audit.canvas.tsx` (IDE-only).
+**TB-071 ? TB-078** were added 2026-05-27 from a multi-tenancy and blast-radius audit (API ingress ? Application ? Persistence ? Retrieval / knowledge graph ? operator UI). They close gaps where `tenantId` is derived but not enforced at the query layer, and where cross-tenant data could leak via ID-only snapshot reads, unbound auth schemes, client-controlled scope headers, or retrieval index writes. **TB-071** and **TB-072** are security-critical (P0); **TB-073**?**TB-075** are high (P1); **TB-076**?**TB-078** are defense-in-depth (P2). Cross-ref **TB-048** / **RAG-V1-010** (retrieval query filter ? partial; production Azure client still missing), **TB-010** (**INV-001** tenant boundary), **TB-005** (owner pen-test). Canvas audit: `canvases/multitenant-blast-radius-audit.canvas.tsx` (IDE-only).
 
-**TB-079 – TB-084** were added 2026-05-27 from a secrets, identity, and tool-sandboxing audit (`Integrations.AzureDevOps`, `Integrations.AzureExtractor`, agent tool surfaces, prompt-injection paths). No WIQL/LLM→ADO API injection path exists; the integration is event-driven with config-fixed targets. Identified gaps: unescaped markdown from compare data echoed into ADO PR bodies (**TB-079**, Low–Med); Azure OpenAI still using symmetric `ApiKey` instead of Entra/MI (**TB-080**, Info); Service Bus raw connection string permitted in production with no safety rule (**TB-081**, Info); `AgentTask.AllowedTools` advisory-only with no runtime enforcer at handler dispatch (**TB-082**, Med); `ArchLucidApiKey` header secret has no production Key Vault reference requirement (**TB-083**, Info); `SubscriptionId` not validated as GUID before ARM URL construction (**TB-084**, Low). Cross-ref **TB-005** (pen-test), **TB-072** (scope-to-identity binding).
+**TB-079 ? TB-084** were added 2026-05-27 from a secrets, identity, and tool-sandboxing audit (`Integrations.AzureDevOps`, `Integrations.AzureExtractor`, agent tool surfaces, prompt-injection paths). No WIQL/LLM?ADO API injection path exists; the integration is event-driven with config-fixed targets. Identified gaps: unescaped markdown from compare data echoed into ADO PR bodies (**TB-079**, Low?Med); Azure OpenAI still using symmetric `ApiKey` instead of Entra/MI (**TB-080**, Info); Service Bus raw connection string permitted in production with no safety rule (**TB-081**, Info); `AgentTask.AllowedTools` advisory-only with no runtime enforcer at handler dispatch (**TB-082**, Med); `ArchLucidApiKey` header secret has no production Key Vault reference requirement (**TB-083**, Info); `SubscriptionId` not validated as GUID before ARM URL construction (**TB-084**, Low). Cross-ref **TB-005** (pen-test), **TB-072** (scope-to-identity binding).
 
 **TB-091 --- TB-102** were added 2026-05-27 from an IaC parity audit across all `infra/terraform-*` roots (read against live appsettings, NuGet packages, and CD workflow references). They close two distinct gap categories: (A) runtime Azure services that are **entirely absent from Terraform** --- Azure OpenAI, Redis, Cosmos DB, AI Search, ACR, and Azure Monitor Workspace; and (B) **configuration gaps inside existing roots** --- Key Vault private endpoint, Key Vault workload RBAC grants, per-service diagnostic settings, Logic Apps storage-key access, and sampling/replication hygiene. **TB-091** and **TB-092** are security-critical (Key Vault reachability and workload RBAC); **TB-093**---**TB-099** are IaC coverage gaps that create ops/compliance risk; **TB-100**---**TB-102** are hygiene. Canvas audit: `canvases/iac-parity-audit.canvas.tsx` (IDE-only).
-**TB-103 – TB-105** were added 2026-05-27 from a cross-layer domain-term audit (executive dashboard, orphan candidates, governance). They close gaps where business logic defined once in the backend has been reconstituted independently in the UI layer, causing KPI values to diverge silently from server-computed truth. **TB-103** is the highest-priority item: orphan-candidate count and savings are computed by two separate pipelines (different inputs, different algorithms) with no shared API contract. **TB-104** closes the 14-day expiring-waiver window living only in the client. **TB-105** pushes business-impact category bucketing to the server so `BusinessImpactSummaryWidget` becomes a pure display component. Cross-ref **TB-062** (executive dashboard live KPI replacement — these items are scoped sub-tasks of that broader effort).
+**TB-103 ? TB-105** were added 2026-05-27 from a cross-layer domain-term audit (executive dashboard, orphan candidates, governance). They close gaps where business logic defined once in the backend has been reconstituted independently in the UI layer, causing KPI values to diverge silently from server-computed truth. **TB-103** is the highest-priority item: orphan-candidate count and savings are computed by two separate pipelines (different inputs, different algorithms) with no shared API contract. **TB-104** closes the 14-day expiring-waiver window living only in the client. **TB-105** pushes business-impact category bucketing to the server so `BusinessImpactSummaryWidget` becomes a pure display component. Cross-ref **TB-062** (executive dashboard live KPI replacement ? these items are scoped sub-tasks of that broader effort).
 
-**TB-106 – TB-113** were added 2026-05-27 from a `RunDetailPageView` operator fidelity audit (does the run detail page surface everything needed to approve, reject, or remediate a run?). Root cause is a split API contract: the operator loader calls `GET /v1/authority/runs/{runId}` but the UI reads `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` that exist only on the architecture endpoint — those fields are null on every live run. Additional gaps: retrieval hits and tool calls have no dedicated UI surface anywhere; `findingCoverageSummary.hasCommitBlockingFailures` and `dispositionCoverage` are computed in `GetRunDetailAsync` but dropped before render; `hasGovernanceWarnings` and `lastFailureReason` from `RunRecord` are never shown. **TB-106**–**TB-108** are correctness/operator-visibility P0s; **TB-109**–**TB-111** are P1 operator-visibility additions; **TB-112** is P2 workflow; **TB-113** is P2 schema hygiene. Canvas audit: `canvases/run-detail-operator-fidelity.canvas.tsx` (IDE-only).
+**TB-106 ? TB-113** were added 2026-05-27 from a `RunDetailPageView` operator fidelity audit (does the run detail page surface everything needed to approve, reject, or remediate a run?). Root cause is a split API contract: the operator loader calls `GET /v1/authority/runs/{runId}` but the UI reads `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` that exist only on the architecture endpoint ? those fields are null on every live run. Additional gaps: retrieval hits and tool calls have no dedicated UI surface anywhere; `findingCoverageSummary.hasCommitBlockingFailures` and `dispositionCoverage` are computed in `GetRunDetailAsync` but dropped before render; `hasGovernanceWarnings` and `lastFailureReason` from `RunRecord` are never shown. **TB-106**?**TB-108** are correctness/operator-visibility P0s; **TB-109**?**TB-111** are P1 operator-visibility additions; **TB-112** is P2 workflow; **TB-113** is P2 schema hygiene. Canvas audit: `canvases/run-detail-operator-fidelity.canvas.tsx` (IDE-only).
 
-**TB-170 – TB-176** (formerly duplicated IDs TB-114–120 in this file) were added 2026-05-29 from a Template and Accelerator Richness review. The conclusion was **not** to add template volume for its own sake. The V1 opportunity is to make existing starter proof packs easier to choose, validate, trust, and dry-run. **TB-170** is the highest leverage because it maps buyer jobs to existing accelerators; **TB-171** prevents stale/unsafe pack metadata; **TB-172** and **TB-173** add deterministic validation and proof dry-run coverage; **TB-174** creates one golden walkthrough that sales/operators can use without multiplying templates.
+**TB-170 ? TB-176** (formerly duplicated IDs TB-114?120 in this file) were added 2026-05-29 from a Template and Accelerator Richness review. The conclusion was **not** to add template volume for its own sake. The V1 opportunity is to make existing starter proof packs easier to choose, validate, trust, and dry-run. **TB-170** is the highest leverage because it maps buyer jobs to existing accelerators; **TB-171** prevents stale/unsafe pack metadata; **TB-172** and **TB-173** add deterministic validation and proof dry-run coverage; **TB-174** creates one golden walkthrough that sales/operators can use without multiplying templates.
 
-**TB-119 – TB-134** were added 2026-05-29 from a Policy/Governance, Auditability, and Commercial Packaging review. The theme is proof discipline: make governance packs, audit trails, and sales-led packaging harder to misread, drift, or overclaim. **TB-119 – TB-123** cover policy/governance alignment; **TB-124 – TB-128** cover auditability; **TB-129 – TB-134** cover commercial packaging readiness. Owner-gated items such as live commerce and named customer references remain deferred outside this cluster.
+**TB-119 ? TB-134** were added 2026-05-29 from a Policy/Governance, Auditability, and Commercial Packaging review. The theme is proof discipline: make governance packs, audit trails, and sales-led packaging harder to misread, drift, or overclaim. **TB-119 ? TB-123** cover policy/governance alignment; **TB-124 ? TB-128** cover auditability; **TB-129 ? TB-134** cover commercial packaging readiness. Owner-gated items such as live commerce and named customer references remain deferred outside this cluster.
 
-**TB-135 – TB-142** were added 2026-05-29 per owner decision. **TB-135 – TB-136** (SOC 2 CPA and third-party pen test) remain V1.1 assurance backlog organizational / vendor programs per workspace rule. **TB-137 – TB-140** capture follow-on real-LLM engineering after assessment improvement **#1** local evidence shipped. **TB-141 – TB-142** were later promoted on 2026-06-01 to near-term GTM backlog priorities for real pilot proof packets and market-facing demo assets. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c.
+**TB-135 ? TB-142** were added 2026-05-29 per owner decision. **TB-135 ? TB-136** (SOC 2 CPA and third-party pen test) remain V1.1 assurance backlog organizational / vendor programs per workspace rule. **TB-137 ? TB-140** capture follow-on real-LLM engineering after assessment improvement **#1** local evidence shipped. **TB-141 ? TB-142** were later promoted on 2026-06-01 to near-term GTM backlog priorities for real pilot proof packets and market-facing demo assets. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, and [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6c.
 
-**TB-143 – TB-148** were added 2026-05-30 from owner-ratified product documentation presentation guidance (decision date 2026-05-27). Customer-facing help must not dump buyers or operators into raw GitHub repository browsing. **TB-143** (in-app markdown renderer + `/help/{topic}` routes) and **TB-144** (documentation registry) are foundational; **TB-145** migrates existing GitHub blob links; **TB-146** bans redirect stubs; **TB-147** adds CI drift guard; **TB-148** adds role-gated optional source links. Canonical standard: [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
+**TB-143 ? TB-148** were added 2026-05-30 from owner-ratified product documentation presentation guidance (decision date 2026-05-27). Customer-facing help must not dump buyers or operators into raw GitHub repository browsing. **TB-143** (in-app markdown renderer + `/help/{topic}` routes) and **TB-144** (documentation registry) are foundational; **TB-145** migrates existing GitHub blob links; **TB-146** bans redirect stubs; **TB-147** adds CI drift guard; **TB-148** adds role-gated optional source links. Canonical standard: [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
 
-**TB-149 – TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (executive KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103–105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `ExecutiveSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ↔ disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry — different surface).
+**TB-149 ? TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (executive KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103?105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `ExecutiveSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ? disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry ? different surface).
 
-**TB-156 – TB-157** were added 2026-05-31 from local-dev triage: operators running `start-local-api-and-ui.ps1` (or UI-only) saw repeated Sonner warnings **“Review assistant unavailable / AI assistant service is not reachable”** while the root cause was **ArchLucid.Api not running** or **UI proxy → API misconfiguration** (502), not Azure OpenAI / Ask. **Both are P0 — pick up in the next available engineering thread** before other backlog polish. **TB-156** fail-closes the startup script on a full browser → UI → `/api/proxy` → API chain. **TB-157** reframes connectivity toasts so proxy/API outages say **API unreachable**, reserving assistant wording for Ask/SSE-only failures. Cross-ref [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`.
+**TB-156 ? TB-157** were added 2026-05-31 from local-dev triage: operators running `start-local-api-and-ui.ps1` (or UI-only) saw repeated Sonner warnings **?Review assistant unavailable / AI assistant service is not reachable?** while the root cause was **ArchLucid.Api not running** or **UI proxy ? API misconfiguration** (502), not Azure OpenAI / Ask. **Both are P0 ? pick up in the next available engineering thread** before other backlog polish. **TB-156** fail-closes the startup script on a full browser ? UI ? `/api/proxy` ? API chain. **TB-157** reframes connectivity toasts so proxy/API outages say **API unreachable**, reserving assistant wording for Ask/SSE-only failures. Cross-ref [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`.
 
-**TB-158 – TB-167** were added 2026-06-01 from `docs/assessments/LATEST_GPT55.md` human-input score-limiter triage and rescore. They avoid duplicating existing engineering tasks by extending **TB-131 – TB-134**, promoting existing **TB-141 – TB-142** to near-term GTM priority, and adding only missing owner-reviewable GTM/procurement/support/release-claim/sponsor-evidence work. Formal SOC 2 CPA and third-party pen-test programs remain parked in **TB-135 – TB-136** per the V1.1 assurance backlog rule; do not reclassify them from normal assessment passes.
+**TB-158 ? TB-167** were added 2026-06-01 from `docs/assessments/LATEST_GPT55.md` human-input score-limiter triage and rescore. They avoid duplicating existing engineering tasks by extending **TB-131 ? TB-134**, promoting existing **TB-141 ? TB-142** to near-term GTM priority, and adding only missing owner-reviewable GTM/procurement/support/release-claim/sponsor-evidence work. Formal SOC 2 CPA and third-party pen-test programs remain parked in **TB-135 ? TB-136** per the V1.1 assurance backlog rule; do not reclassify them from normal assessment passes.
 
-**TB-168** was added 2026-06-01 from the GPT-5.5 assessment correctness follow-up. It does not duplicate **TB-103 – TB-105** or **TB-149 – TB-155**; those fix known KPI/waiver/recurrence defects. **TB-168** adds a regression guard so future changes cannot silently reintroduce UI KPI heuristics, stale cache fallbacks, or duplicate business semantics.
+**TB-168** was added 2026-06-01 from the GPT-5.5 assessment correctness follow-up. It does not duplicate **TB-103 ? TB-105** or **TB-149 ? TB-155**; those fix known KPI/waiver/recurrence defects. **TB-168** adds a regression guard so future changes cannot silently reintroduce UI KPI heuristics, stale cache fallbacks, or duplicate business semantics.
 
-**TB-169** was added 2026-06-01 from the GPT-5.5 adoption-friction follow-up. It does not duplicate **TB-156 – TB-157** (API/proxy diagnostics) or **TB-143 – TB-148** (in-app docs). It targets first-run branching and progressive disclosure: Pilot-first onboarding should keep Operate surfaces out of the primary path until a committed review exists.
+**TB-169** was added 2026-06-01 from the GPT-5.5 adoption-friction follow-up. It does not duplicate **TB-156 ? TB-157** (API/proxy diagnostics) or **TB-143 ? TB-148** (in-app docs). It targets first-run branching and progressive disclosure: Pilot-first onboarding should keep Operate surfaces out of the primary path until a committed review exists.
 
-**TB-170** was added 2026-06-01 from the **Docs: markdown link integrity** CI advisory output. It does not duplicate **TB-147** (GitHub blob URLs in product UI) or **TB-143 – TB-148** (in-app customer docs). It targets broken relative markdown link targets left after `docs/library/` consolidation and navigational moves; **Done (2026-06-01 batch 5F)** — `check_doc_links.py` exits 0 and CI is merge-blocking.
+**TB-170** was added 2026-06-01 from the **Docs: markdown link integrity** CI advisory output. It does not duplicate **TB-147** (GitHub blob URLs in product UI) or **TB-143 ? TB-148** (in-app customer docs). It targets broken relative markdown link targets left after `docs/library/` consolidation and navigational moves; **Done (2026-06-01 batch 5F)** ? `check_doc_links.py` exits 0 and CI is merge-blocking.
 
-**TB-177 – TB-190** were added 2026-06-01 from an independent first-principles AI/Agent Readiness quality assessment (`docs/assessments/AI_AGENT_READINESS_06012026.MD`). They target the agent pipeline gaps identified in that assessment in priority order: adversarial Critic posture (**TB-177**, P0), streaming Ask (**TB-178**, P0), multi-model tiered orchestration (**TB-179**, P1), calibrated confidence (**TB-180**, P1), nightly eval harness cron (**TB-181**, P1), automated AI readiness posture script (**TB-182**, P1), findings re-ranker (**TB-183**, P2), governance-block explainer (**TB-184**, P2), per-finding conversational explainer (**TB-185**, P2), run summary one-pager (**TB-186**, P2), AI-assisted request authoring (**TB-187**, P2), IaC stub generator (**TB-188**, P3), policy-pack drafting assistant (**TB-189**, P3), and LLM-as-judge coverage extension (**TB-190**, P2 pending owner budget approval). These do not duplicate items already tracked: **TB-011/TB-012** (invariant wave B/C), **TB-034–038** (provenance forensics), **TB-137/TB-139/TB-140** (real-mode eval — owner-credentialed), or any AI Leverage Roadmap items previously promoted to backlog. The real-mode CI gate flip is **not added here** — it requires owner action (see **PQ-AI-01** in the assessment).
+**TB-177 ? TB-190** were added 2026-06-01 from an independent first-principles AI/Agent Readiness quality assessment (`docs/assessments/AI_AGENT_READINESS_06012026.MD`). They target the agent pipeline gaps identified in that assessment in priority order: adversarial Critic posture (**TB-177**, P0), streaming Ask (**TB-178**, P0), multi-model tiered orchestration (**TB-179**, P1), calibrated confidence (**TB-180**, P1), nightly eval harness cron (**TB-181**, P1), automated AI readiness posture script (**TB-182**, P1), findings re-ranker (**TB-183**, P2), governance-block explainer (**TB-184**, P2), per-finding conversational explainer (**TB-185**, P2), run summary one-pager (**TB-186**, P2), AI-assisted request authoring (**TB-187**, P2), IaC stub generator (**TB-188**, P3), policy-pack drafting assistant (**TB-189**, P3), and LLM-as-judge coverage extension (**TB-190**, P2 pending owner budget approval). These do not duplicate items already tracked: **TB-011/TB-012** (invariant wave B/C), **TB-034?038** (provenance forensics), **TB-137/TB-139/TB-140** (real-mode eval ? owner-credentialed), or any AI Leverage Roadmap items previously promoted to backlog. The real-mode CI gate flip is **not added here** ? it requires owner action (see **PQ-AI-01** in the assessment).
 
-**TB-191 – TB-195** were added 2026-06-02 from an independent first-principles **Cutting-Edge AI Technology** quality assessment (`docs/assessments/CuttingEdgeAITechnology_06022026.MD`). They extend the TB-177–190 cluster without duplicating it: prompt template content-hash forensics (**TB-191**, P2), dynamic evidence summarization before context overflow (**TB-192**, P1 — counts against tenant run-execution quota per PQ-CEAT-02 resolved 2026-06-02), LLM provider abstraction factory scaffold (**TB-193**, P2 — scaffold only, no non-Azure providers per PQ-CEAT-01 resolved 2026-06-02), RAG corpus operator monitoring panel (**TB-194**, P2), and multi-turn Ask context compression (**TB-195**, P2). All three PQ-CEAT pending questions were resolved by judgment on 2026-06-02. These items are distinct from **TB-178** (streaming Ask), **TB-180** (calibrated confidence), and **TB-181** (nightly cron) which remain the highest-priority AI readiness work.
+**TB-191 ? TB-195** were added 2026-06-02 from an independent first-principles **Cutting-Edge AI Technology** quality assessment (`docs/assessments/CuttingEdgeAITechnology_06022026.MD`). They extend the TB-177?190 cluster without duplicating it: prompt template content-hash forensics (**TB-191**, P2), dynamic evidence summarization before context overflow (**TB-192**, P1 ? counts against tenant run-execution quota per PQ-CEAT-02 resolved 2026-06-02), LLM provider abstraction factory scaffold (**TB-193**, P2 ? scaffold only, no non-Azure providers per PQ-CEAT-01 resolved 2026-06-02), RAG corpus operator monitoring panel (**TB-194**, P2), and multi-turn Ask context compression (**TB-195**, P2). All three PQ-CEAT pending questions were resolved by judgment on 2026-06-02. These items are distinct from **TB-178** (streaming Ask), **TB-180** (calibrated confidence), and **TB-181** (nightly cron) which remain the highest-priority AI readiness work.
 
-**TB-196 – TB-206** were added 2026-06-02 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06022026.MD`). They target correctness defects identified in priority order: reasoning token cost underreporting bug (**TB-196**, P0 — silent monetary error in all runs with reasoning models), governance PromoteAsync non-atomic state transition (**TB-197**, P1 — irrecoverable data inconsistency), `CostConstraintFindingEngine` zero coverage (**TB-198**, P1), `TenantOrProjectCapabilityAuthorizationHandler` zero coverage (**TB-199**, P1 — security-critical), `HttpScopeContextProvider` zero coverage (**TB-200**, P1 — security boundary), DB-level `UNIQUE (RunId, TaskId)` constraint on `AgentResults` (**TB-201**, P1 — multi-replica race), notification unit tests (**TB-202**, P2), `ConversationService` unit tests (**TB-203**, P2), decision rule action differentiation in audit trace (**TB-204**, P2), `BuildHistoryAsync` infinite loop guard (**TB-205**, P2), and `ResolveEnvironmentLabel` null guard (**TB-206**, P3). These do not duplicate **TB-087** (findings backfill unique index), **TB-149–155** (waiver/KPI correctness), **TB-103–105** (orphan/waiver/bucket correctness), **TB-033** (reasoning token persist — TB-196 fixes the aggregator that was never updated to use that column), or **TB-039–044** (idempotency — TB-201 targets the `AgentResults` submit path specifically). Owner input needed for TB-011 Wave B (`Mixed` UX copy — PQ-COR-01) and confirmation on `AgentResults` uniqueness constraint (PQ-COR-02).
+**TB-196 ? TB-206** were added 2026-06-02 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06022026.MD`). They target correctness defects identified in priority order: reasoning token cost underreporting bug (**TB-196**, P0 ? silent monetary error in all runs with reasoning models), governance PromoteAsync non-atomic state transition (**TB-197**, P1 ? irrecoverable data inconsistency), `CostConstraintFindingEngine` zero coverage (**TB-198**, P1), `TenantOrProjectCapabilityAuthorizationHandler` zero coverage (**TB-199**, P1 ? security-critical), `HttpScopeContextProvider` zero coverage (**TB-200**, P1 ? security boundary), DB-level `UNIQUE (RunId, TaskId)` constraint on `AgentResults` (**TB-201**, P1 ? multi-replica race), notification unit tests (**TB-202**, P2), `ConversationService` unit tests (**TB-203**, P2), decision rule action differentiation in audit trace (**TB-204**, P2), `BuildHistoryAsync` infinite loop guard (**TB-205**, P2), and `ResolveEnvironmentLabel` null guard (**TB-206**, P3). These do not duplicate **TB-087** (findings backfill unique index), **TB-149?155** (waiver/KPI correctness), **TB-103?105** (orphan/waiver/bucket correctness), **TB-033** (reasoning token persist ? TB-196 fixes the aggregator that was never updated to use that column), or **TB-039?044** (idempotency ? TB-201 targets the `AgentResults` submit path specifically). Owner input needed for TB-011 Wave B (`Mixed` UX copy ? PQ-COR-01) and confirmation on `AgentResults` uniqueness constraint (PQ-COR-02).
 
-**TB-207 – TB-213** were added 2026-06-02 from an independent first-principles **Adoption Friction** quality assessment (`docs/assessments/AdoptionFriction_06022026.MD`). They target adoption gaps in priority order: token-claims diagnostic (**TB-207**, P0), CLI global-tool + self-contained binaries (**TB-208**, P0), `request create --from-file` subcommand (**TB-209**, P1), pilot prerequisites page + connectivity script (**TB-210**, P1), SAML SP certificate rotation runbook (**TB-211**, P1), IaC coverage for adoption-critical Azure dependencies (**TB-212**, P1), and QualityGate WarnOnly production-like lint (**TB-213**, P1). **TB-214** (non-Azure ingest path) is DEFERRED pending owner input. All seven engineering items are **Done** (batches 5X–5AC, 5BK).
+**TB-207 ? TB-213** were added 2026-06-02 from an independent first-principles **Adoption Friction** quality assessment (`docs/assessments/AdoptionFriction_06022026.MD`). They target adoption gaps in priority order: token-claims diagnostic (**TB-207**, P0), CLI global-tool + self-contained binaries (**TB-208**, P0), `request create --from-file` subcommand (**TB-209**, P1), pilot prerequisites page + connectivity script (**TB-210**, P1), SAML SP certificate rotation runbook (**TB-211**, P1), IaC coverage for adoption-critical Azure dependencies (**TB-212**, P1), and QualityGate WarnOnly production-like lint (**TB-213**, P1). **TB-214** (non-Azure ingest path) is DEFERRED pending owner input. All seven engineering items are **Done** (batches 5X?5AC, 5BK).
 
-**TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+**TB-085 ? TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
-**TB-214** was added 2026-06-02 from the Adoption Friction quality assessment as a DEFERRED item. Non-Azure/non-extractor evidence JSON upload path is **V1.1 scope** per `docs/library/V1_DEFERRED.md §6r` and `docs/PENDING_QUESTIONS.md` *Resolved 2026-06-02 (PQ-AF-01)*. Owner must specify schema and ingestion surface boundary before Cursor implementation can begin. ID is reserved; do not reassign.
+**TB-214** was added 2026-06-02 from the Adoption Friction quality assessment as a DEFERRED item. Non-Azure/non-extractor evidence JSON upload path is **V1.1 scope** per `docs/library/V1_DEFERRED.md ?6r` and `docs/PENDING_QUESTIONS.md` *Resolved 2026-06-02 (PQ-AF-01)*. Owner must specify schema and ingestion surface boundary before Cursor implementation can begin. ID is reserved; do not reassign.
 
-**TB-215 – TB-221** were generated 2026-06-02 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06022026.MD`, score 68/100, COMMERCIAL weight 7/116). They address: evidence upload integrated into review wizard (**TB-215**, P1), `archlucid try --sponsor-packet` one-shot demo-to-proof command (**TB-216**, P1), demo seed auto-apply on startup (**TB-217**, P1), demo viewer "Start your own review" CTA (**TB-218**, P2), wizard preset deep-link from self-qualification docs (**TB-219**, P2), wizard-to-commit OTel histogram (**TB-220**, P2), and hosted SaaS self-serve trial (**TB-221**, DEFERRED V1.1 per `V1_DEFERRED.md §6r` — PQ-TTV-01 resolved 2026-06-02). These do not duplicate **TB-156/TB-157** (API/proxy startup diagnostics), **TB-169** (pilot-first progressive disclosure), **TB-143–148** (in-app documentation presentation), or **TB-238** (wizard baseline capture prompt — from Proof-of-ROI assessment).
+**TB-215 ? TB-221** were generated 2026-06-02 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06022026.MD`, score 68/100, COMMERCIAL weight 7/116). They address: evidence upload integrated into review wizard (**TB-215**, P1), `archlucid try --sponsor-packet` one-shot demo-to-proof command (**TB-216**, P1), demo seed auto-apply on startup (**TB-217**, P1), demo viewer "Start your own review" CTA (**TB-218**, P2), wizard preset deep-link from self-qualification docs (**TB-219**, P2), wizard-to-commit OTel histogram (**TB-220**, P2), and hosted SaaS self-serve trial (**TB-221**, DEFERRED V1.1 per `V1_DEFERRED.md ?6r` ? PQ-TTV-01 resolved 2026-06-02). These do not duplicate **TB-156/TB-157** (API/proxy startup diagnostics), **TB-169** (pilot-first progressive disclosure), **TB-143?148** (in-app documentation presentation), or **TB-238** (wizard baseline capture prompt ? from Proof-of-ROI assessment).
 
-**TB-222 – TB-228** were added 2026-06-02 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06022026.MD`, score 63/100, COMMERCIAL weight 6/116). They address: recurrence scheduling UI post-commit + management page (**TB-222**, P1), decisions-needed KPI card on governance dashboard (**TB-223**, P1), AI conversational compare-two-runs narrative (**TB-224**, P1), CS-06 RLS fix on `SqlOperatorStickinessSnapshotReader` (**TB-225**, P1 security), risk exceptions dedicated management page (**TB-226**, P2), `collect-first-pilot-proof.ps1` multi-run support (**TB-227**, P2), and internal tenant health score admin surface (**TB-228**, P3). These do not duplicate **TB-057–063** (stickiness feature backlog), **TB-048/TB-073** (tenancy bleed on other repos), or **TB-062** (executive dashboard live KPIs).
+**TB-222 ? TB-228** were added 2026-06-02 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06022026.MD`, score 63/100, COMMERCIAL weight 6/116). They address: recurrence scheduling UI post-commit + management page (**TB-222**, P1), decisions-needed KPI card on governance dashboard (**TB-223**, P1), AI conversational compare-two-runs narrative (**TB-224**, P1), CS-06 RLS fix on `SqlOperatorStickinessSnapshotReader` (**TB-225**, P1 security), risk exceptions dedicated management page (**TB-226**, P2), `collect-first-pilot-proof.ps1` multi-run support (**TB-227**, P2), and internal tenant health score admin surface (**TB-228**, P3). These do not duplicate **TB-057?063** (stickiness feature backlog), **TB-048/TB-073** (tenancy bleed on other repos), or **TB-062** (executive dashboard live KPIs).
 
-**TB-229 – TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0→1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (**TB-236**, DEFERRED — owner action, PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131–134** (commercial packaging), **TB-141–142** (proof cohort / demo assets), **TB-162–164** (trust center, procurement pack), or **TB-170–176** (proof pack chooser/metadata).
+**TB-229 ? TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0?1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (**TB-236**, DEFERRED ? owner action, PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131?134** (commercial packaging), **TB-141?142** (proof cohort / demo assets), **TB-162?164** (trust center, procurement pack), or **TB-170?176** (proof pack chooser/metadata).
 
-**TB-252 – TB-254** were added 2026-06-03 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06032026.MD`, score 75/100, COMMERCIAL weight 8/116). They address: generate/commit raster brand assets and fix broken references (**TB-252**, P1 — `og-default.png` and `icon-192.png` are referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; social cards on LinkedIn — the #1 channel — render with no preview image, and the PWA/Apple icons are broken), buyer-facing Open Graph / Twitter metadata (**TB-253**, P1 — the social-share description is operator jargon that violates `POSITIONING.md §7` on every shared link), and `FAQPage` JSON-LD plus buyer-relevant FAQ expansion (**TB-254**, P2 — free Google rich-result lever; `/faq` currently emits no structured data and has only 3 operator-focused Q&A). These do not duplicate prior Marketability items **TB-229–TB-237** (06-02, all Done except DEFERRED TB-236) or **TB-020** (existing marketing JSON-LD). Owner-action GTM execution (published references, live checkout, SOC 2 CPA) remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
+**TB-252 ? TB-254** were added 2026-06-03 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06032026.MD`, score 75/100, COMMERCIAL weight 8/116). They address: generate/commit raster brand assets and fix broken references (**TB-252**, P1 ? `og-default.png` and `icon-192.png` are referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; social cards on LinkedIn ? the #1 channel ? render with no preview image, and the PWA/Apple icons are broken), buyer-facing Open Graph / Twitter metadata (**TB-253**, P1 ? the social-share description is operator jargon that violates `POSITIONING.md ?7` on every shared link), and `FAQPage` JSON-LD plus buyer-relevant FAQ expansion (**TB-254**, P2 ? free Google rich-result lever; `/faq` currently emits no structured data and has only 3 operator-focused Q&A). These do not duplicate prior Marketability items **TB-229?TB-237** (06-02, all Done except DEFERRED TB-236) or **TB-020** (existing marketing JSON-LD). Owner-action GTM execution (published references, live checkout, SOC 2 CPA) remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
 
-**TB-255 – TB-257** were added 2026-06-03 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06032026.MD`, score 82/100, ENGINEERING weight 8/116). They harden the deterministic evidence-faithfulness / hallucination-resistance layer that gates the strictest (PilotStrict, sponsor-facing) run mode: minimum token-overlap density so a single shared word no longer marks a claim/finding "supported" (**TB-255**, P1 — `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` is first-match-wins, inflating `SupportRatio`), distinguish "no checkable content" from perfect faithfulness (**TB-256**, P1 — `totalChecked == 0` returns `SupportRatio = 1.0`, so a content-free output can never be rejected on the PilotStrict faithfulness floor), and expand the adversarial hallucination corpus from one inform-only scenario to an enforced nightly resistance floor (**TB-257**, P2). These do not duplicate the now-complete **TB-196–TB-206** (06-02 Correctness cluster, all Done) — those fixed numeric/atomicity/coverage defects; TB-255–257 target the faithfulness heuristic and its regression guard specifically. They also do not duplicate **TB-049/RAG-V1-011** (retrieval IR eval — different layer).
+**TB-255 ? TB-257** were added 2026-06-03 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06032026.MD`, score 82/100, ENGINEERING weight 8/116). They harden the deterministic evidence-faithfulness / hallucination-resistance layer that gates the strictest (PilotStrict, sponsor-facing) run mode: minimum token-overlap density so a single shared word no longer marks a claim/finding "supported" (**TB-255**, P1 ? `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` is first-match-wins, inflating `SupportRatio`), distinguish "no checkable content" from perfect faithfulness (**TB-256**, P1 ? `totalChecked == 0` returns `SupportRatio = 1.0`, so a content-free output can never be rejected on the PilotStrict faithfulness floor), and expand the adversarial hallucination corpus from one inform-only scenario to an enforced nightly resistance floor (**TB-257**, P2). These do not duplicate the now-complete **TB-196?TB-206** (06-02 Correctness cluster, all Done) ? those fixed numeric/atomicity/coverage defects; TB-255?257 target the faithfulness heuristic and its regression guard specifically. They also do not duplicate **TB-049/RAG-V1-011** (retrieval IR eval ? different layer).
 
-**TB-258 – TB-260** were added 2026-06-03 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06032026.MD`, score 79/100, COMMERCIAL weight 7/116). They harden the trial first-value delivery engine and close the value-realization loop: harden the trial architecture preseed executor (**TB-258**, P1 — `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has no try/catch, no attempt cap, and no failure audit event; because the pending query re-polls any tenant whose `TrialWelcomeRunId` is still NULL, any preseed failure — including the non-Guid run-id `return` path — re-creates/re-executes/re-commits a brand-new run every poll cycle forever, burning agent/quota cost with no operator signal), test the trial first-value delivery path (**TB-259**, P1 — `TrialArchitecturePreseedExecutor` and `TrialArchitecturePreseedHostedService` are both at 0% coverage per `COVERAGE_GAP_ANALYSIS.md` #130/#49), and a "first value reached" user confirmation (**TB-260**, P2 — TTV is measured via TB-220 + `TrialFirstManifestCommittedUtc` but never surfaced to the trial user). These do not duplicate the now-complete **TB-215–TB-220** (06-02 Time-to-Value cluster — getting a run started, wizard, demo seed, telemetry) or DEFERRED **TB-221** (hosted self-serve trial, V1.1 commerce). The hosted self-serve trial / live checkout remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
+**TB-258 ? TB-260** were added 2026-06-03 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06032026.MD`, score 79/100, COMMERCIAL weight 7/116). They harden the trial first-value delivery engine and close the value-realization loop: harden the trial architecture preseed executor (**TB-258**, P1 ? `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has no try/catch, no attempt cap, and no failure audit event; because the pending query re-polls any tenant whose `TrialWelcomeRunId` is still NULL, any preseed failure ? including the non-Guid run-id `return` path ? re-creates/re-executes/re-commits a brand-new run every poll cycle forever, burning agent/quota cost with no operator signal), test the trial first-value delivery path (**TB-259**, P1 ? `TrialArchitecturePreseedExecutor` and `TrialArchitecturePreseedHostedService` are both at 0% coverage per `COVERAGE_GAP_ANALYSIS.md` #130/#49), and a "first value reached" user confirmation (**TB-260**, P2 ? TTV is measured via TB-220 + `TrialFirstManifestCommittedUtc` but never surfaced to the trial user). These do not duplicate the now-complete **TB-215?TB-220** (06-02 Time-to-Value cluster ? getting a run started, wizard, demo seed, telemetry) or DEFERRED **TB-221** (hosted self-serve trial, V1.1 commerce). The hosted self-serve trial / live checkout remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
 
-**TB-261 – TB-263** were added 2026-06-03 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06032026.MD`, score 74/100, COMMERCIAL weight 6/116). They close the recurrence re-engagement loop and harden schedule trust: recurrence completion notification + drift delta (**TB-261**, P1 — `RecurringArchitectureReviewTriggerService` executes the scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event with no notification consumer, so the user who scheduled the review is never told it ran and sees no "N new findings" delta), recurrence schedule failure health + auto-disable (**TB-262**, P1 — `ArchitectureReviewRecurrenceSchedule` has no `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount`, and the failure path still sets `LastTriggeredUtc`, so a chronically-failing schedule looks healthy and never auto-disables), and a "reviews awaiting your action" inbox surface (**TB-263**, P2 — recurrence runs are executed but not committed and have no inbox/badge, so they orphan). These do not duplicate the now-complete **TB-222–TB-228** (06-02 Stickiness cluster — recurrence UI, decisions-needed KPI, compare narrative, RLS fix, risk-exceptions page, multi-run proof, tenant-health admin); that pass built the recurrence UI and governance surfaces but left the loop silent and the schedules without failure health.
+**TB-261 ? TB-263** were added 2026-06-03 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06032026.MD`, score 74/100, COMMERCIAL weight 6/116). They close the recurrence re-engagement loop and harden schedule trust: recurrence completion notification + drift delta (**TB-261**, P1 ? `RecurringArchitectureReviewTriggerService` executes the scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event with no notification consumer, so the user who scheduled the review is never told it ran and sees no "N new findings" delta), recurrence schedule failure health + auto-disable (**TB-262**, P1 ? `ArchitectureReviewRecurrenceSchedule` has no `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount`, and the failure path still sets `LastTriggeredUtc`, so a chronically-failing schedule looks healthy and never auto-disables), and a "reviews awaiting your action" inbox surface (**TB-263**, P2 ? recurrence runs are executed but not committed and have no inbox/badge, so they orphan). These do not duplicate the now-complete **TB-222?TB-228** (06-02 Stickiness cluster ? recurrence UI, decisions-needed KPI, compare narrative, RLS fix, risk-exceptions page, multi-run proof, tenant-health admin); that pass built the recurrence UI and governance surfaces but left the loop silent and the schedules without failure health.
 
-**TB-264 – TB-266** were added 2026-06-03 from an independent first-principles **Differentiability** quality assessment (`docs/assessments/Differentiability_06032026.MD`, score 80/100, COMMERCIAL weight 4/116). They harden the proof-backed `/why` differentiation surface — the product's most defensible positioning artifact — on the two axes inside this quality's own definition (verifiable proof + claim discipline): competitor-baseline citation discipline (**TB-264**, P1 — 3 of the 5 benchmarked rows quantify the competitor side ("2–6 skilled hours", "8–20 DBA/engineering hours", "half a day per release") with `citation = "first-party assertion (no external citation yet)"`; `assert_why_rows_have_evidence.py` only checks fields are non-empty, so an unsourced *quantified* competitor claim ships next to fully-cited ArchLucid rows), a named generic-AI contrast on the public `/why` front door (**TB-265**, P2 — the front-door rows contrast only against "incumbent diagram-and-doc stacks"; the generic-AI contrast exists in `DIFFERENTIATION_PROOF_PACKET.md` but not on the buyer-facing surface), and a cohort-claim integrity guard (**TB-266**, P2 — flagship claim #4 cites `GoldenCohortBaselineConstants`, a zeroed placeholder SHA until an owner lock run, with no CI guard tying the public claim to the real lock state). These do not duplicate the Marketability cluster **TB-229–TB-237** (messaging/social-proof/funnel) or **TB-252–254** (raster assets, OG metadata, FAQ schema); TB-264–266 target the differentiation *proof discipline* specifically. The golden-cohort baseline lock itself and any third-party competitive study are owner actions excluded from `(A)`.
+**TB-264 ? TB-266** were added 2026-06-03 from an independent first-principles **Differentiability** quality assessment (`docs/assessments/Differentiability_06032026.MD`, score 80/100, COMMERCIAL weight 4/116). They harden the proof-backed `/why` differentiation surface ? the product's most defensible positioning artifact ? on the two axes inside this quality's own definition (verifiable proof + claim discipline): competitor-baseline citation discipline (**TB-264**, P1 ? 3 of the 5 benchmarked rows quantify the competitor side ("2?6 skilled hours", "8?20 DBA/engineering hours", "half a day per release") with `citation = "first-party assertion (no external citation yet)"`; `assert_why_rows_have_evidence.py` only checks fields are non-empty, so an unsourced *quantified* competitor claim ships next to fully-cited ArchLucid rows), a named generic-AI contrast on the public `/why` front door (**TB-265**, P2 ? the front-door rows contrast only against "incumbent diagram-and-doc stacks"; the generic-AI contrast exists in `DIFFERENTIATION_PROOF_PACKET.md` but not on the buyer-facing surface), and a cohort-claim integrity guard (**TB-266**, P2 ? flagship claim #4 cites `GoldenCohortBaselineConstants`, a zeroed placeholder SHA until an owner lock run, with no CI guard tying the public claim to the real lock state). These do not duplicate the Marketability cluster **TB-229?TB-237** (messaging/social-proof/funnel) or **TB-252?254** (raster assets, OG metadata, FAQ schema); TB-264?266 target the differentiation *proof discipline* specifically. The golden-cohort baseline lock itself and any third-party competitive study are owner actions excluded from `(A)`.
 
-**TB-267 – TB-269** were added 2026-06-03 from an independent first-principles **Executive Value Visibility** re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`, score 83/100 — up from 70 on 06-02 because the entire prior cluster TB-239/241/243/244–249 is now Done; COMMERCIAL weight 4/116). They close the remaining executive route-group + narrative gaps: an `/executive/dashboard` route under executive chrome (**TB-267**, P2 — `ExecutiveShellFrame`'s "Dashboard" nav links to `/dashboard`, which renders `ExecutiveRoiDashboardPageView` under the *operator* shell with the full sidebar; the `(executive)` group has only `reviews` + `scorecard`, so a sponsor in the clean executive chrome is dumped into the operator UI), an in-product deterministic executive narrative summary line (**TB-268**, P2 — the live dashboard/scorecard show tiles + a recommended-actions list but no synthesized "this period: N reviews, M findings, ~$X/H hours saved; top action: …" sentence; the TB-241 AI narrative exists only on the gated board-pack export), and a dashboard ROI trend window selector matching the scorecard's 30d/quarter/all (**TB-269**, P3 — `ExecutiveRoiTrendSection` is a fixed window). These do not duplicate the now-Done **TB-244–249** EVV cluster; TB-246 added the nav *link* but never created the executive-chrome dashboard *route* (TB-267), and TB-247 added a recommended-actions *list* but not a synthesized narrative *line* (TB-268). Enabling the TB-241 AI narrative by default remains owner validation, excluded from `(A)`.
+**TB-267 ? TB-269** were added 2026-06-03 from an independent first-principles **Executive Value Visibility** re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`, score 83/100 ? up from 70 on 06-02 because the entire prior cluster TB-239/241/243/244?249 is now Done; COMMERCIAL weight 4/116). They close the remaining executive route-group + narrative gaps: an `/executive/dashboard` route under executive chrome (**TB-267**, P2 ? `ExecutiveShellFrame`'s "Dashboard" nav links to `/dashboard`, which renders `ExecutiveRoiDashboardPageView` under the *operator* shell with the full sidebar; the `(executive)` group has only `reviews` + `scorecard`, so a sponsor in the clean executive chrome is dumped into the operator UI), an in-product deterministic executive narrative summary line (**TB-268**, P2 ? the live dashboard/scorecard show tiles + a recommended-actions list but no synthesized "this period: N reviews, M findings, ~$X/H hours saved; top action: ?" sentence; the TB-241 AI narrative exists only on the gated board-pack export), and a dashboard ROI trend window selector matching the scorecard's 30d/quarter/all (**TB-269**, P3 ? `ExecutiveRoiTrendSection` is a fixed window). These do not duplicate the now-Done **TB-244?249** EVV cluster; TB-246 added the nav *link* but never created the executive-chrome dashboard *route* (TB-267), and TB-247 added a recommended-actions *list* but not a synthesized narrative *line* (TB-268). Enabling the TB-241 AI narrative by default remains owner validation, excluded from `(A)`.
 
-**TB-270 – TB-272** were added 2026-06-03 from an independent first-principles **Usability** quality assessment (`docs/assessments/Usability_06032026.MD`, score 83/100, ENTERPRISE weight 3/116, scoring the full operator shell). The operator UX is unusually mature (Ctrl/⌘-K command palette, breadcrumbs, global search, persona shell presets, skip-link + route announcer + focus management, 15 jest-axe suites + ~81-route Playwright axe matrix, generated help index, rich first-run cockpit); these items close the remaining friction/consistency smells: disambiguate the review-creation entry points (**TB-270**, P2 — the core pilot path exposes `QuickReviewWizard` plus `QuickStartWizard` and `SimplifiedPilotWizard` inside `NewRunWizardClient` alongside the full 9-step wizard, i.e. multiple near-synonymous entry points on the single highest-stakes task), a universal failure identifier (**TB-271**, P2 — `OperatorApiProblem` shows a correlation id only when the server returns one, so non-Problem-Details failures leave the user nothing to quote in a support request), and empty/loading-state consistency (**TB-272**, P3 — dual empty-state components `EmptyState` vs `OperatorEmptyState`, and only 22 routes have `loading.tsx` so `/` and `/governance` lack skeletons). Per `Assessment-Scope-V1_1.mdc`, absence of assistive-technology user-lab testing is **not** an `(A)` defect and is not represented here; automated axe coverage is the in-scope posture.
+**TB-270 ? TB-272** were added 2026-06-03 from an independent first-principles **Usability** quality assessment (`docs/assessments/Usability_06032026.MD`, score 83/100, ENTERPRISE weight 3/116, scoring the full operator shell). The operator UX is unusually mature (Ctrl/?-K command palette, breadcrumbs, global search, persona shell presets, skip-link + route announcer + focus management, 15 jest-axe suites + ~81-route Playwright axe matrix, generated help index, rich first-run cockpit); these items close the remaining friction/consistency smells: disambiguate the review-creation entry points (**TB-270**, P2 ? the core pilot path exposes `QuickReviewWizard` plus `QuickStartWizard` and `SimplifiedPilotWizard` inside `NewRunWizardClient` alongside the full 9-step wizard, i.e. multiple near-synonymous entry points on the single highest-stakes task), a universal failure identifier (**TB-271**, P2 ? `OperatorApiProblem` shows a correlation id only when the server returns one, so non-Problem-Details failures leave the user nothing to quote in a support request), and empty/loading-state consistency (**TB-272**, P3 ? dual empty-state components `EmptyState` vs `OperatorEmptyState`, and only 22 routes have `loading.tsx` so `/` and `/governance` lack skeletons). Per `Assessment-Scope-V1_1.mdc`, absence of assistive-technology user-lab testing is **not** an `(A)` defect and is not represented here; automated axe coverage is the in-scope posture.
 
-**TB-275** was added 2026-06-04 as a **re-validation index** for the same harsh buyer-demo audit re-run in chat (top-100 display only; full register already on disk). It does **not** duplicate the 150-row table — canonical detail remains **TB-273 § BDA-001…150**. Use TB-275 to track spot-check regressions still visible in demo/buyer paths after batches **5CY-demo**–**5DN-demo-deferred** marked TB-273 Done. Next TB number after TB-274 (backend/platform register — **BE-001…BE-061**, **SEC-001…SEC-035** in [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), no `## TB-274` body in this file).
+**TB-275** was added 2026-06-04 as a **re-validation index** for the same harsh buyer-demo audit re-run in chat (top-100 display only; full register already on disk). It does **not** duplicate the 150-row table ? canonical detail remains **TB-273 ? BDA-001?150**. Use TB-275 to track spot-check regressions still visible in demo/buyer paths after batches **5CY-demo**?**5DN-demo-deferred** marked TB-273 Done. Next TB number after TB-274 (backend/platform register ? **BE-001?BE-061**, **SEC-001?SEC-035** in [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), no `## TB-274` body in this file).
 
-**TB-276 – TB-282** were added 2026-06-04 from the **route-based tenant addressing** architecture assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)). BE-014–016 shipped per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` on four tenant-scoped routes, but the guard is **manual, untested, and easy to omit** on new endpoints; `AdminAuthority` is **tenant-scoped admin** while several URLs (`/admin/tenants/{tenantId}/…`) read like platform cross-tenant ops. **TB-276** (P0) centralizes route↔scope binding in one filter; **TB-277** + **TB-278** (P1) add CI + integration tests; **TB-281** (P1) completes the TB-075 remainder (value-report path tenant); **TB-279** + **TB-280** (P2) migrate to ambient scope-only routes and retire the legacy authority executive-summary `{tenantId}` path; **TB-282** (P2) reclassifies aggregate cross-tenant analytics off `AdminAuthority` onto operator RBAC. Platform tenant lifecycle (`AdminTenantsController` + `PlatformTenantDeletionAuthority`) **correctly** uses route `{id}` with a distinct policy — out of scope for removal. Cross-ref **TB-072**, **TB-075**, **TB-274** batch **5DE–5DI** (BE-014–016).
+**TB-276 ? TB-282** were added 2026-06-04 from the **route-based tenant addressing** architecture assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)). BE-014?016 shipped per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` on four tenant-scoped routes, but the guard is **manual, untested, and easy to omit** on new endpoints; `AdminAuthority` is **tenant-scoped admin** while several URLs (`/admin/tenants/{tenantId}/?`) read like platform cross-tenant ops. **TB-276** (P0) centralizes route?scope binding in one filter; **TB-277** + **TB-278** (P1) add CI + integration tests; **TB-281** (P1) completes the TB-075 remainder (value-report path tenant); **TB-279** + **TB-280** (P2) migrate to ambient scope-only routes and retire the legacy authority executive-summary `{tenantId}` path; **TB-282** (P2) reclassifies aggregate cross-tenant analytics off `AdminAuthority` onto operator RBAC. Platform tenant lifecycle (`AdminTenantsController` + `PlatformTenantDeletionAuthority`) **correctly** uses route `{id}` with a distinct policy ? out of scope for removal. Cross-ref **TB-072**, **TB-075**, **TB-274** batch **5DE?5DI** (BE-014?016).
 
-**TB-283 – TB-288** were added 2026-06-05 from the **DTO boundary design** assessment ([`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx)). `RunDetailDto` and similar persistence read models embed snapshots, traces, and agent rows on buyer-consumed routes; `ProblemSupportHints` leaks operator route strings into problem+json. **TB-283** + **TB-284** (P0) introduce buyer/proof DTOs and audience-tier Problem Details; **TB-285** + **TB-286** (P1) add CI forbidden-property and OpenAPI audience tiers; **TB-287** (P1) partitions forensics LLM traces; **TB-288** (P2) architecture-test guard on Persistence return types. Cross-ref **TB-106**, **TB-273** (raw enum/id leakage), **ProofSurfaceContractRegistry**, **TB-075**.
+**TB-283 ? TB-288** were added 2026-06-05 from the **DTO boundary design** assessment ([`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx)). `RunDetailDto` and similar persistence read models embed snapshots, traces, and agent rows on buyer-consumed routes; `ProblemSupportHints` leaks operator route strings into problem+json. **TB-283** + **TB-284** (P0) introduce buyer/proof DTOs and audience-tier Problem Details; **TB-285** + **TB-286** (P1) add CI forbidden-property and OpenAPI audience tiers; **TB-287** (P1) partitions forensics LLM traces; **TB-288** (P2) architecture-test guard on Persistence return types. Cross-ref **TB-106**, **TB-273** (raw enum/id leakage), **ProofSurfaceContractRegistry**, **TB-075**.
 
-**TB-289 – TB-301** were added 2026-06-05 from a **risk-weighted test coverage** audit (trusted pilot / paid pilot gates — not merged-line vanity). Strong IDOR SQL matrix exists; gaps are mock-heavy buyer golden path, SQL-backed audit/export integrity, reference-evidence ZIP content, route-tenant positive paths, and prod demo boot integration. **TB-289–294** (P0) before trusted pilot; **TB-295–300** (P1) before paid pilot; **TB-301** (P2) targeted Persistence probes. Cross-ref **TB-278**, **TB-259**, **COVERAGE_GAP_ANALYSIS.md**.
+**TB-289 ? TB-301** were added 2026-06-05 from a **risk-weighted test coverage** audit (trusted pilot / paid pilot gates ? not merged-line vanity). Strong IDOR SQL matrix exists; gaps are mock-heavy buyer golden path, SQL-backed audit/export integrity, reference-evidence ZIP content, route-tenant positive paths, and prod demo boot integration. **TB-289?294** (P0) before trusted pilot; **TB-295?300** (P1) before paid pilot; **TB-301** (P2) targeted Persistence probes. Cross-ref **TB-278**, **TB-259**, **COVERAGE_GAP_ANALYSIS.md**.
 
-**TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 … BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift — run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** — many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143–148** (in-app docs presentation — BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270–272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
+**TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home ? Reviews list ? Review detail ? Executive summary ? Manifest summary ? Evidence graph ? Governance ? Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 ? BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift ? run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** ? many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143?148** (in-app docs presentation ? BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270?272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
-**TB-317 – TB-324** were added 2026-06-12 from a clean-slate weighted release-readiness assessment (`docs/assessments/latest_202606122049.md`, `(A)` headline readiness 81.57%, recent-weight model). Most top improvements already map to existing backlog items: AI faithfulness (**TB-255–257**), real-mode evidence (**TB-137–140**), trial preseed hardening (**TB-258–259**), buyer-demo truthfulness (**TB-273/TB-275**), run-detail fidelity (**TB-106–113**), recurrence loop (**TB-261–263**), RAG quality (**TB-046/TB-049**), procurement pack strictness (**TB-159–160/TB-162/TB-165–166**), executive sponsor polish (**TB-267–269**), and in-app help (**TB-143–148**). New entries only cover gaps not already represented: RC evidence bundle composition (**TB-317**), V1 automation handoff pack (**TB-318**), pilot-critical performance evidence (**TB-319**), and correctness guardrails (**TB-320–324**). V1.1/V2 non-gates remain excluded from `(A)`: first-party connectors, MCP, multi-cloud target analysis, live commerce un-hold, public references., SOC 2 CPA, and external pen-test execution.
+**TB-317 ? TB-324** were added 2026-06-12 from a clean-slate weighted release-readiness assessment (`docs/assessments/latest_202606122049.md`, `(A)` headline readiness 81.57%, recent-weight model). Most top improvements already map to existing backlog items: AI faithfulness (**TB-255?257**), real-mode evidence (**TB-137?140**), trial preseed hardening (**TB-258?259**), buyer-demo truthfulness (**TB-273/TB-275**), run-detail fidelity (**TB-106?113**), recurrence loop (**TB-261?263**), RAG quality (**TB-046/TB-049**), procurement pack strictness (**TB-159?160/TB-162/TB-165?166**), executive sponsor polish (**TB-267?269**), and in-app help (**TB-143?148**). New entries only cover gaps not already represented: RC evidence bundle composition (**TB-317**), V1 automation handoff pack (**TB-318**), pilot-critical performance evidence (**TB-319**), and correctness guardrails (**TB-320?324**). V1.1/V2 non-gates remain excluded from `(A)`: first-party connectors, MCP, multi-cloud target analysis, live commerce un-hold, public references., SOC 2 CPA, and external pen-test execution.
 
-**TB-329 – TB-336** were added 2026-06-14 from a focused **diagnostic logging and observability coverage** assessment (readiness score **72/100**). Owner decision: **near-perfect diagnostic logging** is now an architectural requirement — see **[ADR 0053](../architecture/adrs/0053-enterprise-diagnostic-logging-observability-posture.md)**. The codebase already ships Serilog + OpenTelemetry + Azure Monitor export, GenAI semantic conventions, durable audit, and redaction infrastructure; gaps are **concentrated** (tenant/workspace absent from Activity tags, evidence-package identity not on spans, no canonical Do Not Log policy artifact, incomplete production operator runbook). **TB-329** (P0) and **TB-330** (P0) are V1 blockers per ADR 0053; **TB-331–334** (P1) close remaining Tier 1 gaps; **TB-335–336** (P2) are high-value next wave. Does not duplicate **TB-004** (OTel exporter wiring — Done), **TB-124–128** (audit coverage drift / triage docs), or **TB-250** (pipeline stage UI timeline — Done). Cross-ref [`OBSERVABILITY.md`](OBSERVABILITY.md), [`TB-128`](TECH_BACKLOG.md#tb-128--supportaudit-triage-one-pager).
+**TB-329 ? TB-336** were added 2026-06-14 from a focused **diagnostic logging and observability coverage** assessment (readiness score **72/100**). Owner decision: **near-perfect diagnostic logging** is now an architectural requirement ? see **[ADR 0053](../architecture/adrs/0053-enterprise-diagnostic-logging-observability-posture.md)**. The codebase already ships Serilog + OpenTelemetry + Azure Monitor export, GenAI semantic conventions, durable audit, and redaction infrastructure; gaps are **concentrated** (tenant/workspace absent from Activity tags, evidence-package identity not on spans, no canonical Do Not Log policy artifact, incomplete production operator runbook). **TB-329** (P0) and **TB-330** (P0) are V1 blockers per ADR 0053; **TB-331?334** (P1) close remaining Tier 1 gaps; **TB-335?336** (P2) are high-value next wave. Does not duplicate **TB-004** (OTel exporter wiring ? Done), **TB-124?128** (audit coverage drift / triage docs), or **TB-250** (pipeline stage UI timeline ? Done). Cross-ref [`OBSERVABILITY.md`](OBSERVABILITY.md), [`TB-128`](TECH_BACKLOG.md#tb-128--supportaudit-triage-one-pager).
 
-**TB-345 – TB-353** were added 2026-06-16 from an external **operator home first-run UX** review (voluntary usage, executive purchase probability, first-time architect adoption). All nine items are **P0** for fast pickup. They tighten the buyer-polished home narrative already improved in recent sessions: remove sidebar **First-hour path** duplication (**TB-345**), compress the **Start your first review** hero (**TB-346**), strengthen the reviews list section (**TB-347**, **TB-352**), promote the **example request** above the fold (**TB-348**), hide **ROI estimate pending** until a committed review exists (**TB-349**), deprioritize **monthly analysis allowance** in shell chrome (**TB-350**), replace **What you'll get** artifact copy with **What ArchLucid discovers** value claims (**TB-351**), and add a substantive **show me value** sample review surface (**TB-353**). **Excluded:** context-aware **Guided review recap** button relabel (reviewer item #7 — different audience/moment; not backlog-tracked). Does not duplicate **TB-337–339** (evidence-first empty state / Core Pilot), **TB-169** (Operate progressive disclosure), **TB-218** (demo viewer CTA), or **TB-270** (wizard entry-point disambiguation). Cross-ref `PilotCommandCenterCard`, `SidebarNav`, `RunsDashboardPanel`, `PilotRoiBaselineReadinessCard`, `buyer-polish-copy.ts`, [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+**TB-345 ? TB-353** were added 2026-06-16 from an external **operator home first-run UX** review (voluntary usage, executive purchase probability, first-time architect adoption). All nine items are **P0** for fast pickup. They tighten the buyer-polished home narrative already improved in recent sessions: remove sidebar **First-hour path** duplication (**TB-345**), compress the **Start your first review** hero (**TB-346**), strengthen the reviews list section (**TB-347**, **TB-352**), promote the **example request** above the fold (**TB-348**), hide **ROI estimate pending** until a committed review exists (**TB-349**), deprioritize **monthly analysis allowance** in shell chrome (**TB-350**), replace **What you'll get** artifact copy with **What ArchLucid discovers** value claims (**TB-351**), and add a substantive **show me value** sample review surface (**TB-353**). **Excluded:** context-aware **Guided review recap** button relabel (reviewer item #7 ? different audience/moment; not backlog-tracked). Does not duplicate **TB-337?339** (evidence-first empty state / Core Pilot), **TB-169** (Operate progressive disclosure), **TB-218** (demo viewer CTA), or **TB-270** (wizard entry-point disambiguation). Cross-ref `PilotCommandCenterCard`, `SidebarNav`, `RunsDashboardPanel`, `PilotRoiBaselineReadinessCard`, `buyer-polish-copy.ts`, [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
-**TB-337 – TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model — the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition — without weakening the Azure onboarding experience. **TB-337–339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** — that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) §6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure — different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards — same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) §7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) §2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
+**TB-337 ? TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model ? the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition ? without weakening the Azure onboarding experience. **TB-337?339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** ? that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure ? different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards ? same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) ?7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
 
-**TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard — partial-failure surfacing and sentinel exclusion were already shipped).
+**TB-250 ? TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 ? authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 ? `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard ? partial-failure surfacing and sentinel exclusion were already shipped).
 
-**TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
+**TB-244 ? TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav ? scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103?105** (orphan-candidate pipeline), or **TB-238?243** (Proof-of-ROI readiness items).
 
-**TB-238 – TB-243** were added 2026-06-02 from an independent first-principles **Proof-of-ROI Readiness** quality assessment (`docs/assessments/ProofOfROIReadiness_06022026.MD`, score 72/100, COMMERCIAL weight 5/116). They address: baseline capture prompt in pilot wizard (**TB-238**, P1), executive ROI history run-mode label (**TB-239**, P1), executive ROI surface data quality regression guard (**TB-240**, P1), board-pack AI executive narrative (**TB-241**, P2), ROI model freshness CI guard (**TB-242**, P2), and sponsor proof delivery tracking event (**TB-243**, P2). These do not duplicate **TB-103–105** (orphan-candidate dual pipeline / waiver window / bucket bucketing), **TB-149–155** (data consistency defect fixes), **TB-062** (executive dashboard KPI replacement), or **TB-186** (run summary one-pager). TB-240 specifically adds regression-guard tests that verify TB-103/TB-149/TB-151/TB-152/TB-155 fixes hold; it is a guard, not a duplicate of those fixes.
+**TB-238 ? TB-243** were added 2026-06-02 from an independent first-principles **Proof-of-ROI Readiness** quality assessment (`docs/assessments/ProofOfROIReadiness_06022026.MD`, score 72/100, COMMERCIAL weight 5/116). They address: baseline capture prompt in pilot wizard (**TB-238**, P1), executive ROI history run-mode label (**TB-239**, P1), executive ROI surface data quality regression guard (**TB-240**, P1), board-pack AI executive narrative (**TB-241**, P2), ROI model freshness CI guard (**TB-242**, P2), and sponsor proof delivery tracking event (**TB-243**, P2). These do not duplicate **TB-103?105** (orphan-candidate dual pipeline / waiver window / bucket bucketing), **TB-149?155** (data consistency defect fixes), **TB-062** (executive dashboard KPI replacement), or **TB-186** (run summary one-pager). TB-240 specifically adds regression-guard tests that verify TB-103/TB-149/TB-151/TB-152/TB-155 fixes hold; it is a guard, not a duplicate of those fixes.
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
-| TB-196 | Reasoning token cost underreporting fix — update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path | **Done (2026-06-02 batch 5R)** — aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | XS |
-| TB-197 | `GovernanceWorkflowService.PromoteAsync` — wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test | **Done (2026-06-02 batch 5J)** — single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | S |
-| TB-198 | `CostConstraintFindingEngine` unit tests — add 7 scenarios covering severity, budget parsing, null properties, empty graph, multi-node | **Done (2026-06-02 batch 5K)** — `CostConstraintFindingEngineTests` (7 scenarios) | S |
-| TB-199 | `TenantOrProjectCapabilityAuthorizationHandler` unit tests — 6 authorization scenarios (succeed/fail/no-identity/tenant-miss/project-scope) | **Done (2026-06-02 batch 5K)** — `TenantOrProjectCapabilityAuthorizationHandlerTests` | M |
-| TB-200 | `HttpScopeContextProvider` unit tests — 5 scenarios (valid claims, missing tenant, missing workspace, unauthenticated, malformed GUIDs) | **Done (2026-06-02 batch 5K)** — `HttpScopeContextProviderTests` in Host.Core.Tests + Api.Tests | S |
-| TB-201 | DB-level `UNIQUE (RunId, TaskId)` constraint on `dbo.AgentResults` + exception handling in `SubmitAgentResultAsync` for constraint violation → 409 | **Done (2026-06-02 batch 5L)** — migration `237_AgentResults_RunId_TaskId_Unique.sql`, insert-only `CreateAsync`, `AgentResultDuplicateConflictException`, HTTP 409 via `ApplicationServiceFailureKind.Conflict` | S |
-| TB-202 | `ArchLucid.Notifications` unit tests — `SlackInteractivityVerifier` HMAC, `ChatOpsWebhookDeliveryService` HTTP delivery (success/4xx/5xx), `AuthorityRunCommittedChatOpsHook` event handler | **Done (2026-06-02 batch 5O)** — existing suite extended with HTTP 4xx/5xx propagation tests; `test_correctness_batch_5o.py` drift guard | M |
-| TB-203 | `ConversationService` unit tests — new conversation, append message, empty message, max-turn limit, session not found | **Done (2026-06-02 batch 5P)** — `ConversationServiceTests` covers create/reuse/scope-mismatch/missing-id/history take/empty content; `test_correctness_batch_5p.py` drift guard | M |
-| TB-204 | Decision rule action differentiation in `RuleAuditTracePayload` — add `RequiredFindingIds` / `AllowedFindingIds` / `PreferredFindingIds` sets alongside existing `AcceptedFindingIds` union; update mapper + DTO | **Done (2026-06-02 batch 5Q)** — engine, explainability DTO, SQL migration 238, `RuleBasedDecisionEngineActionDifferentiationTests`; `test_correctness_batch_5q.py` drift guard | S |
-| TB-205 | `BuildHistoryAsync` / `BuildExportAsync` / `CollectCommittedRunsForTrendsAsync` pagination safety — add `maxPages = 500` guard + warning log to all three `while(true)` pagination loops in `ExecutiveRoiSummaryService` | **Done (2026-06-02 batch 5J)** — `maxPages = 2_000` + warning log on all three pagination loops | XS |
-| TB-206 | `ResolveEnvironmentLabel` null guard — null-coalesce `service.Tags ?? []`; add unit tests for null tags, empty tags, valid env tag | **Done (2026-06-02 batch 5J)** — null-safe tag iteration in `ResolveEnvironmentLabel` | XS |
+| TB-196 | Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path | **Done (2026-06-02 batch 5R)** ? aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | XS |
+| TB-197 | `GovernanceWorkflowService.PromoteAsync` ? wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test | **Done (2026-06-02 batch 5J)** ? single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | S |
+| TB-198 | `CostConstraintFindingEngine` unit tests ? add 7 scenarios covering severity, budget parsing, null properties, empty graph, multi-node | **Done (2026-06-02 batch 5K)** ? `CostConstraintFindingEngineTests` (7 scenarios) | S |
+| TB-199 | `TenantOrProjectCapabilityAuthorizationHandler` unit tests ? 6 authorization scenarios (succeed/fail/no-identity/tenant-miss/project-scope) | **Done (2026-06-02 batch 5K)** ? `TenantOrProjectCapabilityAuthorizationHandlerTests` | M |
+| TB-200 | `HttpScopeContextProvider` unit tests ? 5 scenarios (valid claims, missing tenant, missing workspace, unauthenticated, malformed GUIDs) | **Done (2026-06-02 batch 5K)** ? `HttpScopeContextProviderTests` in Host.Core.Tests + Api.Tests | S |
+| TB-201 | DB-level `UNIQUE (RunId, TaskId)` constraint on `dbo.AgentResults` + exception handling in `SubmitAgentResultAsync` for constraint violation ? 409 | **Done (2026-06-02 batch 5L)** ? migration `237_AgentResults_RunId_TaskId_Unique.sql`, insert-only `CreateAsync`, `AgentResultDuplicateConflictException`, HTTP 409 via `ApplicationServiceFailureKind.Conflict` | S |
+| TB-202 | `ArchLucid.Notifications` unit tests ? `SlackInteractivityVerifier` HMAC, `ChatOpsWebhookDeliveryService` HTTP delivery (success/4xx/5xx), `AuthorityRunCommittedChatOpsHook` event handler | **Done (2026-06-02 batch 5O)** ? existing suite extended with HTTP 4xx/5xx propagation tests; `test_correctness_batch_5o.py` drift guard | M |
+| TB-203 | `ConversationService` unit tests ? new conversation, append message, empty message, max-turn limit, session not found | **Done (2026-06-02 batch 5P)** ? `ConversationServiceTests` covers create/reuse/scope-mismatch/missing-id/history take/empty content; `test_correctness_batch_5p.py` drift guard | M |
+| TB-204 | Decision rule action differentiation in `RuleAuditTracePayload` ? add `RequiredFindingIds` / `AllowedFindingIds` / `PreferredFindingIds` sets alongside existing `AcceptedFindingIds` union; update mapper + DTO | **Done (2026-06-02 batch 5Q)** ? engine, explainability DTO, SQL migration 238, `RuleBasedDecisionEngineActionDifferentiationTests`; `test_correctness_batch_5q.py` drift guard | S |
+| TB-205 | `BuildHistoryAsync` / `BuildExportAsync` / `CollectCommittedRunsForTrendsAsync` pagination safety ? add `maxPages = 500` guard + warning log to all three `while(true)` pagination loops in `ExecutiveRoiSummaryService` | **Done (2026-06-02 batch 5J)** ? `maxPages = 2_000` + warning log on all three pagination loops | XS |
+| TB-206 | `ResolveEnvironmentLabel` null guard ? null-coalesce `service.Tags ?? []`; add unit tests for null tags, empty tags, valid env tag | **Done (2026-06-02 batch 5J)** ? null-safe tag iteration in `ResolveEnvironmentLabel` | XS |
 
-| TB-177 | Adversarial Critic second-pass — challenge-first prompt + empty-findings quality gate signal | **Done (2026-06-02 batch 5M)** — `CriticSystemPromptTemplate` rules 8–9; heuristic zero-score for empty `findings[]`; `CriticAgentHandlerTests` + `test_ai_readiness_batch_5m.py` | S |
-| TB-178 | Streaming Ask SSE — `POST /v1/ask/stream` + `AskStreamAsync` + `useAskStream()` UI hook | **Done (2026-06-02 batch 5N)** — SSE endpoint + `AskService.AskStreamAsync`; `useAskStream` hook with 20ms token flush; Ask page wired; `AskThreadIntegrationTests` stream coverage | M |
-| TB-179 | Multi-model tiered orchestration — `ModelTier` enum (`Fast`=gpt-4o-mini, `Reasoning`=GPT-4o) + `AgentTaskFactory` tier assignment + config keys `Llm:Deployments:Fast` / `Llm:Deployments:Reasoning`; Topology initial draft + Cost extraction → Fast; Compliance + Critic → Reasoning | **Done (2026-06-02 batch 5S)** — `LlmModelTier` Economy/Premium routing via `RunStarterTaskFactory` + `AgentModelTierDefaults`; `Llm:Deployments:Fast`/`Reasoning` aliases; `test_ai_readiness_batch_5s.py` | M |
-| TB-180 | Calibrated agent confidence — `IAgentConfidenceCalibrator` piecewise-linear calibration + `CalibratedConfidence` column on `dbo.AgentResults` | **Done (2026-06-02 batch 5T)** — isotonic calibrator + run patch service + quality-gate floor; fail-open below 20 samples; `test_ai_readiness_batch_5t.py` | M |
-| TB-181 | Template eval harness nightly cron — add `cron: '0 3 * * *'` trigger + JSON summary output to `template-eval-harness.yml`; V1: notification-only on failure (PQ-CEAT-03 resolved 2026-06-02); V1.1: promote to floor-ratchet blocking gate (`assert_coverage_floor_ratchet.py` pattern) once baseline is stable for two consecutive weeks | **Done (2026-06-02 batch 5U)** — nightly cron + `--json-summary` + `--emit-annotations` + summary artifact; `test_ai_readiness_batch_5u.py` drift guard | XS |
-| TB-182 | `Write-AiReadinessPosture.ps1` — automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 — every pilot delivery currently requires manual JSON fill; schema stable | Done (2026-06-01) |
-| TB-183 | Findings priority re-ranker — `IFindingPriorityReranker` + `PriorityRank` column + `?orderBy=priority` param, feature-flagged | **Done (2026-06-02 batch 5BL)** — post-commit `FindingPriorityReranker` + migration `180_FindingRecords_PriorityRank.sql` + `RunQueryController` `orderBy=priority`; `AgentRuntime:RerankFindings:Enabled`; `test_adoption_batch_5bl.py` | M |
-| TB-184 | Governance-block explainer — AI explanation on 409 `GovernanceBlockResult` via `IAgentCompletionClient`, feature-flagged | **Done (2026-06-02 batch 5BM)** — `PreCommitGovernanceBlockExplainer` + `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false) + `blockExplanation` ProblemDetails + commit UI; `test_ai_readiness_batch_5bm.py` | S |
-| TB-185 | Per-finding conversational explainer — `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | **Done (2026-06-02 batch 5BP)** — `ArchitectureFindingAskController` + `FindingAskInlinePanel` + `MessageCircle` Ask control on `QuickDecisionSummary`; `test_ai_readiness_batch_5bp.py` | M |
-| TB-186 | Run summary one-pager auto-generator — `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | **Done (2026-06-02 batch 5BQ)** — `AgentRuntime:GenerateRunSummary:Enabled` (default false) + export endpoint guard + AI disclaimer in template + run detail download; `test_ai_readiness_batch_5bq.py` | M |
-| TB-187 | AI-assisted architecture request authoring — `POST /v1/architecture/request/draft` + pre-fill UI button | **Done (2026-06-02 batch 5BS)** — `ArchitectureRequestDraftService` + wizard **Suggest fields** + `wizard-ai-suggested-fields`; `test_ai_readiness_batch_5bs.py` | M |
-| TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | **Done (2026-06-03 batch 5BY)** — `LlmJudgeDailyTokenBudgetTracker`, migration 241, Cost/Compliance eligibility, `test_ai_readiness_batch_5by.py` | M |
-| TB-188 | Findings-to-IaC stub generator — `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | **Done (2026-06-02 batch 5BU)** — post-commit `FindingIacStubGenerator` + `AgentRuntime:GenerateIacStubs` + `FindingIacStubPanel`; `test_ai_readiness_batch_5bu.py` | M |
-| TB-189 | AI policy-pack drafting assistant — `POST /v1/governance/policy-pack/draft` with few-shot bundled-pack examples + UI draft panel | **Done (2026-06-02 batch 5BV)** — `PolicyPackDraftService` + `PolicyRuleAuthoringWizard` draft panel; `test_ai_readiness_batch_5bv.py` | M |
-| TB-191 | Prompt template content-hash pinning on runs — add `SystemPromptContentHash` (first 16 hex of SHA-256) to `dbo.AgentExecutionTraces` + `AgentExecutionTraceDto`; compute in `AgentExecutionTraceRecorder` | **Done (2026-06-02 batch 5W)** — `SystemPromptContentHash` column + recorder canonical hash + OpenAPI surface; `AgentPromptReproTests` + `test_cutting_edge_batch_5w.py` | S |
-| TB-192 | Dynamic evidence summarization before context overflow — `IEvidenceSummarizationService` using `ModelTier.Fast`; counts against tenant run-execution quota (not a separate sub-cap — PQ-CEAT-02 resolved 2026-06-02); invoked by `ContextLengthGuardAgentCompletionClient` before hard truncation; `AgentExecution:EvidenceSummarization:Enabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5V)** — `EvidenceSummarizationService` + guard integration + `LlmEvidenceSummarized` audit; `EvidenceSummarizationServiceDependencyTests` + `test_cutting_edge_batch_5v.py` | M |
-| TB-193 | LLM provider abstraction factory scaffold — `ILlmProviderFactory` + `LlmProviderDescriptor.ProviderType` enum (`AzureOpenAi`, `Anthropic`, `GoogleGemini`, `LocalOllama`); `DefaultLlmProviderFactory` wraps existing Azure OpenAI client; architecture test for interface isolation; **no concrete non-Azure provider implementations** (V2 per PQ-CEAT-01 resolved 2026-06-02 — Azure-native mandate ADR 0020) | **Done (2026-06-02 batch 5BT)** — `ILlmProviderFactory` + `LlmProviderType` + `DefaultLlmProviderFactory`; `LlmProviderFactoryDependencyTests`; `test_cutting_edge_batch_5bt.py` | M |
-| TB-194 | RAG corpus operator monitoring panel — `GET /v1/admin/rag-health` returning per-`CorpusKind` chunk counts, last-indexed-at, embedding dim, stale flag; UI panel under `/admin/rag-health`; Playwright smoke test | **Done (2026-06-02 batch 5BO)** — `AdminRagHealthController` + `/admin/rag-health` UI; `test_cutting_edge_batch_5bo.py` | S–M |
-| TB-195 | Multi-turn Ask conversation context compression — `IConversationContextCompressor` using `ModelTier.Fast`; keep last N turns verbatim, compress older turns; `Ask:ConversationContext:CompressionEnabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5BR)** — `ConversationContextCompressor` + `Ask:ConversationContext` options + `AskService` history compression; `test_cutting_edge_batch_5br.py` | M |
-| TB-207 | Token-claims diagnostic — `POST /v1/admin/auth/diagnose-token` + `archlucid auth test-token --bearer` — decode JWT payload without signature validation; pipe through `ArchLucidRoleClaimsTransformation`; return `resolvedRoles[]`, `unmappedValues[]`, `warnings[]`; Admin auth required; durable `Auth.TokenDiagnosticRequested` audit event | **Done (2026-06-02 batch 5X)** — `TokenClaimsDiagnosticService` + admin endpoint + CLI + `AuthTokenDiagnosticRequested` audit; `test_adoption_batch_5x.py` | M |
-| TB-208 | CLI as dotnet global tool + self-contained binaries — `<PackAsTool>true</PackAsTool>` in `ArchLucid.Cli.csproj`; GitHub Actions publish job for win-x64/linux-x64/osx-x64 `PublishSingleFile=true`; `docs/engineering/CLI_INSTALL.md`; update `OPERATOR_QUICKSTART.md` | **Done (2026-06-02 batch 5Y)** — `publish-cli.yml` + `CLI_INSTALL.md` + operator quickstart link; `test_adoption_batch_5y.py` | S |
-| TB-209 | `archlucid request create --from-file <path>` — reads JSON file, POSTs to `POST /v1/architecture/request`, prints run ID; optional `--request-id` override; replace `curl` example in `OPERATOR_QUICKSTART.md` reference architecture section | **Done (2026-06-02 batch 5Z)** — `RequestCreateCommand` + `ArchitectureRequestFileParser` + operator quickstart CLI section; `test_adoption_batch_5z.py` | S |
-| TB-210 | Pilot prerequisites page — `docs/runbooks/PILOT_PREREQUISITES.md` with per-profile Azure resource checklist, cost estimate table, Azure AI Search blocking callout, and `scripts/Test-ArchLucidPrerequisites.ps1`; linked from `FIRST_PILOT_OPERATOR_PATH.md` and `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5AA)** — `PILOT_PREREQUISITES.md` + `Test-ArchLucidPrerequisites.ps1` + operator/config links; `test_adoption_batch_5aa.py` | S |
-| TB-211 | SAML SP certificate rotation runbook — `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`; detection + `openssl` generation + zero-downtime rotation + rollback; linked from `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5AB)** — canonical runbook path + CONFIGURATION_REFERENCE link; library stub + `SAML_CERT_ROTATION.md` alias; `test_adoption_batch_5ab.py` | XS |
-| TB-212 | IaC adoption-critical subset — Terraform for Azure OpenAI, Azure AI Search, Azure Content Safety in `infra/terraform-hosted-prod/`; update outputs, tfvars.example, `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5BK)** — OpenAI/Search already in `deploy/hosted-prod-terraform`; **TB-212** adds Content Safety consumed/create modules + outputs + `IAC_RUNTIME_PARITY.md`; `test_adoption_batch_5bk.py` | M |
-| TB-213 | QualityGate WarnOnly lint rule — `quality_gate_warn_only_in_real_production_like`; Advisory for Real+WarnOnly; HOLD for production-like-hosted-pilot profile; 4-state unit tests | **Done (2026-06-02 batch 5AC)** — `QualityGateWarnOnlyProductionLikeConfigurationLint` + profile promotion in `ConfigLintReportBuilder`; `test_adoption_batch_5ac.py` | S |
-| TB-214 | Non-Azure/non-extractor evidence JSON upload path — DEFERRED: owner must supply schema and ingestion surface boundary; V1.1 scope per `V1_DEFERRED.md §6r`; PQ-AF-01 resolved 2026-06-02 | Adoption Friction DEFERRED (V1.1) | — |
-| TB-215 | Evidence upload integrated into review wizard — add optional "Evidence (optional)" step between Preset and Identity; dropzone for `.zip`; "Skip and use demo data" secondary; auto-upload via `POST /v1/azure-extractor/upload` after review created when file present; Vitest tests | **Done (2026-06-02 batch 5AI)** — `WizardStepEvidenceUpload` + post-create upload; `test_adoption_batch_5ai.py` | M |
-| TB-216 | `archlucid try --sponsor-packet` one-shot command — extend CLI `try` with `--sponsor-packet` + `--out <dir>` flags; reuse `PilotProofPacketCommand` internals after commit; print output path; update `FIRST_VALUE_20_MINUTES.md` and `EVALUATOR_WORKBOOK.md` | **Done (2026-06-02 batch 5AD)** — `TryCommand` + shared `PilotProofPacketCommand.WriteFolderAsync`; `test_adoption_batch_5ad.py` | S |
-| TB-217 | Demo seed auto-apply on startup — `DemoSeedStartupHostedService.cs` reads `Demo:AnonymousViewer:Enabled`; if true calls seed on startup (non-fatal); update `DEMO_WORKSPACES.md`; unit test | **Done (2026-06-02 batch 5AE)** — `DemoSeedStartupHostedService` + `DemoSeedStartupWork`; `DemoSeedStartupHostedServiceTests`; `test_adoption_batch_5ae.py` | S |
-| TB-218 | Demo viewer "Start your own review" CTA — sticky footer card on `/demo/explain` page: "Start a new review →" → `/reviews/new?preset=greenfield`; secondary help link; mobile floating button; Vitest test | **Done (2026-06-02 batch 5AF)** — `DemoExplainConversionCtaCard` + evaluator-workbook help slug; `test_adoption_batch_5af.py` | S |
-| TB-219 | Wizard preset deep-link — `?preset=greenfield/modernize/blank` query param auto-selects wizard preset on mount; update `SHOULD_YOU_EVALUATE.md` Q4 and `EVALUATOR_WORKBOOK.md` to link directly to `/reviews/new?preset=greenfield`; Vitest test | **Done (2026-06-02 batch 5AG)** — `wizard-preset-deeplink.ts` + `NewRunWizardClient` mount hook; `test_adoption_batch_5ag.py` | XS |
-| TB-220 | Wizard-to-commit OTel histogram — add `archlucid.pilot.wizard_to_committed_minutes` (histogram, tags: execution_mode, preset_used); record on commit for wizard-sourced runs (`requestSource = "wizard"`); update `OBSERVABILITY.md` + `PILOT_SUCCESS_SCORECARD.md §2.4` | **Done (2026-06-02 batch 5AH)** — `WizardPilotCommitTelemetry` + wizard `requestSource`; `test_adoption_batch_5ah.py` | S |
-| TB-221 | Hosted SaaS self-serve trial — DEFERRED: requires live Stripe (commerce un-hold) + DNS cutover to `signup.archlucid.net`; V1.1 per `V1_DEFERRED.md §6r` (PQ-TTV-01 resolved 2026-06-02); Cursor role: none until commerce un-hold | Time-to-Value DEFERRED (V1.1) | — |
+| TB-177 | Adversarial Critic second-pass ? challenge-first prompt + empty-findings quality gate signal | **Done (2026-06-02 batch 5M)** ? `CriticSystemPromptTemplate` rules 8?9; heuristic zero-score for empty `findings[]`; `CriticAgentHandlerTests` + `test_ai_readiness_batch_5m.py` | S |
+| TB-178 | Streaming Ask SSE ? `POST /v1/ask/stream` + `AskStreamAsync` + `useAskStream()` UI hook | **Done (2026-06-02 batch 5N)** ? SSE endpoint + `AskService.AskStreamAsync`; `useAskStream` hook with 20ms token flush; Ask page wired; `AskThreadIntegrationTests` stream coverage | M |
+| TB-179 | Multi-model tiered orchestration ? `ModelTier` enum (`Fast`=gpt-4o-mini, `Reasoning`=GPT-4o) + `AgentTaskFactory` tier assignment + config keys `Llm:Deployments:Fast` / `Llm:Deployments:Reasoning`; Topology initial draft + Cost extraction ? Fast; Compliance + Critic ? Reasoning | **Done (2026-06-02 batch 5S)** ? `LlmModelTier` Economy/Premium routing via `RunStarterTaskFactory` + `AgentModelTierDefaults`; `Llm:Deployments:Fast`/`Reasoning` aliases; `test_ai_readiness_batch_5s.py` | M |
+| TB-180 | Calibrated agent confidence ? `IAgentConfidenceCalibrator` piecewise-linear calibration + `CalibratedConfidence` column on `dbo.AgentResults` | **Done (2026-06-02 batch 5T)** ? isotonic calibrator + run patch service + quality-gate floor; fail-open below 20 samples; `test_ai_readiness_batch_5t.py` | M |
+| TB-181 | Template eval harness nightly cron ? add `cron: '0 3 * * *'` trigger + JSON summary output to `template-eval-harness.yml`; V1: notification-only on failure (PQ-CEAT-03 resolved 2026-06-02); V1.1: promote to floor-ratchet blocking gate (`assert_coverage_floor_ratchet.py` pattern) once baseline is stable for two consecutive weeks | **Done (2026-06-02 batch 5U)** ? nightly cron + `--json-summary` + `--emit-annotations` + summary artifact; `test_ai_readiness_batch_5u.py` drift guard | XS |
+| TB-182 | `Write-AiReadinessPosture.ps1` ? automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 ? every pilot delivery currently requires manual JSON fill; schema stable | Done (2026-06-01) |
+| TB-183 | Findings priority re-ranker ? `IFindingPriorityReranker` + `PriorityRank` column + `?orderBy=priority` param, feature-flagged | **Done (2026-06-02 batch 5BL)** ? post-commit `FindingPriorityReranker` + migration `180_FindingRecords_PriorityRank.sql` + `RunQueryController` `orderBy=priority`; `AgentRuntime:RerankFindings:Enabled`; `test_adoption_batch_5bl.py` | M |
+| TB-184 | Governance-block explainer ? AI explanation on 409 `GovernanceBlockResult` via `IAgentCompletionClient`, feature-flagged | **Done (2026-06-02 batch 5BM)** ? `PreCommitGovernanceBlockExplainer` + `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false) + `blockExplanation` ProblemDetails + commit UI; `test_ai_readiness_batch_5bm.py` | S |
+| TB-185 | Per-finding conversational explainer ? `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | **Done (2026-06-02 batch 5BP)** ? `ArchitectureFindingAskController` + `FindingAskInlinePanel` + `MessageCircle` Ask control on `QuickDecisionSummary`; `test_ai_readiness_batch_5bp.py` | M |
+| TB-186 | Run summary one-pager auto-generator ? `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | **Done (2026-06-02 batch 5BQ)** ? `AgentRuntime:GenerateRunSummary:Enabled` (default false) + export endpoint guard + AI disclaimer in template + run detail download; `test_ai_readiness_batch_5bq.py` | M |
+| TB-187 | AI-assisted architecture request authoring ? `POST /v1/architecture/request/draft` + pre-fill UI button | **Done (2026-06-02 batch 5BS)** ? `ArchitectureRequestDraftService` + wizard **Suggest fields** + `wizard-ai-suggested-fields`; `test_ai_readiness_batch_5bs.py` | M |
+| TB-190 | LLM-as-judge coverage extension ? extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | **Done (2026-06-03 batch 5BY)** ? `LlmJudgeDailyTokenBudgetTracker`, migration 241, Cost/Compliance eligibility, `test_ai_readiness_batch_5by.py` | M |
+| TB-188 | Findings-to-IaC stub generator ? `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | **Done (2026-06-02 batch 5BU)** ? post-commit `FindingIacStubGenerator` + `AgentRuntime:GenerateIacStubs` + `FindingIacStubPanel`; `test_ai_readiness_batch_5bu.py` | M |
+| TB-189 | AI policy-pack drafting assistant ? `POST /v1/governance/policy-pack/draft` with few-shot bundled-pack examples + UI draft panel | **Done (2026-06-02 batch 5BV)** ? `PolicyPackDraftService` + `PolicyRuleAuthoringWizard` draft panel; `test_ai_readiness_batch_5bv.py` | M |
+| TB-191 | Prompt template content-hash pinning on runs ? add `SystemPromptContentHash` (first 16 hex of SHA-256) to `dbo.AgentExecutionTraces` + `AgentExecutionTraceDto`; compute in `AgentExecutionTraceRecorder` | **Done (2026-06-02 batch 5W)** ? `SystemPromptContentHash` column + recorder canonical hash + OpenAPI surface; `AgentPromptReproTests` + `test_cutting_edge_batch_5w.py` | S |
+| TB-192 | Dynamic evidence summarization before context overflow ? `IEvidenceSummarizationService` using `ModelTier.Fast`; counts against tenant run-execution quota (not a separate sub-cap ? PQ-CEAT-02 resolved 2026-06-02); invoked by `ContextLengthGuardAgentCompletionClient` before hard truncation; `AgentExecution:EvidenceSummarization:Enabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5V)** ? `EvidenceSummarizationService` + guard integration + `LlmEvidenceSummarized` audit; `EvidenceSummarizationServiceDependencyTests` + `test_cutting_edge_batch_5v.py` | M |
+| TB-193 | LLM provider abstraction factory scaffold ? `ILlmProviderFactory` + `LlmProviderDescriptor.ProviderType` enum (`AzureOpenAi`, `Anthropic`, `GoogleGemini`, `LocalOllama`); `DefaultLlmProviderFactory` wraps existing Azure OpenAI client; architecture test for interface isolation; **no concrete non-Azure provider implementations** (V2 per PQ-CEAT-01 resolved 2026-06-02 ? Azure-native mandate ADR 0020) | **Done (2026-06-02 batch 5BT)** ? `ILlmProviderFactory` + `LlmProviderType` + `DefaultLlmProviderFactory`; `LlmProviderFactoryDependencyTests`; `test_cutting_edge_batch_5bt.py` | M |
+| TB-194 | RAG corpus operator monitoring panel ? `GET /v1/admin/rag-health` returning per-`CorpusKind` chunk counts, last-indexed-at, embedding dim, stale flag; UI panel under `/admin/rag-health`; Playwright smoke test | **Done (2026-06-02 batch 5BO)** ? `AdminRagHealthController` + `/admin/rag-health` UI; `test_cutting_edge_batch_5bo.py` | S?M |
+| TB-195 | Multi-turn Ask conversation context compression ? `IConversationContextCompressor` using `ModelTier.Fast`; keep last N turns verbatim, compress older turns; `Ask:ConversationContext:CompressionEnabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5BR)** ? `ConversationContextCompressor` + `Ask:ConversationContext` options + `AskService` history compression; `test_cutting_edge_batch_5br.py` | M |
+| TB-207 | Token-claims diagnostic ? `POST /v1/admin/auth/diagnose-token` + `archlucid auth test-token --bearer` ? decode JWT payload without signature validation; pipe through `ArchLucidRoleClaimsTransformation`; return `resolvedRoles[]`, `unmappedValues[]`, `warnings[]`; Admin auth required; durable `Auth.TokenDiagnosticRequested` audit event | **Done (2026-06-02 batch 5X)** ? `TokenClaimsDiagnosticService` + admin endpoint + CLI + `AuthTokenDiagnosticRequested` audit; `test_adoption_batch_5x.py` | M |
+| TB-208 | CLI as dotnet global tool + self-contained binaries ? `<PackAsTool>true</PackAsTool>` in `ArchLucid.Cli.csproj`; GitHub Actions publish job for win-x64/linux-x64/osx-x64 `PublishSingleFile=true`; `docs/engineering/CLI_INSTALL.md`; update `OPERATOR_QUICKSTART.md` | **Done (2026-06-02 batch 5Y)** ? `publish-cli.yml` + `CLI_INSTALL.md` + operator quickstart link; `test_adoption_batch_5y.py` | S |
+| TB-209 | `archlucid request create --from-file <path>` ? reads JSON file, POSTs to `POST /v1/architecture/request`, prints run ID; optional `--request-id` override; replace `curl` example in `OPERATOR_QUICKSTART.md` reference architecture section | **Done (2026-06-02 batch 5Z)** ? `RequestCreateCommand` + `ArchitectureRequestFileParser` + operator quickstart CLI section; `test_adoption_batch_5z.py` | S |
+| TB-210 | Pilot prerequisites page ? `docs/runbooks/PILOT_PREREQUISITES.md` with per-profile Azure resource checklist, cost estimate table, Azure AI Search blocking callout, and `scripts/Test-ArchLucidPrerequisites.ps1`; linked from `FIRST_PILOT_OPERATOR_PATH.md` and `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5AA)** ? `PILOT_PREREQUISITES.md` + `Test-ArchLucidPrerequisites.ps1` + operator/config links; `test_adoption_batch_5aa.py` | S |
+| TB-211 | SAML SP certificate rotation runbook ? `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`; detection + `openssl` generation + zero-downtime rotation + rollback; linked from `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5AB)** ? canonical runbook path + CONFIGURATION_REFERENCE link; library stub + `SAML_CERT_ROTATION.md` alias; `test_adoption_batch_5ab.py` | XS |
+| TB-212 | IaC adoption-critical subset ? Terraform for Azure OpenAI, Azure AI Search, Azure Content Safety in `infra/terraform-hosted-prod/`; update outputs, tfvars.example, `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5BK)** ? OpenAI/Search already in `deploy/hosted-prod-terraform`; **TB-212** adds Content Safety consumed/create modules + outputs + `IAC_RUNTIME_PARITY.md`; `test_adoption_batch_5bk.py` | M |
+| TB-213 | QualityGate WarnOnly lint rule ? `quality_gate_warn_only_in_real_production_like`; Advisory for Real+WarnOnly; HOLD for production-like-hosted-pilot profile; 4-state unit tests | **Done (2026-06-02 batch 5AC)** ? `QualityGateWarnOnlyProductionLikeConfigurationLint` + profile promotion in `ConfigLintReportBuilder`; `test_adoption_batch_5ac.py` | S |
+| TB-214 | Non-Azure/non-extractor evidence JSON upload path ? DEFERRED: owner must supply schema and ingestion surface boundary; V1.1 scope per `V1_DEFERRED.md ?6r`; PQ-AF-01 resolved 2026-06-02 | Adoption Friction DEFERRED (V1.1) | ? |
+| TB-215 | Evidence upload integrated into review wizard ? add optional "Evidence (optional)" step between Preset and Identity; dropzone for `.zip`; "Skip and use demo data" secondary; auto-upload via `POST /v1/azure-extractor/upload` after review created when file present; Vitest tests | **Done (2026-06-02 batch 5AI)** ? `WizardStepEvidenceUpload` + post-create upload; `test_adoption_batch_5ai.py` | M |
+| TB-216 | `archlucid try --sponsor-packet` one-shot command ? extend CLI `try` with `--sponsor-packet` + `--out <dir>` flags; reuse `PilotProofPacketCommand` internals after commit; print output path; update `FIRST_VALUE_20_MINUTES.md` and `EVALUATOR_WORKBOOK.md` | **Done (2026-06-02 batch 5AD)** ? `TryCommand` + shared `PilotProofPacketCommand.WriteFolderAsync`; `test_adoption_batch_5ad.py` | S |
+| TB-217 | Demo seed auto-apply on startup ? `DemoSeedStartupHostedService.cs` reads `Demo:AnonymousViewer:Enabled`; if true calls seed on startup (non-fatal); update `DEMO_WORKSPACES.md`; unit test | **Done (2026-06-02 batch 5AE)** ? `DemoSeedStartupHostedService` + `DemoSeedStartupWork`; `DemoSeedStartupHostedServiceTests`; `test_adoption_batch_5ae.py` | S |
+| TB-218 | Demo viewer "Start your own review" CTA ? sticky footer card on `/demo/explain` page: "Start a new review ?" ? `/reviews/new?preset=greenfield`; secondary help link; mobile floating button; Vitest test | **Done (2026-06-02 batch 5AF)** ? `DemoExplainConversionCtaCard` + evaluator-workbook help slug; `test_adoption_batch_5af.py` | S |
+| TB-219 | Wizard preset deep-link ? `?preset=greenfield/modernize/blank` query param auto-selects wizard preset on mount; update `SHOULD_YOU_EVALUATE.md` Q4 and `EVALUATOR_WORKBOOK.md` to link directly to `/reviews/new?preset=greenfield`; Vitest test | **Done (2026-06-02 batch 5AG)** ? `wizard-preset-deeplink.ts` + `NewRunWizardClient` mount hook; `test_adoption_batch_5ag.py` | XS |
+| TB-220 | Wizard-to-commit OTel histogram ? add `archlucid.pilot.wizard_to_committed_minutes` (histogram, tags: execution_mode, preset_used); record on commit for wizard-sourced runs (`requestSource = "wizard"`); update `OBSERVABILITY.md` + `PILOT_SUCCESS_SCORECARD.md ?2.4` | **Done (2026-06-02 batch 5AH)** ? `WizardPilotCommitTelemetry` + wizard `requestSource`; `test_adoption_batch_5ah.py` | S |
+| TB-221 | Hosted SaaS self-serve trial ? DEFERRED: requires live Stripe (commerce un-hold) + DNS cutover to `signup.archlucid.net`; V1.1 per `V1_DEFERRED.md ?6r` (PQ-TTV-01 resolved 2026-06-02); Cursor role: none until commerce un-hold | Time-to-Value DEFERRED (V1.1) | ? |
 
-| TB-222 | Recurrence scheduling UI — `RecurrenceSchedulePostCommitCard` post-commit nudge + `/governance/recurrence-schedules` management page; calls `createArchitectureReviewRecurrenceSchedule` / `listArchitectureReviewRecurrenceSchedules`; enable/disable toggle | **Done (2026-06-02 batch 5AO)** — PUT toggle + management table + post-commit card; `test_adoption_batch_5ao.py` | M |
-| TB-223 | `DecisionsNeededSummaryCard` in governance dashboard — parallel-fetch `GET /v1/governance/decisions-needed-summary`; 6-tile KPI grid (pendingApprovals, staleRisks, unownedHighSeverityRisks, findingsAwaitingEvidence, waiversExpiringWithin14Days, deferredFindingsDue); warn accent when waivers expiring; empty state; 30s auto-refresh | **Done (2026-06-02 batch 5AK)** — `DecisionsNeededSummaryCard` on `ExecutiveWorkspaceHealthDashboard`; `test_adoption_batch_5ak.py` | S |
-| TB-224 | AI compare narrative — extend `AskService` for `BaseRunId + TargetRunId`; one fast LLM call; `ComparisonNarrative` on `AskResponse`; highlighted callout above compare delta table; guarded by `Ask:GenerateComparisonNarrative` | **Done (2026-06-02 batch 5AM)** — `AskComparisonNarrativeOptions` + compact delta prompt; compare UI callout; `test_adoption_batch_5am.py` | M |
-| TB-225 | CS-06 fix — inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`; `ApplyAsync` before queries in `GetOperatorSignalsAsync` + `GetFunnelSnapshotAsync`; rename `ToDateTimeOffset` → `ToNullableUtcDateTime`; one-line `{ get; init; }` row types; `long` COUNT columns | **Done (2026-06-02 batch 5AP)** — `SqlRlsSessionContextApplicator` + read-replica factory; `test_adoption_batch_5ap.py` | S |
-| TB-226 | Risk exceptions management page — `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` + `RiskExceptionsClient.tsx`; `EnterpriseTable` with expiry sort, StatusTag (Active/Expiring/Expired), Renew/Revoke actions; warning callout when any within 14 days; nav entry after "Governance findings" | **Done (2026-06-02 batch 5AS)** — management page + pilot nav + Vitest; `test_adoption_batch_5as.py` | M |
-| TB-227 | `collect-first-pilot-proof.ps1` multi-run support — `-RunNumber` + `-CompareBaseRunId` params; compare endpoint + decisions-needed + risk register on run 2+; `pilot-proof-run{N}/` folder; `stickinessSignals` section in manifest; update `REPEAT_REVIEW_LOOP.md §5` | **Done (2026-06-02 batch 5AU)** — `FirstPilotMultiRunStickinessProof.ps1` + script params; `test_adoption_batch_5au.py` | S |
-| TB-228 | Internal tenant health admin surface — `GET /v1/admin/tenant-health` (SystemAdminAuthority); `TenantHealthSummaryResponse` with EngagementScore, GovernanceScore, PilotFunnelStage, RunsLast7d, LastActivityUtc; optional `/admin/tenant-health` page with `EnterpriseTable` + color-coded engagement | **Done (2026-06-02 batch 5BN)** — `AdminCustomerSuccessController` + `SqlAdminTenantHealthReader` + `/admin/tenant-health` UI; `test_adoption_batch_5bn.py` | M |
-| TB-229 | Reference-customer first-contact workflow — `REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md` (email + 3 commitment tiers + 15% discount reference + objection handling); `REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` (pilot-complete → Published steps a–h); update `reference-customers/README.md §3` | **Done (2026-06-02 batch 5BC)** — GTM templates + checklist + README link; `test_adoption_batch_5bc.py` | S |
-| TB-230 | GTM collateral placeholder audit — replace `[placeholder]` contact in `PRODUCT_DATASHEET.md`; fix Q2 dead-end in `SHOULD_YOU_EVALUATE.md`; create `PLACEHOLDER_AUDIT.md`; add `scripts/ci/check_gtm_placeholder_tokens.py` warn-only CI step | **Done (2026-06-02 batch 5BD)** — contact links + placeholder audit + warn-only CI; `test_adoption_batch_5bd.py` | S |
-| TB-231 | Stage 0→1 claim-readiness tracker — `docs/go-to-market/CLAIM_READINESS_STATUS.md` (G1–G6 PASS/HOLD table + evidence links + who unblocks); `docs/go-to-market/PROOF_PACKET_RUN_LOG.md` (per-run G4 progress log); link both from `GTM_BACKLOG.md` | **Done (2026-06-02 batch 5BE)** — status tracker + proof run log + GTM_BACKLOG links; `test_adoption_batch_5be.py` | S |
-| TB-232 | LinkedIn publishing calendar — `docs/go-to-market/LINKEDIN_PUBLISHING_SCHEDULE.md`; assign publish dates to M-10 through M-15 (weekly Monday 8 AM); hashtag set per post; comment-seed prompts; Published/Engagement tracking column | **Done (2026-06-02 batch 5BF)** — publishing schedule M-10–M-15; `test_adoption_batch_5bf.py` | XS |
-| TB-233 | Demo video storyboard — `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md`; shot-by-shot table from `DEMO_VIDEO_SCRIPT.md` (URL/screen, action, narration, annotation, duration); pre- and post-production checklists; target <3 min total | **Done (2026-06-02 batch 5BG)** — storyboard + datasheet/brief links; `test_adoption_batch_5bg.py` | S |
-| TB-234 | `SHOULD_YOU_EVALUATE.md` ICP enrichment — add Q5 (team ≥3 architects); update 15-min eval path with hosted SaaS link + quote-request fallback; add "Strong fit signals" section (5 ICP indicators) | **Done (2026-06-02 batch 5BH)** — Q5 + eval path + strong-fit section; `test_adoption_batch_5bh.py` | XS |
-| TB-235 | `EXECUTIVE_ONE_EMAIL_KIT.md` — verify or create; 3 subject lines; 120-word body with `<<PILOT_OUTCOME>>`; four-artifact checklist; follow-up timing; cross-ref to `EXECUTIVE_SPONSOR_BRIEF.md` | **Done (2026-06-02 batch 5BI)** — pilot closeout email + attachments + follow-up; `test_adoption_batch_5bi.py` | XS |
-| TB-236 | Demo video production — DEFERRED: owner screen recording + voiceover required; TB-233 storyboard is prerequisite; Cursor role: none until owner returns media | Marketability DEFERRED (V1.1 GTM owner action — PQ-MKT-03 resolved 2026-06-02) | — |
-| TB-237 | Pricing page early-adopter framing — add "Early adopter pricing" 2-sentence note below tier grid in marketing pricing component; add "Transparent early-access framing" row to `PRICING_PHILOSOPHY.md §1` | **Done (2026-06-02 batch 5BJ)** — `BUYER_EARLY_ADOPTER_PRICING_NOTE` + `pricing-early-adopter-framing` test id; `PRICING_PHILOSOPHY.md` §1 row; `test_adoption_batch_5bj.py` | XS |
-| TB-238 | Baseline capture prompt in pilot wizard — add optional "Baseline metrics" step to architecture request wizard; numeric input for review cycle hours + confidence select; on submit call `PUT /v1/tenant/baseline`; skip button; Vitest tests; update `FIRST_PILOT_OPERATOR_PATH.md` Phase D2a | **Done (2026-06-02 batch 5AJ)** — `WizardStepBaselineMetrics` + `save-tenant-review-cycle-baseline.ts`; `test_adoption_batch_5aj.py` | S |
-| TB-239 | Executive ROI history run-mode label — add `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, `IsMixedMode` to `ExecutiveRoiHistoryPeriod`; compute from `dbo.Runs.ExecutionMode`; frontend: mode footnote + Simulator-only badge + tooltip | **Done (2026-06-02 batch 5AL)** — `ExecutiveRoiHistoryRunModeCalculator` + trend chart footnote/tooltips; `test_adoption_batch_5al.py` | S |
-| TB-240 | Executive ROI surface data quality regression guard — add `ExecutiveRoiSummaryInvariantTests.cs` covering FindingsReduced/FindingsAdded polarity (TB-151/152), waiver 14-day window consistency (TB-149), orphan-candidate single pipeline (TB-103), cache freshness (TB-155) | **Done (2026-06-02 batch 5AN)** — `ExecutiveRoiSummaryInvariantTests.cs`; `test_adoption_batch_5an.py` | S |
-| TB-241 | Board-pack AI executive narrative — `Roi:GenerateBoardPackNarrative` config flag (default false); when true call `IAgentCompletionClient` (ModelTier.Fast) with savings/ROI/mode/confidence JSON; prefix board-pack Markdown with `## Executive summary`; frontend toggle; unit test | **Done (2026-06-02 batch 5AQ)** — exporter + dashboard toggle + `ExecutiveRoiBoardPackExporterNarrativeTests`; `test_adoption_batch_5aq.py` | M |
-| TB-242 | ROI model freshness CI guard — `scripts/ci/check_roi_model_freshness.py`; extract "Last reviewed:" date from `ROI_MODEL.md`; warn-only exit 0 when >90 days old; add CI step; update `ROI_MODEL.md` last-reviewed date to 2026-06-02 | **Done (2026-06-02 batch 5AT)** — warn-only script + CI step + ROI_MODEL refresh; `test_adoption_batch_5at.py` | XS |
-| TB-243 | Sponsor proof delivery tracking event — `AuditEventType.SponsorEvidencePackSent` (type 79); `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` (optional recipient + delivery method); "Mark as sent to sponsor" button in `RunDetailFirstScreenProofStatus.tsx` → `StatusTag "Sent to sponsor"`; unit tests | **Done (2026-06-02 batch 5AV)** — audit event + API + `EmailRunToSponsorBanner` CTA; `test_adoption_batch_5av.py` | S |
-| TB-244 | KPI tile drill-through navigation — wrap each count in `ExecutiveRoiDashboardLiveKpiCards.tsx` with a Next.js `<Link>` pointing to the relevant filtered page (e.g., `/runs?filter=orphan-candidates`, `/compliance?filter=drift`); add `data-testid` for each link; Vitest tests | **Done (2026-06-02 batch 5AX)** — KPI links + orphan/SQL tiles + governance `?filter=`; `test_adoption_batch_5ax.py` | S |
-| TB-245 | ROI trend chart upgrade to SVG bar chart — replace CSS `<div>` proportional bars in `ExecutiveRoiTrendSection.tsx` with a proper SVG chart (reuse `ExecutiveRoiSystemicIssueTrendChart` pattern); add Y-axis labels, month labels, on-hover tooltips with exact values; Vitest snapshot test | **Done (2026-06-02 batch 5AZ)** — `ExecutiveRoiSavingsTrendSvgChart` + snapshot test; `test_adoption_batch_5az.py` | M |
-| TB-246 | Executive shell nav — add Scorecard and Dashboard links — add "Scorecard" (`/executive/scorecard`) and "Dashboard" (`/executive/dashboard`) `<Button>` nav links to `ExecutiveShellFrame.tsx` header nav; highlight active route; Vitest test | **Done (2026-06-02 batch 5AW)** — `ExecutiveShellFrame` nav + Vitest; `test_adoption_batch_5aw.py` | XS |
-| TB-247 | "Top 3 actions" section on executive scorecard — add a "Recommended actions" card to `ExecutiveScorecardClient.tsx` that derives 1–3 plain-language recommendations from loaded data (highest-drift policy, largest orphan cost bucket, most overdue review); unit tests for derivation logic | **Done (2026-06-02 batch 5AY)** — recommended-actions card + derivation module; `test_adoption_batch_5ay.py` | M |
-| TB-248 | "Day N since first commit" badge on executive KPI strip — compute `N = (today - firstCommitUtc).TotalDays` and add "Day {N} of your ArchLucid pilot" display below the savings KPI tile in `ExecutiveRoiDashboardLiveKpiCards.tsx`; read `FirstCommitUtc` from ROI summary endpoint; unit test | **Done (2026-06-02 batch 5BA)** — `FirstCommitUtc` on executive summary + pilot day badge; `test_adoption_batch_5ba.py` | S |
-| TB-249 | Cross-tenant portfolio graceful 403 — in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md` | **Done (2026-06-02 batch 5BB)** — ProblemDetails 403 + portfolio UI card + doc; `test_adoption_batch_5bb.py` | S |
-| TB-250 | Authority pipeline stage timeline in operator UI — add `dbo.RunStageOutcomes` (migration); write rows at stage start/end in `AuthorityPipelineStagesExecutor`; expose `GET /v1/architecture/run/{runId}/stage-timeline` returning `StageTimelineSummary[]` (name, startedUtc, completedUtc, outcomeStatus, durationMs); add collapse-by-default "Pipeline stages" section to `/reviews/{runId}` with `StatusTag` per stage and OTel deep-link when `OtelTraceId` present; unit + integration tests | **Done (2026-06-02 batch 5BW)** — migration `240_RunStageOutcomes.sql` + `RunDetailPipelineStagesSection`; `test_traceability_batch_5bw.py` | M |
-| TB-251 | Retrieval indexing at-least-once outbox — `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests | **Done (2026-06-02 batch 5BX)** — `dbo.RetrievalIndexingOutbox` + `RetrievalIndexingOutboxProcessor` + lease/dead-letter (DbUp 019/219); `test_traceability_batch_5bx.py` | M |
-| TB-252 | Generate/commit raster brand assets + fix broken references — `generate-brand-raster.mjs` rasterizes `og-default.svg`→`og-default.png` (1200×630), `icon.svg`→`icon-192.png`/`icon-512.png`; wire to `prebuild`; commit PNGs; add `icon-512` maskable to `manifest.webmanifest`; warn-only CI guard `check_referenced_static_assets.py` asserting every `/logo/*.png` reference in `layout.tsx`/manifest exists; unit test output dimensions | **Done (2026-06-03 batch 5CC)** — committed PNGs, `prebuild`, `check_referenced_static_assets.py`, Vitest dimensions | M |
-| TB-253 | Buyer-facing Open Graph / Twitter metadata — replace operator-jargon `openGraph`/`twitter` description in `layout.tsx` with the positioning-seam buyer line; add `marketing-open-graph.ts` helper; set per-page OG/Twitter on `welcome`/`pricing`/`why`/`see-it`; Vitest asserts descriptions are buyer copy and exclude "Operator UI" | **Done (2026-06-03 batch 5CC)** — `marketing-open-graph.ts`, per-page overrides, `test_marketability_batch_5cc.py` | S |
-| TB-254 | `FAQPage` JSON-LD + buyer FAQ expansion — `marketing-faq.ts` with `MARKETING_FAQ_ITEMS` (3 existing + 5 buyer-relevant from existing docs, no new claims); render `/faq` from the array; add `buildFaqPageLd` next to `marketing-json-ld.ts` and inject `FAQPage` ld+json (no ratings); unit + Vitest | **Done (2026-06-03 batch 5CF)** — `marketing-faq.ts`, `marketing-faq-json-ld.ts`, `/faq` JSON-LD; `test_marketability_batch_5cf.py` | S |
-| TB-255 | Minimum token-overlap density in faithfulness checker — replace boolean `HasTokenOverlap` in `AgentResultEvidenceFaithfulnessChecker.cs` with a `CountTokenOverlap`/`MeetsOverlapThreshold` density check (default ≥2 distinct content tokens AND ≥30% density); apply to claims and to finding description+recommendation; thresholds configurable via options; unit tests for single-token-fail, density-pass, boundary | **Done (2026-06-03 batch 5CG)** — `MeetsOverlapThreshold` + `AgentFaithfulnessOptions`; `test_correctness_batch_5cg.py` | S |
-| TB-256 | Distinguish "no checkable content" from perfect faithfulness — add `HasCheckableContent` to `AgentResultEvidenceFaithfulnessReport`; make the empty/parse-fail/`totalChecked==0` paths return `HasCheckableContent=false` + `SupportRatio=0.0` (not `1.0`); in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` treat `!HasCheckableContent` as failing the PilotStrict floor; audit all `SupportRatio` readers; unit tests | **Done (2026-06-03 batch 5CG)** — `HasCheckableContent` + PilotStrict reject path; `test_correctness_batch_5cg.py` | S |
-| TB-257 | Expand adversarial hallucination corpus + enforce resistance floor — add 3 adversarial scenarios (fabricated SKU, invented compliance framework, phantom dependency) under `tests/eval-corpus/adversarial/`; register in `manifest.json`; new `scripts/ci/assert_hallucination_resistance.py` (reuse `eval_agent_corpus.py` scoring) asserting each adversarial result scores non-"accepted"; wire as blocking step in `golden-cohort-expanded-nightly.yml`; pytest guard; doc update | **Done (2026-06-03 batch 5CJ)** — 3 adversarial scenarios + `assert_hallucination_resistance.py` nightly step; `test_assert_hallucination_resistance.py` | M |
-| TB-258 | Harden trial preseed executor — migration adds `TrialArchitecturePreseedAttemptCount`/`...FailedUtc`/`...LastError` to `dbo.Tenants`; `IncrementTrialArchitecturePreseedAttemptAsync` (cap 5 → set FailedUtc); exclude exhausted/failed tenants from the pending query; wrap `TryProcessTenantAsync` create/execute/commit in try/catch (increment, no rethrow); treat non-Guid run-id as failure; emit new `TrialArchitecturePreseedFailed` audit at cap + matrix row + const-count bump; tests | **Done (2026-06-03 batch 5CH)** — migration 242, executor hardening, audit + matrix; `test_adoption_batch_5ch.py` | M |
-| TB-259 | Test the trial first-value delivery path — `TrialArchitecturePreseedExecutorTests` (happy path, no-workspace, tenant-not-found, vertical flow-through, TB-258 failure paths) + `TrialArchitecturePreseedHostedServiceTests` (multi-tenant poll, one-tenant-throws batch resilience, empty list); both currently 0% coverage | **Done (2026-06-03 batch 5CH)** — `TrialArchitecturePreseedExecutorTests`, `TrialArchitecturePreseedHostedServiceTests`; `test_adoption_batch_5ch.py` | M |
-| TB-260 | "First value reached" user confirmation — ensure trial-status response exposes `trialFirstManifestCommittedUtc` + `trialWelcomeRunId`; new `FirstValueReachedCallout.tsx` dismissible success callout linking `/reviews/{trialWelcomeRunId}` rendered atop `OperatorHomePageView` when committed; localStorage dismissal; Vitest | **Done (2026-06-03 batch 5CK)** — `FirstValueReachedCallout.tsx` + Vitest; `test_stickiness_batch_5ck.py` | S |
-| TB-261 | Recurrence completion notification + drift delta — compute new/resolved/severity delta vs source (or prior triggered) run; in-app + email via existing dispatch path linking `/reviews/{runId}` + compare view; gate `Stickiness:RecurrenceCompletionNotification:Enabled` (default true); new `ArchitectureReviewRecurrenceNotified` audit + matrix row + const bump; recipients = `CreatedByUserId` + admin/sponsor; tests | **Done (2026-06-03 batch 5CI)** — email + audit + delta; `test_stickiness_batch_5ci.py` | M |
-| TB-262 | Recurrence schedule failure health + auto-disable — add `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount` to `ArchitectureReviewRecurrenceSchedule` (+ migration in 3 SQL files); set on success/failure in the trigger; at 5 consecutive failures set `IsEnabled=false` + new `ArchitectureReviewRecurrenceAutoDisabled` audit; surface StatusTag + last-error + re-enable affordance on `/governance/recurrence-schedules`; tests | **Done (2026-06-03 batch 5CI)** — migration 243 + trigger/UI health; failure tests | M |
-| TB-263 | "Reviews awaiting your action" inbox — `GET /v1/governance/reviews-awaiting-action` returning executed-but-uncommitted recurrence runs (tag clones `requestSource="recurrence"`); card on `OperatorHomePageView` + governance nav count badge + "Review & commit" action + empty state; RLS-respected query; tests | **Done (2026-06-03 batch 5CK)** — endpoint + inbox card + nav badge; `test_stickiness_batch_5ck.py` | M |
-| TB-264 | Competitor-baseline citation discipline guard — extend `scripts/ci/assert_why_rows_have_evidence.py` so any `competitorBaseline` cell containing a numeric quantity (regex: digits + `hour`/`day`/`week`/`%`/range dash) must carry a non-placeholder external `citation` (HTTPS, not the `first-party assertion` phrase) OR be reworded as explicitly illustrative ("illustrative, not benchmarked"); reword the 3 unsourced quantified rows in `why-archlucid-comparison.ts` + `WhyArchLucidPackBuilder.cs` (keep byte-for-row sync); pytest for pass/fail cases | **Done (2026-06-03 batch 5CN)** — illustrative reword + quantified-baseline guard in `assert_why_rows_have_evidence.py`; `test_differentiability_batch_5cn.py` | S |
-| TB-265 | Named generic-AI contrast on public `/why` — promote the existing `DIFFERENTIATION_PROOF_PACKET.md` "Generic AI assistant" contrast into the buyer-facing surface: a 6th front-door contrast block (or a dedicated "vs a chat assistant" section) on `WhyArchlucidMarketingView` + a `marketing-faq.ts` Q&A ("How is this different from using ChatGPT/Copilot?"), framed honestly (persisted manifest, audit ledger, governance gate, evidence chain vs a non-durable chat session); Vitest | **Done (2026-06-03 batch 5CN)** — `MARKETING_GENERIC_AI_CONTRAST_POINTS` + `/why` section + FAQ; Vitest | S |
-| TB-266 | Cohort-claim integrity guard — new `scripts/ci/assert_why_cohort_claim_locked.py` that fails (or forces an "(baseline lock pending)" annotation) when `/why` claim #4 asserts deterministic drift detection while `GoldenCohortBaselineConstants` fingerprints are still the zeroed placeholder; wire as a `/why` CI step; pytest | **Done (2026-06-03 batch 5CN)** — `assert_why_cohort_claim_locked.py` + CI step; narrative disclosure; `test_differentiability_batch_5cn.py` | S |
-| TB-267 | `/executive/dashboard` route under executive chrome — new `(executive)/executive/dashboard/page.tsx` rendering `ExecutiveRoiDashboardPageView` inside `ExecutiveShellFrame` (thin provider wrapper if dashboard sections need operator-nav context); repoint the `ExecutiveShellFrame` "Dashboard" nav `<Link>` from `/dashboard` to `/executive/dashboard`; update active-route highlight + Vitest | **Done (2026-06-03 batch 5CO)** — `(executive)/executive/dashboard/page.tsx` + nav href; `test_executive_value_batch_5co.py` | M |
-| TB-268 | In-product executive narrative summary line — `buildExecutiveValueNarrative` helper deriving a plain-language synthesis ("This period: {reviews} reviews, {findings} findings, ~${savings}/{hours} h saved; top action: {topRecommendedAction}") from the already-loaded `pilot-value-report` + recommended-actions data; render atop `ExecutiveScorecardClient` (and the dashboard) above the tiles; deterministic (no LLM); unit + Vitest | **Done (2026-06-03 batch 5CO)** — `buildExecutiveValueNarrative` + `ExecutiveValueNarrativeBanner`; scorecard + executive dashboard | S |
-| TB-269 | Dashboard ROI trend window selector — add a 30d/quarter/all/year range selector to `ExecutiveRoiTrendSection` matching `ExecutiveScorecardClient`'s control; thread the selected window to the history fetch; Vitest | **Done (2026-06-03 batch 5CO)** — client-side filter + `exec-roi-trend-time-range`; scorecard year option; `test_executive_value_batch_5co.py` | S |
-| TB-270 | Disambiguate review-creation entry points — audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic — relabel/route only) | **Done (2026-06-04 batch 5DM)** — path hint copy, relabeled wizard mode toggle, Vitest single-path guard | M |
-| TB-271 | Universal failure identifier — generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | **Done (2026-06-04 batch 5DM)** — `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | S |
-| TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** — `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
-| TB-273 | Buyer-demo readiness defect remediation (**BDA-001…BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** — batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md); full per-issue table in `## TB-273` below | XL |
-| TB-275 | Buyer-demo harsh audit re-validation (2026-06-04) — spot-check residual defects; canonical register **TB-273** (all **150** issues, not top-100 only) | **Done (2026-06-04 batch 5DT)** — BDA-001/008/015 + audit demo gating; `test_demo_batch_5dt.py` | S |
-| TB-276 | Route tenant scope binding filter — replace per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` calls with a global `IAsyncActionFilter` (or endpoint convention) that forbids `{tenantId}` / `{id}` route values when they differ from `IScopeContextProvider.GetCurrentScope().TenantId`; **exclude** routes under `PlatformTenantDeletionAuthority` and `/internal/*` cross-tenant surfaces; remove duplicated controller guards once filter is registered | **Done (2026-06-05 batch 5DU-route-tenant-p0)** — `RouteTenantScopeBindingFilter` + `MvcExtensions` registration | M |
-| TB-277 | Route `{tenantId}` CI drift guard — `scripts/ci/assert_route_tenant_scope_guard.py` fails when a controller action binds `{tenantId:guid}` (or `{id:guid}` on tenant-admin paths) without the filter attribute/convention or an explicit allowlist entry; wire into API CI | **Done (2026-06-05 batch 5DU-route-tenant-p0)** — `assert_route_tenant_scope_guard.py` + `test_route_tenant_batch.py` | S |
-| TB-278 | Route tenant IDOR integration test matrix — for each tenant-scoped `{tenantId}` route (executive summary, reference-evidence, metering, value-report): tenant A token + tenant B route → **403**; matching tenant → **200**/expected status; no dedicated tests exist today | **Done (2026-06-05 batch 5DU-route-tenant-p0)** — route-tenant integration matrix + `test_route_tenant_batch.py` | S |
-| ~~TB-281~~ | ~~Value-report scope-only URL~~ — **Done** (batch **5DU-route-tenant-p1**): `POST /v1/value-report/generate` + UI/CLI callers; legacy `{tenantId}` alias retained | Trustworthiness P1 | S |
-| ~~TB-279~~ | ~~Tenant-scoped admin route migration~~ — **Done** (batch **5DU-route-tenant-p1**): scope-only reference-evidence + metering summary; legacy aliases retained | Architectural integrity P2 | M |
-| ~~TB-280~~ | ~~Retire legacy authority executive-summary `{tenantId}` route~~ — **Done** (batch **5DU-route-tenant-p1**): removed `ExecutiveSummaryController`; CI guard in `test_route_tenant_p1_batch.py` | Architectural integrity P2 | XS |
-| ~~TB-282~~ | ~~Cross-tenant usage rollup policy alignment~~ — **Done** (batch **5DU-route-tenant-p1**): `AdminCrossTenantUsageRollupController` + **RequireOperatorRole**; RBAC integration tests | Trustworthiness P2 | XS |
-| ~~TB-283~~ | ~~Buyer run detail summary DTO~~ — **Done** (batch **5DW-trust-pilot-p0**): `BuyerRunDetailSummaryDto`, `RunDetailBuyerMapper`, `GET /v1/authority/runs/{runId}/buyer-summary`, buyer-polished UI loader | Architectural integrity P0 | M |
-| ~~TB-284~~ | ~~Audience-tier Problem Details~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProblemDetailsAudience`, `x-archlucid-audience: buyer`, buyer-safe `supportHint` copy + golden tests | Trustworthiness P0 | S |
-| ~~TB-285~~ | ~~CI forbidden-property guard for buyer OpenAPI schemas~~ — **Done** (batch **5DW-trust-paid-p1a**): `ProofSurfaceForbiddenPropertyDriftTests`, `buyer_dto_forbidden_properties.txt`, `test_dto_boundary_batch.py` | Testability P1 | S |
-| ~~TB-286~~ | ~~OpenAPI audience tiers + buyer contract snapshot~~ — **Done** (batch **5DW-trust-paid-p1a**): `x-archlucid-audience` transformers, `buyer-contract.openapi.snapshot.json`, `OpenApiBuyerContractSnapshotTests` | Architectural integrity P1 | M |
-| ~~TB-287~~ | ~~Forensics partition for full LLM traces~~ — **Done** (batch **5DW-trust-paid-p1a**): `GET /v1/internal/architecture/run/{runId}/traces/forensics`, operator gate on tool-invocation-forensics, `ForensicsTracePartitionIntegrationTests` | Trustworthiness P1 | M |
-| ~~TB-288~~ | ~~Architecture test — buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*`~~ — **Done** (batch **5DX-trust-p2**): `BuyerFacingDtoBoundaryArchitectureTests` + `test_dto_boundary_batch.py` guard | Testability P2 | XS |
-| ~~TB-289~~ | ~~Live buyer golden path E2E~~ — **Done** (batch **5DW-trust-pilot-p0**): `e2e/live-api-buyer-golden-path.spec.ts` | Testability P0 | M |
-| ~~TB-290~~ | ~~Commit-to-audit trail integrity (SQL)~~ — **Done** (batch **5DW-trust-pilot-p0**): `AuditTrailCommitIntegrityIntegrationTests` | Trustworthiness P0 | S |
-| ~~TB-291~~ | ~~Reference evidence admin export integration~~ — **Done** (batch **5DW-trust-pilot-p0**): `ReferenceEvidenceAdminExportIntegrationTests` | Trustworthiness P0 | S |
-| ~~TB-292~~ | ~~Route-tenant positive-path matrix~~ — **Done** (batch **5DW-trust-pilot-p0**): matching-tenant not-403 rows + `test_route_tenant_batch.py` guard | Testability P0 | S |
-| ~~TB-293~~ | ~~Production demo fail-fast host integration~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProductionDemoFailFastHostIntegrationTests` | Trustworthiness P0 | XS |
-| ~~TB-294~~ | ~~Sponsor value report demo-run isolation (API)~~ — **Done** (batch **5DW-trust-pilot-p0**): `ValueReportDemoRunIsolationIntegrationTests` | Trustworthiness P0 | S |
-| ~~TB-295~~ | ~~SQL-backed audit export tenant isolation~~ — **Done** (batch **5DW-trust-paid-p1b**): `AuditExportTenantIsolationIntegrationTests` | Trustworthiness P1 | S |
-| ~~TB-296~~ | ~~Export blob push SSRF integration (API)~~ — **Done** (batch **5DW-trust-paid-p1b**): API-layer SSRF regressions in `ScopedSnapshotReadIdorIntegrationTests` | Trustworthiness P1 | S |
-| ~~TB-297~~ | ~~Governance HTTP negative-path matrix~~ — **Done** (batch **5DW-trust-paid-p1b**): `GovernanceNegativePathIntegrationTests` + `test_trust_paid_p1b_batch.py` | Testability P1 | M |
-| ~~TB-298~~ | ~~Manifest artifact download integrity~~ — **Done** (batch **5DW-trust-paid-p1b**): matching-tenant artifact list/download success path in SQL integration | Trustworthiness P1 | S |
-| ~~TB-299~~ | ~~Executive ROI board-pack live E2E~~ — **Done** (batch **5DW-trust-paid-p1b**): `ExecutiveRoiBoardPackEndpointTests` + `live-api-executive-board-pack.spec.ts` | Testability P1 | S |
-| ~~TB-300~~ | ~~Scope identity auth permutation table~~ — **Done** (batch **5DW-trust-paid-p1b**): JWT/DevBypass permutations + pen-test matrix row | Trustworthiness P1 | M |
-| ~~TB-301~~ | ~~Targeted Persistence tenant-read SQL probes~~ — **Done** (batch **5DX-trust-p2**): five `*ScopeIsolationSqlIntegrationTests.cs` probes + `test_trust_p2_batch.py` | Testability P2 | M |
-| TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
-| TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
-| TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
-| TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | **Done (2026-05-31)** — `AgentExecutionTraceRecorder` persists sampling params + `ReasoningTokenCount`; `AgentExecutionTraceRecorderSamplingParamsTests` | XS |
-| TB-071 | Azure Search production client — wire tenant OData filter on every search/delete | **Done (2026-05-31)** — `AzureSearchSdkClient` + scoped delete; `AzureSearchTenantScopeFilterBuilderTests` | S–M |
-| TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | **Done (2026-05-31)** — `ScopeIdentityBindingMiddleware` + ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` | M |
-| TB-073 | Scoped snapshot repository reads (findings / graph / context + relational child loads) | **Done (2026-05-31)** — scoped `GetByIdAsync(ScopeContext)` + `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests` | M |
-| TB-074 | Retrieval indexing write-path tenant validation | **Done (2026-05-31)** — `RetrievalIndexingScopeValidator` on index writes; scoped in-memory delete; tests | S |
-| TB-075 | Operator UI server-side scope (proxy strips client headers; SSR from session) | **Done (2026-05-31)** — `resolveProxyUpstreamScopeHeaders` + production-like proxy posture; value-report tenant from `/api/auth/me` | S–M |
-| TB-082 | Agent `AllowedTools` — runtime enforcement at handler dispatch | **Done (2026-05-31)** — `AgentTaskAllowedToolsDispatchGuard` at dispatch; `AgentTaskAllowedToolsDispatchGuardTests` | S |
-| TB-079 | ADO PR markdown — sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | **Done (2026-05-31)** — `AdoPullRequestMarkdownEscaper` + safe links in compare + run-summary Markdown | XS |
-| TB-083 | Service Bus — production safety rule: require namespace FQDN, disallow raw connection string | **Done (2026-05-31)** — `CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
-| TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | **Done (2026-05-31)** — `CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
-| TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | **Done (2026-05-31)** — `AuthenticationMode=ManagedIdentity` for completion, embeddings, judge; `AzureOpenAiConfigurationProbe`; KV sample + startup lint | S |
-| TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
-| TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | **Done (2026-06-01)** — `terraform-private` KV DNS zone + PE when `key_vault_id` set; `key_vault_private_endpoint_id` output; `terraform validate` | XS-S |
-| TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | **Done (2026-06-01)** — `terraform-keyvault/workload_rbac.tf` + principal ID vars; `terraform-private/keyvault_rbac.tf`; `apply-saas.ps1` TB-092 second pass; `terraform.tfvars.example` | XS |
-| TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | **Done (2026-06-01)** — `openai_compose_mode=existing` (eastus); hosted-prod + container-apps env/RBAC; `terraform-openai` consumed contract; pilot_essential | M |
-| TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | **Done (2026-06-01)** — `infra/terraform-redis` + container-apps `hot_path_cache_redis_connection_string`; PE/DNS optional; `terraform validate` | S |
-| TB-095 | Assess + codify Cosmos DB — `terraform-cosmos` (dormant assessment + optional root) | IaC coverage — **Done** 2026-06-01; see `COSMOS_DB_IAC_ASSESSMENT.md` | S-M |
-| TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage — **Done** 2026-06-01; `deploy/hosted-prod-terraform` + `terraform-container-apps` `azure_search_*`; see `AZURE_AI_SEARCH_CONSUMED.md` | S |
-| TB-097 | Create `terraform-acr` root — Azure Container Registry | IaC coverage — **Done** 2026-06-01; `infra/terraform-acr/` (optional `enable_acr`) | S |
-| TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage — **Done** 2026-06-01; managed workspace + `azure_monitor_workspace_id_effective` | XS |
-| TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability — **Done** 2026-06-01; optional flags in container-apps, servicebus, storage (+ hosted platform diagnostics) | S |
-| TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene — **Done** 2026-06-01 (RBAC on hosting storage; access key still required by platform for file share mount) | M |
-| TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene — **Done** 2026-06-01 (documented legacy optional path; Container Apps is active compute) | XS |
-| TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene — **Done** 2026-06-01; `application_insights_sampling_percentage` variable (0–100, default 100) | XS |
-| TB-085 | SqlRelationalBackfill — paged scans + checkpoint table | **Done (2026-06-01)** — `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging | M |
-| TB-086 | Backfill poison-row quarantine | **Done (2026-06-01)** — `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, JSON `skippedQuarantinedCount` | S |
-| TB-087 | Findings backfill DB idempotency | **Done (2026-06-01)** — migration **229** unique index; repository-only slice guard | XS–S |
-| TB-088 | Container jobs per-entity isolation | **Done (2026-06-01)** — `TrialLifecycleArchLucidJob`, `AdvisoryDueScheduleProcessResult` | S |
-| TB-089 | Digest ledger-before-send | **Done (2026-06-01)** — verified + `DigestEmailDispatcherIdempotencyTests` | S |
-| TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — extended with quarantine fields in JSON (2026-06-01) | XS |
-| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | **Done (2026-06-03 batch 5CM)** — `SQL_SCRIPTS.md` §4.0.1 mermaid decision flow + existing `GreenfieldBaselineMigrationRunnerTests` / `JournalDriftBaselineRepairSqlIntegrationTests`; `test_maintainability_batch_5cm.py` | M |
-| TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | **Done (2026-06-03 batch 5CM)** — `ArchLucid.sql` header + divergence comments; `test_maintainability_batch_5cm.py` | XS |
-| TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **Done (2026-05-31)** — `scripts/start-local-api-and-ui.ps1` E2E proxy gate | S |
-| TB-157 | API connectivity toasts — distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **Done (2026-05-31)** — `api-error-toast-policy.ts` + tests | XS |
-| TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | **Done (2026-05-31)** — `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | M |
-| TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | **Done (2026-05-31)** — `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | S |
-| TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | **Done (2026-05-31)** — `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | S |
-| TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
-| TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — **Done**; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
-| TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — **Done** 2026-05-31 | S |
-| TB-149 | Canonical 14-day expiring-waiver window — single server implementation; delete `CountExpiringWaivers` duplicate | **Done (2026-05-31)** — `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` | S |
-| TB-150 | Decisions-needed `TotalDecisionItems` — union cardinality across buckets, not sum | **Done (2026-05-31)** — `GovernanceDecisionsNeededSummaryCalculator` | S |
-| TB-151 | `ExecutiveSummaryResult.TotalRiskReductionScore` — rename or map to pending-decision count | **Done (2026-05-31)** — `ResolvedFindingsCount30Days` + `PendingGovernanceDecisionCount` | XS |
-| TB-152 | `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing `TotalEstimatedUsdSavings` | **Done (2026-05-31)** — `CostWasteUsd: null` in live mapper | XS |
-| TB-153 | Recurring architecture review trigger — idempotency before `ExecuteRunAsync` | **Done (2026-05-31)** — checkpoint before `ExecuteRunAsync` | M |
-| TB-154 | Waiver ↔ disposition state machine — bidirectional invariants | **Done (2026-05-31)** — waiver/disposition guards | M |
-| TB-155 | ROI cache TTL vs live decisions-needed — canonical expiring-waiver source | **Done (2026-05-31)** — cache refresh + dashboard single source | S |
-| TB-109 | RunDetailPageView — add retrieval-hit / RAG grounding panel | **Done (2026-05-31)** — `RunDetailRetrievalGroundingSection` + faithfulness anchor | M |
-| TB-110 | RunDetailPageView — add tool-call / function-invocation log panel | **Done (2026-06-01)** — structured `AgentToolInvocationRecords` ledger + forensics API; execute-gated inline raw preview on run detail | M |
-| TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | **Done (2026-06-01)** — `RunDetailProvenanceSummaryCard` on run detail | S |
-| TB-112 | RunDetailPageView — add run-level approve / reject / request-remediation actions | **Done (2026-06-01)** — `POST …/disposition` + `RunDetailRunGovernanceDispositionActions` | M |
-| TB-113 | Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | **Done (2026-06-01)** — OpenAPI + `api-types.generated.ts`; `RunDetailDtoOpenApiContractTests` | XS |
-| TB-170 | Accelerator chooser — map buyer job → starter proof pack → expected proof output | **Done (2026-06-01)** — `ACCELERATOR_CHOOSER.md`, UI `AcceleratorChooserCard`, `/help/accelerator-chooser` | S |
-| TB-171 | Starter proof pack metadata contract | **Done (2026-06-01)** — `starter-pack.json` on all packs; `STARTER_PROOF_PACK_METADATA_CONTRACT.md` | S |
-| TB-172 | Starter proof pack static validation gate | **Done (2026-06-01)** — `check_starter_proof_packs.py` + CI + unit tests | S |
-| TB-173 | Template-to-proof dry-run harness | **Done (2026-06-01)** — `dry_run_starter_proof_packs.py` + `StarterProofPack*` dotnet tests | M |
-| TB-174 | Golden accelerator walkthrough (one pack only) | **Done (2026-06-01)** — `walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` (regulated SaaS) | S |
-| TB-175 | Policy pack metadata and buyer-safe caveat validation | **Done (2026-06-01)** — `packManifest` on vertical packs; `check_policy_pack_manifests.py` + contract doc | S |
-| TB-176 | Policy pack dry-run index | **Done (2026-06-01)** — `POLICY_PACK_DRY_RUN_INDEX.md` generated from manifests; CI `--check` | S |
-| TB-121 | Route/tier/policy/nav parity release gate hardening | **Done (2026-06-01)** — sponsor/production BLOCK on drift; parity in first-pilot proof | S |
-| TB-122 | Governance outcome summary in sponsor proof | **Done (2026-06-01)** — `governance-outcome-summary` artifacts in proof | S |
-| TB-123 | Policy-pack freshness report in proof/procurement artifacts | **Done (2026-06-01)** — `policy-pack-freshness` v2 from `packManifest` | S |
-| TB-124 | Audit coverage drift gate for critical workflows | **Done (2026-06-01)** — `mutating-route-audit-matrix` + drift in proof/CI | M |
-| TB-125 | Buyer-safe audit evidence summary in proof bundles | **Done (2026-06-01)** — `audit-evidence-summary` + triage one-pager | S |
-| TB-126 | Audit event catalog metadata | **Done (2026-06-01)** — `audit_event_catalog.v1.json` + CI check | M |
-| TB-127 | Audit tests for sponsor/procurement proof actions | **Done (2026-06-01)** — `test_commercial_audit_proof_batch.py` | M |
-| TB-128 | Support/audit triage one-pager | **Done (2026-06-01)** — `SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md` | XS-S |
-| TB-129 | Quote-to-proof readiness checklist | **Done (2026-06-01)** — `report_quote_to_proof_readiness.py` + proof artifacts | S |
-| TB-130 | Quote aging export and follow-up SLA report | **Done (2026-06-01)** — `quote-aging-sla.json/md` from AdminAuthority API in proof | M |
-| TB-131 | Commercial closeout artifact hardening | **Done (2026-06-01)** — `validate_commercial_closeout_consistency.py` + Pester tests | S |
-| TB-132 | Tier fit validation matrix | **Done (2026-06-01)** — `tier_fit_validation_matrix.v1.json` + `check_tier_fit_matrix.py` | S |
-| TB-133 | AI & Cloud Architecture Readiness Review offer pack aligned to pricing | **Done (2026-06-01)** — `AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md` | S |
-| TB-134 | Commercial copy overclaim guard + public claim-boundary guide | **Done (2026-06-01)** — `check_commercial_overclaim_guard.py` + `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` | S |
-| TB-158 | Pilot success thresholds and acceptance criteria | **Done (2026-06-03 batch 5CP)** — `PILOT_ACCEPTANCE_THRESHOLDS.md` + `report_pilot_acceptance_thresholds.py` in `collect-first-pilot-proof.ps1`; `test_pilot_acceptance_batch.py` + `test_proof_roi_batch_5cp.py` | S |
-| TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof — owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts | Owner/program |
-| TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof — approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets | Owner/GTM |
-| TB-159 | Buyer security/procurement packet | **Done (2026-06-01)** — `BUYER_SECURITY_PROCUREMENT_PACKET.md` | S-M |
-| TB-160 | Legal/procurement terms packet | **Done (2026-06-01)** — `LEGAL_PROCUREMENT_TERMS_PACKET.md` | M |
-| TB-161 | Design partner / pilot recruiting pipeline | GTM execution — target accounts, qualification criteria, founder-led outreach, pilot acceptance terms, and proof-capture permission path | S-M |
-| TB-162 | Support and pilot operating model | Operations — support hours, escalation path, response targets, incident communications, owner availability, and white-glove vs self-serve pilot posture | S |
-| TB-163 | Transactable procurement path | Commercial conversion — invoice/services SOW/private offer/Stripe/Marketplace decision tree, payment terms, legal/tax readiness, and claim boundaries | M |
-| TB-164 | V1.1 backlog: first named public reference customer | GTM proof — customer permission, logo/case-study approval, reference-call terms, and claim update process | Owner/GTM |
-| TB-165 | Assessment score consistency guard | Documentation quality — keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
-| TB-166 | Release claim gate for full real-mode AI evidence | Release safety — **Done** (2026-06-01): `check_release_real_mode_claim.py` + `Invoke-ReleaseRealModeClaimGate.ps1` | S |
-| TB-167 | Sponsor AI readiness posture artifact | **Done (2026-06-03 batch 5CP)** — `Write-AiReadinessPosture.ps1` wired via `Add-AiReadinessPostureFinding` in `collect-first-pilot-proof.ps1`; `AI_READINESS_POSTURE.md` updated; `test_proof_roi_batch_5cp.py` | S-M |
-| TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
-| TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
-| TB-170 | Remediate stale relative markdown links (docs/nav consolidation drift) | **Done (2026-06-01 batch 5F)** — `repair_doc_links_batch5f.py` + stubs; `check_doc_links.py` exit 0; CI merge-blocking | L |
-| TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | **Done (2026-06-01)** — registry-backed `/help/{topic}` renderer | M |
-| TB-144 | Customer-facing documentation registry | **Done (2026-06-01)** — `product-documentation-registry.ts` | S |
-| TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | **Done (2026-06-01)** — primary surfaces use `resolveInAppDocHref` | M |
-| TB-146 | Redirect-stub ban + canonical target resolution in registry | **Done (2026-06-01)** — registry + stub rejection test | XS |
-| TB-147 | CI drift guard — no customer-facing GitHub blob links in product UI | **Done (2026-06-01)** — `customer-facing-github-blob-guard.test.ts` | S |
-| TB-148 | Role-gated optional “View source on GitHub” footer | **Done (2026-06-01)** — `HelpTopicSourceFooter` | XS |
-| TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | **Done (2026-06-03 batch 5CL)** — first-touch cookie → `x-archlucid-first-touch`, `MarketingAttributionService`, migration 220, `MarketingAttributionServiceTests`; `test_marketability_batch_5cl.py` | M |
-| TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | **Done (2026-06-03 batch 5CL)** — `MarketingJsonLd`, consent + `NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED`, `CONFIGURATION_REFERENCE.md` marketing keys; `test_marketability_batch_5cl.py` | S–M |
+| TB-222 | Recurrence scheduling UI ? `RecurrenceSchedulePostCommitCard` post-commit nudge + `/governance/recurrence-schedules` management page; calls `createArchitectureReviewRecurrenceSchedule` / `listArchitectureReviewRecurrenceSchedules`; enable/disable toggle | **Done (2026-06-02 batch 5AO)** ? PUT toggle + management table + post-commit card; `test_adoption_batch_5ao.py` | M |
+| TB-223 | `DecisionsNeededSummaryCard` in governance dashboard ? parallel-fetch `GET /v1/governance/decisions-needed-summary`; 6-tile KPI grid (pendingApprovals, staleRisks, unownedHighSeverityRisks, findingsAwaitingEvidence, waiversExpiringWithin14Days, deferredFindingsDue); warn accent when waivers expiring; empty state; 30s auto-refresh | **Done (2026-06-02 batch 5AK)** ? `DecisionsNeededSummaryCard` on `ExecutiveWorkspaceHealthDashboard`; `test_adoption_batch_5ak.py` | S |
+| TB-224 | AI compare narrative ? extend `AskService` for `BaseRunId + TargetRunId`; one fast LLM call; `ComparisonNarrative` on `AskResponse`; highlighted callout above compare delta table; guarded by `Ask:GenerateComparisonNarrative` | **Done (2026-06-02 batch 5AM)** ? `AskComparisonNarrativeOptions` + compact delta prompt; compare UI callout; `test_adoption_batch_5am.py` | M |
+| TB-225 | CS-06 fix ? inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`; `ApplyAsync` before queries in `GetOperatorSignalsAsync` + `GetFunnelSnapshotAsync`; rename `ToDateTimeOffset` ? `ToNullableUtcDateTime`; one-line `{ get; init; }` row types; `long` COUNT columns | **Done (2026-06-02 batch 5AP)** ? `SqlRlsSessionContextApplicator` + read-replica factory; `test_adoption_batch_5ap.py` | S |
+| TB-226 | Risk exceptions management page ? `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` + `RiskExceptionsClient.tsx`; `EnterpriseTable` with expiry sort, StatusTag (Active/Expiring/Expired), Renew/Revoke actions; warning callout when any within 14 days; nav entry after "Governance findings" | **Done (2026-06-02 batch 5AS)** ? management page + pilot nav + Vitest; `test_adoption_batch_5as.py` | M |
+| TB-227 | `collect-first-pilot-proof.ps1` multi-run support ? `-RunNumber` + `-CompareBaseRunId` params; compare endpoint + decisions-needed + risk register on run 2+; `pilot-proof-run{N}/` folder; `stickinessSignals` section in manifest; update `REPEAT_REVIEW_LOOP.md ?5` | **Done (2026-06-02 batch 5AU)** ? `FirstPilotMultiRunStickinessProof.ps1` + script params; `test_adoption_batch_5au.py` | S |
+| TB-228 | Internal tenant health admin surface ? `GET /v1/admin/tenant-health` (SystemAdminAuthority); `TenantHealthSummaryResponse` with EngagementScore, GovernanceScore, PilotFunnelStage, RunsLast7d, LastActivityUtc; optional `/admin/tenant-health` page with `EnterpriseTable` + color-coded engagement | **Done (2026-06-02 batch 5BN)** ? `AdminCustomerSuccessController` + `SqlAdminTenantHealthReader` + `/admin/tenant-health` UI; `test_adoption_batch_5bn.py` | M |
+| TB-229 | Reference-customer first-contact workflow ? `REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md` (email + 3 commitment tiers + 15% discount reference + objection handling); `REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` (pilot-complete ? Published steps a?h); update `reference-customers/README.md ?3` | **Done (2026-06-02 batch 5BC)** ? GTM templates + checklist + README link; `test_adoption_batch_5bc.py` | S |
+| TB-230 | GTM collateral placeholder audit ? replace `[placeholder]` contact in `PRODUCT_DATASHEET.md`; fix Q2 dead-end in `SHOULD_YOU_EVALUATE.md`; create `PLACEHOLDER_AUDIT.md`; add `scripts/ci/check_gtm_placeholder_tokens.py` warn-only CI step | **Done (2026-06-02 batch 5BD)** ? contact links + placeholder audit + warn-only CI; `test_adoption_batch_5bd.py` | S |
+| TB-231 | Stage 0?1 claim-readiness tracker ? `docs/go-to-market/CLAIM_READINESS_STATUS.md` (G1?G6 PASS/HOLD table + evidence links + who unblocks); `docs/go-to-market/PROOF_PACKET_RUN_LOG.md` (per-run G4 progress log); link both from `GTM_BACKLOG.md` | **Done (2026-06-02 batch 5BE)** ? status tracker + proof run log + GTM_BACKLOG links; `test_adoption_batch_5be.py` | S |
+| TB-232 | LinkedIn publishing calendar ? `docs/go-to-market/LINKEDIN_PUBLISHING_SCHEDULE.md`; assign publish dates to M-10 through M-15 (weekly Monday 8 AM); hashtag set per post; comment-seed prompts; Published/Engagement tracking column | **Done (2026-06-02 batch 5BF)** ? publishing schedule M-10?M-15; `test_adoption_batch_5bf.py` | XS |
+| TB-233 | Demo video storyboard ? `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md`; shot-by-shot table from `DEMO_VIDEO_SCRIPT.md` (URL/screen, action, narration, annotation, duration); pre- and post-production checklists; target <3 min total | **Done (2026-06-02 batch 5BG)** ? storyboard + datasheet/brief links; `test_adoption_batch_5bg.py` | S |
+| TB-234 | `SHOULD_YOU_EVALUATE.md` ICP enrichment ? add Q5 (team ?3 architects); update 15-min eval path with hosted SaaS link + quote-request fallback; add "Strong fit signals" section (5 ICP indicators) | **Done (2026-06-02 batch 5BH)** ? Q5 + eval path + strong-fit section; `test_adoption_batch_5bh.py` | XS |
+| TB-235 | `EXECUTIVE_ONE_EMAIL_KIT.md` ? verify or create; 3 subject lines; 120-word body with `<<PILOT_OUTCOME>>`; four-artifact checklist; follow-up timing; cross-ref to `EXECUTIVE_SPONSOR_BRIEF.md` | **Done (2026-06-02 batch 5BI)** ? pilot closeout email + attachments + follow-up; `test_adoption_batch_5bi.py` | XS |
+| TB-236 | Demo video production ? DEFERRED: owner screen recording + voiceover required; TB-233 storyboard is prerequisite; Cursor role: none until owner returns media | Marketability DEFERRED (V1.1 GTM owner action ? PQ-MKT-03 resolved 2026-06-02) | ? |
+| TB-237 | Pricing page early-adopter framing ? add "Early adopter pricing" 2-sentence note below tier grid in marketing pricing component; add "Transparent early-access framing" row to `PRICING_PHILOSOPHY.md ?1` | **Done (2026-06-02 batch 5BJ)** ? `BUYER_EARLY_ADOPTER_PRICING_NOTE` + `pricing-early-adopter-framing` test id; `PRICING_PHILOSOPHY.md` ?1 row; `test_adoption_batch_5bj.py` | XS |
+| TB-238 | Baseline capture prompt in pilot wizard ? add optional "Baseline metrics" step to architecture request wizard; numeric input for review cycle hours + confidence select; on submit call `PUT /v1/tenant/baseline`; skip button; Vitest tests; update `FIRST_PILOT_OPERATOR_PATH.md` Phase D2a | **Done (2026-06-02 batch 5AJ)** ? `WizardStepBaselineMetrics` + `save-tenant-review-cycle-baseline.ts`; `test_adoption_batch_5aj.py` | S |
+| TB-239 | Executive ROI history run-mode label ? add `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, `IsMixedMode` to `ExecutiveRoiHistoryPeriod`; compute from `dbo.Runs.ExecutionMode`; frontend: mode footnote + Simulator-only badge + tooltip | **Done (2026-06-02 batch 5AL)** ? `ExecutiveRoiHistoryRunModeCalculator` + trend chart footnote/tooltips; `test_adoption_batch_5al.py` | S |
+| TB-240 | Executive ROI surface data quality regression guard ? add `ExecutiveRoiSummaryInvariantTests.cs` covering FindingsReduced/FindingsAdded polarity (TB-151/152), waiver 14-day window consistency (TB-149), orphan-candidate single pipeline (TB-103), cache freshness (TB-155) | **Done (2026-06-02 batch 5AN)** ? `ExecutiveRoiSummaryInvariantTests.cs`; `test_adoption_batch_5an.py` | S |
+| TB-241 | Board-pack AI executive narrative ? `Roi:GenerateBoardPackNarrative` config flag (default false); when true call `IAgentCompletionClient` (ModelTier.Fast) with savings/ROI/mode/confidence JSON; prefix board-pack Markdown with `## Executive summary`; frontend toggle; unit test | **Done (2026-06-02 batch 5AQ)** ? exporter + dashboard toggle + `ExecutiveRoiBoardPackExporterNarrativeTests`; `test_adoption_batch_5aq.py` | M |
+| TB-242 | ROI model freshness CI guard ? `scripts/ci/check_roi_model_freshness.py`; extract "Last reviewed:" date from `ROI_MODEL.md`; warn-only exit 0 when >90 days old; add CI step; update `ROI_MODEL.md` last-reviewed date to 2026-06-02 | **Done (2026-06-02 batch 5AT)** ? warn-only script + CI step + ROI_MODEL refresh; `test_adoption_batch_5at.py` | XS |
+| TB-243 | Sponsor proof delivery tracking event ? `AuditEventType.SponsorEvidencePackSent` (type 79); `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` (optional recipient + delivery method); "Mark as sent to sponsor" button in `RunDetailFirstScreenProofStatus.tsx` ? `StatusTag "Sent to sponsor"`; unit tests | **Done (2026-06-02 batch 5AV)** ? audit event + API + `EmailRunToSponsorBanner` CTA; `test_adoption_batch_5av.py` | S |
+| TB-244 | KPI tile drill-through navigation ? wrap each count in `ExecutiveRoiDashboardLiveKpiCards.tsx` with a Next.js `<Link>` pointing to the relevant filtered page (e.g., `/runs?filter=orphan-candidates`, `/compliance?filter=drift`); add `data-testid` for each link; Vitest tests | **Done (2026-06-02 batch 5AX)** ? KPI links + orphan/SQL tiles + governance `?filter=`; `test_adoption_batch_5ax.py` | S |
+| TB-245 | ROI trend chart upgrade to SVG bar chart ? replace CSS `<div>` proportional bars in `ExecutiveRoiTrendSection.tsx` with a proper SVG chart (reuse `ExecutiveRoiSystemicIssueTrendChart` pattern); add Y-axis labels, month labels, on-hover tooltips with exact values; Vitest snapshot test | **Done (2026-06-02 batch 5AZ)** ? `ExecutiveRoiSavingsTrendSvgChart` + snapshot test; `test_adoption_batch_5az.py` | M |
+| TB-246 | Executive shell nav ? add Scorecard and Dashboard links ? add "Scorecard" (`/executive/scorecard`) and "Dashboard" (`/executive/dashboard`) `<Button>` nav links to `ExecutiveShellFrame.tsx` header nav; highlight active route; Vitest test | **Done (2026-06-02 batch 5AW)** ? `ExecutiveShellFrame` nav + Vitest; `test_adoption_batch_5aw.py` | XS |
+| TB-247 | "Top 3 actions" section on executive scorecard ? add a "Recommended actions" card to `ExecutiveScorecardClient.tsx` that derives 1?3 plain-language recommendations from loaded data (highest-drift policy, largest orphan cost bucket, most overdue review); unit tests for derivation logic | **Done (2026-06-02 batch 5AY)** ? recommended-actions card + derivation module; `test_adoption_batch_5ay.py` | M |
+| TB-248 | "Day N since first commit" badge on executive KPI strip ? compute `N = (today - firstCommitUtc).TotalDays` and add "Day {N} of your ArchLucid pilot" display below the savings KPI tile in `ExecutiveRoiDashboardLiveKpiCards.tsx`; read `FirstCommitUtc` from ROI summary endpoint; unit test | **Done (2026-06-02 batch 5BA)** ? `FirstCommitUtc` on executive summary + pilot day badge; `test_adoption_batch_5ba.py` | S |
+| TB-249 | Cross-tenant portfolio graceful 403 ? in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md` | **Done (2026-06-02 batch 5BB)** ? ProblemDetails 403 + portfolio UI card + doc; `test_adoption_batch_5bb.py` | S |
+| TB-250 | Authority pipeline stage timeline in operator UI ? add `dbo.RunStageOutcomes` (migration); write rows at stage start/end in `AuthorityPipelineStagesExecutor`; expose `GET /v1/architecture/run/{runId}/stage-timeline` returning `StageTimelineSummary[]` (name, startedUtc, completedUtc, outcomeStatus, durationMs); add collapse-by-default "Pipeline stages" section to `/reviews/{runId}` with `StatusTag` per stage and OTel deep-link when `OtelTraceId` present; unit + integration tests | **Done (2026-06-02 batch 5BW)** ? migration `240_RunStageOutcomes.sql` + `RunDetailPipelineStagesSection`; `test_traceability_batch_5bw.py` | M |
+| TB-251 | Retrieval indexing at-least-once outbox ? `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests | **Done (2026-06-02 batch 5BX)** ? `dbo.RetrievalIndexingOutbox` + `RetrievalIndexingOutboxProcessor` + lease/dead-letter (DbUp 019/219); `test_traceability_batch_5bx.py` | M |
+| TB-252 | Generate/commit raster brand assets + fix broken references ? `generate-brand-raster.mjs` rasterizes `og-default.svg`?`og-default.png` (1200?630), `icon.svg`?`icon-192.png`/`icon-512.png`; wire to `prebuild`; commit PNGs; add `icon-512` maskable to `manifest.webmanifest`; warn-only CI guard `check_referenced_static_assets.py` asserting every `/logo/*.png` reference in `layout.tsx`/manifest exists; unit test output dimensions | **Done (2026-06-03 batch 5CC)** ? committed PNGs, `prebuild`, `check_referenced_static_assets.py`, Vitest dimensions | M |
+| TB-253 | Buyer-facing Open Graph / Twitter metadata ? replace operator-jargon `openGraph`/`twitter` description in `layout.tsx` with the positioning-seam buyer line; add `marketing-open-graph.ts` helper; set per-page OG/Twitter on `welcome`/`pricing`/`why`/`see-it`; Vitest asserts descriptions are buyer copy and exclude "Operator UI" | **Done (2026-06-03 batch 5CC)** ? `marketing-open-graph.ts`, per-page overrides, `test_marketability_batch_5cc.py` | S |
+| TB-254 | `FAQPage` JSON-LD + buyer FAQ expansion ? `marketing-faq.ts` with `MARKETING_FAQ_ITEMS` (3 existing + 5 buyer-relevant from existing docs, no new claims); render `/faq` from the array; add `buildFaqPageLd` next to `marketing-json-ld.ts` and inject `FAQPage` ld+json (no ratings); unit + Vitest | **Done (2026-06-03 batch 5CF)** ? `marketing-faq.ts`, `marketing-faq-json-ld.ts`, `/faq` JSON-LD; `test_marketability_batch_5cf.py` | S |
+| TB-255 | Minimum token-overlap density in faithfulness checker ? replace boolean `HasTokenOverlap` in `AgentResultEvidenceFaithfulnessChecker.cs` with a `CountTokenOverlap`/`MeetsOverlapThreshold` density check (default ?2 distinct content tokens AND ?30% density); apply to claims and to finding description+recommendation; thresholds configurable via options; unit tests for single-token-fail, density-pass, boundary | **Done (2026-06-03 batch 5CG)** ? `MeetsOverlapThreshold` + `AgentFaithfulnessOptions`; `test_correctness_batch_5cg.py` | S |
+| TB-256 | Distinguish "no checkable content" from perfect faithfulness ? add `HasCheckableContent` to `AgentResultEvidenceFaithfulnessReport`; make the empty/parse-fail/`totalChecked==0` paths return `HasCheckableContent=false` + `SupportRatio=0.0` (not `1.0`); in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` treat `!HasCheckableContent` as failing the PilotStrict floor; audit all `SupportRatio` readers; unit tests | **Done (2026-06-03 batch 5CG)** ? `HasCheckableContent` + PilotStrict reject path; `test_correctness_batch_5cg.py` | S |
+| TB-257 | Expand adversarial hallucination corpus + enforce resistance floor ? add 3 adversarial scenarios (fabricated SKU, invented compliance framework, phantom dependency) under `tests/eval-corpus/adversarial/`; register in `manifest.json`; new `scripts/ci/assert_hallucination_resistance.py` (reuse `eval_agent_corpus.py` scoring) asserting each adversarial result scores non-"accepted"; wire as blocking step in `golden-cohort-expanded-nightly.yml`; pytest guard; doc update | **Done (2026-06-03 batch 5CJ)** ? 3 adversarial scenarios + `assert_hallucination_resistance.py` nightly step; `test_assert_hallucination_resistance.py` | M |
+| TB-258 | Harden trial preseed executor ? migration adds `TrialArchitecturePreseedAttemptCount`/`...FailedUtc`/`...LastError` to `dbo.Tenants`; `IncrementTrialArchitecturePreseedAttemptAsync` (cap 5 ? set FailedUtc); exclude exhausted/failed tenants from the pending query; wrap `TryProcessTenantAsync` create/execute/commit in try/catch (increment, no rethrow); treat non-Guid run-id as failure; emit new `TrialArchitecturePreseedFailed` audit at cap + matrix row + const-count bump; tests | **Done (2026-06-03 batch 5CH)** ? migration 242, executor hardening, audit + matrix; `test_adoption_batch_5ch.py` | M |
+| TB-259 | Test the trial first-value delivery path ? `TrialArchitecturePreseedExecutorTests` (happy path, no-workspace, tenant-not-found, vertical flow-through, TB-258 failure paths) + `TrialArchitecturePreseedHostedServiceTests` (multi-tenant poll, one-tenant-throws batch resilience, empty list); both currently 0% coverage | **Done (2026-06-03 batch 5CH)** ? `TrialArchitecturePreseedExecutorTests`, `TrialArchitecturePreseedHostedServiceTests`; `test_adoption_batch_5ch.py` | M |
+| TB-260 | "First value reached" user confirmation ? ensure trial-status response exposes `trialFirstManifestCommittedUtc` + `trialWelcomeRunId`; new `FirstValueReachedCallout.tsx` dismissible success callout linking `/reviews/{trialWelcomeRunId}` rendered atop `OperatorHomePageView` when committed; localStorage dismissal; Vitest | **Done (2026-06-03 batch 5CK)** ? `FirstValueReachedCallout.tsx` + Vitest; `test_stickiness_batch_5ck.py` | S |
+| TB-261 | Recurrence completion notification + drift delta ? compute new/resolved/severity delta vs source (or prior triggered) run; in-app + email via existing dispatch path linking `/reviews/{runId}` + compare view; gate `Stickiness:RecurrenceCompletionNotification:Enabled` (default true); new `ArchitectureReviewRecurrenceNotified` audit + matrix row + const bump; recipients = `CreatedByUserId` + admin/sponsor; tests | **Done (2026-06-03 batch 5CI)** ? email + audit + delta; `test_stickiness_batch_5ci.py` | M |
+| TB-262 | Recurrence schedule failure health + auto-disable ? add `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount` to `ArchitectureReviewRecurrenceSchedule` (+ migration in 3 SQL files); set on success/failure in the trigger; at 5 consecutive failures set `IsEnabled=false` + new `ArchitectureReviewRecurrenceAutoDisabled` audit; surface StatusTag + last-error + re-enable affordance on `/governance/recurrence-schedules`; tests | **Done (2026-06-03 batch 5CI)** ? migration 243 + trigger/UI health; failure tests | M |
+| TB-263 | "Reviews awaiting your action" inbox ? `GET /v1/governance/reviews-awaiting-action` returning executed-but-uncommitted recurrence runs (tag clones `requestSource="recurrence"`); card on `OperatorHomePageView` + governance nav count badge + "Review & commit" action + empty state; RLS-respected query; tests | **Done (2026-06-03 batch 5CK)** ? endpoint + inbox card + nav badge; `test_stickiness_batch_5ck.py` | M |
+| TB-264 | Competitor-baseline citation discipline guard ? extend `scripts/ci/assert_why_rows_have_evidence.py` so any `competitorBaseline` cell containing a numeric quantity (regex: digits + `hour`/`day`/`week`/`%`/range dash) must carry a non-placeholder external `citation` (HTTPS, not the `first-party assertion` phrase) OR be reworded as explicitly illustrative ("illustrative, not benchmarked"); reword the 3 unsourced quantified rows in `why-archlucid-comparison.ts` + `WhyArchLucidPackBuilder.cs` (keep byte-for-row sync); pytest for pass/fail cases | **Done (2026-06-03 batch 5CN)** ? illustrative reword + quantified-baseline guard in `assert_why_rows_have_evidence.py`; `test_differentiability_batch_5cn.py` | S |
+| TB-265 | Named generic-AI contrast on public `/why` ? promote the existing `DIFFERENTIATION_PROOF_PACKET.md` "Generic AI assistant" contrast into the buyer-facing surface: a 6th front-door contrast block (or a dedicated "vs a chat assistant" section) on `WhyArchlucidMarketingView` + a `marketing-faq.ts` Q&A ("How is this different from using ChatGPT/Copilot?"), framed honestly (persisted manifest, audit ledger, governance gate, evidence chain vs a non-durable chat session); Vitest | **Done (2026-06-03 batch 5CN)** ? `MARKETING_GENERIC_AI_CONTRAST_POINTS` + `/why` section + FAQ; Vitest | S |
+| TB-266 | Cohort-claim integrity guard ? new `scripts/ci/assert_why_cohort_claim_locked.py` that fails (or forces an "(baseline lock pending)" annotation) when `/why` claim #4 asserts deterministic drift detection while `GoldenCohortBaselineConstants` fingerprints are still the zeroed placeholder; wire as a `/why` CI step; pytest | **Done (2026-06-03 batch 5CN)** ? `assert_why_cohort_claim_locked.py` + CI step; narrative disclosure; `test_differentiability_batch_5cn.py` | S |
+| TB-267 | `/executive/dashboard` route under executive chrome ? new `(executive)/executive/dashboard/page.tsx` rendering `ExecutiveRoiDashboardPageView` inside `ExecutiveShellFrame` (thin provider wrapper if dashboard sections need operator-nav context); repoint the `ExecutiveShellFrame` "Dashboard" nav `<Link>` from `/dashboard` to `/executive/dashboard`; update active-route highlight + Vitest | **Done (2026-06-03 batch 5CO)** ? `(executive)/executive/dashboard/page.tsx` + nav href; `test_executive_value_batch_5co.py` | M |
+| TB-268 | In-product executive narrative summary line ? `buildExecutiveValueNarrative` helper deriving a plain-language synthesis ("This period: {reviews} reviews, {findings} findings, ~${savings}/{hours} h saved; top action: {topRecommendedAction}") from the already-loaded `pilot-value-report` + recommended-actions data; render atop `ExecutiveScorecardClient` (and the dashboard) above the tiles; deterministic (no LLM); unit + Vitest | **Done (2026-06-03 batch 5CO)** ? `buildExecutiveValueNarrative` + `ExecutiveValueNarrativeBanner`; scorecard + executive dashboard | S |
+| TB-269 | Dashboard ROI trend window selector ? add a 30d/quarter/all/year range selector to `ExecutiveRoiTrendSection` matching `ExecutiveScorecardClient`'s control; thread the selected window to the history fetch; Vitest | **Done (2026-06-03 batch 5CO)** ? client-side filter + `exec-roi-trend-time-range`; scorecard year option; `test_executive_value_batch_5co.py` | S |
+| TB-270 | Disambiguate review-creation entry points ? audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic ? relabel/route only) | **Done (2026-06-04 batch 5DM)** ? path hint copy, relabeled wizard mode toggle, Vitest single-path guard | M |
+| TB-271 | Universal failure identifier ? generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | **Done (2026-06-04 batch 5DM)** ? `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | S |
+| TB-272 | Empty/loading-state consistency ? consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** ? `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
+| TB-273 | Buyer-demo readiness defect remediation (**BDA-001?BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** ? batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md); full per-issue table in `## TB-273` below | XL |
+| TB-275 | Buyer-demo harsh audit re-validation (2026-06-04) ? spot-check residual defects; canonical register **TB-273** (all **150** issues, not top-100 only) | **Done (2026-06-04 batch 5DT)** ? BDA-001/008/015 + audit demo gating; `test_demo_batch_5dt.py` | S |
+| TB-276 | Route tenant scope binding filter ? replace per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` calls with a global `IAsyncActionFilter` (or endpoint convention) that forbids `{tenantId}` / `{id}` route values when they differ from `IScopeContextProvider.GetCurrentScope().TenantId`; **exclude** routes under `PlatformTenantDeletionAuthority` and `/internal/*` cross-tenant surfaces; remove duplicated controller guards once filter is registered | **Done (2026-06-05 batch 5DU-route-tenant-p0)** ? `RouteTenantScopeBindingFilter` + `MvcExtensions` registration | M |
+| TB-277 | Route `{tenantId}` CI drift guard ? `scripts/ci/assert_route_tenant_scope_guard.py` fails when a controller action binds `{tenantId:guid}` (or `{id:guid}` on tenant-admin paths) without the filter attribute/convention or an explicit allowlist entry; wire into API CI | **Done (2026-06-05 batch 5DU-route-tenant-p0)** ? `assert_route_tenant_scope_guard.py` + `test_route_tenant_batch.py` | S |
+| TB-278 | Route tenant IDOR integration test matrix ? for each tenant-scoped `{tenantId}` route (executive summary, reference-evidence, metering, value-report): tenant A token + tenant B route ? **403**; matching tenant ? **200**/expected status; no dedicated tests exist today | **Done (2026-06-05 batch 5DU-route-tenant-p0)** ? route-tenant integration matrix + `test_route_tenant_batch.py` | S |
+| ~~TB-281~~ | ~~Value-report scope-only URL~~ ? **Done** (batch **5DU-route-tenant-p1**): `POST /v1/value-report/generate` + UI/CLI callers; legacy `{tenantId}` alias retained | Trustworthiness P1 | S |
+| ~~TB-279~~ | ~~Tenant-scoped admin route migration~~ ? **Done** (batch **5DU-route-tenant-p1**): scope-only reference-evidence + metering summary; legacy aliases retained | Architectural integrity P2 | M |
+| ~~TB-280~~ | ~~Retire legacy authority executive-summary `{tenantId}` route~~ ? **Done** (batch **5DU-route-tenant-p1**): removed `ExecutiveSummaryController`; CI guard in `test_route_tenant_p1_batch.py` | Architectural integrity P2 | XS |
+| ~~TB-282~~ | ~~Cross-tenant usage rollup policy alignment~~ ? **Done** (batch **5DU-route-tenant-p1**): `AdminCrossTenantUsageRollupController` + **RequireOperatorRole**; RBAC integration tests | Trustworthiness P2 | XS |
+| ~~TB-283~~ | ~~Buyer run detail summary DTO~~ ? **Done** (batch **5DW-trust-pilot-p0**): `BuyerRunDetailSummaryDto`, `RunDetailBuyerMapper`, `GET /v1/authority/runs/{runId}/buyer-summary`, buyer-polished UI loader | Architectural integrity P0 | M |
+| ~~TB-284~~ | ~~Audience-tier Problem Details~~ ? **Done** (batch **5DW-trust-pilot-p0**): `ProblemDetailsAudience`, `x-archlucid-audience: buyer`, buyer-safe `supportHint` copy + golden tests | Trustworthiness P0 | S |
+| ~~TB-285~~ | ~~CI forbidden-property guard for buyer OpenAPI schemas~~ ? **Done** (batch **5DW-trust-paid-p1a**): `ProofSurfaceForbiddenPropertyDriftTests`, `buyer_dto_forbidden_properties.txt`, `test_dto_boundary_batch.py` | Testability P1 | S |
+| ~~TB-286~~ | ~~OpenAPI audience tiers + buyer contract snapshot~~ ? **Done** (batch **5DW-trust-paid-p1a**): `x-archlucid-audience` transformers, `buyer-contract.openapi.snapshot.json`, `OpenApiBuyerContractSnapshotTests` | Architectural integrity P1 | M |
+| ~~TB-287~~ | ~~Forensics partition for full LLM traces~~ ? **Done** (batch **5DW-trust-paid-p1a**): `GET /v1/internal/architecture/run/{runId}/traces/forensics`, operator gate on tool-invocation-forensics, `ForensicsTracePartitionIntegrationTests` | Trustworthiness P1 | M |
+| ~~TB-288~~ | ~~Architecture test ? buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*`~~ ? **Done** (batch **5DX-trust-p2**): `BuyerFacingDtoBoundaryArchitectureTests` + `test_dto_boundary_batch.py` guard | Testability P2 | XS |
+| ~~TB-289~~ | ~~Live buyer golden path E2E~~ ? **Done** (batch **5DW-trust-pilot-p0**): `e2e/live-api-buyer-golden-path.spec.ts` | Testability P0 | M |
+| ~~TB-290~~ | ~~Commit-to-audit trail integrity (SQL)~~ ? **Done** (batch **5DW-trust-pilot-p0**): `AuditTrailCommitIntegrityIntegrationTests` | Trustworthiness P0 | S |
+| ~~TB-291~~ | ~~Reference evidence admin export integration~~ ? **Done** (batch **5DW-trust-pilot-p0**): `ReferenceEvidenceAdminExportIntegrationTests` | Trustworthiness P0 | S |
+| ~~TB-292~~ | ~~Route-tenant positive-path matrix~~ ? **Done** (batch **5DW-trust-pilot-p0**): matching-tenant not-403 rows + `test_route_tenant_batch.py` guard | Testability P0 | S |
+| ~~TB-293~~ | ~~Production demo fail-fast host integration~~ ? **Done** (batch **5DW-trust-pilot-p0**): `ProductionDemoFailFastHostIntegrationTests` | Trustworthiness P0 | XS |
+| ~~TB-294~~ | ~~Sponsor value report demo-run isolation (API)~~ ? **Done** (batch **5DW-trust-pilot-p0**): `ValueReportDemoRunIsolationIntegrationTests` | Trustworthiness P0 | S |
+| ~~TB-295~~ | ~~SQL-backed audit export tenant isolation~~ ? **Done** (batch **5DW-trust-paid-p1b**): `AuditExportTenantIsolationIntegrationTests` | Trustworthiness P1 | S |
+| ~~TB-296~~ | ~~Export blob push SSRF integration (API)~~ ? **Done** (batch **5DW-trust-paid-p1b**): API-layer SSRF regressions in `ScopedSnapshotReadIdorIntegrationTests` | Trustworthiness P1 | S |
+| ~~TB-297~~ | ~~Governance HTTP negative-path matrix~~ ? **Done** (batch **5DW-trust-paid-p1b**): `GovernanceNegativePathIntegrationTests` + `test_trust_paid_p1b_batch.py` | Testability P1 | M |
+| ~~TB-298~~ | ~~Manifest artifact download integrity~~ ? **Done** (batch **5DW-trust-paid-p1b**): matching-tenant artifact list/download success path in SQL integration | Trustworthiness P1 | S |
+| ~~TB-299~~ | ~~Executive ROI board-pack live E2E~~ ? **Done** (batch **5DW-trust-paid-p1b**): `ExecutiveRoiBoardPackEndpointTests` + `live-api-executive-board-pack.spec.ts` | Testability P1 | S |
+| ~~TB-300~~ | ~~Scope identity auth permutation table~~ ? **Done** (batch **5DW-trust-paid-p1b**): JWT/DevBypass permutations + pen-test matrix row | Trustworthiness P1 | M |
+| ~~TB-301~~ | ~~Targeted Persistence tenant-read SQL probes~~ ? **Done** (batch **5DX-trust-p2**): five `*ScopeIsolationSqlIntegrationTests.cs` probes + `test_trust_p2_batch.py` | Testability P2 | M |
+| TB-009 | Architecture invariant program ? doc + ADR 0035 finalize | Engineering governance ? single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
+| TB-010 | Architecture invariant enforcement ? Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) ? INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
+| TB-011 | Architecture invariant enforcement ? Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** ? persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
+| TB-033 | Agent execution trace ? persist LLM sampling params + reasoning token count | **Done (2026-05-31)** ? `AgentExecutionTraceRecorder` persists sampling params + `ReasoningTokenCount`; `AgentExecutionTraceRecorderSamplingParamsTests` | XS |
+| TB-071 | Azure Search production client ? wire tenant OData filter on every search/delete | **Done (2026-05-31)** ? `AzureSearchSdkClient` + scoped delete; `AzureSearchTenantScopeFilterBuilderTests` | S?M |
+| TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | **Done (2026-05-31)** ? `ScopeIdentityBindingMiddleware` + ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` | M |
+| TB-073 | Scoped snapshot repository reads (findings / graph / context + relational child loads) | **Done (2026-05-31)** ? scoped `GetByIdAsync(ScopeContext)` + `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests` | M |
+| TB-074 | Retrieval indexing write-path tenant validation | **Done (2026-05-31)** ? `RetrievalIndexingScopeValidator` on index writes; scoped in-memory delete; tests | S |
+| TB-075 | Operator UI server-side scope (proxy strips client headers; SSR from session) | **Done (2026-05-31)** ? `resolveProxyUpstreamScopeHeaders` + production-like proxy posture; value-report tenant from `/api/auth/me` | S?M |
+| TB-082 | Agent `AllowedTools` ? runtime enforcement at handler dispatch | **Done (2026-05-31)** ? `AgentTaskAllowedToolsDispatchGuard` at dispatch; `AgentTaskAllowedToolsDispatchGuardTests` | S |
+| TB-079 | ADO PR markdown ? sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | **Done (2026-05-31)** ? `AdoPullRequestMarkdownEscaper` + safe links in compare + run-summary Markdown | XS |
+| TB-083 | Service Bus ? production safety rule: require namespace FQDN, disallow raw connection string | **Done (2026-05-31)** ? `CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
+| TB-081 | `ArchLucidApiKey` ? production safety rule: require Key Vault reference | **Done (2026-05-31)** ? `CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
+| TB-080 | Azure OpenAI ? migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | **Done (2026-05-31)** ? `AuthenticationMode=ManagedIdentity` for completion, embeddings, judge; `AzureOpenAiConfigurationProbe`; KV sample + startup lint | S |
+| TB-084 | AzureExtractor ? validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** ? `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
+| TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | **Done (2026-06-01)** ? `terraform-private` KV DNS zone + PE when `key_vault_id` set; `key_vault_private_endpoint_id` output; `terraform validate` | XS-S |
+| TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | **Done (2026-06-01)** ? `terraform-keyvault/workload_rbac.tf` + principal ID vars; `terraform-private/keyvault_rbac.tf`; `apply-saas.ps1` TB-092 second pass; `terraform.tfvars.example` | XS |
+| TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | **Done (2026-06-01)** ? `openai_compose_mode=existing` (eastus); hosted-prod + container-apps env/RBAC; `terraform-openai` consumed contract; pilot_essential | M |
+| TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | **Done (2026-06-01)** ? `infra/terraform-redis` + container-apps `hot_path_cache_redis_connection_string`; PE/DNS optional; `terraform validate` | S |
+| TB-095 | Assess + codify Cosmos DB ? `terraform-cosmos` (dormant assessment + optional root) | IaC coverage ? **Done** 2026-06-01; see `COSMOS_DB_IAC_ASSESSMENT.md` | S-M |
+| TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage ? **Done** 2026-06-01; `deploy/hosted-prod-terraform` + `terraform-container-apps` `azure_search_*`; see `AZURE_AI_SEARCH_CONSUMED.md` | S |
+| TB-097 | Create `terraform-acr` root ? Azure Container Registry | IaC coverage ? **Done** 2026-06-01; `infra/terraform-acr/` (optional `enable_acr`) | S |
+| TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage ? **Done** 2026-06-01; managed workspace + `azure_monitor_workspace_id_effective` | XS |
+| TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability ? **Done** 2026-06-01; optional flags in container-apps, servicebus, storage (+ hosted platform diagnostics) | S |
+| TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene ? **Done** 2026-06-01 (RBAC on hosting storage; access key still required by platform for file share mount) | M |
+| TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene ? **Done** 2026-06-01 (documented legacy optional path; Container Apps is active compute) | XS |
+| TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene ? **Done** 2026-06-01; `application_insights_sampling_percentage` variable (0?100, default 100) | XS |
+| TB-085 | SqlRelationalBackfill ? paged scans + checkpoint table | **Done (2026-06-01)** ? `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging | M |
+| TB-086 | Backfill poison-row quarantine | **Done (2026-06-01)** ? `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, JSON `skippedQuarantinedCount` | S |
+| TB-087 | Findings backfill DB idempotency | **Done (2026-06-01)** ? migration **229** unique index; repository-only slice guard | XS?S |
+| TB-088 | Container jobs per-entity isolation | **Done (2026-06-01)** ? `TrialLifecycleArchLucidJob`, `AdvisoryDueScheduleProcessResult` | S |
+| TB-089 | Digest ledger-before-send | **Done (2026-06-01)** ? verified + `DigestEmailDispatcherIdempotencyTests` | S |
+| TB-090 | Backfill.Cli ? `--output-json` report + per-stage timing | **Done (2026-05-31)** ? extended with quarantine fields in JSON (2026-06-01) | XS |
+| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | **Done (2026-06-03 batch 5CM)** ? `SQL_SCRIPTS.md` ?4.0.1 mermaid decision flow + existing `GreenfieldBaselineMigrationRunnerTests` / `JournalDriftBaselineRepairSqlIntegrationTests`; `test_maintainability_batch_5cm.py` | M |
+| TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | **Done (2026-06-03 batch 5CM)** ? `ArchLucid.sql` header + divergence comments; `test_maintainability_batch_5cm.py` | XS |
+| TB-156 | `start-local-api-and-ui.ps1` ? strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **Done (2026-05-31)** ? `scripts/start-local-api-and-ui.ps1` E2E proxy gate | S |
+| TB-157 | API connectivity toasts ? distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **Done (2026-05-31)** ? `api-error-toast-policy.ts` + tests | XS |
+| TB-106 | RunDetailPageView ? enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | **Done (2026-05-31)** ? `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | M |
+| TB-107 | RunDetailPageView ? surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | **Done (2026-05-31)** ? `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | S |
+| TB-108 | RunDetailPageView ? render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | **Done (2026-05-31)** ? `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | S |
+| TB-103 | Orphan candidate count + savings ? expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness ? **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
+| TB-104 | 14-day expiring waiver KPI ? server-compute the window; remove client-side date rule | Customer-visible correctness ? **Done**; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
+| TB-105 | Business-impact category buckets ? add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness ? **Done** 2026-05-31 | S |
+| TB-149 | Canonical 14-day expiring-waiver window ? single server implementation; delete `CountExpiringWaivers` duplicate | **Done (2026-05-31)** ? `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` | S |
+| TB-150 | Decisions-needed `TotalDecisionItems` ? union cardinality across buckets, not sum | **Done (2026-05-31)** ? `GovernanceDecisionsNeededSummaryCalculator` | S |
+| TB-151 | `ExecutiveSummaryResult.TotalRiskReductionScore` ? rename or map to pending-decision count | **Done (2026-05-31)** ? `ResolvedFindingsCount30Days` + `PendingGovernanceDecisionCount` | XS |
+| TB-152 | `ExecutiveSummaryResult.CostWasteUsd` ? stop aliasing `TotalEstimatedUsdSavings` | **Done (2026-05-31)** ? `CostWasteUsd: null` in live mapper | XS |
+| TB-153 | Recurring architecture review trigger ? idempotency before `ExecuteRunAsync` | **Done (2026-05-31)** ? checkpoint before `ExecuteRunAsync` | M |
+| TB-154 | Waiver ? disposition state machine ? bidirectional invariants | **Done (2026-05-31)** ? waiver/disposition guards | M |
+| TB-155 | ROI cache TTL vs live decisions-needed ? canonical expiring-waiver source | **Done (2026-05-31)** ? cache refresh + dashboard single source | S |
+| TB-109 | RunDetailPageView ? add retrieval-hit / RAG grounding panel | **Done (2026-05-31)** ? `RunDetailRetrievalGroundingSection` + faithfulness anchor | M |
+| TB-110 | RunDetailPageView ? add tool-call / function-invocation log panel | **Done (2026-06-01)** ? structured `AgentToolInvocationRecords` ledger + forensics API; execute-gated inline raw preview on run detail | M |
+| TB-111 | RunDetailPageView ? inline provenance summary card (collapse from sibling route) | **Done (2026-06-01)** ? `RunDetailProvenanceSummaryCard` on run detail | S |
+| TB-112 | RunDetailPageView ? add run-level approve / reject / request-remediation actions | **Done (2026-06-01)** ? `POST ?/disposition` + `RunDetailRunGovernanceDispositionActions` | M |
+| TB-113 | Fix OpenAPI schema drift on `RunDetailDto` ? expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | **Done (2026-06-01)** ? OpenAPI + `api-types.generated.ts`; `RunDetailDtoOpenApiContractTests` | XS |
+| TB-170 | Accelerator chooser ? map buyer job ? starter proof pack ? expected proof output | **Done (2026-06-01)** ? `ACCELERATOR_CHOOSER.md`, UI `AcceleratorChooserCard`, `/help/accelerator-chooser` | S |
+| TB-171 | Starter proof pack metadata contract | **Done (2026-06-01)** ? `starter-pack.json` on all packs; `STARTER_PROOF_PACK_METADATA_CONTRACT.md` | S |
+| TB-172 | Starter proof pack static validation gate | **Done (2026-06-01)** ? `check_starter_proof_packs.py` + CI + unit tests | S |
+| TB-173 | Template-to-proof dry-run harness | **Done (2026-06-01)** ? `dry_run_starter_proof_packs.py` + `StarterProofPack*` dotnet tests | M |
+| TB-174 | Golden accelerator walkthrough (one pack only) | **Done (2026-06-01)** ? `walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` (regulated SaaS) | S |
+| TB-175 | Policy pack metadata and buyer-safe caveat validation | **Done (2026-06-01)** ? `packManifest` on vertical packs; `check_policy_pack_manifests.py` + contract doc | S |
+| TB-176 | Policy pack dry-run index | **Done (2026-06-01)** ? `POLICY_PACK_DRY_RUN_INDEX.md` generated from manifests; CI `--check` | S |
+| TB-121 | Route/tier/policy/nav parity release gate hardening | **Done (2026-06-01)** ? sponsor/production BLOCK on drift; parity in first-pilot proof | S |
+| TB-122 | Governance outcome summary in sponsor proof | **Done (2026-06-01)** ? `governance-outcome-summary` artifacts in proof | S |
+| TB-123 | Policy-pack freshness report in proof/procurement artifacts | **Done (2026-06-01)** ? `policy-pack-freshness` v2 from `packManifest` | S |
+| TB-124 | Audit coverage drift gate for critical workflows | **Done (2026-06-01)** ? `mutating-route-audit-matrix` + drift in proof/CI | M |
+| TB-125 | Buyer-safe audit evidence summary in proof bundles | **Done (2026-06-01)** ? `audit-evidence-summary` + triage one-pager | S |
+| TB-126 | Audit event catalog metadata | **Done (2026-06-01)** ? `audit_event_catalog.v1.json` + CI check | M |
+| TB-127 | Audit tests for sponsor/procurement proof actions | **Done (2026-06-01)** ? `test_commercial_audit_proof_batch.py` | M |
+| TB-128 | Support/audit triage one-pager | **Done (2026-06-01)** ? `SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md` | XS-S |
+| TB-129 | Quote-to-proof readiness checklist | **Done (2026-06-01)** ? `report_quote_to_proof_readiness.py` + proof artifacts | S |
+| TB-130 | Quote aging export and follow-up SLA report | **Done (2026-06-01)** ? `quote-aging-sla.json/md` from AdminAuthority API in proof | M |
+| TB-131 | Commercial closeout artifact hardening | **Done (2026-06-01)** ? `validate_commercial_closeout_consistency.py` + Pester tests | S |
+| TB-132 | Tier fit validation matrix | **Done (2026-06-01)** ? `tier_fit_validation_matrix.v1.json` + `check_tier_fit_matrix.py` | S |
+| TB-133 | AI & Cloud Architecture Readiness Review offer pack aligned to pricing | **Done (2026-06-01)** ? `AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md` | S |
+| TB-134 | Commercial copy overclaim guard + public claim-boundary guide | **Done (2026-06-01)** ? `check_commercial_overclaim_guard.py` + `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` | S |
+| TB-158 | Pilot success thresholds and acceptance criteria | **Done (2026-06-03 batch 5CP)** ? `PILOT_ACCEPTANCE_THRESHOLDS.md` + `report_pilot_acceptance_thresholds.py` in `collect-first-pilot-proof.ps1`; `test_pilot_acceptance_batch.py` + `test_proof_roi_batch_5cp.py` | S |
+| TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof ? owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts | Owner/program |
+| TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof ? approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets | Owner/GTM |
+| TB-159 | Buyer security/procurement packet | **Done (2026-06-01)** ? `BUYER_SECURITY_PROCUREMENT_PACKET.md` | S-M |
+| TB-160 | Legal/procurement terms packet | **Done (2026-06-01)** ? `LEGAL_PROCUREMENT_TERMS_PACKET.md` | M |
+| TB-161 | Design partner / pilot recruiting pipeline | GTM execution ? target accounts, qualification criteria, founder-led outreach, pilot acceptance terms, and proof-capture permission path | S-M |
+| TB-162 | Support and pilot operating model | Operations ? support hours, escalation path, response targets, incident communications, owner availability, and white-glove vs self-serve pilot posture | S |
+| TB-163 | Transactable procurement path | Commercial conversion ? invoice/services SOW/private offer/Stripe/Marketplace decision tree, payment terms, legal/tax readiness, and claim boundaries | M |
+| TB-164 | V1.1 backlog: first named public reference customer | GTM proof ? customer permission, logo/case-study approval, reference-call terms, and claim update process | Owner/GTM |
+| TB-165 | Assessment score consistency guard | Documentation quality ? keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
+| TB-166 | Release claim gate for full real-mode AI evidence | Release safety ? **Done** (2026-06-01): `check_release_real_mode_claim.py` + `Invoke-ReleaseRealModeClaimGate.ps1` | S |
+| TB-167 | Sponsor AI readiness posture artifact | **Done (2026-06-03 batch 5CP)** ? `Write-AiReadinessPosture.ps1` wired via `Add-AiReadinessPostureFinding` in `collect-first-pilot-proof.ps1`; `AI_READINESS_POSTURE.md` updated; `test_proof_roi_batch_5cp.py` | S-M |
+| TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness ? **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
+| TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction ? **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
+| TB-170 | Remediate stale relative markdown links (docs/nav consolidation drift) | **Done (2026-06-01 batch 5F)** ? `repair_doc_links_batch5f.py` + stubs; `check_doc_links.py` exit 0; CI merge-blocking | L |
+| TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | **Done (2026-06-01)** ? registry-backed `/help/{topic}` renderer | M |
+| TB-144 | Customer-facing documentation registry | **Done (2026-06-01)** ? `product-documentation-registry.ts` | S |
+| TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | **Done (2026-06-01)** ? primary surfaces use `resolveInAppDocHref` | M |
+| TB-146 | Redirect-stub ban + canonical target resolution in registry | **Done (2026-06-01)** ? registry + stub rejection test | XS |
+| TB-147 | CI drift guard ? no customer-facing GitHub blob links in product UI | **Done (2026-06-01)** ? `customer-facing-github-blob-guard.test.ts` | S |
+| TB-148 | Role-gated optional ?View source on GitHub? footer | **Done (2026-06-01)** ? `HelpTopicSourceFooter` | XS |
+| TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel ? provision success ? telemetry/SQL) | **Done (2026-06-03 batch 5CL)** ? first-touch cookie ? `x-archlucid-first-touch`, `MarketingAttributionService`, migration 220, `MarketingAttributionServiceTests`; `test_marketability_batch_5cl.py` | M |
+| TB-020 | Public marketing SEO ? `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy ?2.4 ? DPIA / server kill-switch mirror optional | **Done (2026-06-03 batch 5CL)** ? `MarketingJsonLd`, consent + `NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED`, `CONFIGURATION_REFERENCE.md` marketing keys; `test_marketability_batch_5cl.py` | S?M |
 
 ---
 
-## TB-009 — Architecture invariant catalog + ADR 0035
+## TB-009 ? Architecture invariant catalog + ADR 0035
 
-**Status:** **Documentation landed** (2026-05-09) — [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (IDs `INV-001`–`INV-015`), authoring skeleton [`docs/architecture/adrs/adr-template-full.md`](../architecture/adrs/adr-template-full.md), governance ADR **`docs/architecture/adrs/0035-architecture-invariant-catalog.md`** (**Status: Proposed** — flip to Accepted when owner reviews).
+**Status:** **Documentation landed** (2026-05-09) ? [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (IDs `INV-001`?`INV-015`), authoring skeleton [`docs/architecture/adrs/adr-template-full.md`](../architecture/adrs/adr-template-full.md), governance ADR **`docs/architecture/adrs/0035-architecture-invariant-catalog.md`** (**Status: Proposed** ? flip to Accepted when owner reviews).
 
 **What remains:**
 
-1. Owner moves **ADR 0035** → **Accepted** after skimming invariant list + confirming no conflict with **TB-001** audit posture (especially **INV-003**).
-2. Pick up **TB-010** → **TB-012** in order unless a security incident reprioritizes **INV-015**.
+1. Owner moves **ADR 0035** ? **Accepted** after skimming invariant list + confirming no conflict with **TB-001** audit posture (especially **INV-003**).
+2. Pick up **TB-010** ? **TB-012** in order unless a security incident reprioritizes **INV-015**.
 
 **Refs:** Cursor rule `.cursor/rules/Architecture-Invariants.mdc` (points agents at the catalog).
 
 ---
 
-## TB-010 — Invariant Wave A — tenant boundary + fail-closed boot + composition root
+## TB-010 ? Invariant Wave A ? tenant boundary + fail-closed boot + composition root
 
-**Status (2026-05-25):** **Done** (Improvement **#21**) — INV-001 (tenant identity boundary Roslyn analyzer ARCH001) shipped 2026-05-09; INV-005 startup-validator catalog parity (`ConfigurationCatalogProductionProfileGuardParityTests` + catalog guard metadata); INV-006 composition-root architecture test (`SingleCompositionRootServiceCollectionExtensionsTests`).
+**Status (2026-05-25):** **Done** (Improvement **#21**) ? INV-001 (tenant identity boundary Roslyn analyzer ARCH001) shipped 2026-05-09; INV-005 startup-validator catalog parity (`ConfigurationCatalogProductionProfileGuardParityTests` + catalog guard metadata); INV-006 composition-root architecture test (`SingleCompositionRootServiceCollectionExtensionsTests`).
 
 **Covers:** **INV-001**, **INV-005**, **INV-006**.
 
@@ -397,29 +397,29 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Enforcement sketches:** Roslyn analyzer / architecture tests (`NetArchTest` or equivalent patterns already in-repo), **`StartupValidatorTests`** extensions, documented allow-list path for **`IServiceCollection`** extensions used by tests.
 
-**Out of scope for this wave:** execution-mode persistence (**TB-011**), webhook middleware (**INV-015** → **TB-012**).
+**Out of scope for this wave:** execution-mode persistence (**TB-011**), webhook middleware (**INV-015** ? **TB-012**).
 
 ---
 
-## TB-011 — Invariant Wave B — execution mode, budgets, single quality-gate outcome, replay isolation
+## TB-011 ? Invariant Wave B ? execution mode, budgets, single quality-gate outcome, replay isolation
 
-**Status (2026-06-01, batches 5D+5G):** **Done** — **INV-002** (Batch H); **INV-004** budget tracker + dual-replica SQL concurrency harness drift guards; **INV-012** persisted evaluation read path + API/Application injection guards; **INV-013** replay-guid commit guard + integration test.
+**Status (2026-06-01, batches 5D+5G):** **Done** ? **INV-002** (Batch H); **INV-004** budget tracker + dual-replica SQL concurrency harness drift guards; **INV-012** persisted evaluation read path + API/Application injection guards; **INV-013** replay-guid commit guard + integration test.
 
 **Covers:** **INV-002**, **INV-004**, **INV-012**, **INV-013**.
 
 **Objective:** Persist honest execution labelling across API + DB + traces; reconcile LLM budgets across replicas; persist one quality-gate verdict per persisted run revision for downstream consumers; ensure replay artefacts do not mutate original evidence namespaces.
 
-**Enforcement sketches:** DbUp → master DDL as per repo SQL rules; OpenAPI snapshot + codegen per **[`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md)** if DTO shape changes.
+**Enforcement sketches:** DbUp ? master DDL as per repo SQL rules; OpenAPI snapshot + codegen per **[`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md)** if DTO shape changes.
 
 **Depends on:** product agreement on **`Mixed`** UX copy (INV-002) before UI ships.
 
 ---
 
-## TB-012 — Invariant Wave C — hygiene pack (clock, cancellation, idempotency, HTTP, repos, webhook order)
+## TB-012 ? Invariant Wave C ? hygiene pack (clock, cancellation, idempotency, HTTP, repos, webhook order)
 
-**Status (2026-06-01, batch 5I):** **Done** — Wave C architecture guards complete: **INV-003/011/015** (earlier), **INV-010/014** (batch **5H**), **INV-007/008/009** (batch **5I** — `InjectedTimeArchitectureTests`, `CancellationForwardingArchitectureTests`, `MutatingHttpIdempotencyArchitectureTests`) + extended `test_invariant_wave_c_batch.py`. Follow-up Roslyn analyzers for **INV-007/008** remain optional hardening, not backlog blockers.
+**Status (2026-06-01, batch 5I):** **Done** ? Wave C architecture guards complete: **INV-003/011/015** (earlier), **INV-010/014** (batch **5H**), **INV-007/008/009** (batch **5I** ? `InjectedTimeArchitectureTests`, `CancellationForwardingArchitectureTests`, `MutatingHttpIdempotencyArchitectureTests`) + extended `test_invariant_wave_c_batch.py`. Follow-up Roslyn analyzers for **INV-007/008** remain optional hardening, not backlog blockers.
 
-**Covers:** **INV-007**–**INV-011**, **INV-014**, **INV-015** plus **INV-003** transactional vs informational markings.
+**Covers:** **INV-007**?**INV-011**, **INV-014**, **INV-015** plus **INV-003** transactional vs informational markings.
 
 **Objective:** Analyzer-first gates with low behavioural risk; ordered inbound webhook pipeline before handler bodies; forbid mutable static state in **`Application`** / **`AgentRuntime`**.
 
@@ -427,19 +427,19 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-170 — Accelerator chooser — buyer job → starter proof pack → expected proof output
+## TB-170 ? Accelerator chooser ? buyer job ? starter proof pack ? expected proof output
 
-**Status:** **Done (2026-06-01)** — [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md), [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md), `AcceleratorChooserCard`, registry slug `accelerator-chooser`.
+**Status:** **Done (2026-06-01)** ? [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md), [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md), `AcceleratorChooserCard`, registry slug `accelerator-chooser`.
 
 **Objective:** Give evaluators one obvious way to pick the right existing accelerator without browsing the whole `templates/` tree.
 
 **Scope:**
 
 - Add a chooser artifact that maps buyer jobs to existing starter proof packs, for example:
-  - AI governance / LLM risk review → `templates/starter-proof-packs/ai-llm-workload/`
-  - Regulated SaaS procurement → `templates/starter-proof-packs/regulated-saas-soc-procurement/`
-  - Azure cost governance → `templates/starter-proof-packs/azure-cost-governance/`
-  - Healthcare workflow review → `templates/starter-proof-packs/healthcare-data-workflow/`
+  - AI governance / LLM risk review ? `templates/starter-proof-packs/ai-llm-workload/`
+  - Regulated SaaS procurement ? `templates/starter-proof-packs/regulated-saas-soc-procurement/`
+  - Azure cost governance ? `templates/starter-proof-packs/azure-cost-governance/`
+  - Healthcare workflow review ? `templates/starter-proof-packs/healthcare-data-workflow/`
 - Include expected inputs, expected proof outputs, target persona, time-to-first-value, and when not to use the pack.
 - Link from `templates/README.md`, `docs/onboarding/EVALUATOR_WORKBOOK.md`, and the first-pilot command-center docs if the chooser becomes part of the operator path.
 
@@ -455,9 +455,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-171 — Starter proof pack metadata contract
+## TB-171 ? Starter proof pack metadata contract
 
-**Status:** **Done (2026-06-01)** — all four packs ship `starter-pack.json`; contract documented in [`STARTER_PROOF_PACK_METADATA_CONTRACT.md`](STARTER_PROOF_PACK_METADATA_CONTRACT.md).
+**Status:** **Done (2026-06-01)** ? all four packs ship `starter-pack.json`; contract documented in [`STARTER_PROOF_PACK_METADATA_CONTRACT.md`](STARTER_PROOF_PACK_METADATA_CONTRACT.md).
 
 **Objective:** Make every starter proof pack self-describing and reviewable as a V1 artifact, not a loose folder of examples.
 
@@ -479,9 +479,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-172 — Starter proof pack static validation gate
+## TB-172 ? Starter proof pack static validation gate
 
-**Status:** **Done (2026-06-01)** — `scripts/ci/check_starter_proof_packs.py` in CI; `scripts/ci/tests/test_check_starter_proof_packs.py`.
+**Status:** **Done (2026-06-01)** ? `scripts/ci/check_starter_proof_packs.py` in CI; `scripts/ci/tests/test_check_starter_proof_packs.py`.
 
 **Objective:** Prevent starter packs from drifting, breaking, or shipping buyer-unsafe placeholders.
 
@@ -503,9 +503,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-173 — Template-to-proof dry-run harness
+## TB-173 ? Template-to-proof dry-run harness
 
-**Status:** **Done (2026-06-01)** — `scripts/ci/dry_run_starter_proof_packs.py` (Python gate; optional `--with-dotnet-tests`); `StarterProofPackArchitectureRequestDryRunTests`, `StarterProofPackPolicyContextTests`.
+**Status:** **Done (2026-06-01)** ? `scripts/ci/dry_run_starter_proof_packs.py` (Python gate; optional `--with-dotnet-tests`); `StarterProofPackArchitectureRequestDryRunTests`, `StarterProofPackPolicyContextTests`.
 
 **Objective:** Prove each starter pack can flow through the minimal ArchLucid request/policy/context path without live cloud dependencies.
 
@@ -527,9 +527,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-174 — Golden accelerator walkthrough (one pack only)
+## TB-174 ? Golden accelerator walkthrough (one pack only)
 
-**Status:** **Done (2026-06-01)** — [`walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md) for `regulated-saas-soc-procurement`.
+**Status:** **Done (2026-06-01)** ? [`walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md) for `regulated-saas-soc-procurement`.
 
 **Objective:** Create one canonical accelerator walkthrough that demonstrates the end-to-end evaluator experience without expanding template count.
 
@@ -553,9 +553,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-175 — Policy pack metadata and buyer-safe caveat validation
+## TB-175 ? Policy pack metadata and buyer-safe caveat validation
 
-**Status:** **Done (2026-06-01)** — `packManifest` on all `templates/policy-packs/*`; [`POLICY_PACK_METADATA_CONTRACT.md`](POLICY_PACK_METADATA_CONTRACT.md); `scripts/ci/check_policy_pack_manifests.py`.
+**Status:** **Done (2026-06-01)** ? `packManifest` on all `templates/policy-packs/*`; [`POLICY_PACK_METADATA_CONTRACT.md`](POLICY_PACK_METADATA_CONTRACT.md); `scripts/ci/check_policy_pack_manifests.py`.
 
 **Objective:** Ensure every V1 policy pack is reviewable, scoped, and impossible to mistake for a compliance certification.
 
@@ -577,9 +577,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-176 — Policy pack dry-run index
+## TB-176 ? Policy pack dry-run index
 
-**Status:** **Done (2026-06-01)** — [`POLICY_PACK_DRY_RUN_INDEX.md`](POLICY_PACK_DRY_RUN_INDEX.md); `scripts/ci/generate_policy_pack_dry_run_index.py`; linked from [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md).
+**Status:** **Done (2026-06-01)** ? [`POLICY_PACK_DRY_RUN_INDEX.md`](POLICY_PACK_DRY_RUN_INDEX.md); `scripts/ci/generate_policy_pack_dry_run_index.py`; linked from [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md).
 
 **Objective:** Give operators and evaluators a compact map of available policy packs, what each one proves, and what inputs it expects.
 
@@ -601,9 +601,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-121 — Route/tier/policy/nav parity release gate hardening
+## TB-121 ? Route/tier/policy/nav parity release gate hardening
 
-**Status:** **Done (2026-06-01)** — `Add-RouteTierPolicyNavFinding` BLOCK on sponsor/production/drift; [`ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md`](ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md).
+**Status:** **Done (2026-06-01)** ? `Add-RouteTierPolicyNavFinding` BLOCK on sponsor/production/drift; [`ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md`](ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md).
 
 **Objective:** Prevent UI, packaging, authorization, and policy surfaces from drifting apart after route or tier changes.
 
@@ -625,9 +625,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-122 — Governance outcome summary in sponsor proof
+## TB-122 ? Governance outcome summary in sponsor proof
 
-**Status:** **Done (2026-06-01)** — `governance-outcome-summary.md/json` in first-pilot proof via `report_first_pilot_governance_outcome.py`.
+**Status:** **Done (2026-06-01)** ? `governance-outcome-summary.md/json` in first-pilot proof via `report_first_pilot_governance_outcome.py`.
 
 **Objective:** Make governance status visible to sponsors without forcing them through internal governance screens.
 
@@ -649,9 +649,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-123 — Policy-pack freshness report in proof/procurement artifacts
+## TB-123 ? Policy-pack freshness report in proof/procurement artifacts
 
-**Status:** **Done (2026-06-01)** — `policy-pack-freshness.md/json` from `packManifest.lastReviewedUtc` (v2 schema).
+**Status:** **Done (2026-06-01)** ? `policy-pack-freshness.md/json` from `packManifest.lastReviewedUtc` (v2 schema).
 
 **Objective:** Surface stale policy packs before they appear in buyer proof.
 
@@ -673,9 +673,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-124 — Audit coverage drift gate for critical workflows
+## TB-124 ? Audit coverage drift gate for critical workflows
 
-**Status:** **Done (2026-06-01)** — `Add-MutatingRouteAuditMatrixFinding` + `check_audit_matrix.py` in CI/proof.
+**Status:** **Done (2026-06-01)** ? `Add-MutatingRouteAuditMatrixFinding` + `check_audit_matrix.py` in CI/proof.
 
 **Objective:** Keep audit coverage aligned with mutating routes, governance actions, and proof/commercial handoff operations.
 
@@ -697,9 +697,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-125 — Buyer-safe audit evidence summary in proof bundles
+## TB-125 ? Buyer-safe audit evidence summary in proof bundles
 
-**Status:** **Done (2026-06-01)** — `audit-evidence-summary.md/json`; links [`SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md`](../runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md).
+**Status:** **Done (2026-06-01)** ? `audit-evidence-summary.md/json`; links [`SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md`](../runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md).
 
 **Objective:** Let sponsors and support teams understand audit evidence without exposing raw audit payloads.
 
@@ -721,9 +721,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-126 — Audit event catalog metadata
+## TB-126 ? Audit event catalog metadata
 
-**Status:** **Done (2026-06-01)** — [`scripts/ci/data/audit_event_catalog.v1.json`](../../scripts/ci/data/audit_event_catalog.v1.json) + `check_audit_event_catalog.py`.
+**Status:** **Done (2026-06-01)** ? [`scripts/ci/data/audit_event_catalog.v1.json`](../../scripts/ci/data/audit_event_catalog.v1.json) + `check_audit_event_catalog.py`.
 
 **Objective:** Make audit event types self-describing for support, compliance review, and drift checks.
 
@@ -744,9 +744,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-127 — Audit tests for sponsor/procurement proof actions
+## TB-127 ? Audit tests for sponsor/procurement proof actions
 
-**Status:** **Done (2026-06-01)** — `test_commercial_audit_proof_batch.py` + extended `test_collect_first_pilot_proof_contract.py`.
+**Status:** **Done (2026-06-01)** ? `test_commercial_audit_proof_batch.py` + extended `test_collect_first_pilot_proof_contract.py`.
 
 **Objective:** Prove commercially sensitive proof actions are auditable or explicitly informational-only.
 
@@ -767,9 +767,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-128 — Support/audit triage one-pager
+## TB-128 ? Support/audit triage one-pager
 
-**Status:** **Done (2026-06-01)** — [`docs/runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md`](../runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md).
+**Status:** **Done (2026-06-01)** ? [`docs/runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md`](../runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md).
 
 **Objective:** Give operators a short, deterministic investigation path from `runId` or `correlationId`.
 
@@ -791,9 +791,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-129 — Quote-to-proof readiness checklist
+## TB-129 ? Quote-to-proof readiness checklist
 
-**Status:** **Done (2026-06-01)** — `scripts/ci/report_quote_to_proof_readiness.py`; proof emits `quote-to-proof-readiness.json/md`.
+**Status:** **Done (2026-06-01)** ? `scripts/ci/report_quote_to_proof_readiness.py`; proof emits `quote-to-proof-readiness.json/md`.
 
 **Objective:** Tie sales-led quote requests to actual proof readiness before asking for annual conversion.
 
@@ -814,9 +814,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-130 — Quote aging export and follow-up SLA report
+## TB-130 ? Quote aging export and follow-up SLA report
 
-**Status:** **Done (2026-06-01)** — `Add-PricingQuoteAgingFinding` writes `quote-aging-sla.json/md` when admin API reachable.
+**Status:** **Done (2026-06-01)** ? `Add-PricingQuoteAgingFinding` writes `quote-aging-sla.json/md` when admin API reachable.
 
 **Objective:** Make sales-led commercial packaging operational instead of passive.
 
@@ -838,9 +838,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-131 — Commercial closeout artifact hardening
+## TB-131 ? Commercial closeout artifact hardening
 
-**Status:** **Done (2026-06-01)** — `validate_commercial_closeout_consistency.py`; `FirstPilotCommercialCloseout.Tests.ps1`.
+**Status:** **Done (2026-06-01)** ? `validate_commercial_closeout_consistency.py`; `FirstPilotCommercialCloseout.Tests.ps1`.
 
 **Objective:** Make the generated commercial closeout artifact authoritative and consistent with proof state.
 
@@ -862,9 +862,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-132 — Tier fit validation matrix
+## TB-132 ? Tier fit validation matrix
 
-**Status:** **Done (2026-06-01)** — [`scripts/ci/data/tier_fit_validation_matrix.v1.json`](../../../../../scripts/ci/data/tier_fit_validation_matrix.v1.json); CI `check_tier_fit_matrix.py`.
+**Status:** **Done (2026-06-01)** ? [`scripts/ci/data/tier_fit_validation_matrix.v1.json`](../../../../../scripts/ci/data/tier_fit_validation_matrix.v1.json); CI `check_tier_fit_matrix.py`.
 
 **Objective:** Keep pricing tiers aligned with buyer jobs, evidence outputs, and explicit exclusions.
 
@@ -885,9 +885,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-133 — AI & Cloud Architecture Readiness Review offer pack aligned to pricing
+## TB-133 ? AI & Cloud Architecture Readiness Review offer pack aligned to pricing
 
-**Status:** **Done (2026-06-01)** — [`AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md`](../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md).
+**Status:** **Done (2026-06-01)** ? [`AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md`](../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md).
 
 **Objective:** Turn the selected first sales motion, **AI & Cloud Architecture Readiness Review**, into a reusable sales-led package that can be drafted by a frontier model and owner-reviewed before publication.
 
@@ -912,9 +912,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-134 — Commercial copy overclaim guard + public claim-boundary guide
+## TB-134 ? Commercial copy overclaim guard + public claim-boundary guide
 
-**Status:** **Done (2026-06-01)** — `check_commercial_overclaim_guard.py`; [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md).
+**Status:** **Done (2026-06-01)** ? `check_commercial_overclaim_guard.py`; [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md).
 
 **Objective:** Prevent buyer-facing commercial copy from implying unavailable capabilities, unsupported ROI, or unlabeled prototype/simulator/local-owner-dev evidence.
 
@@ -940,9 +940,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-135 — V1.1 backlog: SOC 2 CPA attestation program kickoff (assessment #23)
+## TB-135 ? V1.1 backlog: SOC 2 CPA attestation program kickoff (assessment #23)
 
-**Window:** **V1.1 backlog** — owner / organizational program, not V1 engineering. **Do not** re-prompt from assessment batches; see **`.cursor/rules/V1_1-assurance-backlog.mdc`**.
+**Window:** **V1.1 backlog** ? owner / organizational program, not V1 engineering. **Do not** re-prompt from assessment batches; see **`.cursor/rules/V1_1-assurance-backlog.mdc`**.
 
 **Context:** V1 ships honest self-assessment, CAIQ/SIG/DPA templates, and roadmap (`docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/SOC2_ROADMAP.md`, `docs/go-to-market/TRUST_CENTER.md`). CPA Type I/II engagement is gated on ARR or binding procurement requirement per [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-05-05 (SOC 2 ARR trigger)*.
 
@@ -950,19 +950,19 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 1. Confirm scope (Trust Services Criteria), budget ceiling, and auditor/readiness consultant shortlist.
 2. Align observation window and target report type with [`SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md).
-3. Update Trust Center rows only when posture changes — no implied “SOC 2 issued” language before CPA delivery.
+3. Update Trust Center rows only when posture changes ? no implied ?SOC 2 issued? language before CPA delivery.
 
 **Explicit limits:** Not a coding-agent default task; **`(A)` assessments must not** treat absent CPA SOC 2 as a V1 defect.
 
-**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c, assessment improvement **#23**.
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6c, assessment improvement **#23**.
 
-**Size estimate:** Organizational — multi-week / multi-month; no repo SLA.
+**Size estimate:** Organizational ? multi-week / multi-month; no repo SLA.
 
 ---
 
-## TB-136 — V1.1 backlog: third-party pen-test program (assessment #25)
+## TB-136 ? V1.1 backlog: third-party pen-test program (assessment #25)
 
-**Window:** **V1.1 backlog** — funded vendor engagement, not V1 engineering. **Do not** re-prompt from assessment batches; see **`.cursor/rules/V1_1-assurance-backlog.mdc`**. V1 relies on **owner-conducted** testing (**TB-005**).
+**Window:** **V1.1 backlog** ? funded vendor engagement, not V1 engineering. **Do not** re-prompt from assessment batches; see **`.cursor/rules/V1_1-assurance-backlog.mdc`**. V1 relies on **owner-conducted** testing (**TB-005**).
 
 **Pick up when owner directs:**
 
@@ -972,39 +972,39 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Explicit limits:** Not a substitute for **TB-005** owner-conducted V1 exercise; not autonomous external attack from the coding agent.
 
-**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c, assessment improvement **#25**, **TB-005**.
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6c, assessment improvement **#25**, **TB-005**.
 
-**Size estimate:** Organizational — vendor-led; calendar not pinned here.
+**Size estimate:** Organizational ? vendor-led; calendar not pinned here.
 
 ---
 
-## TB-137 — Real-LLM evidence: full quad-agent live pipeline gate
+## TB-137 ? Real-LLM evidence: full quad-agent live pipeline gate
 
 **Status:** Shipped (2026-05-30). Merge-time schema validation now uses `AgentResultMergeSchemaSerializer` + `AgentResultMergeNormalizer` (wire subset, tolerant enum/finding coercion, proposal id backfill). Live test asserts `DecisionTraces` instead of empty coordinator `DecisionNodes`. Re-run `Invoke-RealLlmEvidenceGate.ps1` locally for PASS/HOLD confirmation.
 
 **Owner decision (2026-06-01):** Canonical release-candidate real-mode evidence source is **local owner dev**. The gate is **release-candidate required**, but **not branch-protection required** for the next release. If the evidence gate is not attached and passing, the release must narrow its claim to simulator-only.
 
-**Pick up when:** live gate still HOLD after owner re-run — capture `merge.Errors` from test output and extend normalizer/converters. Also update release checklist/proof docs if the RC evidence attachment rules drift from the owner decision above.
+**Pick up when:** live gate still HOLD after owner re-run ? capture `merge.Errors` from test output and extend normalizer/converters. Also update release checklist/proof docs if the RC evidence attachment rules drift from the owner decision above.
 
 **Refs:** `ArchLucid.Decisioning/Validation/AgentResultMergeSchemaSerializer.cs`, `ArchitectureFindingJsonConverter`, `RealAzureOpenAIEndToEndTests`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`, `docs/quality/REAL_LLM_SESSION_2026-05-29.md`.
 
-**Size estimate:** M (~4–8 h) — **closed**.
+**Size estimate:** M (~4?8 h) ? **closed**.
 
 ---
 
-## TB-138 — Real-LLM evidence: GitHub golden-cohort secrets + required PR check (TB-007 Gap A remainder)
+## TB-138 ? Real-LLM evidence: GitHub golden-cohort secrets + required PR check (TB-007 Gap A remainder)
 
-**Status:** **Shipped (2026-05-30)** — `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true` repo variable, `cohort-real-llm-gate` runs on **pull_request** (fork-safe no-op), **`environment: dev`** for Azure federated login + Cost Management probe, CI AOAI secret fallbacks in `real-llm-golden-cohort.yml` / `Invoke-RealLlmGoldenCohort.ps1`, and **`cohort-real-llm-gate`** added to branch ruleset required checks. Owner confirms one green **`golden-cohort-nightly`** run on **`master`** after merge.
+**Status:** **Shipped (2026-05-30)** ? `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true` repo variable, `cohort-real-llm-gate` runs on **pull_request** (fork-safe no-op), **`environment: dev`** for Azure federated login + Cost Management probe, CI AOAI secret fallbacks in `real-llm-golden-cohort.yml` / `Invoke-RealLlmGoldenCohort.ps1`, and **`cohort-real-llm-gate`** added to branch ruleset required checks. Owner confirms one green **`golden-cohort-nightly`** run on **`master`** after merge.
 
 **Remaining owner-only (not code):** optional live invoke secrets (`ARCHLUCID_GOLDEN_COHORT_API_HOST`, `ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`) for unattended **`cohort-real-llm-live`**.
 
 **Verify:** `.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate -UseGitHubCli -Strict`
 
-**Refs:** **TB-007** Gap A, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` § 2, `.github/workflows/golden-cohort-nightly.yml`.
+**Refs:** **TB-007** Gap A, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` ? 2, `.github/workflows/golden-cohort-nightly.yml`.
 
 ---
 
-## TB-139 — Real-LLM evidence: capture token usage and cost in gate metrics
+## TB-139 ? Real-LLM evidence: capture token usage and cost in gate metrics
 
 **Status:** Partial (2026-05-30). `TryWriteRealLlmRunMetricsJson` now computes `estimatedCostUsd` when token totals are &gt; 0 (env-rate override or GPT-4o defaults). **`inputTokensTotal` / `outputTokensTotal`** still depend on Azure `Usage` reaching `LiveAoaiTraceSpy` and on fixing production double-consume in `LlmCompletionAccountingClient`.
 
@@ -1016,13 +1016,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Refs:** `RealAzureOpenAIEndToEndTests.TryWriteRealLlmRunMetricsJson`, `scripts/Invoke-RealLlmEvidenceGate.ps1`.
 
-**Size estimate:** S (~2–4 h).
+**Size estimate:** S (~2?4 h).
 
 ---
 
-## TB-140 — Real-LLM eval corpus: real-mode scenarios + nightly scoring (TB-007 Gap C)
+## TB-140 ? Real-LLM eval corpus: real-mode scenarios + nightly scoring (TB-007 Gap C)
 
-**Status:** **Partial (2026-06-18 Imp-18)** — 18 committed `*.real.json` exemplars, manifest real-mode scenarios, and `golden-cohort-expanded-nightly.yml` scoring. Live credentialed API invoke remains **G-REAL-01** (owner).
+**Status:** **Partial (2026-06-18 Imp-18)** ? 18 committed `*.real.json` exemplars, manifest real-mode scenarios, and `golden-cohort-expanded-nightly.yml` scoring. Live credentialed API invoke remains **G-REAL-01** (owner).
 
 **Pick up when:**
 
@@ -1036,11 +1036,11 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-141 — Near-term GTM backlog: real pilot proof packet cohort
+## TB-141 ? Near-term GTM backlog: real pilot proof packet cohort
 
-**Window:** **Near-term GTM backlog priority** — owner-selected scenarios/environments required. Data policy resolved 2026-05-30: customer data, sanitized internal data, and demo-only data are all allowed input classes when the relevant authorization, redaction, source labeling, and buyer-safe caveats are satisfied. Owner triage on 2026-06-01 promoted this from V1.1 to near-term GTM work.
+**Window:** **Near-term GTM backlog priority** ? owner-selected scenarios/environments required. Data policy resolved 2026-05-30: customer data, sanitized internal data, and demo-only data are all allowed input classes when the relevant authorization, redaction, source labeling, and buyer-safe caveats are satisfied. Owner triage on 2026-06-01 promoted this from V1.1 to near-term GTM work.
 
-**Context:** V1 can improve proof-packet mechanics, source labeling, release rollups, skip semantics, and first-screen proof status. The first proof-density cohort scenarios were selected on 2026-05-30: AI / LLM workload governance, regulated SaaS procurement / SOC-style diligence, and Azure cost / orphan / governance review. Owner triage on 2026-06-01 selected **Azure cost / orphan / governance review** as the canonical golden walkthrough starter pack once metadata and validation land. A named cohort of real pilot proof packets still requires owner decisions on environments and credentials, so it is not a V1 scored defect. The threshold for moving from controlled pilots to broader claims is already defined in `docs/go-to-market/GTM_BACKLOG.md` § *Proof-gated rollout criteria*.
+**Context:** V1 can improve proof-packet mechanics, source labeling, release rollups, skip semantics, and first-screen proof status. The first proof-density cohort scenarios were selected on 2026-05-30: AI / LLM workload governance, regulated SaaS procurement / SOC-style diligence, and Azure cost / orphan / governance review. Owner triage on 2026-06-01 selected **Azure cost / orphan / governance review** as the canonical golden walkthrough starter pack once metadata and validation land. A named cohort of real pilot proof packets still requires owner decisions on environments and credentials, so it is not a V1 scored defect. The threshold for moving from controlled pilots to broader claims is already defined in `docs/go-to-market/GTM_BACKLOG.md` ? *Proof-gated rollout criteria*.
 
 **Pick up now for near-term GTM planning:**
 
@@ -1054,15 +1054,15 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Explicit limits:** Do not treat absence of this cohort as a current `(A)` headline readiness penalty. V1 assessment work should focus on the reusable evidence harnesses and proof semantics that make the cohort credible.
 
-**Refs:** `docs/assessments/LATEST_GPT55.md` §9, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md`.
+**Refs:** `docs/assessments/LATEST_GPT55.md` ?9, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md`.
 
-**Size estimate:** Owner/program work — depends on selected scenarios and environment access.
+**Size estimate:** Owner/program work ? depends on selected scenarios and environment access.
 
 ---
 
-## TB-142 — Near-term GTM backlog: market-facing demo asset production
+## TB-142 ? Near-term GTM backlog: market-facing demo asset production
 
-**Window:** **Near-term GTM backlog priority** — brand, audience, and publication approval required. Channel resolved 2026-05-30: optimize **Upwork** first; website, sales email, LinkedIn, and live demo can reuse/adapt later. Evidence policy resolved 2026-05-30: real-mode output may be shown in public assets when authorized, redacted, source-labeled, and caveated; synthetic/demo-labeled assets remain allowed. Owner triage on 2026-06-01 promoted this from V1.1 to near-term GTM work.
+**Window:** **Near-term GTM backlog priority** ? brand, audience, and publication approval required. Channel resolved 2026-05-30: optimize **Upwork** first; website, sales email, LinkedIn, and live demo can reuse/adapt later. Evidence policy resolved 2026-05-30: real-mode output may be shown in public assets when authorized, redacted, source-labeled, and caveated; synthetic/demo-labeled assets remain allowed. Owner triage on 2026-06-01 promoted this from V1.1 to near-term GTM work.
 
 **Context:** V1 can harden proof artifacts, claim-language lint, starter proof packs, and operator first-value paths. Final market-facing screenshots, video, sales copy, and channel-specific demo assets are owner-approved GTM outputs and are not a V1 scored defect.
 
@@ -1077,13 +1077,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Refs:** `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`, `docs/go-to-market/COMMERCIAL_DECISION_PACKET.md`, `templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`.
 
-**Size estimate:** Owner/GTM production work — depends on channel and approval path.
+**Size estimate:** Owner/GTM production work ? depends on channel and approval path.
 
 ---
 
-## TB-158 — Pilot success thresholds and acceptance criteria
+## TB-158 ? Pilot success thresholds and acceptance criteria
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md`](../go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md); linked from [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md); proof automation via `report_pilot_acceptance_thresholds.py`, `pilot-acceptance-thresholds.json/md` in `collect-first-pilot-proof.ps1`, CI `test_pilot_acceptance_batch.py`.
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md`](../go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md); linked from [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md); proof automation via `report_pilot_acceptance_thresholds.py`, `pilot-acceptance-thresholds.json/md` in `collect-first-pilot-proof.ps1`, CI `test_pilot_acceptance_batch.py`.
 
 **Objective:** Define measurable PASS/HOLD criteria for founder-led pilots before results are interpreted or renegotiated after the fact.
 
@@ -1105,9 +1105,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-159 — Buyer security/procurement packet
+## TB-159 ? Buyer security/procurement packet
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md).
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md).
 
 **Objective:** Create a buyer-safe security/procurement packet that supports controlled pilots without implying formal external certification.
 
@@ -1130,9 +1130,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-160 — Legal/procurement terms packet
+## TB-160 ? Legal/procurement terms packet
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md`](../go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md).
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md`](../go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md).
 
 **Objective:** Make the first legal/procurement conversation concrete enough for paid pilots without inventing legal commitments in product copy.
 
@@ -1154,9 +1154,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-161 — Design partner / pilot recruiting pipeline
+## TB-161 ? Design partner / pilot recruiting pipeline
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_RECRUITING_PIPELINE.md`](../go-to-market/PILOT_RECRUITING_PIPELINE.md).
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/PILOT_RECRUITING_PIPELINE.md`](../go-to-market/PILOT_RECRUITING_PIPELINE.md).
 
 **Objective:** Turn founder-led pilot recruiting into a repeatable, evidence-aware pipeline instead of ad hoc outreach.
 
@@ -1178,9 +1178,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-162 — Support and pilot operating model
+## TB-162 ? Support and pilot operating model
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md`](../go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md).
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md`](../go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md).
 
 **Objective:** Define the operating posture for controlled pilots so buyers know how support, escalation, and incident communication work.
 
@@ -1202,9 +1202,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-163 — Transactable procurement path
+## TB-163 ? Transactable procurement path
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md`](../go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md).
+**Status (2026-06-01):** **Done** ? [`docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md`](../go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md).
 
 **Objective:** Define how a buyer can actually purchase a pilot or service-led engagement without implying unavailable checkout channels.
 
@@ -1226,13 +1226,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-164 — V1.1 backlog: first named public reference customer
+## TB-164 ? V1.1 backlog: first named public reference customer
 
-**Status (2026-06-01):** **Done (template)** — [`docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](../go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md) (owner execution remains V1.1).
+**Status (2026-06-01):** **Done (template)** ? [`docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](../go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md) (owner execution remains V1.1).
 
 **Objective:** Capture the owner-output work required before ArchLucid can use a named customer logo, public case study, or reference call as market proof.
 
-**Window:** **V1.1 GTM backlog** — not current release work and not a current `(A)` headline-readiness blocker.
+**Window:** **V1.1 GTM backlog** ? not current release work and not a current `(A)` headline-readiness blocker.
 
 **Scope:**
 
@@ -1252,9 +1252,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-165 — Assessment score consistency guard
+## TB-165 ? Assessment score consistency guard
 
-**Status (2026-06-01):** **Done** — `scripts/ci/check_assessment_score_consistency.py` (arithmetic headline check); `scripts/Assert-AssessmentScoreConsistency.ps1` (table-vs-detail text consistency check).
+**Status (2026-06-01):** **Done** ? `scripts/ci/check_assessment_score_consistency.py` (arithmetic headline check); `scripts/Assert-AssessmentScoreConsistency.ps1` (table-vs-detail text consistency check).
 
 **Objective:** Prevent assessment rescoring from updating the headline/table while leaving detailed quality sections stale.
 
@@ -1276,13 +1276,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-166 — Release claim gate for full real-mode AI evidence
+## TB-166 ? Release claim gate for full real-mode AI evidence
 
-**Status (2026-06-01):** **Done** — `scripts/ci/check_release_real_mode_claim.py`, `scripts/Invoke-ReleaseRealModeClaimGate.ps1`, wired into `Invoke-ReleaseRealLlmEvidenceRequirement.ps1`; unit tests in `scripts/ci/tests/test_check_release_real_mode_claim.py`; override procedure and downstream connections documented in [`docs/quality/RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md).
+**Status (2026-06-01):** **Done** ? `scripts/ci/check_release_real_mode_claim.py`, `scripts/Invoke-ReleaseRealModeClaimGate.ps1`, wired into `Invoke-ReleaseRealLlmEvidenceRequirement.ps1`; unit tests in `scripts/ci/tests/test_check_release_real_mode_claim.py`; override procedure and downstream connections documented in [`docs/quality/RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md).
 
 **Objective:** Make release packaging fail safe when full Topology/Cost/Compliance/Critic real-mode evidence is missing, partial, stale, or HOLD.
 
-**Why this is not a duplicate:** **TB-137 – TB-140** generate and improve real-mode evidence. This item controls release claims and release-candidate packaging: if the evidence is not attached and passing, product/proof/release materials must narrow themselves to simulator-only or partial-real-mode language.
+**Why this is not a duplicate:** **TB-137 ? TB-140** generate and improve real-mode evidence. This item controls release claims and release-candidate packaging: if the evidence is not attached and passing, product/proof/release materials must narrow themselves to simulator-only or partial-real-mode language.
 
 **Scope:**
 
@@ -1305,13 +1305,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-167 — Sponsor AI readiness posture artifact
+## TB-167 ? Sponsor AI readiness posture artifact
 
-**Status (2026-06-01):** **Done** — `scripts/collect-first-pilot-proof.ps1` emits `ai-readiness-gate.json` / `.md` (consolidated posture); TB-166 adds `real-mode-claim-gate` for release copy; sponsor artifact schema and writing rules documented in [`docs/go-to-market/AI_READINESS_POSTURE.md`](../go-to-market/AI_READINESS_POSTURE.md).
+**Status (2026-06-01):** **Done** ? `scripts/collect-first-pilot-proof.ps1` emits `ai-readiness-gate.json` / `.md` (consolidated posture); TB-166 adds `real-mode-claim-gate` for release copy; sponsor artifact schema and writing rules documented in [`docs/go-to-market/AI_READINESS_POSTURE.md`](../go-to-market/AI_READINESS_POSTURE.md).
 
 **Objective:** Promote production-like retrieval, real-mode evidence, quality-gate results, and budget posture into one sponsor-safe artifact that every proof packet can include.
 
-**Why this is not a duplicate:** Existing items cover the component evidence: **TB-109** surfaces retrieval, **TB-137 – TB-140** cover real-mode evidence and cost metrics, **TB-166** controls release claims, and **TB-122 / TB-125 / TB-131** add proof/commercial summaries. This item composes those signals into one concise sponsor artifact instead of making buyers infer AI readiness from separate files.
+**Why this is not a duplicate:** Existing items cover the component evidence: **TB-109** surfaces retrieval, **TB-137 ? TB-140** cover real-mode evidence and cost metrics, **TB-166** controls release claims, and **TB-122 / TB-125 / TB-131** add proof/commercial summaries. This item composes those signals into one concise sponsor artifact instead of making buyers infer AI readiness from separate files.
 
 **Scope:**
 
@@ -1337,13 +1337,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-168 — Executive KPI semantic contract and UI heuristic regression guard
+## TB-168 ? Executive KPI semantic contract and UI heuristic regression guard
 
-**Status (2026-06-01):** **Done** — `docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`; UI guard tests (`executive-kpi-semantic-contract.test.ts`, live KPI cards ban `expiringWaiversCount14Days ??`); `CachingExecutiveRoiSummaryServiceTests` proves live governance refresh over stale cache; dashboard expiring-waiver tile uses `waiversExpiringWithin14Days` only (**TB-155**).
+**Status (2026-06-01):** **Done** ? `docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`; UI guard tests (`executive-kpi-semantic-contract.test.ts`, live KPI cards ban `expiringWaiversCount14Days ??`); `CachingExecutiveRoiSummaryServiceTests` proves live governance refresh over stale cache; dashboard expiring-waiver tile uses `waiversExpiringWithin14Days` only (**TB-155**).
 
 **Objective:** Prevent customer-visible executive KPI, ROI, waiver, and decision-count semantics from drifting back into duplicated UI/backend/cache implementations after the known fixes land.
 
-**Why this is not a duplicate:** **TB-103 – TB-105** and **TB-149 – TB-155** fix specific known defects: orphan savings, expiring-waiver windows, business-impact buckets, decision-count union semantics, confusing DTO fields, waiver/disposition invariants, cache freshness, and recurring-run idempotency. This item adds a durable contract and regression guard so the same class of issue is caught before future UI or cache changes ship.
+**Why this is not a duplicate:** **TB-103 ? TB-105** and **TB-149 ? TB-155** fix specific known defects: orphan savings, expiring-waiver windows, business-impact buckets, decision-count union semantics, confusing DTO fields, waiver/disposition invariants, cache freshness, and recurring-run idempotency. This item adds a durable contract and regression guard so the same class of issue is caught before future UI or cache changes ship.
 
 **Scope:**
 
@@ -1366,13 +1366,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-169 — Pilot-first onboarding and Operate-surface progressive disclosure
+## TB-169 ? Pilot-first onboarding and Operate-surface progressive disclosure
 
-**Status (2026-06-01):** **Done (V1)** — `filterNavLinksByCommittedArchitectureReviewGate` + `nav-committed-architecture-review-gate.test.ts` (pilot path before commit; `operate-governance` empty until committed); `OperatorFirstRunWorkflowPanel` + `useNavProgressiveDisclosure` for extended/advanced tiers.
+**Status (2026-06-01):** **Done (V1)** ? `filterNavLinksByCommittedArchitectureReviewGate` + `nav-committed-architecture-review-gate.test.ts` (pilot path before commit; `operate-governance` empty until committed); `OperatorFirstRunWorkflowPanel` + `useNavProgressiveDisclosure` for extended/advanced tiers.
 
 **Objective:** Reduce first-run branching by making the primary operator path a single guided Pilot flow, while keeping recurring/Operate surfaces out of the main navigation until there is a committed review or proof artifact to operate.
 
-**Why this is not a duplicate:** **TB-156 – TB-157** fix confusing API/proxy diagnostics. **TB-143 – TB-148** move customer-facing documentation into in-app help. This item changes first-run product flow and navigation disclosure so new evaluators are not asked to understand Pilot, Operate, governance, recurring reviews, audit, proof, and procurement all at once.
+**Why this is not a duplicate:** **TB-156 ? TB-157** fix confusing API/proxy diagnostics. **TB-143 ? TB-148** move customer-facing documentation into in-app help. This item changes first-run product flow and navigation disclosure so new evaluators are not asked to understand Pilot, Operate, governance, recurring reviews, audit, proof, and procurement all at once.
 
 **Scope:**
 
@@ -1380,7 +1380,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 - In first-run state, make the primary CTA path: choose starter proof pack, confirm evidence/source labels, create/execute review, commit review, collect proof.
 - Hide or de-emphasize recurring review, long-running Operate dashboards, advanced governance queues, and broad audit/procurement surfaces until the first committed review/proof exists.
 - Keep advanced surfaces reachable through an explicit "Advanced / Operate mode" affordance for admins, not as the default first-run path.
-- Add empty states that explain what unlocks after first commit, using in-app help routes from **TB-143 – TB-145**.
+- Add empty states that explain what unlocks after first commit, using in-app help routes from **TB-143 ? TB-145**.
 - Add tests for zero-review, draft-run, executed-not-committed, committed-review, and admin-advanced states.
 
 **Acceptance criteria:**
@@ -1397,18 +1397,18 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-170 — Remediate stale relative markdown links (docs/nav consolidation drift)
+## TB-170 ? Remediate stale relative markdown links (docs/nav consolidation drift)
 
 **Status:** **Done (2026-06-01 batch 5F).** Repaired **200** stale relative targets (`scripts/ci/repair_doc_links_batch5f.py`, redirect stubs, depth fixes); `python scripts/ci/check_doc_links.py` exits **0** on a clean checkout; CI **Check relative markdown links** is merge-blocking (`continue-on-error` removed); drift guard `scripts/ci/tests/test_doc_links_batch.py`.
 
 **Objective:** Restore repo-wide relative markdown link integrity so documentation cross-refs resolve after `docs/library/` consolidation and navigational moves.
 
-**Why this is not a duplicate:** **TB-147** blocks GitHub blob URLs in operator/marketing UI code. **TB-143 – TB-148** move customer help in-app. **TB-170** fixes broken relative markdown link targets inside `docs/`, `archlucid-ui/docs/`, and root `README.md` surfaced by the CI advisory scanner.
+**Why this is not a duplicate:** **TB-147** blocks GitHub blob URLs in operator/marketing UI code. **TB-143 ? TB-148** move customer help in-app. **TB-170** fixes broken relative markdown link targets inside `docs/`, `archlucid-ui/docs/`, and root `README.md` surfaced by the CI advisory scanner.
 
 **Scope:**
 
 - Run `python scripts/ci/check_doc_links.py` (alias `scripts/ci/check_md_links.py`) and batch-fix broken targets.
-- Common drift patterns: wrong depth after `docs/library/` hub (`library/`, `runbooks/` missing `../`); ADR paths (`adr/` → `adrs/`, `../runbooks/` depth); code paths missing `../../../`; gitignored `docs/assessments/LATEST.md` → tracked `LATEST_GPT55.md` or dated archives; moved canonical files (`UI_DESIGN_SYSTEM.md`, runbooks under `docs/runbooks/`).
+- Common drift patterns: wrong depth after `docs/library/` hub (`library/`, `runbooks/` missing `../`); ADR paths (`adr/` ? `adrs/`, `../runbooks/` depth); code paths missing `../../../`; gitignored `docs/assessments/LATEST.md` ? tracked `LATEST_GPT55.md` or dated archives; moved canonical files (`UI_DESIGN_SYSTEM.md`, runbooks under `docs/runbooks/`).
 - Extend [`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md) where hub gaps remain.
 - After zero broken links (or a documented allowlist for intentional non-file targets), remove `continue-on-error: true` from the **Check relative markdown links** step in `.github/workflows/ci.yml` (`doc-markdown-links` job).
 
@@ -1420,13 +1420,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Refs:** **TB-147**, `scripts/ci/check_doc_links.py`, `scripts/ci/check_md_links.py`, `.github/workflows/ci.yml` (`doc-markdown-links`), [`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md).
 
-**Size estimate:** L (~2–4 days across many files).
+**Size estimate:** L (~2?4 days across many files).
 
 ---
 
-## TB-143 — In-app markdown documentation renderer + `/help/{topic}` routes
+## TB-143 ? In-app markdown documentation renderer + `/help/{topic}` routes
 
-**Status:** **Done (2026-06-01)** — `archlucid-ui/src/app/(operator)/help/[topic]/`, `HelpTopicMarkdownView`, API route `api/help/[slug]`; registry-backed markdown load.
+**Status:** **Done (2026-06-01)** ? `archlucid-ui/src/app/(operator)/help/[topic]/`, `HelpTopicMarkdownView`, API route `api/help/[slug]`; registry-backed markdown load.
 
 **Objective:** Render customer-facing Markdown inside the ArchLucid operator (and selected marketing) shell at stable routes such as `/help/pilot-guide`.
 
@@ -1445,13 +1445,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Refs:** **TB-144**, `HelpProductGuide.tsx`, `HelpDocsClient.tsx`, `getDocHref()`, `toDocsBlobUrl()`.
 
-**Size estimate:** M (~1–2 days).
+**Size estimate:** M (~1?2 days).
 
 ---
 
-## TB-144 — Customer-facing documentation registry
+## TB-144 ? Customer-facing documentation registry
 
-**Status:** **Done (2026-06-01)** — `product-documentation-registry.ts` + unit/load tests.
+**Status:** **Done (2026-06-01)** ? `product-documentation-registry.ts` + unit/load tests.
 
 **Objective:** Single registry mapping product documentation topics to canonical in-app routes and repo source markdown paths.
 
@@ -1464,66 +1464,66 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Acceptance criteria:**
 
-- Registry is the only authoritative map from product topic id → `/help/{slug}` → markdown source.
+- Registry is the only authoritative map from product topic id ? `/help/{slug}` ? markdown source.
 - Unit tests cover slug lookup and stub-path resolution (**TB-146**).
 
 **Refs:** **TB-143**, **TB-145**, **TB-146**, `help-topics.ts`, `doc-index.json`.
 
-**Size estimate:** S (~2–4 h).
+**Size estimate:** S (~2?4 h).
 
 ---
 
-## TB-145 — Migrate operator/product help links from GitHub blob to in-app routes
+## TB-145 ? Migrate operator/product help links from GitHub blob to in-app routes
 
-**Status:** **Done (2026-06-01)** — `resolveInAppDocHref` / `getDocHref` / `toDocsBlobUrl`; marketing and operator primary surfaces migrated off GitHub blob defaults.
+**Status:** **Done (2026-06-01)** ? `resolveInAppDocHref` / `getDocHref` / `toDocsBlobUrl`; marketing and operator primary surfaces migrated off GitHub blob defaults.
 
 **Objective:** Replace customer-facing GitHub blob links with in-app documentation routes across operator and buyer-visible surfaces.
 
 **Scope:**
 
-- `HelpPanel.tsx` — topic links and core pilot guide CTA use registry in-app hrefs.
-- `contextual-help-content.ts` / `ContextualHelp` — `learnMoreUrl` resolves to `/help/{slug}` not `toDocsBlobUrl()`.
-- `help-topics.ts` — add optional `inAppSlug` (or derive from registry); stop defaulting `getDocHref()` to GitHub for operator audiences.
-- `archlucid-ui/public/doc-index.json` generation — emit in-app URLs for customer-facing entries.
+- `HelpPanel.tsx` ? topic links and core pilot guide CTA use registry in-app hrefs.
+- `contextual-help-content.ts` / `ContextualHelp` ? `learnMoreUrl` resolves to `/help/{slug}` not `toDocsBlobUrl()`.
+- `help-topics.ts` ? add optional `inAppSlug` (or derive from registry); stop defaulting `getDocHref()` to GitHub for operator audiences.
+- `archlucid-ui/public/doc-index.json` generation ? emit in-app URLs for customer-facing entries.
 - Audit and migrate hard-coded GitHub links in buyer-polished operator components and marketing modules where the audience is not developer/contributor (integrations page may keep GitHub for admin-only deep links if gated).
 
 **Acceptance criteria:**
 
 - Default deployed operator UI (without `NEXT_PUBLIC_DOCS_BASE_URL`) opens in-app help, not github.com.
-- No product “Learn more” link targets `docs/library/PILOT_GUIDE.md` stub on GitHub.
+- No product ?Learn more? link targets `docs/library/PILOT_GUIDE.md` stub on GitHub.
 
 **Refs:** **TB-143**, **TB-144**, **TB-146**, `WizardStepPreset.tsx`, `security-trust-content.ts`, `PilotStartHereStrip.tsx`.
 
-**Size estimate:** M (~4–8 h).
+**Size estimate:** M (~4?8 h).
 
 ---
 
-## TB-146 — Redirect-stub ban + canonical target resolution in registry
+## TB-146 ? Redirect-stub ban + canonical target resolution in registry
 
-**Status:** **Done (2026-06-01)** — registry uses `customer-facing/PILOT_GUIDE.md` not stub; `product-documentation-registry.test.ts` rejects redirect-only primary sources.
+**Status:** **Done (2026-06-01)** ? registry uses `customer-facing/PILOT_GUIDE.md` not stub; `product-documentation-registry.test.ts` rejects redirect-only primary sources.
 
 **Objective:** Ensure product UI never links compatibility redirect stubs; resolve final canonical markdown internally.
 
 **Scope:**
 
-- Registry entries must not use stub-only files as rendered source (e.g. `docs/library/PILOT_GUIDE.md` → [`docs/library/customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) and/or merged `CORE_PILOT.md` sections).
-- Add validation script or unit test that fails when a customer-facing registry entry points at a file whose H1/title matches “Moved —” or “redirect” without a resolved `canonicalSourcePath`.
+- Registry entries must not use stub-only files as rendered source (e.g. `docs/library/PILOT_GUIDE.md` ? [`docs/library/customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) and/or merged `CORE_PILOT.md` sections).
+- Add validation script or unit test that fails when a customer-facing registry entry points at a file whose H1/title matches ?Moved ?? or ?redirect? without a resolved `canonicalSourcePath`.
 - Update any remaining UI/doc-index references that still point at stub paths.
 
 **Acceptance criteria:**
 
-- Clicking pilot guide help from product UI never shows a four-line “Moved — pilot guide” page (in-app or external).
+- Clicking pilot guide help from product UI never shows a four-line ?Moved ? pilot guide? page (in-app or external).
 - Validation fails CI if a new stub is registered for operator/buyer audience.
 
 **Refs:** **TB-144**, **TB-145**, `docs/library/PILOT_GUIDE.md`.
 
-**Size estimate:** XS (~1–2 h).
+**Size estimate:** XS (~1?2 h).
 
 ---
 
-## TB-147 — CI drift guard — no customer-facing GitHub blob links in product UI
+## TB-147 ? CI drift guard ? no customer-facing GitHub blob links in product UI
 
-**Status:** **Done (2026-06-01)** — `customer-facing-github-blob-guard.test.ts` scans operator/marketing surfaces with explicit allowlist.
+**Status:** **Done (2026-06-01)** ? `customer-facing-github-blob-guard.test.ts` scans operator/marketing surfaces with explicit allowlist.
 
 **Objective:** Prevent regression of GitHub blob URLs into operator and marketing UI code paths.
 
@@ -1540,19 +1540,19 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Refs:** **TB-145**, **TB-134**, `scripts/procurement_pack_validation.py`.
 
-**Size estimate:** S (~2–4 h).
+**Size estimate:** S (~2?4 h).
 
 ---
 
-## TB-148 — Role-gated optional “View source on GitHub” footer
+## TB-148 ? Role-gated optional ?View source on GitHub? footer
 
-**Status:** **Done (2026-06-01)** — `HelpTopicSourceFooter` on help topics (hidden in buyer-polished shell except developer audience).
+**Status:** **Done (2026-06-01)** ? `HelpTopicSourceFooter` on help topics (hidden in buyer-polished shell except developer audience).
 
 **Objective:** Provide optional source transparency for admins/developers without making GitHub the primary documentation experience.
 
 **Scope:**
 
-- On in-app doc pages (**TB-143**), render a collapsed footer link “View source documentation” only when user is in admin/developer/diagnostics mode (reuse existing admin/diagnostics env or role signals — do not expose to buyer-polished shell).
+- On in-app doc pages (**TB-143**), render a collapsed footer link ?View source documentation? only when user is in admin/developer/diagnostics mode (reuse existing admin/diagnostics env or role signals ? do not expose to buyer-polished shell).
 - Footer link may point at registry `sourcePaths[0]` on GitHub for contributors; hidden entirely in buyer-polished operator shell.
 
 **Acceptance criteria:**
@@ -1562,81 +1562,81 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Refs:** **TB-143**, **TB-144**, `isBuyerPolishedOperatorShellEnv()`, `PRODUCT_DOCUMENTATION_PRESENTATION.md`.
 
-**Size estimate:** XS (~1–2 h).
+**Size estimate:** XS (~1?2 h).
 
 ---
 
-## TB-004 — Wire OTel exporters + verify agent-output metrics; add Azure alerts
+## TB-004 ? Wire OTel exporters + verify agent-output metrics; add Azure alerts
 
-**Status (2026-05-25):** **Closed for production-like hosts with managed Prometheus.** **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** deploys Azure Monitor Prometheus rules mirroring **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`** (quality-gate rejects, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures) to **`azurerm_monitor_action_group.ops`**. Requires **`enable_prometheus_slo_rule_group`** + non-empty **`azure_monitor_workspace_id`**. Eval baseline CI failure remains a **GitHub Actions** alert path (not Terraform). See **`docs/library/OBSERVABILITY.md`**, **`docs/library/AGENT_OUTPUT_EVALUATION.md`** §9, and dashboard import runbook **`docs/runbooks/OBSERVABILITY_DASHBOARD_BINDING.md`** (Improvement **#9**, Batch J).
+**Status (2026-05-25):** **Closed for production-like hosts with managed Prometheus.** **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** deploys Azure Monitor Prometheus rules mirroring **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`** (quality-gate rejects, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures) to **`azurerm_monitor_action_group.ops`**. Requires **`enable_prometheus_slo_rule_group`** + non-empty **`azure_monitor_workspace_id`**. Eval baseline CI failure remains a **GitHub Actions** alert path (not Terraform). See **`docs/library/OBSERVABILITY.md`**, **`docs/library/AGENT_OUTPUT_EVALUATION.md`** ?9, and dashboard import runbook **`docs/runbooks/OBSERVABILITY_DASHBOARD_BINDING.md`** (Improvement **#9**, Batch J).
 
-**Decision / context (2026-05-01):** Product stance for agent quality favors a **conservative** release bar; **`archlucid_agent_output_*`** histograms and **`archlucid_agent_output_quality_gate_total`** must reach a backend before **trend charts** or **email alerts** are possible. Code already emits metrics after successful execute; **`ObservabilityExtensions`** exports when App Insights connection string, OTLP endpoint, or Prometheus scrape is configured (`docs/library/OBSERVABILITY.md` § *Export path configuration*).
+**Decision / context (2026-05-01):** Product stance for agent quality favors a **conservative** release bar; **`archlucid_agent_output_*`** histograms and **`archlucid_agent_output_quality_gate_total`** must reach a backend before **trend charts** or **email alerts** are possible. Code already emits metrics after successful execute; **`ObservabilityExtensions`** exports when App Insights connection string, OTLP endpoint, or Prometheus scrape is configured (`docs/library/OBSERVABILITY.md` ? *Export path configuration*).
 
 **What to do (checklist):**
 
-0. **Offline verification (no Azure CLI):** `python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md` — see `docs/library/OBSERVABILITY.md` (values from process env are detected but never printed; use `--no-process-environment` for committed JSON only).
+0. **Offline verification (no Azure CLI):** `python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md` ? see `docs/library/OBSERVABILITY.md` (values from process env are detected but never printed; use `--no-process-environment` for committed JSON only).
 
-1. **Per environment (staging → production):** Set **at least one** of:
+1. **Per environment (staging ? production):** Set **at least one** of:
    - **`APPLICATIONINSIGHTS_CONNECTION_STRING`** (preferred on Azure), or **`ApplicationInsights:ConnectionString`**, or **`Observability:AzureMonitor:ApplicationInsightsConnectionString`** on the **API** host; or
    - Non-empty **`Observability:Otlp:Endpoint`** (+ **`Protocol`** / **`Headers`** as needed); or
    - **`Observability:Prometheus:Enabled`** with scrape auth credentials and a scraper pointing at **`/metrics`** (trusted network only).
 
 2. **`ArchLucid.Worker`:** If running Worker in the same subscription, apply the **same** exporter settings so worker-originated telemetry is not orphaned.
 
-3. **Smoke verification:** After deploy, run **one full execute**; in **Application Insights → Metrics** (or OTLP sink), confirm **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_structural_completeness_ratio`**, and **`archlucid_agent_output_quality_gate_total`** appear (Azure may normalize names — search by meter / namespace).
+3. **Smoke verification:** After deploy, run **one full execute**; in **Application Insights ? Metrics** (or OTLP sink), confirm **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_structural_completeness_ratio`**, and **`archlucid_agent_output_quality_gate_total`** appear (Azure may normalize names ? search by meter / namespace).
 
-4. **Alerts:** **Shipped (Improvement #22, 2026-05-25)** — Terraform **`prometheus_agent_output_rules.tf`** + committed Prometheus YAML. Staging: **`terraform apply`**, one execute smoke, Azure Portal **Test** on a rule. Eval baseline CI remains warn-soak until merge-blocking flip (Improvement **#1** exit criterion).
+4. **Alerts:** **Shipped (Improvement #22, 2026-05-25)** ? Terraform **`prometheus_agent_output_rules.tf`** + committed Prometheus YAML. Staging: **`terraform apply`**, one execute smoke, Azure Portal **Test** on a rule. Eval baseline CI remains warn-soak until merge-blocking flip (Improvement **#1** exit criterion).
 
-5. **Optional:** Deploy **`infra/terraform-otel-collector`** for tail sampling; lower **`Observability:Tracing:SamplingRatio`** affects **traces**, not the agent-output **metric** path — document any sampling choice for on-call.
+5. **Optional:** Deploy **`infra/terraform-otel-collector`** for tail sampling; lower **`Observability:Tracing:SamplingRatio`** affects **traces**, not the agent-output **metric** path ? document any sampling choice for on-call.
 
-**Reference docs:** `docs/library/AGENT_OUTPUT_EVALUATION.md` §9; `docs/quality/MANUAL_QA_CHECKLIST.md` §8.4.
+**Reference docs:** `docs/library/AGENT_OUTPUT_EVALUATION.md` ?9; `docs/quality/MANUAL_QA_CHECKLIST.md` ?8.4.
 
-**Size estimate:** ~1–2 h of ops / Terraform / portal work (no mandatory code change unless exporter wiring gaps are found).
+**Size estimate:** ~1?2 h of ops / Terraform / portal work (no mandatory code change unless exporter wiring gaps are found).
 
 ---
 
-## TB-005 — AI-assisted owner pen-test support (Cursor agent)
+## TB-005 ? AI-assisted owner pen-test support (Cursor agent)
 
-**Context (2026-05-01):** External third-party penetration testing is **V2**; **V1** relies on an **owner-conducted** exercise documented in [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md), aligned with [`docs/security/PENTEST_EXTERNAL_UI_CHECKLIST.md`](../security/PENTEST_EXTERNAL_UI_CHECKLIST.md) and [`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md). Target window **~2026-06-15**, after repeatable builds, UI stability, and reliable Azure deploy — see also [`QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md) § *Pending Questions*.
+**Context (2026-05-01):** External third-party penetration testing is **V2**; **V1** relies on an **owner-conducted** exercise documented in [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md), aligned with [`docs/security/PENTEST_EXTERNAL_UI_CHECKLIST.md`](../security/PENTEST_EXTERNAL_UI_CHECKLIST.md) and [`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md). Target window **~2026-06-15**, after repeatable builds, UI stability, and reliable Azure deploy ? see also [`QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md`](../archive/assessments/QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md) ? *Pending Questions*.
 
 **Owner bar (recorded for assessments):** Remediate **material** findings before calling the engagement complete; **do not** refresh public posture until **Critical** and **High** are cleared; **track** all security issues in-repo (findings table + PR links).
 
 **What the coding agent can do (pick up in chat):**
 
-1. **Runbooks & coverage** — Expand checklist-driven sessions from the docs above so testing is repeatable (auth, RBAC, RLS, injection classes, IDOR, session / CSRF-relevant UI flows).
-2. **Negative cases from code** — Given a route, controller, or policy class, propose **edge cases** (headers, roles, tenant scope, stale tokens) consistent with implementation.
-3. **CI artefacts** — Help interpret **OWASP ZAP** and **Schemathesis** output; separate false positives vs likely issues; suggest tracker wording at **high level** (no public exploit recipes unless you explicitly want them in a non-public artefact).
-4. **Tracker hygiene** — Structure findings rows (severity, summary, owner, PR, retest) for [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
-5. **Posture text** — When retests are green, draft **stub → final** narrative that matches what was run and fixed and stays consistent with [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
+1. **Runbooks & coverage** ? Expand checklist-driven sessions from the docs above so testing is repeatable (auth, RBAC, RLS, injection classes, IDOR, session / CSRF-relevant UI flows).
+2. **Negative cases from code** ? Given a route, controller, or policy class, propose **edge cases** (headers, roles, tenant scope, stale tokens) consistent with implementation.
+3. **CI artefacts** ? Help interpret **OWASP ZAP** and **Schemathesis** output; separate false positives vs likely issues; suggest tracker wording at **high level** (no public exploit recipes unless you explicitly want them in a non-public artefact).
+4. **Tracker hygiene** ? Structure findings rows (severity, summary, owner, PR, retest) for [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
+5. **Posture text** ? When retests are green, draft **stub ? final** narrative that matches what was run and fixed and stays consistent with [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
 
 **Explicit limits:** The agent does **not** autonomously attack **archlucid.net** or Azure; **you** run tools in your environments and supply redacted logs or behaviour descriptions. Third-party vendor engagement is **V1.1 backlog** (**TB-136**), not a substitute for this owner-conducted V1 exercise.
 
-**Size estimate:** Ongoing — budget **30–60 min sessions** per surface or CI failure cluster; close the item when the 2026-Q2 owner tracker is complete and posture text is updated.
+**Size estimate:** Ongoing ? budget **30?60 min sessions** per surface or CI failure cluster; close the item when the 2026-Q2 owner tracker is complete and posture text is updated.
 
 ---
 
-## TB-007 — LLM correctness boundary: three remaining gaps after 2026-05-01 session
+## TB-007 ? LLM correctness boundary: three remaining gaps after 2026-05-01 session
 
 **Context:** The quality assessment sessions identified the LLM correctness boundary as the highest engineering risk. Three gaps were documented and partially addressed. The items below require either owner decisions or operational prerequisites before they can be closed.
 
-### Gap A — Promote cohort-real-llm-gate to a required PR status check
+### Gap A ? Promote cohort-real-llm-gate to a required PR status check
 
-**Status (2026-05-29):** **Local path shipped** for assessment improvement **#1** — `secrets/local-real-aoai.env` (gitignored), `scripts/Import-LocalRealAoaiEnv.ps1` (Foundry URL → classic host), `scripts/Invoke-RealLlmEvidenceGate.ps1` (topology-only profile), tolerant parsers (`AgentTypeJsonConverter`, `EvalCorpusFindingSeverityJsonConverter`), and `AzureOpenAiEndpointNormalizer` in `AzureOpenAiCompletionClient`. **CI promotion** remains blocked on owner task: Azure OpenAI golden-cohort deployment secrets / federated identity in the protected GitHub Environment. See **TB-138** and `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` § 2 and § 6.
+**Status (2026-05-29):** **Local path shipped** for assessment improvement **#1** ? `secrets/local-real-aoai.env` (gitignored), `scripts/Import-LocalRealAoaiEnv.ps1` (Foundry URL ? classic host), `scripts/Invoke-RealLlmEvidenceGate.ps1` (topology-only profile), tolerant parsers (`AgentTypeJsonConverter`, `EvalCorpusFindingSeverityJsonConverter`), and `AzureOpenAiEndpointNormalizer` in `AzureOpenAiCompletionClient`. **CI promotion** remains blocked on owner task: Azure OpenAI golden-cohort deployment secrets / federated identity in the protected GitHub Environment. See **TB-138** and `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` ? 2 and ? 6.
 
-**Prerequisite checklist (Improvement #20, Batch J):** Run **`.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate`** locally (names only). With GitHub CLI: **`-UseGitHubCli`**. Documented in **`docs/engineering/BUILD.md`** § *Real-mode LLM CI and golden cohort*.
+**Prerequisite checklist (Improvement #20, Batch J):** Run **`.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate`** locally (names only). With GitHub CLI: **`-UseGitHubCli`**. Documented in **`docs/engineering/BUILD.md`** ? *Real-mode LLM CI and golden cohort*.
 
 **What to do (once deployment exists):**
 1. Inject secret into the protected Environment per PENDING_QUESTIONS.md Q15.
 2. Add cohort-real-llm-gate to the required status checks in the main branch protection rule.
 3. Open a separate PR (not the same as the deployment PR) for the promotion.
 
-### Gap B — Enable EnforceOnReject after product decision
+### Gap B ? Enable EnforceOnReject after product decision
 
 **Status (2026-05-08):** **Closed for production-like hosts.** **`ArchLucid.Api/appsettings.Staging.json`** and **`appsettings.Production.json`** set **`ArchLucid:AgentOutput:QualityGate`** to **`Mode: PilotStrict`**, **`EnforceOnReject: true`**, **`BlockRunOnReject: true`**. **`AgentOutputEvaluationRecorder`** throws **`AgentOutputQualityGateRejectedException`** on reject; **`ArchitectureRunExecuteOrchestrator`** catches it when both flags are true, marks **`LegacyRunStatus`** **`ExecutionCompletedQualityRejected`**, emits baseline audit **`RunQualityGateRejected`**, and rethrows (**HTTP 409** from API problem-details handling). **`appsettings.Development.json`** keeps **`EnforceOnReject` / `BlockRunOnReject`** **`false`** for local usability. Coverage: **`ArchitectureRunExecuteOrchestratorQualityGateBlockingTests`**, **`AgentOutputQualityGateStagingAppsettingsTests`** (effective options from committed Staging JSON).
 
 **Follow-up (optional):** If a **`appsettings.SaaS.json`** (or tenant-specific) profile needs a different posture, duplicate or slice the Staging block explicitly rather than relying on base **`appsettings.json`** (which omits the section and uses CLR defaults).
 
-### Gap C — Eval corpus has no real-mode scenarios
+### Gap C ? Eval corpus has no real-mode scenarios
 
 **Status:** All three scenarios in `tests/eval-corpus/` have "mode": "simulator" in their qualityEvidence block. The eval_agent_corpus.py CI script runs against simulator agent result fixtures. There are no CI-run checks that assert on real-model finding quality against expected keyword patterns.
 
@@ -1649,31 +1649,31 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Affected areas:** `tests/eval-corpus/`, `scripts/ci/eval_agent_corpus.py`, `.github/workflows/golden-cohort-nightly.yml`.
 
-**Size estimate:** Gap A ~1 h (operational, no code). Gap B — closed (see Gap B status above). Gap C ~4 h (scenario authoring + workflow wiring).
+**Size estimate:** Gap A ~1 h (operational, no code). Gap B ? closed (see Gap B status above). Gap C ~4 h (scenario authoring + workflow wiring).
 
 ---
 
-## TB-008 — Context ingestion connectors: Phases 3–4 after typed stages + orchestrator
+## TB-008 ? Context ingestion connectors: Phases 3?4 after typed stages + orchestrator
 
 **Status:** Phase 1 **shipped** (2026-05-04). Phase 2 **shipped** (2026-05-05): `IConnectorDescriptor` + `ConnectorDescriptor`; `IConnectorPipelineOrchestrator` implemented by `DefaultConnectorPipelineOrchestrator` (parallel fetch+normalize via `Task.WhenAll`, sequential `DeltaAsync` + `DeltaSummary` segments in `PipelineOrder`); `ContextConnectorPipeline.CreateOrderedConnectorDescriptors` is canonical; `CreateOrderedContextConnectorPipeline` projects connectors only; `ContextIngestionService` delegates stages to the orchestrator. DI registers `IReadOnlyList<IConnectorDescriptor>` and `IConnectorPipelineOrchestrator` in `RegisterContextIngestionAndKnowledgeGraph`.
 
 **Deferred work (pick up in order):**
 
-1. **Phase 3 — Meaningful delta + typed enrichers** — Introduce `IConnectorDeltaComputer` (shared default + optional per-connector overrides). Replace literal-string deltas where useful (e.g. set-diff on `SourceId`). Split `CanonicalInfrastructureEnricher` into per-`ObjectType` enrichers behind a composite.
+1. **Phase 3 ? Meaningful delta + typed enrichers** ? Introduce `IConnectorDeltaComputer` (shared default + optional per-connector overrides). Replace literal-string deltas where useful (e.g. set-diff on `SourceId`). Split `CanonicalInfrastructureEnricher` into per-`ObjectType` enrichers behind a composite.
 
-2. **Phase 4 — Cross-connector coupling** — Resolve `PolicyReferenceConnector` / topology stable-ID duplication via a shared resolver service consumed by policy + topology stages so overlap logic is not replicated.
+2. **Phase 4 ? Cross-connector coupling** ? Resolve `PolicyReferenceConnector` / topology stable-ID duplication via a shared resolver service consumed by policy + topology stages so overlap logic is not replicated.
 
 Optional later: per-connector fault isolation during parallel fetch+normalize (warnings vs abort entire ingest).
 
 **References:** `docs/library/SYSTEM_MAP.md` (ingestion host path); `ArchLucid.ContextIngestion/Infrastructure/ContextConnectorPipeline.cs`; `ArchLucid.ContextIngestion/Services/DefaultConnectorPipelineOrchestrator.cs`; `ArchLucid.ContextIngestion/Services/ContextIngestionService.cs`.
 
-**Size estimate:** Phase 3 ~4–8 h (delta semantics + enricher split + regression). Phase 4 ~2–4 h (extract shared topology resolution + tests).
+**Size estimate:** Phase 3 ~4?8 h (delta semantics + enricher split + regression). Phase 4 ~2?4 h (extract shared topology resolution + tests).
 
 ---
 
-## TB-013 — Documentation library audience reorganisation (remaining phases)
+## TB-013 ? Documentation library audience reorganisation (remaining phases)
 
-**Status:** **Phase 1 shipped** — subtrees **`docs/library/customer-facing/`** and **`docs/library/contributor-reference/`** plus README indexes; persona recipes canonical at [`customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md); bookmark stub [`WORKFLOW_RECIPES_BY_PERSONA.md`](WORKFLOW_RECIPES_BY_PERSONA.md) under **`docs/library/`**.
+**Status:** **Phase 1 shipped** ? subtrees **`docs/library/customer-facing/`** and **`docs/library/contributor-reference/`** plus README indexes; persona recipes canonical at [`customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md`](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md); bookmark stub [`WORKFLOW_RECIPES_BY_PERSONA.md`](WORKFLOW_RECIPES_BY_PERSONA.md) under **`docs/library/`**.
 
 **Objective**
 
@@ -1698,7 +1698,7 @@ Batch-move lightly cross-linked evaluator docs (**`CONCEPTS_IN_5_MINUTES`**, **`
 
 ---
 
-### Phase 3 (planned — guarded)
+### Phase 3 (planned ? guarded)
 
 Migrate widely linked references (**`GOVERNANCE`**, **`SECURITY`** operator sections, **`API_CONTRACTS`** only if coordinated with codegen, procurement manifest, and contextual-help URLs):
 
@@ -1718,19 +1718,19 @@ Default new **`library/`** root files to **`contributor-reference/`** unless the
 
 **Related:** [`DOCUMENTATION_BY_AUDIENCE.md`](DOCUMENTATION_BY_AUDIENCE.md).
 
-**Size estimate:** Phase 2 ~2–6 h (script plus stubs plus CI green). Phase 3 ~1–2 days (freeze, batch rewire, smoke).
+**Size estimate:** Phase 2 ~2?6 h (script plus stubs plus CI green). Phase 3 ~1?2 days (freeze, batch rewire, smoke).
 
 ---
 
-## TB-014 — LLM token wallet (non-expiring auto-replenish)
+## TB-014 ? LLM token wallet (non-expiring auto-replenish)
 
-**Progress (2026-05-10):** Operator path shipped — persistent bump column **`PurchasedCapBumpUsd`** on **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**) + effective cap in **`LlmMonthlyTenantDollarBudgetTracker`**; runbook **[`LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)**; test hook **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`**.
+**Progress (2026-05-10):** Operator path shipped ? persistent bump column **`PurchasedCapBumpUsd`** on **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**) + effective cap in **`LlmMonthlyTenantDollarBudgetTracker`**; runbook **[`LLM_BUDGET_TOP_UP.md`](LLM_BUDGET_TOP_UP.md)**; test hook **`InMemoryLlmTenantBudgetRepository.ApplyMonthlyPurchasedCapBumpAsync`**.
 
-**Progress (2026-05-26):** **Shipped (Batch F)** — `221_LlmTenantWallet.sql`, `LlmTenantWalletService`, `StripeWalletGateway`, wallet webhook handling on existing Stripe route, `GET/PUT /v1/billing/wallet`, operator billing wallet panel, metrics, unit tests. Operator **`PurchasedCapBumpUsd`** path unchanged.
+**Progress (2026-05-26):** **Shipped (Batch F)** ? `221_LlmTenantWallet.sql`, `LlmTenantWalletService`, `StripeWalletGateway`, wallet webhook handling on existing Stripe route, `GET/PUT /v1/billing/wallet`, operator billing wallet panel, metrics, unit tests. Operator **`PurchasedCapBumpUsd`** path unchanged.
 
-**Remaining follow-ons:** Stripe Elements card collection in UI (TEST uses manual `cus_`/`pm_` ids today); optional live-key flip per [`V1_DEFERRED.md`](V1_DEFERRED.md) §6b.
+**Remaining follow-ons:** Stripe Elements card collection in UI (TEST uses manual `cus_`/`pm_` ids today); optional live-key flip per [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6b.
 
-**Decision (operator, 2026-05-11):** **Greenlit in principle.** There is **no** target cost-per-run budget — runs are bounded by **`LlmMonthlyTenantDollarBudget`** + **`LlmTokenQuota`**, not by a per-run prompt-design ceiling. Tenants who legitimately exhaust their **`HardCutoffUsdPerUtcMonth`** before the UTC month rolls should be able to **buy more LLM headroom** self-serve, rather than waiting or contacting sales.
+**Decision (operator, 2026-05-11):** **Greenlit in principle.** There is **no** target cost-per-run budget ? runs are bounded by **`LlmMonthlyTenantDollarBudget`** + **`LlmTokenQuota`**, not by a per-run prompt-design ceiling. Tenants who legitimately exhaust their **`HardCutoffUsdPerUtcMonth`** before the UTC month rolls should be able to **buy more LLM headroom** self-serve, rather than waiting or contacting sales.
 
 **Decision (operator, 2026-05-25):** **Wallet model (replaces month-scoped prepaid SKU).**
 
@@ -1740,7 +1740,7 @@ Default new **`library/`** root files to **`contributor-reference/`** unless the
 | Refill trigger | Balance **< $10** |
 | Default at signup | **Overage off** (`MonthlyCapUsd = 0`) |
 | Max auto-replenish cap | **$500 / UTC month** |
-| Balance expiry | **Never** — carries forward indefinitely |
+| Balance expiry | **Never** ? carries forward indefinitely |
 | Settlement | **Real-time** Stripe PaymentIntent per refill (no UTC month-end billing) |
 | Cancellation | Balance is **non-refundable credit** |
 
@@ -1750,10 +1750,10 @@ Allow a paying tenant who has hit the effective monthly cap to continue real-mod
 
 **Assumptions**
 
-- Tenant monthly budget still governs **included** envelope — see [`ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs`](../../ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs) and `LlmCompletionAccountingClient` enforcement.
-- Wallet covers **overage only** — after effective cap would be exceeded, debit wallet; do not inflate **`PurchasedCapBumpUsd`** for self-serve purchases.
-- Stripe **TEST** keys on staging (confirmed 2026-05-25); live keys flip per [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b.
-- **Azure Marketplace plan-add-on** for wallet refills is **deferred** — ship Stripe-only self-serve for V1; Marketplace alignment when commerce un-holds.
+- Tenant monthly budget still governs **included** envelope ? see [`ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs`](../../ArchLucid.Core/Configuration/LlmMonthlyTenantDollarBudgetOptions.cs) and `LlmCompletionAccountingClient` enforcement.
+- Wallet covers **overage only** ? after effective cap would be exceeded, debit wallet; do not inflate **`PurchasedCapBumpUsd`** for self-serve purchases.
+- Stripe **TEST** keys on staging (confirmed 2026-05-25); live keys flip per [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) ?6b.
+- **Azure Marketplace plan-add-on** for wallet refills is **deferred** ? ship Stripe-only self-serve for V1; Marketplace alignment when commerce un-holds.
 - Audit + quota plumbing reuse existing **`LlmTenantMonthlyDollarBudgetApproaching`** / **`LlmTokenQuotaExceeded`** paths for hard stops when wallet is empty.
 - Operator **`PurchasedCapBumpUsd`** SQL bump remains for sales-assisted grants (does not roll over month-to-month).
 
@@ -1761,8 +1761,8 @@ Allow a paying tenant who has hit the effective monthly cap to continue real-mod
 
 - **Monthly budget row stays authoritative for included spend.** `dbo.LlmMonthlyTenantBudgetState` is still the single source of truth for warn/hard-cutoff within the UTC month (**INV-004**). The wallet is a **prepaid overage credit store**, not a second monthly spend ledger.
 - **Idempotent Stripe webhook.** `payment_intent.succeeded` / `payment_intent.payment_failed` must be replay-safe via **`dbo.StripeWebhookIdempotency`** (or equivalent).
-- **Real-time settlement.** Charge the card **at refill time** (when balance drops below **$10**), not at UTC month end — bounds unbilled exposure to one refill increment (~**$50**) per tenant.
-- **No balance expiry.** Wallet balance **never** expires; rejects the earlier “use it or lose it within UTC month” draft.
+- **Real-time settlement.** Charge the card **at refill time** (when balance drops below **$10**), not at UTC month end ? bounds unbilled exposure to one refill increment (~**$50**) per tenant.
+- **No balance expiry.** Wallet balance **never** expires; rejects the earlier ?use it or lose it within UTC month? draft.
 - **Non-refundable on cancellation.** Document in **`PRICING_PHILOSOPHY`** and **`LLM_BUDGET_TOP_UP.md`** before shipping.
 - **Audit.** `LlmWalletRefillSucceeded`, `LlmWalletRefillFailed` (or **`AuditEventTypes.Llm*`** family); metrics **`archlucid_llm_wallet_refill_usd_total`**, **`archlucid_llm_wallet_refill_failures_total`**, gauge **`archlucid_llm_wallet_balance_usd`**.
 - **Surface.** `/settings/billing` wallet page + budget banner shows balance and cap; trial tenants disabled until conversion (per **`PRICING_PHILOSOPHY`** free-trial row).
@@ -1773,7 +1773,7 @@ Allow a paying tenant who has hit the effective monthly cap to continue real-mod
 flowchart LR
   Acct[LlmCompletionAccountingClient] --> Cap{Within monthly<br/>effective cap?}
   Cap -->|yes| Allow[Allow LLM call]
-  Cap -->|no| Wallet{Wallet balance<br/>≥ estimated cost?}
+  Cap -->|no| Wallet{Wallet balance<br/>? estimated cost?}
   Wallet -->|yes| Allow
   Allow --> Consume[Debit wallet post-call]
   Consume --> Low{Balance < $10?}
@@ -1786,28 +1786,28 @@ flowchart LR
 
 **Component breakdown**
 
-- **`dbo.LlmTenantWalletState`** — balance, auto-replenish flag, refill increment/trigger defaults, monthly cap, UTC-month refill counter, Stripe customer/payment-method refs.
-- **`dbo.LlmTenantWalletLedger`** — append-only **`Refill` | `Consume` | `OperatorAdjustment`** with **`BalanceAfterUsd`**, optional **`StripePaymentIntentId`**.
-- **`LlmTenantWalletService`** — `GetBalanceAsync`, `ConsumeAsync`, `TryAutoRefillAsync` (cap + threshold checks).
-- **`IStripeWalletGateway`** — Stripe.net PaymentIntent; config **`Billing:Stripe:SecretKey`**.
-- **`LlmCompletionAccountingClient`** — after monthly cap check fails, consult wallet; queue consume + optional refill via background task.
-- **`WalletController`** — `GET/PUT /v1/billing/wallet`, `POST /v1/billing/stripe/webhook`.
-- **UI** — balance, cap slider (**$0–$500**, step **$50**), auto-replenish toggle, Stripe Elements.
+- **`dbo.LlmTenantWalletState`** ? balance, auto-replenish flag, refill increment/trigger defaults, monthly cap, UTC-month refill counter, Stripe customer/payment-method refs.
+- **`dbo.LlmTenantWalletLedger`** ? append-only **`Refill` | `Consume` | `OperatorAdjustment`** with **`BalanceAfterUsd`**, optional **`StripePaymentIntentId`**.
+- **`LlmTenantWalletService`** ? `GetBalanceAsync`, `ConsumeAsync`, `TryAutoRefillAsync` (cap + threshold checks).
+- **`IStripeWalletGateway`** ? Stripe.net PaymentIntent; config **`Billing:Stripe:SecretKey`**.
+- **`LlmCompletionAccountingClient`** ? after monthly cap check fails, consult wallet; queue consume + optional refill via background task.
+- **`WalletController`** ? `GET/PUT /v1/billing/wallet`, `POST /v1/billing/stripe/webhook`.
+- **UI** ? balance, cap slider (**$0?$500**, step **$50**), auto-replenish toggle, Stripe Elements.
 
 **Out of scope for this item**
 
 - Azure Marketplace wallet SKU (follow-on at commerce un-hold).
-- Replacing per-tier **`LlmMonthlyTenantDollarBudget`** defaults — wallet is **additive overage**, not a tier change.
+- Replacing per-tier **`LlmMonthlyTenantDollarBudget`** defaults ? wallet is **additive overage**, not a tier change.
 - Per-run dollar ceilings (explicitly rejected).
 - Refunding wallet balance on tenant cancellation.
 
 **Security model**
 
-Wallet config requires **`Admin`** (same as billing today). Webhook validates Stripe signature and tenant binding. Payment method stored as Stripe **`PaymentMethodId`** only — no raw PAN in ArchLucid SQL.
+Wallet config requires **`Admin`** (same as billing today). Webhook validates Stripe signature and tenant binding. Payment method stored as Stripe **`PaymentMethodId`** only ? no raw PAN in ArchLucid SQL.
 
 **Operational considerations**
 
-- Reconciliation: Stripe PaymentIntents ↔ **`LlmTenantWalletLedger`** **`Refill`** rows; nightly script once volume justifies it.
+- Reconciliation: Stripe PaymentIntents ? **`LlmTenantWalletLedger`** **`Refill`** rows; nightly script once volume justifies it.
 - Support: operator **`OperatorAdjustment`** ledger entries for goodwill credits; no automatic refund path in V1.
 
 **Refs:**
@@ -1816,27 +1816,27 @@ Wallet config requires **`Admin`** (same as billing today). Webhook validates St
 - [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)
 - [`docs/go-to-market/STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md)
 - [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**INV-004** budget coherence)
-- [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b (commerce un-hold sequencing)
+- [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) ?6b (commerce un-hold sequencing)
 - [`docs/OPERATIONS_LLM_QUOTA.md`](OPERATIONS_LLM_QUOTA.md)
-- [`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) — Improvement **#27** (implementation prompt)
+- [`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) ? Improvement **#27** (implementation prompt)
 
-**Size estimate:** **M** — ~1–2 days end-to-end (wallet tables + service + Stripe gateway + webhook + UI + metrics + tests + doc sync). Gating piece is **`LlmCompletionAccountingClient`** wallet fallback path.
+**Size estimate:** **M** ? ~1?2 days end-to-end (wallet tables + service + Stripe gateway + webhook + UI + metrics + tests + doc sync). Gating piece is **`LlmCompletionAccountingClient`** wallet fallback path.
 
 ---
 
-## TB-015 — Per-agent/per-invoke-kind LLM token dimensions + CI export
+## TB-015 ? Per-agent/per-invoke-kind LLM token dimensions + CI export
 
 **Decision (operator, 2026-05-11):** There is **no** credible empirical answer for average prompt/completion tokens **per AgentType** (Topology / Cost / Compliance / Critic) in real mode **until telemetry captures it.** Today:
 
-- **`LlmCompletionAccountingClient`** aggregates **`ArchLucidInstrumentation.LlmPromptTokensTotal`** / **`LlmCompletionTokensTotal`** (**`MeterName`** = **`ArchLucid`**) — optional tags are **`tenant_id`**, **`llm_provider`**, **`llm_deployment`** via **`RecordLlmTokenUsage`** only — **`not`** `agent_type` or invoke role.
+- **`LlmCompletionAccountingClient`** aggregates **`ArchLucidInstrumentation.LlmPromptTokensTotal`** / **`LlmCompletionTokensTotal`** (**`MeterName`** = **`ArchLucid`**) ? optional tags are **`tenant_id`**, **`llm_provider`**, **`llm_deployment`** via **`RecordLlmTokenUsage`** only ? **`not`** `agent_type` or invoke role.
 - **`LlmTelemetryLabelOptions.ProviderId`** is **globally** set to **`azure-openai`** in composition (`ConfigureLlmTelemetryLabels`), **not** per handler.
-- OTel **`Activity`** **does** tag the agent handler (**`AgentHandler`**): **`archlucid.agent.type_enum`** (**`RealAgentExecutor`** line ~362), and **`AzureOpenAiCompletionClient`** tags **`AgentLlmCompletion`** spans with **`gen_ai.usage.*`** — downstream Azure Monitor / Application Insights traces can correlate **when** exporters are wired, but Prometheus counters are **flat** unless we add dimensions.
+- OTel **`Activity`** **does** tag the agent handler (**`AgentHandler`**): **`archlucid.agent.type_enum`** (**`RealAgentExecutor`** line ~362), and **`AzureOpenAiCompletionClient`** tags **`AgentLlmCompletion`** spans with **`gen_ai.usage.*`** ? downstream Azure Monitor / Application Insights traces can correlate **when** exporters are wired, but Prometheus counters are **flat** unless we add dimensions.
 
-Until **TB-015** ships, “averages without a live deployment” mean **estimated** bounds (**`AgentExecutionCostPreviewController`** + **`PER_TENANT_COST_MODEL.md`**), **not measured** envelopes.
+Until **TB-015** ships, ?averages without a live deployment? mean **estimated** bounds (**`AgentExecutionCostPreviewController`** + **`PER_TENANT_COST_MODEL.md`**), **not measured** envelopes.
 
 ---
 
-### Phase A — Bounded dimensions on token counters/histogram
+### Phase A ? Bounded dimensions on token counters/histogram
 
 **Objective:** Extend `RecordLlmTokenUsage` (or add **replacement** sibling instruments beside the existing totals so legacy dashboards unchanged) so every AOAI invoke records low-cardinality labels:
 
@@ -1852,32 +1852,32 @@ Until **TB-015** ships, “averages without a live deployment” mean **estimate
 3. **`ExplanationService`** / Ask paths set **`InvokeKind`** to `Explanation`/`Ask` and **`Unknown`** **`AgentKind`** unless a stable mapping exists later.
 4. **`LlmCompletionAccountingClient`** **`finally`** block reads **`AsyncLocal`**, clamps labels to enums, feeds **`RecordLlmTokenUsage`**.
 
-**Histogram vs counter:** Prefer **adding** **`Histogram<long>`** (`archlucid.llm.completion_tokens`) with the same bounded tags plus **distribution** queries (percentiles); keep **additive counters** so existing golden-cohort Grafana tiles keep working → **dual emit** counters + histogram for Phase A if cost is negligible (one AOAI invoke = one histogram point).
+**Histogram vs counter:** Prefer **adding** **`Histogram<long>`** (`archlucid.llm.completion_tokens`) with the same bounded tags plus **distribution** queries (percentiles); keep **additive counters** so existing golden-cohort Grafana tiles keep working ? **dual emit** counters + histogram for Phase A if cost is negligible (one AOAI invoke = one histogram point).
 
 ---
 
-### Phase B — Unit + integration tests without Azure
+### Phase B ? Unit + integration tests without Azure
 
 **Unit:** `MeterListener` on **`ArchLucid`** `Meter`; fake completion client emits usage; assert tags per handler path (**echo**/`FakeAgentCompletionClient` pipeline suffices).
 
-**Integration (optional smoke):** `WebApplicationFactory` + echo mode proves tags survive the full **`IAgentCompletionClient`** decorator chain (accounting → cache → cost guardrail).
+**Integration (optional smoke):** `WebApplicationFactory` + echo mode proves tags survive the full **`IAgentCompletionClient`** decorator chain (accounting ? cache ? cost guardrail).
 
 ---
 
-### Phase C — Capture in CI (`golden-cohort` + optional nightly)
+### Phase C ? Capture in CI (`golden-cohort` + optional nightly)
 
 **When real AOAI is available:**
 
-1. After **`golden-cohort drift --strict-real`** (**`.github/workflows/golden-cohort-nightly.yml`** → **`cohort-real-llm-live`**) scrape **`GET /metrics`** **if** the API host exposes Prometheus (**`Observability:Prometheus:Enabled`** for that environment), **or** export OTLP traces to a temp sink and sum **`gen_ai.usage.*`** by correlated **`archlucid.agent.type_enum`** (**more fragile — prefer Prometheus parse**).
-2. Check in **`scripts/ci/aggregate_llm_token_metrics.py`** (new): parse text exposition format; aggregate **per-consumer / per-invoke_kind** deltas for the workflow window; emit **`golden-cohort-llm-token-report.md`** GH Actions artifact (+ optional **`tests/golden-cohort/telemetry-snapshots/last-real-run-tokens.sample.json`** for doc examples — **never** commit secrets).
+1. After **`golden-cohort drift --strict-real`** (**`.github/workflows/golden-cohort-nightly.yml`** ? **`cohort-real-llm-live`**) scrape **`GET /metrics`** **if** the API host exposes Prometheus (**`Observability:Prometheus:Enabled`** for that environment), **or** export OTLP traces to a temp sink and sum **`gen_ai.usage.*`** by correlated **`archlucid.agent.type_enum`** (**more fragile ? prefer Prometheus parse**).
+2. Check in **`scripts/ci/aggregate_llm_token_metrics.py`** (new): parse text exposition format; aggregate **per-consumer / per-invoke_kind** deltas for the workflow window; emit **`golden-cohort-llm-token-report.md`** GH Actions artifact (+ optional **`tests/golden-cohort/telemetry-snapshots/last-real-run-tokens.sample.json`** for doc examples ? **never** commit secrets).
 
 **Frequency:** Weekly live job is sufficient for trend; rerun when **`MaxCompletionTokens`**, prompts, or model SKU changes.
 
 ---
 
-### Phase D — Product doc + estimator alignment
+### Phase D ? Product doc + estimator alignment
 
-Roll forward measured **p50 / p95** ranges into **`docs/library/PER_TENANT_COST_MODEL.md`** (“measured cohort 2026-…”) distinct from **`GET /v1/agent-execution/cost-preview`** hypothetical bounds — until then, **`cost-preview`** remains explicitly **estimated**.
+Roll forward measured **p50 / p95** ranges into **`docs/library/PER_TENANT_COST_MODEL.md`** (?measured cohort 2026-??) distinct from **`GET /v1/agent-execution/cost-preview`** hypothetical bounds ? until then, **`cost-preview`** remains explicitly **estimated**.
 
 **Refs:**
 - [`ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs`](../../ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs)
@@ -1889,18 +1889,18 @@ Roll forward measured **p50 / p95** ranges into **`docs/library/PER_TENANT_COST_
 
 **Security / cardinality**
 
-- Labels are **literal enums** bounded to **Architecture agent types × invoke kinds**, not free text or tenant-derived strings (tenant stays on **`RecordPerTenantTokens`** paths only).
+- Labels are **literal enums** bounded to **Architecture agent types ? invoke kinds**, not free text or tenant-derived strings (tenant stays on **`RecordPerTenantTokens`** paths only).
 
-**Size estimate:** **M** — ~2–4 eng days (**Phase A+B** dominating C); **Phase C** is ops + scripting once metrics exist.
+**Size estimate:** **M** ? ~2?4 eng days (**Phase A+B** dominating C); **Phase C** is ops + scripting once metrics exist.
 
 ---
 
-## TB-016 — ITSM + Slack vendor sandbox accounts (provision + secrets + inbound URLs)
+## TB-016 ? ITSM + Slack vendor sandbox accounts (provision + secrets + inbound URLs)
 
-**Status (operator question, resolved for scope 2026-05-11):** The repo **does not** ship tenant credentials or long-lived sandbox URLs — **those are operator-owned**. Free / trial programs exist for **Jira Cloud**, **ServiceNow Developer instances**, **Confluence Cloud**, and **Slack developer workspaces**. Use **separate pilot projects / spaces / channels** away from production knowledge bases — never reuse brittle automation credentials against prod SOX systems.
+**Status (operator question, resolved for scope 2026-05-11):** The repo **does not** ship tenant credentials or long-lived sandbox URLs ? **those are operator-owned**. Free / trial programs exist for **Jira Cloud**, **ServiceNow Developer instances**, **Confluence Cloud**, and **Slack developer workspaces**. Use **separate pilot projects / spaces / channels** away from production knowledge bases ? never reuse brittle automation credentials against prod SOX systems.
 
 Cross-check posture with **`docs/go-to-market/INTEGRATION_CATALOG.md`** and **`CONNECTOR_READINESS_MATRIX.md`** after first successful smoke; pair procedural steps with **`docs/integrations/smoke/CONNECTOR_SMOKE_*.md`**. **Scaffold:** [`docs/runbooks/ITSM_LIVE_SMOKE_SCAFFOLD.md`](../runbooks/ITSM_LIVE_SMOKE_SCAFFOLD.md) (workflow + secret naming convention).
-Recurrence aligns with **`ArchLucid_Assessment_Weighted_Readiness_2026_05_10`** — Improvement 8 (**scheduled + `workflow_dispatch`**, not one-off).
+Recurrence aligns with **`ArchLucid_Assessment_Weighted_Readiness_2026_05_10`** ? Improvement 8 (**scheduled + `workflow_dispatch`**, not one-off).
 
 ---
 
@@ -1909,44 +1909,44 @@ Recurrence aligns with **`ArchLucid_Assessment_Weighted_Readiness_2026_05_10`** 
 **Provision**
 
 1. Create or claim an **[Atlassian Cloud](https://www.atlassian.com/try/cloud)** site (trial suffices).
-2. Enable **Jira**; create a **pilot project** — note **`project key`**.
+2. Enable **Jira**; create a **pilot project** ? note **`project key`**.
 
-**Outbound auth ArchLucid expects (MVP)** — **`ArchLucid.Core/Configuration/IntegrationsItsmOutboundOptions.cs`** (**`Integrations:ItsmOutbound:Jira`**):
+**Outbound auth ArchLucid expects (MVP)** ? **`ArchLucid.Core/Configuration/IntegrationsItsmOutboundOptions.cs`** (**`Integrations:ItsmOutbound:Jira`**):
 
 | Binding | Contents |
 |---------|----------|
 | `CloudBaseUrl` | **`https://{site}.atlassian.net`** (no trailing slash) |
 | `ServiceAccountEmail` | Atlassian-account email |
-| `ApiToken` | **Profile → Security → API tokens** (Key Vault / deploy secret — **never git**) |
+| `ApiToken` | **Profile ? Security ? API tokens** (Key Vault / deploy secret ? **never git**) |
 | `DefaultProjectKey` | Fallback when tenant SQL override empty |
 
 **Inbound**
 
-- **`Integrations:ItsmInbound:JiraWebhookSecret`**; vendor POST validates shared header — **`ItsmInboundWebhooksController`**, **`docs/integrations/smoke/CONNECTOR_SMOKE_JIRA.md`**.
-- Jira **Automation** → **`POST`** your API **`…/integrations/webhooks/jira`** (staging hostname or authenticated tunnel).
+- **`Integrations:ItsmInbound:JiraWebhookSecret`**; vendor POST validates shared header ? **`ItsmInboundWebhooksController`**, **`docs/integrations/smoke/CONNECTOR_SMOKE_JIRA.md`**.
+- Jira **Automation** ? **`POST`** your API **`?/integrations/webhooks/jira`** (staging hostname or authenticated tunnel).
 
 ---
 
-### B. ServiceNow (personal developer instance → Table API)
+### B. ServiceNow (personal developer instance ? Table API)
 
 **Provision**
 
-1. **[ServiceNow Developer Program](https://developer.servicenow.com/)** portal → **Request / open Personal Developer Instance** → record **`InstanceBaseUrl`** (instances may sleep unless kept warm).
+1. **[ServiceNow Developer Program](https://developer.servicenow.com/)** portal ? **Request / open Personal Developer Instance** ? record **`InstanceBaseUrl`** (instances may sleep unless kept warm).
 2. Integration user + **`incident`** Table API create (+ CMDB reads if testing **`cmdb_ci`** paths).
 
-**Outbound** — **`Integrations:ItsmOutbound:ServiceNow`**: **`InstanceBaseUrl`**, **`Username`**, **`Password`** (basic auth MVP).
+**Outbound** ? **`Integrations:ItsmOutbound:ServiceNow`**: **`InstanceBaseUrl`**, **`Username`**, **`Password`** (basic auth MVP).
 
-**Inbound** — **`Integrations:ItsmInbound:ServiceNowWebhookSecret`** + **`CONNECTOR_SMOKE_SERVICENOW.md`** business-rule HTTP.
+**Inbound** ? **`Integrations:ItsmInbound:ServiceNowWebhookSecret`** + **`CONNECTOR_SMOKE_SERVICENOW.md`** business-rule HTTP.
 
-Developer instances reset / sleep — cron smoke should **`continue-on-error`** with clear stderr when unreachable.
+Developer instances reset / sleep ? cron smoke should **`continue-on-error`** with clear stderr when unreachable.
 
 ---
 
 ### C. Confluence Cloud (typically same Atlassian site as Jira)
 
-**Publishing** — **`ArchLucid.Core/Configuration/ConfluencePublishingOptions.cs`** (**`Integrations:ConfluencePublishing`**): **`Enabled`**, **`CloudBaseUrl`**, **`SpaceKey`**, **`ServiceAccountEmail`**, **`ApiToken`** (Basic + Cloud token until OAuth ships per catalog).
+**Publishing** ? **`ArchLucid.Core/Configuration/ConfluencePublishingOptions.cs`** (**`Integrations:ConfluencePublishing`**): **`Enabled`**, **`CloudBaseUrl`**, **`SpaceKey`**, **`ServiceAccountEmail`**, **`ApiToken`** (Basic + Cloud token until OAuth ships per catalog).
 
-**OAuth follow-on:** **`INTEGRATION_CATALOG.md`** — MVP is Basic.
+**OAuth follow-on:** **`INTEGRATION_CATALOG.md`** ? MVP is Basic.
 
 Smoke: **`docs/integrations/smoke/CONNECTOR_SMOKE_CONFLUENCE.md`** (caller needs **AdminAuthority**).
 
@@ -1957,9 +1957,9 @@ Smoke: **`docs/integrations/smoke/CONNECTOR_SMOKE_CONFLUENCE.md`** (caller needs
 **Provision**
 
 1. **[Slack workspace](https://slack.com/get-started#create)** dedicated to integrations smoke (recommended) or sanctioned corp sandbox.
-2. **Incoming Webhooks** Slack app installation → **`#integrations-smoke`**.
+2. **Incoming Webhooks** Slack app installation ? **`#integrations-smoke`**.
 
-**Auth model** — store webhook URL as **opaque secret** (GitHub Action secret `SLACK_INCOMING_WEBHOOK_URL`); bind to **`SlackWebhook`** **`AlertRoutingSubscription`** / digest route per **`CONNECTOR_SMOKE_SLACK.md`** (SQL **`destination`** is sensitive — tighten operator RBAC).
+**Auth model** ? store webhook URL as **opaque secret** (GitHub Action secret `SLACK_INCOMING_WEBHOOK_URL`); bind to **`SlackWebhook`** **`AlertRoutingSubscription`** / digest route per **`CONNECTOR_SMOKE_SLACK.md`** (SQL **`destination`** is sensitive ? tighten operator RBAC).
 
 Probe **`POST /v1/integrations/webhooks/{routingSubscriptionId}/test`**.
 
@@ -1967,14 +1967,14 @@ Probe **`POST /v1/integrations/webhooks/{routingSubscriptionId}/test`**.
 
 ### E. Operational checklist
 
-**Suggested secret inventory (names only — values never committed)**
+**Suggested secret inventory (names only ? values never committed)**
 
 - `ATLASSIAN_SITE_EMAIL`, `ATLASSIAN_JIRA_API_TOKEN`, `JIRA_CLOUD_BASE_URL`, `JIRA_PILOT_PROJECT_KEY`
 - `SERVICENOW_INSTANCE_URL`, `SERVICENOW_USERNAME`, `SERVICENOW_PASSWORD`
 - `ATLASSIAN_CONFLUENCE_API_TOKEN` (may reuse Jira token), `CONFLUENCE_CLOUD_BASE_URL`, `CONFLUENCE_SPACE_KEY`
 - `SLACK_INCOMING_WEBHOOK_URL`, `ITSM_JIRA_WEBHOOK_SHARED_SECRET`, `ITSM_SERVICENOW_WEBHOOK_SHARED_SECRET`
 
-Map into host **`Azure Key Vault`** / GitHub Actions **staging environment** (`Integrations:ItsmOutbound`, `Integrations:ItsmInbound`, `Integrations:ConfluencePublishing`) — authoritative key list **`docs/library/CONFIGURATION_REFERENCE.md`**.
+Map into host **`Azure Key Vault`** / GitHub Actions **staging environment** (`Integrations:ItsmOutbound`, `Integrations:ItsmInbound`, `Integrations:ConfluencePublishing`) ? authoritative key list **`docs/library/CONFIGURATION_REFERENCE.md`**.
 
 After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (**Validated yyyy-mm-dd**).
 
@@ -1982,74 +1982,74 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 
 ---
 
-## TB-017 — Trial orphaned-catalog teardown deferral + SOP
+## TB-017 ? Trial orphaned-catalog teardown deferral + SOP
 
-**Decision (operator, 2026-05-11):** Aggressive **unattended** Azure SQL/catalog teardown **is not urgent** while signup volume stays modest — **idle dormant trials incur negligible AOAI**. Platform admins delete **`TenantDatabaseBindings`** / catalogs **manually** with low friction ([`TENANT_DATABASE_TOPOLOGY.md`](TENANT_DATABASE_TOPOLOGY.md)). Product lifecycle (**[`docs/runbooks/TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md)**) may advance statuses while infra follows an admin cadence. **Resolved (operator, 2026-05-12):** Prospect **trial** volume does **not** warrant a gated **Azure subscription cost commitment** milestone — escalate pool SKU **only** when **traffic**/cardinality (not dormant headcount guesses) dictates.
+**Decision (operator, 2026-05-11):** Aggressive **unattended** Azure SQL/catalog teardown **is not urgent** while signup volume stays modest ? **idle dormant trials incur negligible AOAI**. Platform admins delete **`TenantDatabaseBindings`** / catalogs **manually** with low friction ([`TENANT_DATABASE_TOPOLOGY.md`](TENANT_DATABASE_TOPOLOGY.md)). Product lifecycle (**[`docs/runbooks/TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md)**) may advance statuses while infra follows an admin cadence. **Resolved (operator, 2026-05-12):** Prospect **trial** volume does **not** warrant a gated **Azure subscription cost commitment** milestone ? escalate pool SKU **only** when **traffic**/cardinality (not dormant headcount guesses) dictates.
 
 **What to ship before scale**
 
 1. Typed **manual teardown runbook** (Azure Portal / Terraform teardown order, Key Vault detach, **`dbo.Tenants`** / binding cleanup order) referencing **`TrialLifecycleSchedulerHostedService`** behaviour so ops does not orphan metadata.
-2. Metric / ops query: dormant trials by phase + **`TenantDatabaseBindings`** state — alert when elasticity pool SKU pressure climbs.
+2. Metric / ops query: dormant trials by phase + **`TenantDatabaseBindings`** state ? alert when elasticity pool SKU pressure climbs.
 3. Revisit unattended **`SqlTenantHardPurgeService`** throughput + **`PurgeAfterExportOnlyDays`** tightening when cardinality threshold hits (candidate: **>** N dormant catalogs per pool per FinOps spreadsheet).
 
-**Refs:** [`docs/go-to-market/TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md) §4, [`docs/runbooks/TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md).
+**Refs:** [`docs/go-to-market/TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md) ?4, [`docs/runbooks/TRIAL_LIFECYCLE.md`](../runbooks/TRIAL_LIFECYCLE.md).
 
 ---
 
-## TB-018 — Warm tenant catalogs in elastic pool (signup latency)
+## TB-018 ? Warm tenant catalogs in elastic pool (signup latency)
 
-**Context:** Hosted **`SystemWithPerTenantCatalogs`** signup currently runs **`SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync`** which **always executes** **`DatabaseMigrator.RunTenant`** before mirroring **`dbo.Tenants`**. Migrating hundreds of migrations on-demand adds seconds to tens of seconds under load — acceptable at low signup rate, poor for bursts.
+**Context:** Hosted **`SystemWithPerTenantCatalogs`** signup currently runs **`SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync`** which **always executes** **`DatabaseMigrator.RunTenant`** before mirroring **`dbo.Tenants`**. Migrating hundreds of migrations on-demand adds seconds to tens of seconds under load ? acceptable at low signup rate, poor for bursts.
 
 **Target behavior**
 
-1. **Terraform/IaC** — configure **warm pool depth** (**N**) of empty product catalogs attached to an **elastic pool** (reuse existing pool per environment or dedicated small pool — FinOps spreadsheet).
+1. **Terraform/IaC** ? configure **warm pool depth** (**N**) of empty product catalogs attached to an **elastic pool** (reuse existing pool per environment or dedicated small pool ? FinOps spreadsheet).
 2. **Replenish worker** (or provisioning job subsystem) keeps **TenantDatabaseProvisioningJobs / binding records** pointing at sentinel warm logical names OR a side table keyed by **`archlucid_warm_*`** until claimed.
-3. **Claim:** On signup, dequeue warm DB → **`UpsertPending` / MarkActive fast path**: **skip RunTenant when schema stamp matches deployed version** → **`MirrorTenantRowFromSystemAsync`** → **`MarkActive`**; optional **`ALTER DATABASE … MODIFY NAME`** to canonical **`TenantDatabaseNaming`** form.
-4. **Post-claim** — enqueue replenish to restore **N**.
+3. **Claim:** On signup, dequeue warm DB ? **`UpsertPending` / MarkActive fast path**: **skip RunTenant when schema stamp matches deployed version** ? **`MirrorTenantRowFromSystemAsync`** ? **`MarkActive`**; optional **`ALTER DATABASE ? MODIFY NAME`** to canonical **`TenantDatabaseNaming`** form.
+4. **Post-claim** ? enqueue replenish to restore **N**.
 
 **Safety / correctness**
 
 - No resolver cache until **`MarkActive`**; invalidate after claim (**`InvalidateCachedTenantConnectionString`** already exists).
-- Orphan warm DB teardown if tenant insert fails mid-claim → align with **`TB-017`** teardown SOP.
-- Pool capacity alert when **warm depth &lt; threshold** — avoid empty pool at peak signup.
+- Orphan warm DB teardown if tenant insert fails mid-claim ? align with **`TB-017`** teardown SOP.
+- Pool capacity alert when **warm depth &lt; threshold** ? avoid empty pool at peak signup.
 
 **Refs:** [`docs/library/TENANT_DATABASE_TOPOLOGY.md`](TENANT_DATABASE_TOPOLOGY.md) Operational notes (**Signup latency: warm catalogs in elastic pools**); [`ArchLucid.Persistence/Tenancy/SqlTenantSqlCatalogProvisioner.cs`](../../ArchLucid.Persistence/Tenancy/SqlTenantSqlCatalogProvisioner.cs).
 
 ---
 
-## TB-019 — Signup marketing attribution + server-side conversion
+## TB-019 ? Signup marketing attribution + server-side conversion
 
 **Context:** Paid and disciplined organic spend need **trial-created** truth, not impressions. [`docs/go-to-market/SEO_AND_PAID_ACQUISITION.md`](../go-to-market/SEO_AND_PAID_ACQUISITION.md) section 6 requires UTM-stable funnel + server confirmation. Today signup may drop query params between **`/signup`** and **`TenantProvisioningService`** without persisted first-touch.
 
 **What to ship**
 
-1. **Capture** normalized first-touch attribution on marketing entry (**`utm_source`**, **`utm_medium`**, **`utm_campaign`**, **`utm_content`**, optional **`utm_term`**) — **`httpOnly`**, **`Secure`**, **`SameSite=Lax`** cookie or equivalent first-party KV with short TTL (**≤ 90 days**) and sanitization (**max lengths**, strip PII-ish junk).
-2. **Propagate** into the signup API boundary (authenticated provisioning unchanged; anonymous trial signup is the MVP scope). If the signup flow spans **`archlucid-ui` → `/v1/...`** only, threading may be **`x-archlucid-first-touch`** header derived from cookie server-side — choose one transport, document in **`PUBLIC_MARKETING_SITE_TOPOLOGY.md`** or API notes alongside OpenAPI-touching edits per **`docs/library/API_CONTRACTS.md`** if request DTO grows.
-3. **Persist durability** optional but recommended: **`dbo.TenantMarketingAttribution`** (or widen **`AuditEvents`** with typed payload) keyed by **`TenantId`** + **`CapturedUtc`** with **immutable insert** — supports SQL cohort reports without exploding OTel label cardinality.
-4. **Telemetry** — increment **low-cardinality** counters/histogram **after provision succeeds end-to-end** (tenant row **and** tenant catalog **`Active`** if per-tenant mode). Example coarse buckets: **`attribution.medium`** ∈ **`{organic, paid_direct, referral, unknown}`**, **`attribution.platform`** ∈ **`{linkedin, google, bing, internal, unknown}`** (map from raw **`utm_*`** in fixed code tables). **Never** attach raw **`utm_campaign`** strings to Prometheus-style metrics — keep raw values in SQL/Audit only.
+1. **Capture** normalized first-touch attribution on marketing entry (**`utm_source`**, **`utm_medium`**, **`utm_campaign`**, **`utm_content`**, optional **`utm_term`**) ? **`httpOnly`**, **`Secure`**, **`SameSite=Lax`** cookie or equivalent first-party KV with short TTL (**? 90 days**) and sanitization (**max lengths**, strip PII-ish junk).
+2. **Propagate** into the signup API boundary (authenticated provisioning unchanged; anonymous trial signup is the MVP scope). If the signup flow spans **`archlucid-ui` ? `/v1/...`** only, threading may be **`x-archlucid-first-touch`** header derived from cookie server-side ? choose one transport, document in **`PUBLIC_MARKETING_SITE_TOPOLOGY.md`** or API notes alongside OpenAPI-touching edits per **`docs/library/API_CONTRACTS.md`** if request DTO grows.
+3. **Persist durability** optional but recommended: **`dbo.TenantMarketingAttribution`** (or widen **`AuditEvents`** with typed payload) keyed by **`TenantId`** + **`CapturedUtc`** with **immutable insert** ? supports SQL cohort reports without exploding OTel label cardinality.
+4. **Telemetry** ? increment **low-cardinality** counters/histogram **after provision succeeds end-to-end** (tenant row **and** tenant catalog **`Active`** if per-tenant mode). Example coarse buckets: **`attribution.medium`** ? **`{organic, paid_direct, referral, unknown}`**, **`attribution.platform`** ? **`{linkedin, google, bing, internal, unknown}`** (map from raw **`utm_*`** in fixed code tables). **Never** attach raw **`utm_campaign`** strings to Prometheus-style metrics ? keep raw values in SQL/Audit only.
 
 **Safety / correctness**
 
-- **Privacy / consent** — first-party technical attribution should stay documented in **`PRIVACY_POLICY.md`** companion change when semantics ship (legal owns final wording — especially EU traffic).
-- **Idempotency** — first-touch wins; ignore naive rewrite spikes except telemetry alerts.
-- **Tests** — unit map raw UTM tuples → coarse buckets + integration asserting provision path emits conversion once only.
+- **Privacy / consent** ? first-party technical attribution should stay documented in **`PRIVACY_POLICY.md`** companion change when semantics ship (legal owns final wording ? especially EU traffic).
+- **Idempotency** ? first-touch wins; ignore naive rewrite spikes except telemetry alerts.
+- **Tests** ? unit map raw UTM tuples ? coarse buckets + integration asserting provision path emits conversion once only.
 
 **Refs:** [`TenantProvisioningService`](../../ArchLucid.Application/Tenancy/TenantProvisioningService.cs); [`SEO_AND_PAID_ACQUISITION.md`](../go-to-market/SEO_AND_PAID_ACQUISITION.md); [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md).
 
 ---
 
-## TB-020 — Public marketing structured data + consent-gated third-party analytics
+## TB-020 ? Public marketing structured data + consent-gated third-party analytics
 
 **Context:** Honest **`JSON-LD`** lifts SERP/discernment without fabricated review stars; third-party replay widens CSP and may demand consent banners for EU-heavy traffic.
 
-**Status (2026-05-10):** **`JSON-LD`** — `SoftwareApplication` on `(marketing)` + **`FAQPage`** on **`/trust`** (`TrustCenterFaqJsonLd`). **Microsoft Clarity** — consent banner + loader; CSP allows `https://www.clarity.ms` + Bing pixel host; **`PRIVACY_POLICY.md`** updated (§2.4). **Config:** `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID` in **`archlucid-ui/.env.example`**. **Remaining:** DPIA text for EU-heavy traffic if legal requests; optional CONFIGURATION_REFERENCE row if ops wants server-side kill-switch mirror.
+**Status (2026-05-10):** **`JSON-LD`** ? `SoftwareApplication` on `(marketing)` + **`FAQPage`** on **`/trust`** (`TrustCenterFaqJsonLd`). **Microsoft Clarity** ? consent banner + loader; CSP allows `https://www.clarity.ms` + Bing pixel host; **`PRIVACY_POLICY.md`** updated (?2.4). **Config:** `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID` in **`archlucid-ui/.env.example`**. **Remaining:** DPIA text for EU-heavy traffic if legal requests; optional CONFIGURATION_REFERENCE row if ops wants server-side kill-switch mirror.
 
 **What to ship**
 
-1. **`JSON-LD`** — inject **`@type: SoftwareApplication`** (and minimal **`publisher`**) from **`(marketing)`** shells with narrative aligned **`POSITIONING.md`** — **never** mint **`aggregateRating`** / **`reviewCount`** unless tied to audited real survey data. *(Done for marketing shell.)*
-2. **FAQ blocks only where copy supports them** — e.g. discrete Q/A on **`/compliance-journey`** or **`/trust`** excerpts; reject spam-tier FAQ schema stuffing. *(Partial: factual **`FAQPage`** on **`/trust`**.)*
-3. **Analytics gated** — optional **Microsoft Clarity** (or chosen vendor) activates only when (**a**) optional server kill-switch (exact subtree TBD **`docs/library/CONFIGURATION_REFERENCE.md`**) and (**b**) client consent UX exists where jurisdictions require opt-in (**`(marketing)`** subtree only until a separate DPIA says otherwise for logged-in shells). *(Partial: consent + `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`.)*
-4. **CSP** — extend **`archlucid-ui/next.config.ts`** **`script-src`** / **`connect-src`** minimally per vendor subdomain allowlist + changelog entry in **`PRIVACY_POLICY.md`** noting active vendors. *(Done for Clarity + Bing image host used by Clarity.)*
+1. **`JSON-LD`** ? inject **`@type: SoftwareApplication`** (and minimal **`publisher`**) from **`(marketing)`** shells with narrative aligned **`POSITIONING.md`** ? **never** mint **`aggregateRating`** / **`reviewCount`** unless tied to audited real survey data. *(Done for marketing shell.)*
+2. **FAQ blocks only where copy supports them** ? e.g. discrete Q/A on **`/compliance-journey`** or **`/trust`** excerpts; reject spam-tier FAQ schema stuffing. *(Partial: factual **`FAQPage`** on **`/trust`**.)*
+3. **Analytics gated** ? optional **Microsoft Clarity** (or chosen vendor) activates only when (**a**) optional server kill-switch (exact subtree TBD **`docs/library/CONFIGURATION_REFERENCE.md`**) and (**b**) client consent UX exists where jurisdictions require opt-in (**`(marketing)`** subtree only until a separate DPIA says otherwise for logged-in shells). *(Partial: consent + `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`.)*
+4. **CSP** ? extend **`archlucid-ui/next.config.ts`** **`script-src`** / **`connect-src`** minimally per vendor subdomain allowlist + changelog entry in **`PRIVACY_POLICY.md`** noting active vendors. *(Done for Clarity + Bing image host used by Clarity.)*
 
 **Size estimate:** **S** JSON-LD alone (**~half day eng + positioning copy QA**); **M** packaged with consent UX + DPIA-aligned Clarity.
 
@@ -2057,45 +2057,45 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 
 ---
 
-## TB-021 — RAG quality program — V1 foundation
+## TB-021 ? RAG quality program ? V1 foundation
 
-**Decision (engineering, 2026-05-23):** **Greenlit in principle** — RAG infrastructure already ships (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox, ADR 0005 LLM pipeline). V1 work **extends** that stack to raise agent **faithfulness** and **citation density** without new vector stores or agentic multi-hop retrieval.
+**Decision (engineering, 2026-05-23):** **Greenlit in principle** ? RAG infrastructure already ships (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox, ADR 0005 LLM pipeline). V1 work **extends** that stack to raise agent **faithfulness** and **citation density** without new vector stores or agentic multi-hop retrieval.
 
-**Authoritative task breakdown:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) — stable sub-IDs **RAG-V1-000** through **RAG-V1-011**.
+**Authoritative task breakdown:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) ? stable sub-IDs **RAG-V1-000** through **RAG-V1-011**.
 
-**First implementation slice (approved design):** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) — implement **RAG-V1-000 partial** + **RAG-V1-001** as one PR (~3–5 eng days). Remaining **RAG-V1-000** items (`RetrievalGroundingTrace`, citation formatter, architecture test) follow in a second PR.
+**First implementation slice (approved design):** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) ? implement **RAG-V1-000 partial** + **RAG-V1-001** as one PR (~3?5 eng days). Remaining **RAG-V1-000** items (`RetrievalGroundingTrace`, citation formatter, architecture test) follow in a second PR.
 
-**Why assessments should schedule this:** Directly targets **AI/Agent Readiness**, compliance finding honesty, cost citation contract ([`V1_SCOPE.md`](V1_SCOPE.md) §2.16), and Ask grounded answers — not net-new product surfaces.
+**Why assessments should schedule this:** Directly targets **AI/Agent Readiness**, compliance finding honesty, cost citation contract ([`V1_SCOPE.md`](V1_SCOPE.md) ?2.16), and Ask grounded answers ? not net-new product surfaces.
 
 **Recommended pick-up order**
 
 | Sub-ID | Title | Size | Design |
 |--------|-------|------|--------|
-| **RAG-V1-000** (partial) + **RAG-V1-001** | `CorpusKind` seam + policy-pack indexer + compliance retrieval | S–M | [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) |
-| **RAG-V1-005** | Faithfulness eval harness + citation coverage CI | M | Backlog only — output-side; IR metrics → **RAG-V1-011** |
-| **RAG-V1-006** | `RetrievalGroundingTrace` forensic enrichment — **TB-038** | S–M | [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) §RAG-V1-006 |
-| **RAG-V1-010** | Tenancy isolation hardening — **TB-048** | S | Retrieval audit 2026-05-26 — P0 security |
-| **RAG-V1-007** | Embedding model drift guard — **TB-045** | S–M | Retrieval audit 2026-05-26 |
-| **RAG-V1-011** | Retrieval IR eval (recall@k, MRR) — **TB-049** | Done (Batch E, 2026-05-26) | Retrieval audit 2026-05-26 — P0 correctness |
-| **RAG-V1-008** | Index freshness + ContentHash skip — **TB-046** | S–M | Retrieval audit 2026-05-26 |
-| **RAG-V1-009** | Chunking strategy fingerprint — **TB-047** | S | Retrieval audit 2026-05-26 |
+| **RAG-V1-000** (partial) + **RAG-V1-001** | `CorpusKind` seam + policy-pack indexer + compliance retrieval | S?M | [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) |
+| **RAG-V1-005** | Faithfulness eval harness + citation coverage CI | M | Backlog only ? output-side; IR metrics ? **RAG-V1-011** |
+| **RAG-V1-006** | `RetrievalGroundingTrace` forensic enrichment ? **TB-038** | S?M | [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) ?RAG-V1-006 |
+| **RAG-V1-010** | Tenancy isolation hardening ? **TB-048** | S | Retrieval audit 2026-05-26 ? P0 security |
+| **RAG-V1-007** | Embedding model drift guard ? **TB-045** | S?M | Retrieval audit 2026-05-26 |
+| **RAG-V1-011** | Retrieval IR eval (recall@k, MRR) ? **TB-049** | Done (Batch E, 2026-05-26) | Retrieval audit 2026-05-26 ? P0 correctness |
+| **RAG-V1-008** | Index freshness + ContentHash skip ? **TB-046** | S?M | Retrieval audit 2026-05-26 |
+| **RAG-V1-009** | Chunking strategy fingerprint ? **TB-047** | S | Retrieval audit 2026-05-26 |
 
 **Hard constraints (summary)**
 
-- Deterministic rules still fire in code — RAG enriches narrative only.
-- Retrieved chunks are **prompt context** — excluded from manifest canonical fingerprint unless a future ADR adds snapshotting.
+- Deterministic rules still fire in code ? RAG enriches narrative only.
+- Retrieved chunks are **prompt context** ? excluded from manifest canonical fingerprint unless a future ADR adds snapshotting.
 - Tenant-bound corpora: mandatory scope filters on index and query.
-- Cross-tenant text RAG is **out of scope** — see ADR 0031 for k-anon aggregates only.
+- Cross-tenant text RAG is **out of scope** ? see ADR 0031 for k-anon aggregates only.
 
-**V1.1 / V2 follow-ons:** **RAG-V1.1-*** and **RAG-V2-*** live in [`V1_DEFERRED.md`](V1_DEFERRED.md) §6q — not `(A)` V1 GA obligations.
+**V1.1 / V2 follow-ons:** **RAG-V1.1-*** and **RAG-V2-*** live in [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6q ? not `(A)` V1 GA obligations.
 
 **Refs:** [ADR 0004](../architecture/adrs/0004-transactional-outbox-retrieval-indexing.md); [ADR 0005](../architecture/adrs/0005-llm-completion-pipeline.md); [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md); [`AI_LEVERAGE_ROADMAP.md`](AI_LEVERAGE_ROADMAP.md) (#3, #11); [`authoring-prompts/PACK_CONTEXTS.md`](authoring-prompts/PACK_CONTEXTS.md) AI-05.
 
-**Size estimate:** **M–L** phased — ~2–3 weeks eng if executed sequentially; **first slice** (`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`) is ~3–5 eng days.
+**Size estimate:** **M?L** phased ? ~2?3 weeks eng if executed sequentially; **first slice** (`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`) is ~3?5 eng days.
 
 ---
 
-## TB-022 — `LlmCostEstimator` — `int` overflow in aggregator token-count fields — **Done (Improvement #19, 2026-05-25)**
+## TB-022 ? `LlmCostEstimator` ? `int` overflow in aggregator token-count fields ? **Done (Improvement #19, 2026-05-25)**
 
 **Shipped:** `AgentExecutionTraceRunLlmCostAggregator` and `AgentExecutionTraceRunLlmCostSummary` use `long` token totals; `RunLlmTokenCountsResponse` uses `long`; overflow regression test in `AgentExecutionTraceRunLlmCostAggregatorTests`.
 
@@ -2111,7 +2111,7 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 int promptSum = 0;
 int completionSum = 0;
 // ...
-promptSum += inTok;   // overflows at int.MaxValue ≈ 2.1 B tokens
+promptSum += inTok;   // overflows at int.MaxValue ? 2.1 B tokens
 completionSum += outTok;
 
 // AgentExecutionTraceRunLlmCostSummary record
@@ -2128,8 +2128,8 @@ public sealed record AgentExecutionTraceRunLlmCostSummary(
 
 1. Change `promptSum` and `completionSum` locals to `long` in `AgentExecutionTraceRunLlmCostAggregator.Compute`.
 2. Change `PromptTokens` and `CompletionTokens` on `AgentExecutionTraceRunLlmCostSummary` to `long`.
-3. Update `RunLlmTokenCountsResponse` fields (`Prompt`, `Completion`) and any callers that downcast to `int` — check `RunAgentExecutionLlmCostEstimateAppender` and any frontend DTO mapping.
-4. Update `AgentExecutionTraceRunLlmCostAggregatorTests` with assertions that would have caught the overflow (e.g. token counts > `int.MaxValue` across multiple traces — or at minimum add a comment warning for future large-scale tests).
+3. Update `RunLlmTokenCountsResponse` fields (`Prompt`, `Completion`) and any callers that downcast to `int` ? check `RunAgentExecutionLlmCostEstimateAppender` and any frontend DTO mapping.
+4. Update `AgentExecutionTraceRunLlmCostAggregatorTests` with assertions that would have caught the overflow (e.g. token counts > `int.MaxValue` across multiple traces ? or at minimum add a comment warning for future large-scale tests).
 
 **Affected files:**
 - [`ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`](../../ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs)
@@ -2137,13 +2137,13 @@ public sealed record AgentExecutionTraceRunLlmCostSummary(
 - [`ArchLucid.Api/Models/RunAgentLlmCostEstimateResponse.cs`](../../ArchLucid.Api/Models/RunAgentLlmCostEstimateResponse.cs) (if `Prompt`/`Completion` fields are `int`)
 - [`ArchLucid.Application.Tests/Agents/AgentExecutionTraceRunLlmCostAggregatorTests.cs`](../../ArchLucid.Application.Tests/Agents/AgentExecutionTraceRunLlmCostAggregatorTests.cs)
 
-**Size estimate:** **XS** — ~30 min mechanical change + test annotation.
+**Size estimate:** **XS** ? ~30 min mechanical change + test annotation.
 
 </details>
 
 ---
 
-## TB-026 — `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` — **Done (Improvement #19, 2026-05-25)**
+## TB-026 ? `LlmCostEstimator` ? negative-rate guard on `LlmDeploymentUsdRates` ? **Done (Improvement #19, 2026-05-25)**
 
 **Shipped:** `LlmCostEstimationOptionsValidator` + `ValidateOnStart`; `LlmCostEstimationEffectiveRates.TryResolve` returns false for negative effective rates (including SQL override path); tests in Core + AgentRuntime.
 
@@ -2166,7 +2166,7 @@ The `LlmCostTuningRequestValidator` correctly rejects negative values on the adm
 **What to do:**
 
 1. Add `[Range(0.0, (double)LlmCostTuningRequestValidator.MaxUsdPerMillionTokens)]` (or equivalent `decimal`-compatible annotation) to `LlmDeploymentUsdRates.InputUsdPerMillionTokens`, `OutputUsdPerMillionTokens`, and `ReasoningUsdPerMillionTokens`.
-2. If `DataAnnotations` range validation is already wired for `LlmCostEstimationOptions` at startup (via `ValidateDataAnnotations()`), confirm the `Deployments` dictionary values are also validated — dictionary-value validation is not automatic in `Microsoft.Extensions.Options` and may require a custom `IValidateOptions<LlmCostEstimationOptions>`.
+2. If `DataAnnotations` range validation is already wired for `LlmCostEstimationOptions` at startup (via `ValidateDataAnnotations()`), confirm the `Deployments` dictionary values are also validated ? dictionary-value validation is not automatic in `Microsoft.Extensions.Options` and may require a custom `IValidateOptions<LlmCostEstimationOptions>`.
 3. Add a startup advisory warning (reuse `ArchLucidInstrumentation.RecordStartupConfigWarning`) if any configured rate is negative, as a belt-and-suspenders fallback even before the `Options` validation path catches it.
 4. Add a unit test asserting that a negative deployment rate either throws at options-validation time or is ignored in favor of the global rate (pick one and document the choice).
 
@@ -2175,15 +2175,15 @@ The `LlmCostTuningRequestValidator` correctly rejects negative values on the adm
 - [`ArchLucid.Core/Configuration/LlmCostEstimationOptions.cs`](../../ArchLucid.Core/Configuration/LlmCostEstimationOptions.cs) (IValidateOptions wiring if not present)
 - [`ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs`](../../ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs)
 
-**Size estimate:** **XS** — ~1 h including annotation, IValidateOptions check, and test.
+**Size estimate:** **XS** ? ~1 h including annotation, IValidateOptions check, and test.
 
 </details>
 
 ---
 
-## TB-024 — `LlmCostEstimator` — reasoning-token test coverage
+## TB-024 ? `LlmCostEstimator` ? reasoning-token test coverage
 
-**Status:** **Done** (Improvement **#20**, 2026-05-25) — explicit reasoning rate, output-rate fallback, per-deployment reasoning override, persisted override + reasoning fallback, and OTel `archlucid_llm_cost_usd_total` alignment covered in **`LlmCostEstimatorTests`**.
+**Status:** **Done** (Improvement **#20**, 2026-05-25) ? explicit reasoning rate, output-rate fallback, per-deployment reasoning override, persisted override + reasoning fallback, and OTel `archlucid_llm_cost_usd_total` alignment covered in **`LlmCostEstimatorTests`**.
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
@@ -2192,7 +2192,7 @@ The `LlmCostTuningRequestValidator` correctly rejects negative values on the adm
 - Reasoning tokens billed at the explicit `ReasoningUsdPerMillionTokens` rate.
 - Reasoning tokens falling back to `outputRate` when `ReasoningUsdPerMillionTokens == 0`.
 - Per-deployment `ReasoningUsdPerMillionTokens` override.
-- Global rate override (`ILlmCostEstimationUsdRateOverride`) combined with reasoning fallback — the fallback uses the *overridden* output rate, not the config output rate; this is correct but currently invisible in tests.
+- Global rate override (`ILlmCostEstimationUsdRateOverride`) combined with reasoning fallback ? the fallback uses the *overridden* output rate, not the config output rate; this is correct but currently invisible in tests.
 
 **What to do:**
 
@@ -2221,23 +2221,23 @@ EstimateUsd_per_deployment_reasoning_overrides_global()
 **Affected files:**
 - [`ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs`](../../ArchLucid.AgentRuntime.Tests/LlmCostEstimatorTests.cs)
 
-**Size estimate:** **XS** — ~30 min.
+**Size estimate:** **XS** ? ~30 min.
 
 ---
 
-## TB-023 — `LlmCostEstimator` — document replay-rate semantics (live rate vs. stored-per-trace divergence) — **Done (Improvement #18, Batch J, 2026-05-26)**
+## TB-023 ? `LlmCostEstimator` ? document replay-rate semantics (live rate vs. stored-per-trace divergence) ? **Done (Improvement #18, Batch J, 2026-05-26)**
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
-**Shipped:** XML remarks on **`ILlmCostEstimator`**, **`LlmCostEstimator`**, and **`AgentExecutionTraceRunLlmCostAggregator.Compute`**; operator table in **`docs/library/PER_TENANT_COST_MODEL.md`** § *Rate changes and replay*; TB-023 class summary on **`LlmCostEstimatorTests`**.
+**Shipped:** XML remarks on **`ILlmCostEstimator`**, **`LlmCostEstimator`**, and **`AgentExecutionTraceRunLlmCostAggregator.Compute`**; operator table in **`docs/library/PER_TENANT_COST_MODEL.md`** ? *Rate changes and replay*; TB-023 class summary on **`LlmCostEstimatorTests`**.
 
 **Problem (historical):** `ILlmCostEstimationUsdRateOverride.TryGetUsdPerMillionRates` is resolved at call time, not at trace-recording time. Replaying historical traces through `AgentExecutionTraceRunLlmCostAggregator.Compute` after an admin rate update produces a different aggregate cost than what was originally recorded; per-trace `AgentExecutionTrace.EstimatedCostUsd` can disagree with the recomputed aggregate on the same run.
 
 **Original ask (closed):**
 
-1. ~~Add remarks to `ILlmCostEstimator.EstimateUsd`~~ — done.
-2. ~~Add remarks to `AgentExecutionTraceRunLlmCostAggregator.Compute`~~ — done.
-3. ~~Add operator note in `PER_TENANT_COST_MODEL.md`~~ — done.
+1. ~~Add remarks to `ILlmCostEstimator.EstimateUsd`~~ ? done.
+2. ~~Add remarks to `AgentExecutionTraceRunLlmCostAggregator.Compute`~~ ? done.
+3. ~~Add operator note in `PER_TENANT_COST_MODEL.md`~~ ? done.
 
 **Affected files:**
 - [`ArchLucid.Core/Configuration/ILlmCostEstimator.cs`](../../ArchLucid.Core/Configuration/ILlmCostEstimator.cs)
@@ -2245,80 +2245,80 @@ EstimateUsd_per_deployment_reasoning_overrides_global()
 - [`ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`](../../ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs)
 - [`docs/library/PER_TENANT_COST_MODEL.md`](PER_TENANT_COST_MODEL.md)
 
-**Size estimate:** **XS** — ~30 min (comments + one paragraph in ops doc).
+**Size estimate:** **XS** ? ~30 min (comments + one paragraph in ops doc).
 
 ---
 
-## TB-025 — `LlmCostEstimator` — annotate OTel `double` cast and pretax nature
+## TB-025 ? `LlmCostEstimator` ? annotate OTel `double` cast and pretax nature
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
 **Problem:** Two undocumented correctness caveats exist in the metrics emission path:
 
-1. **`decimal → double` precision loss.** `ArchLucidInstrumentation.RecordLlmCostUsd` casts the `decimal` estimate to `double` before adding to the `Counter<double>` OTel instrument (`archlucid_llm_cost_usd_total`). Values like `$0.000003` are not exactly representable in IEEE 754 `double`, introducing rounding error that accumulates in the Prometheus counter. The in-process `decimal` and any SQL-persisted values are unaffected.
+1. **`decimal ? double` precision loss.** `ArchLucidInstrumentation.RecordLlmCostUsd` casts the `decimal` estimate to `double` before adding to the `Counter<double>` OTel instrument (`archlucid_llm_cost_usd_total`). Values like `$0.000003` are not exactly representable in IEEE 754 `double`, introducing rounding error that accumulates in the Prometheus counter. The in-process `decimal` and any SQL-persisted values are unaffected.
 
-2. **Pretax only, not labeled as such.** The counter description ("Estimated LLM USD from token counts × rates") does not state that the value is pretax. Operators reconciling the counter against an Azure invoice (which includes VAT/GST depending on jurisdiction) will see unexplained discrepancies.
+2. **Pretax only, not labeled as such.** The counter description ("Estimated LLM USD from token counts ? rates") does not state that the value is pretax. Operators reconciling the counter against an Azure invoice (which includes VAT/GST depending on jurisdiction) will see unexplained discrepancies.
 
 **What to do:**
 
-1. Update the `LlmCostUsdTotal` counter description to read: *"Pre-tax estimated LLM spend in USD from token counts × configured per-million rates (label tenant). Monitoring-grade only — not invoice-reconciliation-grade; the decimal-to-double cast introduces sub-microdollar IEEE 754 rounding. Does not include VAT/GST."*
+1. Update the `LlmCostUsdTotal` counter description to read: *"Pre-tax estimated LLM spend in USD from token counts ? configured per-million rates (label tenant). Monitoring-grade only ? not invoice-reconciliation-grade; the decimal-to-double cast introduces sub-microdollar IEEE 754 rounding. Does not include VAT/GST."*
 2. Add an inline comment on the `(double)estimatedCostUsd` cast in `RecordLlmCostUsd` explaining the precision loss and why it is acceptable for monitoring purposes.
 3. Update the `ILlmCostEstimator.EstimateUsd` XML doc (or `LlmCostEstimationOptions` section header) to state "returns pre-tax estimated cost."
 
 **Affected files:**
-- [`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`](../../ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs) — `LlmCostUsdTotal` counter definition and `RecordLlmCostUsd` method
+- [`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`](../../ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs) ? `LlmCostUsdTotal` counter definition and `RecordLlmCostUsd` method
 - [`ArchLucid.Core/Configuration/ILlmCostEstimator.cs`](../../ArchLucid.Core/Configuration/ILlmCostEstimator.cs)
 
-**Size estimate:** **XS** — ~20 min (comments + description string updates).
+**Size estimate:** **XS** ? ~20 min (comments + description string updates).
 
 ---
 
-## TB-027 — Introduce `IAgentExecutor` port — eliminate AgentSimulator coupling from production assemblies
+## TB-027 ? Introduce `IAgentExecutor` port ? eliminate AgentSimulator coupling from production assemblies
 
-**Status (2026-05-31):** **Done** — `IAgentExecutor` in Core; `AgentRuntime`/`Capabilities.Cost`/`Host.Core` do not reference `AgentSimulator`; composition-root binding + `DependencyConstraintTests` positive-list (`Host.Composition`, `*.Tests` only).
+**Status (2026-05-31):** **Done** ? `IAgentExecutor` in Core; `AgentRuntime`/`Capabilities.Cost`/`Host.Core` do not reference `AgentSimulator`; composition-root binding + `DependencyConstraintTests` positive-list (`Host.Composition`, `*.Tests` only).
 
-**Source:** Dependency graph audit (2026-05-26). Three production assemblies — `ArchLucid.AgentRuntime`, `ArchLucid.Capabilities.Cost`, and `ArchLucid.Host.Core` — directly reference `ArchLucid.AgentSimulator`. Because `Application` depends on `Capabilities.Cost`, the simulator is a transitive runtime dependency of every production code path through Application. The existing `AgentRuntime_references_AgentSimulator_by_design` test documents the coupling without resolving it.
+**Source:** Dependency graph audit (2026-05-26). Three production assemblies ? `ArchLucid.AgentRuntime`, `ArchLucid.Capabilities.Cost`, and `ArchLucid.Host.Core` ? directly reference `ArchLucid.AgentSimulator`. Because `Application` depends on `Capabilities.Cost`, the simulator is a transitive runtime dependency of every production code path through Application. The existing `AgentRuntime_references_AgentSimulator_by_design` test documents the coupling without resolving it.
 
 **Problem:**
 
 `AgentSimulator` contains test-only simulation logic. Shipping it in the production assembly closure means:
 - Test code is present at runtime in production, increasing attack surface and binary size.
 - Any future change to the simulator (e.g. adding test helpers) is a production build change.
-- The coupling is invisible to callers who depend on `Application` — it emerges transitively via `Capabilities.Cost`.
+- The coupling is invisible to callers who depend on `Application` ? it emerges transitively via `Capabilities.Cost`.
 
 **What to do:**
 
 1. Define `IAgentExecutor` (or reuse an existing equivalent interface) in `ArchLucid.Core` or `ArchLucid.Contracts`. The interface must capture the execution contract currently fulfilled by `AgentSimulator` without naming it.
 2. Update `ArchLucid.AgentRuntime` to depend on `IAgentExecutor` where it currently uses the concrete simulator type. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator`.
-3. Update `ArchLucid.Capabilities.Cost` — audit which simulator types are used directly and replace with the port. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator`.
-4. Update `ArchLucid.Host.Core` — move any simulator registration or conditional wiring to `ArchLucid.Host.Composition`. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator` from `Host.Core.csproj`.
-5. In `ArchLucid.Host.Composition`, bind `AgentSimulator`'s concrete type to `IAgentExecutor` for non-production environments (the composition root is the correct place for this — it already references `AgentSimulator`).
+3. Update `ArchLucid.Capabilities.Cost` ? audit which simulator types are used directly and replace with the port. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator`.
+4. Update `ArchLucid.Host.Core` ? move any simulator registration or conditional wiring to `ArchLucid.Host.Composition`. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator` from `Host.Core.csproj`.
+5. In `ArchLucid.Host.Composition`, bind `AgentSimulator`'s concrete type to `IAgentExecutor` for non-production environments (the composition root is the correct place for this ? it already references `AgentSimulator`).
 6. Delete the `AgentRuntime_references_AgentSimulator_by_design` test from `DependencyConstraintTests` and replace with: `AgentRuntime_must_not_reference_AgentSimulator_assembly` (hard fail) and `AgentSimulator_may_only_be_referenced_by_allowlisted_assemblies` (positive-list guard: `{Host.Composition, *.Tests}`).
 
 **Correctness / safety:**
 
-- No behavioural change to simulation paths — `AgentSimulator` is still wired by Host.Composition in non-production; callers just see the port.
-- All existing `AgentRuntime.Tests` and `Application.Tests` that use the simulator directly through project references are unaffected — test projects may still reference `AgentSimulator` directly.
+- No behavioural change to simulation paths ? `AgentSimulator` is still wired by Host.Composition in non-production; callers just see the port.
+- All existing `AgentRuntime.Tests` and `Application.Tests` that use the simulator directly through project references are unaffected ? test projects may still reference `AgentSimulator` directly.
 - Run the full Architecture.Tests suite and compile-check all affected projects before closing.
 
 **Affected files / projects:**
 
-- `ArchLucid.Core` or `ArchLucid.Contracts` — new `IAgentExecutor.cs`
-- `ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj` — remove `AgentSimulator` reference
-- `ArchLucid.Capabilities.Cost/ArchLucid.Capabilities.Cost.csproj` — remove `AgentSimulator` reference
-- `ArchLucid.Host.Core/ArchLucid.Host.Core.csproj` — remove `AgentSimulator` reference; move wiring to `Host.Composition`
-- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.*.cs` — bind `IAgentExecutor`
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — delete `_by_design` tests; add hard-fail + positive-list guards
+- `ArchLucid.Core` or `ArchLucid.Contracts` ? new `IAgentExecutor.cs`
+- `ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj` ? remove `AgentSimulator` reference
+- `ArchLucid.Capabilities.Cost/ArchLucid.Capabilities.Cost.csproj` ? remove `AgentSimulator` reference
+- `ArchLucid.Host.Core/ArchLucid.Host.Core.csproj` ? remove `AgentSimulator` reference; move wiring to `Host.Composition`
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.*.cs` ? bind `IAgentExecutor`
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? delete `_by_design` tests; add hard-fail + positive-list guards
 
-**Size estimate:** **M** — ~1–2 eng days (interface definition + reference removal + host composition wiring + Architecture.Tests updates + test regression).
+**Size estimate:** **M** ? ~1?2 eng days (interface definition + reference removal + host composition wiring + Architecture.Tests updates + test regression).
 
 ---
 
-## TB-028 — Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition
+## TB-028 ? Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition
 
-**Status (2026-05-31):** **Done** — `ArchLucid.Api.csproj` has no direct `Integrations.AzureExtractor` reference; wiring remains in `Host.Composition`; `Api_csproj_must_not_reference_Integrations_AzureExtractor_assembly` in `DependencyConstraintTests`.
+**Status (2026-05-31):** **Done** ? `ArchLucid.Api.csproj` has no direct `Integrations.AzureExtractor` reference; wiring remains in `Host.Composition`; `Api_csproj_must_not_reference_Integrations_AzureExtractor_assembly` in `DependencyConstraintTests`.
 
-**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Api.csproj` carries a direct `<ProjectReference>` to `ArchLucid.Integrations.AzureExtractor`. This violates the single-composition-root rule enforced by `SingleCompositionRootServiceCollectionExtensionsTests` — adapter wiring belongs exclusively in `Host.Composition`.
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Api.csproj` carries a direct `<ProjectReference>` to `ArchLucid.Integrations.AzureExtractor`. This violates the single-composition-root rule enforced by `SingleCompositionRootServiceCollectionExtensionsTests` ? adapter wiring belongs exclusively in `Host.Composition`.
 
 **Problem:**
 
@@ -2329,29 +2329,29 @@ The Api entry point is an HTTP host, not a composition root. Naming a specific i
 
 **What to do:**
 
-1. Audit `ArchLucid.Api` source files for all usages of types from `ArchLucid.Integrations.AzureExtractor`. Identify which, if any, are referenced from controller code (unlikely — should only be DI registration).
+1. Audit `ArchLucid.Api` source files for all usages of types from `ArchLucid.Integrations.AzureExtractor`. Identify which, if any, are referenced from controller code (unlikely ? should only be DI registration).
 2. Move any registration calls (`services.AddAzureExtractor(...)` or similar) from Api's `Program.cs` / startup extensions into `ArchLucid.Host.Composition`'s `ServiceCollectionExtensions.ApplicationPipeline.cs` (already the canonical composition root).
 3. Delete the `<ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\..." />` line from `ArchLucid.Api.csproj`.
-4. Verify that `ArchLucid.Host.Composition` already references `ArchLucid.Integrations.AzureExtractor` — it does; no new reference is needed there.
+4. Verify that `ArchLucid.Host.Composition` already references `ArchLucid.Integrations.AzureExtractor` ? it does; no new reference is needed there.
 5. Add the assertion `Api_must_not_reference_Integrations_AzureExtractor_assembly` to `DependencyConstraintTests` (both NetArchTest namespace check and csproj `ReadProjectReferenceAssemblyNames` check, matching the existing `Api_csproj_must_not_declare_Decisioning_project_reference` pattern).
 
 **Correctness / safety:**
 
-- `Api → Host.Composition → Integrations.AzureExtractor` is already the transitive path; removing the direct reference does not change what is registered at runtime.
+- `Api ? Host.Composition ? Integrations.AzureExtractor` is already the transitive path; removing the direct reference does not change what is registered at runtime.
 - Compile-check `ArchLucid.Api` after removing the reference to confirm no direct type usages remain.
 
 **Affected files / projects:**
 
-- `ArchLucid.Api/ArchLucid.Api.csproj` — delete `AzureExtractor` project reference
-- `ArchLucid.Api/Program.cs` or startup code — move any direct registration calls
-- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` — receive the registration (likely already there)
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — add hard-fail assertion
+- `ArchLucid.Api/ArchLucid.Api.csproj` ? delete `AzureExtractor` project reference
+- `ArchLucid.Api/Program.cs` or startup code ? move any direct registration calls
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` ? receive the registration (likely already there)
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? add hard-fail assertion
 
-**Size estimate:** **XS** — ~30 min (delete one csproj line, possibly move one registration call, add one test).
+**Size estimate:** **XS** ? ~30 min (delete one csproj line, possibly move one registration call, add one test).
 
 ---
 
-## TB-029 — Replace `Decisioning → Notifications` with domain events
+## TB-029 ? Replace `Decisioning ? Notifications` with domain events
 
 **Status:** **Shipped 2026-05-27.** `ArchLucid.Decisioning` removed the `ArchLucid.Notifications` project reference; webhook/chat-ops delivery channels remain in `ArchLucid.Notifications` and register from `ArchLucid.Host.Composition` only. Architecture tests: `Decisioning_must_not_reference_Notifications_assembly`, `DecisioningNotificationsBoundaryArchitectureTests`.
 
@@ -2375,27 +2375,27 @@ A domain analysis service should not know about notification mechanisms. The cur
 
 **Correctness / safety:**
 
-- All existing notification behaviour must be preserved — verify end-to-end in `Decisioning.Tests` (use a fake `IDomainEventPublisher`) and in integration smoke.
+- All existing notification behaviour must be preserved ? verify end-to-end in `Decisioning.Tests` (use a fake `IDomainEventPublisher`) and in integration smoke.
 - `IDomainEventPublisher` must be non-blocking (fire-and-forget or outbox-backed) to avoid coupling Decisioning's execution time to notification delivery latency.
 - If an outbox is used, align with ADR 0004 (transactional outbox) to avoid double-delivery risk.
 
 **Affected files / projects:**
 
-- `ArchLucid.Core` — new `IDomainEventPublisher.cs` (if not already present), domain event records
-- `ArchLucid.Decisioning/ArchLucid.Decisioning.csproj` — remove `Notifications` reference
-- `ArchLucid.Decisioning` source — replace direct notification calls with `IDomainEventPublisher.Publish`
-- `ArchLucid.Notifications` or adapter — new domain event handler
-- `ArchLucid.Host.Composition` — register handler
-- `ArchLucid.Decisioning.Tests` — update to use fake publisher; remove Notifications test doubles
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — replace `_by_design` test with hard-fail assertion
+- `ArchLucid.Core` ? new `IDomainEventPublisher.cs` (if not already present), domain event records
+- `ArchLucid.Decisioning/ArchLucid.Decisioning.csproj` ? remove `Notifications` reference
+- `ArchLucid.Decisioning` source ? replace direct notification calls with `IDomainEventPublisher.Publish`
+- `ArchLucid.Notifications` or adapter ? new domain event handler
+- `ArchLucid.Host.Composition` ? register handler
+- `ArchLucid.Decisioning.Tests` ? update to use fake publisher; remove Notifications test doubles
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? replace `_by_design` test with hard-fail assertion
 
-**Size estimate:** **M–L** — ~1–3 eng days depending on how widely Notifications types are used within Decisioning and whether a domain event bus is already in place.
+**Size estimate:** **M?L** ? ~1?3 eng days depending on how widely Notifications types are used within Decisioning and whether a domain event bus is already in place.
 
 ---
 
-## TB-030 — Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s
+## TB-030 ? Architecture.Tests gap closure ? add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s
 
-**Status (2026-06-01):** **Done** — four project references in `ArchLucid.Architecture.Tests.csproj`; Tier-9 `DependencyConstraintTests` facts for Mcp, Integrations, Jobs.Cli, AgentSimulator allow-list, Api/AzureExtractor csproj guard; CI drift guard `test_invariant_wave_b_batch.py`.
+**Status (2026-06-01):** **Done** ? four project references in `ArchLucid.Architecture.Tests.csproj`; Tier-9 `DependencyConstraintTests` facts for Mcp, Integrations, Jobs.Cli, AgentSimulator allow-list, Api/AzureExtractor csproj guard; CI drift guard `test_invariant_wave_b_batch.py`.
 
 **Source:** Dependency graph audit (2026-05-26). Four production assemblies are not referenced in `ArchLucid.Architecture.Tests.csproj` and therefore have zero layer-boundary assertions. Additionally, 10 `[Fact]` methods are absent from `DependencyConstraintTests` for violations that are currently unguarded.
 
@@ -2405,8 +2405,8 @@ Without project references in Architecture.Tests, NetArchTest cannot load the as
 
 | Assembly | Risk |
 |---|---|
-| `ArchLucid.Mcp` | No guard against `Mcp → Application` or `Mcp → Persistence` — can silently gain prohibited dependencies |
-| `ArchLucid.Integrations.AzureExtractor` | No guard against `AzureExtractor → Application` |
+| `ArchLucid.Mcp` | No guard against `Mcp ? Application` or `Mcp ? Persistence` ? can silently gain prohibited dependencies |
+| `ArchLucid.Integrations.AzureExtractor` | No guard against `AzureExtractor ? Application` |
 | `ArchLucid.AgentSimulator` | No positive-list guard on which assemblies may reference it |
 | `ArchLucid.Jobs.Cli` | No layer-bound assertions at all |
 
@@ -2418,7 +2418,7 @@ Without project references in Architecture.Tests, NetArchTest cannot load the as
    - `ArchLucid.AgentSimulator`
    - `ArchLucid.Jobs.Cli`
 
-2. Add the following `[Fact]` methods to `DependencyConstraintTests.cs` (use existing patterns — `ReadProjectReferenceAssemblyNames` + `Types.InAssembly(...).ShouldNot().HaveDependencyOn(...)`):
+2. Add the following `[Fact]` methods to `DependencyConstraintTests.cs` (use existing patterns ? `ReadProjectReferenceAssemblyNames` + `Types.InAssembly(...).ShouldNot().HaveDependencyOn(...)`):
 
    | Fact name | What it asserts |
    |---|---|
@@ -2439,26 +2439,26 @@ Without project references in Architecture.Tests, NetArchTest cannot load the as
 **Correctness / safety:**
 
 - Some facts (e.g. `Capabilities_Cost_references_AgentSimulator_by_design`) should start as `_by_design` acknowledgements until the corresponding TB (TB-027) ships; flip to hard-fail in the same PR that closes TB-027.
-- Do not add `AgentSimulator` or `Jobs.Cli` to `SingleCompositionRootArchitectureTestConstants.CompositionRootScannedProductAssemblyNames` — they are not product assemblies subject to the composition-root scan.
+- Do not add `AgentSimulator` or `Jobs.Cli` to `SingleCompositionRootArchitectureTestConstants.CompositionRootScannedProductAssemblyNames` ? they are not product assemblies subject to the composition-root scan.
 
 **Affected files / projects:**
 
-- `ArchLucid.Architecture.Tests/ArchLucid.Architecture.Tests.csproj` — four new `<ProjectReference>` entries
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — 10+ new `[Fact]` methods
+- `ArchLucid.Architecture.Tests/ArchLucid.Architecture.Tests.csproj` ? four new `<ProjectReference>` entries
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? 10+ new `[Fact]` methods
 
-**Size estimate:** **S** — ~2–4 h (mostly mechanical: reference adds + test method authoring + one test run to catch any pre-existing violations).
+**Size estimate:** **S** ? ~2?4 h (mostly mechanical: reference adds + test method authoring + one test run to catch any pre-existing violations).
 
 ---
 
-## TB-031 — Disambiguate ArtifactSynthesis / Decisioning layer position
+## TB-031 ? Disambiguate ArtifactSynthesis / Decisioning layer position
 
 **Status:** **Done (Batch G, 2026-05-27).** Option A shipped: `Decisioning_must_not_depend_on_ArtifactSynthesis`, `ArtifactSynthesis_csproj_references_Decisioning_by_design`, layer table in `docs/library/SYSTEM_MAP.md`.
 
-**Source:** Dependency graph audit (2026-05-26). `ArchLucid.ArtifactSynthesis` depends directly on `ArchLucid.Decisioning` (`ArtifactSynthesis → Decisioning`). Both are positioned at the same nominal layer (analysis / domain services, below Application), yet the dependency is unidirectional. Neither assembly has an Architecture.Tests assertion stating which is "above" the other, making future bidirectional coupling a silent regression.
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.ArtifactSynthesis` depends directly on `ArchLucid.Decisioning` (`ArtifactSynthesis ? Decisioning`). Both are positioned at the same nominal layer (analysis / domain services, below Application), yet the dependency is unidirectional. Neither assembly has an Architecture.Tests assertion stating which is "above" the other, making future bidirectional coupling a silent regression.
 
 **Problem:**
 
-Without an explicit layer ordering, it is valid to ask: can Decisioning depend on ArtifactSynthesis? The current graph says no (there is no such edge), but there is no test enforcing that. Over time, a developer could add `Decisioning → ArtifactSynthesis` and create a cycle.
+Without an explicit layer ordering, it is valid to ask: can Decisioning depend on ArtifactSynthesis? The current graph says no (there is no such edge), but there is no test enforcing that. Over time, a developer could add `Decisioning ? ArtifactSynthesis` and create a cycle.
 
 **Decision required (owner / engineering lead):** Choose one:
 
@@ -2470,25 +2470,25 @@ Without an explicit layer ordering, it is valid to ask: can Decisioning depend o
 - **Option A:** Add `Decisioning_must_not_depend_on_ArtifactSynthesis` to `DependencyConstraintTests`. Add a corresponding `ArtifactSynthesis_depends_on_Decisioning_by_design` acknowledgement that documents the layering decision. Update layer documentation in `docs/library/SYSTEM_MAP.md` or a new architecture note.
 - **Option B:** Identify which Decisioning types ArtifactSynthesis uses. Move them to `ArchLucid.Contracts`. Update both csproj files. Add mutual `must_not_depend_on` assertions in Architecture.Tests.
 
-**Affected files / projects (Option A — minimal):**
+**Affected files / projects (Option A ? minimal):**
 
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — two new facts
-- `docs/library/SYSTEM_MAP.md` — layer clarification
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? two new facts
+- `docs/library/SYSTEM_MAP.md` ? layer clarification
 
-**Affected files / projects (Option B — full):**
+**Affected files / projects (Option B ? full):**
 
-- `ArchLucid.Contracts` — new type(s) moved from Decisioning
-- `ArchLucid.Decisioning/ArchLucid.Decisioning.csproj` — no change (already references Contracts)
-- `ArchLucid.ArtifactSynthesis/ArchLucid.ArtifactSynthesis.csproj` — remove Decisioning reference
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — two new hard-fail assertions
+- `ArchLucid.Contracts` ? new type(s) moved from Decisioning
+- `ArchLucid.Decisioning/ArchLucid.Decisioning.csproj` ? no change (already references Contracts)
+- `ArchLucid.ArtifactSynthesis/ArchLucid.ArtifactSynthesis.csproj` ? remove Decisioning reference
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? two new hard-fail assertions
 
-**Size estimate:** **XS–S** — Option A ~30 min; Option B ~2–4 h depending on how many types need to move.
+**Size estimate:** **XS?S** ? Option A ~30 min; Option B ~2?4 h depending on how many types need to move.
 
 ---
 
-## TB-032 — Replace `Mcp → Retrieval` direct coupling with a query port
+## TB-032 ? Replace `Mcp ? Retrieval` direct coupling with a query port
 
-**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Mcp` (a protocol adapter — infrastructure layer, L4) depends directly on `ArchLucid.Retrieval` (application orchestration layer, L3). `Retrieval` itself depends on `Decisioning`, `Provenance`, and `ArtifactSynthesis`, giving the Mcp adapter a wide transitive footprint into the application layer. This violates the principle that infrastructure adapters depend on port *interfaces*, not on application layer *implementations*.
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Mcp` (a protocol adapter ? infrastructure layer, L4) depends directly on `ArchLucid.Retrieval` (application orchestration layer, L3). `Retrieval` itself depends on `Decisioning`, `Provenance`, and `ArtifactSynthesis`, giving the Mcp adapter a wide transitive footprint into the application layer. This violates the principle that infrastructure adapters depend on port *interfaces*, not on application layer *implementations*.
 
 **Problem:**
 
@@ -2501,29 +2501,29 @@ Without an explicit layer ordering, it is valid to ask: can Decisioning depend o
 1. Define an `IMcpRetrievalPort` (or extend an existing query port if one already exists in Application/Contracts) that exposes only the operations Mcp requires. Place the interface in `ArchLucid.Application` or `ArchLucid.Contracts`.
 2. Implement the port in `ArchLucid.Retrieval` (a thin adapter implementing `IMcpRetrievalPort` by delegating to existing Retrieval services).
 3. Update `ArchLucid.Mcp` to depend on `IMcpRetrievalPort` instead of Retrieval types directly. Replace the `<ProjectReference>` to `ArchLucid.Retrieval` with one to the assembly that defines the port (Contracts or Application).
-4. In `ArchLucid.Host.Composition`, bind `IMcpRetrievalPort` → the Retrieval implementation.
+4. In `ArchLucid.Host.Composition`, bind `IMcpRetrievalPort` ? the Retrieval implementation.
 5. Add Architecture.Tests assertions: `Mcp_must_not_depend_on_Application_layer_namespaces` and `Mcp_csproj_must_not_reference_Retrieval` (pair with TB-030).
 
 **Correctness / safety:**
 
-- No behavioural change — the Retrieval implementation is still wired at runtime; the port is a compile-time boundary only.
+- No behavioural change ? the Retrieval implementation is still wired at runtime; the port is a compile-time boundary only.
 - Unit-test `ArchLucid.Mcp` against a fake `IMcpRetrievalPort` after the change. This should reveal any implicit assumptions Mcp has about Retrieval's concrete type.
-- Coordinate with TB-030 (Architecture.Tests gap closure) — the `Mcp_must_not_depend_on_*` assertions added in TB-030 should turn green when this item ships.
+- Coordinate with TB-030 (Architecture.Tests gap closure) ? the `Mcp_must_not_depend_on_*` assertions added in TB-030 should turn green when this item ships.
 
 **Affected files / projects:**
 
-- `ArchLucid.Contracts` or `ArchLucid.Application` — new `IMcpRetrievalPort.cs`
-- `ArchLucid.Retrieval` — new `McpRetrievalPortAdapter.cs` (implements the port)
-- `ArchLucid.Mcp/ArchLucid.Mcp.csproj` — swap `Retrieval` reference for port-defining assembly
-- `ArchLucid.Mcp` source — replace concrete Retrieval usages with port calls
-- `ArchLucid.Host.Composition` — bind `IMcpRetrievalPort`
-- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — assertions (pair with TB-030)
+- `ArchLucid.Contracts` or `ArchLucid.Application` ? new `IMcpRetrievalPort.cs`
+- `ArchLucid.Retrieval` ? new `McpRetrievalPortAdapter.cs` (implements the port)
+- `ArchLucid.Mcp/ArchLucid.Mcp.csproj` ? swap `Retrieval` reference for port-defining assembly
+- `ArchLucid.Mcp` source ? replace concrete Retrieval usages with port calls
+- `ArchLucid.Host.Composition` ? bind `IMcpRetrievalPort`
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` ? assertions (pair with TB-030)
 
-**Size estimate:** **M** — ~1–2 eng days (port definition + Retrieval adapter + Mcp refactor + composition binding + tests).
+**Size estimate:** **M** ? ~1?2 eng days (port definition + Retrieval adapter + Mcp refactor + composition binding + tests).
 
 ---
 
-## TB-033 — Agent execution trace — persist LLM sampling params + reasoning token count
+## TB-033 ? Agent execution trace ? persist LLM sampling params + reasoning token count
 
 **Source:** Replay / provenance completeness audit (2026-05-26). Operators and support need to reconstruct the exact LLM call configuration for a single agent task.
 
@@ -2531,23 +2531,23 @@ Without an explicit layer ordering, it is valid to ask: can Decisioning depend o
 
 `AgentExecutionTrace` persists `ModelDeploymentName`, `ModelVersion`, and prompt-template identity (`PromptTemplateId`, `PromptTemplateVersion`, `SystemPromptContentSha256`, `PromptReleaseLabel`) but **not** the completion request parameters actually sent to Azure OpenAI:
 
-- `temperature` (handler default **0.1** today — not stored)
+- `temperature` (handler default **0.1** today ? not stored)
 - `maxTokens` / `max_completion_tokens`
 - `top_p`, presence/frequency penalties (if ever enabled)
 
-`ReasoningTokenCount` (or equivalent) is consumed when estimating cost in `LlmCompletionAccountingClient` / `LlmCostEstimator` but is **not** written to the trace row — only input/output token totals are stored.
+`ReasoningTokenCount` (or equivalent) is consumed when estimating cost in `LlmCompletionAccountingClient` / `LlmCostEstimator` but is **not** written to the trace row ? only input/output token totals are stored.
 
 **What to do:**
 
 1. Extend `AgentExecutionTrace` contract + `dbo.AgentExecutionTraces` / `TraceJson` schema (DbUp + consolidated `Scripts/ArchLucid.sql`) with nullable fields for sampling params actually passed to the completion client (capture at record time, not defaults from config unless that is what was sent).
 2. Add `ReasoningTokenCount` (or provider-specific reasoning field) to the trace row when the completion response reports it.
-3. Populate fields in `AgentExecutionTraceRecorder.RecordAsync` from `AgentCompletionModelMetadata` / completion result DTO — single source at record time.
-4. Update OpenAPI/codegen if trace detail DTOs are customer-visible; extend `docs/library/AGENT_TRACE_FORENSICS.md` §Model metadata.
+3. Populate fields in `AgentExecutionTraceRecorder.RecordAsync` from `AgentCompletionModelMetadata` / completion result DTO ? single source at record time.
+4. Update OpenAPI/codegen if trace detail DTOs are customer-visible; extend `docs/library/AGENT_TRACE_FORENSICS.md` ?Model metadata.
 5. Unit tests: recorder persists non-default sampling when handler overrides; reasoning tokens round-trip when provider returns them.
 
-**Out of scope:** LLM tool-call loops (architecture is single-shot JSON completion today — no tool persistence layer).
+**Out of scope:** LLM tool-call loops (architecture is single-shot JSON completion today ? no tool persistence layer).
 
-**Depends on:** none (orthogonal to **TB-011** replay *scope* isolation — **INV-013**).
+**Depends on:** none (orthogonal to **TB-011** replay *scope* isolation ? **INV-013**).
 
 **Affected files / projects:**
 
@@ -2556,11 +2556,11 @@ Without an explicit layer ordering, it is valid to ask: can Decisioning depend o
 - `ArchLucid.AgentRuntime/LlmAgentSchemaCompletion.cs`, `AzureOpenAiCompletionClient.cs` (pass-through metadata)
 - Persistence migration + `AgentExecutionTraceRecorderTests` (or equivalent)
 
-**Size estimate:** **XS** — ~2–4 h.
+**Size estimate:** **XS** ? ~2?4 h.
 
 ---
 
-## TB-034 — Degraded-handler minimal `AgentExecutionTrace` rows
+## TB-034 ? Degraded-handler minimal `AgentExecutionTrace` rows
 
 **Source:** Replay / provenance completeness audit (2026-05-26). `RealAgentExecutor` resilience path uses `AgentHandlerDegradedResultFactory` when handlers time out, circuits open, or resilience fails.
 
@@ -2570,7 +2570,7 @@ Degraded paths emit **`archlucid_agent_handler_degradations_total`** and activit
 
 **What to do:**
 
-1. On degradation (before returning placeholder), record a **minimal** trace row: `FailureReasonCode` / `degradation_reason`, `AgentType`, `RunId`, `TaskId`, optional **truncated** system/user prompt hashes or template metadata (no full blob requirement if degradation happened pre-LLM — document which fields are best-effort).
+1. On degradation (before returning placeholder), record a **minimal** trace row: `FailureReasonCode` / `degradation_reason`, `AgentType`, `RunId`, `TaskId`, optional **truncated** system/user prompt hashes or template metadata (no full blob requirement if degradation happened pre-LLM ? document which fields are best-effort).
 2. Set `ParseSucceeded=false`, `EstimatedCostUsd=0` (or null), sentinel model metadata if no completion occurred.
 3. Audit event optional: `AgentHandlerDegradedTraceRecorded` for operator search (or reuse existing degradation audit with `traceId`).
 4. Document in `docs/library/AGENT_TRACE_FORENSICS.md` and `docs/library/OBSERVABILITY.md` that degraded traces are **partial** by design.
@@ -2578,7 +2578,7 @@ Degraded paths emit **`archlucid_agent_handler_degradations_total`** and activit
 
 **Correctness / safety:**
 
-- Do **not** block degradation return on trace insert failure — same best-effort contract as blob persistence (**TB-001** informational posture for secondary writes).
+- Do **not** block degradation return on trace insert failure ? same best-effort contract as blob persistence (**TB-001** informational posture for secondary writes).
 - Redaction (**`LlmPromptRedaction`**) applies if prompts are included.
 
 **Affected files / projects:**
@@ -2587,23 +2587,23 @@ Degraded paths emit **`archlucid_agent_handler_degradations_total`** and activit
 - `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`
 - `ArchLucid.AgentRuntime.Tests/AgentHandlerDegradationTelemetryTests.cs`
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-035 — Persist intermediate LLM attempts on schema-remediation retries
+## TB-035 ? Persist intermediate LLM attempts on schema-remediation retries
 
 **Source:** Replay / provenance completeness audit (2026-05-26). `LlmAgentSchemaCompletion` retries JSON parse / schema validation failures before surfacing error to the handler.
 
 **Problem:**
 
-Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsync`. Intermediate prompts and raw responses are discarded; `RecordAgentSchemaRemediationRetry` is a **metric counter only**. Support cannot answer “what did the model return on attempt 1 vs 3?” for schema drift incidents.
+Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsync`. Intermediate prompts and raw responses are discarded; `RecordAgentSchemaRemediationRetry` is a **metric counter only**. Support cannot answer ?what did the model return on attempt 1 vs 3?? for schema drift incidents.
 
 **What to do:**
 
-1. **Option A (preferred):** Child trace rows per attempt — same `RunId`/`TaskId`, distinct `TraceId`, `AttemptIndex` column (migration), `ParentTraceId` nullable for final consolidated row OR final row references `AttemptCount`.
+1. **Option A (preferred):** Child trace rows per attempt ? same `RunId`/`TaskId`, distinct `TraceId`, `AttemptIndex` column (migration), `ParentTraceId` nullable for final consolidated row OR final row references `AttemptCount`.
 2. **Option B:** Append `RemediationAttempts[]` JSON array on a single trace row (bounded size; truncate with audit if exceeded).
-3. Record each attempt’s `RawResponse`, parse error, and token/cost slice when a completion occurred.
+3. Record each attempt?s `RawResponse`, parse error, and token/cost slice when a completion occurred.
 4. Cap max attempts in config; document retention alignment with **`DataArchival:PurgeArchivedAgentExecutionTracesAfterDays`**.
 5. Tests: two-failure-then-success path produces three durable attempt records (or array length 3).
 
@@ -2616,24 +2616,24 @@ Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsyn
 - `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`
 - Persistence migration
 
-**Size estimate:** **M** — ~1–2 eng days.
+**Size estimate:** **M** ? ~1?2 eng days.
 
 ---
 
-## TB-036 — Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace`
+## TB-036 ? Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace`
 
 **Status:** Done (Batch F, 2026-05-26).
 
-**Source:** Replay / provenance completeness audit (2026-05-26). `ArchLucid.Provenance` builds decision lineage; `AgentRuntime` stores LLM forensics — no link between them.
+**Source:** Replay / provenance completeness audit (2026-05-26). `ArchLucid.Provenance` builds decision lineage; `AgentRuntime` stores LLM forensics ? no link between them.
 
 **Problem:**
 
-`ProvenanceBuilder` / `GET …/provenance` answer “which findings and decisions contributed to this run?” but not “which agent trace produced this decision narrative?” `AgentExecutionTrace` rows have `RunId` + `TaskId` + `AgentType` but no provenance node IDs. Cross-navigation requires manual correlation by timestamp and agent type.
+`ProvenanceBuilder` / `GET ?/provenance` answer ?which findings and decisions contributed to this run?? but not ?which agent trace produced this decision narrative?? `AgentExecutionTrace` rows have `RunId` + `TaskId` + `AgentType` but no provenance node IDs. Cross-navigation requires manual correlation by timestamp and agent type.
 
 **What to do:**
 
 1. Product/engineering agree correlation grain: **per agent task** (`TaskId` + `AgentType`) vs **per decision key** vs **per finding id**.
-2. Add stable correlation fields — e.g. `ProvenanceCorrelationId` on trace row; optional `AgentExecutionTraceId` on `ProvenanceNode.Metadata` for `Decision` / `Finding` nodes when builder can infer mapping.
+2. Add stable correlation fields ? e.g. `ProvenanceCorrelationId` on trace row; optional `AgentExecutionTraceId` on `ProvenanceNode.Metadata` for `Decision` / `Finding` nodes when builder can infer mapping.
 3. Populate during handler execute + `ProvenanceBuilder` build (or post-run linker service in Application).
 4. Expose in provenance API + trace detail API for operator UI deep links (pair with **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** in UI backlog if needed).
 5. Architecture test: Provenance assembly must not reference AgentRuntime (correlation via Contracts IDs only).
@@ -2642,42 +2642,42 @@ Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsyn
 
 **Refs:** [`docs/library/KNOWLEDGE_GRAPH.md`](KNOWLEDGE_GRAPH.md); [`docs/library/AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md).
 
-**Size estimate:** **M** — ~2–3 eng days.
+**Size estimate:** **M** ? ~2?3 eng days.
 
 ---
 
-## TB-037 — Production write path for `DecisionProvenanceSnapshot`
+## TB-037 ? Production write path for `DecisionProvenanceSnapshot`
 
-**Status:** **Done (2026-06-03 batch 5CD drift closure)** — `ProvenanceGraphAccessService` snapshot read/write + post-commit `TryMaterializeSnapshotAsync`; `ProvenanceGraphAccessServiceTests`; `test_traceability_batch_5cd.py`.
+**Status:** **Done (2026-06-03 batch 5CD drift closure)** ? `ProvenanceGraphAccessService` snapshot read/write + post-commit `TryMaterializeSnapshotAsync`; `ProvenanceGraphAccessServiceTests`; `test_traceability_batch_5cd.py`.
 
 **Source:** Replay / provenance completeness audit (2026-05-26). `DecisionProvenanceSnapshot` table and `IProvenanceSnapshotRepository.SaveAsync` exist; production code rebuilds the graph on read.
 
 **Problem:**
 
-`AuthorityQueryController` / provenance query paths invoke `ProvenanceBuilder` on demand. **`SaveAsync` has no production callers** — snapshots are never materialized. Every provenance read recomputes from findings, manifest, and decision trace artefacts (higher latency, harder point-in-time audit).
+`AuthorityQueryController` / provenance query paths invoke `ProvenanceBuilder` on demand. **`SaveAsync` has no production callers** ? snapshots are never materialized. Every provenance read recomputes from findings, manifest, and decision trace artefacts (higher latency, harder point-in-time audit).
 
 **What to do:**
 
 1. After successful authority commit (or run terminal state), build graph once and **`SaveAsync`** with idempotent upsert on `RunId` (respect tenant RLS).
 2. Read path: load snapshot when present and fresh (hash manifest / findings revision); fall back to rebuild when stale or missing.
-3. Wire invalidation when run artefacts are superseded (align with replay scope rules — **INV-013** / **TB-011**).
+3. Wire invalidation when run artefacts are superseded (align with replay scope rules ? **INV-013** / **TB-011**).
 4. Metrics: `archlucid_provenance_snapshot_writes_total`, rebuild fallback counter.
-5. Tests: commit → snapshot exists; second read does not call builder when snapshot valid.
+5. Tests: commit ? snapshot exists; second read does not call builder when snapshot valid.
 
 **Out of scope:** Changing graph semantics or node types.
 
 **Affected files / projects:**
 
-- `ArchLucid.Application` (or worker) — post-commit hook
+- `ArchLucid.Application` (or worker) ? post-commit hook
 - `ArchLucid.Provenance/ProvenanceBuilder.cs`
 - `IProvenanceSnapshotRepository` implementation in Persistence
 - `AuthorityQueryController` / `ProvenanceQueryController`
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-038 — `RetrievalGroundingTrace` forensic enrichment (+ non-Compliance agents)
+## TB-038 ? `RetrievalGroundingTrace` forensic enrichment (+ non-Compliance agents)
 
 **Source:** Replay / provenance completeness audit (2026-05-26). **RAG-V1-000** shipped `dbo.RetrievalGroundingTrace` with chunk IDs for **Compliance** only.
 
@@ -2696,17 +2696,17 @@ See **RAG-V1-006** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL
 
 **Schedule under:** **TB-021** / assessment **CPB-T21** when faithfulness work is active.
 
-**Size estimate:** **S–M** — ~1–2 eng days (schema + writers + tests).
+**Size estimate:** **S?M** ? ~1?2 eng days (schema + writers + tests).
 
 ---
 
-## TB-039 — Agent execute retry — per-`(RunId, TaskId)` skip before handler dispatch
+## TB-039 ? Agent execute retry ? per-`(RunId, TaskId)` skip before handler dispatch
 
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `ArchitectureRunExecuteOrchestrator.TryReturnExistingExecuteResultsAsync` skips idempotent early return when stored results are incomplete vs scheduled tasks.
 
 **Problem:**
 
-When execute is retried after a partial batch (some handlers succeeded, run still `TasksGenerated`), the orchestrator calls `agentExecutor.ExecuteAsync` with the **full** task list. There is no per-task “already executed” gate. `AgentResultRepository.CreateManyAsync` delete-then-insert prevents duplicate SQL rows, but every handler is re-invoked and **LLM tokens are charged again** via `LlmCompletionAccountingClient` (accounting in `finally` on each successful `CompleteJsonAsync`). The completion cache (`CachingLlmCompletionClient`) deduplicates identical prompts only — not `(RunId, TaskId)` identity.
+When execute is retried after a partial batch (some handlers succeeded, run still `TasksGenerated`), the orchestrator calls `agentExecutor.ExecuteAsync` with the **full** task list. There is no per-task ?already executed? gate. `AgentResultRepository.CreateManyAsync` delete-then-insert prevents duplicate SQL rows, but every handler is re-invoked and **LLM tokens are charged again** via `LlmCompletionAccountingClient` (accounting in `finally` on each successful `CompleteJsonAsync`). The completion cache (`CachingLlmCompletionClient`) deduplicates identical prompts only ? not `(RunId, TaskId)` identity.
 
 **What to do:**
 
@@ -2714,7 +2714,7 @@ When execute is retried after a partial batch (some handlers succeeded, run stil
 2. For each `(RunId, TaskId)` with a persisted successful result (define: non-degraded, parse succeeded, or explicit product rule), return the stored `AgentResult` without calling the handler or LLM.
 3. Optionally restrict skip to results from the same run revision / evidence package hash if product requires re-run on evidence change.
 4. Log metric `archlucid_agent_execute_task_skipped_idempotent_total` with labels `agent_type`, `reason`.
-5. Tests: partial batch persisted → retry executes only missing tasks; full batch idempotent early return unchanged; degraded placeholder does not skip unless product says so.
+5. Tests: partial batch persisted ? retry executes only missing tasks; full batch idempotent early return unchanged; degraded placeholder does not skip unless product says so.
 
 **Out of scope:** Changing execute idempotency terminal statuses or create-run idempotency keys.
 
@@ -2727,24 +2727,24 @@ When execute is retried after a partial batch (some handlers succeeded, run stil
 - `ArchLucid.Persistence/Data/Repositories/AgentResultRepository.cs`
 - `ArchLucid.AgentRuntime.Tests/RealAgentExecutorTests.cs` (or orchestrator integration tests)
 
-**Size estimate:** **M** — ~1–2 eng days.
+**Size estimate:** **M** ? ~1?2 eng days.
 
 ---
 
-## TB-040 — `LlmCompletionAccountingClient` — await metering with `CancellationToken.None`
+## TB-040 ? `LlmCompletionAccountingClient` ? await metering with `CancellationToken.None`
 
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). Parallel fan-out uses linked cancellation; completed handlers may cancel peers after budget or fault.
 
 **Problem:**
 
-In `LlmCompletionAccountingClient.CompleteJsonAsync`, `TryRecordLlmUsageMeteringAsync` is invoked as fire-and-forget (`_ = …`) with the **original** `cancellationToken`. When linked cancellation fires immediately after a successful LLM response, metering can be silently skipped while `_dailyTenantBudgetTracker` / `_monthlyDollarBudgetTracker` still record usage (they use `CancellationToken.None`). Retry then bills LLM again — budget ledgers and `IUsageMeteringService` event logs diverge.
+In `LlmCompletionAccountingClient.CompleteJsonAsync`, `TryRecordLlmUsageMeteringAsync` is invoked as fire-and-forget (`_ = ?`) with the **original** `cancellationToken`. When linked cancellation fires immediately after a successful LLM response, metering can be silently skipped while `_dailyTenantBudgetTracker` / `_monthlyDollarBudgetTracker` still record usage (they use `CancellationToken.None`). Retry then bills LLM again ? budget ledgers and `IUsageMeteringService` event logs diverge.
 
 **What to do:**
 
 1. Await `TryRecordLlmUsageMeteringAsync` in the `finally` block (same pattern as budget trackers), passing **`CancellationToken.None`**.
 2. Keep best-effort semantics: catch and log metering failures without failing the completion (existing `catch` in `TryRecordLlmUsageMeteringAsync`).
 3. Apply the same fix to `StreamJsonAsync` path.
-4. Tests: simulate cancelled token after inner completion returns — assert metering `RecordAsync` still called once; budget and metering counts align.
+4. Tests: simulate cancelled token after inner completion returns ? assert metering `RecordAsync` still called once; budget and metering counts align.
 
 **Out of scope:** Idempotent dedupe of metering events by correlation id (separate if needed).
 
@@ -2755,27 +2755,27 @@ In `LlmCompletionAccountingClient.CompleteJsonAsync`, `TryRecordLlmUsageMetering
 - `ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs`
 - `ArchLucid.AgentRuntime.Tests/` (accounting / cancellation tests)
 
-**Size estimate:** **XS** — ~2–4 h.
+**Size estimate:** **XS** ? ~2?4 h.
 
 ---
 
-## TB-041 — Authority pipeline — per-stage completion checkpoint on retry
+## TB-041 ? Authority pipeline ? per-stage completion checkpoint on retry
 
 **Status:** Done (Batch F, 2026-05-26).
 
-**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AuthorityPipelineStagesExecutor.ExecuteStageAsync` has no “stage already completed” guard.
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AuthorityPipelineStagesExecutor.ExecuteStageAsync` has no ?stage already completed? guard.
 
 **Problem:**
 
-If the authority pipeline throws mid-run (e.g. after context ingestion and graph save, before findings completes), a retry restarts from **stage 1** (`context_ingestion`). Each stage’s `SaveAsync` is insert-oriented; cross-stage work is not atomically rolled back. Retries can produce duplicate context snapshots, duplicate findings snapshots, and duplicate connector fetches — even when earlier stage outputs are already durable on `RunRecord` (`ContextSnapshotId`, `GraphSnapshotId`, etc.).
+If the authority pipeline throws mid-run (e.g. after context ingestion and graph save, before findings completes), a retry restarts from **stage 1** (`context_ingestion`). Each stage?s `SaveAsync` is insert-oriented; cross-stage work is not atomically rolled back. Retries can produce duplicate context snapshots, duplicate findings snapshots, and duplicate connector fetches ? even when earlier stage outputs are already durable on `RunRecord` (`ContextSnapshotId`, `GraphSnapshotId`, etc.).
 
 **What to do:**
 
-1. Define stage completion predicates from persisted run header + snapshot FKs (e.g. `ContextSnapshotId` set ⇒ skip `context_ingestion`; `GraphSnapshotId` set ⇒ skip `graph` unless fingerprint changed).
+1. Define stage completion predicates from persisted run header + snapshot FKs (e.g. `ContextSnapshotId` set ? skip `context_ingestion`; `GraphSnapshotId` set ? skip `graph` unless fingerprint changed).
 2. At start of each `ExecuteStageAsync`, short-circuit `stageWork` when checkpoint indicates stage output already committed for this run revision.
 3. Document interaction with **TB-042** (graph supersession) and `GraphSnapshotReuseEvaluator` clone vs fresh paths.
 4. Metrics: `archlucid_authority_pipeline_stage_skipped_checkpoint_total` by `stage`.
-5. Integration tests: fail after graph stage → retry skips ingestion + graph, continues at findings.
+5. Integration tests: fail after graph stage ? retry skips ingestion + graph, continues at findings.
 
 **Out of scope:** Full Durable Task Framework checkpoint/replay (**V1_DEFERRED**); changing stage ordering.
 
@@ -2787,11 +2787,11 @@ If the authority pipeline throws mid-run (e.g. after context ingestion and graph
 - `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`
 - Persistence tests / authority pipeline integration tests
 
-**Size estimate:** **M** — ~1–2 eng days.
+**Size estimate:** **M** ? ~1?2 eng days.
 
 ---
 
-## TB-042 — Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set
+## TB-042 ? Graph snapshot supersession ? skip rebuild when `RunRecord.GraphSnapshotId` set
 
 **Status:** Done (Batch F, 2026-05-26).
 
@@ -2799,15 +2799,15 @@ If the authority pipeline throws mid-run (e.g. after context ingestion and graph
 
 **Problem:**
 
-If `SaveAsync` succeeds but `UpdateRunAsync` fails (transient SQL), retry builds and saves a **second** graph snapshot. When Cosmos graph storage is enabled, graph save runs **outside** the SQL authority transaction — orphaned snapshots are not rolled back. Run header eventually points at the latest id; earlier snapshots remain as orphans (storage + lineage noise).
+If `SaveAsync` succeeds but `UpdateRunAsync` fails (transient SQL), retry builds and saves a **second** graph snapshot. When Cosmos graph storage is enabled, graph save runs **outside** the SQL authority transaction ? orphaned snapshots are not rolled back. Run header eventually points at the latest id; earlier snapshots remain as orphans (storage + lineage noise).
 
 **What to do:**
 
-1. At graph stage entry: if `run.GraphSnapshotId` is non-null and load-by-id succeeds, reuse that snapshot (set `ctx.GraphSnapshot`, resolution mode `reused_from_run_header`) — skip `GraphSnapshotReuseEvaluator` rebuild/save.
+1. At graph stage entry: if `run.GraphSnapshotId` is non-null and load-by-id succeeds, reuse that snapshot (set `ctx.GraphSnapshot`, resolution mode `reused_from_run_header`) ? skip `GraphSnapshotReuseEvaluator` rebuild/save.
 2. When save + header update must be atomic, consider single UoW ordering: persist run FK in same transaction as SQL graph save where supported.
-3. For Cosmos path: write run header pointer only after successful blob/document save, or implement compensating delete of orphan on header update failure (product choice — document).
+3. For Cosmos path: write run header pointer only after successful blob/document save, or implement compensating delete of orphan on header update failure (product choice ? document).
 4. Align with **TB-041** checkpoint rules.
-5. Tests: simulate failure after `SaveAsync` before `UpdateRunAsync` → retry does not create second snapshot id.
+5. Tests: simulate failure after `SaveAsync` before `UpdateRunAsync` ? retry does not create second snapshot id.
 
 **Out of scope:** Deleting historical orphaned snapshots (ops cleanup backlog if needed).
 
@@ -2820,25 +2820,25 @@ If `SaveAsync` succeeds but `UpdateRunAsync` fails (transient SQL), retry builds
 - `ArchLucid.KnowledgeGraph/Services/KnowledgeGraphService.cs`
 - Graph snapshot repository implementations
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-043 — Schema remediation — non-retried completion client (decouple from Polly stack)
+## TB-043 ? Schema remediation ? non-retried completion client (decouple from Polly stack)
 
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `LlmAgentSchemaCompletion.CompleteAsync` calls `activeClient.CompleteJsonAsync`, which is typically `CircuitBreakingAgentCompletionClient` with an inner Polly retry pipeline.
 
 **Problem:**
 
-Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts × (1 + LlmCallMaxRetryAttempts)`** (e.g. 3 × 4 = 12). Each Polly retry that reaches Azure and returns usage is charged in `LlmCompletionAccountingClient`. Remediation attempts use **different user prompts** (remediation text appended), so completion cache does not dedupe across attempts. This is intentional retry behaviour for reliability but unbounded for FinOps unless capped.
+Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts ? (1 + LlmCallMaxRetryAttempts)`** (e.g. 3 ? 4 = 12). Each Polly retry that reaches Azure and returns usage is charged in `LlmCompletionAccountingClient`. Remediation attempts use **different user prompts** (remediation text appended), so completion cache does not dedupe across attempts. This is intentional retry behaviour for reliability but unbounded for FinOps unless capped.
 
 **What to do:**
 
-1. Register a dedicated **`IAgentCompletionClient`** for remediation attempts (same Azure endpoint, **no** Polly retry wrapper — or max 1 attempt) and pass as `remediationCompletionClient` into `LlmAgentSchemaCompletion.CompleteAsync` (parameter already exists).
+1. Register a dedicated **`IAgentCompletionClient`** for remediation attempts (same Azure endpoint, **no** Polly retry wrapper ? or max 1 attempt) and pass as `remediationCompletionClient` into `LlmAgentSchemaCompletion.CompleteAsync` (parameter already exists).
 2. Keep Polly retries on the **first** attempt only (transient 429/5xx on initial completion).
 3. Document max billed calls formula in `docs/library/LLM_RETRY_AND_CIRCUIT_BREAKER.md` and `RESILIENCE_CONFIGURATION.md`.
-4. Tests: schema violation triggers remediation → assert Polly retry count applies only to first attempt; token accounting call count bounded.
-5. Coordinate with **TB-035** if persisting intermediate attempts (forensics) — billing and trace rows should align per attempt.
+4. Tests: schema violation triggers remediation ? assert Polly retry count applies only to first attempt; token accounting call count bounded.
+5. Coordinate with **TB-035** if persisting intermediate attempts (forensics) ? billing and trace rows should align per attempt.
 
 **Out of scope:** Reducing `MaxCompletionAttempts` (product decision); changing Polly policy for non-remediation calls.
 
@@ -2851,24 +2851,24 @@ Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts × 
 - Handler call sites (Topology, Compliance, Critic)
 - `ArchLucid.AgentRuntime.Tests/LlmAgentSchemaCompletionTests.cs` (or equivalent)
 
-**Size estimate:** **XS–S** — ~4–8 h.
+**Size estimate:** **XS?S** ? ~4?8 h.
 
 ---
 
-## TB-044 — `AgentExecutionTraces` — unique index on `(RunId, TaskId, AgentType)` + upsert semantics
+## TB-044 ? `AgentExecutionTraces` ? unique index on `(RunId, TaskId, AgentType)` + upsert semantics
 
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AgentExecutionTraceRepository.CreateAsync` is plain INSERT; each execute retry generates new `TraceId`.
 
 **Problem:**
 
-Full execute retry (see **TB-039**) appends additional trace rows for the same logical agent task. Forensics queries (`GetByTaskIdAsync`) return multiple rows ordered by `CreatedUtc` — ambiguous “canonical” trace for support. Not a direct double-charge risk, but violates one-trace-per-task-per-run expectation and complicates cost aggregation.
+Full execute retry (see **TB-039**) appends additional trace rows for the same logical agent task. Forensics queries (`GetByTaskIdAsync`) return multiple rows ordered by `CreatedUtc` ? ambiguous ?canonical? trace for support. Not a direct double-charge risk, but violates one-trace-per-task-per-run expectation and complicates cost aggregation.
 
 **What to do:**
 
-1. DbUp migration + consolidated `Scripts/ArchLucid.sql`: unique index on `(RunId, TaskId, AgentType)` (confirm cardinality — one row per agent type per task per run).
-2. Change `CreateAsync` to **MERGE** or delete-then-insert for that key (mirror `AgentResultRepository` pattern), or skip insert when row exists unless **TB-035** multi-attempt model requires child rows (if so, use `(RunId, TaskId, AgentType, AttemptIndex)` unique key instead — coordinate with **TB-035**).
+1. DbUp migration + consolidated `Scripts/ArchLucid.sql`: unique index on `(RunId, TaskId, AgentType)` (confirm cardinality ? one row per agent type per task per run).
+2. Change `CreateAsync` to **MERGE** or delete-then-insert for that key (mirror `AgentResultRepository` pattern), or skip insert when row exists unless **TB-035** multi-attempt model requires child rows (if so, use `(RunId, TaskId, AgentType, AttemptIndex)` unique key instead ? coordinate with **TB-035**).
 3. Backfill / dedupe strategy for existing duplicates (keep latest `CreatedUtc` per key).
-4. Tests: retry execute → single trace row per task (or explicit attempt index set if **TB-035** shipped first).
+4. Tests: retry execute ? single trace row per task (or explicit attempt index set if **TB-035** shipped first).
 
 **Out of scope:** Trace blob re-upload idempotency (existing blob keys are content-addressed per trace id).
 
@@ -2880,11 +2880,11 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 - `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`
 - DbUp migration scripts
 
-**Size estimate:** **XS** — ~2–4 h.
+**Size estimate:** **XS** ? ~2?4 h.
 
 ---
 
-## TB-045 — Embedding model identity and drift guard
+## TB-045 ? Embedding model identity and drift guard
 
 **Status:** Done (Batch G, 2026-05-26).
 
@@ -2896,31 +2896,31 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 
 1. Add `EmbeddingModelId` + `EmbeddingDimension` to `RetrievalChunk`.
 2. Query-time filter/metric on dimension mismatch.
-3. Startup compare config vs index metadata → full re-embed on change.
+3. Startup compare config vs index metadata ? full re-embed on change.
 
 **Schedule under:** **TB-021** / assessment **CPB-T21** when retrieval correctness work is active.
 
 **Affected files:** `ArchLucid.Retrieval/Models/RetrievalChunk.cs`, `Indexing/InMemoryVectorIndex.cs`, `Indexing/RetrievalIndexingService.cs`, `Embedding/AzureOpenAiEmbeddingClient.cs`.
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-046 — Index freshness, ContentHash skip, and indexer observability
+## TB-046 ? Index freshness, ContentHash skip, and indexer observability
 
 **Source:** Retrieval correctness & drift audit (2026-05-26). `ContentHash` on documents is never read at index time; startup indexers fail-open; no freshness metric.
 
-**What to do:** See **RAG-V1-008**. Priority within item: **ContentHash skip (P0)** → last-indexed-at + health signal → optional scheduled re-index.
+**What to do:** See **RAG-V1-008**. Priority within item: **ContentHash skip (P0)** ? last-indexed-at + health signal ? optional scheduled re-index.
 
 **Schedule under:** **TB-021**. Coordinate with **RAG-V1-009** (chunking fingerprint) for skip logic.
 
 **Affected files:** `RetrievalIndexingService.cs`, `*CorpusStartupIndexerHostedService.cs`, `RetrievalDocument.cs`.
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-047 — Chunking strategy fingerprint and invalidation
+## TB-047 ? Chunking strategy fingerprint and invalidation
 
 **Source:** Retrieval correctness & drift audit (2026-05-26). Chunk parameters are hardcoded method defaults; changing them produces mixed-generation indexes with no invalidation.
 
@@ -2930,54 +2930,54 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 
 **Affected files:** `ArchLucid.Retrieval/Chunking/*.cs`, `RetrievalIndexingService.cs`.
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-048 — Tenancy isolation hardening (retrieval)
+## TB-048 ? Tenancy isolation hardening (retrieval)
 
-**Status:** Done (Batch G, 2026-05-26). **Remaining gap:** production Azure Search client + delete path — see **TB-071** / **RAG-V1-010** P1.
+**Status:** Done (Batch G, 2026-05-26). **Remaining gap:** production Azure Search client + delete path ? see **TB-071** / **RAG-V1-010** P1.
 
 **Source:** Retrieval correctness & drift audit (2026-05-26). `InMemoryVectorIndex` treats `AllowedPolicyPackRulePackIds == null` as allow-all for policy packs. Azure Search filter path not auditable in-repo.
 
-**What to do:** See **RAG-V1-010**. **P0:** safe default on null assignment list + integration test. **P1:** Azure Search tenant `$filter` when client ships — tracked as **TB-071**.
+**What to do:** See **RAG-V1-010**. **P0:** safe default on null assignment list + integration test. **P1:** Azure Search tenant `$filter` when client ships ? tracked as **TB-071**.
 
-**Schedule under:** **TB-021** — treat as **security** item; pick up before broad MCP retrieval exposure (**TB-032**).
+**Schedule under:** **TB-021** ? treat as **security** item; pick up before broad MCP retrieval exposure (**TB-032**).
 
 **Affected files:** `InMemoryVectorIndex.cs`, `RetrievalQueryService.cs`, future `AzureAiSearchVectorIndex` client.
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-049 — Retrieval IR eval harness (recall@k, MRR)
+## TB-049 ? Retrieval IR eval harness (recall@k, MRR)
 
 **Source:** Retrieval correctness & drift audit (2026-05-26). No recall@k, precision@k, MRR, or NDCG. Existing **RAG-V1-005** / `RetrievalFaithfulnessEvaluator` measures output citation coverage only.
 
 **What to do:** See **RAG-V1-011**. Golden dataset + `scripts/ci/eval_retrieval_ir.py` + CI floor on recall@5 and MRR.
 
-**Schedule under:** **TB-021** alongside **RAG-V1-005** — complementary gates (retrieval quality vs output faithfulness).
+**Schedule under:** **TB-021** alongside **RAG-V1-005** ? complementary gates (retrieval quality vs output faithfulness).
 
 **Affected files:** `tests/eval-datasets/retrieval-golden/`, `scripts/ci/eval_retrieval_ir.py`, `ArchLucid.Retrieval.Tests/`.
 
-**Size estimate:** **M** — ~2–3 eng days.
+**Size estimate:** **M** ? ~2?3 eng days.
 
 ---
 
-## TB-050 — Manifest `ResolvedArchitectureDecision` — confidence + `ConfidenceSource`
+## TB-050 ? Manifest `ResolvedArchitectureDecision` ? confidence + `ConfidenceSource`
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Operator-facing manifest decisions are built in `DefaultGoldenManifestBuilder` from accepted findings; the persisted type has no confidence field.
 
 **Problem:**
 
-`ResolvedArchitectureDecision` (`ArchLucid.Core/Manifest/ResolvedArchitectureDecision.cs`) exposes category, title, selected option, rationale, and supporting finding IDs — but **no numeric confidence** and no indication of whether confidence was measured, defaulted, or absent. Finding-level `ConfidenceScore` / `EvaluationConfidenceScore` may exist on upstream findings yet are **not projected** onto the decision row an operator reads in the manifest or governance UI. This is the highest-impact explainability gap for the authority production path.
+`ResolvedArchitectureDecision` (`ArchLucid.Core/Manifest/ResolvedArchitectureDecision.cs`) exposes category, title, selected option, rationale, and supporting finding IDs ? but **no numeric confidence** and no indication of whether confidence was measured, defaulted, or absent. Finding-level `ConfidenceScore` / `EvaluationConfidenceScore` may exist on upstream findings yet are **not projected** onto the decision row an operator reads in the manifest or governance UI. This is the highest-impact explainability gap for the authority production path.
 
 **What to do:**
 
-1. Add nullable `double? Confidence` and `DecisionConfidenceSource` (or string enum) to `ResolvedArchitectureDecision` and contract DTOs — values such as `RuleEngine`, `FindingAggregate`, `LlmAgent`, `Calibrated`, `Unknown`, `NotComputed`.
-2. Populate in `DefaultGoldenManifestBuilder` from the winning finding’s `EvaluationConfidenceScore` (preferred) or `ConfidenceScore`, with explicit `Unknown` when both are null — **never** silently substitute a constant.
+1. Add nullable `double? Confidence` and `DecisionConfidenceSource` (or string enum) to `ResolvedArchitectureDecision` and contract DTOs ? values such as `RuleEngine`, `FindingAggregate`, `LlmAgent`, `Calibrated`, `Unknown`, `NotComputed`.
+2. Populate in `DefaultGoldenManifestBuilder` from the winning finding?s `EvaluationConfidenceScore` (preferred) or `ConfidenceScore`, with explicit `Unknown` when both are null ? **never** silently substitute a constant.
 3. OpenAPI snapshot + codegen per [`API_CONTRACTS.md`](API_CONTRACTS.md); UI types if manifest decision surfaces expose the field.
-4. Tests: accepted finding with score → decision carries score + source; null scores → `Unknown` not `0`.
+4. Tests: accepted finding with score ? decision carries score + source; null scores ? `Unknown` not `0`.
 
 **Out of scope:** Changing rule-engine acceptance semantics; V2 `DecisionNode` scoring (see **TB-051**, **TB-054**).
 
@@ -2990,24 +2990,24 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 - `ArchLucid.Contracts` persistence/manifest DTOs
 - `ArchLucid.Decisioning.Tests/`, API contract tests
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-051 — Decisioning V2 merge — consume `CalibratedConfidence`
+## TB-051 ? Decisioning V2 merge ? consume `CalibratedConfidence`
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). `AgentConfidenceCalibrationService` writes `CalibratedConfidence` on `AgentResult`; V2 strategies and `DecisionNode.Confidence` use raw `Confidence` and hardcoded `BaseConfidence` priors (`TopologyAcceptanceDecisionStrategy`, `SecurityControlsDecisionStrategy`, `ComplexityDecisionStrategy`).
 
 **Problem:**
 
-Operators and replay tooling cannot distinguish calibrated uncertainty from raw model self-report or strategy literals. Calibrated values are **dead data** in the decisioning path — a silent loss of uncertainty signal after calibration runs.
+Operators and replay tooling cannot distinguish calibrated uncertainty from raw model self-report or strategy literals. Calibrated values are **dead data** in the decisioning path ? a silent loss of uncertainty signal after calibration runs.
 
 **What to do:**
 
 1. In each `IDecisionStrategy` implementation, prefer `AgentResult.CalibratedConfidence` when present; fall back to `Confidence` only when calibration is null; document fallback in strategy remarks.
 2. Persist which source was used on `DecisionOption` metadata or `RunEventTrace` metadata (`confidenceSource: calibrated | raw | strategyPrior`).
-3. Replace or gate hardcoded `BaseConfidence` literals — either derive from evaluation evidence or mark `strategyPrior` explicitly in trace metadata so operators know the score is not measured.
-4. Tests: calibrated present → merge uses it; absent → raw; neither → `Unknown` / explicit prior with source label.
+3. Replace or gate hardcoded `BaseConfidence` literals ? either derive from evaluation evidence or mark `strategyPrior` explicitly in trace metadata so operators know the score is not measured.
+4. Tests: calibrated present ? merge uses it; absent ? raw; neither ? `Unknown` / explicit prior with source label.
 
 **Out of scope:** Re-tuning calibration algorithm (AgentRuntime); authority `RuleBasedDecisionEngine` path (**TB-050**, **TB-052**).
 
@@ -3018,16 +3018,16 @@ Operators and replay tooling cannot distinguish calibrated uncertainty from raw 
 - `ArchLucid.Decisioning/Merge/DecisionEngineV2.cs`
 - `ArchLucid.Decisioning/Merge/*DecisionStrategy.cs`
 - `ArchLucid.Decisioning/Merge/DecisionMergeTraceRecorder.cs`
-- `ArchLucid.AgentRuntime` (read-only — calibration already exists)
+- `ArchLucid.AgentRuntime` (read-only ? calibration already exists)
 - `ArchLucid.Decisioning.Tests/`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-052 — `RuleAuditTracePayload` — snapshot IDs + prompt refs
+## TB-052 ? `RuleAuditTracePayload` ? snapshot IDs + prompt refs
 
-**Status:** **Done (2026-06-03 batch 5BY drift closure)** — fields on `RuleAuditTracePayload`; `RuleBasedDecisionEngine` + `RuleAuditTracePromptRefAggregator`; `test_traceability_batch_5by.py`.
+**Status:** **Done (2026-06-03 batch 5BY drift closure)** ? fields on `RuleAuditTracePayload`; `RuleBasedDecisionEngine` + `RuleAuditTracePromptRefAggregator`; `test_traceability_batch_5by.py`.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Authority pipeline persists `RuleAuditTracePayload` with rule set identity and applied/rejected finding IDs; manifest carries snapshot IDs separately.
 
@@ -3038,10 +3038,10 @@ An operator with only the rule audit trace cannot join it to the **exact** conte
 **What to do:**
 
 1. Extend `RuleAuditTracePayload` (Contracts + DbUp + consolidated SQL per repo DDL rules) with `ContextSnapshotId`, `GraphSnapshotId`, `FindingsSnapshotId` (copy from manifest at trace write time).
-2. Add bounded `PromptRefs` collection (template id + version + optional agent type) aggregated from accepted findings’ `PromptTemplateId` / `PromptTemplateVersion`.
+2. Add bounded `PromptRefs` collection (template id + version + optional agent type) aggregated from accepted findings? `PromptTemplateId` / `PromptTemplateVersion`.
 3. Populate in `RuleBasedDecisionEngine` / trace persistence before commit.
 4. Expose new fields on decision-trace API; update `ProvenanceBuilder` if it consumes audit payload (**TB-036** correlation remains complementary).
-5. Tests: authority run → trace contains snapshot IDs; LLM finding with prompt refs → refs appear on trace.
+5. Tests: authority run ? trace contains snapshot IDs; LLM finding with prompt refs ? refs appear on trace.
 
 **Out of scope:** Full criteria-value snapshot per rule (optional follow-up); replay merge path `RunEventTrace` (**TB-054**).
 
@@ -3054,25 +3054,25 @@ An operator with only the rule audit trace cannot join it to the **exact** conte
 - `ArchLucid.Persistence` decision-trace repository + migration
 - `ArchLucid.Api` trace detail endpoints
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-053 — `FindingConfidenceCalculator` — typed unknown/failed (no bare catch)
+## TB-053 ? `FindingConfidenceCalculator` ? typed unknown/failed (no bare catch)
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Finding-level confidence feeds manifest and operator trust surfaces.
 
 **Problem:**
 
-- `FindingConfidenceCalculator.cs` (~line 47): null `traceCompletenessRatio` is treated as **`0.0`**, not “unknown” — depresses scores as if the trace were empty.
-- `FindingConfidenceCalculator.cs` (~lines 66–68): bare `catch { return null; }` swallows arithmetic failures; callers cannot distinguish **not computed** vs **failed**.
-- `FindingFactory.CreateFromAgentArchitectureFinding` (~line 178): `ConfidenceScore ?? agentResult.Confidence` coerces null to agent aggregate — drops explicit unknown.
+- `FindingConfidenceCalculator.cs` (~line 47): null `traceCompletenessRatio` is treated as **`0.0`**, not ?unknown? ? depresses scores as if the trace were empty.
+- `FindingConfidenceCalculator.cs` (~lines 66?68): bare `catch { return null; }` swallows arithmetic failures; callers cannot distinguish **not computed** vs **failed**.
+- `FindingFactory.CreateFromAgentArchitectureFinding` (~line 178): `ConfidenceScore ?? agentResult.Confidence` coerces null to agent aggregate ? drops explicit unknown.
 
 **What to do:**
 
 1. Introduce `FindingConfidenceResult` (or similar) with `Score`, `Status` (`Computed`, `Unknown`, `Failed`), optional `FailureReason` (internal log detail only if PII-sensitive).
 2. Replace bare catch with typed catch + log + `Failed` status.
-3. Map null completeness ratio → `Unknown`, not `0.0`; document contract on `IFindingConfidenceCalculator`.
+3. Map null completeness ratio ? `Unknown`, not `0.0`; document contract on `IFindingConfidenceCalculator`.
 4. Update `FindingFactory` to set `ConfidenceScore` only when status is `Computed`; leave null + `ConfidenceLevel` / metadata when unknown.
 5. Unit tests for all three paths; regression on `ExplainabilityTraceCompletenessAnalyzer` interaction.
 
@@ -3087,19 +3087,19 @@ An operator with only the rule audit trace cannot join it to the **exact** conte
 - `ArchLucid.Decisioning/Findings/ExplainabilityTraceCompletenessAnalyzer.cs`
 - `ArchLucid.Decisioning.Tests/`
 
-**Size estimate:** **XS–S** — ~4–8 h.
+**Size estimate:** **XS?S** ? ~4?8 h.
 
 ---
 
-## TB-054 — Unified run decision explainability API (authority audit + V2 nodes)
+## TB-054 ? Unified run decision explainability API (authority audit + V2 nodes)
 
-**Status:** **Done (2026-06-03 batch 5BZ drift closure)** — `RunDecisionExplainabilityDto`, `RunDecisionExplainabilityBuilder`, run detail UI; `test_traceability_batch_5bz.py`.
+**Status:** **Done (2026-06-03 batch 5BZ drift closure)** ? `RunDecisionExplainabilityDto`, `RunDecisionExplainabilityBuilder`, run detail UI; `test_traceability_batch_5bz.py`.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Production authority runs persist `RuleAuditTracePayload`; `DecisionNode` rows are materialized **post-commit** via `EnsureDecisionEngineV2NodesMaterializedAsync` and are not the same record as rule audit.
 
 **Problem:**
 
-Operators hitting `GET …/decisions` or trace endpoints see **either** rule-audit semantics **or** V2 weighted nodes — not a single explainability view per `RunId`. `DecisionTraceManifestAttachment` wires run-event trace IDs (merge/replay path) only. Provenance (**TB-036**) links graph nodes to agent traces but does not unify the two decision pipelines.
+Operators hitting `GET ?/decisions` or trace endpoints see **either** rule-audit semantics **or** V2 weighted nodes ? not a single explainability view per `RunId`. `DecisionTraceManifestAttachment` wires run-event trace IDs (merge/replay path) only. Provenance (**TB-036**) links graph nodes to agent traces but does not unify the two decision pipelines.
 
 **What to do:**
 
@@ -3107,26 +3107,26 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 2. Application query joins `RuleAuditTrace`, manifest `Decisions`, persisted `DecisionNode`s, and optional provenance correlation IDs (**TB-036**).
 3. Label each row with `pipeline: authority | coordinator_v2` so operators know provenance.
 4. OpenAPI + UI contract; pair with trace viewer deep links when `AgentExecutionTraceId` present.
-5. Integration test: authority run → single response contains audit + materialized V2 nodes when applicable.
+5. Integration test: authority run ? single response contains audit + materialized V2 nodes when applicable.
 
 **Out of scope:** Merging the two pipelines into one engine (architectural); **TB-029** notifications decoupling.
 
-**Depends on:** **TB-050**–**TB-052** for field completeness; **TB-036** for trace deep links.
+**Depends on:** **TB-050**?**TB-052** for field completeness; **TB-036** for trace deep links.
 
 **Affected files / projects:**
 
 - `ArchLucid.Application` run/decision query services
 - `ArchLucid.Api` controllers + response models
-- `ArchLucid.Application/Runs/…/AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (materialization timing docs)
+- `ArchLucid.Application/Runs/?/AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (materialization timing docs)
 - `archlucid-ui` run detail / governance surfaces (follow-on UI slice)
 
-**Size estimate:** **M** — ~2–3 eng days.
+**Size estimate:** **M** ? ~2?3 eng days.
 
 ---
 
-## TB-055 — Propagate `AgentResult.ReasoningTrace` into `Finding` explainability
+## TB-055 ? Propagate `AgentResult.ReasoningTrace` into `Finding` explainability
 
-**Status:** **Done (2026-06-03 batch 5CD drift closure)** — `ReasoningTraceBounds`, `FindingFactory`, migration 227, `FindingFactoryTests`; `test_traceability_batch_5cd.py`.
+**Status:** **Done (2026-06-03 batch 5CD drift closure)** ? `ReasoningTraceBounds`, `FindingFactory`, migration 227, `FindingFactoryTests`; `test_traceability_batch_5cd.py`.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). LLM agent forensics exist on `AgentResult` but are not copied into durable findings.
 
@@ -3136,12 +3136,12 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 
 **What to do:**
 
-1. Add optional `ReasoningTrace` (bounded length) to `ExplainabilityTrace` or `Finding` contract — truncate with hash reference to blob if over limit.
+1. Add optional `ReasoningTrace` (bounded length) to `ExplainabilityTrace` or `Finding` contract ? truncate with hash reference to blob if over limit.
 2. Copy from `AgentResult` in `FindingFactory` when creating agent-backed findings.
 3. Include in provenance / explainability API payloads (**TB-054**).
-4. Tests: agent finding → trace contains reasoning substring; over-limit → truncated + stable hash id.
+4. Tests: agent finding ? trace contains reasoning substring; over-limit ? truncated + stable hash id.
 
-**Out of scope:** Storing full prompt/response blobs (already on `AgentExecutionTrace` — **TB-033**, **TB-034**).
+**Out of scope:** Storing full prompt/response blobs (already on `AgentExecutionTrace` ? **TB-033**, **TB-034**).
 
 **Depends on:** none (complements **TB-036**, **TB-054**).
 
@@ -3152,11 +3152,11 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 - DbUp migration if new column on findings table
 - `ArchLucid.Decisioning.Tests/`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-056 — Decisioning partial-failure surfacing + sentinel trace inflation guard
+## TB-056 ? Decisioning partial-failure surfacing + sentinel trace inflation guard
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Multiple paths degrade uncertainty without operator-visible signals.
 
@@ -3164,18 +3164,18 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 
 | Location | Behaviour |
 |----------|-----------|
-| `FindingsOrchestrator.cs` (~88–105) | Per-engine `catch` → log + `FindingEngineFailure` + **continue**; partial snapshot saved with no manifest-level summary |
-| `FindingsSnapshotEvaluationConfidenceEnricher.cs` (~107–115) | Enrichment failure → warning only; snapshot lacks `EvaluationConfidenceScore` |
-| `NullFindingsSnapshotEvaluationConfidenceEnricher` | No-op registered via `TryAdd` in lightweight hosts — indistinguishable from “not run” |
+| `FindingsOrchestrator.cs` (~88?105) | Per-engine `catch` ? log + `FindingEngineFailure` + **continue**; partial snapshot saved with no manifest-level summary |
+| `FindingsSnapshotEvaluationConfidenceEnricher.cs` (~107?115) | Enrichment failure ? warning only; snapshot lacks `EvaluationConfidenceScore` |
+| `NullFindingsSnapshotEvaluationConfidenceEnricher` | No-op registered via `TryAdd` in lightweight hosts ? indistinguishable from ?not run? |
 | `ExplainabilityTraceMarkers` sentinel | `AlternativePathsConsidered` filled with deterministic placeholder; completeness analyzer treats as populated |
-| `DefaultGoldenManifestBuilder` | `payload is null` → `continue` — finding omitted from manifest section silently |
+| `DefaultGoldenManifestBuilder` | `payload is null` ? `continue` ? finding omitted from manifest section silently |
 
 **What to do:**
 
 1. Add manifest- or run-level `FindingEngineFailures` summary (engine id, error class, timestamp) when orchestrator continues after partial failure; surface on run detail API (**TB-054**).
 2. Metric `archlucid_findings_engine_partial_failure_total`; optional warning on manifest `Notes` when any engine failed.
-3. Register explicit “enricher skipped” flag on findings snapshot metadata when `NullFindingsSnapshotEvaluationConfidenceEnricher` is active (host profile), not silent no-op.
-4. Exclude sentinel `AlternativePathsConsidered` from `ExplainabilityTraceCompletenessAnalyzer` ratio (or remove sentinel — prefer real empty + `Unknown` in **TB-053**).
+3. Register explicit ?enricher skipped? flag on findings snapshot metadata when `NullFindingsSnapshotEvaluationConfidenceEnricher` is active (host profile), not silent no-op.
+4. Exclude sentinel `AlternativePathsConsidered` from `ExplainabilityTraceCompletenessAnalyzer` ratio (or remove sentinel ? prefer real empty + `Unknown` in **TB-053**).
 5. When `DefaultGoldenManifestBuilder` skips null payload, append manifest warning referencing finding id/title.
 
 **Out of scope:** Failing the entire run on single engine failure (product decision); **TB-034** degraded agent traces.
@@ -3189,13 +3189,13 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 - `ArchLucid.Decisioning/Findings/ExplainabilityTraceMarkers.cs`
 - `ArchLucid.Decisioning/Manifest/Builders/DefaultGoldenManifestBuilder.cs`
 - `ArchLucid.AgentRuntime/Evaluation/FindingsSnapshotEvaluationConfidenceEnricher.cs`
-- `ArchLucid.Host.Composition/…/ServiceCollectionExtensions.CorePersistencePortCompatibility.cs`
+- `ArchLucid.Host.Composition/?/ServiceCollectionExtensions.CorePersistencePortCompatibility.cs`
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-057 — Architecture risk register framing over governance findings
+## TB-057 ? Architecture risk register framing over governance findings
 
 **Source:** Commercial stickiness review (2026-05-27). ArchLucid already has cross-review findings, monitored risks, signed manifests, governance decisions, and audit. The gap is not a missing risk engine; it is that operators do not see one durable, owned risk register over time.
 
@@ -3227,11 +3227,11 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 - `ArchLucid.Contracts/Findings/*`
 - `docs/library/GOVERNANCE_WORKFLOW_UI.md`
 
-**Size estimate:** **S–M** — mostly UI/query projection if **TB-058** supplies disposition metadata.
+**Size estimate:** **S?M** ? mostly UI/query projection if **TB-058** supplies disposition metadata.
 
 ---
 
-## TB-058 — Finding disposition workflow API + UI
+## TB-058 ? Finding disposition workflow API + UI
 
 **Source:** Commercial stickiness review (2026-05-27). `dbo.FindingReviewEvents` / review-trail plumbing exists and appears to feed ROI rollups, but operators need a visible workflow for accepting, deferring, requesting evidence, and marking remediation.
 
@@ -3265,11 +3265,11 @@ Finding feedback and advisory recommendation statuses exist, but there is no obv
 - `archlucid-ui/src/app/(operator)/governance/findings/`
 - `ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs` after OpenAPI regeneration
 
-**Size estimate:** **M** — API, persistence, UI, audit, and tests.
+**Size estimate:** **M** ? API, persistence, UI, audit, and tests.
 
 ---
 
-## TB-059 — First-class waiver / exception records
+## TB-059 ? First-class waiver / exception records
 
 **Source:** Commercial stickiness review (2026-05-27). Waivers are the highest-leverage missing governance object because enterprise buyers need controlled risk acceptance, expiry, and evidence.
 
@@ -3304,11 +3304,11 @@ ArchLucid has governance approvals, policy packs, findings, audit, and copy arou
 - `docs/library/STATE_MACHINES.md`
 - `docs/library/AUDIT_COVERAGE_MATRIX.md`
 
-**Size estimate:** **M** — new governed object, but can reuse approval/audit patterns.
+**Size estimate:** **M** ? new governed object, but can reuse approval/audit patterns.
 
 ---
 
-## TB-060 — Review-package decision register consolidation
+## TB-060 ? Review-package decision register consolidation
 
 **Source:** Commercial stickiness review (2026-05-27). `ResolvedArchitectureDecision`, signed manifests, approval lineage, rationale endpoints, and audit already form a decision record system, but the product should expose that fact directly.
 
@@ -3339,11 +3339,11 @@ Manifest decisions are valuable, but users may experience them as run artifacts 
 - `archlucid-ui/src/app/(operator)/governance/*`
 - `archlucid-ui/src/app/(operator)/manifests/[manifestId]/`
 
-**Size estimate:** **S** — mostly query/view consolidation if existing lineage endpoints are sufficient.
+**Size estimate:** **S** ? mostly query/view consolidation if existing lineage endpoints are sufficient.
 
 ---
 
-## TB-061 — Decision-needed governance digest
+## TB-061 ? Decision-needed governance digest
 
 **Source:** Commercial stickiness review (2026-05-27). Existing digests and executive email plumbing can drive recurring management rhythm if they focus on decisions, stale risk, and value delivered.
 
@@ -3375,11 +3375,11 @@ Generic summaries do not create durable operating habits. A sticky digest must t
 - `archlucid-ui/src/app/(operator)/digests/`
 - `docs/library/PRODUCT_PACKAGING.md`
 
-**Size estimate:** **S–M** — projection and template work over existing data.
+**Size estimate:** **S?M** ? projection and template work over existing data.
 
 ---
 
-## TB-062 — Executive dashboard live KPI replacement
+## TB-062 ? Executive dashboard live KPI replacement
 
 **Source:** Commercial stickiness review (2026-05-27). Executive Value Visibility and Proof-of-ROI Readiness improve more from fewer live, defensible numbers than from broader illustrative dashboards.
 
@@ -3410,15 +3410,15 @@ Any executive card that mixes live ROI with mock or illustrative KPIs weakens tr
 - `ArchLucid.Api/Controllers/Analytics/RoiAnalyticsController.cs`
 - `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
 
-**Size estimate:** **S** — UI cleanup plus data-source alignment.
+**Size estimate:** **S** ? UI cleanup plus data-source alignment.
 
 ---
 
-## TB-063 — ITSM one-click issue creation from findings — **V1.1**
+## TB-063 ? ITSM one-click issue creation from findings ? **V1.1**
 
-**Status (2026-06-01):** **Done** — finding inspect + architecture risk register quick actions (`ItsmOutboundQuickActions`), correlation query API, duplicate outbound guard, browse URLs, risk-register `humanReviewStatus` + `itsmLinkedTicketsSummary` on `GET /v1/governance/architecture-risk-register`, and inbound sync label on finding inspect ITSM panel.
+**Status (2026-06-01):** **Done** ? finding inspect + architecture risk register quick actions (`ItsmOutboundQuickActions`), correlation query API, duplicate outbound guard, browse URLs, risk-register `humanReviewStatus` + `itsmLinkedTicketsSummary` on `GET /v1/governance/architecture-risk-register`, and inbound sync label on finding inspect ITSM panel.
 
-**Source:** Commercial stickiness review (2026-05-27) plus owner scope: first-party Jira / ServiceNow productization is **V1.1**, not V1 GA. See [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
+**Source:** Commercial stickiness review (2026-05-27) plus owner scope: first-party Jira / ServiceNow productization is **V1.1**, not V1 GA. See [`V1_SCOPE.md`](V1_SCOPE.md) ?2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6.
 
 **Problem:**
 
@@ -3450,13 +3450,13 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/`
 - `archlucid-ui/src/app/(operator)/governance/findings/`
 - `docs/go-to-market/INTEGRATION_CATALOG.md`
-- `docs/library/V1_SCOPE.md` §2.13 if scope changes
+- `docs/library/V1_SCOPE.md` ?2.13 if scope changes
 
-**Size estimate:** **M** — UI productization over existing backend, plus sync-state display and tests.
+**Size estimate:** **M** ? UI productization over existing backend, plus sync-state display and tests.
 
 ---
 
-## TB-064 — System catalog consolidated DDL (`ArchLucid.System.sql`)
+## TB-064 ? System catalog consolidated DDL (`ArchLucid.System.sql`)
 
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). Tenant catalog has a proper consolidated file (`ArchLucid.Persistence/Scripts/ArchLucid.sql`); system catalog does not.
 
@@ -3466,10 +3466,10 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 
 **What to do:**
 
-1. Author a full idempotent consolidated `ArchLucid.Persistence/Scripts/ArchLucid.System.sql` mirroring the tenant pattern (`IF OBJECT_ID … IS NULL` + inline indexes).
-2. Keep `Migrations/System/001–003` as the authoritative DbUp upgrade path for brownfield; update consolidated DDL whenever those migrations change.
-3. Wire `SqlSchemaBootstrapper` (or a dedicated system bootstrapper) into the system-catalog startup path after `DatabaseMigrator.RunSystem`, matching tenant **DbUp-first → bootstrap** order documented in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §1.
-4. Update [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §2 inventory and the schema-change checklist in §5.
+1. Author a full idempotent consolidated `ArchLucid.Persistence/Scripts/ArchLucid.System.sql` mirroring the tenant pattern (`IF OBJECT_ID ? IS NULL` + inline indexes).
+2. Keep `Migrations/System/001?003` as the authoritative DbUp upgrade path for brownfield; update consolidated DDL whenever those migrations change.
+3. Wire `SqlSchemaBootstrapper` (or a dedicated system bootstrapper) into the system-catalog startup path after `DatabaseMigrator.RunSystem`, matching tenant **DbUp-first ? bootstrap** order documented in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?1.
+4. Update [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?2 inventory and the schema-change checklist in ?5.
 5. Extend `DatabaseMigrationScriptTests` or a small architecture test asserting system consolidated DDL exists and lists expected tables.
 
 **Acceptance criteria:**
@@ -3486,11 +3486,11 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 - `ArchLucid.Host.Core/Startup/ArchLucidPersistenceStartup.cs`
 - `docs/library/SQL_SCRIPTS.md`
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-065 — MigrateVerify — deployed schema vs DDL drift detection
+## TB-065 ? MigrateVerify ? deployed schema vs DDL drift detection
 
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). `Persistence.MigrateVerify` applies DbUp only; it does not compare live schema to DDL.
 
@@ -3507,9 +3507,9 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 
 1. After DbUp (and optional bootstrap), query `INFORMATION_SCHEMA.COLUMNS`, `sys.indexes`, and `sys.foreign_keys` for a curated sentinel set of tables/columns/indexes derived from `ArchLucid.sql` (or a compiled manifest checked into the repo).
 2. Fail CI when live catalog shape differs from expected manifest.
-3. Optionally: provision two empty catalogs — DbUp-only vs DbUp+bootstrap — and assert zero structural drift between them (closes the two-pathway gap in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §1).
+3. Optionally: provision two empty catalogs ? DbUp-only vs DbUp+bootstrap ? and assert zero structural drift between them (closes the two-pathway gap in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?1).
 4. Extend Tier 1.5 GitHub Actions job (or add a sibling job) to run the drift check after existing MigrateVerify.
-5. Document operator interpretation in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §6 troubleshooting.
+5. Document operator interpretation in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?6 troubleshooting.
 
 **Acceptance criteria:**
 
@@ -3526,11 +3526,11 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 - `.github/workflows/` (Tier 1.5 job)
 - `docs/library/SQL_SCRIPTS.md`
 
-**Size estimate:** **M** — ~1–2 eng days.
+**Size estimate:** **M** ? ~1?2 eng days.
 
 ---
 
-## TB-066 — CI gate — `ArchLucid_Unified_Schema.sql` matches generator output
+## TB-066 ? CI gate ? `ArchLucid_Unified_Schema.sql` matches generator output
 
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). `ArchLucid_Unified_Schema.sql` is generated by `scripts/ci/build_archlucid_unified_schema_sql.py` for IaC alignment but is not validated in CI.
 
@@ -3542,7 +3542,7 @@ The checked-in unified schema file can drift from `ArchLucid.sql` when developer
 
 1. Add `scripts/ci/check_archlucid_unified_schema_snapshot.ps1` / `.sh` (or extend an existing script) that runs the generator and diffs output against `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`.
 2. Wire the check into PR CI (same posture as `check_openapi_contract_snapshot`).
-3. Document regenerate command in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §2 and schema-change checklist §5.
+3. Document regenerate command in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?2 and schema-change checklist ?5.
 4. Optionally pair with `update_archlucid_unified_schema_snapshot` helper scripts mirroring OpenAPI update scripts.
 
 **Acceptance criteria:**
@@ -3557,28 +3557,28 @@ The checked-in unified schema file can drift from `ArchLucid.sql` when developer
 - `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`
 - `docs/library/SQL_SCRIPTS.md`
 
-**Size estimate:** **XS** — ~2–4 h.
+**Size estimate:** **XS** ? ~2?4 h.
 
 ---
 
-## TB-067 — `SQL_SCRIPTS.md` migration catalog — backfill 051–227 + automation
+## TB-067 ? `SQL_SCRIPTS.md` migration catalog ? backfill 051?227 + automation
 
-**Source:** DDL hygiene and migration-safety audit (2026-05-27). §4.2 catalog stops around migration ~050 plus a handful of later entries; migrations **051–227** are largely undocumented.
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). ?4.2 catalog stops around migration ~050 plus a handful of later entries; migrations **051?227** are largely undocumented.
 
 **Problem:**
 
-Operators and contributors cannot rely on [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §4.2 for deploy history or intent. The schema-change checklist requires updating §4.2 for every migration, but enforcement has lapsed (~170 migrations missing).
+Operators and contributors cannot rely on [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?4.2 for deploy history or intent. The schema-change checklist requires updating ?4.2 for every migration, but enforcement has lapsed (~170 migrations missing).
 
 **What to do:**
 
-1. Backfill §4.2 with one-line summaries for migrations **051–227** (parse migration file headers where present; otherwise derive from filename and first comment block).
-2. Add a CI script that fails when the highest `Migrations/NNN_*.sql` number exceeds the highest documented entry in §4.2 (or when a new forward migration lands without a catalog line).
+1. Backfill ?4.2 with one-line summaries for migrations **051?227** (parse migration file headers where present; otherwise derive from filename and first comment block).
+2. Add a CI script that fails when the highest `Migrations/NNN_*.sql` number exceeds the highest documented entry in ?4.2 (or when a new forward migration lands without a catalog line).
 3. Prefer generating the catalog table from migration metadata to avoid manual drift (optional follow-up within this item).
 4. Cross-link rolling-deploy notes for known risky migrations (**215**, **223**, **214**, **116**, **216**) to **TB-068** runbook.
 
 **Acceptance criteria:**
 
-- §4.2 documents every forward migration through the current highest number.
+- ?4.2 documents every forward migration through the current highest number.
 - New forward migration PRs cannot merge without a catalog entry (CI or review bot).
 
 **Affected files / projects:**
@@ -3587,11 +3587,11 @@ Operators and contributors cannot rely on [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §4
 - `scripts/ci/` (catalog freshness check)
 - `ArchLucid.Persistence/Migrations/*.sql`
 
-**Size estimate:** **S** — ~4–8 h for backfill + gate.
+**Size estimate:** **S** ? ~4?8 h for backfill + gate.
 
 ---
 
-## TB-068 — DbUp migration rolling-deploy guardrails (CI lint + runbook)
+## TB-068 ? DbUp migration rolling-deploy guardrails (CI lint + runbook)
 
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). Several shipped migrations are not zero-downtime safe for rolling deploy.
 
@@ -3601,24 +3601,24 @@ Forward migrations can break old application pods when schema changes are not pu
 
 | Migration | Risk |
 |-----------|------|
-| **215** `ScopeColumnsNotNull` | `ALTER NOT NULL` after backfill — old app writing NULL fails |
-| **223** `AgentExecutionTraces_RunTaskAgentType_Unique` | Deletes duplicates then `CREATE UNIQUE INDEX` — old app can recreate duplicates |
+| **215** `ScopeColumnsNotNull` | `ALTER NOT NULL` after backfill ? old app writing NULL fails |
+| **223** `AgentExecutionTraces_RunTaskAgentType_Unique` | Deletes duplicates then `CREATE UNIQUE INDEX` ? old app can recreate duplicates |
 | **214** / **116** | `CHECK` constraints reject legacy values |
-| **216** | Drops old unique index before adding filtered replacement — uniqueness gap |
+| **216** | Drops old unique index before adding filtered replacement ? uniqueness gap |
 
 There is no CI lint forbidding these patterns in new migrations and no operator runbook for coordinated deploy order.
 
 **What to do:**
 
-1. Author `docs/runbooks/ROLLING_DEPLOY_MIGRATIONS.md` with required patterns: nullable add → backfill → NOT NULL; `WITH NOCHECK` for CHECK/FK; add-new-index-before-drop-old; deploy app before enforcing UNIQUE.
-2. Add CI static analysis over new/changed `Migrations/NNN_*.sql` files flagging: bare `ALTER COLUMN … NOT NULL` without prior nullable-add migration in same PR; `DELETE` before `CREATE UNIQUE`; `DROP INDEX` before replacement `CREATE UNIQUE` in same script.
-3. Annotate known historical migrations in §4.2 (via **TB-067**) with **rolling-deploy: coordinated** tags.
+1. Author `docs/runbooks/ROLLING_DEPLOY_MIGRATIONS.md` with required patterns: nullable add ? backfill ? NOT NULL; `WITH NOCHECK` for CHECK/FK; add-new-index-before-drop-old; deploy app before enforcing UNIQUE.
+2. Add CI static analysis over new/changed `Migrations/NNN_*.sql` files flagging: bare `ALTER COLUMN ? NOT NULL` without prior nullable-add migration in same PR; `DELETE` before `CREATE UNIQUE`; `DROP INDEX` before replacement `CREATE UNIQUE` in same script.
+3. Annotate known historical migrations in ?4.2 (via **TB-067**) with **rolling-deploy: coordinated** tags.
 4. For future breaking changes, require paired application change + feature flag note in migration header comment block.
 
 **Acceptance criteria:**
 
 - New migrations matching anti-patterns fail CI unless explicitly allow-listed with justification comment.
-- Runbook linked from [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §5 checklist and [`MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_ROLLBACK.md).
+- Runbook linked from [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?5 checklist and [`MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_ROLLBACK.md).
 - On-call can determine deploy order (migrate vs app first) from migration catalog tags.
 
 **Affected files / projects:**
@@ -3628,13 +3628,13 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 - `docs/library/SQL_SCRIPTS.md`
 - `ArchLucid.Persistence/Migrations/*.sql` (header annotations only for historical items)
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-069 — Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path
+## TB-069 ? Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path
 
-**Source:** DDL hygiene and migration-safety audit (2026-05-27). Baseline runner stamps migrations **001–050** into `SchemaVersions` without always executing them, with complex drift-repair branches.
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). Baseline runner stamps migrations **001?050** into `SchemaVersions` without always executing them, with complex drift-repair branches.
 
 **Problem:**
 
@@ -3642,8 +3642,8 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 
 **What to do:**
 
-1. Document current runner behavior and all drift branches in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §4.0 with a sequence diagram.
-2. Evaluate replacing multi-branch stamp logic with a single idempotent migration that records **001–050** as applied when sentinel tenant tables exist and journal is empty/inconsistent — without re-executing DDL that would duplicate objects.
+1. Document current runner behavior and all drift branches in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) ?4.0 with a sequence diagram.
+2. Evaluate replacing multi-branch stamp logic with a single idempotent migration that records **001?050** as applied when sentinel tenant tables exist and journal is empty/inconsistent ? without re-executing DDL that would duplicate objects.
 3. Add integration tests for: empty catalog, partial journal, tenant tables in non-`dbo` schema, duplicate-table catch path.
 4. Do not remove baseline until **TB-065** drift detection covers stamped catalogs.
 
@@ -3660,13 +3660,13 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 - `ArchLucid.Persistence.Tests/`
 - `docs/library/SQL_SCRIPTS.md`
 
-**Size estimate:** **M** — ~2–3 eng days (refactor + test matrix).
+**Size estimate:** **M** ? ~2?3 eng days (refactor + test matrix).
 
 **Depends on:** **TB-065** recommended before simplifying stamp paths.
 
 ---
 
-## TB-070 — `PersistenceContractSupplement.sql` stale refs + test catalog parity
+## TB-070 ? `PersistenceContractSupplement.sql` stale refs + test catalog parity
 
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). Test supplement modified in working tree; comments reference retired product name.
 
@@ -3692,19 +3692,19 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 - `ArchLucid.Persistence.Tests/` (fixture comments)
 - `docs/library/SQL_SCRIPTS.md` (test pathway note)
 
-**Size estimate:** **XS** — ~1–2 h.
+**Size estimate:** **XS** ? ~1?2 h.
 
 ---
 
-## TB-071 — Azure Search production client — wire tenant OData filter on every search/delete
+## TB-071 ? Azure Search production client ? wire tenant OData filter on every search/delete
 
-**Status (2026-05-31):** **Done** — `AzureSearchSdkClient` applies `AzureSearchTenantScopeFilterBuilder` on search/delete; registered when `Retrieval:AzureSearch:Endpoint` is set; `AzureSearchTenantScopeFilterBuilderTests`.
+**Status (2026-05-31):** **Done** ? `AzureSearchSdkClient` applies `AzureSearchTenantScopeFilterBuilder` on search/delete; registered when `Retrieval:AzureSearch:Endpoint` is set; `AzureSearchTenantScopeFilterBuilderTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). **TB-048** / **RAG-V1-010** shipped the in-memory query filter and `AzureSearchTenantScopeFilterBuilder`, but production registration still uses `NotConfiguredAzureSearchClient`.
 
 **Problem:**
 
-`AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` produces correct OData clauses (`tenantId`, `workspaceId`, `projectId`), yet no in-repo `IAzureSearchClient` implementation calls it during `SearchAsync`. Tenant isolation for Azure AI Search cannot be verified from the codebase. Additionally, `AzureAiSearchVectorIndex.RemoveChunksForDocumentAsync` is a no-op — deleted tenant data persists in the index indefinitely.
+`AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` produces correct OData clauses (`tenantId`, `workspaceId`, `projectId`), yet no in-repo `IAzureSearchClient` implementation calls it during `SearchAsync`. Tenant isolation for Azure AI Search cannot be verified from the codebase. Additionally, `AzureAiSearchVectorIndex.RemoveChunksForDocumentAsync` is a no-op ? deleted tenant data persists in the index indefinitely.
 
 **What to do:**
 
@@ -3724,31 +3724,31 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 - `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`
 - `ArchLucid.Retrieval.Tests/` (Azure filter integration test)
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-072 — Scope-to-identity binding at API ingress
+## TB-072 ? Scope-to-identity binding at API ingress
 
-**Status (2026-05-31):** **Done** — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingValidator`; ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` / `ScopeIdentityBindingValidatorTests`.
+**Status (2026-05-31):** **Done** ? `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingValidator`; ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` / `ScopeIdentityBindingValidatorTests`.
 
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims → `x-*` headers → dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims ? `x-*` headers ? dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
 
 **Problem:**
 
-- **`ApiKeyAuthenticationHandler`** — roles/permissions only; zero scope claims. Valid key + arbitrary `x-tenant-id` ⇒ any tenant's data (especially in SingleCatalog mode).
-- **`DevelopmentBypassAuthenticationHandler`** — no `tenant_id` / `workspace_id` / `project_id` claims; headers fully control scope.
-- **SCIM bearer** — `tenant_id` only; workspace/project fall through to headers/defaults.
-- **`TenantOrProjectCapabilityAuthorizationHandler`** — augments project capabilities but does not prove caller ∈ `scope.TenantId` for tenant-wide JWT roles.
+- **`ApiKeyAuthenticationHandler`** ? roles/permissions only; zero scope claims. Valid key + arbitrary `x-tenant-id` ? any tenant's data (especially in SingleCatalog mode).
+- **`DevelopmentBypassAuthenticationHandler`** ? no `tenant_id` / `workspace_id` / `project_id` claims; headers fully control scope.
+- **SCIM bearer** ? `tenant_id` only; workspace/project fall through to headers/defaults.
+- **`TenantOrProjectCapabilityAuthorizationHandler`** ? augments project capabilities but does not prove caller ? `scope.TenantId` for tenant-wide JWT roles.
 
-Production safety currently depends on per-tenant catalog routing (`ScopedRoutingSqlConnectionFactory`) plus repository SQL filters — not on identity binding.
+Production safety currently depends on per-tenant catalog routing (`ScopedRoutingSqlConnectionFactory`) plus repository SQL filters ? not on identity binding.
 
 **What to do:**
 
 1. **Production auth schemes:** Require `tenant_id` (and ideally `workspace_id` / `project_id`) claims on all non-anonymous schemes; reject requests where scope headers disagree with claims (extend existing claim-over-header precedence to **fail** rather than silently prefer claims only when present).
-2. **ApiKey:** Embed scope in key record or issue per-tenant keys; derive scope server-side from key metadata — never trust client headers alone.
+2. **ApiKey:** Embed scope in key record or issue per-tenant keys; derive scope server-side from key metadata ? never trust client headers alone.
 3. **DevBypass:** Document as break-glass only; add startup guard preventing DevBypass in production-like profiles (align with **INV-005** / **TB-010**).
-4. Optional middleware after auth: `scope.TenantId != Guid.Empty` for tenant APIs; SCIM user ∈ tenant for non-platform roles.
+4. Optional middleware after auth: `scope.TenantId != Guid.Empty` for tenant APIs; SCIM user ? tenant for non-platform roles.
 5. Extend `TenantIsolationSmokeTests` to cover ApiKey/header mismatch rejection.
 
 **Out of scope:** Replacing database-per-tenant topology (**TB-018**); operator cross-tenant analytics (intentional, admin-gated).
@@ -3764,13 +3764,13 @@ Production safety currently depends on per-tenant catalog routing (`ScopedRoutin
 - `ArchLucid.Api/Middleware/` (optional scope-validation middleware)
 - `ArchLucid.Api.Tests/` (`HttpScopeContextProviderTests`, integration isolation tests)
 
-**Size estimate:** **M** — ~2–3 eng days.
+**Size estimate:** **M** ? ~2?3 eng days.
 
 ---
 
-## TB-073 — Scoped snapshot repository reads (findings / graph / context)
+## TB-073 ? Scoped snapshot repository reads (findings / graph / context)
 
-**Status (2026-05-31):** **Done** — scoped repository reads + relational filters; `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`; `ScopedSnapshotReadIdorIntegrationTests`.
+**Status (2026-05-31):** **Done** ? scoped repository reads + relational filters; `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`; `ScopedSnapshotReadIdorIntegrationTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Findings inspect and mute paths enforce full scope via `Runs` joins; snapshot repositories use GUID-only reads.
 
@@ -3780,17 +3780,17 @@ These methods query by snapshot/record ID **without** `TenantId` / `WorkspaceId`
 
 | Repository | Method | Risk |
 |------------|--------|------|
-| `SqlFindingsSnapshotRepository` | `GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` | Leaked `FindingsSnapshotId` → read/mutate another tenant's findings |
+| `SqlFindingsSnapshotRepository` | `GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` | Leaked `FindingsSnapshotId` ? read/mutate another tenant's findings |
 | `FindingsSnapshotRelationalRead` | Child loads by `FindingsSnapshotId` / `FindingRecordId` | Full finding payload without tenant gate |
-| `SqlGraphSnapshotRepository` | `GetByIdAsync` | Leaked `GraphSnapshotId` → entire knowledge graph |
-| `SqlContextSnapshotRepository` | `GetByIdAsync` | Leaked `ContextSnapshotId` → context snapshot |
-| `InMemoryFindingsSnapshotRepository` | `GetByIdAsync` | Global `Dictionary<Guid, string>` — no tenant key |
+| `SqlGraphSnapshotRepository` | `GetByIdAsync` | Leaked `GraphSnapshotId` ? entire knowledge graph |
+| `SqlContextSnapshotRepository` | `GetByIdAsync` | Leaked `ContextSnapshotId` ? context snapshot |
+| `InMemoryFindingsSnapshotRepository` | `GetByIdAsync` | Global `Dictionary<Guid, string>` ? no tenant key |
 
-Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev / test when a GUID is known. `DapperAuthorityQueryService` loads snapshots by bare GUID after a scoped run gate — indirect risk if run row is corrupt or repository called elsewhere.
+Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev / test when a GUID is known. `DapperAuthorityQueryService` loads snapshots by bare GUID after a scoped run gate ? indirect risk if run row is corrupt or repository called elsewhere.
 
 **What to do:**
 
-1. Add `ScopeContext` parameter to `IFindingsSnapshotRepository.GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` — mirror `SqlGoldenManifestRepository` (`WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId`).
+1. Add `ScopeContext` parameter to `IFindingsSnapshotRepository.GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` ? mirror `SqlGoldenManifestRepository` (`WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId`).
 2. Same pattern for `IGraphSnapshotRepository`, `IContextSnapshotRepository`, and their relational read helpers.
 3. In `FindingsSnapshotRelationalRead`, join `FindingsSnapshots` / `Runs` or filter `FindingRecords.TenantId` when scope is available.
 4. Key `InMemoryFindingsSnapshotRepository` by `(TenantId, SnapshotId)` or validate snapshot's `RunId` against scoped run before return.
@@ -3811,13 +3811,13 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 - `ArchLucid.Persistence/Queries/DapperAuthorityQueryService.cs`
 - `ArchLucid.Persistence.Tests/`
 
-**Size estimate:** **M** — ~2–3 eng days.
+**Size estimate:** **M** ? ~2?3 eng days.
 
 ---
 
-## TB-074 — Retrieval indexing write-path tenant validation
+## TB-074 ? Retrieval indexing write-path tenant validation
 
-**Status (2026-05-31):** **Done** — `RetrievalIndexingScopeValidator.ValidateDocuments` in `RetrievalIndexingService`; `InMemoryVectorIndex.RemoveChunksForDocumentAsync` scopes delete by tenant/workspace/project; `RetrievalIndexingScopeValidatorTests`.
+**Status (2026-05-31):** **Done** ? `RetrievalIndexingScopeValidator.ValidateDocuments` in `RetrievalIndexingService`; `InMemoryVectorIndex.RemoveChunksForDocumentAsync` scopes delete by tenant/workspace/project; `RetrievalIndexingScopeValidatorTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Retrieval uses a shared global vector index with query-time metadata filtering.
 
@@ -3830,9 +3830,9 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 1. In `RetrievalIndexingService`, reject documents whose scope fields disagree with `IScopeContextProvider.GetCurrentScope()` (or explicit `ScopeContext` parameter).
 2. In `InMemoryVectorIndex.UpsertChunksAsync`, optionally assert chunk scope matches query scope on upsert (defense in depth).
 3. Scope `RemoveChunksForDocumentAsync` by tenant metadata when deleting (mitigate document-id collision).
-4. Tests: document with mismatched `TenantId` → rejected; matching scope → indexed.
+4. Tests: document with mismatched `TenantId` ? rejected; matching scope ? indexed.
 
-**Out of scope:** Per-tenant index partitioning; platform corpora indexing (`PlatformSentinelTenantId` — by design).
+**Out of scope:** Per-tenant index partitioning; platform corpora indexing (`PlatformSentinelTenantId` ? by design).
 
 **Depends on:** none. Complements **TB-071** (query-side filter).
 
@@ -3843,22 +3843,22 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 - `ArchLucid.Retrieval/Indexing/RetrievalRunCompletionIndexer.cs`
 - `ArchLucid.Retrieval.Tests/`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-075 — Operator UI server-side scope (proxy + SSR)
+## TB-075 ? Operator UI server-side scope (proxy + SSR)
 
-**Status (2026-05-31):** **Done (V1 posture)** — `resolveProxyUpstreamScopeHeaders` strips client scope in production-like mode; env `ARCHLUCID_PROXY_*` trusted scope; `proxy-scope-resolution.test.ts`; sponsor value report resolves tenant from `/api/auth/me`. Full Entra cookie-bound SSR scope remains paired with **TB-072**.
+**Status (2026-05-31):** **Done (V1 posture)** ? `resolveProxyUpstreamScopeHeaders` strips client scope in production-like mode; env `ARCHLUCID_PROXY_*` trusted scope; `proxy-scope-resolution.test.ts`; sponsor value report resolves tenant from `/api/auth/me`. Full Entra cookie-bound SSR scope remains paired with **TB-072**.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). The operator UI declares the API as the authoritative security boundary but forwards client-controlled scope headers.
 
 **Problem:**
 
-- **`proxy/[...path]/route.ts`** — forwards browser `x-tenant-id` / `x-workspace-id` / `x-project-id` when present; `localStorage` (`archlucid_operator_scope_v1`) is the authoritative tenant source in the browser.
-- **`scope.ts` `getScopeHeaders()`** — hardcoded `DEV_SCOPE_*` GUIDs for all SSR requests.
-- **`middleware.ts`** — no auth or tenant gate (demo alias redirects only).
-- **`downloadValueReportDocx`** — `tenantId` in URL path can disagree with scope headers.
+- **`proxy/[...path]/route.ts`** ? forwards browser `x-tenant-id` / `x-workspace-id` / `x-project-id` when present; `localStorage` (`archlucid_operator_scope_v1`) is the authoritative tenant source in the browser.
+- **`scope.ts` `getScopeHeaders()`** ? hardcoded `DEV_SCOPE_*` GUIDs for all SSR requests.
+- **`middleware.ts`** ? no auth or tenant gate (demo alias redirects only).
+- **`downloadValueReportDocx`** ? `tenantId` in URL path can disagree with scope headers.
 
 For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For DevBypass / API key / missing claims, the UI + proxy effectively choose the tenant.
 
@@ -3882,13 +3882,13 @@ For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For De
 - `archlucid-ui/src/lib/api/downloads-api.ts`
 - `archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx`
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-076 — Run-child SQL scope predicates + in-memory repository tenant keys
+## TB-076 ? Run-child SQL scope predicates + in-memory repository tenant keys
 
-**Status (2026-06-01):** **Done** — `ScopeContext` first parameter on `IAgentTaskRepository` / `IAgentResultRepository` / `IAgentExecutionTraceRepository` run-child reads; `RunChildRunScopeSql` joins `dbo.Runs`; callers + Cosmos stub updated; `RunChildRunScopeSqlTests`.
+**Status (2026-06-01):** **Done** ? `ScopeContext` first parameter on `IAgentTaskRepository` / `IAgentResultRepository` / `IAgentExecutionTraceRepository` run-child reads; `RunChildRunScopeSql` joins `dbo.Runs`; callers + Cosmos stub updated; `RunChildRunScopeSqlTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). After a scoped run load, child data is often loaded by `RunId` only.
 
@@ -3901,13 +3901,13 @@ For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For De
 | `EvidenceBundleRepository` | `WHERE EvidenceBundleId = @EvidenceBundleId` | Same |
 | `RunDetailQueryService` | Calls above after scoped run gate | Catalog routing + run gate |
 
-Residual risk in **SingleCatalog** / dev if run gate is skipped or connection targets wrong catalog. `TenantErasureQuarantineMiddleware` skips `/v1/admin` entirely — quarantined tenants with Admin credentials still reach admin routes.
+Residual risk in **SingleCatalog** / dev if run gate is skipped or connection targets wrong catalog. `TenantErasureQuarantineMiddleware` skips `/v1/admin` entirely ? quarantined tenants with Admin credentials still reach admin routes.
 
 **What to do:**
 
 1. Add `TenantId` (or full `ScopeContext`) to run-child `GetByRunIdAsync` methods, or document and test that catalog routing is mandatory with an architecture test guard.
 2. Extend `TenantErasureQuarantineMiddleware` to cover `/v1/admin` (or document admin-while-quarantined as acceptable with platform-only credentials).
-3. Audit callers of `GetByRunIdAdminAsync` (`FindingPriorityReranker`, archival jobs) — ensure system/background context only.
+3. Audit callers of `GetByRunIdAdminAsync` (`FindingPriorityReranker`, archival jobs) ? ensure system/background context only.
 
 **Out of scope:** Snapshot repository scoping (**TB-073**); intentional admin cross-tenant analytics.
 
@@ -3922,27 +3922,27 @@ Residual risk in **SingleCatalog** / dev if run gate is skipped or connection ta
 - `ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs`
 - `ArchLucid.Persistence/Repositories/SqlRunRepository.cs`
 
-**Size estimate:** **S–M** — ~1–2 eng days.
+**Size estimate:** **S?M** ? ~1?2 eng days.
 
 ---
 
-## TB-077 — Operator UI resource ownership checks + governance mutation hardening
+## TB-077 ? Operator UI resource ownership checks + governance mutation hardening
 
-**Status (2026-06-01):** **Done** — `operator-resource-scope.ts`; run-detail project mismatch → not-found; required `runId` on disposition POST; decision register scoped by effective project; CI drift guard `test_tenancy_defense_batch.py`.
+**Status (2026-06-01):** **Done** ? `operator-resource-scope.ts`; run-detail project mismatch ? not-found; required `runId` on disposition POST; decision register scoped by effective project; CI drift guard `test_tenancy_defense_batch.py`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Dynamic operator routes use resource IDs only; no post-load tenant ownership validation.
 
 **Problem:**
 
-- Routes `[runId]`, `[manifestId]`, `[findingId]` call APIs with ID alone — URL manipulation is IDOR if API returns cross-scope data.
-- `recordFindingDisposition(findingId, …)` — `findingId` in URL; `runId` optional in body.
-- `getArchitectureDecisionRegister()` — no `projectId` from active scope.
-- `compareRuns(leftRunId, rightRunId)` — two run IDs, no scope validation in UI.
-- SSR `/reviews?projectId=…` can mismatch hardcoded `x-project-id` on server renders.
+- Routes `[runId]`, `[manifestId]`, `[findingId]` call APIs with ID alone ? URL manipulation is IDOR if API returns cross-scope data.
+- `recordFindingDisposition(findingId, ?)` ? `findingId` in URL; `runId` optional in body.
+- `getArchitectureDecisionRegister()` ? no `projectId` from active scope.
+- `compareRuns(leftRunId, rightRunId)` ? two run IDs, no scope validation in UI.
+- SSR `/reviews?projectId=?` can mismatch hardcoded `x-project-id` on server renders.
 
 **What to do:**
 
-1. After loading run/manifest/finding detail, compare resource `projectId` (and `tenantId` if API returns it) to effective scope; call `notFound()` on mismatch (defense in depth — API remains authoritative).
+1. After loading run/manifest/finding detail, compare resource `projectId` (and `tenantId` if API returns it) to effective scope; call `notFound()` on mismatch (defense in depth ? API remains authoritative).
 2. Require `runId` in URL path for `recordFindingDisposition`; reject finding-only mutations.
 3. Pass active `projectId` from scope into `getArchitectureDecisionRegister(projectId)`.
 4. Align SSR list `projectId` query param with server-derived scope headers.
@@ -3960,13 +3960,13 @@ Residual risk in **SingleCatalog** / dev if run gate is skipped or connection ta
 - `archlucid-ui/src/lib/api/architecture-runs.ts`
 - `archlucid-ui/src/app/(operator)/reviews/_sections/load-runs-page-model.ts`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-078 — Cross-tenant isolation integration test matrix
+## TB-078 ? Cross-tenant isolation integration test matrix
 
-**Status (2026-06-01, Batch 5E):** **Done** — V1 matrix tests (persistence snapshot IDOR, API scope/IDOR, retrieval indexing + Azure Search filter); CI drift guard `test_cross_tenant_isolation_matrix_batch.py`; pen-test runbook cross-ref in [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
+**Status (2026-06-01, Batch 5E):** **Done** ? V1 matrix tests (persistence snapshot IDOR, API scope/IDOR, retrieval indexing + Azure Search filter); CI drift guard `test_cross_tenant_isolation_matrix_batch.py`; pen-test runbook cross-ref in [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
 
@@ -3990,7 +3990,7 @@ No tests assert:
 
 **Out of scope:** Implementing the fixes (each TB item owns its tests).
 
-**Depends on:** Ships alongside **TB-071**–**TB-077** (tests added per item; this item tracks the consolidated matrix and CI wiring).
+**Depends on:** Ships alongside **TB-071**?**TB-077** (tests added per item; this item tracks the consolidated matrix and CI wiring).
 
 **Affected files / projects:**
 
@@ -3999,19 +3999,19 @@ No tests assert:
 - `ArchLucid.Api.Tests/` (`TenantIsolationSmokeTests.cs`)
 - `docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md` (coverage note)
 
-**Size estimate:** **S** — ~1 eng day (incremental; spread across sibling items).
+**Size estimate:** **S** ? ~1 eng day (incremental; spread across sibling items).
 
 ---
 
-## TB-079 — ADO PR markdown — sanitize `SummaryHighlights` and deep-link fields
+## TB-079 ? ADO PR markdown ? sanitize `SummaryHighlights` and deep-link fields
 
-**Status (2026-05-31):** **Done** — `AdoPullRequestMarkdownEscaper` (bullet escape, dangerous-content rejection, length cap, https/http link targets) used by compare + run-summary formatters; `AdoPullRequestMarkdownEscaperTests` / `AzureDevOpsRunSummaryMarkdownTests`.
+**Status (2026-05-31):** **Done** ? `AdoPullRequestMarkdownEscaper` (bullet escape, dangerous-content rejection, length cap, https/http link targets) used by compare + run-summary formatters; `AdoPullRequestMarkdownEscaperTests` / `AzureDevOpsRunSummaryMarkdownTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
 **Problem:**
 
-`GoldenManifestCompareMarkdownFormatter.cs` (L34–36) echoes `SummaryHighlights` from the compare response verbatim into the Azure DevOps PR comment body. `AzureDevOpsRunSummaryMarkdown` similarly embeds `operatorRunDeepLink` into a Markdown link without format validation. If compare metadata or run configuration is poisoned (e.g. via a malicious architecture run, a compromised evidence package, or a supply-chain attack on the compare endpoint), arbitrary Markdown — including HTML rendered in ADO's PR UI — can appear in PR comment threads visible to all reviewers.
+`GoldenManifestCompareMarkdownFormatter.cs` (L34?36) echoes `SummaryHighlights` from the compare response verbatim into the Azure DevOps PR comment body. `AzureDevOpsRunSummaryMarkdown` similarly embeds `operatorRunDeepLink` into a Markdown link without format validation. If compare metadata or run configuration is poisoned (e.g. via a malicious architecture run, a compromised evidence package, or a supply-chain attack on the compare endpoint), arbitrary Markdown ? including HTML rendered in ADO's PR UI ? can appear in PR comment threads visible to all reviewers.
 
 This is not a WIQL or API-injection path (no ADO query APIs are used in C#), but it is a reflected-content injection into a developer-facing surface with potential for phishing links or hidden instructions embedded in PR threads.
 
@@ -4033,9 +4033,9 @@ This is not a WIQL or API-injection path (no ADO query APIs are used in C#), but
 
 ---
 
-## TB-080 — Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential`
+## TB-080 ? Azure OpenAI ? migrate from `ApiKey` config key to `DefaultAzureCredential`
 
-**Status (2026-05-31):** **Done** — `AzureOpenAI:AuthenticationMode=ManagedIdentity` registers completion, embedding, and semantic-judge clients via `DefaultAzureCredential`; `AzureOpenAiConfigurationProbe` + `CriticalConfigurationValidator` skip ApiKey when MI is set; `ProductionLikeSecretTransportConfigurationLint` advises on plaintext keys; `appsettings.KeyVault.sample.json` documents MI-first posture. Content Safety remains ApiKey/KV until a managed-identity guard ships.
+**Status (2026-05-31):** **Done** ? `AzureOpenAI:AuthenticationMode=ManagedIdentity` registers completion, embedding, and semantic-judge clients via `DefaultAzureCredential`; `AzureOpenAiConfigurationProbe` + `CriticalConfigurationValidator` skip ApiKey when MI is set; `ProductionLikeSecretTransportConfigurationLint` advises on plaintext keys; `appsettings.KeyVault.sample.json` documents MI-first posture. Content Safety remains ApiKey/KV until a managed-identity guard ships.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -4063,9 +4063,9 @@ Azure OpenAI supports Entra ID (AAD) token-based authentication via `DefaultAzur
 
 ---
 
-## TB-081 — `ArchLucidApiKey` — production safety rule: require Key Vault reference
+## TB-081 ? `ArchLucidApiKey` ? production safety rule: require Key Vault reference
 
-**Status (2026-05-31):** **Done** — `ProductionSafetyRules.CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests`.
+**Status (2026-05-31):** **Done** ? `ProductionSafetyRules.CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -4089,9 +4089,9 @@ Azure OpenAI supports Entra ID (AAD) token-based authentication via `DefaultAzur
 
 ---
 
-## TB-082 — Agent `AllowedTools` — runtime enforcement at handler dispatch
+## TB-082 ? Agent `AllowedTools` ? runtime enforcement at handler dispatch
 
-**Status (2026-05-31):** **Done** — `AgentTaskAllowedToolsDispatchGuard` in `RealAgentExecutorSingleHandlerExecution`; `AgentToolNotAllowedException`; `AgentTaskAllowedToolsDispatchGuardTests`.
+**Status (2026-05-31):** **Done** ? `AgentTaskAllowedToolsDispatchGuard` in `RealAgentExecutorSingleHandlerExecution`; `AgentToolNotAllowedException`; `AgentTaskAllowedToolsDispatchGuardTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -4120,9 +4120,9 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 ---
 
-## TB-083 — Service Bus — production safety rule: require namespace FQDN, disallow raw connection string
+## TB-083 ? Service Bus ? production safety rule: require namespace FQDN, disallow raw connection string
 
-**Status (2026-05-31):** **Done** — `ProductionSafetyRules.CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests`.
+**Status (2026-05-31):** **Done** ? `ProductionSafetyRules.CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -4147,9 +4147,9 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 ---
 
-## TB-084 — AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction
+## TB-084 ? AzureExtractor ? validate `SubscriptionId` as GUID before ARM URL construction
 
-**Status (2026-05-31):** **Done** — `HostedAzureExtractorGuidValidator` on collection request + ARM list path; `HostedAzureExtractorGuidValidatorTests`.
+**Status (2026-05-31):** **Done** ? `HostedAzureExtractorGuidValidator` on collection request + ARM list path; `HostedAzureExtractorGuidValidatorTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -4172,9 +4172,9 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 ---
 
-## TB-085 — SqlRelationalBackfill — paged entity scans + durable checkpoint table
+## TB-085 ? SqlRelationalBackfill ? paged entity scans + durable checkpoint table
 
-**Status (2026-06-01):** **Done** — `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging via `SqlRelationalBackfillPagedEntityLoader` / `SqlRelationalBackfillStageProcessor`; documented in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
+**Status (2026-06-01):** **Done** ? `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging via `SqlRelationalBackfillPagedEntityLoader` / `SqlRelationalBackfillStageProcessor`; documented in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4206,13 +4206,13 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 **Cross-ref:** **TB-090** (machine-readable report for pipeline verification).
 
-**Size estimate:** **M** — ~1–2 days.
+**Size estimate:** **M** ? ~1?2 days.
 
 ---
 
-## TB-086 — SqlRelationalBackfill — poison-row quarantine (`BackfillFailures` + `--max-retries`)
+## TB-086 ? SqlRelationalBackfill ? poison-row quarantine (`BackfillFailures` + `--max-retries`)
 
-**Status (2026-06-01):** **Done** — `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, `SkippedQuarantinedCount` on report + JSON; integration test in `SqlRelationalBackfillServiceSqlIntegrationTests`.
+**Status (2026-06-01):** **Done** ? `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, `SkippedQuarantinedCount` on report + JSON; integration test in `SqlRelationalBackfillServiceSqlIntegrationTests`.
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4240,13 +4240,13 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 - `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillReport.cs`
 - `ArchLucid.Persistence/Migrations/` + `ArchLucid.Persistence/Scripts/ArchLucid.sql`
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-087 — Findings backfill slice — DB-level idempotency (remove double COUNT race)
+## TB-087 ? Findings backfill slice ? DB-level idempotency (remove double COUNT race)
 
-**Status (2026-06-01):** **Done** — migration **229** `UQ_FindingRecords_Snapshot_FindingId`; service relies on `SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync` inside one transaction (no separate service-level COUNT).
+**Status (2026-06-01):** **Done** ? migration **229** `UQ_FindingRecords_Snapshot_FindingId`; service relies on `SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync` inside one transaction (no separate service-level COUNT).
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4257,7 +4257,7 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 **What to do:**
 
 1. Remove the redundant service-level count gate in `SqlRelationalBackfillService.BackfillFindingsSnapshotsAsync`; rely on repository logic inside the entity transaction only.
-2. Add a DbUp migration + consolidated DDL constraint preventing duplicate slice materialization — prefer `UNIQUE` on the natural child key or `MERGE`/upsert semantics in `InsertFindingRecordsRelationalAsync`.
+2. Add a DbUp migration + consolidated DDL constraint preventing duplicate slice materialization ? prefer `UNIQUE` on the natural child key or `MERGE`/upsert semantics in `InsertFindingRecordsRelationalAsync`.
 3. Add integration test: two concurrent backfill attempts for the same `FindingsSnapshotId` yield exactly one set of child rows.
 4. Note in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md) that re-runs do not duplicate provenance or cost rows (backfill touches no cost tables).
 
@@ -4275,13 +4275,13 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 **Cross-ref:** **TB-012** (**INV-009** idempotency).
 
-**Size estimate:** **XS–S** — ~2–4 h.
+**Size estimate:** **XS?S** ? ~2?4 h.
 
 ---
 
-## TB-088 — Container App jobs — per-entity error isolation in multi-tenant loops
+## TB-088 ? Container App jobs ? per-entity error isolation in multi-tenant loops
 
-**Status (2026-06-01):** **Done** — per-tenant try/catch in `TrialLifecycleArchLucidJob`; `AdvisoryDueScheduleProcessResult` + non-zero exit when any schedule failed; documented in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+**Status (2026-06-01):** **Done** ? per-tenant try/catch in `TrialLifecycleArchLucidJob`; `AdvisoryDueScheduleProcessResult` + non-zero exit when any schedule failed; documented in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4309,13 +4309,13 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 - `ArchLucid.Application/` (if `AdvisoryDueScheduleProcessor` needs per-schedule catch)
 - `docs/runbooks/CONTAINER_APPS_JOBS.md`
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-089 — Digest delivery scanners — record delivery before send (ACA retry idempotency)
+## TB-089 ? Digest delivery scanners ? record delivery before send (ACA retry idempotency)
 
-**Status (2026-06-01):** **Done** — `TryRecordSentAsync` precedes `SendAsync` in exec + weekly executive dispatchers; `DigestEmailDispatcherIdempotencyTests`; runbook note in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+**Status (2026-06-01):** **Done** ? `TryRecordSentAsync` precedes `SendAsync` in exec + weekly executive dispatchers; `DigestEmailDispatcherIdempotencyTests`; runbook note in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4337,7 +4337,7 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 **Affected files / projects:**
 
-- `ArchLucid.Application/` (digest scanner implementations — locate via `ExecDigestWeeklyDeliveryScanner`, `WeeklyExecutiveSummaryDeliveryScanner`)
+- `ArchLucid.Application/` (digest scanner implementations ? locate via `ExecDigestWeeklyDeliveryScanner`, `WeeklyExecutiveSummaryDeliveryScanner`)
 - `ArchLucid.Host.Core/Jobs/ExecDigestWeeklyArchLucidJob.cs`
 - `ArchLucid.Host.Core/Jobs/WeeklyExecutiveSummaryJob.cs`
 - `ArchLucid.Host.Core/Jobs/WeeklyArchitectureDigestArchLucidJob.cs`
@@ -4345,13 +4345,13 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 **Cross-ref:** **TB-061** (decision-needed governance digest recurrence).
 
-**Size estimate:** **S** — ~4–8 h.
+**Size estimate:** **S** ? ~4?8 h.
 
 ---
 
-## TB-090 — Backfill.Cli — `--output-json` report + per-stage timing
+## TB-090 ? Backfill.Cli ? `--output-json` report + per-stage timing
 
-**Status (2026-05-31):** **Done** — `SqlRelationalBackfillStageRunner` records per-stage `ElapsedMilliseconds` and delta counts; `--output-json [path]` writes `archlucid.backfill.cli.report.v1` to stdout or file; documented in `SqlRelationalBackfill.md`; `BackfillCliJsonReportSerializerTests`, `SqlRelationalBackfillStageRunnerTests`.
+**Status (2026-05-31):** **Done** ? `SqlRelationalBackfillStageRunner` records per-stage `ElapsedMilliseconds` and delta counts; `--output-json [path]` writes `archlucid.backfill.cli.report.v1` to stdout or file; documented in `SqlRelationalBackfill.md`; `BackfillCliJsonReportSerializerTests`, `SqlRelationalBackfillStageRunnerTests`.
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4380,12 +4380,12 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 **Cross-ref:** **TB-085**, **TB-086** (quarantine/skipped rows in JSON output).
 
-**Size estimate:** **XS** — ~2–4 h.
+**Size estimate:** **XS** ? ~2?4 h.
 
 ---
 ## TB-091 --- Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`)
 
-**Status (2026-06-01):** **Done** — `azurerm_private_dns_zone` + VNet link + `azurerm_private_endpoint` for `privatelink.vaultcore.azure.net` when `enable_private_data_plane` and `key_vault_id` are set; `key_vault_private_endpoint_id` output; ARM ID check in `checks.tf`; documented in `terraform.tfvars.example` and `README.md`.
+**Status (2026-06-01):** **Done** ? `azurerm_private_dns_zone` + VNet link + `azurerm_private_endpoint` for `privatelink.vaultcore.azure.net` when `enable_private_data_plane` and `key_vault_id` are set; `key_vault_private_endpoint_id` output; ARM ID check in `checks.tf`; documented in `terraform.tfvars.example` and `README.md`.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -4420,7 +4420,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ## TB-092 --- Key Vault Secrets User RBAC for API + Worker managed identities
 
-**Status (2026-06-01):** **Done** — `azurerm_role_assignment` **Key Vault Secrets User** in `infra/terraform-keyvault/workload_rbac.tf` when `enable_key_vault` and principal ID vars are set; `infra/terraform-private/keyvault_rbac.tf` for `key_vault_workload_principal_ids` on `var.key_vault_id`; `infra/apply-saas.ps1` second pass after Container Apps; `infra/terraform-keyvault/terraform.tfvars.example`; docs in `CONFIGURATION_KEY_VAULT.md`, `REFERENCE_SAAS_STACK_ORDER.md`, `IAC_RUNTIME_PARITY.md`.
+**Status (2026-06-01):** **Done** ? `azurerm_role_assignment` **Key Vault Secrets User** in `infra/terraform-keyvault/workload_rbac.tf` when `enable_key_vault` and principal ID vars are set; `infra/terraform-private/keyvault_rbac.tf` for `key_vault_workload_principal_ids` on `var.key_vault_id`; `infra/apply-saas.ps1` second pass after Container Apps; `infra/terraform-keyvault/terraform.tfvars.example`; docs in `CONFIGURATION_KEY_VAULT.md`, `REFERENCE_SAAS_STACK_ORDER.md`, `IAC_RUNTIME_PARITY.md`.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -4453,7 +4453,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ## TB-093 --- Compose Azure OpenAI into hosted Terraform stack
 
-**Status (2026-06-01):** **Done** — Default `openai_compose_mode = existing` in `deploy/hosted-prod-terraform` with consumed account/deployment variables, `eastus` region check, `azure_openai_container_app_env` output, workload **Cognitive Services OpenAI User** RBAC; `infra/terraform-container-apps/azure_openai.tf` wires `AzureOpenAI__*` env + API/Worker role assignments; `infra/terraform-openai` consumed contract outputs; `terraform-pilot` marks OpenAI `pilot_essential` for real-mode pilots. Platform subscription owns deployments, filters, quota, CMK, and private endpoint outside these roots.
+**Status (2026-06-01):** **Done** ? Default `openai_compose_mode = existing` in `deploy/hosted-prod-terraform` with consumed account/deployment variables, `eastus` region check, `azure_openai_container_app_env` output, workload **Cognitive Services OpenAI User** RBAC; `infra/terraform-container-apps/azure_openai.tf` wires `AzureOpenAI__*` env + API/Worker role assignments; `infra/terraform-openai` consumed contract outputs; `terraform-pilot` marks OpenAI `pilot_essential` for real-mode pilots. Platform subscription owns deployments, filters, quota, CMK, and private endpoint outside these roots.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -4493,7 +4493,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ## TB-094 --- Create `terraform-redis` root --- Azure Cache for Redis hot-path cache
 
-**Status (2026-06-01):** **Done** — New root `infra/terraform-redis` (`azurerm_redis_cache`, TLS 1.2, `non_ssl_port_enabled = false`, optional PE/DNS/diagnostics/Key Vault secret); outputs `redis_primary_connection_string` and `hot_path_cache_container_app_secret_env`; `infra/terraform-container-apps` wires `HotPathCache__RedisConnectionString` via secret; pilot + `apply-saas.ps1` order updated.
+**Status (2026-06-01):** **Done** ? New root `infra/terraform-redis` (`azurerm_redis_cache`, TLS 1.2, `non_ssl_port_enabled = false`, optional PE/DNS/diagnostics/Key Vault secret); outputs `redis_primary_connection_string` and `hot_path_cache_container_app_secret_env`; `infra/terraform-container-apps` wires `HotPathCache__RedisConnectionString` via secret; pilot + `apply-saas.ps1` order updated.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -4717,7 +4717,7 @@ If these were configured in the portal post-deploy, Terraform cannot manage or r
 
 ## TB-100 --- Migrate Logic App Standard storage from access-key to managed identity
 
-**Status:** **Done** (2026-06-01, platform-constrained). `logic_app_storage_rbac.tf` grants **Storage Blob Data Owner** + **Storage File Data SMB Share Contributor** per Logic App on its hosting storage (`logic_app_storage_use_managed_identity` default true). `storage_account_access_key` remains on `azurerm_logic_app_standard` because Azure still requires `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` on standard plans — see `infra/terraform-logicapps/README.md`.
+**Status:** **Done** (2026-06-01, platform-constrained). `logic_app_storage_rbac.tf` grants **Storage Blob Data Owner** + **Storage File Data SMB Share Contributor** per Logic App on its hosting storage (`logic_app_storage_use_managed_identity` default true). `storage_account_access_key` remains on `azurerm_logic_app_standard` because Azure still requires `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` on standard plans ? see `infra/terraform-logicapps/README.md`.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -4811,9 +4811,9 @@ All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storag
 
 ---
 
-## TB-103 — Orphan candidate count + savings — expose via backend API; remove UI heuristic parser
+## TB-103 ? Orphan candidate count + savings ? expose via backend API; remove UI heuristic parser
 
-**Status (2026-05-31):** **Done** — `ExecutiveOrphanCandidateKpiCalculator` + `orphanCandidates` on `ExecutiveRoiSummaryResponse`; `ExecutiveOrphanCandidatesCard` reads API only; orphan heuristics removed from `run-potential-savings-parser.ts` (run detail uses cost artifact only).
+**Status (2026-05-31):** **Done** ? `ExecutiveOrphanCandidateKpiCalculator` + `orphanCandidates` on `ExecutiveRoiSummaryResponse`; `ExecutiveOrphanCandidatesCard` reads API only; orphan heuristics removed from `run-potential-savings-parser.ts` (run detail uses cost artifact only).
 
 **Source:** Cross-layer domain-term audit (2026-05-27).
 
@@ -4833,7 +4833,7 @@ The UI card never reads backend orphan findings. Count and dollar figures can di
 **What to do:**
 
 1. Add a new read model / query in `ArchLucid.Application` (or extend `ExecutiveRoiSummaryService`) that exposes `OrphanCandidateSummary { Count: int, AnnualSavingsUsd: decimal, EvidenceRunId: Guid }` derived from committed `OrphanedAzureResource` findings for the tenant's latest analysed run.
-2. Expose the new field on `GET /v1/roi/executive-summary` response (`ExecutiveRoiSummaryResponse`) — or as a dedicated `GET /v1/roi/orphan-candidate-summary` endpoint if the data source is a separate analysis pipeline.
+2. Expose the new field on `GET /v1/roi/executive-summary` response (`ExecutiveRoiSummaryResponse`) ? or as a dedicated `GET /v1/roi/orphan-candidate-summary` endpoint if the data source is a separate analysis pipeline.
 3. Replace `ExecutiveOrphanCandidatesCard.tsx` to call the API field instead of fetching and parsing `orphan-candidates.json`.
 4. Delete `heuristicAnnualUsdOpportunityFromOrphanCandidatesJson`, `coerceOrphanList`, and `sumOrphanCandidateRowUsdAnnual` from `run-potential-savings-parser.ts` once no remaining callers exist. Retain `run-savings-summary-model.ts` only if it is still needed for a different artifact type.
 5. Update `RunSavingsSummary.tsx` JSDoc comment which references `orphan-candidates.json` directly.
@@ -4856,15 +4856,15 @@ The UI card never reads backend orphan findings. Count and dollar figures can di
 - `archlucid-ui/src/lib/run-savings-summary-model.ts`
 - `archlucid-ui/src/components/RunSavingsSummary.tsx`
 
-**Cross-ref:** **TB-062** (executive dashboard live KPI replacement — this item is a scoped sub-task).
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement ? this item is a scoped sub-task).
 
-**Size estimate:** **M** — ~1–2 days (backend query + contract + API surface + UI replacement + tests).
+**Size estimate:** **M** ? ~1?2 days (backend query + contract + API surface + UI replacement + tests).
 
 ---
 
-## TB-104 — 14-day expiring waiver KPI — server-compute the window; remove client-side date rule
+## TB-104 ? 14-day expiring waiver KPI ? server-compute the window; remove client-side date rule
 
-**Status (2026-05-31):** **Done** — `GovernanceWaiverExpiryWindow` + `ExpiringWaiversCount14Days` on ROI; dashboard uses `waiversExpiringWithin14Days`; `ExecutiveReviewPacketPortfolioSignalsFactory` maps ROI expiring count (not `ActiveWaiversCount`).
+**Status (2026-05-31):** **Done** ? `GovernanceWaiverExpiryWindow` + `ExpiringWaiversCount14Days` on ROI; dashboard uses `waiversExpiringWithin14Days`; `ExecutiveReviewPacketPortfolioSignalsFactory` maps ROI expiring count (not `ActiveWaiversCount`).
 
 **Source:** Cross-layer domain-term audit (2026-05-27). Cross-ref: code comment references TB-062 gap.
 
@@ -4890,7 +4890,7 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 **What to do:**
 
 1. In `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs` (or `RiskExceptionService`), compute `ExpiringWaiversCount14Days` correctly: count active waivers where `ExpiresAtUtc` is within the next 14 calendar days from UTC now.
-2. Add `ExpiringWaiversCount14Days: int` to `ExecutiveRoiSummaryResponse` (it may already exist as a stub — verify and populate it).
+2. Add `ExpiringWaiversCount14Days: int` to `ExecutiveRoiSummaryResponse` (it may already exist as a stub ? verify and populate it).
 3. Fix `ExecutiveReviewPacketBuilder.cs` to read the same field rather than `ActiveWaiversCount`.
 4. Replace the `countExpiringWaivers` client-side filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` with the API-provided field.
 5. Add a unit test for the 14-day boundary calculation (including day-boundary edge case at UTC midnight).
@@ -4910,15 +4910,15 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 - `ArchLucid.Api/Controllers/Roi/RoiController.cs`
 - `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx`
 
-**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-057** (governance stickiness review packet); **TB-149** (canonical window — supersedes duplicate `CountExpiringWaivers` logic); **TB-155** (cached ROI vs live decisions-needed).
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-057** (governance stickiness review packet); **TB-149** (canonical window ? supersedes duplicate `CountExpiringWaivers` logic); **TB-155** (cached ROI vs live decisions-needed).
 
-**Size estimate:** **S** — ~4–6 h (backend field population + UI simplification + tests).
+**Size estimate:** **S** ? ~4?6 h (backend field population + UI simplification + tests).
 
 ---
 
-## TB-105 — Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher
+## TB-105 ? Business-impact category buckets ? add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher
 
-**Status (2026-05-31):** **Done** — six pillars (`Security`, `Compliance`, `Reliability`, `Cost`, `Governance`, `Other`) via `ExecutiveBusinessImpactPillarMatchers` + classifier; widget + `StaleArchitectureRiskCount` on ROI aligned with decisions-needed and review packet.
+**Status (2026-05-31):** **Done** ? six pillars (`Security`, `Compliance`, `Reliability`, `Cost`, `Governance`, `Other`) via `ExecutiveBusinessImpactPillarMatchers` + classifier; widget + `StaleArchitectureRiskCount` on ROI aligned with decisions-needed and review packet.
 
 **Source:** Cross-layer domain-term audit (2026-05-27).
 
@@ -4940,7 +4940,7 @@ function sumIssueCounts(issues: SystemicIssue[], ...buckets: string[]) {
 Problems with this approach:
 
 - The bucket definitions (which `category` substrings map to which pillar) live only in the UI. They cannot be unit-tested against real category values from the backend.
-- A backend category rename (e.g., `"resiliency"` → `"resilience"`) silently zeroes the reliability bucket without a compilation error.
+- A backend category rename (e.g., `"resiliency"` ? `"resilience"`) silently zeroes the reliability bucket without a compilation error.
 - The backend `ExecutiveRoiSummaryService` already has full category information when building the response; it can produce authoritative counts with zero ambiguity.
 
 **What to do:**
@@ -4961,28 +4961,28 @@ Problems with this approach:
 
 - `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
 - `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs` (new `BusinessImpactBuckets` shape)
-- `ArchLucid.Core` or `ArchLucid.Contracts` (category → pillar mapping constant)
+- `ArchLucid.Core` or `ArchLucid.Contracts` (category ? pillar mapping constant)
 - `archlucid-ui/src/components/BusinessImpactSummaryWidget.tsx`
 - `ArchLucid.Application.Tests/Roi/` (new unit tests)
 
-**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-103** (orphan savings — same root cause pattern).
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-103** (orphan savings ? same root cause pattern).
 
-**Size estimate:** **S** — ~4–8 h (backend aggregation + contract change + UI simplification + tests).
+**Size estimate:** **S** ? ~4?8 h (backend aggregation + contract change + UI simplification + tests).
 
 ---
 
-## TB-149 — Canonical 14-day expiring-waiver window — single server implementation
+## TB-149 ? Canonical 14-day expiring-waiver window ? single server implementation
 
-**Status (2026-05-31):** **Done** — `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` (`[now, now+14d]` UTC inclusive); `ExecutiveRoiSummaryService.CountExpiringWaivers` removed; composer + ROI share helper; unit tests in `GovernanceWaiverExpiryWindowTests`.
+**Status (2026-05-31):** **Done** ? `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` (`[now, now+14d]` UTC inclusive); `ExecutiveRoiSummaryService.CountExpiringWaivers` removed; composer + ROI share helper; unit tests in `GovernanceWaiverExpiryWindowTests`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**.
 
 **Problem:**
 
-Two server paths compute “waivers expiring within 14 days” with **different predicates**:
+Two server paths compute ?waivers expiring within 14 days? with **different predicates**:
 
-- `ExecutiveRoiSummaryService.CountExpiringWaivers` — `ExpiresAtUtc <= now.AddDays(14)` with **no lower bound** (includes already-expired rows that missed `MarkExpiredAsync`).
-- `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `ExpiresAtUtc >= now && ExpiresAtUtc <= now.AddDays(14)` (correct inclusive window).
+- `ExecutiveRoiSummaryService.CountExpiringWaivers` ? `ExpiresAtUtc <= now.AddDays(14)` with **no lower bound** (includes already-expired rows that missed `MarkExpiredAsync`).
+- `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` ? `ExpiresAtUtc >= now && ExpiresAtUtc <= now.AddDays(14)` (correct inclusive window).
 
 The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint when present (`??` only falls back when null), so the tile routinely shows the ROI count, not the decisions-needed count.
 
@@ -4990,7 +4990,7 @@ The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint
 
 1. Extract one shared helper (e.g. `GovernanceWaiverExpiryWindow.CountWithinDays(activeWaivers, nowUtc, days: 14)`) with documented UTC inclusive bounds `[now, now+14d]`.
 2. Delete `ExecutiveRoiSummaryService.CountExpiringWaivers`; populate `ExpiringWaiversCount14Days` from the shared helper (or delegate to `IGovernanceDigestDecisionNeededComposer` / shared service).
-3. Update `ExecutiveRoiDashboardLiveKpiCards.tsx` to read **only** `decisionsNeeded.waiversExpiringWithin14Days` or a single ROI field sourced from the same helper — remove dual-source `??` when both are populated.
+3. Update `ExecutiveRoiDashboardLiveKpiCards.tsx` to read **only** `decisionsNeeded.waiversExpiringWithin14Days` or a single ROI field sourced from the same helper ? remove dual-source `??` when both are populated.
 4. Unit tests: expired yesterday excluded; expires exactly at `now+14d` included; expires at `now+14d+1s` excluded.
 
 **Acceptance criteria:**
@@ -5007,13 +5007,13 @@ The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint
 
 **Cross-ref:** **TB-104**, **TB-155**, **TB-062**.
 
-**Size estimate:** **S** (~4–6 h).
+**Size estimate:** **S** (~4?6 h).
 
 ---
 
-## TB-150 — Decisions-needed `TotalDecisionItems` — union cardinality, not sum
+## TB-150 ? Decisions-needed `TotalDecisionItems` ? union cardinality, not sum
 
-**Status (2026-05-31):** **Done** — `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` (distinct finding union + pending approvals); contract XML on `TotalDecisionItems`; unit tests.
+**Status (2026-05-31):** **Done** ? `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` (distinct finding union + pending approvals); contract XML on `TotalDecisionItems`; unit tests.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
@@ -5032,7 +5032,7 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 1. Build a `HashSet<string>` (or `HashSet<Guid>` if finding IDs are normalized) of finding-linked identifiers per bucket; approvals pending may remain a separate non-finding count.
 2. Set `TotalDecisionItems = approvalPendingCount + distinctFindingUnion.Count` (document whether approvals without a finding id are always additive).
 3. Optionally expose per-bucket counts unchanged for drill-down; only fix the total.
-4. Add unit tests: one finding in two buckets → total increments by 1, not 2.
+4. Add unit tests: one finding in two buckets ? total increments by 1, not 2.
 
 **Acceptance criteria:**
 
@@ -5047,13 +5047,13 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Cross-ref:** **TB-062**, **TB-060** (decision register).
 
-**Size estimate:** **S** (~4–6 h).
+**Size estimate:** **S** (~4?6 h).
 
 ---
 
-## TB-151 — `ExecutiveSummaryResult.TotalRiskReductionScore` — semantic fix
+## TB-151 ? `ExecutiveSummaryResult.TotalRiskReductionScore` ? semantic fix
 
-**Status (2026-05-31):** **Done** — `TotalRiskReductionScore` maps to `ResolvedFindingsCount30Days`; added `PendingGovernanceDecisionCount` on `ExecutiveSummaryResult`; `ExecutiveReportsSummaryServiceTests`.
+**Status (2026-05-31):** **Done** ? `TotalRiskReductionScore` maps to `ResolvedFindingsCount30Days`; added `PendingGovernanceDecisionCount` on `ExecutiveSummaryResult`; `ExecutiveReportsSummaryServiceTests`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
@@ -5063,12 +5063,12 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **What to do (pick one, document in OpenAPI):**
 
-1. **Rename** to `PendingGovernanceDecisionCount` (breaking — coordinate OpenAPI snapshot + consumers), or
+1. **Rename** to `PendingGovernanceDecisionCount` (breaking ? coordinate OpenAPI snapshot + consumers), or
 2. **Repurpose** `TotalRiskReductionScore` to a metric that increases with risk reduced (e.g. `ResolvedFindingsCount30Days` from ROI), and add `PendingGovernanceDecisionCount` for the burden metric.
 
 **Acceptance criteria:**
 
-- No field name implies “reduction” while monotonically increasing with outstanding decisions.
+- No field name implies ?reduction? while monotonically increasing with outstanding decisions.
 - `ExecutiveSummaryController` response documented in contract snapshot.
 
 **Affected files:**
@@ -5079,13 +5079,13 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Cross-ref:** **TB-062**.
 
-**Size estimate:** **XS** (~2–3 h).
+**Size estimate:** **XS** (~2?3 h).
 
 ---
 
-## TB-152 — `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing savings
+## TB-152 ? `ExecutiveSummaryResult.CostWasteUsd` ? stop aliasing savings
 
-**Status (2026-05-31):** **Done** — `ExecutiveReportsSummaryService` sets `CostWasteUsd: null`; `ExecutiveReportsSummaryServiceTests` asserts separation from `TotalEstimatedUsdSavings`.
+**Status (2026-05-31):** **Done** ? `ExecutiveReportsSummaryService` sets `CostWasteUsd: null`; `ExecutiveReportsSummaryServiceTests` asserts separation from `TotalEstimatedUsdSavings`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
@@ -5109,19 +5109,19 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Cross-ref:** **TB-062**, FinOps ROI contracts.
 
-**Size estimate:** **XS** (~1–2 h).
+**Size estimate:** **XS** (~1?2 h).
 
 ---
 
-## TB-153 — Recurring architecture review trigger — idempotency before execute
+## TB-153 ? Recurring architecture review trigger ? idempotency before execute
 
-**Status (2026-05-31):** **Done** — `RecurringArchitectureReviewTriggerService` persists `LastTriggeredRunId` + advanced `NextRunUtc` immediately after `CreateRunAsync`, before `ExecuteRunAsync`; failure before checkpoint still advances `NextRunUtc` in catch. Unit test asserts `create` → `update` → `execute` order.
+**Status (2026-05-31):** **Done** ? `RecurringArchitectureReviewTriggerService` persists `LastTriggeredRunId` + advanced `NextRunUtc` immediately after `CreateRunAsync`, before `ExecuteRunAsync`; failure before checkpoint still advances `NextRunUtc` in catch. Unit test asserts `create` ? `update` ? `execute` order.
 
 **Source:** Cross-layer data consistency audit (2026-05-31). Cross-ref **TB-062**, **TB-012** (**INV-009**).
 
 **Problem:**
 
-`RecurringArchitectureReviewTriggerService.TriggerScheduleAsync` order: `CreateRunAsync` → `ExecuteRunAsync` → `scheduleRepository.UpdateAsync` (advance `NextRunUtc`). If the host process dies after create but before update, the next poll treats the schedule as still due and creates a **second run** for the same period. Explicit exceptions advance `NextRunUtc` in the catch block; **OOM / ACA eviction** does not.
+`RecurringArchitectureReviewTriggerService.TriggerScheduleAsync` order: `CreateRunAsync` ? `ExecuteRunAsync` ? `scheduleRepository.UpdateAsync` (advance `NextRunUtc`). If the host process dies after create but before update, the next poll treats the schedule as still due and creates a **second run** for the same period. Explicit exceptions advance `NextRunUtc` in the catch block; **OOM / ACA eviction** does not.
 
 **What to do:**
 
@@ -5141,13 +5141,13 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 - `ArchLucid.Host.Core/Hosted/ArchitectureReviewRecurrenceDueScheduleProcessor.cs`
 - Migration + `ArchLucid.Persistence/Scripts/ArchLucid.sql` if unique constraint added
 
-**Size estimate:** **M** (~1–2 days).
+**Size estimate:** **M** (~1?2 days).
 
 ---
 
-## TB-154 — Waiver ↔ disposition state machine — bidirectional invariants
+## TB-154 ? Waiver ? disposition state machine ? bidirectional invariants
 
-**Status (2026-05-31):** **Done (V1 strict create/renew)** — `RiskExceptionDispositionGuard` blocks waivers when latest disposition is `Remediated`; `ArchitectureRiskRegisterStaleEvaluator` in Core suppresses stale signal under active waiver; register reader uses shared evaluator. Expiry disposition events remain V1.1 optional.
+**Status (2026-05-31):** **Done (V1 strict create/renew)** ? `RiskExceptionDispositionGuard` blocks waivers when latest disposition is `Remediated`; `ArchitectureRiskRegisterStaleEvaluator` in Core suppresses stale signal under active waiver; register reader uses shared evaluator. Expiry disposition events remain V1.1 optional.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
@@ -5157,18 +5157,18 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 - **A:** Active waiver on a finding with latest disposition `Remediated`.
 - **B:** Waiver expires via `MarkExpiredAsync` without a disposition event reopening governance narrative.
-- **C:** Risk register `IsStale` ignores active waiver — same finding contributes to stale-risk and expiring-waiver buckets (**TB-150** makes this worse).
+- **C:** Risk register `IsStale` ignores active waiver ? same finding contributes to stale-risk and expiring-waiver buckets (**TB-150** makes this worse).
 
 **What to do:**
 
 1. On waiver create/renew: reject or warn if latest disposition is `Remediated` (configurable strictness).
 2. On waiver expiry audit: optionally append informational `FindingReviewEvent` or register flag (product decision).
 3. In risk register staleness and decisions-needed stale bucket: exclude findings with non-expired active waiver.
-4. Integration tests for scenarios A–C.
+4. Integration tests for scenarios A?C.
 
 **Acceptance criteria:**
 
-- No finding appears as both “stale risk” and “covered by active waiver” in `BuildSummaryAsync` for the same snapshot.
+- No finding appears as both ?stale risk? and ?covered by active waiver? in `BuildSummaryAsync` for the same snapshot.
 - Documented operator behavior when renewing waiver on remediated finding.
 
 **Affected files:**
@@ -5180,13 +5180,13 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Cross-ref:** **TB-059**, **TB-150**, **TB-058**.
 
-**Size estimate:** **M** (~1–2 days).
+**Size estimate:** **M** (~1?2 days).
 
 ---
 
-## TB-155 — ROI cache vs live decisions-needed — canonical expiring-waiver source
+## TB-155 ? ROI cache vs live decisions-needed ? canonical expiring-waiver source
 
-**Status (2026-05-31):** **Done** — `CachingExecutiveRoiSummaryService` refreshes `ExpiringWaiversCount14Days` on every read; dashboard tile uses `waiversExpiringWithin14Days` only (no ROI `??` fallback).
+**Status (2026-05-31):** **Done** ? `CachingExecutiveRoiSummaryService` refreshes `ExpiringWaiversCount14Days` on every read; dashboard tile uses `waiversExpiringWithin14Days` only (no ROI `??` fallback).
 
 **Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**, **TB-149**.
 
@@ -5198,11 +5198,11 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 1. After **TB-149**, stop populating `ExpiringWaiversCount14Days` on cached ROI responses (always compute at read time in decorator, or remove field from cached payload).
 2. Alternatively: invalidate ROI cache keys on `RiskExceptionCreated|Renewed|Revoked|Expired` audit events.
-3. Dashboard: single source — `waiversExpiringWithin14Days` only.
+3. Dashboard: single source ? `waiversExpiringWithin14Days` only.
 
 **Acceptance criteria:**
 
-- Create waiver → refresh dashboard within one request cycle: expiring count matches decisions-needed without waiting for ROI TTL.
+- Create waiver ? refresh dashboard within one request cycle: expiring count matches decisions-needed without waiting for ROI TTL.
 
 **Affected files:**
 
@@ -5212,28 +5212,28 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 **Cross-ref:** **TB-149**, **TB-104**, **TB-062**.
 
-**Size estimate:** **S** (~4–6 h).
+**Size estimate:** **S** (~4?6 h).
 
 ---
 
-## TB-156 — `start-local-api-and-ui.ps1` — strict preflight + UI proxy E2E gate
+## TB-156 ? `start-local-api-and-ui.ps1` ? strict preflight + UI proxy E2E gate
 
-**Status (2026-05-31):** **Done** — preflight (toolchain, node_modules, port/env alignment), `/health/live` + `/health/ready`, UI root, blocking `GET /api/proxy/health/live` before browser; `-SkipPreflight`, `-EnsureSql`.
+**Status (2026-05-31):** **Done** ? preflight (toolchain, node_modules, port/env alignment), `/health/live` + `/health/ready`, UI root, blocking `GET /api/proxy/health/live` before browser; `-SkipPreflight`, `-EnsureSql`.
 
-**Priority:** **P0** — pick up in the next available thread (local dev blocker; misleads every contributor who starts UI without a healthy API chain).
+**Priority:** **P0** ? pick up in the next available thread (local dev blocker; misleads every contributor who starts UI without a healthy API chain).
 
 **Source:** Local dev triage (2026-05-31). Symptom: operator UI loads but repeated Sonner warnings; root cause was API not listening on configured port while script had already opened the browser.
 
 **Problem:**
 
-`scripts/start-local-api-and-ui.ps1` waits for `GET /health/ready` on ArchLucid.Api and for the UI root (`GET /`) to return 200. Neither proves **browser → Next.js → `/api/proxy/*` → API**. The homepage can load while every proxied API call returns **502 Upstream API unreachable**. The script exits success and opens the browser anyway.
+`scripts/start-local-api-and-ui.ps1` waits for `GET /health/ready` on ArchLucid.Api and for the UI root (`GET /`) to return 200. Neither proves **browser ? Next.js ? `/api/proxy/*` ? API**. The homepage can load while every proxied API call returns **502 Upstream API unreachable**. The script exits success and opens the browser anyway.
 
 Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or **`archlucid-ui/.env.local`** `ARCHLUCID_API_BASE_URL` port alignment with `-ApiPort` (5128 native vs 5000 Docker demo).
 
 **What to do:**
 
 1. **Preflight (fail fast):** `dotnet` + `node` present; `archlucid-ui/node_modules` exists (hint `npm ci`); optional `-SkipPreflight` for warm repeats; ports `$ApiPort` / `$UiPort` free or already serving expected health URLs.
-2. **Config validation:** read `.env.local` (or `.env.example` fallback warning); assert `ARCHLUCID_API_BASE_URL` host/port matches `-ApiPort` (default 5128); do **not** auto-edit — print expected vs actual and exit non-zero.
+2. **Config validation:** read `.env.local` (or `.env.example` fallback warning); assert `ARCHLUCID_API_BASE_URL` host/port matches `-ApiPort` (default 5128); do **not** auto-edit ? print expected vs actual and exit non-zero.
 3. **API ready (keep + extend):** `GET /health/live` then `/health/ready`; on ready failure, optionally surface first unhealthy check name from JSON for IT audience.
 4. **UI ready (keep):** UI root responds.
 5. **End-to-end gate (new, blocking):** `GET http://127.0.0.1:$UiPort/api/proxy/health/live` must return **200** before opening browser. On failure, exit **non-zero** with structured output:
@@ -5242,8 +5242,8 @@ Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or 
    - resolved `ARCHLUCID_API_BASE_URL`
    - next steps + doc links: [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md)
    - optional hint: `dotnet run --project ArchLucid.Cli -- doctor`
-6. **Optional switches:** `-EnsureSql` → `dev up --sql-only` (default off); `-NoBrowser` unchanged.
-7. Reuse patterns from `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`, `scripts/v1-rc-drill.ps1` where practical — avoid duplicating probe logic.
+6. **Optional switches:** `-EnsureSql` ? `dev up --sql-only` (default off); `-NoBrowser` unchanged.
+7. Reuse patterns from `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`, `scripts/v1-rc-drill.ps1` where practical ? avoid duplicating probe logic.
 
 **Acceptance criteria:**
 
@@ -5255,44 +5255,44 @@ Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or 
 **Affected files:**
 
 - `scripts/start-local-api-and-ui.ps1`
-- Optional cross-link in `docs/library/customer-facing/OPERATOR_QUICKSTART.md` or `docs/runbooks/TROUBLESHOOTING.md` (one line only — no new doc file required)
+- Optional cross-link in `docs/library/customer-facing/OPERATOR_QUICKSTART.md` or `docs/runbooks/TROUBLESHOOTING.md` (one line only ? no new doc file required)
 
 **Cross-ref:** **TB-157** (in-app toast copy); `archlucid-ui/src/app/api/proxy/[...path]/route.ts`; `archlucid-ui/.env.example`.
 
-**Size estimate:** **S** (~4–8 h).
+**Size estimate:** **S** (~4?8 h).
 
 ---
 
-## TB-157 — API connectivity toasts — accurate API-down vs assistant-stream messaging
+## TB-157 ? API connectivity toasts ? accurate API-down vs assistant-stream messaging
 
-**Status (2026-05-31):** **Done** — `classifyApiConnectivityFailure` routes 502/upstream to **ArchLucid API unreachable**, 503 misconfig, UseStream to assistant; tests in `api-error-toast-policy.test.ts`.
+**Status (2026-05-31):** **Done** ? `classifyApiConnectivityFailure` routes 502/upstream to **ArchLucid API unreachable**, 503 misconfig, UseStream to assistant; tests in `api-error-toast-policy.test.ts`.
 
-**Priority:** **P0** — pick up in the next available thread (same local-dev incident cluster as **TB-156**; can ship independently but pair for best UX).
+**Priority:** **P0** ? pick up in the next available thread (same local-dev incident cluster as **TB-156**; can ship independently but pair for best UX).
 
-**Source:** Local dev triage (2026-05-31). `resolveApiRequestErrorToastPlan` treats any connectivity-shaped 5xx as “Review assistant unavailable / AI assistant service is not reachable”, including proxy **502 Upstream API unreachable** when ArchLucid.Api is down.
+**Source:** Local dev triage (2026-05-31). `resolveApiRequestErrorToastPlan` treats any connectivity-shaped 5xx as ?Review assistant unavailable / AI assistant service is not reachable?, including proxy **502 Upstream API unreachable** when ArchLucid.Api is down.
 
 **Problem:**
 
-`archlucid-ui/src/lib/api-error-toast-policy.ts` — `isConnectivityOrAssistantFailure` buckets UseStream, fetch failed, upstream unreachable, etc. into one assistant-focused toast. IT-savvy local operators misdiagnose API/proxy/config failures as Azure OpenAI / Ask outages. Local dev defaults to **Simulator**; conflating API down with LLM down is incorrect.
+`archlucid-ui/src/lib/api-error-toast-policy.ts` ? `isConnectivityOrAssistantFailure` buckets UseStream, fetch failed, upstream unreachable, etc. into one assistant-focused toast. IT-savvy local operators misdiagnose API/proxy/config failures as Azure OpenAI / Ask outages. Local dev defaults to **Simulator**; conflating API down with LLM down is incorrect.
 
 **What to do:**
 
 1. Replace `isConnectivityOrAssistantFailure` with a classifier (e.g. `classifyApiConnectivityFailure(message, httpStatus, problem?)`) that returns distinct toast plans:
-   - **“Upstream API unreachable”** / proxy 502 → title **ArchLucid API unreachable**; detail: proxy could not reach backend; verify API process and `ARCHLUCID_API_BASE_URL`; link or cite `docs/runbooks/TROUBLESHOOTING.md`.
-   - **503 + invalid upstream config** → **API URL not configured**; set `ARCHLUCID_API_BASE_URL` in `.env.local`; restart `npm run dev`.
-   - **UseStream** / Ask SSE path only → keep **Review assistant unavailable** (stream endpoint failed; core navigation may still work).
-   - Generic fetch/network → **Cannot reach ArchLucid API** (include correlation id when present).
+   - **?Upstream API unreachable?** / proxy 502 ? title **ArchLucid API unreachable**; detail: proxy could not reach backend; verify API process and `ARCHLUCID_API_BASE_URL`; link or cite `docs/runbooks/TROUBLESHOOTING.md`.
+   - **503 + invalid upstream config** ? **API URL not configured**; set `ARCHLUCID_API_BASE_URL` in `.env.local`; restart `npm run dev`.
+   - **UseStream** / Ask SSE path only ? keep **Review assistant unavailable** (stream endpoint failed; core navigation may still work).
+   - Generic fetch/network ? **Cannot reach ArchLucid API** (include correlation id when present).
 2. Prefer `problem.supportHint` from proxy Problem Details when present (`route.ts` already emits hints).
-3. Severity: **warning** for 502/API down (degraded shell); **error** for 503 misconfiguration (optional — document choice in tests).
+3. Severity: **warning** for 502/API down (degraded shell); **error** for 503 misconfiguration (optional ? document choice in tests).
 4. **Buyer-polished / demo shell:** keep suppressing connectivity toasts (`buyerPolishedShell` path unchanged).
-5. Update `api-error-toast-policy.test.ts`; grep for stale “AI assistant service is not reachable” expectations.
+5. Update `api-error-toast-policy.test.ts`; grep for stale ?AI assistant service is not reachable? expectations.
 
 **Acceptance criteria:**
 
-- Simulated `ApiRequestError` with message `Upstream API unreachable: fetch failed` and status 502 → toast title mentions **API**, not assistant.
-- UseStream-only failure → assistant wording retained.
+- Simulated `ApiRequestError` with message `Upstream API unreachable: fetch failed` and status 502 ? toast title mentions **API**, not assistant.
+- UseStream-only failure ? assistant wording retained.
 - Buyer-polished shell still suppresses connectivity failures.
-- No change to non-connectivity 5xx (“Server error” + detail) behavior.
+- No change to non-connectivity 5xx (?Server error? + detail) behavior.
 
 **Affected files:**
 
@@ -5302,13 +5302,13 @@ Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or 
 
 **Cross-ref:** **TB-156**; `archlucid-ui/src/lib/api/http.ts` (`throwApiRequestError`); proxy `supportHint` in `archlucid-ui/src/app/api/proxy/[...path]/route.ts`.
 
-**Size estimate:** **XS** (~2–4 h).
+**Size estimate:** **XS** (~2?4 h).
 
 ---
 
-## TB-106 — RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]`
+## TB-106 ? RunDetailPageView ? enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]`
 
-**Status (2026-05-31):** **Done** — `IAuthorityRunDetailOperatorEnricher` / `AuthorityRunDetailOperatorEnricher` invoked from `AuthorityQueryController.GetRunDetail`; `AuthorityRunDetailOperatorEnricherTests`; quick-decision shows explicit explanation-trace fallback when `results[]` empty.
+**Status (2026-05-31):** **Done** ? `IAuthorityRunDetailOperatorEnricher` / `AuthorityRunDetailOperatorEnricher` invoked from `AuthorityQueryController.GetRunDetail`; `AuthorityRunDetailOperatorEnricherTests`; quick-decision shows explicit explanation-trace fallback when `results[]` empty.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
@@ -5316,9 +5316,9 @@ Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or 
 
 The operator run detail loader calls `GET /v1/authority/runs/{runId}` (`AuthorityQueryController.GetRunDetail`), which returns `RunDetailDto`. The UI components `RunEstimatedLlmCostCard`, `RunTrustEvidenceCardSection`, and `QuickDecisionSummary` (via `quick-decision-summary-derive.ts`) read `resolvedDetail.agentExecutionLlmCostEstimate`, `resolvedDetail.trustEvidenceCard`, and `resolvedDetail.results[]` respectively. Those three fields exist only on `RunDetailsResponse` returned by `GET /v1/architecture/run/{runId}` (`RunQueryController.GetRun`). On every live run using the authority path, all three are `null` or `undefined`. The TypeScript `RunDetail` type declares them as optional, masking the API gap. The only path where they appear is the static demo data injection in `operator-static-demo.ts`.
 
-Consequence: on every live operator run review, the operator sees "Cost estimate unavailable", an empty trust evidence section, and no quick-decision confidence summary — three of the six critical operator signals identified in the fidelity audit.
+Consequence: on every live operator run review, the operator sees "Cost estimate unavailable", an empty trust evidence section, and no quick-decision confidence summary ? three of the six critical operator signals identified in the fidelity audit.
 
-**What to do (preferred — enrich authority endpoint):**
+**What to do (preferred ? enrich authority endpoint):**
 
 1. In `AuthorityQueryController.GetRunDetail`, after loading `RunDetailDto`, call `RunQueryController`'s underlying service (or a shared `IRunCostService` / `IRunTrustService`) to attach `agentExecutionLlmCostEstimate` and `trustEvidenceCard` to the authority response.
 2. Add `AgentExecutionLlmCostEstimate? AgentExecutionLlmCostEstimate` and `TrustEvidenceCard? TrustEvidenceCard` to `RunDetailDto` (or its API response projection).
@@ -5342,21 +5342,21 @@ If enriching the authority endpoint is blocked by service ownership, add a paral
 
 - `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs`
 - `ArchLucid.Core/Persistence/ApplicationPorts/Queries/RunDetailDto.cs`
-- `ArchLucid.Application/` (cost / trust service interfaces — determine shared extraction point)
+- `ArchLucid.Application/` (cost / trust service interfaces ? determine shared extraction point)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/load-run-detail-page-model.ts`
 - `archlucid-ui/src/lib/api-types.generated.ts`
 - `archlucid-ui/src/lib/api/architecture-runs.ts`
 - `archlucid-ui/src/lib/quick-decision-summary-derive.ts`
 
-**Cross-ref:** **TB-107**, **TB-108** (same root-cause audit cluster); **TB-011** (INV-002 trust card + operator UI badge — partially done).
+**Cross-ref:** **TB-107**, **TB-108** (same root-cause audit cluster); **TB-011** (INV-002 trust card + operator UI badge ? partially done).
 
-**Size estimate:** **M** — ~1–2 days (authority endpoint enrichment + TS type update + loader simplification; parallel-fetch alternative is ~S).
+**Size estimate:** **M** ? ~1?2 days (authority endpoint enrichment + TS type update + loader simplification; parallel-fetch alternative is ~S).
 
 ---
 
-## TB-107 — RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord`
+## TB-107 ? RunDetailPageView ? surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord`
 
-**Status (2026-05-31):** **Done** — `RunDetailGovernanceAlerts` (warnings + last failure); `RunDetailRunMetadataSection` shows `retryCount` when &gt; 0; `RunDetailGovernanceAlerts.test.tsx` + metadata section tests.
+**Status (2026-05-31):** **Done** ? `RunDetailGovernanceAlerts` (warnings + last failure); `RunDetailRunMetadataSection` shows `retryCount` when &gt; 0; `RunDetailGovernanceAlerts.test.tsx` + metadata section tests.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
@@ -5364,15 +5364,15 @@ If enriching the authority endpoint is blocked by service ownership, add a paral
 
 `RunRecord` carries two fields that are loaded by `GetRunDetailAsync` and included in `RunDetailDto.Run` but are never accessed in any render path:
 
-- `LastFailureReason (string?)` — free-text reason written when a run fails or falls back.
-- `HasGovernanceWarnings (bool)` — flag set when at least one governance warning is present on the run.
+- `LastFailureReason (string?)` ? free-text reason written when a run fails or falls back.
+- `HasGovernanceWarnings (bool)` ? flag set when at least one governance warning is present on the run.
 
 An operator reviewing and committing a run sees neither. `HasGovernanceWarnings = true` means the operator is approving a run with known governance issues without any indication on the page. `LastFailureReason` being hidden means a run that retried (see also `RetryCount` in **TB-108** notes) gives no explanation for why earlier attempts failed.
 
 **What to do:**
 
 1. In `RunDetailRunMetadataSection.tsx`, add a row for `run.lastFailureReason` when non-null, labelled "Last failure reason".
-2. Add a `HasGovernanceWarnings` indicator in `RunDetailManifestSummaryAlerts.tsx` or `RunDetailPageHeader` — either a warning pill on the header or a `Callout` that fires when `run.hasGovernanceWarnings === true`. The wording should be "This run has governance warnings — review all findings before committing."
+2. Add a `HasGovernanceWarnings` indicator in `RunDetailManifestSummaryAlerts.tsx` or `RunDetailPageHeader` ? either a warning pill on the header or a `Callout` that fires when `run.hasGovernanceWarnings === true`. The wording should be "This run has governance warnings ? review all findings before committing."
 3. Optionally surface `run.retryCount` (> 0) as a secondary metadata row indicating the run was unstable.
 4. Verify these fields are present on the TypeScript `RunRecord` type in `authority.ts`; add them if missing.
 
@@ -5387,17 +5387,17 @@ An operator reviewing and committing a run sees neither. `HasGovernanceWarnings 
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunMetadataSection.tsx`
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailManifestSummaryAlerts.tsx`
 - `archlucid-ui/src/types/authority.ts` (verify `RunRecord` type has `lastFailureReason`, `hasGovernanceWarnings`, `retryCount`)
-- `ArchLucid.Core/Persistence/ApplicationPorts/Models/RunRecord.cs` (read-only — verify field names)
+- `ArchLucid.Core/Persistence/ApplicationPorts/Models/RunRecord.cs` (read-only ? verify field names)
 
-**Cross-ref:** **TB-106** (same audit cluster — split API contract); **TB-108** (`hasCommitBlockingFailures` — complementary operator signal).
+**Cross-ref:** **TB-106** (same audit cluster ? split API contract); **TB-108** (`hasCommitBlockingFailures` ? complementary operator signal).
 
-**Size estimate:** **S** — ~3–5 h (UI changes + type verification).
+**Size estimate:** **S** ? ~3?5 h (UI changes + type verification).
 
 ---
 
-## TB-108 — RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures`
+## TB-108 ? RunDetailPageView ? render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures`
 
-**Status (2026-05-31):** **Done** — `FindingCoverageDispositionPanel` in `RunDetailOutcomeCards`; `commitBlockedReason` blocks commit UX; `RunDetailOutcomeCards.test.tsx`.
+**Status (2026-05-31):** **Done** ? `FindingCoverageDispositionPanel` in `RunDetailOutcomeCards`; `commitBlockedReason` blocks commit UX; `RunDetailOutcomeCards.test.tsx`.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
@@ -5405,9 +5405,9 @@ An operator reviewing and committing a run sees neither. `HasGovernanceWarnings 
 
 `DapperAuthorityQueryService.GetRunDetailAsync` computes `RunFindingCoverageSummary` and attaches it to `RunDetailDto`. The structure includes:
 
-- `HasCommitBlockingFailures (bool)` — true when at least one finding engine failure prevents a reliable commit.
-- `DispositionCoverage (RunFindingDispositionCoverage)` — breakdown of how many findings have been dispositioned (accepted, remediated, deferred, rejected, needs-evidence, open).
-- `FailedEngineLabels (string[])` — the only field currently rendered (as a degraded banner).
+- `HasCommitBlockingFailures (bool)` ? true when at least one finding engine failure prevents a reliable commit.
+- `DispositionCoverage (RunFindingDispositionCoverage)` ? breakdown of how many findings have been dispositioned (accepted, remediated, deferred, rejected, needs-evidence, open).
+- `FailedEngineLabels (string[])` ? the only field currently rendered (as a degraded banner).
 
 `HasCommitBlockingFailures` is particularly dangerous to hide: the operator can press `CommitRunButton` without knowing the run has commit-blocking failures. `DispositionCoverage` is the operator's primary tool for understanding whether all findings have been reviewed before committing.
 
@@ -5430,23 +5430,23 @@ An operator reviewing and committing a run sees neither. `HasGovernanceWarnings 
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
 - `archlucid-ui/src/components/RunDetailPageHeader.tsx` (`CommitRunButton` guard)
 - `archlucid-ui/src/types/authority.ts` (full `findingCoverageSummary` shape)
-- `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read-only — verify field names)
+- `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read-only ? verify field names)
 
 **Cross-ref:** **TB-106**, **TB-107** (same audit cluster); **TB-113** (OpenAPI drift may hide these fields in generated types).
 
-**Size estimate:** **S** — ~4–6 h (callout + commit guard + disposition summary panel + type verification).
+**Size estimate:** **S** ? ~4?6 h (callout + commit guard + disposition summary panel + type verification).
 
 ---
 
-## TB-109 — RunDetailPageView — add retrieval-hit / RAG grounding panel
+## TB-109 ? RunDetailPageView ? add retrieval-hit / RAG grounding panel
 
-**Status (2026-05-31):** **Done** — `GET /v1/authority/runs/{runId}/retrieval-grounding` + `RunDetailRetrievalGroundingSection` (collapsed) after explanation; faithfulness banner links `#run-retrieval-grounding`; forensics duplicate panel removed.
+**Status (2026-05-31):** **Done** ? `GET /v1/authority/runs/{runId}/retrieval-grounding` + `RunDetailRetrievalGroundingSection` (collapsed) after explanation; faithfulness banner links `#run-retrieval-grounding`; forensics duplicate panel removed.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
 
-There is no UI surface anywhere on the run detail page (or any sub-route) that shows what documents were retrieved during RAG execution, their similarity scores, or whether any retrieval step was skipped or degraded. The retrieval infrastructure exists (`ArchLucid.Retrieval`, `IRetrievalQueryService`) and finding trust labels reference weak retrieval, but the operator has no way to judge whether the model had good grounding without examining raw trace blobs. This gap is most consequential when `RunExplanationSummary.faithfulnessWarning = true` — the operator sees a faithfulness warning but cannot inspect the underlying retrieval to understand it.
+There is no UI surface anywhere on the run detail page (or any sub-route) that shows what documents were retrieved during RAG execution, their similarity scores, or whether any retrieval step was skipped or degraded. The retrieval infrastructure exists (`ArchLucid.Retrieval`, `IRetrievalQueryService`) and finding trust labels reference weak retrieval, but the operator has no way to judge whether the model had good grounding without examining raw trace blobs. This gap is most consequential when `RunExplanationSummary.faithfulnessWarning = true` ? the operator sees a faithfulness warning but cannot inspect the underlying retrieval to understand it.
 
 **What to do:**
 
@@ -5456,7 +5456,7 @@ There is no UI surface anywhere on the run detail page (or any sub-route) that s
    - A summary line: "N documents retrieved, M used" per task.
    - A warning pill when any task had zero usable hits.
 3. Register the section in `RunDetailPageView.tsx` between `RunDetailRunExplanationCollapsible` and `RunDetailRunMetadataSection`, collapsed by default.
-4. Link the section from the `faithfulnessWarning` banner in `RunExplanationSection` ("View retrieval hits →").
+4. Link the section from the `faithfulnessWarning` banner in `RunExplanationSection` ("View retrieval hits ?").
 
 **Acceptance criteria:**
 
@@ -5467,27 +5467,27 @@ There is no UI surface anywhere on the run detail page (or any sub-route) that s
 **Affected files / projects:**
 
 - `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (new endpoint or extended traces endpoint)
-- `ArchLucid.Application/` (retrieval hit query — interface in `IRetrievalQueryService` or new port)
+- `ArchLucid.Application/` (retrieval hit query ? interface in `IRetrievalQueryService` or new port)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRetrievalGroundingSection.tsx` (new)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
 - `archlucid-ui/src/components/RunExplanationSection.tsx` (link from faithfulness warning)
 - `archlucid-ui/src/lib/api/architecture-runs.ts` (new API client function)
 
-**Cross-ref:** **TB-045**–**TB-049** (retrieval correctness/drift audit); **RAG-V1-007**–**RAG-V1-011** (`RAG_QUALITY_TECHNICAL_BACKLOG.md`); **TB-033** (persist LLM sampling params — complementary forensic completeness).
+**Cross-ref:** **TB-045**?**TB-049** (retrieval correctness/drift audit); **RAG-V1-007**?**RAG-V1-011** (`RAG_QUALITY_TECHNICAL_BACKLOG.md`); **TB-033** (persist LLM sampling params ? complementary forensic completeness).
 
-**Size estimate:** **M** — ~1.5–2 days (API endpoint + retrieval query projection + UI section).
+**Size estimate:** **M** ? ~1.5?2 days (API endpoint + retrieval query projection + UI section).
 
 ---
 
-## TB-110 — RunDetailPageView — add tool-call / function-invocation log panel
+## TB-110 ? RunDetailPageView ? add tool-call / function-invocation log panel
 
-**Status (2026-06-01):** **Done** — structured `AgentToolInvocationRecords` ledger at trace write; `GET …/tool-invocation-forensics` prefers ledger rows; run-detail panel with execute-gated **View raw** inline preview from persisted trace rows (redacted, truncated). Blob-only full text remains in durable storage when inline persistence failed.
+**Status (2026-06-01):** **Done** ? structured `AgentToolInvocationRecords` ledger at trace write; `GET ?/tool-invocation-forensics` prefers ledger rows; run-detail panel with execute-gated **View raw** inline preview from persisted trace rows (redacted, truncated). Blob-only full text remains in durable storage when inline persistence failed.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
 
-`RunDetailPageView` has no section showing which external tools or functions were invoked during a run, with what arguments, or what they returned. `RunAgentForensicsSection` shows agent trace rows (agent type, parse result, blob upload status, heuristic/LLM rubric scores) but this is not a tool-call list. Full prompt/response content may be in blob storage, but `blobUploadFailed` is only surfaced as a warning — the content is never rendered. An operator cannot verify whether an external API call produced correct input or whether a tool invocation was retried.
+`RunDetailPageView` has no section showing which external tools or functions were invoked during a run, with what arguments, or what they returned. `RunAgentForensicsSection` shows agent trace rows (agent type, parse result, blob upload status, heuristic/LLM rubric scores) but this is not a tool-call list. Full prompt/response content may be in blob storage, but `blobUploadFailed` is only surfaced as a warning ? the content is never rendered. An operator cannot verify whether an external API call produced correct input or whether a tool invocation was retried.
 
 The OTEL trace ID (`run.otelTraceId`) is already stored on `RunRecord` and shown in the metadata section as a link, but operators are expected to navigate to an external trace viewer rather than see structured tool calls inline.
 
@@ -5495,7 +5495,7 @@ The OTEL trace ID (`run.otelTraceId`) is already stored on `RunRecord` and shown
 
 1. Extend `GET /v1/architecture/run/{runId}/traces` (or create `GET /v1/authority/runs/{runId}/tool-calls`) to return a structured tool-call log per agent task: tool name, invocation arguments (redacted / truncated as needed), response summary, duration, success/failure.
 2. In `RunAgentForensicsSection.tsx` (or a new `RunDetailToolCallsSection.tsx`), add a collapsed sub-section per agent task listing its tool invocations as a table: tool, args preview, outcome, duration.
-3. Surface the `blobUploadFailed` warning as a named issue in the same section ("Full trace unavailable — blob upload failed") so the operator understands completeness limits.
+3. Surface the `blobUploadFailed` warning as a named issue in the same section ("Full trace unavailable ? blob upload failed") so the operator understands completeness limits.
 4. If full prompt/response blob is available, add a "View raw" expansion per invocation (guarded behind operator role check if applicable).
 
 **Acceptance criteria:**
@@ -5507,33 +5507,33 @@ The OTEL trace ID (`run.otelTraceId`) is already stored on `RunRecord` and shown
 **Affected files / projects:**
 
 - `ArchLucid.Api/Controllers/` (traces endpoint extension or new tool-calls endpoint)
-- `ArchLucid.Application/Agents/` (agent execution trace projection — add tool-call sub-records)
+- `ArchLucid.Application/Agents/` (agent execution trace projection ? add tool-call sub-records)
 - `archlucid-ui/src/components/RunAgentForensicsSection.tsx`
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
 - `archlucid-ui/src/lib/api/architecture-runs.ts`
 
-**Cross-ref:** **TB-033** (persist LLM sampling params + reasoning token count — forensic completeness); **TB-082** (`AllowedTools` runtime enforcement — security); **TB-035** (remediation attempt forensics).
+**Cross-ref:** **TB-033** (persist LLM sampling params + reasoning token count ? forensic completeness); **TB-082** (`AllowedTools` runtime enforcement ? security); **TB-035** (remediation attempt forensics).
 
-**Size estimate:** **M** — ~1.5–2 days (trace endpoint extension + UI section + blob-failure surfacing).
+**Size estimate:** **M** ? ~1.5?2 days (trace endpoint extension + UI section + blob-failure surfacing).
 
 ---
 
-## TB-111 — RunDetailPageView — inline provenance summary card (collapse from sibling route)
+## TB-111 ? RunDetailPageView ? inline provenance summary card (collapse from sibling route)
 
-**Status (2026-06-01):** **Done** — `RunDetailProvenanceSummaryCard` on run detail (snapshot + architecture request IDs, link to full provenance route); no extra fetch.
+**Status (2026-06-01):** **Done** ? `RunDetailProvenanceSummaryCard` on run detail (snapshot + architecture request IDs, link to full provenance route); no extra fetch.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
 
-Provenance (which context snapshot was used, what inputs were fed to the architecture request, and what the coordinator graph source was) is accessible only by navigating to `reviews/[runId]/provenance` — a full-page sibling route that uses `GET /v1/architecture/runs/{runId}/provenance`. This route is linked from `RunDetailOutcomeCards` but only as an external link. An operator reviewing the run must navigate away, losing their scroll position and the run-detail context they were building.
+Provenance (which context snapshot was used, what inputs were fed to the architecture request, and what the coordinator graph source was) is accessible only by navigating to `reviews/[runId]/provenance` ? a full-page sibling route that uses `GET /v1/architecture/runs/{runId}/provenance`. This route is linked from `RunDetailOutcomeCards` but only as an external link. An operator reviewing the run must navigate away, losing their scroll position and the run-detail context they were building.
 
 Additionally, the sibling provenance page uses the **architecture** provenance endpoint, while the authority API also has a `GET /v1/authority/runs/{runId}/provenance` endpoint that is never called by any UI page.
 
 **What to do:**
 
 1. Add a collapsed `RunDetailProvenanceSummaryCard` section to `RunDetailPageView.tsx`, placed after `RunDetailAuthorityChainSection` (which already shows snapshot IDs).
-2. The card should show a compact summary sourced from the authority provenance endpoint: context snapshot ID + description, architecture request ID, graph snapshot ID, and "View full provenance →" link to the sibling route.
+2. The card should show a compact summary sourced from the authority provenance endpoint: context snapshot ID + description, architecture request ID, graph snapshot ID, and "View full provenance ?" link to the sibling route.
 3. Call `GET /v1/authority/runs/{runId}/provenance` (if it returns useful summary data) or derive the same information from fields already on `RunDetailDto` (`run.contextSnapshotId`, `run.graphSnapshotId`, `run.architectureRequestId`) without a second fetch.
 4. If the authority provenance endpoint returns a richer payload than the DTO fields, use it; otherwise use the DTO fields and skip the second call.
 5. Remove the "View provenance" link from `RunDetailOutcomeCards` (or keep it as a supplement) once the inline card provides the summary.
@@ -5551,21 +5551,21 @@ Additionally, the sibling provenance page uses the **architecture** provenance e
 - `archlucid-ui/src/components/RunDetailOutcomeCards.tsx`
 - `archlucid-ui/src/lib/api/architecture-runs.ts` (authority provenance call, if needed)
 
-**Cross-ref:** **TB-033**–**TB-038** (provenance completeness audit — backend side); **TB-036** (provenance ↔ agent trace correlation).
+**Cross-ref:** **TB-033**?**TB-038** (provenance completeness audit ? backend side); **TB-036** (provenance ? agent trace correlation).
 
-**Size estimate:** **S** — ~3–5 h (inline card + authority provenance call if needed + link update).
+**Size estimate:** **S** ? ~3?5 h (inline card + authority provenance call if needed + link update).
 
 ---
 
-## TB-112 — RunDetailPageView — add run-level approve / reject / request-remediation actions
+## TB-112 ? RunDetailPageView ? add run-level approve / reject / request-remediation actions
 
-**Status (2026-06-01):** **Done** — `POST /v1/authority/runs/{runId}/disposition`, `RunOperatorGovernanceDispositionService`, run columns on `dbo.Runs`, audit event, operator-only `RunDetailRunGovernanceDispositionActions` with approve gated on `hasCommitBlockingFailures`.
+**Status (2026-06-01):** **Done** ? `POST /v1/authority/runs/{runId}/disposition`, `RunOperatorGovernanceDispositionService`, run columns on `dbo.Runs`, audit event, operator-only `RunDetailRunGovernanceDispositionActions` with approve gated on `hasCommitBlockingFailures`.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
 
-The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize the golden manifest). Governance actions — accept, reject, waive, defer, request remediation — all live on individual `reviews/[runId]/findings/[findingId]` sub-routes and are backed by `GovernanceStickinessController`. There is no run-level approve or reject.
+The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize the golden manifest). Governance actions ? accept, reject, waive, defer, request remediation ? all live on individual `reviews/[runId]/findings/[findingId]` sub-routes and are backed by `GovernanceStickinessController`. There is no run-level approve or reject.
 
 `findingCoverageSummary.dispositionCoverage` (see **TB-108**) provides a run-level view of how many findings are open vs dispositioned, but there is no corresponding action. An operator who has reviewed all findings and wants to formally approve or reject the run as a whole has no mechanism to do so from the run detail page.
 
@@ -5575,9 +5575,9 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 2. In `RunDetailRunActionsSection.tsx`, add three action buttons (or a decision panel): Approve, Reject, Request Remediation. Guard all three on `findingCoverageSummary.hasCommitBlockingFailures === false` for Approve; Reject and Request Remediation are always available.
 3. Show a confirmation dialog with rationale input before each action.
 4. Reflect the decision on the run detail page header (governance pill / badge update).
-5. Scope the actions to the `operator` role — buyer users should not see them.
+5. Scope the actions to the `operator` role ? buyer users should not see them.
 
-**Note:** This is explicitly V1 scope — check [`V1_SCOPE.md`](V1_SCOPE.md) §2 before implementation to confirm run-level governance disposition is within the current release window. If it is release-windowed to V1.1, downgrade to V1.1 and note it here.
+**Note:** This is explicitly V1 scope ? check [`V1_SCOPE.md`](V1_SCOPE.md) ?2 before implementation to confirm run-level governance disposition is within the current release window. If it is release-windowed to V1.1, downgrade to V1.1 and note it here.
 
 **Acceptance criteria:**
 
@@ -5595,15 +5595,15 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
 - `archlucid-ui/src/components/RunDetailPageHeader.tsx` (governance status reflection)
 
-**Cross-ref:** **TB-057**–**TB-063** (commercial stickiness / governance review workflow); **TB-108** (`hasCommitBlockingFailures` gate for Approve action).
+**Cross-ref:** **TB-057**?**TB-063** (commercial stickiness / governance review workflow); **TB-108** (`hasCommitBlockingFailures` gate for Approve action).
 
-**Size estimate:** **M** — ~1.5–2 days (API + command/handler + UI action panel + dialog).
+**Size estimate:** **M** ? ~1.5?2 days (API + command/handler + UI action panel + dialog).
 
 ---
 
-## TB-113 — Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types
+## TB-113 ? Fix OpenAPI schema drift on `RunDetailDto` ? expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types
 
-**Status (2026-06-01):** **Done** — OpenAPI snapshot includes ITSM correlations GET, tool-invocation-forensics, and `RunFindingCoverageSummary`; `api-types.generated.ts` regen; `authority.ts` uses schema types.
+**Status (2026-06-01):** **Done** ? OpenAPI snapshot includes ITSM correlations GET, tool-invocation-forensics, and `RunFindingCoverageSummary`; `api-types.generated.ts` regen; `authority.ts` uses schema types.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
@@ -5629,34 +5629,34 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 
 - `archlucid-ui/src/lib/api-types.generated.ts`
 - `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (OpenAPI annotations if needed)
-- `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read — verify public surface)
-- `scripts/` (OpenAPI generation script — verify CI integration)
+- `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read ? verify public surface)
+- `scripts/` (OpenAPI generation script ? verify CI integration)
 
 **Cross-ref:** **TB-108** (rendered coverage fields depend on correct types); **TB-106** (same schema drift risk for `agentExecutionLlmCostEstimate` / `trustEvidenceCard`).
 
-**Size estimate:** **XS** — ~1–2 h (regeneration + annotation fix + cast cleanup).
+**Size estimate:** **XS** ? ~1?2 h (regeneration + annotation fix + cast cleanup).
 
 ---
 
-## TB-114 — Establish enterprise design-token layer (Carbon-aligned neutral palette and accent scale)
+## TB-114 ? Establish enterprise design-token layer (Carbon-aligned neutral palette and accent scale)
 
-**Status (2026-05-31):** **Done** — `design-tokens.ts`, `--al-*` in `globals.css`, Tailwind `al-*` colors, `UI_DESIGN_SYSTEM.md` §Tokens. Operator surface migration completed in **TB-115**.
+**Status (2026-05-31):** **Done** ? `design-tokens.ts`, `--al-*` in `globals.css`, Tailwind `al-*` colors, `UI_DESIGN_SYSTEM.md` ?Tokens. Operator surface migration completed in **TB-115**.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
 
-The current UI inherits Tailwind's default palette and shadcn component defaults. The result is `teal-500` borders, `neutral-100` card backgrounds, and accent colors with a startup-dashboard feel rather than a Carbon-grade enterprise visual language. There is no single place that defines the ArchLucid surface palette — changes to brand-significant tokens scatter across dozens of component files.
+The current UI inherits Tailwind's default palette and shadcn component defaults. The result is `teal-500` borders, `neutral-100` card backgrounds, and accent colors with a startup-dashboard feel rather than a Carbon-grade enterprise visual language. There is no single place that defines the ArchLucid surface palette ? changes to brand-significant tokens scatter across dozens of component files.
 
 **What to do:**
 
 1. Create `archlucid-ui/src/lib/design-tokens.ts` (or a CSS custom-properties file) that declares the authoritative token set:
-   - **Neutral surface scale:** `--al-surface-base`, `--al-surface-raised`, `--al-surface-overlay` — mapped to Carbon's `$layer-01` / `$layer-02` semantics (cool gray range: `gray-50` → `gray-100` for light mode).
+   - **Neutral surface scale:** `--al-surface-base`, `--al-surface-raised`, `--al-surface-overlay` ? mapped to Carbon's `$layer-01` / `$layer-02` semantics (cool gray range: `gray-50` ? `gray-100` for light mode).
    - **Accent:** a single restrained teal (`teal-700` / `teal-800`) with clearly named roles (`--al-accent-interactive`, `--al-accent-border-focus`). Eliminate free-form teal use elsewhere.
-   - **Status semantic tokens:** `--al-status-ready`, `--al-status-warn`, `--al-status-blocked`, `--al-status-approved`, `--al-status-approved-monitoring` — each with a background, foreground, and border variant.
+   - **Status semantic tokens:** `--al-status-ready`, `--al-status-warn`, `--al-status-blocked`, `--al-status-approved`, `--al-status-approved-monitoring` ? each with a background, foreground, and border variant.
    - **Text hierarchy:** `--al-text-primary`, `--al-text-secondary`, `--al-text-placeholder`, `--al-text-disabled`.
 2. Update `tailwind.config.ts` to extend Tailwind's theme with these tokens, so component files use semantic names (`text-al-text-secondary`) rather than raw palette positions (`text-neutral-500`).
-3. Document the token map in `docs/library/UI_DESIGN_SYSTEM.md` §Tokens.
+3. Document the token map in `docs/library/UI_DESIGN_SYSTEM.md` ?Tokens.
 
 **Acceptance criteria:**
 
@@ -5674,19 +5674,19 @@ The current UI inherits Tailwind's default palette and shadcn component defaults
 
 **Cross-ref:** **TB-115** (surface/card pass depends on tokens being defined first); **TB-116** (status tags use status tokens).
 
-**Size estimate:** **S** — ~4–6 h (token definition + Tailwind wiring + docs; excludes component migration which is TB-115/116/117).
+**Size estimate:** **S** ? ~4?6 h (token definition + Tailwind wiring + docs; excludes component migration which is TB-115/116/117).
 
 ---
 
-## TB-115 — Surface and card audit: remove pastel cards; apply Carbon-style neutral surfaces
+## TB-115 ? Surface and card audit: remove pastel cards; apply Carbon-style neutral surfaces
 
-**Status (2026-05-31):** **Done** — `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (~95 files across operator, executive, marketing, `lib`, `global-error`). **Verified 2026-05-31:** `design-tokens.test.ts`, `PolicyPackDiffView.test.tsx`, demo-explain and `/why` snapshots green; decorative `bg-*-50` grep clear in app TS/TSX (remaining hits: primary CTAs `bg-teal-700`, chart/meter fills `bg-*-500`, 6px status dots). **TB-117–TB-120** design-system wave complete (tables, spacing, typography, Cursor rule).
+**Status (2026-05-31):** **Done** ? `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (~95 files across operator, executive, marketing, `lib`, `global-error`). **Verified 2026-05-31:** `design-tokens.test.ts`, `PolicyPackDiffView.test.tsx`, demo-explain and `/why` snapshots green; decorative `bg-*-50` grep clear in app TS/TSX (remaining hits: primary CTAs `bg-teal-700`, chart/meter fills `bg-*-500`, 6px status dots). **TB-117?TB-120** design-system wave complete (tables, spacing, typography, Cursor rule).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
 
-Operator surfaces contain large pastel cards with colored backgrounds (`bg-teal-50`, `bg-amber-50`, `bg-blue-50`, `bg-green-50`) used decoratively rather than to communicate actionable status. These read as consumer SaaS, not enterprise governance. Carbon's aesthetic uses flat neutral surfaces (`$layer-01`) with structured borders and restrained elevation — color appears only on status indicators and interactive elements.
+Operator surfaces contain large pastel cards with colored backgrounds (`bg-teal-50`, `bg-amber-50`, `bg-blue-50`, `bg-green-50`) used decoratively rather than to communicate actionable status. These read as consumer SaaS, not enterprise governance. Carbon's aesthetic uses flat neutral surfaces (`$layer-01`) with structured borders and restrained elevation ? color appears only on status indicators and interactive elements.
 
 **What to do:**
 
@@ -5706,29 +5706,29 @@ Operator surfaces contain large pastel cards with colored backgrounds (`bg-teal-
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/(operator)/` — all page views and section components
-- `archlucid-ui/src/components/` — shared cards (e.g. `CorePilotNextStepsCard.tsx`, `OperatorNextActionsCard.tsx`, `WelcomeBanner.tsx`, `SampleFirstReviewPackageCard.tsx`)
+- `archlucid-ui/src/app/(operator)/` ? all page views and section components
+- `archlucid-ui/src/components/` ? shared cards (e.g. `CorePilotNextStepsCard.tsx`, `OperatorNextActionsCard.tsx`, `WelcomeBanner.tsx`, `SampleFirstReviewPackageCard.tsx`)
 
 **Cross-ref:** **TB-114** (tokens must exist before this pass); **TB-116** (status cards get canonical tags, not ad-hoc coloring).
 
-**Size estimate:** **M** — ~1.5 days (audit + systematic replacement across ~40–60 component files).
+**Size estimate:** **M** ? ~1.5 days (audit + systematic replacement across ~40?60 component files).
 
 ---
 
-## TB-116 — Implement canonical status tag component and replace ad-hoc status badges
+## TB-116 ? Implement canonical status tag component and replace ad-hoc status badges
 
-**Status (2026-05-31):** **Wave 1 landed** — `StatusTag`, `SeverityTag`, `RunStatusBadge` monitoring chip. Follow-up: replace remaining `StatusPill` ad-hoc pipeline colors (**TB-115**).
+**Status (2026-05-31):** **Wave 1 landed** ? `StatusTag`, `SeverityTag`, `RunStatusBadge` monitoring chip. Follow-up: replace remaining `StatusPill` ad-hoc pipeline colors (**TB-115**).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
 
-Run status, governance approval state, and finding severity are communicated through a mix of ad-hoc colored `span` elements, `Badge` variants, and inline `cn()` conditionals scattered across the codebase. There is no single canonical set of status tokens. The result is visual inconsistency and copy inconsistency — the same state appears as "READY", "Ready", "ready", or "✓" depending on where the user looks.
+Run status, governance approval state, and finding severity are communicated through a mix of ad-hoc colored `span` elements, `Badge` variants, and inline `cn()` conditionals scattered across the codebase. There is no single canonical set of status tokens. The result is visual inconsistency and copy inconsistency ? the same state appears as "READY", "Ready", "ready", or "?" depending on where the user looks.
 
 **What to do:**
 
-1. Create `archlucid-ui/src/components/ui/StatusTag.tsx` — a single component accepting a `status` prop with the canonical value set:
-   - `ready` · `needs-attention` · `blocked` · `approved` · `approved-with-monitoring` · `in-progress` · `draft`
+1. Create `archlucid-ui/src/components/ui/StatusTag.tsx` ? a single component accepting a `status` prop with the canonical value set:
+   - `ready` ? `needs-attention` ? `blocked` ? `approved` ? `approved-with-monitoring` ? `in-progress` ? `draft`
    - Each renders a compact tag using the status tokens from **TB-114** (background, foreground, optional border).
    - Copy must match exactly: `Ready`, `Needs attention`, `Blocked`, `Approved`, `Approved with monitoring`, `In progress`, `Draft`.
 2. Replace all ad-hoc status rendering in operator views with `<StatusTag status="..." />`.
@@ -5748,27 +5748,27 @@ Run status, governance approval state, and finding severity are communicated thr
 - `archlucid-ui/src/components/ui/SeverityTag.tsx` (new)
 - `archlucid-ui/src/app/(operator)/reviews/` (run status rendering)
 - `archlucid-ui/src/app/(operator)/governance/` (governance approval state)
-- `archlucid-ui/src/components/` — any component rendering status/severity badges
+- `archlucid-ui/src/components/` ? any component rendering status/severity badges
 
-**Cross-ref:** **TB-114** (status tokens); **TB-115** (card status colors → tags).
+**Cross-ref:** **TB-114** (status tokens); **TB-115** (card status colors ? tags).
 
-**Size estimate:** **S** — ~4–6 h (component creation + replacement pass).
+**Size estimate:** **S** ? ~4?6 h (component creation + replacement pass).
 
 ---
 
-## TB-117 — Operator data tables: Carbon-style structured tables for runs, findings, and audit
+## TB-117 ? Operator data tables: Carbon-style structured tables for runs, findings, and audit
 
-**Status (2026-05-31):** **Done** — `EnterpriseTable` on reviews list, governance findings desktop queue (`GovernanceFindingsQueueDesktopTable`), operator audit log (`AuditEventsOperatorTable`). Buyer-polished audit keeps milestone timeline cards; operator mode uses structured table + row payload disclosure.
+**Status (2026-05-31):** **Done** ? `EnterpriseTable` on reviews list, governance findings desktop queue (`GovernanceFindingsQueueDesktopTable`), operator audit log (`AuditEventsOperatorTable`). Buyer-polished audit keeps milestone timeline cards; operator mode uses structured table + row payload disclosure.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
 
-The reviews list, findings list, and audit timeline use a mix of card-stacked rows, custom `div`-based grids, and minimal `table` elements. None conform to Carbon's structured data table pattern: column headers with sort indicators, row hover states using a single `$layer-hover` tint, compact row height (~40px), and clear primary/secondary column hierarchy. Procurement and CIO reviewers evaluate enterprise products on how their data tables look — a mature table communicates governance credibility; a card stack does not.
+The reviews list, findings list, and audit timeline use a mix of card-stacked rows, custom `div`-based grids, and minimal `table` elements. None conform to Carbon's structured data table pattern: column headers with sort indicators, row hover states using a single `$layer-hover` tint, compact row height (~40px), and clear primary/secondary column hierarchy. Procurement and CIO reviewers evaluate enterprise products on how their data tables look ? a mature table communicates governance credibility; a card stack does not.
 
 **What to do:**
 
-1. Create `archlucid-ui/src/components/ui/EnterpriseTable.tsx` — a typed generic table component:
+1. Create `archlucid-ui/src/components/ui/EnterpriseTable.tsx` ? a typed generic table component:
    - `<EnterpriseTable columns={...} rows={...} />` with column definition supporting `label`, `key`, `sortable`, `width`, and a `renderCell` slot.
    - Row hover: `$layer-hover` neutral tint (no teal).
    - Selected row: left border accent (`--al-accent-interactive`), no full row background.
@@ -5793,13 +5793,13 @@ The reviews list, findings list, and audit timeline use a mix of card-stacked ro
 
 **Cross-ref:** **TB-114** (tokens); **TB-116** (status tags used inside table cells).
 
-**Size estimate:** **M** — ~1.5 days (component + three migration targets).
+**Size estimate:** **M** ? ~1.5 days (component + three migration targets).
 
 ---
 
-## TB-118 — Spacing audit: replace marketing-scale spacing with enterprise-compact spacing in operator views
+## TB-118 ? Spacing audit: replace marketing-scale spacing with enterprise-compact spacing in operator views
 
-**Status (2026-05-31):** **Done (acceptance scope)** — operator home, run detail, executive dashboard (`py-4`), governance findings + decision register, finding detail/inspect, audit page (`space-y-4`). Admin/settings wizards may still use `space-y-6` where forms need breathing room; avoid new `space-y-8` / `py-8` on `(operator)/` routes.
+**Status (2026-05-31):** **Done (acceptance scope)** ? operator home, run detail, executive dashboard (`py-4`), governance findings + decision register, finding detail/inspect, audit page (`space-y-4`). Admin/settings wizards may still use `space-y-6` where forms need breathing room; avoid new `space-y-8` / `py-8` on `(operator)/` routes.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5810,12 +5810,12 @@ Operator page sections use `space-y-6`, `py-8`, `gap-6`, and similar spacing tha
 **What to do:**
 
 1. Define a spacing convention in `docs/library/UI_DESIGN_SYSTEM.md`:
-   - **Operator page section gap:** `space-y-4` (16px) — not `space-y-6` or `space-y-8`.
+   - **Operator page section gap:** `space-y-4` (16px) ? not `space-y-6` or `space-y-8`.
    - **Card internal padding:** `p-4` (16px).
    - **Inline element gap:** `gap-2` (8px).
    - **Section header to content:** `mb-3` (12px).
 2. Audit all `archlucid-ui/src/app/(operator)/` page views for spacing that exceeds the convention without a documented reason.
-3. Apply the convention systematically — prioritize pages that procurement/CIO reviewers land on first: operator home, review detail, executive dashboard, and findings.
+3. Apply the convention systematically ? prioritize pages that procurement/CIO reviewers land on first: operator home, review detail, executive dashboard, and findings.
 
 **Acceptance criteria:**
 
@@ -5833,13 +5833,13 @@ Operator page sections use `space-y-6`, `py-8`, `gap-6`, and similar spacing tha
 
 **Cross-ref:** **TB-115** (card sizing part of same enterprise compactness goal).
 
-**Size estimate:** **S** — ~3–4 h (convention doc + four-page audit and fix).
+**Size estimate:** **S** ? ~3?4 h (convention doc + four-page audit and fix).
 
 ---
 
-## TB-119 — Typography audit: enforce accessible enterprise type hierarchy across operator surfaces
+## TB-119 ? Typography audit: enforce accessible enterprise type hierarchy across operator surfaces
 
-**Status (2026-05-31):** **Done** — `OPERATOR_TYPOGRAPHY` + `DESIGN_TOKENS.typography`; `cardTitle` token; migration script `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1` (~106 files). Operator `h1` capped at `text-xl`; KPI tiles use `kpiValue` (`text-4xl` mono); run-detail section labels use `sectionTitle`. Acceptance surfaces (home banner, run detail, executive dashboard, findings, audit) pass grep for `text-2xl`/`text-3xl` page titles.
+**Status (2026-05-31):** **Done** ? `OPERATOR_TYPOGRAPHY` + `DESIGN_TOKENS.typography`; `cardTitle` token; migration script `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1` (~106 files). Operator `h1` capped at `text-xl`; KPI tiles use `kpiValue` (`text-4xl` mono); run-detail section labels use `sectionTitle`. Acceptance surfaces (home banner, run detail, executive dashboard, findings, audit) pass grep for `text-2xl`/`text-3xl` page titles.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5856,7 +5856,7 @@ Current type scale mixes marketing-scale headings (`text-2xl`, `text-3xl`) with 
    - `page-heading`: `text-xl font-semibold`, `text-neutral-900`.
    - `data-value`: `text-sm font-medium`, `text-neutral-900`.
 2. Audit operator pages for headings that exceed `text-xl` without a documented reason.
-3. Verify that all text distinguishing meaning uses at least two signals (size + weight, not color alone) — accessibility requirement.
+3. Verify that all text distinguishing meaning uses at least two signals (size + weight, not color alone) ? accessibility requirement.
 4. Remove any decorative font weight or italic use that is not semantically motivated.
 
 **Acceptance criteria:**
@@ -5869,29 +5869,29 @@ Current type scale mixes marketing-scale headings (`text-2xl`, `text-3xl`) with 
 **Affected files / projects:**
 
 - `docs/library/UI_DESIGN_SYSTEM.md` (type scale section)
-- `archlucid-ui/src/app/(operator)/` — page heading and section heading elements
+- `archlucid-ui/src/app/(operator)/` ? page heading and section heading elements
 
 **Cross-ref:** `.cursor/rules/UI-Accessibility-Baseline.mdc`; **TB-115** (cards); **TB-118** (spacing).
 
-**Size estimate:** **S** — ~3–4 h (convention doc + targeted fixes).
+**Size estimate:** **S** ? ~3?4 h (convention doc + targeted fixes).
 
 ---
 
-## TB-120 — Add Carbon-standard Cursor rule so AI-generated UI code stays conformant
+## TB-120 ? Add Carbon-standard Cursor rule so AI-generated UI code stays conformant
 
-**Status (2026-05-31):** **Done** — `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (globs `archlucid-ui/src/**`), wave completion table, migration script anchor; `archlucid-ui/AGENTS.md` + `UI_DESIGN_SYSTEM.md` cross-refs.
+**Status (2026-05-31):** **Done** ? `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (globs `archlucid-ui/src/**`), wave completion table, migration script anchor; `archlucid-ui/AGENTS.md` + `UI_DESIGN_SYSTEM.md` cross-refs.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
 
-There is no Cursor rule that instructs the AI assistant to follow the Carbon-inspired enterprise visual standard when writing or modifying UI code. Without a rule, every new component risks defaulting to Tailwind/shadcn aesthetic defaults — pastel cards, teal borders, marketing spacing — which directly contradicts the V1 GA requirement.
+There is no Cursor rule that instructs the AI assistant to follow the Carbon-inspired enterprise visual standard when writing or modifying UI code. Without a rule, every new component risks defaulting to Tailwind/shadcn aesthetic defaults ? pastel cards, teal borders, marketing spacing ? which directly contradicts the V1 GA requirement.
 
 **What to do:**
 
 1. Create `.cursor/rules/UI-Enterprise-Design-Standard.mdc` with the following content (adapt format to match existing rules in `.cursor/rules/`):
    - Reference `docs/library/UI_DESIGN_SYSTEM.md` as the canonical standard.
-   - Include the full ratified agent instruction block verbatim (§ "Ratified instruction for AI coding agents" in `UI_DESIGN_SYSTEM.md`).
+   - Include the full ratified agent instruction block verbatim (? "Ratified instruction for AI coding agents" in `UI_DESIGN_SYSTEM.md`).
    - Specify auto-attachment glob: `archlucid-ui/src/**/*.tsx`, `archlucid-ui/src/**/*.ts`.
    - Add explicit "do not" list: no pastel cards for decoration, no `blob/main` doc links (use `blob/master`), no marketing-scale spacing in operator views, no raw status strings instead of `StatusTag`.
 2. Cross-reference the rule from `archlucid-ui/AGENTS.md` under the Cursor rules table.
@@ -5907,13 +5907,13 @@ There is no Cursor rule that instructs the AI assistant to follow the Carbon-ins
 - `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (new)
 - `archlucid-ui/AGENTS.md`
 
-**Cross-ref:** **TB-114**–**TB-119** (the design system items this rule enforces).
+**Cross-ref:** **TB-114**?**TB-119** (the design system items this rule enforces).
 
-**Size estimate:** **XS** — ~1 h (rule file + AGENTS.md update).
+**Size estimate:** **XS** ? ~1 h (rule file + AGENTS.md update).
 
 ---
 
-## TB-207 — Token-claims diagnostic command and endpoint
+## TB-207 ? Token-claims diagnostic command and endpoint
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-01).
 
@@ -5925,13 +5925,13 @@ When a JWT has the wrong tenant, missing workspace, or an unexpected role mappin
 
 1. Add `archlucid token-claims` CLI subcommand that POSTs to `GET /v1/admin/token-debug` and pretty-prints the parsed claims.
 2. Add `GET /v1/admin/token-debug` endpoint returning: `tenantId`, `workspaceId`, `projectId`, `role`, `authScheme`, `subject`, `expiration`, `validationSummary` (PASS/FAIL per claim).
-3. Require `ReadAuthority` — no elevated permissions needed; operators should always be able to call this on their own token.
+3. Require `ReadAuthority` ? no elevated permissions needed; operators should always be able to call this on their own token.
 4. Add unit tests covering: valid claims, missing tenant claim, expired token, wrong scope.
 
 **Acceptance criteria:**
 
 - `archlucid token-claims` prints a table of claims and a PASS/FAIL summary.
-- Missing or malformed claims are labeled with a fix hint (e.g., "tenantId claim missing — ensure OIDC scope includes archlucid.tenantId").
+- Missing or malformed claims are labeled with a fix hint (e.g., "tenantId claim missing ? ensure OIDC scope includes archlucid.tenantId").
 - The endpoint response is JSON-serializable and CLI-printable.
 
 **Affected files:**
@@ -5941,17 +5941,17 @@ When a JWT has the wrong tenant, missing workspace, or an unexpected role mappin
 - `ArchLucid.Cli/Program.cs` (register command)
 - `docs/library/customer-facing/OPERATOR_QUICKSTART.md` (add to diagnostics section)
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-208 — CLI as dotnet global tool + self-contained binaries
+## TB-208 ? CLI as dotnet global tool + self-contained binaries
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-02). Also referenced in Time-to-Value assessment 2026-06-02.
 
 **Problem:**
 
-Every sponsor artifact generation command in `FIRST_VALUE_20_MINUTES.md` is written as `dotnet run --project ArchLucid.Cli -- ...`. An operator without the .NET SDK installed — which includes most sales engineers and most customers running the pilot on a standard workstation — cannot use the CLI at all. The friction is: install .NET SDK → restore packages → build → run. This adds 5–15 minutes to every first-value path.
+Every sponsor artifact generation command in `FIRST_VALUE_20_MINUTES.md` is written as `dotnet run --project ArchLucid.Cli -- ...`. An operator without the .NET SDK installed ? which includes most sales engineers and most customers running the pilot on a standard workstation ? cannot use the CLI at all. The friction is: install .NET SDK ? restore packages ? build ? run. This adds 5?15 minutes to every first-value path.
 
 **What to do:**
 
@@ -5976,11 +5976,11 @@ Every sponsor artifact generation command in `FIRST_VALUE_20_MINUTES.md` is writ
 - `docs/library/customer-facing/OPERATOR_QUICKSTART.md`
 - `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`
 
-**Size estimate:** **M** — ~2–3 eng days including CI, packaging, and doc sweep.
+**Size estimate:** **M** ? ~2?3 eng days including CI, packaging, and doc sweep.
 
 ---
 
-## TB-209 — `archlucid request create --from-file` subcommand
+## TB-209 ? `archlucid request create --from-file` subcommand
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-03).
 
@@ -5995,7 +5995,7 @@ Operators who want to script repeated review creation (e.g., in CI pipelines or 
 3. Parse and validate the file before posting; emit actionable errors for missing required fields.
 4. On success, print the created `reviewId` and `runId` for downstream use in scripts.
 5. Add a `request.schema.json` sample file to `docs/examples/`.
-6. Add unit tests for: file not found, invalid JSON, missing required field, valid request → API call.
+6. Add unit tests for: file not found, invalid JSON, missing required field, valid request ? API call.
 
 **Affected files:**
 
@@ -6004,11 +6004,11 @@ Operators who want to script repeated review creation (e.g., in CI pipelines or 
 - `docs/examples/architecture-review-request.schema.json` (new)
 - `docs/library/customer-facing/OPERATOR_QUICKSTART.md`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-210 — Pilot prerequisites page + connectivity check script
+## TB-210 ? Pilot prerequisites page + connectivity check script
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-04).
 
@@ -6036,11 +6036,11 @@ There is no single document or script that an operator can run before starting a
 - `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`
 - `docs/runbooks/FIRST_VALUE_20_MINUTES.md`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-211 — SAML SP certificate rotation runbook
+## TB-211 ? SAML SP certificate rotation runbook
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-05).
 
@@ -6052,8 +6052,8 @@ There is no SAML SP certificate rotation runbook. Enterprise operators using SAM
 
 1. Create `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION.md` covering: detecting the current cert expiry, generating a new PFX, uploading to Key Vault, updating SAML SP metadata, testing without downtime (simultaneous old+new acceptance window), and rollback.
 2. Add `scripts/saml-sp-cert-status.ps1` to emit the current cert's expiry date from Key Vault.
-3. Reference `security@archlucid.net` (or equivalent contact) for cert push notifications — pending PQ-AF-02.
-4. Link from `CONFIGURATION_REFERENCE.md` §SAML section.
+3. Reference `security@archlucid.net` (or equivalent contact) for cert push notifications ? pending PQ-AF-02.
+4. Link from `CONFIGURATION_REFERENCE.md` ?SAML section.
 
 **Acceptance criteria:**
 
@@ -6067,22 +6067,22 @@ There is no SAML SP certificate rotation runbook. Enterprise operators using SAM
 - `scripts/saml-sp-cert-status.ps1` (new)
 - `docs/library/CONFIGURATION_REFERENCE.md`
 
-**Size estimate:** **S** — ~1 eng day (doc + script).
+**Size estimate:** **S** ? ~1 eng day (doc + script).
 
 ---
 
-## TB-212 — IaC coverage for adoption-critical Azure dependencies
+## TB-212 ? IaC coverage for adoption-critical Azure dependencies
 
-**Source:** Adoption Friction assessment 2026-06-02 (AF-06). Partial implementation of TB-091–099.
+**Source:** Adoption Friction assessment 2026-06-02 (AF-06). Partial implementation of TB-091?099.
 
 **Problem:**
 
-Enterprise platform teams who deploy ArchLucid via IaC-first patterns cannot provision Azure AI Search, Azure Content Safety, or a new Azure OpenAI instance from Terraform. These are the three services that adoption friction identifies as most critical to unblock. TB-091–099 already track the full IaC parity audit; this item focuses on the adoption-critical subset not yet fully covered by the TB-093 and TB-096 existing-resource compose modes.
+Enterprise platform teams who deploy ArchLucid via IaC-first patterns cannot provision Azure AI Search, Azure Content Safety, or a new Azure OpenAI instance from Terraform. These are the three services that adoption friction identifies as most critical to unblock. TB-091?099 already track the full IaC parity audit; this item focuses on the adoption-critical subset not yet fully covered by the TB-093 and TB-096 existing-resource compose modes.
 
 **What to do:**
 
-1. Add a `terraform-content-safety` root (or module) for Azure Content Safety — `azurerm_cognitive_account` with kind `ContentSafety`, private endpoint, and managed identity RBAC grant for the API identity.
-2. Extend `terraform-search` (or `terraform-hosted-prod`) to support creating (not just consuming) an Azure AI Search instance when `azure_search_create_mode=new` — for operators who do not have an existing search instance.
+1. Add a `terraform-content-safety` root (or module) for Azure Content Safety ? `azurerm_cognitive_account` with kind `ContentSafety`, private endpoint, and managed identity RBAC grant for the API identity.
+2. Extend `terraform-search` (or `terraform-hosted-prod`) to support creating (not just consuming) an Azure AI Search instance when `azure_search_create_mode=new` ? for operators who do not have an existing search instance.
 3. Document in `CONFIGURATION_REFERENCE.md` which Terraform roots are required for a fully IaC-provisioned pilot and which expect existing resources.
 
 **Acceptance criteria:**
@@ -6098,11 +6098,11 @@ Enterprise platform teams who deploy ArchLucid via IaC-first patterns cannot pro
 - `docs/library/CONFIGURATION_REFERENCE.md`
 - `deploy/hosted-prod-terraform/terraform.tfvars.example`
 
-**Size estimate:** **M** — ~2 eng days.
+**Size estimate:** **M** ? ~2 eng days.
 
 ---
 
-## TB-213 — QualityGate WarnOnly lint rule for production-like pilots
+## TB-213 ? QualityGate WarnOnly lint rule for production-like pilots
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-08).
 
@@ -6116,7 +6116,7 @@ Enterprise platform teams who deploy ArchLucid via IaC-first patterns cannot pro
 2. Condition: `AgentExecution:Mode == Real` AND `ArchLucid:AgentOutput:QualityGate:Mode == WarnOnly`.
 3. Level: Advisory for standard profiles; HOLD for `production-like-hosted-pilot` profile.
 4. Message: "Quality gate is in WarnOnly mode with real LLM execution. Production-like pilots should use PilotStrict to ensure sponsor-handoff quality. Set `ArchLucid:AgentOutput:QualityGate:Mode=PilotStrict`."
-5. Add unit tests: WarnOnly+Real → advisory; WarnOnly+Real+production-like → HOLD; PilotStrict+Real → no finding; WarnOnly+Simulator → no finding.
+5. Add unit tests: WarnOnly+Real ? advisory; WarnOnly+Real+production-like ? HOLD; PilotStrict+Real ? no finding; WarnOnly+Simulator ? no finding.
 6. Update `CONFIGURATION_REFERENCE.md` pilot profile table "Common failure mode" column.
 
 **Affected files:**
@@ -6125,13 +6125,13 @@ Enterprise platform teams who deploy ArchLucid via IaC-first patterns cannot pro
 - `ArchLucid.Application.Tests/Configuration/OperatorConfigurationLintEvaluatorTests.cs`
 - `docs/library/CONFIGURATION_REFERENCE.md`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-214 — DEFERRED: Non-Azure evidence ingest path
+## TB-214 ? DEFERRED: Non-Azure evidence ingest path
 
-**Status:** **DEFERRED** — pending PQ-AF-01 (owner decision on V1 scope and schema).
+**Status:** **DEFERRED** ? pending PQ-AF-01 (owner decision on V1 scope and schema).
 
 **Source:** Adoption Friction assessment 2026-06-02 (AF-07).
 
@@ -6141,20 +6141,20 @@ Evaluators who do not have Azure subscriptions or PowerShell access cannot submi
 
 **Blocked on owner input:**
 
-1. Is a non-Azure/non-extractor evidence submission path in V1 scope? `V1_SCOPE.md §2.16` defines the Azure extractor ZIP as the ingest contract. A generic JSON upload may conflict with citation posture.
-2. What schema would the JSON upload accept — unstructured description, partial ARM resource list, or a documented minimal schema?
+1. Is a non-Azure/non-extractor evidence submission path in V1 scope? `V1_SCOPE.md ?2.16` defines the Azure extractor ZIP as the ingest contract. A generic JSON upload may conflict with citation posture.
+2. What schema would the JSON upload accept ? unstructured description, partial ARM resource list, or a documented minimal schema?
 
 Do not implement until PQ-AF-01 is answered.
 
 ---
 
-## TB-215 — Default-open explanation aggregate when `goldenManifestId` is present
+## TB-215 ? Default-open explanation aggregate when `goldenManifestId` is present
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-01).
 
 **Problem:**
 
-The AI explanation collapsible on the committed run detail page defaults to closed. First-time operators who commit a run and expect to see AI output immediately find a collapsed panel — they do not realize the explanation is there. The explanation is the most important TTV artifact for demonstrating AI value to a sponsor.
+The AI explanation collapsible on the committed run detail page defaults to closed. First-time operators who commit a run and expect to see AI output immediately find a collapsed panel ? they do not realize the explanation is there. The explanation is the most important TTV artifact for demonstrating AI value to a sponsor.
 
 **What to do:**
 
@@ -6168,11 +6168,11 @@ The AI explanation collapsible on the committed run detail page defaults to clos
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
 - The explanation collapsible component (find via import in `RunDetailPageView.tsx`)
 
-**Size estimate:** **XS** — ~1–2 hours.
+**Size estimate:** **XS** ? ~1?2 hours.
 
 ---
 
-## TB-216 — Wizard progress-tracker post-timeout recovery guidance
+## TB-216 ? Wizard progress-tracker post-timeout recovery guidance
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-02).
 
@@ -6194,17 +6194,17 @@ When `RunProgressTracker` transitions to a stalled or timeout state (polling com
 - `archlucid-ui/src/` (locate `RunProgressTracker` component)
 - `archlucid-ui/docs/COMPONENT_REFERENCE.md`
 
-**Size estimate:** **XS–S** — ~2–4 hours.
+**Size estimate:** **XS?S** ? ~2?4 hours.
 
 ---
 
-## TB-217 — TTV funnel telemetry — `archlucid_operator_ttv_first_commit_minutes` histogram
+## TB-217 ? TTV funnel telemetry ? `archlucid_operator_ttv_first_commit_minutes` histogram
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-03).
 
 **Problem:**
 
-There is no OTel metric measuring time-to-first-committed-manifest. TTV regressions (caused by configuration changes, agent latency increases, or UX friction) are invisible until operators complain. The `PILOT_SUCCESS_SCORECARD.md` has a blank "wall-clock time" field that is filled manually — this should be auto-instrumented.
+There is no OTel metric measuring time-to-first-committed-manifest. TTV regressions (caused by configuration changes, agent latency increases, or UX friction) are invisible until operators complain. The `PILOT_SUCCESS_SCORECARD.md` has a blank "wall-clock time" field that is filled manually ? this should be auto-instrumented.
 
 **What to do:**
 
@@ -6221,11 +6221,11 @@ There is no OTel metric measuring time-to-first-committed-manifest. TTV regressi
 - `docs/library/OBSERVABILITY.md`
 - Grafana dashboard JSON or Azure Monitor alert rule
 
-**Size estimate:** **M** — ~1–2 eng days.
+**Size estimate:** **M** ? ~1?2 eng days.
 
 ---
 
-## TB-218 — Replace placeholder screenshots in `FIRST_30_MINUTES.md` via CI
+## TB-218 ? Replace placeholder screenshots in `FIRST_30_MINUTES.md` via CI
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-04).
 
@@ -6235,7 +6235,7 @@ There is no OTel metric measuring time-to-first-committed-manifest. TTV regressi
 
 **What to do:**
 
-1. Add a Playwright step to `.github/workflows/template-eval-harness.yml` (or a new `screenshot-docs.yml` workflow) that: starts the API and UI in simulator mode, navigates the first-30-minutes flow (new review → execute → commit), captures screenshots at each major step.
+1. Add a Playwright step to `.github/workflows/template-eval-harness.yml` (or a new `screenshot-docs.yml` workflow) that: starts the API and UI in simulator mode, navigates the first-30-minutes flow (new review ? execute ? commit), captures screenshots at each major step.
 2. Save screenshots to `docs/engineering/assets/first-30-minutes/` and commit via `git add` in CI.
 3. Update `FIRST_30_MINUTES.md` to reference `assets/first-30-minutes/*.png` instead of placeholder paths.
 4. Run on `push` to main and on a weekly `schedule` (to catch UI drift even without code changes).
@@ -6252,11 +6252,11 @@ There is no OTel metric measuring time-to-first-committed-manifest. TTV regressi
 - `docs/engineering/assets/first-30-minutes/` (new directory)
 - `archlucid-ui/e2e/` (Playwright spec for the screenshot flow)
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-219 — Route label + date standardization in `FIRST_RUN_WALKTHROUGH.md` and `FIRST_RUN_WIZARD.md`
+## TB-219 ? Route label + date standardization in `FIRST_RUN_WALKTHROUGH.md` and `FIRST_RUN_WIZARD.md`
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-05).
 
@@ -6277,11 +6277,11 @@ There is no OTel metric measuring time-to-first-committed-manifest. TTV regressi
 - `docs/library/FIRST_RUN_WIZARD.md`
 - `scripts/ci/check_doc_links.py` (or a new check)
 
-**Size estimate:** **XS** — ~2–4 hours.
+**Size estimate:** **XS** ? ~2?4 hours.
 
 ---
 
-## TB-220 — `RunProgressTracker` empty/error-state deep link to Core Pilot help
+## TB-220 ? `RunProgressTracker` empty/error-state deep link to Core Pilot help
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-06).
 
@@ -6291,50 +6291,50 @@ When `RunProgressTracker` renders without a run ID (empty state) or in an error 
 
 **What to do:**
 
-1. Add a help deep link to `RunProgressTracker` empty state: "No active run — [start from Core Pilot guide](/help/pilot)" or equivalent in-app help route.
+1. Add a help deep link to `RunProgressTracker` empty state: "No active run ? [start from Core Pilot guide](/help/pilot)" or equivalent in-app help route.
 2. Add a "What to do when a run stalls" accordion in the stalled state referencing the `CORE_PILOT.md` recovery steps.
-3. Note: the link from TB-216 already covers the stalled polling case; TB-220 covers the empty/no-run-ID case. Do not duplicate — only add what is missing in the empty state.
+3. Note: the link from TB-216 already covers the stalled polling case; TB-220 covers the empty/no-run-ID case. Do not duplicate ? only add what is missing in the empty state.
 
 **Affected files:**
 
 - `archlucid-ui/src/` (RunProgressTracker component)
 
-**Size estimate:** **XS** — ~1 hour.
+**Size estimate:** **XS** ? ~1 hour.
 
 ---
 
-## TB-221 — DEFERRED: Buyer-path hosted smoke scaffold
+## TB-221 ? DEFERRED: Buyer-path hosted smoke scaffold
 
-**Status:** **DEFERRED** — pending PQ-TTV-01.
+**Status:** **DEFERRED** ? pending PQ-TTV-01.
 
 **Source:** Time-to-Value assessment 2026-06-02 (TTV-07).
 
 **Problem:**
 
-There is no end-to-end smoke test that exercises the buyer path (sign-in → first review → commit → export sponsor artifact) on `archlucid.net` without a sales engineer. If `archlucid.net` is self-service accessible, a `archlucid trial smoke --buyer-path` command would let sales engineers verify the buyer path before demos and let operators self-validate trial access.
+There is no end-to-end smoke test that exercises the buyer path (sign-in ? first review ? commit ? export sponsor artifact) on `archlucid.net` without a sales engineer. If `archlucid.net` is self-service accessible, a `archlucid trial smoke --buyer-path` command would let sales engineers verify the buyer path before demos and let operators self-validate trial access.
 
 **Blocked on owner input (PQ-TTV-01):** Is `archlucid.net` currently accessible for sales-invited evaluators to sign in and run the buyer path independently, or does it require a sales engineer to provision a trial tenant?
 
 **Partial work possible now:**
 - Create the `archlucid trial smoke --buyer-path` CLI command stub with the planned steps documented as `TODO` placeholders.
-- Write a Playwright spec skeleton for the buyer path (sign-in → new review → execute → commit → export) that can be wired to `archlucid.net` once PQ-TTV-01 is answered.
+- Write a Playwright spec skeleton for the buyer path (sign-in ? new review ? execute ? commit ? export) that can be wired to `archlucid.net` once PQ-TTV-01 is answered.
 
 ---
 
-## TB-222 — Recurrence scheduling UI: post-commit flow + management page
+## TB-222 ? Recurrence scheduling UI: post-commit flow + management page
 
 **Source:** Stickiness assessment 2026-06-02 (S-01).
 
 **Problem:**
 
-`POST /v1/governance/recurrence-schedules` and `GET /v1/governance/recurrence-schedules` are fully implemented in `GovernanceStickinessController`. All client functions are implemented in `governance-stickiness-api.ts`. But no UI calls these endpoints. The post-commit flow has no "Schedule next review" affordance. Operators who want a weekly review cadence must call the API directly — eliminating the habit loop before it starts.
+`POST /v1/governance/recurrence-schedules` and `GET /v1/governance/recurrence-schedules` are fully implemented in `GovernanceStickinessController`. All client functions are implemented in `governance-stickiness-api.ts`. But no UI calls these endpoints. The post-commit flow has no "Schedule next review" affordance. Operators who want a weekly review cadence must call the API directly ? eliminating the habit loop before it starts.
 
 **What to do:**
 
-See S-01 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-01 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
-1. Add `RecurrenceSchedulePostCommitCard` to `RunDetailPageView.tsx` — visible after commit, with cron field, name field, submit via `createArchitectureReviewRecurrenceSchedule`.
+1. Add `RecurrenceSchedulePostCommitCard` to `RunDetailPageView.tsx` ? visible after commit, with cron field, name field, submit via `createArchitectureReviewRecurrenceSchedule`.
 2. Create `/governance/recurrence-schedules` page + `RecurrenceSchedulesClient.tsx` with `EnterpriseTable`, enable/disable toggle, `NextRunUtc` display.
 3. Add to governance nav in `nav-config.ts`.
 
@@ -6352,11 +6352,11 @@ Summary:
 - `archlucid-ui/src/components/governance/RecurrenceSchedulePostCommitCard.tsx` (new)
 - `archlucid-ui/src/app/(operator)/nav-config.ts`
 
-**Size estimate:** **M** — ~2 eng days.
+**Size estimate:** **M** ? ~2 eng days.
 
 ---
 
-## TB-223 — Decision-needed summary KPI card in governance dashboard
+## TB-223 ? Decision-needed summary KPI card in governance dashboard
 
 **Source:** Stickiness assessment 2026-06-02 (S-02).
 
@@ -6366,7 +6366,7 @@ Summary:
 
 **What to do:**
 
-See S-02 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-02 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
 1. Fetch `GovernanceDecisionsNeededSummary` alongside `getGovernanceDashboard` (parallel).
@@ -6385,31 +6385,31 @@ Summary:
 - `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`
 - `archlucid-ui/src/components/governance/DecisionsNeededSummaryCard.tsx` (new)
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-224 — AI conversational compare-two-runs narrative
+## TB-224 ? AI conversational compare-two-runs narrative
 
 **Source:** Stickiness assessment 2026-06-02 (S-03). Implements `AI_LEVERAGE_ROADMAP.md` item 11.
 
 **Problem:**
 
-Compare runs shows a raw diff table. Operators who have done their second review cannot answer "are we net-better or net-worse?" without manually interpreting delta rows. The AI leverage roadmap identifies conversational compare as the highest-leverage Stickiness AI feature — it makes every re-run feel like a progress report rather than a spreadsheet.
+Compare runs shows a raw diff table. Operators who have done their second review cannot answer "are we net-better or net-worse?" without manually interpreting delta rows. The AI leverage roadmap identifies conversational compare as the highest-leverage Stickiness AI feature ? it makes every re-run feel like a progress report rather than a spreadsheet.
 
 **What to do:**
 
-See S-03 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-03 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
-1. Extend `AskService.cs` to detect `BaseRunId + TargetRunId` → make a single fast-model LLM call → return `ComparisonNarrative` (nullable string) on `AskResponse`.
+1. Extend `AskService.cs` to detect `BaseRunId + TargetRunId` ? make a single fast-model LLM call ? return `ComparisonNarrative` (nullable string) on `AskResponse`.
 2. Guard with `Ask:GenerateComparisonNarrative=false` (opt-in).
 3. Render as highlighted callout above compare delta table in the UI.
-4. Unit test: delta with changes → non-empty narrative; empty delta → null.
+4. Unit test: delta with changes ? non-empty narrative; empty delta ? null.
 
 **Acceptance criteria:**
 
-- Compare view shows a 3–5 sentence AI narrative when both run IDs are present and the feature flag is on.
+- Compare view shows a 3?5 sentence AI narrative when both run IDs are present and the feature flag is on.
 - Narrative does not block compare view if the Ask call fails (non-blocking, fail-open).
 - Narrative is clearly labeled "AI narrative" with a disclaimer.
 
@@ -6418,16 +6418,16 @@ Summary:
 - `ArchLucid.Application/Ask/AskService.cs`
 - `ArchLucid.Contracts/Ask/AskResponse.cs`
 - `ArchLucid.Application.Tests/Ask/AskServiceCompareNarrativeTests.cs` (new)
-- `archlucid-ui/src/app/(operator)/compare/` (compare route — find exact file)
+- `archlucid-ui/src/app/(operator)/compare/` (compare route ? find exact file)
 - `ArchLucid.Host.Composition/` (register feature flag)
 
-**Size estimate:** **M** — ~2 eng days.
+**Size estimate:** **M** ? ~2 eng days.
 
 ---
 
-## TB-225 — CS-06 RLS fix: `SqlOperatorStickinessSnapshotReader` + CS-07/CS-08/CS-09 defects
+## TB-225 ? CS-06 RLS fix: `SqlOperatorStickinessSnapshotReader` + CS-07/CS-08/CS-09 defects
 
-**Source:** Stickiness assessment 2026-06-02 (S-04). Defects documented in `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md` §5.3.
+**Source:** Stickiness assessment 2026-06-02 (S-04). Defects documented in `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md` ?5.3.
 
 **Problem:**
 
@@ -6435,12 +6435,12 @@ Summary:
 
 **What to do:**
 
-See S-04 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-04 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
 1. Inject `IRlsSessionContextApplicator`; call `ApplyAsync` before each query in `GetOperatorSignalsAsync` and `GetFunnelSnapshotAsync`.
 2. Route connections through `IReadReplicaQueryConnectionFactory`.
-3. Fix CS-07: rename `ToDateTimeOffset` → `ToNullableUtcDateTime`.
+3. Fix CS-07: rename `ToDateTimeOffset` ? `ToNullableUtcDateTime`.
 4. Fix CS-08: collapse inner class properties to one line.
 5. Fix CS-09: use `long` for COUNT columns; remove `ToInt` converter.
 6. Update DI registration.
@@ -6453,11 +6453,11 @@ Summary:
 - `ArchLucid.Host.Composition/` (DI registration)
 - `ArchLucid.Persistence.Tests/CustomerSuccess/SqlOperatorStickinessSnapshotReaderTests.cs` (new)
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-226 — Risk exceptions dedicated management page
+## TB-226 ? Risk exceptions dedicated management page
 
 **Source:** Stickiness assessment 2026-06-02 (S-05).
 
@@ -6467,7 +6467,7 @@ Risk exceptions (waivers) are accessible only from `FindingInspectGovernanceStic
 
 **What to do:**
 
-See S-05 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-05 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
 1. Create `/governance/risk-exceptions/page.tsx` + `RiskExceptionsClient.tsx`.
@@ -6481,11 +6481,11 @@ Summary:
 - `archlucid-ui/src/app/(operator)/governance/risk-exceptions/RiskExceptionsClient.tsx` (new)
 - `archlucid-ui/src/app/(operator)/nav-config.ts`
 
-**Size estimate:** **M** — ~1.5 eng days.
+**Size estimate:** **M** ? ~1.5 eng days.
 
 ---
 
-## TB-227 — Second-review proof collection: update `collect-first-pilot-proof.ps1`
+## TB-227 ? Second-review proof collection: update `collect-first-pilot-proof.ps1`
 
 **Source:** Stickiness assessment 2026-06-02 (S-06).
 
@@ -6495,14 +6495,14 @@ Summary:
 
 **What to do:**
 
-See S-06 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-06 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
 1. Add `-RunNumber` and `-CompareBaseRunId` parameters.
 2. When `-RunNumber >= 2`, collect compare delta, decisions-needed summary, risk register.
 3. Add `stickinessSignals` section to output manifest.
 4. Write to `pilot-proof-run{N}/` directory to avoid overwriting first-run evidence.
-5. Update `REPEAT_REVIEW_LOOP.md` §5 to reference the updated script.
+5. Update `REPEAT_REVIEW_LOOP.md` ?5 to reference the updated script.
 
 **Affected files:**
 
@@ -6510,11 +6510,11 @@ Summary:
 - `docs/library/REPEAT_REVIEW_LOOP.md`
 - `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`
 
-**Size estimate:** **S** — ~1 eng day.
+**Size estimate:** **S** ? ~1 eng day.
 
 ---
 
-## TB-228 — Internal tenant health score surface for ArchLucid operators
+## TB-228 ? Internal tenant health score surface for ArchLucid operators
 
 **Source:** Stickiness assessment 2026-06-02 (S-07).
 
@@ -6524,7 +6524,7 @@ Summary:
 
 **What to do:**
 
-See S-07 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+See S-07 cursor prompt in `docs/assessments/Stickiness_06022026.MD` ?3.
 
 Summary:
 1. Add `GET /v1/admin/tenant-health` (system-admin policy, RLS bypass ambient).
@@ -6540,17 +6540,17 @@ Summary:
 - `archlucid-ui/src/app/(operator)/admin/tenant-health/` (new pages)
 - `ArchLucid.Api.Tests/Admin/AdminCustomerSuccessControllerTests.cs` (new)
 
-**Size estimate:** **M** — ~2 eng days.
+**Size estimate:** **M** ? ~2 eng days.
 
-## TB-222 — Recurrence scheduling UI: post-commit nudge + management page
+## TB-222 ? Recurrence scheduling UI: post-commit nudge + management page
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-01
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-01
 **Priority:** P1
 **Size estimate:** M
 
 **Problem:**
 
-`POST /v1/governance/recurrence-schedules` and `GET /v1/governance/recurrence-schedules` are fully implemented in `GovernanceStickinessController`. `ArchitectureReviewRecurrenceSchedule` (with `scheduleId`, `cronExpression`, `nextRunUtc`, `isEnabled`) is fully typed in `governance-stickiness-api.ts`. But there is no UI that calls these endpoints. Operators who want a weekly review cadence must call the API directly. The post-commit flow has no "Schedule next review" affordance. This is the single most concrete operating-rhythm gap — the recurrence infrastructure is built and idle.
+`POST /v1/governance/recurrence-schedules` and `GET /v1/governance/recurrence-schedules` are fully implemented in `GovernanceStickinessController`. `ArchitectureReviewRecurrenceSchedule` (with `scheduleId`, `cronExpression`, `nextRunUtc`, `isEnabled`) is fully typed in `governance-stickiness-api.ts`. But there is no UI that calls these endpoints. Operators who want a weekly review cadence must call the API directly. The post-commit flow has no "Schedule next review" affordance. This is the single most concrete operating-rhythm gap ? the recurrence infrastructure is built and idle.
 
 **What to do:**
 
@@ -6588,13 +6588,13 @@ Add unit tests for `RecurrenceSchedulePostCommitCard`: submitted state, success 
 - `archlucid-ui/src/lib/api/governance-stickiness-api.ts`
 - nav-config.ts
 
-**Cross-ref:** TB-057–063 (stickiness backlog), `GovernanceStickinessController.cs`, `REPEAT_REVIEW_LOOP.md`.
+**Cross-ref:** TB-057?063 (stickiness backlog), `GovernanceStickinessController.cs`, `REPEAT_REVIEW_LOOP.md`.
 
 ---
 
-## TB-223 — Decisions-needed KPI card in governance dashboard
+## TB-223 ? Decisions-needed KPI card in governance dashboard
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-02
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-02
 **Priority:** P1
 **Size estimate:** S
 
@@ -6611,11 +6611,11 @@ In `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`:
 1. Import `getGovernanceDecisionsNeededSummary` from `@/lib/api/governance-stickiness-api`.
 2. Fetch the summary alongside the existing `getGovernanceDashboard` call (parallel fetch).
 3. Create a new `DecisionsNeededSummaryCard` component in `archlucid-ui/src/components/governance/`:
-   - Renders a 2×3 grid of KPI tiles using `OPERATOR_TYPOGRAPHY.kpiValue` for counts and `OPERATOR_TYPOGRAPHY.label` for labels.
+   - Renders a 2?3 grid of KPI tiles using `OPERATOR_TYPOGRAPHY.kpiValue` for counts and `OPERATOR_TYPOGRAPHY.label` for labels.
    - Tiles: "Pending approvals", "Stale risks", "Unowned High risks", "Awaiting evidence", "Waivers expiring (14d)", "Deferred items due".
-   - If `totalDecisionItems === 0`, render an `OperatorEmptyState` with message "No decisions needed — all risks are current."
+   - If `totalDecisionItems === 0`, render an `OperatorEmptyState` with message "No decisions needed ? all risks are current."
    - If `waiversExpiringWithin14Days > 0`, wrap the tile in a subtle left-border accent using `--al-caution` CSS variable.
-   - Each tile links to the relevant route: pending approvals → `/governance`, stale risks → `/governance/findings?filter=stale`, waivers expiring → `/governance/risk-exceptions`.
+   - Each tile links to the relevant route: pending approvals ? `/governance`, stale risks ? `/governance/findings?filter=stale`, waivers expiring ? `/governance/risk-exceptions`.
 4. Place the card at the top of the governance dashboard, before the pending approval requests list.
 5. Auto-refresh alongside the existing 30-second dashboard refresh.
 6. Add a Vitest test for `DecisionsNeededSummaryCard`: renders 7 tiles, shows empty state when totalDecisionItems is 0, highlights waivers expiring tile.
@@ -6626,19 +6626,19 @@ In `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`:
 - `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`
 - `archlucid-ui/src/components/governance/DecisionsNeededSummaryCard.tsx` (new)
 
-**Cross-ref:** TB-061 (decisions-needed API — this TB adds the visual surface), TB-155 (canonical decisions-needed count accuracy).
+**Cross-ref:** TB-061 (decisions-needed API ? this TB adds the visual surface), TB-155 (canonical decisions-needed count accuracy).
 
 ---
 
-## TB-224 — AI conversational compare-two-runs narrative
+## TB-224 ? AI conversational compare-two-runs narrative
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-03
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-03
 **Priority:** P1
 **Size estimate:** M
 
 **Problem:**
 
-`IComparisonService` produces structured deltas. The compare UI renders a diff table. But "what changed between run A and run B, and why does it matter?" requires human interpretation of raw delta rows. Without a narrative, every comparison feels like a spreadsheet diff rather than a progress report — weakening the "value compounds over time" story that makes buyers renew. This is `AI_LEVERAGE_ROADMAP.md` item 11.
+`IComparisonService` produces structured deltas. The compare UI renders a diff table. But "what changed between run A and run B, and why does it matter?" requires human interpretation of raw delta rows. Without a narrative, every comparison feels like a spreadsheet diff rather than a progress report ? weakening the "value compounds over time" story that makes buyers renew. This is `AI_LEVERAGE_ROADMAP.md` item 11.
 
 **What to do:**
 
@@ -6648,7 +6648,7 @@ Add an AI narrative to the compare view.
 Backend:
 1. In `AskService.cs`, extend `AskAsync` to check if `AskRequest.BaseRunId` and `AskRequest.TargetRunId` are both non-null.
 2. When both are present, after loading the comparison delta from `IComparisonService`, make a single additional LLM call using `IAgentCompletionClient` (ModelTier.Fast if multi-model tiering is available, else default model):
-   - System prompt: "You are an enterprise architect reviewing the delta between two architecture runs. Write a 3–5 sentence narrative covering: (1) the most significant improvement, (2) any new risk introduced, (3) whether the architecture is net-better or net-worse overall. Be specific and concrete. If the delta has no changes, say so."
+   - System prompt: "You are an enterprise architect reviewing the delta between two architecture runs. Write a 3?5 sentence narrative covering: (1) the most significant improvement, (2) any new risk introduced, (3) whether the architecture is net-better or net-worse overall. Be specific and concrete. If the delta has no changes, say so."
    - User content: serialize the delta into a compact JSON summary (total additions, removals, modifications; top 3 finding categories by change count).
 3. Add string property `ComparisonNarrative` (nullable) to `AskResponse`.
 4. Guard with config key `Ask:GenerateComparisonNarrative` (default `false`).
@@ -6657,7 +6657,7 @@ Backend:
 Frontend:
 6. In the archlucid-ui compare page, after loading the comparison delta:
    - If both run IDs are present, call `POST /v1/ask` with `{ baseRunId, targetRunId, question: "Summarize the architectural changes" }`.
-   - If `ComparisonNarrative` is non-null, render it as a highlighted info callout above the delta table with a "✦ AI narrative" label.
+   - If `ComparisonNarrative` is non-null, render it as a highlighted info callout above the delta table with a "? AI narrative" label.
    - Show loading skeleton while the Ask call is in-flight.
    - Show nothing on error (non-blocking).
 ```
@@ -6668,19 +6668,19 @@ Frontend:
 - `ArchLucid.Contracts/Ask/AskRequest.cs`, `AskResponse.cs`
 - Compare page component in `archlucid-ui`
 
-**Cross-ref:** `AI_LEVERAGE_ROADMAP.md` item 11, TB-178 (streaming Ask — complementary), TB-179 (multi-model tiering — fast-path prerequisite for cost safety).
+**Cross-ref:** `AI_LEVERAGE_ROADMAP.md` item 11, TB-178 (streaming Ask ? complementary), TB-179 (multi-model tiering ? fast-path prerequisite for cost safety).
 
 ---
 
-## TB-225 — CS-06: Inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`
+## TB-225 ? CS-06: Inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-04
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-04
 **Priority:** P1 (security)
 **Size estimate:** S
 
 **Problem:**
 
-`CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md §5.3` flags CS-06 as **High** severity: `SqlOperatorStickinessSnapshotReader` does not apply `IRlsSessionContextApplicator` before executing its multi-subquery SELECT. The current guard is only `WHERE TenantId = @TenantId`. In a future call path that omits the parameter, this would silently return cross-tenant data. This is the same class of defect that TB-048/TB-073 addressed elsewhere in the stack.
+`CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md ?5.3` flags CS-06 as **High** severity: `SqlOperatorStickinessSnapshotReader` does not apply `IRlsSessionContextApplicator` before executing its multi-subquery SELECT. The current guard is only `WHERE TenantId = @TenantId`. In a future call path that omits the parameter, this would silently return cross-tenant data. This is the same class of defect that TB-048/TB-073 addressed elsewhere in the stack.
 
 **What to do:**
 
@@ -6692,15 +6692,15 @@ Fix CS-06 in `ArchLucid.Persistence/CustomerSuccess/SqlOperatorStickinessSnapsho
    a. Open the connection via `IReadReplicaQueryConnectionFactory.CreateOpenConnectionAsync(cancellationToken)`.
    b. Call `await _rlsSessionContextApplicator.ApplyAsync(connection, tenantId, cancellationToken)` before executing the query.
    c. Pass the open connection into the `CommandDefinition` explicitly.
-3. Fix CS-07: rename `ToDateTimeOffset` to `ToNullableUtcDateTime` — the method returns `DateTime?`, not `DateTimeOffset`.
+3. Fix CS-07: rename `ToDateTimeOffset` to `ToNullableUtcDateTime` ? the method returns `DateTime?`, not `DateTimeOffset`.
 4. Fix CS-08: collapse `OperatorSignalsRow` and `FunnelRow` inner class properties to one-line `{ get; init; }` per CSharp-SimpleProperties-OneLine.mdc.
 5. Fix CS-09: change all COUNT column row type properties to `long`; remove `ToInt(object? v)` defensive converter.
 6. Update `InMemoryOperatorStickinessSnapshotReader.cs` constructor to accept (and ignore) the new applicator for DI parity.
 7. Update DI registration in the composition root to pass `IRlsSessionContextApplicator` to `SqlOperatorStickinessSnapshotReader`.
 8. Add unit tests to `ArchLucid.Persistence.Tests/CustomerSuccess/`:
-   - `GetOperatorSignalsAsync_AppliesRls` — verifies `ApplyAsync` is called before query execution.
-   - `GetFunnelSnapshotAsync_AppliesRls` — same for funnel query.
-   - `ToNullableUtcDateTime_ReturnsNull_WhenDbNull` — verifies the renamed helper.
+   - `GetOperatorSignalsAsync_AppliesRls` ? verifies `ApplyAsync` is called before query execution.
+   - `GetFunnelSnapshotAsync_AppliesRls` ? same for funnel query.
+   - `ToNullableUtcDateTime_ReturnsNull_WhenDbNull` ? verifies the renamed helper.
 ```
 
 **Affected files / projects:**
@@ -6710,13 +6710,13 @@ Fix CS-06 in `ArchLucid.Persistence/CustomerSuccess/SqlOperatorStickinessSnapsho
 - Composition root DI registration
 - `ArchLucid.Persistence.Tests/CustomerSuccess/` (new tests)
 
-**Cross-ref:** TB-048, TB-073 (same class of tenancy gap), `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md §5.3`.
+**Cross-ref:** TB-048, TB-073 (same class of tenancy gap), `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md ?5.3`.
 
 ---
 
-## TB-226 — Risk exceptions dedicated management page
+## TB-226 ? Risk exceptions dedicated management page
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-05
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-05
 **Priority:** P2
 **Size estimate:** M
 
@@ -6758,19 +6758,19 @@ Add Vitest tests: renders table with 3 items, shows expiring-soon warning, empty
 - `archlucid-ui/src/components/governance/RiskExceptionsClient.tsx` (new)
 - nav-config.ts
 
-**Cross-ref:** TB-059 (risk exceptions API — done), TB-222 (recurrence scheduling page — same nav cluster).
+**Cross-ref:** TB-059 (risk exceptions API ? done), TB-222 (recurrence scheduling page ? same nav cluster).
 
 ---
 
-## TB-227 — `collect-first-pilot-proof.ps1` multi-run support
+## TB-227 ? `collect-first-pilot-proof.ps1` multi-run support
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-06
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-06
 **Priority:** P2
 **Size estimate:** S
 
 **Problem:**
 
-`collect-first-pilot-proof.ps1` is written as a first-run-only collection tool. The `REPEAT_REVIEW_LOOP.md` second-review proof checklist requires comparison delta output and stickiness signals — neither of which is collected by the current script. An operator doing the second review has no scripted path to produce comparison-enriched evidence.
+`collect-first-pilot-proof.ps1` is written as a first-run-only collection tool. The `REPEAT_REVIEW_LOOP.md` second-review proof checklist requires comparison delta output and stickiness signals ? neither of which is collected by the current script. An operator doing the second review has no scripted path to produce comparison-enriched evidence.
 
 **What to do:**
 
@@ -6788,7 +6788,7 @@ Update `scripts/collect-first-pilot-proof.ps1` to support multi-run evidence col
 
 3. Update the script header comment to state multi-run support and `-RunNumber 2+` usage.
 
-4. Update `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` and `docs/library/REPEAT_REVIEW_LOOP.md §5` to reference the `-RunNumber 2` invocation pattern.
+4. Update `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` and `docs/library/REPEAT_REVIEW_LOOP.md ?5` to reference the `-RunNumber 2` invocation pattern.
 
 5. Add Pester tests: RunNumber=1 writes to pilot-proof/, RunNumber=2 requires CompareBaseRunId, output includes stickinessSignals section.
 ```
@@ -6797,15 +6797,15 @@ Update `scripts/collect-first-pilot-proof.ps1` to support multi-run evidence col
 
 - `scripts/collect-first-pilot-proof.ps1`
 - `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`
-- `docs/library/REPEAT_REVIEW_LOOP.md §5`
+- `docs/library/REPEAT_REVIEW_LOOP.md ?5`
 
 **Cross-ref:** `REPEAT_REVIEW_LOOP.md` second-review proof checklist, TB-223 (decisions-needed surface), TB-231 (proof run log).
 
 ---
 
-## TB-228 — Internal tenant health score admin surface
+## TB-228 ? Internal tenant health score admin surface
 
-**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-07
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` ?S-07
 **Priority:** P3
 **Size estimate:** M
 
@@ -6820,7 +6820,7 @@ Add an internal admin endpoint for tenant health scores.
 
 Backend:
 1. Create `GET /v1/admin/tenant-health` in a new `AdminCustomerSuccessController.cs` in `ArchLucid.Api/Controllers/Admin/`.
-2. Require `ArchLucidPolicies.SystemAdminAuthority` (internal operator only — not tenant-scoped).
+2. Require `ArchLucidPolicies.SystemAdminAuthority` (internal operator only ? not tenant-scoped).
 3. Inject `IOperatorStickinessSnapshotReader` and call `GetOperatorSignalsAsync` for all tenants (admin context bypasses RLS via `SqlRowLevelSecurityBypassAmbient`).
 4. Also read `dbo.TenantHealthScores` via `ITenantCustomerSuccessRepository` (extend with `GetAllHealthScoresAsync` if needed; use RLS bypass ambient scoped to a background context).
 5. Return `TenantHealthSummaryResponse`: TenantId, WorkspaceId, EngagementScore, GovernanceScore, PilotFunnelStage, RunsLast7d, CommitsLast7d, LastActivityUtc.
@@ -6830,7 +6830,7 @@ Backend:
 Frontend (optional, admin-only):
 8. Add `/admin/tenant-health` page behind existing admin auth guard.
 9. Render `EnterpriseTable` with sortable columns: Tenant, Engagement, Governance, Funnel Stage, Runs 7d, Last Active.
-10. Color-code: red for engagement < 30, amber for 30–60, green > 60 using `SeverityTag`.
+10. Color-code: red for engagement < 30, amber for 30?60, green > 60 using `SeverityTag`.
 ```
 
 **Affected files / projects:**
@@ -6843,9 +6843,9 @@ Frontend (optional, admin-only):
 
 ---
 
-## TB-229 — Reference-customer first-contact capture workflow
+## TB-229 ? Reference-customer first-contact capture workflow
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-01
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-01
 **Priority:** P1
 **Size estimate:** S
 
@@ -6858,16 +6858,16 @@ The reference-customer infrastructure is complete (case study templates, CI guar
 ```
 Create docs/go-to-market/REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md with:
 - Subject line variants (short/long) for asking a pilot customer to be a reference
-- Body template referencing the 15% standing discount (PRICING_PHILOSOPHY.md §4.1)
+- Body template referencing the 15% standing discount (PRICING_PHILOSOPHY.md ?4.1)
 - Three commitment options: (1) logo only, (2) logo + written quote, (3) full case study + reference call
 - Objection-handling postscript for "we have a non-disclosure policy"
 - Required fields: <<CUSTOMER_NAME>>, <<TIER>>, <<PILOT_OUTCOME_SENTENCE>>
 
 Create docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md with:
 - Per-customer checklist from "pilot complete" to "Published" status
-- Steps: (a) pilot metrics gathered from PILOT_ROI_MODEL.md §5, (b) first-contact email sent, (c) approval in writing received, (d) logo file received, (e) case study draft sent, (f) customer-approved draft in hand, (g) CHANGELOG.md entry, (h) README row updated to Published
+- Steps: (a) pilot metrics gathered from PILOT_ROI_MODEL.md ?5, (b) first-contact email sent, (c) approval in writing received, (d) logo file received, (e) case study draft sent, (f) customer-approved draft in hand, (g) CHANGELOG.md entry, (h) README row updated to Published
 
-Update reference-customers/README.md §3 "How to add a real reference" to reference both new documents. Place the links after step 1.
+Update reference-customers/README.md ?3 "How to add a real reference" to reference both new documents. Place the links after step 1.
 ```
 
 **Affected files / projects:**
@@ -6876,34 +6876,34 @@ Update reference-customers/README.md §3 "How to add a real reference" to refere
 - `docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` (new)
 - `docs/go-to-market/reference-customers/README.md`
 
-**Cross-ref:** `PRICING_PHILOSOPHY.md §4.1`, `check_reference_customer_status.py`, TB-231 (proof run log for G4 progress).
+**Cross-ref:** `PRICING_PHILOSOPHY.md ?4.1`, `check_reference_customer_status.py`, TB-231 (proof run log for G4 progress).
 
 ---
 
-## TB-230 — GTM collateral placeholder audit and CI guard
+## TB-230 ? GTM collateral placeholder audit and CI guard
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-02
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-02
 **Priority:** P1
 **Size estimate:** S
 
 **Problem:**
 
-`PRODUCT_DATASHEET.md` ends with `Contact: [placeholder — add sales contact or URL]`. `SHOULD_YOU_EVALUATE.md` Q2 dead-ends with "Contact us for multi-cloud roadmap" with no link. Multiple buyer-facing documents contain `<<placeholder>>`, `[placeholder]`, or `TBD` tokens in customer-visible positions. A buyer landing on any of these ends the session.
+`PRODUCT_DATASHEET.md` ends with `Contact: [placeholder ? add sales contact or URL]`. `SHOULD_YOU_EVALUATE.md` Q2 dead-ends with "Contact us for multi-cloud roadmap" with no link. Multiple buyer-facing documents contain `<<placeholder>>`, `[placeholder]`, or `TBD` tokens in customer-visible positions. A buyer landing on any of these ends the session.
 
 **What to do:**
 
 ```
 1. In docs/go-to-market/PRODUCT_DATASHEET.md, replace the final contact placeholder line with:
-   "**Get started:** [archlucid.net](https://archlucid.net) · [Request a demo or quote](https://archlucid.net/contact)"
+   "**Get started:** [archlucid.net](https://archlucid.net) ? [Request a demo or quote](https://archlucid.net/contact)"
 
 2. In docs/go-to-market/SHOULD_YOU_EVALUATE.md, replace the Q2 no-branch dead-end with:
-   "- **No** → ArchLucid V1 targets Azure workloads. If your workloads are on AWS or GCP, [contact us](https://archlucid.net/contact) about our multi-cloud roadmap."
+   "- **No** ? ArchLucid V1 targets Azure workloads. If your workloads are on AWS or GCP, [contact us](https://archlucid.net/contact) about our multi-cloud roadmap."
 
 3. Create scripts/ci/check_gtm_placeholder_tokens.py that:
    - Recursively scans docs/go-to-market/**/*.md
    - Identifies lines containing <<[A-Z_]+>> patterns
    - Prints file:line:token for each match
-   - Exits 0 (non-blocking — warn only)
+   - Exits 0 (non-blocking ? warn only)
 
 4. Create docs/go-to-market/PLACEHOLDER_AUDIT.md that lists each known unfilled <<...>> token with: document path, token name, owner, and target date.
 
@@ -6918,19 +6918,19 @@ Update reference-customers/README.md §3 "How to add a real reference" to refere
 - `docs/go-to-market/PLACEHOLDER_AUDIT.md` (new)
 - `.github/workflows/ci.yml`
 
-**Cross-ref:** PQ-MKT-01 (canonical contact URL — resolved V1.1; use `archlucid.net/contact` as placeholder pending commerce un-hold), TB-229 (reference-customer workflow), TB-231 (claim-readiness tracker).
+**Cross-ref:** PQ-MKT-01 (canonical contact URL ? resolved V1.1; use `archlucid.net/contact` as placeholder pending commerce un-hold), TB-229 (reference-customer workflow), TB-231 (claim-readiness tracker).
 
 ---
 
-## TB-231 — Stage 0→1 claim-readiness status tracker and proof run log
+## TB-231 ? Stage 0?1 claim-readiness status tracker and proof run log
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-03
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-03
 **Priority:** P1
 **Size estimate:** S
 
 **Problem:**
 
-The G1–G6 framework is excellent but only documented in `GTM_BACKLOG.md`. There is no operational status page that a founder can update after each pilot to track progress toward Stage 1. Without this, the gate system exists only in documentation — not as a working checkpoint. Stage 1 access requires G1–G4 all PASS for ≥3 qualifying runs, and G4 currently has no log.
+The G1?G6 framework is excellent but only documented in `GTM_BACKLOG.md`. There is no operational status page that a founder can update after each pilot to track progress toward Stage 1. Without this, the gate system exists only in documentation ? not as a working checkpoint. Stage 1 access requires G1?G4 all PASS for ?3 qualifying runs, and G4 currently has no log.
 
 **What to do:**
 
@@ -6943,9 +6943,9 @@ Create docs/go-to-market/CLAIM_READINESS_STATUS.md:
 - Initial status for G2: PASS (RoiMetricSourceKind implemented per GTM_BACKLOG)
 - Initial status for G3: PASS (TB-071/072/073 done per TECH_BACKLOG.md)
 - Initial status for G4: HOLD (0 of 3 qualifying real runs logged)
-- Initial status for G5: HOLD (requires owner credentials — owner action)
+- Initial status for G5: HOLD (requires owner credentials ? owner action)
 - Initial status for G6: PASS (trust pack current; deferred items stated as deferred)
-- Section: "Stage 1 is authorized when G1–G4 all PASS for ≥3 runs"
+- Section: "Stage 1 is authorized when G1?G4 all PASS for ?3 runs"
 - Section: "Last reviewed: 2026-06-02"
 
 Create docs/go-to-market/PROOF_PACKET_RUN_LOG.md:
@@ -6961,13 +6961,13 @@ Add links to both documents in GTM_BACKLOG.md "Proof-gated rollout criteria" sec
 - `docs/go-to-market/PROOF_PACKET_RUN_LOG.md` (new)
 - `docs/go-to-market/GTM_BACKLOG.md`
 
-**Cross-ref:** `CLAIM_READINESS_CHECKLIST.md`, `GTM_BACKLOG.md §Proof-gated rollout criteria`, TB-227 (multi-run proof script), TB-229 (reference capture workflow).
+**Cross-ref:** `CLAIM_READINESS_CHECKLIST.md`, `GTM_BACKLOG.md ?Proof-gated rollout criteria`, TB-227 (multi-run proof script), TB-229 (reference capture workflow).
 
 ---
 
-## TB-232 — LinkedIn publishing calendar
+## TB-232 ? LinkedIn publishing calendar
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-04
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-04
 **Priority:** P2
 **Size estimate:** XS
 
@@ -6975,7 +6975,7 @@ Add links to both documents in GTM_BACKLOG.md "Proof-gated rollout criteria" sec
 
 The five posts (M-10 through M-14) and one long-form article (M-15) in `LINKEDIN_CONTENT_V1.md` are written and ready. No execution calendar exists. Without a calendar and a public commitment mechanism, posting gets deprioritized indefinitely.
 
-**Note:** PQ-MKT-02 (first post date and cadence approval) was resolved V1.1 per `V1_DEFERRED.md §6r`. Cursor produces the calendar structure; owner sets the start date and approves before publishing.
+**Note:** PQ-MKT-02 (first post date and cadence approval) was resolved V1.1 per `V1_DEFERRED.md ?6r`. Cursor produces the calendar structure; owner sets the start date and approves before publishing.
 
 **What to do:**
 
@@ -7009,9 +7009,9 @@ Cross-reference to LINKEDIN_CONTENT_V1.md for full post copy.
 
 ---
 
-## TB-233 — Demo video storyboard
+## TB-233 ? Demo video storyboard
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-05
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-05
 **Priority:** P2
 **Size estimate:** S
 
@@ -7038,9 +7038,9 @@ Create docs/go-to-market/DEMO_VIDEO_STORYBOARD.md with:
   - [ ] Test audio quality before recording
 - Include a post-production checklist:
   - [ ] Trim dead air at start/end
-  - [ ] Add title card: "ArchLucid — Defensible architecture, on demand"
+  - [ ] Add title card: "ArchLucid ? Defensible architecture, on demand"
   - [ ] Add captions for accessibility
-  - [ ] Upload to Loom or Wistia (not YouTube for sales demo — avoid competitor ads)
+  - [ ] Upload to Loom or Wistia (not YouTube for sales demo ? avoid competitor ads)
   - [ ] Add link in PRODUCT_DATASHEET.md and EXECUTIVE_SPONSOR_BRIEF.md
 ```
 
@@ -7049,13 +7049,13 @@ Create docs/go-to-market/DEMO_VIDEO_STORYBOARD.md with:
 - `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md` (new)
 - Reference only: `docs/go-to-market/DEMO_VIDEO_SCRIPT.md`
 
-**Cross-ref:** TB-236 (video production — DEFERRED; this TB is the prerequisite), PQ-MKT-03 resolved V1.1.
+**Cross-ref:** TB-236 (video production ? DEFERRED; this TB is the prerequisite), PQ-MKT-03 resolved V1.1.
 
 ---
 
-## TB-234 — `SHOULD_YOU_EVALUATE.md` ICP enrichment
+## TB-234 ? `SHOULD_YOU_EVALUATE.md` ICP enrichment
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-06
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-06
 **Priority:** P2
 **Size estimate:** XS
 
@@ -7070,18 +7070,18 @@ In docs/go-to-market/SHOULD_YOU_EVALUATE.md:
 
 1. Add a 5th question after Q4:
    Q5. Does your team have at least 3 architects or engineers who regularly author architecture decisions?
-   - No → ArchLucid may be early — try a single pilot review to validate fit.
-   - Yes → You are well-positioned for a full pilot.
+   - No ? ArchLucid may be early ? try a single pilot review to validate fit.
+   - Yes ? You are well-positioned for a full pilot.
 
 2. Replace the 15-minute evaluation path section with:
    ## 15-minute evaluation path
-   **Hosted SaaS:** Sign up at [archlucid.net/trial](https://archlucid.net/trial) → quick scan → review findings → commit manifest.
+   **Hosted SaaS:** Sign up at [archlucid.net/trial](https://archlucid.net/trial) ? quick scan ? review findings ? commit manifest.
    If sign-up is not yet available, [request a guided demo](https://archlucid.net/contact).
-   **Self-hosted:** From the repo root: `archlucid doctor && archlucid new --quick-scan` → review findings (about 15 minutes).
+   **Self-hosted:** From the repo root: `archlucid doctor && archlucid new --quick-scan` ? review findings (about 15 minutes).
 
 3. Add a "Strong fit signals" section after the evaluation path:
    You are likely a strong fit if:
-   - Your last architecture review involved ≥2 weeks of preparation time
+   - Your last architecture review involved ?2 weeks of preparation time
    - You have had a compliance finding surface in production rather than during design
    - You are Azure-primary or planning to be within 6 months
    - Your organization has a formal architecture review board or CAB
@@ -7092,19 +7092,19 @@ In docs/go-to-market/SHOULD_YOU_EVALUATE.md:
 
 - `docs/go-to-market/SHOULD_YOU_EVALUATE.md`
 
-**Cross-ref:** `BUYER_PERSONAS.md`, `IDEAL_CUSTOMER_PROFILE.md`, TB-230 (Q2 link fix — overlapping change; coordinate or combine).
+**Cross-ref:** `BUYER_PERSONAS.md`, `IDEAL_CUSTOMER_PROFILE.md`, TB-230 (Q2 link fix ? overlapping change; coordinate or combine).
 
 ---
 
-## TB-235 — `EXECUTIVE_ONE_EMAIL_KIT.md` — verify or create
+## TB-235 ? `EXECUTIVE_ONE_EMAIL_KIT.md` ? verify or create
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-07
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-07
 **Priority:** P2
 **Size estimate:** XS
 
 **Problem:**
 
-`EXECUTIVE_SPONSOR_BRIEF.md §Related` references `EXECUTIVE_ONE_EMAIL_KIT.md` as "one-email sponsor/procurement copy." If that file does not exist, it is a dead reference in the executive brief. An owner who finishes a pilot and wants to close the sponsor via email needs this kit.
+`EXECUTIVE_SPONSOR_BRIEF.md ?Related` references `EXECUTIVE_ONE_EMAIL_KIT.md` as "one-email sponsor/procurement copy." If that file does not exist, it is a dead reference in the executive brief. An owner who finishes a pilot and wants to close the sponsor via email needs this kit.
 
 **What to do:**
 
@@ -7115,10 +7115,10 @@ If it does not exist, create it with:
 - 3 subject line variants (urgency-light, outcome-first, meeting-request)
 - 120-word email body with: opening hook, 2-sentence product description, pilot outcome placeholder (<<PILOT_OUTCOME>>), and CTA (schedule 30 minutes to review findings)
 - Four-artifact checklist the operator attaches:
-  1. Executive Sponsor Brief PDF (docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md → export)
+  1. Executive Sponsor Brief PDF (docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md ? export)
   2. First-value report PDF (POST /v1/pilots/runs/{runId}/first-value-report.pdf)
   3. Pilot proof packet ZIP (scripts/collect-first-pilot-proof.ps1)
-  4. ROI estimate (docs/library/PILOT_ROI_MODEL.md §5 benchmark)
+  4. ROI estimate (docs/library/PILOT_ROI_MODEL.md ?5 benchmark)
 - Follow-up timing guidance (48-hour first follow-up, 5-day second follow-up)
 - Cross-reference back to EXECUTIVE_SPONSOR_BRIEF.md as the canonical sponsor narrative
 
@@ -7133,17 +7133,17 @@ If the file exists but is a stub, fill it with the above content.
 
 ---
 
-## TB-236 — Demo video production (DEFERRED)
+## TB-236 ? Demo video production (DEFERRED)
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-08
-**Priority:** DEFERRED — owner action required
-**Deferred per:** `V1_DEFERRED.md §6r` — PQ-MKT-03 resolved 2026-06-02
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-08
+**Priority:** DEFERRED ? owner action required
+**Deferred per:** `V1_DEFERRED.md ?6r` ? PQ-MKT-03 resolved 2026-06-02
 
 **Problem:**
 
 No demo video has been produced despite `DEMO_VIDEO_SCRIPT.md` existing. The video is the conversion asset that bridges LinkedIn cold traffic to product understanding. Without it, buyers who arrive from social content have no "show me what this does" answer.
 
-**Cursor can do:** TB-233 (storyboard — prerequisite, separate TB). TB-236 requires owner screen recording and voiceover.
+**Cursor can do:** TB-233 (storyboard ? prerequisite, separate TB). TB-236 requires owner screen recording and voiceover.
 
 **Do not pick up:** This item requires the owner to record the video using a tool of their choice (see PQ-MKT-03, resolved V1.1). No Cursor implementation is possible until media is returned for description/caption pass.
 
@@ -7151,9 +7151,9 @@ No demo video has been produced despite `DEMO_VIDEO_SCRIPT.md` existing. The vid
 
 ---
 
-## TB-237 — Pricing page early-adopter framing
+## TB-237 ? Pricing page early-adopter framing
 
-**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-09
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` ?MKT-09
 **Priority:** P2
 **Size estimate:** XS
 
@@ -7170,43 +7170,43 @@ Find the pricing section and add a pricing philosophy note below the tier grid:
 "**Early adopter pricing.** Current prices reflect ArchLucid's early-access period.
 List prices are intentionally set at approximately 50% of fair value to reward
 early adopters who help us build our first reference cases. Prices will increase
-as we publish independent security attestations and customer case studies —
+as we publish independent security attestations and customer case studies ?
 your rate is locked for the life of your initial subscription."
 
-Also update PRICING_PHILOSOPHY.md §1 Pricing principles table with a new row:
+Also update PRICING_PHILOSOPHY.md ?1 Pricing principles table with a new row:
 | **Transparent early-access framing** | Buyers who understand why the price is low are more likely to convert, not less. The discount stack is an honest early-adopter signal, not a distress indicator. |
 ```
 
 **Affected files / projects:**
 
 - `archlucid-ui/src/app/(marketing)/pricing/` (pricing component)
-- `docs/go-to-market/PRICING_PHILOSOPHY.md §1`
+- `docs/go-to-market/PRICING_PHILOSOPHY.md ?1`
 
-**Cross-ref:** `PRICING_PHILOSOPHY.md §3.2` (Stripe Team checkout flag), `PRICING_PHILOSOPHY.md §4.1` (reference discount), TB-230 (GTM placeholder audit — coordinate on pricing page changes).
+**Cross-ref:** `PRICING_PHILOSOPHY.md ?3.2` (Stripe Team checkout flag), `PRICING_PHILOSOPHY.md ?4.1` (reference discount), TB-230 (GTM placeholder audit ? coordinate on pricing page changes).
 
 ---
 
-## TB-238 — Baseline capture prompt in pilot wizard
+## TB-238 ? Baseline capture prompt in pilot wizard
 
-**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-01
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` ?ROI-01
 **Priority:** P1
 **Size estimate:** S
 
 **Problem:**
 
-`POST /v1/register` optionally accepts `baselineReviewCycleHours` and `baselineReviewCycleSource`. `PilotBaselineRecord` persists them and `PilotRunDeltaComputer` uses them to compute before/after deltas. But the pilot wizard never prompts the operator for this data. Without a UI prompt, every first-value report defaults to "Defaulted" or "Low confidence" ROI labels — the weakest possible sponsor-facing output. The infrastructure is built; it just has no UI entry point.
+`POST /v1/register` optionally accepts `baselineReviewCycleHours` and `baselineReviewCycleSource`. `PilotBaselineRecord` persists them and `PilotRunDeltaComputer` uses them to compute before/after deltas. But the pilot wizard never prompts the operator for this data. Without a UI prompt, every first-value report defaults to "Defaulted" or "Low confidence" ROI labels ? the weakest possible sponsor-facing output. The infrastructure is built; it just has no UI entry point.
 
 **What to do:**
 
 ```
 Add a baseline capture step to the architecture request wizard.
 
-1. Locate the architecture request wizard in archlucid-ui (7-step flow — search for ArchitectureRequestWizard or similar).
+1. Locate the architecture request wizard in archlucid-ui (7-step flow ? search for ArchitectureRequestWizard or similar).
    After the workspace/project selection step and before the execution step, add a new optional step: "Baseline metrics (for ROI reporting)".
 
 2. The step should contain:
    - A numeric input: "How many hours does a typical architecture review currently take your team (request to approved manifest)?"
-     Label: "Current review cycle time (hours)" · Placeholder: "e.g. 40"
+     Label: "Current review cycle time (hours)" ? Placeholder: "e.g. 40"
      Help text: "Used to calculate time savings in your first-value report. Leave blank to use industry defaults."
    - A select: "How confident are you in this estimate?"
      Options: "Very confident (measured)", "Somewhat confident (team estimate)", "Not sure (leave blank)"
@@ -7219,7 +7219,7 @@ Add a baseline capture step to the architecture request wizard.
 
 4. Add Vitest tests: baseline step renders with numeric input, skip advances without API call, submit calls baselines endpoint.
 
-5. Update docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md §Baseline to reference the new wizard step.
+5. Update docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md ?Baseline to reference the new wizard step.
 ```
 
 **Affected files / projects:**
@@ -7227,13 +7227,13 @@ Add a baseline capture step to the architecture request wizard.
 - Architecture request wizard component in `archlucid-ui`
 - `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`
 
-**Cross-ref:** `FirstValueReportBuilder.cs`, `PilotRunDeltaComputer.cs`, `PilotBaselineRecord`, `PILOT_ROI_MODEL.md §3.1 Baseline questions`.
+**Cross-ref:** `FirstValueReportBuilder.cs`, `PilotRunDeltaComputer.cs`, `PilotBaselineRecord`, `PILOT_ROI_MODEL.md ?3.1 Baseline questions`.
 
 ---
 
-## TB-239 — Executive ROI history run-mode label
+## TB-239 ? Executive ROI history run-mode label
 
-**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-02
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` ?ROI-02
 **Priority:** P1
 **Size estimate:** S
 
@@ -7248,14 +7248,14 @@ Add run-mode breakdown to the executive ROI history response.
 
 Backend:
 1. In `ExecutiveRoiHistoryPeriod` (search for `ExecutiveRoiHistoryPeriod` or `ExecutiveRoiHistoryResponse`), add:
-   - `int RealRunCount` — committed runs with ExecutionMode = Real
-   - `int SimulatorRunCount` — committed runs with ExecutionMode != Real
-   - `decimal RealModeSavingsUsd` — savings pro-rated to Real-mode runs (total × real/(real+sim))
-   - `bool IsMixedMode` — true when both Real and Simulator runs contributed
+   - `int RealRunCount` ? committed runs with ExecutionMode = Real
+   - `int SimulatorRunCount` ? committed runs with ExecutionMode != Real
+   - `decimal RealModeSavingsUsd` ? savings pro-rated to Real-mode runs (total ? real/(real+sim))
+   - `bool IsMixedMode` ? true when both Real and Simulator runs contributed
 
 2. In `IExecutiveRoiSummaryService.BuildHistoryAsync`, compute per-period mode breakdown from dbo.Runs.ExecutionMode.
 
-3. Add unit test: 3 Real + 2 Simulator → correct mode counts and pro-rated savings.
+3. Add unit test: 3 Real + 2 Simulator ? correct mode counts and pro-rated savings.
 
 Frontend:
 4. In the executive ROI history chart component:
@@ -7270,13 +7270,13 @@ Frontend:
 - `ExecutiveRoiHistoryPeriod` contract
 - Executive ROI history chart in `archlucid-ui`
 
-**Cross-ref:** `RoiController.cs` `/executive-summary/history`, `PILOT_SUCCESS_SCORECARD.md §2.4` (Operational metrics — Run success rate).
+**Cross-ref:** `RoiController.cs` `/executive-summary/history`, `PILOT_SUCCESS_SCORECARD.md ?2.4` (Operational metrics ? Run success rate).
 
 ---
 
-## TB-240 — Executive ROI surface data quality regression guard
+## TB-240 ? Executive ROI surface data quality regression guard
 
-**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-03
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` ?ROI-03
 **Priority:** P1
 **Size estimate:** S
 
@@ -7289,45 +7289,45 @@ TB-103 (orphan-candidate dual pipeline), TB-149 (waiver window inconsistency), T
 ```
 Create ArchLucid.Application.Tests/Roi/ExecutiveRoiSummaryInvariantTests.cs:
 
-Test 1 — FindingsReduced/FindingsAdded polarity (guards TB-151/TB-152):
+Test 1 ? FindingsReduced/FindingsAdded polarity (guards TB-151/TB-152):
 - Given two runs where run2 has fewer findings than run1
 - Assert ExecutiveSummaryResult.FindingsReduced > 0
 - Assert ExecutiveSummaryResult.FindingsAdded == 0
 
-Test 2 — WaiversExpiringWithin14Days consistency (guards TB-149):
+Test 2 ? WaiversExpiringWithin14Days consistency (guards TB-149):
 - Given a waiver expiring in 10 days
 - Assert GovernanceDecisionsNeededSummary.WaiversExpiringWithin14Days == 1
 - Assert ExecutiveSummaryResult waiver count agrees
 
-Test 3 — OrphanCandidateCount single source (guards TB-103):
+Test 3 ? OrphanCandidateCount single source (guards TB-103):
 - Given a run with 3 orphan candidates from one pipeline only
 - Assert ExecutiveSummaryResult.OrphanCandidateCount == 3 (not 6 from two pipelines)
 
-Test 4 — Cache freshness (guards TB-155):
+Test 4 ? Cache freshness (guards TB-155):
 - Given a new waiver decision written after cache is populated
 - Assert GetExecutiveSummaryAsync returns the updated count (cache invalidated)
 
-Add a comment in each test: `// Regression guard for TB-NNN — <summary of original defect>`.
+Add a comment in each test: `// Regression guard for TB-NNN ? <summary of original defect>`.
 ```
 
 **Affected files / projects:**
 
 - `ArchLucid.Application.Tests/Roi/ExecutiveRoiSummaryInvariantTests.cs` (new)
-- No production code changes — guard only
+- No production code changes ? guard only
 
-**Cross-ref:** TB-103, TB-149, TB-151, TB-152, TB-155 — this TB guards those fixes, does not implement them.
+**Cross-ref:** TB-103, TB-149, TB-151, TB-152, TB-155 ? this TB guards those fixes, does not implement them.
 
 ---
 
-## TB-241 — Board-pack AI executive narrative
+## TB-241 ? Board-pack AI executive narrative
 
-**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-04
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` ?ROI-04
 **Priority:** P2
 **Size estimate:** M
 
 **Problem:**
 
-`GET /v1/roi/executive-summary/board-pack` generates structural markdown/PDF with no AI interpretation. A sponsor who receives the board pack gets raw tables without any contextual narrative. The difference between a data dump and a sponsor-ready document is 3–5 sentences that explain what the numbers mean in plain language. This is a direct AI leverage opportunity.
+`GET /v1/roi/executive-summary/board-pack` generates structural markdown/PDF with no AI interpretation. A sponsor who receives the board pack gets raw tables without any contextual narrative. The difference between a data dump and a sponsor-ready document is 3?5 sentences that explain what the numbers mean in plain language. This is a direct AI leverage opportunity.
 
 **What to do:**
 
@@ -7342,11 +7342,11 @@ Backend:
      User: JSON of { totalSavingsUsd, roiPercent, realRunCount, topFindingCategory, governanceComplianceRate, confidenceLabel }
    - Prefix board-pack Markdown with the narrative under `## Executive summary`.
    - If the LLM call fails, skip gracefully (structural content renders as normal).
-3. Add unit tests: config true → `## Executive summary` present; config false → absent; LLM failure → structural content only.
+3. Add unit tests: config true ? `## Executive summary` present; config false ? absent; LLM failure ? structural content only.
 
 Frontend:
 4. Add a toggle "Include AI executive summary (uses 1 Ask call)" to the board-pack download button (appends `?generateNarrative=true`).
-5. Show a loading spinner while the narrative generates (~2–4 seconds).
+5. Show a loading spinner while the narrative generates (~2?4 seconds).
 ```
 
 **Affected files / projects:**
@@ -7354,19 +7354,19 @@ Frontend:
 - `ArchLucid.Api/Controllers/Pilots/PilotsBoardPackController.cs` or `RoiController.cs`
 - Board-pack download component in `archlucid-ui`
 
-**Cross-ref:** TB-179 (multi-model tiering — fast-path prerequisite for cost safety), `AI_LEVERAGE_ROADMAP.md`.
+**Cross-ref:** TB-179 (multi-model tiering ? fast-path prerequisite for cost safety), `AI_LEVERAGE_ROADMAP.md`.
 
 ---
 
-## TB-242 — ROI model freshness CI guard
+## TB-242 ? ROI model freshness CI guard
 
-**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-05
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` ?ROI-05
 **Priority:** P2
 **Size estimate:** XS
 
 **Problem:**
 
-`ROI_MODEL.md §8` states "last reviewed 2026-04-17" and references "locked 2026 prices" — now over 6 weeks stale. The §8.1 subscription cost table references `PRICING_PHILOSOPHY.md §5` but inline numbers may have drifted. A founder who presents the ROI model in a sponsor meeting using the inline numbers risks quoting prices that don't match the current order form.
+`ROI_MODEL.md ?8` states "last reviewed 2026-04-17" and references "locked 2026 prices" ? now over 6 weeks stale. The ?8.1 subscription cost table references `PRICING_PHILOSOPHY.md ?5` but inline numbers may have drifted. A founder who presents the ROI model in a sponsor meeting using the inline numbers risks quoting prices that don't match the current order form.
 
 **What to do:**
 
@@ -7374,14 +7374,14 @@ Frontend:
 1. Create scripts/ci/check_roi_model_freshness.py:
    - Read docs/go-to-market/ROI_MODEL.md
    - Extract the "Last reviewed:" date (regex: r"Last reviewed:\s+(\d{4}-\d{2}-\d{2})")
-   - If date is >90 days ago: print warning and exit 0 (warn only — non-blocking)
+   - If date is >90 days ago: print warning and exit 0 (warn only ? non-blocking)
    - If date is missing: print error and exit 0 (warn only)
 
 2. Add to .github/workflows/ci.yml as "Check ROI model freshness" warn-only step.
 
 3. Update docs/go-to-market/ROI_MODEL.md:
    - Change "Last reviewed: 2026-04-17" to "Last reviewed: 2026-06-02"
-   - Add line after "Last reviewed": "Pricing reference: `PRICING_PHILOSOPHY.md §5` — verify §8–9 inline numbers match before any sponsor conversation."
+   - Add line after "Last reviewed": "Pricing reference: `PRICING_PHILOSOPHY.md ?5` ? verify ?8?9 inline numbers match before any sponsor conversation."
 ```
 
 **Affected files / projects:**
@@ -7390,13 +7390,13 @@ Frontend:
 - `.github/workflows/ci.yml`
 - `docs/go-to-market/ROI_MODEL.md`
 
-**Cross-ref:** `check_reference_customer_status.py` (same pattern), `PRICING_PHILOSOPHY.md §5`.
+**Cross-ref:** `check_reference_customer_status.py` (same pattern), `PRICING_PHILOSOPHY.md ?5`.
 
 ---
 
-## TB-243 — Sponsor proof delivery tracking event
+## TB-243 ? Sponsor proof delivery tracking event
 
-**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-06
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` ?ROI-06
 **Priority:** P2
 **Size estimate:** S
 
@@ -7416,7 +7416,7 @@ Backend:
    - Validates run exists and is committed (409 if not committed)
    - Writes `SponsorEvidencePackSent` audit event via `IAuditRepository`
    - Returns 204 No Content
-3. Add unit tests: valid committed run → 204 + audit event written; uncommitted run → 409.
+3. Add unit tests: valid committed run ? 204 + audit event written; uncommitted run ? 409.
 
 Frontend:
 4. In `RunDetailFirstScreenProofStatus.tsx`, after "Download PDF" button:
@@ -7433,13 +7433,13 @@ Frontend:
 - `ArchLucid.Api/Controllers/Pilots/PilotsController.cs`
 - `archlucid-ui/src/components/reviews/RunDetailFirstScreenProofStatus.tsx`
 
-**Cross-ref:** `IAuditRepository`, TB-228 (tenant health admin — `SponsorEvidencePackSent` feeds `OperatorStickinessSignals`), TB-225 (CS-06 RLS fix on snapshot reader).
+**Cross-ref:** `IAuditRepository`, TB-228 (tenant health admin ? `SponsorEvidencePackSent` feeds `OperatorStickinessSignals`), TB-225 (CS-06 RLS fix on snapshot reader).
 
 ---
 
-## TB-215 — Evidence upload integrated into review wizard (P1)
+## TB-215 ? Evidence upload integrated into review wizard (P1)
 
-**Status:** **Shipped (2026-06-02 batch 5AI)** — `WizardStepEvidenceUpload` + post-create upload path in `NewRunWizardClient` at **`/reviews/new`**.
+**Status:** **Shipped (2026-06-02 batch 5AI)** ? `WizardStepEvidenceUpload` + post-create upload path in `NewRunWizardClient` at **`/reviews/new`**.
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
 **Problem (resolved):** Optional evidence upload is integrated into the wizard; evaluators can upload the Azure extractor ZIP during create instead of only from review detail.
@@ -7454,13 +7454,13 @@ Add an optional evidence upload step to the architecture request wizard.
    - Heading: "Upload Azure evidence (optional)"
    - Dropzone: drag-and-drop or browse for .zip files only.
    - Help text: "Run the Azure extractor in your subscription to generate this file. See AZURE_EXTRACTOR.md."
-   - Link: "No evidence file? Use demo data instead — outputs will be labeled Simulator."
-   - Secondary button: "Skip and use demo data" — advances wizard without uploading.
+   - Link: "No evidence file? Use demo data instead ? outputs will be labeled Simulator."
+   - Secondary button: "Skip and use demo data" ? advances wizard without uploading.
    - If a file is dropped, store it as pendingEvidenceFile in wizard state.
 
 3. After review is created (POST /v1/architecture/request returns runId), if pendingEvidenceFile is set, automatically upload it via POST /v1/azure-extractor/upload before navigating to the tracking step.
 
-4. If upload fails, show an inline error in the tracking step with a retry option — do not block review creation.
+4. If upload fails, show an inline error in the tracking step with a retry option ? do not block review creation.
 
 5. Add Vitest tests: step renders dropzone; skip advances without upload; upload is called after review created when file is present; upload failure shows inline error without blocking.
 ```
@@ -7470,11 +7470,11 @@ Add an optional evidence upload step to the architecture request wizard.
 - `archlucid-ui/src/app/(operator)/reviews/new/` (wizard step components, `NewRunWizardClient.tsx` or equivalent)
 - `archlucid-ui/src/components/` (new `EvidenceUploadWizardStep.tsx` component)
 
-**Cross-ref:** TB-156 (API proxy startup diagnostics), `AZURE_EXTRACTOR.md`, `FIRST_PILOT_OPERATOR_PATH.md` Phase C2, TB-238 (wizard baseline capture — Proof-of-ROI).
+**Cross-ref:** TB-156 (API proxy startup diagnostics), `AZURE_EXTRACTOR.md`, `FIRST_PILOT_OPERATOR_PATH.md` Phase C2, TB-238 (wizard baseline capture ? Proof-of-ROI).
 
 ---
 
-## TB-216 — `archlucid try --sponsor-packet` one-shot command (P1)
+## TB-216 ? `archlucid try --sponsor-packet` one-shot command (P1)
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
 **Problem:** `archlucid try` produces a committed run id but a sponsor-ready proof folder requires two additional commands (`pilot proof-packet <runId>` + manual directory review). A `--sponsor-packet` flag closes this to a single invocation.
@@ -7483,20 +7483,20 @@ Add an optional evidence upload step to the architecture request wizard.
 ```
 Extend `archlucid try` to support a --sponsor-packet flag.
 
-In ArchLucid.Cli/Commands/ (find the try command — likely TryCommand.cs or equivalent):
+In ArchLucid.Cli/Commands/ (find the try command ? likely TryCommand.cs or equivalent):
 
 1. Add --sponsor-packet boolean flag (default false) and --out <dir> optional output directory (default: artifacts/try-sponsor-packet/<runId>).
 
 2. When --sponsor-packet is specified, after the review is committed:
-   a. Print "Generating sponsor proof packet…"
+   a. Print "Generating sponsor proof packet?"
    b. Call the same logic as pilot proof-packet <runId> --out <dir> (reuse PilotProofPacketCommand internals, do not duplicate).
-   c. Print the output directory path and: "Sponsor packet ready → <dir>/proof-summary.md"
+   c. Print the output directory path and: "Sponsor packet ready ? <dir>/proof-summary.md"
    d. Optionally open the directory (only when running interactively, guard with --no-open flag).
 
-3. Update docs/runbooks/FIRST_VALUE_20_MINUTES.md §Path step 3 to show the one-command alternative:
-   "Step 3 (combined): archlucid try --sponsor-packet --out artifacts/proof → proof-summary.md"
+3. Update docs/runbooks/FIRST_VALUE_20_MINUTES.md ?Path step 3 to show the one-command alternative:
+   "Step 3 (combined): archlucid try --sponsor-packet --out artifacts/proof ? proof-summary.md"
 
-4. Update docs/onboarding/EVALUATOR_WORKBOOK.md §First commands to show the combined command.
+4. Update docs/onboarding/EVALUATOR_WORKBOOK.md ?First commands to show the combined command.
 
 5. Add a unit test: --sponsor-packet invokes proof-packet logic with the correct run id.
 ```
@@ -7512,10 +7512,10 @@ In ArchLucid.Cli/Commands/ (find the try command — likely TryCommand.cs or equ
 
 ---
 
-## TB-217 — Demo seed auto-apply on startup when `Demo:AnonymousViewer:Enabled` (P1)
+## TB-217 ? Demo seed auto-apply on startup when `Demo:AnonymousViewer:Enabled` (P1)
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
-**Problem:** `DemoExplainController.cs` returns 404 when `POST /v1/demo/seed` has not been applied. In any freshly deployed demo environment the seed must be applied manually — a silent first-impression failure for buyers who visit `/demo/explain` before a human runs the seed command.
+**Problem:** `DemoExplainController.cs` returns 404 when `POST /v1/demo/seed` has not been applied. In any freshly deployed demo environment the seed must be applied manually ? a silent first-impression failure for buyers who visit `/demo/explain` before a human runs the seed command.
 
 **Cursor prompt:**
 ```
@@ -7526,10 +7526,10 @@ Auto-apply the demo seed on startup when Demo:AnonymousViewer:Enabled is true.
    - Reads Demo:AnonymousViewer:Enabled from IConfiguration.
    - If true: calls IDemoSeedService.SeedAsync() (or the equivalent used by DemoController.cs).
    - Logs "Demo seed applied on startup" at Information, or "Demo seed skipped (AnonymousViewer disabled)" when false.
-   - Catches and logs any seed failure at Warning without crashing startup — seed failure is non-fatal.
+   - Catches and logs any seed failure at Warning without crashing startup ? seed failure is non-fatal.
    - Registers as AddHostedService<DemoSeedStartupHostedService>() in the composition root.
 
-2. Update docs/go-to-market/DEMO_WORKSPACES.md §Setup:
+2. Update docs/go-to-market/DEMO_WORKSPACES.md ?Setup:
    "When Demo:AnonymousViewer:Enabled = true, the Contoso seed is applied automatically on startup.
    Manual POST /v1/demo/seed is no longer required."
 
@@ -7546,9 +7546,9 @@ Auto-apply the demo seed on startup when Demo:AnonymousViewer:Enabled is true.
 
 ---
 
-## TB-218 — Demo viewer "Start your own review" CTA (P2)
+## TB-218 ? Demo viewer "Start your own review" CTA (P2)
 
-**Status:** **Shipped (2026-06-02)** — `DemoExplainConversionCtaCard` links to **`/reviews/new?preset=greenfield`** (`DEMO_EXPLAIN_CONVERSION_REVIEW_HREF`).
+**Status:** **Shipped (2026-06-02)** ? `DemoExplainConversionCtaCard` links to **`/reviews/new?preset=greenfield`** (`DEMO_EXPLAIN_CONVERSION_REVIEW_HREF`).
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
 **Problem (resolved):** The anonymous demo viewer at `/demo/explain` had no forward CTA; canonical wizard entry is now **`/reviews/new`** (legacy `/runs/new` redirects).
@@ -7557,13 +7557,13 @@ Auto-apply the demo seed on startup when Demo:AnonymousViewer:Enabled is true.
 ```
 Add a "Start your own review" CTA to the demo explain page.
 
-In archlucid-ui, find the demo explain page component (/demo/explain route — search for DemoExplainController reference or the route in app/(marketing) or app/(operator)):
+In archlucid-ui, find the demo explain page component (/demo/explain route ? search for DemoExplainController reference or the route in app/(marketing) or app/(operator)):
 
 1. At the bottom of the demo findings/artifacts view, add a sticky footer or prominently placed card:
    - Heading: "Ready to run this on your own architecture?"
    - Body: "Upload your Azure evidence file to get a review like this in about 15 minutes."
-   - Primary button: "Start a new review →" — navigates to /reviews/new?preset=greenfield
-   - Secondary link: "See what you need first" — links to in-app help panel referencing EVALUATOR_WORKBOOK.md
+   - Primary button: "Start a new review ?" ? navigates to /reviews/new?preset=greenfield
+   - Secondary link: "See what you need first" ? links to in-app help panel referencing EVALUATOR_WORKBOOK.md
 
 2. The CTA is visible without scrolling on desktop (sticky bottom bar or fixed bottom card).
 
@@ -7574,16 +7574,16 @@ In archlucid-ui, find the demo explain page component (/demo/explain route — s
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/` (demo explain page — `/demo/explain` route component)
+- `archlucid-ui/src/app/` (demo explain page ? `/demo/explain` route component)
 - `archlucid-ui/src/components/DemoExplainConversionCtaCard.tsx` (new)
 
 **Cross-ref:** `DemoExplainController.cs`, TB-217 (demo seed preflight), TB-219 (wizard preset deep-link), `BUYER_ORIENTATION_ONE_SCREEN.md`.
 
 ---
 
-## TB-219 — Wizard preset deep-link from self-qualification docs (P2)
+## TB-219 ? Wizard preset deep-link from self-qualification docs (P2)
 
-**Status:** **Shipped (2026-06-02 batch 5AG)** — `wizard-preset-deeplink.ts` + `NewRunWizardClient` at **`/reviews/new`**; `SHOULD_YOU_EVALUATE.md` Q4 links to **`/reviews/new?preset=greenfield`**.
+**Status:** **Shipped (2026-06-02 batch 5AG)** ? `wizard-preset-deeplink.ts` + `NewRunWizardClient` at **`/reviews/new`**; `SHOULD_YOU_EVALUATE.md` Q4 links to **`/reviews/new?preset=greenfield`**.
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
 **Problem (resolved):** Self-qualification docs now deep-link preset context into the wizard at **`/reviews/new?preset=greenfield`**.
@@ -7593,19 +7593,19 @@ In archlucid-ui, find the demo explain page component (/demo/explain route — s
 Add query param preset support to the wizard and update self-qualification links.
 
 1. In archlucid-ui/src/app/(operator)/reviews/new/ (or NewRunWizardClient.tsx), read searchParams.get("preset") on mount:
-   - "greenfield" → auto-select "Greenfield web app" preset (step 1)
-   - "modernize" → auto-select "Modernize legacy system"
-   - "blank" → auto-select "Blank (advanced)"
-   - Any other value or missing → show preset selection as normal (no auto-select)
+   - "greenfield" ? auto-select "Greenfield web app" preset (step 1)
+   - "modernize" ? auto-select "Modernize legacy system"
+   - "blank" ? auto-select "Blank (advanced)"
+   - Any other value or missing ? show preset selection as normal (no auto-select)
 
 2. In docs/go-to-market/SHOULD_YOU_EVALUATE.md, update Q4 decision tree:
-   - "Start with Pilot" → link to /reviews/new?preset=greenfield with text "Start with Pilot (pre-fills greenfield preset)"
-   - "Start with Operate" → unchanged (links to /governance)
+   - "Start with Pilot" ? link to /reviews/new?preset=greenfield with text "Start with Pilot (pre-fills greenfield preset)"
+   - "Start with Operate" ? unchanged (links to /governance)
 
-3. In docs/onboarding/EVALUATOR_WORKBOOK.md §Session flow step 1, add:
+3. In docs/onboarding/EVALUATOR_WORKBOOK.md ?Session flow step 1, add:
    "Quick start: your-pilot-url/reviews/new?preset=greenfield pre-fills the greenfield template."
 
-4. Add Vitest tests: ?preset=greenfield → greenfield preset selected on mount; missing/unknown param → no preset pre-selected.
+4. Add Vitest tests: ?preset=greenfield ? greenfield preset selected on mount; missing/unknown param ? no preset pre-selected.
 ```
 
 **Affected files / projects:**
@@ -7618,10 +7618,10 @@ Add query param preset support to the wizard and update self-qualification links
 
 ---
 
-## TB-220 — Wizard-to-commit OTel histogram (P2)
+## TB-220 ? Wizard-to-commit OTel histogram (P2)
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
-**Problem:** `FIRST_VALUE_20_MINUTES.md` claims a 15-minute path to sponsor-safe artifact. This claim is aspirational — no OTel metric measures actual elapsed time from wizard submission to committed manifest. Without this data the ArchLucid team cannot verify the claim, identify where evaluators stall, or set a data-backed improvement target.
+**Problem:** `FIRST_VALUE_20_MINUTES.md` claims a 15-minute path to sponsor-safe artifact. This claim is aspirational ? no OTel metric measures actual elapsed time from wizard submission to committed manifest. Without this data the ArchLucid team cannot verify the claim, identify where evaluators stall, or set a data-backed improvement target.
 
 **Cursor prompt:**
 ```
@@ -7644,23 +7644,23 @@ Frontend:
 
 Documentation:
 4. Add archlucid.pilot.wizard_to_committed_minutes to docs/library/OBSERVABILITY.md OTel metrics table.
-5. Add a row to PILOT_SUCCESS_SCORECARD.md §2.4 Operational metrics:
+5. Add a row to PILOT_SUCCESS_SCORECARD.md ?2.4 Operational metrics:
    | Wizard-to-committed wall-clock | archlucid.pilot.wizard_to_committed_minutes | p50/p95 |
 ```
 
 **Affected files / projects:**
 
 - `ArchLucid.Domain/` or `ArchLucid.Application/` (add `RequestSource` to run/request model)
-- `ArchLucid.Api/Controllers/` (commit endpoint — add histogram recording)
+- `ArchLucid.Api/Controllers/` (commit endpoint ? add histogram recording)
 - `archlucid-ui/src/app/(operator)/reviews/new/` (add `requestSource: "wizard"` to submit body)
 - `docs/library/OBSERVABILITY.md`
 - `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md`
 
-**Cross-ref:** TB-215 (wizard evidence upload — both touch wizard submit), TB-216 (`archlucid try --sponsor-packet` — related TTV measurement), `FIRST_VALUE_20_MINUTES.md`.
+**Cross-ref:** TB-215 (wizard evidence upload ? both touch wizard submit), TB-216 (`archlucid try --sponsor-packet` ? related TTV measurement), `FIRST_VALUE_20_MINUTES.md`.
 
 ---
 
-## TB-244 — KPI tile drill-through navigation (P1)
+## TB-244 ? KPI tile drill-through navigation (P1)
 
 **Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
 **Problem:** `ExecutiveRoiDashboardLiveKpiCards.tsx` renders live count tiles for orphan candidates, SQL backup mismatches, and similar signals, but none of the tiles are clickable. An executive sponsor who wants to understand the numbers behind a KPI must navigate away manually. This is the highest-deficiency gap in the EVV assessment (sub-dimension deficiency 10.50 + 6.60).
@@ -7672,9 +7672,9 @@ Add click-through navigation to each KPI tile in ExecutiveRoiDashboardLiveKpiCar
 1. Import Next.js Link from 'next/link'.
 
 2. For each count tile, wrap the displayed number (and optionally the tile card) in a <Link> pointing to the appropriate filtered page:
-   - Orphan candidates count → /runs?filter=orphan-candidates
-   - SQL backup / region mismatches → /compliance?filter=backup-region
-   - Compliance drift count → /compliance?filter=drift
+   - Orphan candidates count ? /runs?filter=orphan-candidates
+   - SQL backup / region mismatches ? /compliance?filter=backup-region
+   - Compliance drift count ? /compliance?filter=drift
    - Any other KPIs: point to the most relevant list page with a filter param that the target page already accepts, or /executive/dashboard as a fallback.
 
 3. Style the link so the tile still looks like a card (not a blue underline): add cursor-pointer, hover:ring-2 ring-primary/30, transition classes consistent with other interactive cards in the executive shell.
@@ -7690,11 +7690,11 @@ Add click-through navigation to each KPI tile in ExecutiveRoiDashboardLiveKpiCar
 
 - `archlucid-ui/src/app/executive/` (`ExecutiveRoiDashboardLiveKpiCards.tsx`)
 
-**Cross-ref:** TB-245 (trend chart upgrade — same dashboard page), TB-246 (executive shell nav), TB-062 (executive KPI replacement).
+**Cross-ref:** TB-245 (trend chart upgrade ? same dashboard page), TB-246 (executive shell nav), TB-062 (executive KPI replacement).
 
 ---
 
-## TB-245 — ROI trend chart upgrade to SVG bar chart (P1)
+## TB-245 ? ROI trend chart upgrade to SVG bar chart (P1)
 
 **Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
 **Problem:** `ExecutiveRoiTrendSection.tsx` renders 6-month ROI trend data as proportional CSS `<div>` elements. There are no axis labels, no month labels on bars, and no hover tooltips showing exact values. This is visually indistinguishable from a placeholder and is unacceptable in an executive-facing dashboard.
@@ -7707,11 +7707,11 @@ Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a pr
 
 2. The chart must render:
    - Vertical bars scaled to the max value in the dataset.
-   - Y-axis labels on the left side (e.g., "$0", "$5k", "$10k") with 3–4 evenly spaced ticks.
+   - Y-axis labels on the left side (e.g., "$0", "$5k", "$10k") with 3?4 evenly spaced ticks.
    - Month abbreviation labels (e.g., "Jan", "Feb") below each bar.
-   - On-hover tooltip showing the exact value for that month (e.g., "$8,240 — Feb 2026").
+   - On-hover tooltip showing the exact value for that month (e.g., "$8,240 ? Feb 2026").
 
-3. Keep the existing data contract (array of { month: string, savingsUsd: number } or equivalent) — do not change the API/endpoint shape.
+3. Keep the existing data contract (array of { month: string, savingsUsd: number } or equivalent) ? do not change the API/endpoint shape.
 
 4. Wrap the SVG in a responsive container (e.g., min-h-[160px] w-full) consistent with other chart components in the executive shell.
 
@@ -7723,11 +7723,11 @@ Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a pr
 - `archlucid-ui/src/app/executive/` (`ExecutiveRoiTrendSection.tsx`)
 - Reference: `ExecutiveRoiSystemicIssueTrendChart.tsx` (pattern source)
 
-**Cross-ref:** TB-244 (KPI drill-through — same dashboard page), TB-062 (executive KPI replacement original spec).
+**Cross-ref:** TB-244 (KPI drill-through ? same dashboard page), TB-062 (executive KPI replacement original spec).
 
 ---
 
-## TB-246 — Executive shell nav — add Scorecard and Dashboard links (P1)
+## TB-246 ? Executive shell nav ? add Scorecard and Dashboard links (P1)
 
 **Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
 **Problem:** `ExecutiveShellFrame.tsx` renders the outer chrome for the executive-facing route group but its navigation header is missing links to the Scorecard (`/executive/scorecard`) and Dashboard (`/executive/dashboard`). Both pages exist but are undiscoverable for any sponsor who lands directly on the shell.
@@ -7737,10 +7737,10 @@ Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a pr
 Add navigation links to ExecutiveShellFrame.tsx.
 
 1. In the header nav section of ExecutiveShellFrame.tsx, add two nav items:
-   - "Dashboard" → href="/executive/dashboard"
-   - "Scorecard" → href="/executive/scorecard"
+   - "Dashboard" ? href="/executive/dashboard"
+   - "Scorecard" ? href="/executive/scorecard"
 
-2. Use the existing nav item pattern (Button variant="ghost" or nav <a> tag — match whatever other links in the same header use).
+2. Use the existing nav item pattern (Button variant="ghost" or nav <a> tag ? match whatever other links in the same header use).
 
 3. Highlight the active route: use Next.js usePathname() to compare the current path; apply an active style (e.g., underline or font-semibold) when pathname starts with the link's href.
 
@@ -7751,11 +7751,11 @@ Add navigation links to ExecutiveShellFrame.tsx.
 
 - `archlucid-ui/src/app/executive/` (`ExecutiveShellFrame.tsx`)
 
-**Cross-ref:** TB-244 (KPI tiles — linked from dashboard), TB-247 (scorecard actions section — visible once nav lands user on scorecard).
+**Cross-ref:** TB-244 (KPI tiles ? linked from dashboard), TB-247 (scorecard actions section ? visible once nav lands user on scorecard).
 
 ---
 
-## TB-247 — "Top 3 actions" section on executive scorecard (P2)
+## TB-247 ? "Top 3 actions" section on executive scorecard (P2)
 
 **Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
 **Problem:** `ExecutiveScorecardClient.tsx` displays aggregate metrics (savings totals, drift counts, orphan buckets) but provides no forward guidance. An executive sponsor sees what has happened but receives no plain-language recommendation about what to do next. This is the highest P2 sub-dimension deficiency in the EVV assessment (6.60).
@@ -7766,36 +7766,36 @@ Add a "Recommended actions" card to ExecutiveScorecardClient.tsx.
 
 1. After the existing summary metrics section, add a new card with heading "Recommended actions".
 
-2. Derive 1–3 plain-language recommendations from the data already loaded on the page:
-   - If compliance drift count > 0: "Review {N} drifted policies — your team has {N} governance policies with active drift. Open Compliance → Drift."
-   - If orphan candidates cost bucket > $0: "Reclaim {$X} in orphan candidates — {N} resources are flagged for decommission review. Open Runs → Orphan Candidates."
-   - If most-overdue review is > 30 days: "Complete overdue architecture review — '{ReviewName}' has been pending for {D} days."
+2. Derive 1?3 plain-language recommendations from the data already loaded on the page:
+   - If compliance drift count > 0: "Review {N} drifted policies ? your team has {N} governance policies with active drift. Open Compliance ? Drift."
+   - If orphan candidates cost bucket > $0: "Reclaim {$X} in orphan candidates ? {N} resources are flagged for decommission review. Open Runs ? Orphan Candidates."
+   - If most-overdue review is > 30 days: "Complete overdue architecture review ? '{ReviewName}' has been pending for {D} days."
    - Show at most 3; sort by descending estimated dollar impact or days overdue.
-   - If no recommendations apply, show: "No actions needed — all signals are healthy."
+   - If no recommendations apply, show: "No actions needed ? all signals are healthy."
 
 3. Each recommendation item should include:
    - A short headline (bold).
    - A one-sentence explanation.
-   - A "View →" link pointing to the relevant filtered page.
+   - A "View ?" link pointing to the relevant filtered page.
 
 4. Unit tests:
-   - scorecard data with drift > 0 → drift recommendation is first.
-   - scorecard data with orphan cost > 0 → orphan recommendation rendered.
-   - all-healthy data → "No actions needed" message shown.
+   - scorecard data with drift > 0 ? drift recommendation is first.
+   - scorecard data with orphan cost > 0 ? orphan recommendation rendered.
+   - all-healthy data ? "No actions needed" message shown.
 ```
 
 **Affected files / projects:**
 
 - `archlucid-ui/src/app/executive/` (`ExecutiveScorecardClient.tsx`)
 
-**Cross-ref:** TB-246 (nav links — user must be able to find the scorecard), TB-244 (KPI drill-through — recommendations link to same filtered pages).
+**Cross-ref:** TB-246 (nav links ? user must be able to find the scorecard), TB-244 (KPI drill-through ? recommendations link to same filtered pages).
 
 ---
 
-## TB-248 — "Day N since first commit" badge on executive KPI strip (P2)
+## TB-248 ? "Day N since first commit" badge on executive KPI strip (P2)
 
 **Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
-**Problem:** `EXECUTIVE_SPONSOR_BRIEF.md` explicitly describes a "Day N since first commit" badge as a key sponsor trust signal. This badge is not live in `ExecutiveRoiDashboardLiveKpiCards.tsx`. Its absence means the longitudinal pilot narrative — "you have been running ArchLucid for N days and here is what we found" — is not surfaced to the sponsor in the UI.
+**Problem:** `EXECUTIVE_SPONSOR_BRIEF.md` explicitly describes a "Day N since first commit" badge as a key sponsor trust signal. This badge is not live in `ExecutiveRoiDashboardLiveKpiCards.tsx`. Its absence means the longitudinal pilot narrative ? "you have been running ArchLucid for N days and here is what we found" ? is not surfaced to the sponsor in the UI.
 
 **Cursor prompt:**
 ```
@@ -7812,8 +7812,8 @@ Add a "Day N of your ArchLucid pilot" display to ExecutiveRoiDashboardLiveKpiCar
 4. Guard against null/missing firstCommitUtc: if absent, omit the badge entirely (do not show "Day NaN").
 
 5. Unit tests:
-   - firstCommitUtc 30 days ago → renders "Day 30 of your ArchLucid pilot".
-   - firstCommitUtc null/missing → badge is not rendered.
+   - firstCommitUtc 30 days ago ? renders "Day 30 of your ArchLucid pilot".
+   - firstCommitUtc null/missing ? badge is not rendered.
 ```
 
 **Affected files / projects:**
@@ -7821,11 +7821,11 @@ Add a "Day N of your ArchLucid pilot" display to ExecutiveRoiDashboardLiveKpiCar
 - `archlucid-ui/src/app/executive/` (`ExecutiveRoiDashboardLiveKpiCards.tsx`)
 - `ArchLucid.Api/` (add `FirstCommitUtc` to executive summary DTO if missing)
 
-**Cross-ref:** TB-244 (KPI tiles — same component file), `EXECUTIVE_SPONSOR_BRIEF.md`.
+**Cross-ref:** TB-244 (KPI tiles ? same component file), `EXECUTIVE_SPONSOR_BRIEF.md`.
 
 ---
 
-## TB-249 — Cross-tenant portfolio graceful 403 (P3)
+## TB-249 ? Cross-tenant portfolio graceful 403 (P3)
 
 **Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
 **Problem:** `GET /v1/roi/cross-tenant-portfolio` returns a silent HTTP 403 when a directory object key is missing (misconfigured multi-tenant setup). `PortfolioPageView.tsx` receives a 403 with no body guidance and renders a blank or generic error state. Enterprise customers with misconfigured tenants have no way to diagnose the issue without opening a support ticket.
@@ -7834,7 +7834,7 @@ Add a "Day N of your ArchLucid pilot" display to ExecutiveRoiDashboardLiveKpiCar
 ```
 Add graceful 403 handling to the cross-tenant portfolio endpoint and UI.
 
-Backend — RoiController.GetCrossTenantPortfolioSummaryAsync:
+Backend ? RoiController.GetCrossTenantPortfolioSummaryAsync:
 1. When a directory object key is missing (the condition that currently produces a silent 403), return:
    return Problem(
      title: "Portfolio directory key not configured",
@@ -7844,11 +7844,11 @@ Backend — RoiController.GetCrossTenantPortfolioSummaryAsync:
    );
    Use the existing ProblemDetails pattern used elsewhere in the controller.
 
-Frontend — PortfolioPageView.tsx (or equivalent):
+Frontend ? PortfolioPageView.tsx (or equivalent):
 2. When the portfolio API call returns 403, parse the ProblemDetails body and display:
-   - An inline info card (not a toast — this is a configuration state, not a transient error).
+   - An inline info card (not a toast ? this is a configuration state, not a transient error).
    - Show the 'detail' field from ProblemDetails as the primary message.
-   - Add a secondary link: "Learn more about portfolio configuration" → docs/library/MULTI_TENANT_PORTFOLIO.md (or its published URL).
+   - Add a secondary link: "Learn more about portfolio configuration" ? docs/library/MULTI_TENANT_PORTFOLIO.md (or its published URL).
 
 Documentation:
 3. Create docs/library/MULTI_TENANT_PORTFOLIO.md with:
@@ -7858,8 +7858,8 @@ Documentation:
    - What the 403 error means and how to resolve it.
 
 Unit tests:
-4. Backend: missing key → 403 ProblemDetails with correct title and detail.
-5. Frontend: 403 response with ProblemDetails body → info card rendered with detail text.
+4. Backend: missing key ? 403 ProblemDetails with correct title and detail.
+5. Frontend: 403 response with ProblemDetails body ? info card rendered with detail text.
 ```
 
 **Affected files / projects:**
@@ -7868,11 +7868,11 @@ Unit tests:
 - `archlucid-ui/src/app/executive/` (`PortfolioPageView.tsx` or equivalent)
 - `docs/library/MULTI_TENANT_PORTFOLIO.md` (new file)
 
-**Cross-ref:** TB-244–248 (other EVV items — same executive route group), `EXECUTIVE_SPONSOR_BRIEF.md`.
+**Cross-ref:** TB-244?248 (other EVV items ? same executive route group), `EXECUTIVE_SPONSOR_BRIEF.md`.
 
 ---
 
-## TB-250 — Authority pipeline stage timeline in operator UI run detail (P1)
+## TB-250 ? Authority pipeline stage timeline in operator UI run detail (P1)
 
 **Source:** Traceability quality assessment (`docs/assessments/Traceability_06032026.MD`), 2026-06-03.
 **Problem:** Authority pipeline stage spans (`context_ingestion`, `graph`, `findings`, `decisions`, `manifest`, `artifacts`) are emitted only as OTel spans. An operator investigating a slow or failed run must leave the product and open a separate observability backend (Jaeger/Tempo). This gap has been noted in quality assessments since April 2026 and has no prior TB. It is the highest-deficiency gap in the Traceability authority-pipeline-UI sub-dimension.
@@ -7881,7 +7881,7 @@ Unit tests:
 ```
 Add an authority pipeline stage timeline to the operator run detail page.
 
-Backend — new table and DTO:
+Backend ? new table and DTO:
 1. Add migration dbo.RunStageOutcomes:
    CREATE TABLE dbo.RunStageOutcomes (
      RunId       NVARCHAR(64)  NOT NULL,
@@ -7901,7 +7901,7 @@ Backend — new table and DTO:
    "succeeded" or "failed". Use a try/finally pattern so failures still update the row.
    Use IRunStageOutcomesRepository (new interface) injected via DI.
 
-Backend — API:
+Backend ? API:
 4. Add GET /v1/architecture/run/{runId}/stage-timeline to the appropriate controller.
    Return StageTimelineSummary[] ordered by StartedUtc ASC.
    Require at least ReadAuth; no PII in this response.
@@ -7912,13 +7912,13 @@ Frontend:
    existing run summary header:
    - For each stage: show stage name, DurationMs formatted as "N.N s" or "NNN ms", and a
      StatusTag component with appropriate variant (success/danger/warning/pending) mapping
-     succeeded → success, failed → danger, running → warning, skipped → muted.
-   - When the parent run has an OtelTraceId, render an "Open in trace viewer →" external link
+     succeeded ? success, failed ? danger, running ? warning, skipped ? muted.
+   - When the parent run has an OtelTraceId, render an "Open in trace viewer ?" external link
      pointing to /traces/{otelTraceId}?service=archlucid or the configured trace URL.
    - If stageTimeline is empty or absent, hide the section entirely.
 
 Tests:
-6. Unit: DurationMs computed correctly from two UTC timestamps; null CompletedUtc → DurationMs null.
+6. Unit: DurationMs computed correctly from two UTC timestamps; null CompletedUtc ? DurationMs null.
 7. Integration: GET .../stage-timeline returns at least one stage for a completed authority run.
 8. Frontend Vitest: stages array renders correct count of stage rows; failed stage shows danger StatusTag.
 ```
@@ -7927,15 +7927,15 @@ Tests:
 
 - New migration (`dbo.RunStageOutcomes`)
 - `ArchLucid.Core/` or `ArchLucid.Application/` (new `IRunStageOutcomesRepository` + `StageTimelineSummary` DTO)
-- `ArchLucid.Application/Runs/` (authority pipeline orchestrator — stage write hooks)
+- `ArchLucid.Application/Runs/` (authority pipeline orchestrator ? stage write hooks)
 - `ArchLucid.Api/Controllers/` (new endpoint or existing run detail controller)
 - `archlucid-ui/src/app/(operator)/reviews/[runId]/` (new "Pipeline stages" section)
 
-**Cross-ref:** TB-052 (`RuleAuditTracePayload` snapshot IDs — same authority run detail surface), TB-054 (unified decision API — same run detail page), `docs/library/CANONICAL_PIPELINE.md`.
+**Cross-ref:** TB-052 (`RuleAuditTracePayload` snapshot IDs ? same authority run detail surface), TB-054 (unified decision API ? same run detail page), `docs/library/CANONICAL_PIPELINE.md`.
 
 ---
 
-## TB-251 — Retrieval indexing at-least-once outbox (P2)
+## TB-251 ? Retrieval indexing at-least-once outbox (P2)
 
 **Source:** Traceability quality assessment (`docs/assessments/Traceability_06032026.MD`), 2026-06-03.
 **Problem:** `PROVENANCE_INDEXING.md` explicitly lists "Outbox + worker for post-commit indexing (at-least-once delivery)" in its hardening backlog. If `IRetrievalRunCompletionIndexer` throws after a successful manifest commit, the provenance search index silently lags. There is no retry job, no dead-letter queue, and no operator-facing signal. Operators or governance leads querying provenance search may receive stale results with no indication that indexing failed.
@@ -7980,9 +7980,9 @@ Add at-least-once delivery to post-commit retrieval indexing.
    and reference this TB.
 
 Unit tests:
-7. Indexer throws on first poll → outbox row has AttemptCount = 1, LastError populated.
-8. Five consecutive failures → AttemptCount = 5 and RetrievalIndexingFailed audit event emitted.
-9. Indexer succeeds → ProcessedUtc non-null.
+7. Indexer throws on first poll ? outbox row has AttemptCount = 1, LastError populated.
+8. Five consecutive failures ? AttemptCount = 5 and RetrievalIndexingFailed audit event emitted.
+9. Indexer succeeds ? ProcessedUtc non-null.
 10. Worker skips rows with AttemptCount >= 5 (already exhausted).
 ```
 
@@ -7996,14 +7996,14 @@ Unit tests:
 - `docs/library/AUDIT_COVERAGE_MATRIX.md`
 - `docs/runbooks/PROVENANCE_INDEXING.md`
 
-**Cross-ref:** TB-037 (`DecisionProvenanceSnapshot` persistence — same post-commit integrity theme), `docs/runbooks/PROVENANCE_INDEXING.md`.
+**Cross-ref:** TB-037 (`DecisionProvenanceSnapshot` persistence ? same post-commit integrity theme), `docs/runbooks/PROVENANCE_INDEXING.md`.
 
 ---
 
-## TB-252 — Generate and commit raster brand assets; fix broken references (P1)
+## TB-252 ? Generate and commit raster brand assets; fix broken references (P1)
 
 **Source:** Marketability quality assessment (`docs/assessments/Marketability_06032026.MD`), 2026-06-03.
-**Problem:** `archlucid-ui/src/app/layout.tsx` references `/logo/og-default.png` (Open Graph + Twitter image) and `/logo/icon-192.png` (Apple touch icon), and `public/manifest.webmanifest` references `/logo/icon-192.png` (PWA install icon), and `e2e/live-api-whitelabel-export.spec.ts` reads `public/logo/icon-192.png` as a fixture — but **only SVG variants exist** in `public/logo/` (`og-default.svg`, `icon.svg`). Open Graph and Twitter Card images must be raster (PNG/JPG); LinkedIn, X, Slack, and Facebook ignore SVG. Because LinkedIn is the stated #1 acquisition channel, every shared `archlucid.net` link renders with no preview image. The PWA install icon and iOS home-screen icon are also broken, and the whitelabel-export e2e fixture is missing.
+**Problem:** `archlucid-ui/src/app/layout.tsx` references `/logo/og-default.png` (Open Graph + Twitter image) and `/logo/icon-192.png` (Apple touch icon), and `public/manifest.webmanifest` references `/logo/icon-192.png` (PWA install icon), and `e2e/live-api-whitelabel-export.spec.ts` reads `public/logo/icon-192.png` as a fixture ? but **only SVG variants exist** in `public/logo/` (`og-default.svg`, `icon.svg`). Open Graph and Twitter Card images must be raster (PNG/JPG); LinkedIn, X, Slack, and Facebook ignore SVG. Because LinkedIn is the stated #1 acquisition channel, every shared `archlucid.net` link renders with no preview image. The PWA install icon and iOS home-screen icon are also broken, and the whitelabel-export e2e fixture is missing.
 
 **Cursor prompt:**
 ```
@@ -8045,14 +8045,14 @@ archlucid-ui/public/logo/). Open Graph / Twitter Card images and PWA/Apple icons
 - `archlucid-ui/public/manifest.webmanifest`
 - `scripts/ci/check_referenced_static_assets.py` (new, warn-only)
 
-**Cross-ref:** TB-253 (buyer-facing OG metadata — the raster image these reference must exist), `archlucid-ui/src/app/layout.tsx`.
+**Cross-ref:** TB-253 (buyer-facing OG metadata ? the raster image these reference must exist), `archlucid-ui/src/app/layout.tsx`.
 
 ---
 
-## TB-253 — Buyer-facing Open Graph / Twitter metadata (P1)
+## TB-253 ? Buyer-facing Open Graph / Twitter metadata (P1)
 
 **Source:** Marketability quality assessment (`docs/assessments/Marketability_06032026.MD`), 2026-06-03.
-**Problem:** The root `openGraph.description` / `twitter.description` in `archlucid-ui/src/app/layout.tsx` is operator jargon — "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance" — shown on every shared link. This violates `POSITIONING.md §7` (buyer vocabulary vs. internal vocabulary). Marketing pages set a page-level `description` but do not override `openGraph`, so all shared marketing links inherit the jargon. The marketing JSON-LD (`marketing-json-ld.ts`) already carries the correct buyer-facing copy — Open Graph is the lone outlier.
+**Problem:** The root `openGraph.description` / `twitter.description` in `archlucid-ui/src/app/layout.tsx` is operator jargon ? "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance" ? shown on every shared link. This violates `POSITIONING.md ?7` (buyer vocabulary vs. internal vocabulary). Marketing pages set a page-level `description` but do not override `openGraph`, so all shared marketing links inherit the jargon. The marketing JSON-LD (`marketing-json-ld.ts`) already carries the correct buyer-facing copy ? Open Graph is the lone outlier.
 
 **Cursor prompt:**
 ```
@@ -8085,14 +8085,14 @@ add per-page Open Graph overrides for the key marketing routes.
 - `archlucid-ui/src/lib/marketing-open-graph.ts` (new)
 - `archlucid-ui/src/app/(marketing)/{welcome,pricing,why,see-it}/page.tsx`
 
-**Cross-ref:** TB-252 (raster OG image must exist for these to render), `POSITIONING.md §7`, `archlucid-ui/src/lib/marketing-json-ld.ts` (already buyer-facing — align copy).
+**Cross-ref:** TB-252 (raster OG image must exist for these to render), `POSITIONING.md ?7`, `archlucid-ui/src/lib/marketing-json-ld.ts` (already buyer-facing ? align copy).
 
 ---
 
-## TB-254 — `FAQPage` JSON-LD + buyer-relevant FAQ expansion (P2)
+## TB-254 ? `FAQPage` JSON-LD + buyer-relevant FAQ expansion (P2)
 
 **Source:** Marketability quality assessment (`docs/assessments/Marketability_06032026.MD`), 2026-06-03.
-**Problem:** `archlucid-ui/src/app/(marketing)/faq/page.tsx` emits no `FAQPage` structured data and has only 3 operator-focused Q&A. `FAQPage` JSON-LD produces expandable rich results in Google SERPs — a free organic-discovery lever that partially offsets the coined-category (zero search volume) problem. For a product whose discovery depends on shares and SERP rich-results, this is a missed lever.
+**Problem:** `archlucid-ui/src/app/(marketing)/faq/page.tsx` emits no `FAQPage` structured data and has only 3 operator-focused Q&A. `FAQPage` JSON-LD produces expandable rich results in Google SERPs ? a free organic-discovery lever that partially offsets the coined-category (zero search volume) problem. For a product whose discovery depends on shares and SERP rich-results, this is a missed lever.
 
 **Cursor prompt:**
 ```
@@ -8127,10 +8127,10 @@ Add FAQPage structured data and expand the FAQ with buyer-relevant questions.
 
 ---
 
-## TB-255 — Minimum token-overlap density in faithfulness checker (P1)
+## TB-255 ? Minimum token-overlap density in faithfulness checker (P1)
 
 **Source:** Correctness quality assessment (`docs/assessments/Correctness_06032026.MD`), 2026-06-03.
-**Problem:** `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` returns `true` as soon as **any one** ≥4-char, non-stopword, non-numeric token appears anywhere in the evidence blob. A fabricated finding is scored "supported" when it shares a single incidental word (e.g., "deploy", "router") with the evidence. This inflates `report.SupportRatio`, which **directly gates `PilotStrict` rejection** in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` (`if (report.SupportRatio < floor) gateOutcome = Rejected`). The strictest, sponsor-facing mode is the one most weakened, and the deterministic checker is the always-on layer (embedding/LLM-judge layers are optional/budget-gated).
+**Problem:** `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` returns `true` as soon as **any one** ?4-char, non-stopword, non-numeric token appears anywhere in the evidence blob. A fabricated finding is scored "supported" when it shares a single incidental word (e.g., "deploy", "router") with the evidence. This inflates `report.SupportRatio`, which **directly gates `PilotStrict` rejection** in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` (`if (report.SupportRatio < floor) gateOutcome = Rejected`). The strictest, sponsor-facing mode is the one most weakened, and the deterministic checker is the always-on layer (embedding/LLM-judge layers are optional/budget-gated).
 
 **Cursor prompt:**
 ```
@@ -8157,7 +8157,7 @@ claim/finding as "supported".
    - Claim with refs resolving to a cited blob that shares >=2 tokens -> supported.
    - Threshold boundary: exactly 2 tokens / exactly 30% -> supported.
 5. Re-run AgentOutputEvaluator / golden-fixture tests; if a committed golden AgentResult now drops
-   below its prompt_regression_baseline.json floor, that is a TRUE signal — do not lower the baseline;
+   below its prompt_regression_baseline.json floor, that is a TRUE signal ? do not lower the baseline;
    confirm whether the golden fixture itself is weakly grounded and note it in the PR.
 ```
 
@@ -8167,14 +8167,14 @@ claim/finding as "supported".
 - Faithfulness options type (existing or new `AgentResultEvidenceFaithfulnessOptions`)
 - `ArchLucid.AgentRuntime.Tests/`
 
-**Cross-ref:** TB-256 (same file — empty-content faithfulness), `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` (consumer), `docs/library/AGENT_OUTPUT_EVALUATION.md`.
+**Cross-ref:** TB-256 (same file ? empty-content faithfulness), `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` (consumer), `docs/library/AGENT_OUTPUT_EVALUATION.md`.
 
 ---
 
-## TB-256 — Distinguish "no checkable content" from perfect faithfulness (P1)
+## TB-256 ? Distinguish "no checkable content" from perfect faithfulness (P1)
 
 **Source:** Correctness quality assessment (`docs/assessments/Correctness_06032026.MD`), 2026-06-03.
-**Problem:** When an `AgentResult` has no recognizable `claims` and no `findings`, `AgentResultEvidenceFaithfulnessChecker.Evaluate` returns `SupportRatio = 1.0` (the `totalChecked == 0` path). A degenerate/evasive output is rated maximally faithful. In `PilotStrict`, `1.0 < floor` is always false, so the faithfulness floor can never reject a content-free result — the gate's faithfulness arm is silently bypassed exactly when there is nothing to verify. (Structural validation separately requires a non-empty findings array, but the faithfulness contract is consumed independently and its `1.0` is semantically wrong for "no checkable content.")
+**Problem:** When an `AgentResult` has no recognizable `claims` and no `findings`, `AgentResultEvidenceFaithfulnessChecker.Evaluate` returns `SupportRatio = 1.0` (the `totalChecked == 0` path). A degenerate/evasive output is rated maximally faithful. In `PilotStrict`, `1.0 < floor` is always false, so the faithfulness floor can never reject a content-free result ? the gate's faithfulness arm is silently bypassed exactly when there is nothing to verify. (Structural validation separately requires a non-empty findings array, but the faithfulness contract is consumed independently and its `1.0` is semantically wrong for "no checkable content.")
 
 **Cursor prompt:**
 ```
@@ -8207,14 +8207,14 @@ scored as perfectly faithful.
 - `ArchLucid.AgentRuntime/Evaluation/AgentOutputTraceQualityEvaluator.cs`
 - `ArchLucid.AgentRuntime.Tests/`
 
-**Cross-ref:** TB-255 (same file — overlap density), `RealLlmOutputStructuralValidator` (separate non-empty-findings guard — complementary, not duplicate).
+**Cross-ref:** TB-255 (same file ? overlap density), `RealLlmOutputStructuralValidator` (separate non-empty-findings guard ? complementary, not duplicate).
 
 ---
 
-## TB-257 — Expand adversarial hallucination corpus + enforce resistance floor (P2)
+## TB-257 ? Expand adversarial hallucination corpus + enforce resistance floor (P2)
 
 **Source:** Correctness quality assessment (`docs/assessments/Correctness_06032026.MD`), 2026-06-03.
-**Problem:** There is exactly one adversarial scenario (`tests/eval-corpus/adversarial/hallucination-detection/scenario.json`, fabricated "Helios Quantum Router" SKU + "SOC-9001-Zeta Prime" framework), it runs in `simulator` mode, and its own notes say it only *warns*. `eval_agent_corpus.py` is inform-only by default. So there is no merge-blocking or nightly-enforcing contract asserting that fabricated-anchor inputs are flagged — for the single highest-risk correctness dimension on an 8-weight quality.
+**Problem:** There is exactly one adversarial scenario (`tests/eval-corpus/adversarial/hallucination-detection/scenario.json`, fabricated "Helios Quantum Router" SKU + "SOC-9001-Zeta Prime" framework), it runs in `simulator` mode, and its own notes say it only *warns*. `eval_agent_corpus.py` is inform-only by default. So there is no merge-blocking or nightly-enforcing contract asserting that fabricated-anchor inputs are flagged ? for the single highest-risk correctness dimension on an 8-weight quality.
 
 **Cursor prompt:**
 ```
@@ -8257,10 +8257,10 @@ enforced contract.
 
 ---
 
-## TB-258 — Harden the trial preseed executor: failure handling, attempt cap, failure signal (P1)
+## TB-258 ? Harden the trial preseed executor: failure handling, attempt cap, failure signal (P1)
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06032026.MD`), 2026-06-03.
-**Problem:** `ListTenantIdsPendingTrialArchitecturePreseedAsync` re-polls any tenant where `TrialWelcomeRunId IS NULL AND TrialStatus = Active`. `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has **no try/catch**, marks completion only on full success, and its non-Guid `runId` path (`Guid.TryParseExact` false) `return`s without completing. Any failure (transient commit error, a vertical that errors, or the non-Guid path) therefore leaves `TrialWelcomeRunId` NULL, so the tenant is re-polled next cycle and **creates + executes + commits a brand-new run again — indefinitely** — burning agent/simulator cost and run quota, never delivering first value, with **no `TrialArchitecturePreseedFailed` audit event or metric** so the owner has no signal a trial is stuck.
+**Problem:** `ListTenantIdsPendingTrialArchitecturePreseedAsync` re-polls any tenant where `TrialWelcomeRunId IS NULL AND TrialStatus = Active`. `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has **no try/catch**, marks completion only on full success, and its non-Guid `runId` path (`Guid.TryParseExact` false) `return`s without completing. Any failure (transient commit error, a vertical that errors, or the non-Guid path) therefore leaves `TrialWelcomeRunId` NULL, so the tenant is re-polled next cycle and **creates + executes + commits a brand-new run again ? indefinitely** ? burning agent/simulator cost and run quota, never delivering first value, with **no `TrialArchitecturePreseedFailed` audit event or metric** so the owner has no signal a trial is stuck.
 
 **Cursor prompt:**
 ```
@@ -8313,10 +8313,10 @@ Make the trial architecture preseed fail safely instead of re-running forever.
 
 ---
 
-## TB-259 — Cover the trial first-value delivery path with tests (P1)
+## TB-259 ? Cover the trial first-value delivery path with tests (P1)
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06032026.MD`), 2026-06-03.
-**Problem:** Per `COVERAGE_GAP_ANALYSIS.md`, `TrialArchitecturePreseedExecutor` (#130, 0.00, 47 LOC) and `TrialArchitecturePreseedHostedService` (#49, 0.00, 42 LOC) are completely untested — the exact components that produce every new trial's first committed run. A regression breaks first value for 100% of signups, undetected by the suite.
+**Problem:** Per `COVERAGE_GAP_ANALYSIS.md`, `TrialArchitecturePreseedExecutor` (#130, 0.00, 47 LOC) and `TrialArchitecturePreseedHostedService` (#49, 0.00, 42 LOC) are completely untested ? the exact components that produce every new trial's first committed run. A regression breaks first value for 100% of signups, undetected by the suite.
 
 **Cursor prompt:**
 ```
@@ -8346,10 +8346,10 @@ Add coverage for the trial first-value delivery path.
 
 ---
 
-## TB-260 — "First value reached" user confirmation (P2)
+## TB-260 ? "First value reached" user confirmation (P2)
 
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06032026.MD`), 2026-06-03.
-**Problem:** TTV is measured (`archlucid.pilot.wizard_to_committed_minutes`, TB-220) and `TrialFirstManifestCommittedUtc` is persisted, but the trial user never sees an explicit value-realization moment ("Your first review committed — open it"). Closing that loop is a high-leverage TTV/stickiness micro-feature that reuses data already stored.
+**Problem:** TTV is measured (`archlucid.pilot.wizard_to_committed_minutes`, TB-220) and `TrialFirstManifestCommittedUtc` is persisted, but the trial user never sees an explicit value-realization moment ("Your first review committed ? open it"). Closing that loop is a high-leverage TTV/stickiness micro-feature that reuses data already stored.
 
 **Cursor prompt:**
 ```
@@ -8374,14 +8374,14 @@ Show the trial user an explicit first-value confirmation using data already pers
 - `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`
 - Vitest tests
 
-**Cross-ref:** TB-220 (wizard-to-commit telemetry), `archlucid-ui/src/components/TrialWelcomeRunDeepLink.tsx` (existing deep-link — align navigation).
+**Cross-ref:** TB-220 (wizard-to-commit telemetry), `archlucid-ui/src/components/TrialWelcomeRunDeepLink.tsx` (existing deep-link ? align navigation).
 
 ---
 
-## TB-261 — Recurrence completion notification + drift delta (P1)
+## TB-261 ? Recurrence completion notification + drift delta (P1)
 
 **Source:** Stickiness quality assessment (`docs/assessments/Stickiness_06032026.MD`), 2026-06-03.
-**Problem:** `RecurringArchitectureReviewTriggerService.TriggerScheduleAsync` executes the cloned scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event — which has **no notification consumer anywhere**. The user who scheduled a recurring review to be re-engaged is never told a review ran and never sees "N new / N resolved findings since last review." The weekly executive summary cannot cover it because that selects the latest *committed* run and recurrence runs are executed-but-not-committed (TB-263). The product's most important stickiness mechanism is a loop with no return edge.
+**Problem:** `RecurringArchitectureReviewTriggerService.TriggerScheduleAsync` executes the cloned scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event ? which has **no notification consumer anywhere**. The user who scheduled a recurring review to be re-engaged is never told a review ran and never sees "N new / N resolved findings since last review." The weekly executive summary cannot cover it because that selects the latest *committed* run and recurrence runs are executed-but-not-committed (TB-263). The product's most important stickiness mechanism is a loop with no return edge.
 
 **Cursor prompt:**
 ```
@@ -8414,14 +8414,14 @@ Close the recurrence re-engagement loop with a completion notification + drift d
 - New options type (`Stickiness:RecurrenceCompletionNotification`)
 - Tests (`ArchLucid.Application.Tests/`)
 
-**Cross-ref:** TB-224 (compare narrative — reuse delta), TB-263 (awaiting-review inbox), `WeeklyExecutiveSummaryDeliveryScanner` (recipient/dispatch pattern).
+**Cross-ref:** TB-224 (compare narrative ? reuse delta), TB-263 (awaiting-review inbox), `WeeklyExecutiveSummaryDeliveryScanner` (recipient/dispatch pattern).
 
 ---
 
-## TB-262 — Recurrence schedule failure health + auto-disable (P1)
+## TB-262 ? Recurrence schedule failure health + auto-disable (P1)
 
 **Source:** Stickiness quality assessment (`docs/assessments/Stickiness_06032026.MD`), 2026-06-03.
-**Problem:** `ArchitectureReviewRecurrenceSchedule` tracks `LastTriggeredUtc` / `LastTriggeredRunId` / `NextRunUtc` / `IsEnabled` but has **no `LastRunStatus`, `LastErrorMessage`, or `ConsecutiveFailureCount`**. On failure the trigger's catch block still sets `LastTriggeredUtc` and advances `NextRunUtc`, so the `/governance/recurrence-schedules` management page shows a recent "last triggered" timestamp while runs are actually failing. There is no attempt cap and no auto-disable — a permanently-broken schedule fails forever, invisibly, while the customer believes recurring reviews are running.
+**Problem:** `ArchitectureReviewRecurrenceSchedule` tracks `LastTriggeredUtc` / `LastTriggeredRunId` / `NextRunUtc` / `IsEnabled` but has **no `LastRunStatus`, `LastErrorMessage`, or `ConsecutiveFailureCount`**. On failure the trigger's catch block still sets `LastTriggeredUtc` and advances `NextRunUtc`, so the `/governance/recurrence-schedules` management page shows a recent "last triggered" timestamp while runs are actually failing. There is no attempt cap and no auto-disable ? a permanently-broken schedule fails forever, invisibly, while the customer believes recurring reviews are running.
 
 **Cursor prompt:**
 ```
@@ -8458,10 +8458,10 @@ Add failure health to architecture review recurrence schedules.
 
 ---
 
-## TB-263 — "Reviews awaiting your action" inbox surface (P2)
+## TB-263 ? "Reviews awaiting your action" inbox surface (P2)
 
 **Source:** Stickiness quality assessment (`docs/assessments/Stickiness_06032026.MD`), 2026-06-03.
-**Problem:** The recurrence trigger calls `ExecuteRunAsync` but never `CommitRunAsync`, leaving an executed run that requires a human commit (a defensible governance choice). But there is **no inbox/badge** listing recurrence-triggered runs awaiting action — the run is invisible unless the operator happens to navigate to it, so the habit rarely converts into a committed review.
+**Problem:** The recurrence trigger calls `ExecuteRunAsync` but never `CommitRunAsync`, leaving an executed run that requires a human commit (a defensible governance choice). But there is **no inbox/badge** listing recurrence-triggered runs awaiting action ? the run is invisible unless the operator happens to navigate to it, so the habit rarely converts into a committed review.
 
 **Cursor prompt:**
 ```
@@ -8485,21 +8485,21 @@ Surface recurrence-triggered runs that are executed-but-not-committed as an acti
 - `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx` + governance nav
 - Tests
 
-**Cross-ref:** TB-261 (notification drives the user to this inbox), TB-223 (`DecisionsNeededSummaryCard` — adjacent governance surface).
+**Cross-ref:** TB-261 (notification drives the user to this inbox), TB-223 (`DecisionsNeededSummaryCard` ? adjacent governance surface).
 
 ---
 
-## TB-264 — Competitor-baseline citation discipline guard (P1)
+## TB-264 ? Competitor-baseline citation discipline guard (P1)
 
 **Source:** Differentiability quality assessment (`docs/assessments/Differentiability_06032026.MD`), 2026-06-03.
-**Problem:** The public `/why` differentiation surface (`why-archlucid-comparison.ts` ↔ `WhyArchLucidPackBuilder.cs`, kept byte-for-row in sync by CI) is the product's most defensible positioning artifact — every ArchLucid claim is cited to a repo file or external URL. But **3 of the 5 rows quantify the *competitor* side with no source**: "reconstructing one architecture review cycle ... often costs **2–6 skilled hours**", "**8–20 DBA/engineering hours** per new tenant", and "**half a day per release**" — each carrying `citation = "first-party assertion (no external citation yet)"`. The existing guard `assert_why_rows_have_evidence.py` only checks that fields are **non-empty**, so an unsourced *quantified* competitor-cost claim ships right next to fully-cited ArchLucid evidence. For a quality defined by *verifiable proof and claim discipline*, that is the highest-leverage integrity gap.
+**Problem:** The public `/why` differentiation surface (`why-archlucid-comparison.ts` ? `WhyArchLucidPackBuilder.cs`, kept byte-for-row in sync by CI) is the product's most defensible positioning artifact ? every ArchLucid claim is cited to a repo file or external URL. But **3 of the 5 rows quantify the *competitor* side with no source**: "reconstructing one architecture review cycle ... often costs **2?6 skilled hours**", "**8?20 DBA/engineering hours** per new tenant", and "**half a day per release**" ? each carrying `citation = "first-party assertion (no external citation yet)"`. The existing guard `assert_why_rows_have_evidence.py` only checks that fields are **non-empty**, so an unsourced *quantified* competitor-cost claim ships right next to fully-cited ArchLucid evidence. For a quality defined by *verifiable proof and claim discipline*, that is the highest-leverage integrity gap.
 
 **Cursor prompt:**
 ```
 Tighten the /why differentiation claim-discipline guard so quantified competitor claims must be sourced.
 
 1. Extend scripts/ci/assert_why_rows_have_evidence.py: for each row, if competitorBaseline matches a
-   numeric-quantity regex (digits adjacent to hour|hours|day|days|week|weeks|% , or an N–M range dash),
+   numeric-quantity regex (digits adjacent to hour|hours|day|days|week|weeks|% , or an N?M range dash),
    then REQUIRE one of:
      (a) citation starts with "https://" (a real external source), OR
      (b) competitorBaseline contains the explicit literal "illustrative, not benchmarked".
@@ -8521,14 +8521,14 @@ Tighten the /why differentiation claim-discipline guard so quantified competitor
 - `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs`
 - `tests/ci/` (pytest)
 
-**Cross-ref:** TB-266 (same `/why` claim surface — cohort lock), `check_why_archlucid_comparison_sync.py` (parity guard that must stay green).
+**Cross-ref:** TB-266 (same `/why` claim surface ? cohort lock), `check_why_archlucid_comparison_sync.py` (parity guard that must stay green).
 
 ---
 
-## TB-265 — Named generic-AI contrast on the public `/why` surface (P2)
+## TB-265 ? Named generic-AI contrast on the public `/why` surface (P2)
 
 **Source:** Differentiability quality assessment (`docs/assessments/Differentiability_06032026.MD`), 2026-06-03.
-**Problem:** The buyer-facing `/why` front-door rows contrast ArchLucid only against "incumbent diagram-and-doc stacks." The most common *real* alternative a buyer is already using — a general LLM chat assistant / coding copilot — is contrasted only in the internal-leaning `DIFFERENTIATION_PROOF_PACKET.md` ("Generic AI assistant" column), not on the public surface. The honest contrast (ArchLucid persists a committed manifest, typed audit ledger, pre-commit governance gate, and a traversable evidence chain that a chat session does not) already exists in docs and just needs to reach the buyer.
+**Problem:** The buyer-facing `/why` front-door rows contrast ArchLucid only against "incumbent diagram-and-doc stacks." The most common *real* alternative a buyer is already using ? a general LLM chat assistant / coding copilot ? is contrasted only in the internal-leaning `DIFFERENTIATION_PROOF_PACKET.md` ("Generic AI assistant" column), not on the public surface. The honest contrast (ArchLucid persists a committed manifest, typed audit ledger, pre-commit governance gate, and a traversable evidence chain that a chat session does not) already exists in docs and just needs to reach the buyer.
 
 **Cursor prompt:**
 ```
@@ -8551,11 +8551,11 @@ Add a buyer-facing "vs a chat assistant" differentiation contrast to the public 
 - `archlucid-ui/src/lib/marketing-faq.ts` (depends on TB-254)
 - Vitest
 
-**Cross-ref:** TB-254 (FAQ schema/array — same file), `docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md` (source copy).
+**Cross-ref:** TB-254 (FAQ schema/array ? same file), `docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md` (source copy).
 
 ---
 
-## TB-266 — Cohort-claim integrity guard (P2)
+## TB-266 ? Cohort-claim integrity guard (P2)
 
 **Source:** Differentiability quality assessment (`docs/assessments/Differentiability_06032026.MD`), 2026-06-03.
 **Problem:** Flagship `/why` claim #4 asserts "**deterministic drift detection**" and cites `GoldenCohortBaselineConstants` + `assert_golden_cohort_baseline_locked.py`. But those fingerprints ship as a **zeroed placeholder SHA** until an owner-approved baseline lock run replaces them. There is **no CI guard tying the public claim to the lock state**, so the differentiation pack can publicly assert a locked, drift-detecting cohort while the baseline is still placeholders. The baseline lock itself is owner action (out of `(A)`), but gating/annotating the *public claim* on the real lock state is engineering-actionable and closes a latent overclaim.
@@ -8587,10 +8587,10 @@ Tie the public /why "deterministic drift detection" claim to the real golden-coh
 
 ---
 
-## TB-267 — `/executive/dashboard` route under executive chrome (P2)
+## TB-267 ? `/executive/dashboard` route under executive chrome (P2)
 
 **Source:** Executive Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
-**Problem:** `ExecutiveShellFrame` (the minimal sponsor chrome — wordmark, auth, theme, no operator sidebar) has a "Dashboard" nav `<Link href="/dashboard">`. But `/dashboard` is in the **operator** route group and renders `ExecutiveRoiDashboardPageView` under the **full operator shell** (sidebar + operator nav). The `(executive)` route group contains only `reviews` and `scorecard`. So a sponsor working inside the clean executive chrome who clicks "Dashboard" is thrown into the operator UI. TB-246 added the *link* but the executive-chrome dashboard *route* was never created.
+**Problem:** `ExecutiveShellFrame` (the minimal sponsor chrome ? wordmark, auth, theme, no operator sidebar) has a "Dashboard" nav `<Link href="/dashboard">`. But `/dashboard` is in the **operator** route group and renders `ExecutiveRoiDashboardPageView` under the **full operator shell** (sidebar + operator nav). The `(executive)` route group contains only `reviews` and `scorecard`. So a sponsor working inside the clean executive chrome who clicks "Dashboard" is thrown into the operator UI. TB-246 added the *link* but the executive-chrome dashboard *route* was never created.
 
 **Cursor prompt:**
 ```
@@ -8598,7 +8598,7 @@ Give the executive route group its own dashboard so the "Dashboard" nav stays in
 
 1. Create archlucid-ui/src/app/(executive)/executive/dashboard/page.tsx that renders the same
    ExecutiveRoiDashboardPageView used by /dashboard, but inside the (executive) layout (ExecutiveShellFrame).
-   Reuse the existing page sections — do NOT fork the dashboard component. If ExecutiveRoiDashboardPageView
+   Reuse the existing page sections ? do NOT fork the dashboard component. If ExecutiveRoiDashboardPageView
    depends on operator-nav context providers, add the minimal provider wrapper in the (executive) layout or
    a thin local wrapper; do not pull in the operator sidebar.
 2. In archlucid-ui/src/components/ExecutiveShellFrame.tsx, change the "Dashboard" Link href from
@@ -8616,11 +8616,11 @@ Give the executive route group its own dashboard so the "Dashboard" nav stays in
 - `archlucid-ui/src/components/ExecutiveShellFrame.tsx`
 - Vitest
 
-**Cross-ref:** TB-246 (added the nav link — this completes it), `ExecutiveRoiDashboardPageView.tsx`.
+**Cross-ref:** TB-246 (added the nav link ? this completes it), `ExecutiveRoiDashboardPageView.tsx`.
 
 ---
 
-## TB-268 — In-product executive narrative summary line (P2)
+## TB-268 ? In-product executive narrative summary line (P2)
 
 **Source:** Executive Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
 **Problem:** The live dashboard and scorecard now show KPI tiles and a recommended-actions list, but neither opens with a plain-language synthesis sentence. A sponsor still assembles the story from tiles. The AI executive narrative (TB-241) exists only on the **board-pack export** and is gated default-off, so the in-product surfaces have no "what happened / what it's worth / what to do" line.
@@ -8648,11 +8648,11 @@ Add a deterministic (no-LLM) executive narrative summary line to the live execut
 - `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardPageView.tsx`
 - Unit + Vitest
 
-**Cross-ref:** TB-247 (recommended-actions — source of the top action), TB-241 (AI board-pack narrative — export-only complement).
+**Cross-ref:** TB-247 (recommended-actions ? source of the top action), TB-241 (AI board-pack narrative ? export-only complement).
 
 ---
 
-## TB-269 — Dashboard ROI trend window selector (P3)
+## TB-269 ? Dashboard ROI trend window selector (P3)
 
 **Source:** Executive Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
 **Problem:** `ExecutiveRoiTrendSection` renders a fixed historical window, while `ExecutiveScorecardClient` has a 30d/quarter/all selector. A sponsor cannot reconcile the dashboard trend with the scorecard's selected range or look at year-over-year.
@@ -8663,7 +8663,7 @@ Add a time-window selector to the dashboard ROI trend section.
 
 1. In ExecutiveRoiTrendSection.tsx, add a 30d / quarter / all / year <select> (mirror the control and
    labels in ExecutiveScorecardClient). Thread the selected window into the history fetch
-   (GET /v1/roi/executive-summary/history) — if the endpoint only supports a fixed window, pass the range
+   (GET /v1/roi/executive-summary/history) ? if the endpoint only supports a fixed window, pass the range
    and filter client-side, and open a follow-up note for a server-side window param.
 2. Default to the existing window so current behavior is unchanged when untouched.
 3. Vitest: changing the selector refetches/refilters and the chart reflects the new range; default render
@@ -8680,7 +8680,7 @@ Add a time-window selector to the dashboard ROI trend section.
 
 ---
 
-## TB-270 — Disambiguate the review-creation entry points (P2)
+## TB-270 ? Disambiguate the review-creation entry points (P2)
 
 **Source:** Usability quality assessment (`docs/assessments/Usability_06032026.MD`), 2026-06-03.
 **Problem:** The core pilot path (the product's single highest-stakes journey) exposes multiple near-synonymous "quick" creation entry points: `QuickReviewWizard` (3-step, top-level via `ReviewsNewPathSwitcher`) plus `QuickStartWizard` and `SimplifiedPilotWizard` reachable inside `NewRunWizardClient`, alongside the full 9-step wizard. Several overlapping ways to start the same task is exactly the friction/confusion the Usability definition penalizes.
@@ -8691,14 +8691,14 @@ Disambiguate the review-creation entry points WITHOUT removing wizard capability
 
 1. Audit which quick-creation components are reachable in each shell mode: QuickReviewWizard (top-level),
    QuickStartWizard, SimplifiedPilotWizard (inside NewRunWizardClient), and the full NewRunWizardClient.
-   Document the matrix in archlucid-ui/docs/NAV_CONFIG_CONTRACT.md (or a new short doc) — which path renders
+   Document the matrix in archlucid-ui/docs/NAV_CONFIG_CONTRACT.md (or a new short doc) ? which path renders
    when, and why.
-2. Make ReviewsNewPathSwitcher the single decision surface: exactly two clearly-labeled choices —
-   "Quick review" (the 3-step QuickReviewWizard) and "Full guided review" (NewRunWizardClient) — with one-line
+2. Make ReviewsNewPathSwitcher the single decision surface: exactly two clearly-labeled choices ?
+   "Quick review" (the 3-step QuickReviewWizard) and "Full guided review" (NewRunWizardClient) ? with one-line
    descriptions of when to pick each. Ensure QuickStartWizard / SimplifiedPilotWizard are not independently
    reachable as competing top-level entry points (route them under the "Full guided review" flow or retire the
    redundant launcher, keeping the underlying step logic).
-3. Do NOT delete wizard step logic or readiness tiering — this is a routing/labeling change only.
+3. Do NOT delete wizard step logic or readiness tiering ? this is a routing/labeling change only.
 4. Vitest: assert ReviewsNewPathSwitcher renders exactly two labeled choices; assert only one quick path is
    reachable per shell mode.
 ```
@@ -8715,7 +8715,7 @@ Disambiguate the review-creation entry points WITHOUT removing wizard capability
 
 ---
 
-## TB-271 — Universal failure identifier (P2)
+## TB-271 ? Universal failure identifier (P2)
 
 **Source:** Usability quality assessment (`docs/assessments/Usability_06032026.MD`), 2026-06-03.
 **Problem:** `OperatorApiProblem` surfaces a **correlation id only when the server returns one** in a Problem Details payload. Non-Problem-Details failures (network errors, unexpected shapes, and the flows that render raw text or `OperatorShellMessage` without problem details) leave the user with **no id to quote** in a support request. Every error a user hits should be reportable.
@@ -8747,10 +8747,10 @@ Guarantee a copyable request id on every API failure.
 
 ---
 
-## TB-272 — Empty/loading-state consistency (P3)
+## TB-272 ? Empty/loading-state consistency (P3)
 
 **Source:** Usability quality assessment (`docs/assessments/Usability_06032026.MD`), 2026-06-03.
-**Problem:** Two empty-state component families do the same job with different APIs and styling — `EmptyState.tsx` (rich cards with CTAs / getting-started steps) and `OperatorEmptyState` inside `OperatorShellMessage.tsx` (simpler callouts). Separately, only 22 routes have `loading.tsx`, so high-traffic routes like `/` and `/governance` lack route skeletons and perceived performance is uneven.
+**Problem:** Two empty-state component families do the same job with different APIs and styling ? `EmptyState.tsx` (rich cards with CTAs / getting-started steps) and `OperatorEmptyState` inside `OperatorShellMessage.tsx` (simpler callouts). Separately, only 22 routes have `loading.tsx`, so high-traffic routes like `/` and `/governance` lack route skeletons and perceived performance is uneven.
 
 **Cursor prompt:**
 ```
@@ -8759,8 +8759,8 @@ Make operator empty/loading states consistent.
 1. Choose EmptyState.tsx as the single empty-state component (richer API). Adapt OperatorEmptyState call
    sites to it (or make OperatorEmptyState a thin wrapper that delegates to EmptyState) so there is one
    empty-state contract. Keep role="status".
-2. Add loading.tsx route skeletons for high-traffic operator routes lacking them — at minimum "/"
-   (operator home) and "/governance" — reusing components/skeletons/ where possible.
+2. Add loading.tsx route skeletons for high-traffic operator routes lacking them ? at minimum "/"
+   (operator home) and "/governance" ? reusing components/skeletons/ where possible.
 3. (Optional, warn-only) add scripts/ci/check_operator_token_drift.py that flags raw text-neutral-* class
    usage on operator pages where an al-* token exists, to curb design-token drift. Warn-only, not blocking.
 4. Vitest: the consolidated empty-state renders CTA + getting-started steps; the new loading.tsx files render
@@ -8777,191 +8777,191 @@ Make operator empty/loading states consistent.
 
 **Cross-ref:** `empty-state-presets.ts`, `UI_DESIGN_SYSTEM.md` (token guidance).
 
-## TB-273 — Buyer-demo readiness defect remediation (harsh demo audit, 2026-06-03)
+## TB-273 ? Buyer-demo readiness defect remediation (harsh demo audit, 2026-06-03)
 
 **Batch tracker:** [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md) (agent-friendly checklist; full per-issue table below).
 
-**Source:** Harsh pre-demo defect audit of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. 2026-06-03.
+**Source:** Harsh pre-demo defect audit of the buyer-polished operator shell along the golden path (Home ? Reviews list ? Review detail ? Executive summary ? Manifest summary ? Evidence graph ? Governance ? Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. 2026-06-03.
 
-**Theme:** Most items are not bugs in isolation — they are **demo fingerprints and operator/internal language bleeding into the buyer-facing shell**, plus a few fabricated fallbacks and misleading "complete/placeholder/illustrative" claims. The single highest-leverage fix is **hardening the env gating** so that the buyer-polished shell can never render demo/static copy, raw ids/enums, internal route strings, or fictional personas. Recurring fingerprints across surfaces: the **Claims Intake Modernization** sample program, personas **Jordan Lee** / **Taylor Morgan**, ids prefixed **demo-** / **sample-** / **corr-intake-demo-**, and the words **sample / demonstration / evaluation / placeholder / illustrative / directional**.
+**Theme:** Most items are not bugs in isolation ? they are **demo fingerprints and operator/internal language bleeding into the buyer-facing shell**, plus a few fabricated fallbacks and misleading "complete/placeholder/illustrative" claims. The single highest-leverage fix is **hardening the env gating** so that the buyer-polished shell can never render demo/static copy, raw ids/enums, internal route strings, or fictional personas. Recurring fingerprints across surfaces: the **Claims Intake Modernization** sample program, personas **Jordan Lee** / **Taylor Morgan**, ids prefixed **demo-** / **sample-** / **corr-intake-demo-**, and the words **sample / demonstration / evaluation / placeholder / illustrative / directional**.
 
 **Severity rubric (as requested):** **P0** = demo blocker, broken route, bad data state, internal/test leakage, misleading claim, severe buyer-confidence issue. **P1** = commercial polish, workflow confusion, terminology problem, visual-hierarchy issue, inconsistent UX. **P2** = lower-priority polish or future improvement.
 
 **Scope note:** Per `Assessment-Scope-V1_1.mdc` these are buyer-demo credibility defects, **not** V1 readiness-scoring gaps; they do not change `(A)` headline scores. Conditional items marked *(flag-drift)* only surface when buyer-polished and static-demo env flags disagree.
 
-### P0 — demo blockers, leakage, fabrication, misleading claims
+### P0 ? demo blockers, leakage, fabrication, misleading claims
 
 | ID | Screen / area | Exact problem (quote + file) | Why it hurts buyer confidence | Recommended fix | Replacement copy |
 |----|---------------|------------------------------|-------------------------------|-----------------|------------------|
-| BDA-001 | Review detail | Guided CTA "Go to finalize actions" targets `href="#run-actions"`, but `RunDetailRunActionsSection` (id `run-actions`) is not rendered in buyer-polished mode — `first-week-route-guidance.ts` (~57), `RunDetailPageView.tsx` (~414–421). **Re-validated 2026-06-04:** buyer shell uses `resolveFirstWeekRouteGuidanceForShell` → `#finalize-review` on `RunDetailPageHeader`; operator shell base config still points at `#run-actions`. | A primary guided action scrolls nowhere — a visibly broken interaction during the demo (buyer path fixed; operator/hybrid still broken). | Render the actions section in buyer mode, or retarget the anchor to the header `CommitRunButton`; add a test asserting the anchor target exists in each shell mode. | "Finalize this review" |
-| BDA-002 | Governance | "This evaluation sample is read-only. Production tenants can submit governance approvals when their role allows." — `GovernanceWorkflowSubmitSection.tsx` (~213). | Breaks the buyer illusion on the core governance control; "evaluation sample" reads as not-real. | Gate the read-only admission to demo/operator mode; in buyer mode use role-gated production framing. | "Approvals require an authorized governance role; your access here is review-only." |
-| BDA-003 | Governance | Pre-seeded approval personas "Taylor Morgan" / "Jordan Lee" (requestedBy / reviewedBy) — `operator-static-demo.ts` (~1099–1100). | Named fictional approvers read as seeded, not identity-backed actors. | Source approver identity from the authenticated directory, or use neutral role titles in buyer mode. | "Requested by: Architecture Review Lead · Reviewed by: Governance Approver" |
-| BDA-004 | Governance findings queue | Static rows ("Claims Intake Modernization Review") injected on API empty/failure so the queue always looks full — `GovernanceFindingsQueueClient.tsx` (~145–162, 445–514). | Buyer cannot tell live governance state from seeded storyline. | Inject demo rows only in demo/static mode; in tenant mode render a real empty state. | — |
-| BDA-005 | Policy pack | Badge "Demonstration rule-set v3.4.1" — `HealthcareClaimsPolicyPackDetail.tsx` (~35). | Literally says "Demonstration" on a policy-authority surface. | Drive the badge from pack metadata; show version + effective date, not "Demonstration". | "Healthcare Claims policy pack · v3.4.1 · effective 2026-05-01" |
-| BDA-006 | Audit | Seeded events expose `actorUserId: "demo-jordan"`, `tenantId: "demo-tenant"`, `correlationId: "corr-intake-demo-request"` — `demo-audit-sample-events.ts` (~18–30). | "demo-" tenant/correlation strings in the verification appendix destroy audit credibility. | Generate buyer-safe ids without "demo-" prefixes, or suppress raw ids in buyer mode. | — |
-| BDA-007 | Audit | Fictional human actors "Jordan Lee" / "Taylor Morgan" in the curated timeline — `demo-audit-sample-events.ts` (~22, 82, 97). | Same scripted cast as governance reads as a play, not a real ledger. | Neutral role-based actor labels in buyer mode. | "Architecture Reviewer", "Review Owner" |
-| BDA-008 | Audit | "Audit trail complete" / "Audit trail complete — review package finalized" stamped on ~7 injected events — `buyer-polish-copy.ts` (~145), `AuditResultsSection.tsx` (~77, 195). | An audit trail is append-only and never "complete"; the claim overstates a short curated walkthrough. | Reword to describe scope, not completeness. | "Audit trail for this review package (newest first)" |
-| BDA-009 | Audit | "You have now seen the sample audit trail — use this section when you are ready to discuss tenant-backed workspaces." — `AuditResultsSection.tsx` (~271–273). | Explicit demo admission on a primary trust surface. | Remove from buyer-polished mode. | — |
-| BDA-010 | Audit (appendix) | Verification appendix renders "User id" / "Correlation ID" / "Trace" with demo ids (`demo-jordan`, `corr-intake-demo-*`) — `BuyerAuditEventsTechnicalAppendix.tsx` (~28–35). | Expanding the appendix surfaces demo fingerprints to a diligence reviewer. | Buyer-safe ids, or omit raw id columns in buyer mode. | — |
-| BDA-011 | Audit | Hard-coded persona→role map (Jordan Lee → "Architecture reviewer", Taylor Morgan → "Review owner") — `audit-page-helpers.ts` (~83–88). | Persona-specific mapping is a smoking gun for scripted data. | Derive role from event actor metadata, not a name lookup. | — |
-| BDA-012 | Finding detail | Hardcoded Decision panel "Accepted with monitoring — non-blocking for approval. See acceptance record below…" not tied to payload — `FindingDetailPageView.tsx` (~207–210). | Every finding shows the same scripted outcome; disposition looks narrated. | Render disposition from the finding payload; fall back to a neutral "no disposition recorded". | "No disposition recorded for this finding." |
-| BDA-013 | Finding detail | Invented confidence "Medium confidence — based on policy rule match and cited intake subgraph evidence." used as fallback when none present — `FindingDetailPageView.tsx` (~169–171). | Fabricating confidence on failure is a trust violation for an evidence product. | Show "Confidence not available" rather than inventing a level. | "Confidence not available for this finding." |
-| BDA-014 | Finding inspect | Synthetic gap-fill "Jordan Lee (Architecture approver)" when `auditRowId` is missing — `FindingInspectAuditSection.tsx` (~49–54). | Fabricated audit linkage when the real event id is absent. | Show "No linked audit event" instead of a fabricated one. | "No linked audit event for this finding." |
-| BDA-015 | Executive summary | Cost-evidence KPI labeled "Demo-derived" + "Cost evidence is illustrative — do not treat as measured Azure spend." — `executive-roi-kpi-display.ts` (~59–63). | Tells the sponsor the ROI backing is fabricated, undermining every adjacent dollar tile. | Only show illustrative labeling when the value truly is illustrative; otherwise bind to measured inventory and label the basis. | "Cost evidence: measured from uploaded Azure inventory." |
-| BDA-016 | Executive scorecard | "Figures below are placeholders. Operators can finalize a review to populate ROI and drift context." — `ExecutiveScorecardClient.tsx` (~307–308). | A direct "placeholder" admission on an executive golden-path screen. | Render the scorecard only when real data exists; otherwise a governance-credible empty state without "placeholder". | "Finalize a review to populate executive ROI and drift." |
-| BDA-017 | Executive summary | Sponsor export discovery uses `loadProjectRunsMergedWithDemoFallback`, so sponsor DOCX exports can merge demo runs as the latest committed review — `SponsorExportsSection.tsx` (~28). | A buyer could download sample evidence believing it is their own data. | Never merge demo runs into sponsor exports in buyer/tenant mode. | — |
-| BDA-018 | Review detail | "Real mode unavailable for this run" / "simulator fallback" banner — `RunDetailBuyerModeFallbackBanner.tsx` (~23–25). | Tells the buyer the package was not executed on real infrastructure. | Ensure the demo run is a real-mode artifact; suppress simulator-fallback wording in buyer mode. | — |
-| BDA-019 | Review detail | "$94,360" headline "Annualized savings opportunity" carrying a "demonstration KPI" badge — `run-savings-summary-model.ts` (~65–66), `RunSavingsSummary.tsx` (~19–35). | A large dollar headline tagged "demonstration" undermines financial trust. | Bind to real savings, or move the figure behind a clearly labeled methodology; do not headline-size a demo number. | "Estimated annualized savings (methodology →)" |
-| BDA-020 | Review detail | "Illustrative Retail Pricing" shown on a finalized buyer explanation when `isIllustrativePricing` — `FindingsWhatIfAnalysisPanel.tsx` (~87). | Flags the numbers as retail fiction on a finalized package. | Use tenant pricing, or separate methodology from the headline figure. | "Pricing basis: list price (adjust with your contract rates)" |
-| BDA-021 | Reviews list | "Demonstration workspace — suitable for understanding output shape and navigation, not as customer-specific ROI or compliance evidence." — `RunsPageBuyerHelpTip.tsx` (~31–32). | Explicitly tells buyers not to trust ROI/compliance. | Gate the disclaimer to demo mode; in buyer mode use scope framing without "demonstration". | "Example review package — illustrates structure and navigation." |
-| BDA-022 | Reviews list | Fictional personas "Taylor Morgan" / "Jordan Lee (Architecture approver)" on the diligence-facing package card — `buyer-demo-package-card-meta.ts` (~17–19). | Obviously fake names on a card a buyer inspects closely. | Neutral role labels in buyer mode. | "Architecture Review Lead", "Architecture Approver" |
-| BDA-023 | Home / downloadable pack | *(UNCERTAIN — verify reachability)* WhyArchLucid differentiation pack reportedly contains panel banner text "demo tenant — replace before publishing" — `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs`. | A literal "replace before publishing" string in a downloadable buyer artifact is severe leakage. | Verify; if reachable in buyer mode, drive labeling from tenant identity and add a build guard that fails on residual placeholder text. | — |
-| BDA-024 | Review detail / Manifest *(flag-drift)* | If `buyerPolishedArtifactTable` is false while static demo is on, `OperatorDemoStaticBanner` ("Demonstration workspace" / "Claims Intake sample — demonstration data…") and `SampleReviewPackageSummary` ("Example review package prepared for buyer demonstration" / "Numbers are illustrative only" / "Demo only") render — `OperatorDemoStaticBanner.tsx` (~10–21), `SampleReviewPackageSummary.tsx` (~29–57), `ManifestDetailPageView.tsx` (~230). | A single env-flag drift one week before the demo screams "demo" across golden-path screens. | Add a startup assertion / CI check that buyer-polished and static-demo flags are mutually consistent; fail-closed. | — |
+| BDA-001 | Review detail | Guided CTA "Go to finalize actions" targets `href="#run-actions"`, but `RunDetailRunActionsSection` (id `run-actions`) is not rendered in buyer-polished mode ? `first-week-route-guidance.ts` (~57), `RunDetailPageView.tsx` (~414?421). **Re-validated 2026-06-04:** buyer shell uses `resolveFirstWeekRouteGuidanceForShell` ? `#finalize-review` on `RunDetailPageHeader`; operator shell base config still points at `#run-actions`. | A primary guided action scrolls nowhere ? a visibly broken interaction during the demo (buyer path fixed; operator/hybrid still broken). | Render the actions section in buyer mode, or retarget the anchor to the header `CommitRunButton`; add a test asserting the anchor target exists in each shell mode. | "Finalize this review" |
+| BDA-002 | Governance | "This evaluation sample is read-only. Production tenants can submit governance approvals when their role allows." ? `GovernanceWorkflowSubmitSection.tsx` (~213). | Breaks the buyer illusion on the core governance control; "evaluation sample" reads as not-real. | Gate the read-only admission to demo/operator mode; in buyer mode use role-gated production framing. | "Approvals require an authorized governance role; your access here is review-only." |
+| BDA-003 | Governance | Pre-seeded approval personas "Taylor Morgan" / "Jordan Lee" (requestedBy / reviewedBy) ? `operator-static-demo.ts` (~1099?1100). | Named fictional approvers read as seeded, not identity-backed actors. | Source approver identity from the authenticated directory, or use neutral role titles in buyer mode. | "Requested by: Architecture Review Lead ? Reviewed by: Governance Approver" |
+| BDA-004 | Governance findings queue | Static rows ("Claims Intake Modernization Review") injected on API empty/failure so the queue always looks full ? `GovernanceFindingsQueueClient.tsx` (~145?162, 445?514). | Buyer cannot tell live governance state from seeded storyline. | Inject demo rows only in demo/static mode; in tenant mode render a real empty state. | ? |
+| BDA-005 | Policy pack | Badge "Demonstration rule-set v3.4.1" ? `HealthcareClaimsPolicyPackDetail.tsx` (~35). | Literally says "Demonstration" on a policy-authority surface. | Drive the badge from pack metadata; show version + effective date, not "Demonstration". | "Healthcare Claims policy pack ? v3.4.1 ? effective 2026-05-01" |
+| BDA-006 | Audit | Seeded events expose `actorUserId: "demo-jordan"`, `tenantId: "demo-tenant"`, `correlationId: "corr-intake-demo-request"` ? `demo-audit-sample-events.ts` (~18?30). | "demo-" tenant/correlation strings in the verification appendix destroy audit credibility. | Generate buyer-safe ids without "demo-" prefixes, or suppress raw ids in buyer mode. | ? |
+| BDA-007 | Audit | Fictional human actors "Jordan Lee" / "Taylor Morgan" in the curated timeline ? `demo-audit-sample-events.ts` (~22, 82, 97). | Same scripted cast as governance reads as a play, not a real ledger. | Neutral role-based actor labels in buyer mode. | "Architecture Reviewer", "Review Owner" |
+| BDA-008 | Audit | "Audit trail complete" / "Audit trail complete ? review package finalized" stamped on ~7 injected events ? `buyer-polish-copy.ts` (~145), `AuditResultsSection.tsx` (~77, 195). | An audit trail is append-only and never "complete"; the claim overstates a short curated walkthrough. | Reword to describe scope, not completeness. | "Audit trail for this review package (newest first)" |
+| BDA-009 | Audit | "You have now seen the sample audit trail ? use this section when you are ready to discuss tenant-backed workspaces." ? `AuditResultsSection.tsx` (~271?273). | Explicit demo admission on a primary trust surface. | Remove from buyer-polished mode. | ? |
+| BDA-010 | Audit (appendix) | Verification appendix renders "User id" / "Correlation ID" / "Trace" with demo ids (`demo-jordan`, `corr-intake-demo-*`) ? `BuyerAuditEventsTechnicalAppendix.tsx` (~28?35). | Expanding the appendix surfaces demo fingerprints to a diligence reviewer. | Buyer-safe ids, or omit raw id columns in buyer mode. | ? |
+| BDA-011 | Audit | Hard-coded persona?role map (Jordan Lee ? "Architecture reviewer", Taylor Morgan ? "Review owner") ? `audit-page-helpers.ts` (~83?88). | Persona-specific mapping is a smoking gun for scripted data. | Derive role from event actor metadata, not a name lookup. | ? |
+| BDA-012 | Finding detail | Hardcoded Decision panel "Accepted with monitoring ? non-blocking for approval. See acceptance record below?" not tied to payload ? `FindingDetailPageView.tsx` (~207?210). | Every finding shows the same scripted outcome; disposition looks narrated. | Render disposition from the finding payload; fall back to a neutral "no disposition recorded". | "No disposition recorded for this finding." |
+| BDA-013 | Finding detail | Invented confidence "Medium confidence ? based on policy rule match and cited intake subgraph evidence." used as fallback when none present ? `FindingDetailPageView.tsx` (~169?171). | Fabricating confidence on failure is a trust violation for an evidence product. | Show "Confidence not available" rather than inventing a level. | "Confidence not available for this finding." |
+| BDA-014 | Finding inspect | Synthetic gap-fill "Jordan Lee (Architecture approver)" when `auditRowId` is missing ? `FindingInspectAuditSection.tsx` (~49?54). | Fabricated audit linkage when the real event id is absent. | Show "No linked audit event" instead of a fabricated one. | "No linked audit event for this finding." |
+| BDA-015 | Executive summary | Cost-evidence KPI labeled "Demo-derived" + "Cost evidence is illustrative ? do not treat as measured Azure spend." ? `executive-roi-kpi-display.ts` (~59?63). | Tells the sponsor the ROI backing is fabricated, undermining every adjacent dollar tile. | Only show illustrative labeling when the value truly is illustrative; otherwise bind to measured inventory and label the basis. | "Cost evidence: measured from uploaded Azure inventory." |
+| BDA-016 | Executive scorecard | "Figures below are placeholders. Operators can finalize a review to populate ROI and drift context." ? `ExecutiveScorecardClient.tsx` (~307?308). | A direct "placeholder" admission on an executive golden-path screen. | Render the scorecard only when real data exists; otherwise a governance-credible empty state without "placeholder". | "Finalize a review to populate executive ROI and drift." |
+| BDA-017 | Executive summary | Sponsor export discovery uses `loadProjectRunsMergedWithDemoFallback`, so sponsor DOCX exports can merge demo runs as the latest committed review ? `SponsorExportsSection.tsx` (~28). | A buyer could download sample evidence believing it is their own data. | Never merge demo runs into sponsor exports in buyer/tenant mode. | ? |
+| BDA-018 | Review detail | "Real mode unavailable for this run" / "simulator fallback" banner ? `RunDetailBuyerModeFallbackBanner.tsx` (~23?25). | Tells the buyer the package was not executed on real infrastructure. | Ensure the demo run is a real-mode artifact; suppress simulator-fallback wording in buyer mode. | ? |
+| BDA-019 | Review detail | "$94,360" headline "Annualized savings opportunity" carrying a "demonstration KPI" badge ? `run-savings-summary-model.ts` (~65?66), `RunSavingsSummary.tsx` (~19?35). | A large dollar headline tagged "demonstration" undermines financial trust. | Bind to real savings, or move the figure behind a clearly labeled methodology; do not headline-size a demo number. | "Estimated annualized savings (methodology ?)" |
+| BDA-020 | Review detail | "Illustrative Retail Pricing" shown on a finalized buyer explanation when `isIllustrativePricing` ? `FindingsWhatIfAnalysisPanel.tsx` (~87). | Flags the numbers as retail fiction on a finalized package. | Use tenant pricing, or separate methodology from the headline figure. | "Pricing basis: list price (adjust with your contract rates)" |
+| BDA-021 | Reviews list | "Demonstration workspace ? suitable for understanding output shape and navigation, not as customer-specific ROI or compliance evidence." ? `RunsPageBuyerHelpTip.tsx` (~31?32). | Explicitly tells buyers not to trust ROI/compliance. | Gate the disclaimer to demo mode; in buyer mode use scope framing without "demonstration". | "Example review package ? illustrates structure and navigation." |
+| BDA-022 | Reviews list | Fictional personas "Taylor Morgan" / "Jordan Lee (Architecture approver)" on the diligence-facing package card ? `buyer-demo-package-card-meta.ts` (~17?19). | Obviously fake names on a card a buyer inspects closely. | Neutral role labels in buyer mode. | "Architecture Review Lead", "Architecture Approver" |
+| BDA-023 | Home / downloadable pack | *(UNCERTAIN ? verify reachability)* WhyArchLucid differentiation pack reportedly contains panel banner text "demo tenant ? replace before publishing" ? `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs`. | A literal "replace before publishing" string in a downloadable buyer artifact is severe leakage. | Verify; if reachable in buyer mode, drive labeling from tenant identity and add a build guard that fails on residual placeholder text. | ? |
+| BDA-024 | Review detail / Manifest *(flag-drift)* | If `buyerPolishedArtifactTable` is false while static demo is on, `OperatorDemoStaticBanner` ("Demonstration workspace" / "Claims Intake sample ? demonstration data?") and `SampleReviewPackageSummary` ("Example review package prepared for buyer demonstration" / "Numbers are illustrative only" / "Demo only") render ? `OperatorDemoStaticBanner.tsx` (~10?21), `SampleReviewPackageSummary.tsx` (~29?57), `ManifestDetailPageView.tsx` (~230). | A single env-flag drift one week before the demo screams "demo" across golden-path screens. | Add a startup assertion / CI check that buyer-polished and static-demo flags are mutually consistent; fail-closed. | ? |
 
-### P1 — terminology drift, raw labels, redundant CTAs, hierarchy, workflow confusion
+### P1 ? terminology drift, raw labels, redundant CTAs, hierarchy, workflow confusion
 
 | ID | Screen / area | Exact problem (quote + file) | Why it hurts buyer confidence | Recommended fix | Replacement copy |
 |----|---------------|------------------------------|-------------------------------|-----------------|------------------|
-| BDA-025 | Home | aria-label "Sample package shortcuts" + heading "Sample package" — `OperatorHomePageView.tsx` (~97, 121), `SamplePackageShortcutsCard.tsx` (~26). | "Sample" in the first chrome a CIO sees frames the product as a practice artifact. | Rename to "Example review package" in buyer mode. | "Example review package" |
-| BDA-026 | Home | "Use a completed sample to understand the output structure before creating your own review." — `SamplePackageShortcutsCard.tsx` (~29). | Explicitly positions the product as a practice/sample. | Reframe as a worked example without "sample". | "Open a completed example to see the output, then start your own review." |
+| BDA-025 | Home | aria-label "Sample package shortcuts" + heading "Sample package" ? `OperatorHomePageView.tsx` (~97, 121), `SamplePackageShortcutsCard.tsx` (~26). | "Sample" in the first chrome a CIO sees frames the product as a practice artifact. | Rename to "Example review package" in buyer mode. | "Example review package" |
+| BDA-026 | Home | "Use a completed sample to understand the output structure before creating your own review." ? `SamplePackageShortcutsCard.tsx` (~29). | Explicitly positions the product as a practice/sample. | Reframe as a worked example without "sample". | "Open a completed example to see the output, then start your own review." |
 | BDA-027 | Home | Duplicate CTAs: "Open sample" (`SamplePackageShortcutsCard.tsx` ~33) vs "Open sample review package" (`buyer-polish-copy.ts` BUYER_HOME_PRIMARY_CTA / `SampleFirstReviewPackageCard.tsx` ~128) on the same page. | Two near-identical primary CTAs dilute the single next action. | Keep one primary CTA; demote the other to secondary. | "Open the example review package" |
-| BDA-028 | Home | Headline "Start with a completed architecture review package" while the spine is curated demo data — `buyer-polish-copy.ts` (BUYER_HOME_SAMPLE_PACKAGE_HEADLINE). | "Completed package" promises production output backed by demo data. | Label as an example; reserve "completed" for tenant runs. | "Explore a completed example review package" |
-| BDA-029 | Home | "Lead with executive view for a board-ready summary of this sample, then the manifest summary" — `WelcomeBanner.tsx` (~200–202). | "Sample" in hero guidance; mixes "manifest summary" with journey label "Signed manifest". | Drop "sample"; standardize manifest terminology. | "Start with the executive view, then the signed manifest." |
-| BDA-030 | Home | "Explore one governed Claims Intake review package" — `WelcomeBanner.tsx` (~189). | Names a fictional workload; reads as a canned walkthrough, not the buyer's estate. | Use generic framing in buyer mode. | "Explore one governed architecture review package." |
-| BDA-031 | Home | "Start a tenant-backed review when you are ready to move beyond the demonstration package." — `CorePilotBuyerStepHint.tsx` (~44). | "Demonstration package" undercuts audit-ready positioning. | Remove "demonstration"; reframe as starting on your own data. | "Start a review on your own architecture when ready." |
-| BDA-032 | Home | Internal program names "Core Pilot steps — guide" and "First-pilot operator path — full walkthrough" — `CorePilotBuyerStepHint.tsx` (~162–163). | "Core Pilot" / "first-pilot operator" is internal/operator jargon, not executive language. | Rename buyer-facing labels. | "Getting started — guide" |
-| BDA-033 | Home | Ghost CTA "Use sample package instead" + "Upload an architecture evidence package or open the sample package to explore without a customer upload." — `FirstPilotOperatingRail.tsx` (~189), `first-pilot-operating-rail-copy.ts` (~60–61). | Encourages skipping customer evidence in the guided workflow. | Demote/hide in buyer mode; lead with upload. | "Open the example package to preview the output." |
+| BDA-028 | Home | Headline "Start with a completed architecture review package" while the spine is curated demo data ? `buyer-polish-copy.ts` (BUYER_HOME_SAMPLE_PACKAGE_HEADLINE). | "Completed package" promises production output backed by demo data. | Label as an example; reserve "completed" for tenant runs. | "Explore a completed example review package" |
+| BDA-029 | Home | "Lead with executive view for a board-ready summary of this sample, then the manifest summary" ? `WelcomeBanner.tsx` (~200?202). | "Sample" in hero guidance; mixes "manifest summary" with journey label "Signed manifest". | Drop "sample"; standardize manifest terminology. | "Start with the executive view, then the signed manifest." |
+| BDA-030 | Home | "Explore one governed Claims Intake review package" ? `WelcomeBanner.tsx` (~189). | Names a fictional workload; reads as a canned walkthrough, not the buyer's estate. | Use generic framing in buyer mode. | "Explore one governed architecture review package." |
+| BDA-031 | Home | "Start a tenant-backed review when you are ready to move beyond the demonstration package." ? `CorePilotBuyerStepHint.tsx` (~44). | "Demonstration package" undercuts audit-ready positioning. | Remove "demonstration"; reframe as starting on your own data. | "Start a review on your own architecture when ready." |
+| BDA-032 | Home | Internal program names "Core Pilot steps ? guide" and "First-pilot operator path ? full walkthrough" ? `CorePilotBuyerStepHint.tsx` (~162?163). | "Core Pilot" / "first-pilot operator" is internal/operator jargon, not executive language. | Rename buyer-facing labels. | "Getting started ? guide" |
+| BDA-033 | Home | Ghost CTA "Use sample package instead" + "Upload an architecture evidence package or open the sample package to explore without a customer upload." ? `FirstPilotOperatingRail.tsx` (~189), `first-pilot-operating-rail-copy.ts` (~60?61). | Encourages skipping customer evidence in the guided workflow. | Demote/hide in buyer mode; lead with upload. | "Open the example package to preview the output." |
 | BDA-034 | Home | Same object, two terms: "Your reviews" (`OperatorHomePageView.tsx` ~127) vs "Review packages" (`buyer-polish-copy.ts` / `RunsDashboardPanel.tsx` ~313). | Inconsistent product vocabulary on a single scroll. | Pick one noun ("review package") everywhere. | "Your review packages" |
-| BDA-035 | Home | Readiness matrix advertises "Sample review availability" / "Open sample" — `home-readiness-row-present.ts` (~16). | A "sample" row in a readiness matrix reads as immature to procurement. | Rename or hide the row in buyer mode. | "Example review package: ready" |
-| BDA-036 | Home | "Collect the first-pilot proof pipeline from diagnostics for go/no-go review." — `first-pilot-readiness-cockpit.ts` (~214). | "First-pilot proof pipeline" / "go/no-go" reads as internal ops. | Buyer-facing rewrite. | "Generate the proof package for sign-off review." |
-| BDA-037 | Home | Raw phrasing "policy-pack governance dry-run" — `first-pilot-readiness-cockpit.ts` (~238). | Engineering phrasing in readiness follow-up copy. | Plain-language rewrite. | "Preview governance checks against the policy pack." |
-| BDA-038 | Home | "ROI estimate not configured" / "Add ROI assumptions" — `buyer-home-status-copy.ts` (~19, 29). | Surfaces unfinished estimates in a sponsor-facing readiness story. | Hide until configured, or soften wording. | "Add your cost assumptions to see ROI." |
-| BDA-039 | Home | Competing primaries "Open review package" + "View readiness scorecard" in the command center — `FirstPilotReadinessCockpit.tsx` (~397–409). | Multiple primaries dilute the single next action. | One primary CTA; others secondary/ghost. | — |
-| BDA-040 | Home | "Review journey" links expose `href` `/graph?runId=…` — `BuyerGoldenJourneyStrip.tsx` / `buyer-golden-journey-nav.ts` (~30–31). | Buyer sees `runId` in URLs/hover even when copy says "review package". | Use slug/label-based routes in buyer mode, or mask the param. | — |
-| BDA-041 | Reviews list | "Review packages" (page title) vs Home "Your reviews" — `i18n.ts` (RUNS_LIST_PAGE_TITLES.buyerPolished). | Inconsistent with Home naming (see BDA-034). | Standardize the noun. | — |
-| BDA-042 | Reviews list | "Featured finalized review package: signed manifest, evidence trail, governance approval, and audit trail complete." — `buyer-polish-copy.ts` (BUYER_RUNS_DASHBOARD_RECENT_SUMMARY). | Implies a single featured proof package (the demo spine), not a neutral inventory; "complete" overclaims. | Neutralize; drop "complete". | "Recent review package: signed manifest, evidence, governance, and audit." |
-| BDA-043 | Reviews list | Tooltip aria-label "About this demonstration workspace" — `RunsPageBuyerHelpTip.tsx` (~19–20). | Labels the whole list context as a demonstration. | Remove "demonstration" in buyer mode. | "About this workspace" |
-| BDA-044 | Reviews list | Glossary term `run` defined "Open an architecture review for manifest, evidence, findings, and deliverables." while visible copy says "architecture review" — `RunsPageView.tsx` (~70–71). | Tooltip term `run` conflicts with visible "review" vocabulary. | Align glossary term to buyer noun. | term: "review package" |
-| BDA-045 | Reviews list | Raw internal doc filename "CORE_PILOT.md" in an empty-state hint — `RunsPageView.tsx` (~157). | Internal repo filename exposed to buyers. | Route via in-app docs (TB-143–148), not a raw filename. | "See the getting-started guide." |
-| BDA-046 | Reviews list | "Seed a sample review" / "Seeds an interactive sample review so you can explore the workspace…" — `SeedSampleReviewButton.tsx` (~75), `RunsPageView.tsx` (~187–190). | "Seed" + "sample" reads as engineering bootstrap, not enterprise onboarding. | Rename; hide in buyer mode. | "Load the example review" |
-| BDA-047 | Reviews list | Inspector stamp "Sample finalized (illustrative)" — `RunInspectorPreview.tsx` (~70). | Stamps the flagship row as non-production. | Use "Example — finalized" or hide in buyer mode. | "Example · finalized" |
-| BDA-048 | Reviews list | Hardcoded showcase counts "9 findings · 1 monitored risks · Package finalized" (`SHOWCASE_STATIC_DEMO_SPINE_COUNTS`) — `RunsListClient.tsx` (~94–99). | Static numbers can read as live telemetry and may disagree with detail screens. | Derive counts from the same source as the detail page, or label as example. | — |
-| BDA-049 | Reviews list | Mixed vocabulary "In flight" (filter chips) vs "Early pipeline" (table sections) for the same lifecycle — `RunsListClient.tsx` (~541) vs `run-work-queue-groups.ts` (~56). | Same lifecycle, two terms on one page. | Standardize lifecycle vocabulary. | — |
-| BDA-050 | Reviews list | "Search review packages" vs "Filter reviews" in adjacent controls — `RunsListClient.tsx` (~437, 501). | Mixed "review" vs "review packages" in neighboring controls. | Standardize. | "Filter review packages" |
-| BDA-051 | Review detail | "Policy pack used for this sample review." — `RunDetailPageView.tsx` (~355–356). | "Sample review" on exports for the showcase run. | Remove "sample" in buyer mode. | "Policy pack used for this review." |
-| BDA-052 | Review detail | "Explanation confidence — WARN" (also PASS/HOLD) raw enum — `RunExplanationConfidenceBanner.tsx` (~46). | Raw enum disposition in a buyer-facing banner. | Map enums to buyer language. | "Explanation confidence: needs review" |
-| BDA-053 | Review detail | "Review ID:" + monospace `{runId}` during in-progress reviews — `RunProgressTracker.tsx` (~105–106). | Exposes internal correlation id on a buyer surface. | Hide raw id in buyer mode (keep copyable id behind a details control). | — |
-| BDA-054 | Review detail | Operator runbook text "check GET /health/ready on the API" — `RunProgressTracker.tsx` (~84). | Operator/runbook instruction on a buyer demo path. | Hide in buyer mode; show a neutral status message. | "We're preparing this review; this can take a moment." |
-| BDA-055 | Review detail | "Finding coverage is commit-blocking. Failed engines: …" exposes internal engine labels — `RunDetailPageView.tsx` (~103–106). | Internal engine names leak when finalize is blocked. | Map engine names to buyer categories; hide raw labels. | "Some checks must finish before this review can be finalized." |
-| BDA-056 | Review detail | Capitalization mismatch: "Executive Summary" (Title Case card) vs "or view manifest summary →" (sentence case link) — `RunDetailExecutiveSummaryCtaCard.tsx` (~18, 34). | Inconsistent casing + "manifest summary" vs elsewhere "Signed manifest". | Standardize casing and manifest noun. | "Executive summary" / "View the signed manifest →" |
-| BDA-057 | Review detail | Technical idempotency badge "Replayed" on the main H1 row — `RunDetailPageHeader.tsx` (~114). | Internal concept on the primary header. | Hide in buyer mode or relabel. | — |
-| BDA-058 | Review detail | Help link "Architecture review steps — Core Pilot guide" — `RunDetailPageHeader.tsx` (~129). | Internal "Core Pilot" naming on a buyer link. | Rename. | "Architecture review steps — guide" |
-| BDA-059 | Review detail | "Finalize package" (label) vs "Finalize review" (button) on the same affordance — `RunDetailPageHeader.tsx` (~206), `CommitRunButton.tsx` (~129). | Inconsistent verb/noun pair on the finalize control. | Standardize. | "Finalize review" |
-| BDA-060 | Cross-cutting glossary | Product jargon term "Golden manifest" on buyer tooltips; definition also hedges PKI "signed" claims — `glossary-terms.ts` (~18–20). | "Golden" jargon + hedged "signed" weakens the signed-record claim. | Rename to "Signed manifest"; tighten the definition. | term: "Signed manifest" |
-| BDA-061 | Executive summary | "Day {pilotDayNumber} of your ArchLucid pilot" — `ExecutiveRoiDashboardLiveKpiCards.tsx` (~142–143). | Frames the executive view as a time-boxed pilot, not production governance. | Hide pilot-day framing in buyer mode. | — |
-| BDA-062 | Executive summary | Raw "Executive summary HTTP ${status}" on error — `ExecutiveRoiDashboardLiveKpiCards.tsx` (~75). | Raw HTTP status reads as a broken product. | Map to a governed failure message with a copyable id. | "We couldn't load the executive summary. Reference: <id>." |
-| BDA-063 | Executive summary | Footnote "Not returned by the executive ROI summary API for this tenant." — `executive-roi-kpi-display.ts` (~21). | Exposes multi-tenant/API semantics to executives. | Buyer-safe empty-value copy. | "Not available for this workspace yet." |
-| BDA-064 | Executive summary | Internal API routes printed on cards: "Data from GET /v1/roi/executive-summary" and siblings — `ExecutiveRoiSummarySection.tsx` (~240), `BusinessImpactSummaryWidget.tsx` (~112), `ExecutiveRoiTrendSection.tsx` (~131), `ExecutiveRoiEnvironmentSavingsSection.tsx` (~56), `ExecutiveComplianceDriftTrendSection.tsx` (~58). | Developer endpoint strings on executive cards look unfinished. | Replace with a plain-language source/methodology note (or a "How this is calculated" link). | "Source: committed reviews in this workspace." |
-| BDA-065 | Executive summary | "How directional savings estimates are calculated." — `SponsorExportsSection.tsx` (~119). | "Directional" signals estimates, not evidenced savings. | Reword to evidence-based framing with methodology link. | "How savings are calculated from your committed reviews." |
-| BDA-066 | Executive summary | Informal "Include AI executive summary (uses 1 fast LLM call when enabled in API config)" — `ExecutiveRoiSummarySection.tsx` (~237). | "Fast LLM call" / "API config" undermines audit-grade tone on a board export. | Buyer-facing rewrite. | "Include an AI-generated executive summary." |
-| BDA-067 | Executive summary | CSV export headers "FindingId,RunId,SystemName,…" (PascalCase) — `ExecutiveRoiSummarySection.tsx` (~108). | Schema field names leak into executive exports. | Use human headers in exported CSV. | "Finding, Review, System, …" |
-| BDA-068 | Executive summary | Dense "Open estimated $… · Deferred/waived $…" with no inline methodology — `ExecutiveRoiSummarySection.tsx` (~273–274). | Finance jargon with no basis link on the card. | Add a methodology link; plain labels. | "Estimated open savings · Deferred/waived" |
-| BDA-069 | Executive summary | "Simulator-only" beside USD savings bars — `ExecutiveRoiTrendSection.tsx` (~186). | Admits simulator-derived periods next to bars that look like actuals. | Ensure buyer trend uses real runs; relabel. | — |
-| BDA-070 | Executive summary | "Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings." — `ExecutiveRoiTrendSection.tsx` (~206). | Requires hover + internal Real/Simulator vocabulary; easy to miss. | Remove Real/Simulator vocabulary in buyer mode; show values without hover. | — |
-| BDA-071 | Executive summary | Stacked environment bar has no chart title / axis ("Estimated USD") / legend; raw env names like `prod`/`dev` — `ExecutiveRoiEnvironmentSavingsSection.tsx` (~67–90). | Unlabeled chart with raw env tags is not self-describing. | Add title, axis label, legend; map env names. | "Estimated annual savings by environment (USD)" |
-| BDA-072 | Executive summary | Inconsistent chart grammar: amber `div` bars for "Critical security findings" with no Y-axis vs SVG savings chart with Y ticks — `ExecutiveRoiTrendSection.tsx` (~179–197) vs `ExecutiveRoiSavingsTrendSvgChart.tsx`. | Two chart styles on one view; the findings scale is unexplained. | Unify on the SVG chart primitive with axis/legend. | — |
-| BDA-073 | Executive summary | Internal term "Orphan Candidates" (Title Case) — `ExecutiveOrphanCandidatesCard.tsx` (~72, 90, 107). | Internal product term inconsistent with buyer vocabulary. | Rename to a buyer concept. | "Unused / orphaned resources" |
-| BDA-074 | Executive summary | "Estimated savings: {formatUsd}/yr" with no pricing basis — `ExecutiveOrphanCandidatesCard.tsx` (~124). | Annual dollar claim with no basis on the tile. | Add basis label/methodology link. | "Est. savings/yr (list-price basis)" |
-| BDA-075 | Executive summary | Tilde-prefixed USD "~$X /" in a marketing-style narrative with no citation — `executive-value-narrative.ts` (~24–36), `ExecutiveValueNarrativeBanner.tsx`. | Reads as marketing, not evidence. | Cite the basis; or remove the dollar figure from the narrative line. | — |
-| BDA-076 | Executive summary | Mixed framing "Portfolio ROI summary" vs page title "Executive summary" — `ExecutiveRoiSummarySection.tsx` (~200) vs `buyer-surface-vocabulary.ts` (~24). | Two names for the same view on one scroll. | Standardize. | "Executive summary" |
-| BDA-077 | Executive summary | Baseline banner "Executive ROI summaries stay grounded when you upload an Azure extractor inventory ZIP" — `ExecutiveDashboardBaselineWarningBanner.tsx` (~55–56). | Tells buyers current ROI may be ungrounded; "extractor inventory ZIP" is jargon. | Soften to a setup nudge in buyer mode. | "Upload your Azure inventory to ground these figures." |
-| BDA-078 | Executive scorecard | "Window matches pilot-value-report bounds (toUtc exclusive where applicable)." — `ExecutiveScorecardClient.tsx` (~293). | Internal API/window semantics exposed to executives. | Plain-language window help. | "Showing the selected time range." |
-| BDA-079 | Executive scorecard | "Committed runs (pilot-value-report)" leaks an artifact name under a KPI — `ExecutiveScorecardClient.tsx` (~324). | Implementation artifact name on a KPI footnote. | Remove the artifact name. | "Committed reviews" |
-| BDA-080 | Executive scorecard | "Severity-weighted ROI model" + "fallback {AVERAGE_MANUAL_REVIEW_HOURS} h × reviews when weighted hours are zero" — `ExecutiveScorecardClient.tsx` (~349–352). | Model + fallback reads as fabricated hours if severities are zero. | Hide the fallback formula; link methodology. | "Estimated hours saved (methodology →)" |
-| BDA-081 | Manifest summary | Hardwired headline "Signed decision record — Claims Intake Modernization Review Package" — `ManifestDetailPageView.tsx` (~235–236). | Fictional program name presented as the authoritative signed record. | Drive name from the package; generic in buyer mode. | "Signed decision record — architecture review package" |
-| BDA-082 | Manifest summary | Breadcrumb link "Public showcase" — `ManifestDetailPageView.tsx` (~224). | "Public showcase" on an operator manifest undercuts enterprise-only positioning. | Hide in buyer mode. | — |
-| BDA-083 | Manifest summary | Hardcoded counts `SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT` / `…AUDIT_TRAIL_EVENT_COUNT` (15 / 7) — `ManifestDetailSummaryPanel.tsx` (~268, 278). | Static counts can disagree with live graph/audit APIs; buyers treat tiles as measured. | Derive from the same APIs the linked pages use, or label as example. | — |
-| BDA-084 | Manifest summary | Static diligence copy not tied to API: "High", "PHI minimization", "Accepted with monitoring" — `ManifestDetailPageView.tsx` (~106–122). | Looks fabricated if API values differ. | Bind to API fields, or clearly mark as example. | — |
-| BDA-085 | Manifest summary | Raw "Manifest ID" + monospace GUID in the appendix — `ManifestDetailSummaryPanel.tsx` (~185–188). | Internal id exposed during diligence. | Hide behind a details control in buyer mode. | — |
-| BDA-086 | Manifest summary | Engineering diagnostics "valid empty result" / "Bundle ZIP may return 404" — `ManifestDetailPageView.tsx` (~411–423). | 404 mention erodes download confidence on a sign-off page. | Replace with buyer-safe states. | "No deliverables yet." / "Download is being prepared." |
-| BDA-087 | Manifest summary | Mixed "Manifest" (breadcrumb) vs "Signed decision record" (headline) — `ManifestDetailPageView.tsx` (~212–239). | Two names for one page. | Standardize the noun. | — |
-| BDA-088 | Manifest summary | Duplicate download CTAs "Export manifest bundle" / "Download finalized review package" / "Download bundle (ZIP)" — `ManifestDetailPageView.tsx` (~245, 305, 352), `ManifestDetailSummaryPanel.tsx`. | Multiple near-duplicate export labels confuse the primary diligence action. | One primary "Download" CTA; collapse the rest. | "Download review package (ZIP)" |
-| BDA-089 | Evidence graph | Lead copy "…for Claims Intake Modernization Review Package." — `GraphPageContent.tsx` (~364–366). | Sample package name in the primary intro. | Generic in buyer mode. | "…for this architecture review package." |
-| BDA-090 | Evidence graph | Default `runId` is `SHOWCASE_STATIC_DEMO_RUN_ID` ("claims-intake-modernization") — `GraphPageContent.tsx` (~60–61, 105–109). | Buyer graph loads the sample without the user choosing a run. | Default to the active tenant run in buyer mode. | — |
-| BDA-091 | Evidence graph | Idle hint "Choose Open signed manifest or Open audit trail if the canvas is taking longer than expected." — `graph-page-helpers.ts` (~63). | Implies the graph may not load; positions manifest/audit as fallback. | Remove the "if it's slow" framing; show a clean loading state. | — |
-| BDA-092 | Evidence graph | Error guidance "GraphViewModel (nodes and edges arrays)" / "Compare GET /version" — `GraphFetchStatusAlerts.tsx` (~44–50). | Internal type/version guidance on user-visible errors. | Buyer-safe error with a copyable reference. | "We couldn't render the evidence graph. Reference: <id>." |
-| BDA-093 | Evidence graph | "Filter by type" with raw `{t}` node-type enums in `<option>` — `GraphLoadedExperience.tsx` (~100–106). | Raw kind strings shown to operators/hybrid builds. | Map node types to display labels. | — |
-| BDA-094 | Evidence graph | "Continue to governance approval" next-step CTA may be wrong if already approved — `GraphLoadedExperience.tsx` (~216). | A scripted next step that can contradict actual state feels canned. | Drive the CTA from the package's real governance state. | — |
-| BDA-095 | Evidence graph | Single-risk marketing narrative "A reviewer can trace the accepted PHI minimization risk…" — `buyer-polish-copy.ts` (~168–169), `GraphLoadedExperience.tsx` (~72). | Reads as a scripted story, not neutral evidence-graph scope. | Generalize the "what this proves" copy. | "Trace any accepted risk to its supporting evidence." |
-| BDA-096 | Evidence graph | Operator vs buyer copy inconsistency "Rendering interactive graph…" vs "{n} nodes, {m} edges (before filter)" — `GraphLoadedExperience.tsx` (~112–116). | "before filter" is engineer-facing. | Hide raw counts/"before filter" in buyer mode. | — |
-| BDA-097 | Governance | "Sample governed-use record aligned with the Claims Intake showcase." — `operator-static-demo.ts` (~1129). | "Sample/showcase" undermines governed-use credibility. | Remove sample/showcase wording in buyer mode. | — |
-| BDA-098 | Governance | Meta banner "Approval workflow reference" + "In production, authorized roles submit requests…" — `GovernanceWorkflowPageContent.tsx` (~538–541). | Signals the page is illustrative, not operational. | Gate to demo mode; in buyer mode present it as the live workflow. | — |
-| BDA-099 | Governance | Pre-filled manifest "3.4.1" + run id on first paint — `GovernanceWorkflowPageContent.tsx` (~88–89, 295–298). | Form looks pre-staged rather than discovered from tenant data. | Populate from the selected review, or leave blank with a picker. | — |
-| BDA-100 | Governance | Residual-risk owner "Taylor Morgan (Request owner)" — `buyer-polish-copy.ts` (~122). | Repeats the fictional cast across surfaces. | Role label in buyer mode. | "Request owner" |
+| BDA-035 | Home | Readiness matrix advertises "Sample review availability" / "Open sample" ? `home-readiness-row-present.ts` (~16). | A "sample" row in a readiness matrix reads as immature to procurement. | Rename or hide the row in buyer mode. | "Example review package: ready" |
+| BDA-036 | Home | "Collect the first-pilot proof pipeline from diagnostics for go/no-go review." ? `first-pilot-readiness-cockpit.ts` (~214). | "First-pilot proof pipeline" / "go/no-go" reads as internal ops. | Buyer-facing rewrite. | "Generate the proof package for sign-off review." |
+| BDA-037 | Home | Raw phrasing "policy-pack governance dry-run" ? `first-pilot-readiness-cockpit.ts` (~238). | Engineering phrasing in readiness follow-up copy. | Plain-language rewrite. | "Preview governance checks against the policy pack." |
+| BDA-038 | Home | "ROI estimate not configured" / "Add ROI assumptions" ? `buyer-home-status-copy.ts` (~19, 29). | Surfaces unfinished estimates in a sponsor-facing readiness story. | Hide until configured, or soften wording. | "Add your cost assumptions to see ROI." |
+| BDA-039 | Home | Competing primaries "Open review package" + "View readiness scorecard" in the command center ? `FirstPilotReadinessCockpit.tsx` (~397?409). | Multiple primaries dilute the single next action. | One primary CTA; others secondary/ghost. | ? |
+| BDA-040 | Home | "Review journey" links expose `href` `/graph?runId=?` ? `BuyerGoldenJourneyStrip.tsx` / `buyer-golden-journey-nav.ts` (~30?31). | Buyer sees `runId` in URLs/hover even when copy says "review package". | Use slug/label-based routes in buyer mode, or mask the param. | ? |
+| BDA-041 | Reviews list | "Review packages" (page title) vs Home "Your reviews" ? `i18n.ts` (RUNS_LIST_PAGE_TITLES.buyerPolished). | Inconsistent with Home naming (see BDA-034). | Standardize the noun. | ? |
+| BDA-042 | Reviews list | "Featured finalized review package: signed manifest, evidence trail, governance approval, and audit trail complete." ? `buyer-polish-copy.ts` (BUYER_RUNS_DASHBOARD_RECENT_SUMMARY). | Implies a single featured proof package (the demo spine), not a neutral inventory; "complete" overclaims. | Neutralize; drop "complete". | "Recent review package: signed manifest, evidence, governance, and audit." |
+| BDA-043 | Reviews list | Tooltip aria-label "About this demonstration workspace" ? `RunsPageBuyerHelpTip.tsx` (~19?20). | Labels the whole list context as a demonstration. | Remove "demonstration" in buyer mode. | "About this workspace" |
+| BDA-044 | Reviews list | Glossary term `run` defined "Open an architecture review for manifest, evidence, findings, and deliverables." while visible copy says "architecture review" ? `RunsPageView.tsx` (~70?71). | Tooltip term `run` conflicts with visible "review" vocabulary. | Align glossary term to buyer noun. | term: "review package" |
+| BDA-045 | Reviews list | Raw internal doc filename "CORE_PILOT.md" in an empty-state hint ? `RunsPageView.tsx` (~157). | Internal repo filename exposed to buyers. | Route via in-app docs (TB-143?148), not a raw filename. | "See the getting-started guide." |
+| BDA-046 | Reviews list | "Seed a sample review" / "Seeds an interactive sample review so you can explore the workspace?" ? `SeedSampleReviewButton.tsx` (~75), `RunsPageView.tsx` (~187?190). | "Seed" + "sample" reads as engineering bootstrap, not enterprise onboarding. | Rename; hide in buyer mode. | "Load the example review" |
+| BDA-047 | Reviews list | Inspector stamp "Sample finalized (illustrative)" ? `RunInspectorPreview.tsx` (~70). | Stamps the flagship row as non-production. | Use "Example ? finalized" or hide in buyer mode. | "Example ? finalized" |
+| BDA-048 | Reviews list | Hardcoded showcase counts "9 findings ? 1 monitored risks ? Package finalized" (`SHOWCASE_STATIC_DEMO_SPINE_COUNTS`) ? `RunsListClient.tsx` (~94?99). | Static numbers can read as live telemetry and may disagree with detail screens. | Derive counts from the same source as the detail page, or label as example. | ? |
+| BDA-049 | Reviews list | Mixed vocabulary "In flight" (filter chips) vs "Early pipeline" (table sections) for the same lifecycle ? `RunsListClient.tsx` (~541) vs `run-work-queue-groups.ts` (~56). | Same lifecycle, two terms on one page. | Standardize lifecycle vocabulary. | ? |
+| BDA-050 | Reviews list | "Search review packages" vs "Filter reviews" in adjacent controls ? `RunsListClient.tsx` (~437, 501). | Mixed "review" vs "review packages" in neighboring controls. | Standardize. | "Filter review packages" |
+| BDA-051 | Review detail | "Policy pack used for this sample review." ? `RunDetailPageView.tsx` (~355?356). | "Sample review" on exports for the showcase run. | Remove "sample" in buyer mode. | "Policy pack used for this review." |
+| BDA-052 | Review detail | "Explanation confidence ? WARN" (also PASS/HOLD) raw enum ? `RunExplanationConfidenceBanner.tsx` (~46). | Raw enum disposition in a buyer-facing banner. | Map enums to buyer language. | "Explanation confidence: needs review" |
+| BDA-053 | Review detail | "Review ID:" + monospace `{runId}` during in-progress reviews ? `RunProgressTracker.tsx` (~105?106). | Exposes internal correlation id on a buyer surface. | Hide raw id in buyer mode (keep copyable id behind a details control). | ? |
+| BDA-054 | Review detail | Operator runbook text "check GET /health/ready on the API" ? `RunProgressTracker.tsx` (~84). | Operator/runbook instruction on a buyer demo path. | Hide in buyer mode; show a neutral status message. | "We're preparing this review; this can take a moment." |
+| BDA-055 | Review detail | "Finding coverage is commit-blocking. Failed engines: ?" exposes internal engine labels ? `RunDetailPageView.tsx` (~103?106). | Internal engine names leak when finalize is blocked. | Map engine names to buyer categories; hide raw labels. | "Some checks must finish before this review can be finalized." |
+| BDA-056 | Review detail | Capitalization mismatch: "Executive Summary" (Title Case card) vs "or view manifest summary ?" (sentence case link) ? `RunDetailExecutiveSummaryCtaCard.tsx` (~18, 34). | Inconsistent casing + "manifest summary" vs elsewhere "Signed manifest". | Standardize casing and manifest noun. | "Executive summary" / "View the signed manifest ?" |
+| BDA-057 | Review detail | Technical idempotency badge "Replayed" on the main H1 row ? `RunDetailPageHeader.tsx` (~114). | Internal concept on the primary header. | Hide in buyer mode or relabel. | ? |
+| BDA-058 | Review detail | Help link "Architecture review steps ? Core Pilot guide" ? `RunDetailPageHeader.tsx` (~129). | Internal "Core Pilot" naming on a buyer link. | Rename. | "Architecture review steps ? guide" |
+| BDA-059 | Review detail | "Finalize package" (label) vs "Finalize review" (button) on the same affordance ? `RunDetailPageHeader.tsx` (~206), `CommitRunButton.tsx` (~129). | Inconsistent verb/noun pair on the finalize control. | Standardize. | "Finalize review" |
+| BDA-060 | Cross-cutting glossary | Product jargon term "Golden manifest" on buyer tooltips; definition also hedges PKI "signed" claims ? `glossary-terms.ts` (~18?20). | "Golden" jargon + hedged "signed" weakens the signed-record claim. | Rename to "Signed manifest"; tighten the definition. | term: "Signed manifest" |
+| BDA-061 | Executive summary | "Day {pilotDayNumber} of your ArchLucid pilot" ? `ExecutiveRoiDashboardLiveKpiCards.tsx` (~142?143). | Frames the executive view as a time-boxed pilot, not production governance. | Hide pilot-day framing in buyer mode. | ? |
+| BDA-062 | Executive summary | Raw "Executive summary HTTP ${status}" on error ? `ExecutiveRoiDashboardLiveKpiCards.tsx` (~75). | Raw HTTP status reads as a broken product. | Map to a governed failure message with a copyable id. | "We couldn't load the executive summary. Reference: <id>." |
+| BDA-063 | Executive summary | Footnote "Not returned by the executive ROI summary API for this tenant." ? `executive-roi-kpi-display.ts` (~21). | Exposes multi-tenant/API semantics to executives. | Buyer-safe empty-value copy. | "Not available for this workspace yet." |
+| BDA-064 | Executive summary | Internal API routes printed on cards: "Data from GET /v1/roi/executive-summary" and siblings ? `ExecutiveRoiSummarySection.tsx` (~240), `BusinessImpactSummaryWidget.tsx` (~112), `ExecutiveRoiTrendSection.tsx` (~131), `ExecutiveRoiEnvironmentSavingsSection.tsx` (~56), `ExecutiveComplianceDriftTrendSection.tsx` (~58). | Developer endpoint strings on executive cards look unfinished. | Replace with a plain-language source/methodology note (or a "How this is calculated" link). | "Source: committed reviews in this workspace." |
+| BDA-065 | Executive summary | "How directional savings estimates are calculated." ? `SponsorExportsSection.tsx` (~119). | "Directional" signals estimates, not evidenced savings. | Reword to evidence-based framing with methodology link. | "How savings are calculated from your committed reviews." |
+| BDA-066 | Executive summary | Informal "Include AI executive summary (uses 1 fast LLM call when enabled in API config)" ? `ExecutiveRoiSummarySection.tsx` (~237). | "Fast LLM call" / "API config" undermines audit-grade tone on a board export. | Buyer-facing rewrite. | "Include an AI-generated executive summary." |
+| BDA-067 | Executive summary | CSV export headers "FindingId,RunId,SystemName,?" (PascalCase) ? `ExecutiveRoiSummarySection.tsx` (~108). | Schema field names leak into executive exports. | Use human headers in exported CSV. | "Finding, Review, System, ?" |
+| BDA-068 | Executive summary | Dense "Open estimated $? ? Deferred/waived $?" with no inline methodology ? `ExecutiveRoiSummarySection.tsx` (~273?274). | Finance jargon with no basis link on the card. | Add a methodology link; plain labels. | "Estimated open savings ? Deferred/waived" |
+| BDA-069 | Executive summary | "Simulator-only" beside USD savings bars ? `ExecutiveRoiTrendSection.tsx` (~186). | Admits simulator-derived periods next to bars that look like actuals. | Ensure buyer trend uses real runs; relabel. | ? |
+| BDA-070 | Executive summary | "Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings." ? `ExecutiveRoiTrendSection.tsx` (~206). | Requires hover + internal Real/Simulator vocabulary; easy to miss. | Remove Real/Simulator vocabulary in buyer mode; show values without hover. | ? |
+| BDA-071 | Executive summary | Stacked environment bar has no chart title / axis ("Estimated USD") / legend; raw env names like `prod`/`dev` ? `ExecutiveRoiEnvironmentSavingsSection.tsx` (~67?90). | Unlabeled chart with raw env tags is not self-describing. | Add title, axis label, legend; map env names. | "Estimated annual savings by environment (USD)" |
+| BDA-072 | Executive summary | Inconsistent chart grammar: amber `div` bars for "Critical security findings" with no Y-axis vs SVG savings chart with Y ticks ? `ExecutiveRoiTrendSection.tsx` (~179?197) vs `ExecutiveRoiSavingsTrendSvgChart.tsx`. | Two chart styles on one view; the findings scale is unexplained. | Unify on the SVG chart primitive with axis/legend. | ? |
+| BDA-073 | Executive summary | Internal term "Orphan Candidates" (Title Case) ? `ExecutiveOrphanCandidatesCard.tsx` (~72, 90, 107). | Internal product term inconsistent with buyer vocabulary. | Rename to a buyer concept. | "Unused / orphaned resources" |
+| BDA-074 | Executive summary | "Estimated savings: {formatUsd}/yr" with no pricing basis ? `ExecutiveOrphanCandidatesCard.tsx` (~124). | Annual dollar claim with no basis on the tile. | Add basis label/methodology link. | "Est. savings/yr (list-price basis)" |
+| BDA-075 | Executive summary | Tilde-prefixed USD "~$X /" in a marketing-style narrative with no citation ? `executive-value-narrative.ts` (~24?36), `ExecutiveValueNarrativeBanner.tsx`. | Reads as marketing, not evidence. | Cite the basis; or remove the dollar figure from the narrative line. | ? |
+| BDA-076 | Executive summary | Mixed framing "Portfolio ROI summary" vs page title "Executive summary" ? `ExecutiveRoiSummarySection.tsx` (~200) vs `buyer-surface-vocabulary.ts` (~24). | Two names for the same view on one scroll. | Standardize. | "Executive summary" |
+| BDA-077 | Executive summary | Baseline banner "Executive ROI summaries stay grounded when you upload an Azure extractor inventory ZIP" ? `ExecutiveDashboardBaselineWarningBanner.tsx` (~55?56). | Tells buyers current ROI may be ungrounded; "extractor inventory ZIP" is jargon. | Soften to a setup nudge in buyer mode. | "Upload your Azure inventory to ground these figures." |
+| BDA-078 | Executive scorecard | "Window matches pilot-value-report bounds (toUtc exclusive where applicable)." ? `ExecutiveScorecardClient.tsx` (~293). | Internal API/window semantics exposed to executives. | Plain-language window help. | "Showing the selected time range." |
+| BDA-079 | Executive scorecard | "Committed runs (pilot-value-report)" leaks an artifact name under a KPI ? `ExecutiveScorecardClient.tsx` (~324). | Implementation artifact name on a KPI footnote. | Remove the artifact name. | "Committed reviews" |
+| BDA-080 | Executive scorecard | "Severity-weighted ROI model" + "fallback {AVERAGE_MANUAL_REVIEW_HOURS} h ? reviews when weighted hours are zero" ? `ExecutiveScorecardClient.tsx` (~349?352). | Model + fallback reads as fabricated hours if severities are zero. | Hide the fallback formula; link methodology. | "Estimated hours saved (methodology ?)" |
+| BDA-081 | Manifest summary | Hardwired headline "Signed decision record ? Claims Intake Modernization Review Package" ? `ManifestDetailPageView.tsx` (~235?236). | Fictional program name presented as the authoritative signed record. | Drive name from the package; generic in buyer mode. | "Signed decision record ? architecture review package" |
+| BDA-082 | Manifest summary | Breadcrumb link "Public showcase" ? `ManifestDetailPageView.tsx` (~224). | "Public showcase" on an operator manifest undercuts enterprise-only positioning. | Hide in buyer mode. | ? |
+| BDA-083 | Manifest summary | Hardcoded counts `SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT` / `?AUDIT_TRAIL_EVENT_COUNT` (15 / 7) ? `ManifestDetailSummaryPanel.tsx` (~268, 278). | Static counts can disagree with live graph/audit APIs; buyers treat tiles as measured. | Derive from the same APIs the linked pages use, or label as example. | ? |
+| BDA-084 | Manifest summary | Static diligence copy not tied to API: "High", "PHI minimization", "Accepted with monitoring" ? `ManifestDetailPageView.tsx` (~106?122). | Looks fabricated if API values differ. | Bind to API fields, or clearly mark as example. | ? |
+| BDA-085 | Manifest summary | Raw "Manifest ID" + monospace GUID in the appendix ? `ManifestDetailSummaryPanel.tsx` (~185?188). | Internal id exposed during diligence. | Hide behind a details control in buyer mode. | ? |
+| BDA-086 | Manifest summary | Engineering diagnostics "valid empty result" / "Bundle ZIP may return 404" ? `ManifestDetailPageView.tsx` (~411?423). | 404 mention erodes download confidence on a sign-off page. | Replace with buyer-safe states. | "No deliverables yet." / "Download is being prepared." |
+| BDA-087 | Manifest summary | Mixed "Manifest" (breadcrumb) vs "Signed decision record" (headline) ? `ManifestDetailPageView.tsx` (~212?239). | Two names for one page. | Standardize the noun. | ? |
+| BDA-088 | Manifest summary | Duplicate download CTAs "Export manifest bundle" / "Download finalized review package" / "Download bundle (ZIP)" ? `ManifestDetailPageView.tsx` (~245, 305, 352), `ManifestDetailSummaryPanel.tsx`. | Multiple near-duplicate export labels confuse the primary diligence action. | One primary "Download" CTA; collapse the rest. | "Download review package (ZIP)" |
+| BDA-089 | Evidence graph | Lead copy "?for Claims Intake Modernization Review Package." ? `GraphPageContent.tsx` (~364?366). | Sample package name in the primary intro. | Generic in buyer mode. | "?for this architecture review package." |
+| BDA-090 | Evidence graph | Default `runId` is `SHOWCASE_STATIC_DEMO_RUN_ID` ("claims-intake-modernization") ? `GraphPageContent.tsx` (~60?61, 105?109). | Buyer graph loads the sample without the user choosing a run. | Default to the active tenant run in buyer mode. | ? |
+| BDA-091 | Evidence graph | Idle hint "Choose Open signed manifest or Open audit trail if the canvas is taking longer than expected." ? `graph-page-helpers.ts` (~63). | Implies the graph may not load; positions manifest/audit as fallback. | Remove the "if it's slow" framing; show a clean loading state. | ? |
+| BDA-092 | Evidence graph | Error guidance "GraphViewModel (nodes and edges arrays)" / "Compare GET /version" ? `GraphFetchStatusAlerts.tsx` (~44?50). | Internal type/version guidance on user-visible errors. | Buyer-safe error with a copyable reference. | "We couldn't render the evidence graph. Reference: <id>." |
+| BDA-093 | Evidence graph | "Filter by type" with raw `{t}` node-type enums in `<option>` ? `GraphLoadedExperience.tsx` (~100?106). | Raw kind strings shown to operators/hybrid builds. | Map node types to display labels. | ? |
+| BDA-094 | Evidence graph | "Continue to governance approval" next-step CTA may be wrong if already approved ? `GraphLoadedExperience.tsx` (~216). | A scripted next step that can contradict actual state feels canned. | Drive the CTA from the package's real governance state. | ? |
+| BDA-095 | Evidence graph | Single-risk marketing narrative "A reviewer can trace the accepted PHI minimization risk?" ? `buyer-polish-copy.ts` (~168?169), `GraphLoadedExperience.tsx` (~72). | Reads as a scripted story, not neutral evidence-graph scope. | Generalize the "what this proves" copy. | "Trace any accepted risk to its supporting evidence." |
+| BDA-096 | Evidence graph | Operator vs buyer copy inconsistency "Rendering interactive graph?" vs "{n} nodes, {m} edges (before filter)" ? `GraphLoadedExperience.tsx` (~112?116). | "before filter" is engineer-facing. | Hide raw counts/"before filter" in buyer mode. | ? |
+| BDA-097 | Governance | "Sample governed-use record aligned with the Claims Intake showcase." ? `operator-static-demo.ts` (~1129). | "Sample/showcase" undermines governed-use credibility. | Remove sample/showcase wording in buyer mode. | ? |
+| BDA-098 | Governance | Meta banner "Approval workflow reference" + "In production, authorized roles submit requests?" ? `GovernanceWorkflowPageContent.tsx` (~538?541). | Signals the page is illustrative, not operational. | Gate to demo mode; in buyer mode present it as the live workflow. | ? |
+| BDA-099 | Governance | Pre-filled manifest "3.4.1" + run id on first paint ? `GovernanceWorkflowPageContent.tsx` (~88?89, 295?298). | Form looks pre-staged rather than discovered from tenant data. | Populate from the selected review, or leave blank with a picker. | ? |
+| BDA-100 | Governance | Residual-risk owner "Taylor Morgan (Request owner)" ? `buyer-polish-copy.ts` (~122). | Repeats the fictional cast across surfaces. | Role label in buyer mode. | "Request owner" |
 
-| BDA-101 | Governance | "Approving or rejecting from here requires the right role in production; this form shows how the workflow looks." — `enterprise-controls-context-copy.ts` (~218–219). | Admits the workflow is a preview shell; no segregation-of-duties explanation. | In buyer mode present the live control; explain SoD (see BDA-118). | — |
-| BDA-102 | Governance | "Reviewed by" free-text input + toast "Reviewed by is required." — `GovernanceWorkflowApprovalsList.tsx` (~157), `GovernanceWorkflowPageContent.tsx` (~349). | Approver identity looks typable, not policy-enforced; no SoD/self-approval block shown. | Bind approver to the authenticated identity; show SoD enforcement. | — |
-| BDA-103 | Governance | "Quick approve" + comment "Quick approve — no Critical/High findings in governance lineage snapshot." — `GovernanceQuickApproveButton.tsx` (~82, 136). | One-click approval feels like a checkbox, not a dual-control gate. | Show the controls behind quick-approve (lineage, signatures); rename. | "Approve (no critical/high findings)" |
-| BDA-104 | Governance | Buyer shell hides full approval cards and the entire promotions/activations section (`buyerPolishedShell ? null`) — `GovernanceWorkflowApprovalsList.tsx` (~104–106, 252–276), `GovernanceWorkflowPageContent.tsx` (~643–663). | CIO/CISO see only a single story card; workflow depth disappears, weakening the governance story. | Surface a buyer-safe summary of promotion/activation/records instead of hiding them. | — |
-| BDA-105 | Governance | Terminology drift: title "Governance decision record" vs empty-state CTA "Governance workflow" — `buyer-polish-copy.ts` (~57), `GovernanceFindingsQueueClient.tsx` (~811). | "Decision record" vs "workflow" signals immature IA. | Standardize the governance noun. | — |
-| BDA-106 | Governance | Real procedural guidance "Governance quick path" buried under collapsed "Supporting approval records" — `GovernanceWorkflowPageContent.tsx` (~529–531), `GovernanceInteractiveQuickstartCard.tsx` (~41–44). | The demo story card dominates; real guidance is hidden. | Surface the quick path; demote the story card. | — |
-| BDA-107 | Governance dashboard | Demo mode `redirect("/governance")` — the dashboard never renders, so `DecisionsNeededSummaryCard` / executive KPI strip is unreachable on the golden path — `governance/dashboard/page.tsx` (~10–11). | A governance KPI surface the buyer would value is unreachable in demo. | Render a buyer-safe governance dashboard instead of redirecting. | — |
-| BDA-108 | Findings queue | Internal demo ids `findingId: \`sample-decision-${i+1}\`` leak into URLs/inspect links — `GovernanceFindingsQueueClient.tsx` (~151). | "sample-decision-N" ids exposed on click. | Use real ids, or non-leaky slugs in buyer mode. | — |
-| BDA-109 | Findings queue | Empty state "Start from reviews or your sample package." — `GovernanceFindingsQueueClient.tsx` (~806). | "Sample package" breaks enterprise framing on an empty path. | Remove "sample" in buyer mode. | "Start from a review." |
-| BDA-110 | Findings queue | Three labels for one thing: breadcrumb "Governance approval" vs page title "Review records and dispositions" — `GovernanceFindingsQueueClient.tsx` (~537–546). | Breadcrumb/shell/title triangle uses three governance labels. | Standardize. | — |
-| BDA-111 | Findings queue | Hardcoded secondary line "Risk area: PHI minimization · Disposition: Accepted with monitoring" — `GovernanceFindingsQueueClient.tsx` (~122). | Scripted disposition copy, not API-derived. | Bind to API; fallback neutral. | — |
-| BDA-112 | Policy pack | "matching the Claims Intake showcase review referenced from Governance and Manifest surfaces." — `HealthcareClaimsPolicyPackDetail.tsx` (~29–30). | Ties policy authority to a showcase, not a tenant registry. | Generic in buyer mode. | — |
-| BDA-113 | Policy pack | Raw "Pack reference id: {policyPackId}" in a sponsor-grade header — `HealthcareClaimsPolicyPackDetail.tsx` (~37). | Internal id in the header. | Hide behind details, or show a human pack name. | — |
-| BDA-114 | Policy pack | CTA "Continue governance workflow" vs buyer title "Governance decision record" — `HealthcareClaimsPolicyPackDetail.tsx` (~81). | Inconsistent governance noun. | Standardize. | — |
-| BDA-115 | Risk exceptions | Wrong shell header `<LayerHeader pageKey="governance-workflow" />` on the risk-exceptions page — `RiskExceptionsClient.tsx` (~155). | Breadcrumb drift — the user thinks they're still on the workflow. | Set the correct `pageKey`. | — |
-| BDA-116 | Risk exceptions | Table header "Finding ID" + truncated GUID + "Copy" — `RiskExceptionsClient.tsx` (~183–208). | Raw identifiers front-and-center on a waiver register. | Show business identifiers; hide GUIDs behind a copy control. | — |
-| BDA-117 | Risk exceptions | Owner column renders `record.ownerUserId` directly — `RiskExceptionsClient.tsx` (~212). | Internal user ids, not display names/roles. | Resolve to display name/role. | — |
+| BDA-101 | Governance | "Approving or rejecting from here requires the right role in production; this form shows how the workflow looks." ? `enterprise-controls-context-copy.ts` (~218?219). | Admits the workflow is a preview shell; no segregation-of-duties explanation. | In buyer mode present the live control; explain SoD (see BDA-118). | ? |
+| BDA-102 | Governance | "Reviewed by" free-text input + toast "Reviewed by is required." ? `GovernanceWorkflowApprovalsList.tsx` (~157), `GovernanceWorkflowPageContent.tsx` (~349). | Approver identity looks typable, not policy-enforced; no SoD/self-approval block shown. | Bind approver to the authenticated identity; show SoD enforcement. | ? |
+| BDA-103 | Governance | "Quick approve" + comment "Quick approve ? no Critical/High findings in governance lineage snapshot." ? `GovernanceQuickApproveButton.tsx` (~82, 136). | One-click approval feels like a checkbox, not a dual-control gate. | Show the controls behind quick-approve (lineage, signatures); rename. | "Approve (no critical/high findings)" |
+| BDA-104 | Governance | Buyer shell hides full approval cards and the entire promotions/activations section (`buyerPolishedShell ? null`) ? `GovernanceWorkflowApprovalsList.tsx` (~104?106, 252?276), `GovernanceWorkflowPageContent.tsx` (~643?663). | CIO/CISO see only a single story card; workflow depth disappears, weakening the governance story. | Surface a buyer-safe summary of promotion/activation/records instead of hiding them. | ? |
+| BDA-105 | Governance | Terminology drift: title "Governance decision record" vs empty-state CTA "Governance workflow" ? `buyer-polish-copy.ts` (~57), `GovernanceFindingsQueueClient.tsx` (~811). | "Decision record" vs "workflow" signals immature IA. | Standardize the governance noun. | ? |
+| BDA-106 | Governance | Real procedural guidance "Governance quick path" buried under collapsed "Supporting approval records" ? `GovernanceWorkflowPageContent.tsx` (~529?531), `GovernanceInteractiveQuickstartCard.tsx` (~41?44). | The demo story card dominates; real guidance is hidden. | Surface the quick path; demote the story card. | ? |
+| BDA-107 | Governance dashboard | Demo mode `redirect("/governance")` ? the dashboard never renders, so `DecisionsNeededSummaryCard` / executive KPI strip is unreachable on the golden path ? `governance/dashboard/page.tsx` (~10?11). | A governance KPI surface the buyer would value is unreachable in demo. | Render a buyer-safe governance dashboard instead of redirecting. | ? |
+| BDA-108 | Findings queue | Internal demo ids `findingId: \`sample-decision-${i+1}\`` leak into URLs/inspect links ? `GovernanceFindingsQueueClient.tsx` (~151). | "sample-decision-N" ids exposed on click. | Use real ids, or non-leaky slugs in buyer mode. | ? |
+| BDA-109 | Findings queue | Empty state "Start from reviews or your sample package." ? `GovernanceFindingsQueueClient.tsx` (~806). | "Sample package" breaks enterprise framing on an empty path. | Remove "sample" in buyer mode. | "Start from a review." |
+| BDA-110 | Findings queue | Three labels for one thing: breadcrumb "Governance approval" vs page title "Review records and dispositions" ? `GovernanceFindingsQueueClient.tsx` (~537?546). | Breadcrumb/shell/title triangle uses three governance labels. | Standardize. | ? |
+| BDA-111 | Findings queue | Hardcoded secondary line "Risk area: PHI minimization ? Disposition: Accepted with monitoring" ? `GovernanceFindingsQueueClient.tsx` (~122). | Scripted disposition copy, not API-derived. | Bind to API; fallback neutral. | ? |
+| BDA-112 | Policy pack | "matching the Claims Intake showcase review referenced from Governance and Manifest surfaces." ? `HealthcareClaimsPolicyPackDetail.tsx` (~29?30). | Ties policy authority to a showcase, not a tenant registry. | Generic in buyer mode. | ? |
+| BDA-113 | Policy pack | Raw "Pack reference id: {policyPackId}" in a sponsor-grade header ? `HealthcareClaimsPolicyPackDetail.tsx` (~37). | Internal id in the header. | Hide behind details, or show a human pack name. | ? |
+| BDA-114 | Policy pack | CTA "Continue governance workflow" vs buyer title "Governance decision record" ? `HealthcareClaimsPolicyPackDetail.tsx` (~81). | Inconsistent governance noun. | Standardize. | ? |
+| BDA-115 | Risk exceptions | Wrong shell header `<LayerHeader pageKey="governance-workflow" />` on the risk-exceptions page ? `RiskExceptionsClient.tsx` (~155). | Breadcrumb drift ? the user thinks they're still on the workflow. | Set the correct `pageKey`. | ? |
+| BDA-116 | Risk exceptions | Table header "Finding ID" + truncated GUID + "Copy" ? `RiskExceptionsClient.tsx` (~183?208). | Raw identifiers front-and-center on a waiver register. | Show business identifiers; hide GUIDs behind a copy control. | ? |
+| BDA-117 | Risk exceptions | Owner column renders `record.ownerUserId` directly ? `RiskExceptionsClient.tsx` (~212). | Internal user ids, not display names/roles. | Resolve to display name/role. | ? |
 | BDA-118 | Cross-cutting (governance) | Marketing promises "approval workflows with segregation of duties" (`WelcomeMarketingPage.tsx` ~87) but no in-product SoD explanation on workflow/approve/quick-approve surfaces. | Buyer diligence gap: SoD is marketed but not demonstrated. | Add an in-product SoD explainer (who can request vs approve; self-approval blocked). | "Requesters cannot approve their own reviews (segregation of duties)." |
-| BDA-119 | Governance story card | "✓" checklist ending "Approved as architecture decision record" / "Ready for implementation planning" — `GovernanceApprovalStoryCard.tsx` (~39–61, 125–128). | Mimics completion without showing the immutable hash, dual signatures, or promotion records. | Link each ✓ to the underlying evidence (signature, audit hash). | — |
-| BDA-120 | Governance status | `StatusPill` renders raw API status uppercase ("Submitted", "Approved") — `StatusPill.tsx` (~22–34), used in `GovernanceWorkflowApprovalsList.tsx` (~116). | Internal workflow enums, not buyer decision language. | Map enum → buyer label. | "Pending architecture review", "Approved" |
-| BDA-121 | Audit | Buyer title "Audit trail for …" vs operator "Audit log" — `AuditPageView.tsx` (~32–37). | Terminology inconsistency across shells. | Standardize on "Audit trail". | — |
-| BDA-122 | Audit (filters) | Event type `<option>{t}</option>` shows raw API constants — `AuditSearchSection.tsx` (~225–228). | Unmapped enums (e.g. dotted `com.archlucid.*`) leak to buyers who open filters. | Map event types to display labels. | — |
-| BDA-123 | Audit (filters) | "Correlation ID" advanced filter with no buyer-safe label — `AuditSearchSection.tsx` (~262, 378). | Internal support field exposed (contrast the "Review ID" pattern in `i18n.ts`). | Relabel or move under an advanced/support section. | "Reference ID" |
-| BDA-124 | Finding detail | Local nav only ("← Back to review package" / "Open technical evidence trace"), no `LayerHeader` — `FindingDetailPageView.tsx` (~75–90). | Shell breadcrumb drift vs governance/audit pages. | Use `LayerHeader` for consistent breadcrumbs. | — |
-| BDA-125 | Finding detail | Ask panel "Ask about this finding" lacks the buyer grounding disclaimer the Ask page has ("Ask does not replace formal governance records") — `FindingAskInlinePanel.tsx` (~80) vs `buyer-polish-copy.ts` (~75–76). | The secondary Ask surface feels less governed than the primary one. | Reuse the grounding disclaimer on the inline panel. | "Ask does not replace formal governance records." |
-| BDA-126 | Finding inspect | Error path "This finding belongs to run" + raw `{payload.runId}` (monospace GUID) — `FindingInspectView.tsx` (~72–73). | GUID/runId surfaced to buyers on a mis-route. | Buyer-safe message without the raw id. | — |
-| BDA-127 | Finding inspect | "Technical traceability appendix — … Not part of the governed decision summary." — `FindingInspectView.tsx` (~122–123). | Labels inspect as out-of-band, weakening the single-proof-package narrative. | Frame as "supporting evidence" within the package. | "Supporting evidence trace" |
-| BDA-128 | Finding detail/inspect | Same surface, two names: detail link "Open technical evidence trace" vs inspect H1 "Technical evidence trail" — `FindingDetailPageView.tsx` (~89), `FindingInspectView.tsx` (~103). | Procurement notices the inconsistency. | Standardize. | "Evidence trace" |
-| BDA-129 | Ask | Saved thread title "Example review question — PHI risk briefing" — `AskPageContent.tsx` (~102). | "Example" in the thread list breaks enterprise conversation framing. | Hide example threads in buyer mode, or relabel. | — |
-| BDA-130 | Ask | "<summary>Sample review anchors</summary>" + "On the Claims Intake review package, replies include quick links…" — `AskContextParagraph.tsx` (~20–24), `buyer-polish-copy.ts` (~78–79). | Demo scaffolding visible in the Ask chrome. | Generic in buyer mode. | — |
-| BDA-131 | Ask | Auto-seeded thread/messages from `tryStaticDemoConversationMessages("thread-claims-intake-001")` on empty API — `AskPageContent.tsx` (~91–109), `ask-static-demo-messages.ts`. | Conversation history looks populated without tenant-backed threads. | Seed only in demo mode; real empty state otherwise. | — |
-| BDA-132 | Ask | Banner "Scoped to {buyerFacingReviewLinkLabelFromRunId(runId)}" while default `runId` is the showcase static demo id — `AskPageContent.tsx` (~35, 367). | Scope banner implies live anchoring on an always-on sample run. | Scope to the active tenant run in buyer mode. | — |
-| BDA-133 | Cross-cutting ("Learn more" links) | "Learn more" / help links resolve raw internal repo doc paths via `toDocsBlobUrl` — `"/docs/CORE_PILOT.md"` (`RunsPageView.tsx` ~152, `OnboardingTour.tsx` ~294), `"/docs/runbooks/TROUBLESHOOTING.md"` + `"/docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md"` (`OperatorApiProblem.tsx` ~87–91). | Buyer-facing help opens raw GitHub `.md` files with internal filenames. | Route through the in-app docs renderer (TB-143–148); never expose raw repo paths in buyer mode. | "Learn more" → in-app `/help/{topic}` |
+| BDA-119 | Governance story card | "?" checklist ending "Approved as architecture decision record" / "Ready for implementation planning" ? `GovernanceApprovalStoryCard.tsx` (~39?61, 125?128). | Mimics completion without showing the immutable hash, dual signatures, or promotion records. | Link each ? to the underlying evidence (signature, audit hash). | ? |
+| BDA-120 | Governance status | `StatusPill` renders raw API status uppercase ("Submitted", "Approved") ? `StatusPill.tsx` (~22?34), used in `GovernanceWorkflowApprovalsList.tsx` (~116). | Internal workflow enums, not buyer decision language. | Map enum ? buyer label. | "Pending architecture review", "Approved" |
+| BDA-121 | Audit | Buyer title "Audit trail for ?" vs operator "Audit log" ? `AuditPageView.tsx` (~32?37). | Terminology inconsistency across shells. | Standardize on "Audit trail". | ? |
+| BDA-122 | Audit (filters) | Event type `<option>{t}</option>` shows raw API constants ? `AuditSearchSection.tsx` (~225?228). | Unmapped enums (e.g. dotted `com.archlucid.*`) leak to buyers who open filters. | Map event types to display labels. | ? |
+| BDA-123 | Audit (filters) | "Correlation ID" advanced filter with no buyer-safe label ? `AuditSearchSection.tsx` (~262, 378). | Internal support field exposed (contrast the "Review ID" pattern in `i18n.ts`). | Relabel or move under an advanced/support section. | "Reference ID" |
+| BDA-124 | Finding detail | Local nav only ("? Back to review package" / "Open technical evidence trace"), no `LayerHeader` ? `FindingDetailPageView.tsx` (~75?90). | Shell breadcrumb drift vs governance/audit pages. | Use `LayerHeader` for consistent breadcrumbs. | ? |
+| BDA-125 | Finding detail | Ask panel "Ask about this finding" lacks the buyer grounding disclaimer the Ask page has ("Ask does not replace formal governance records") ? `FindingAskInlinePanel.tsx` (~80) vs `buyer-polish-copy.ts` (~75?76). | The secondary Ask surface feels less governed than the primary one. | Reuse the grounding disclaimer on the inline panel. | "Ask does not replace formal governance records." |
+| BDA-126 | Finding inspect | Error path "This finding belongs to run" + raw `{payload.runId}` (monospace GUID) ? `FindingInspectView.tsx` (~72?73). | GUID/runId surfaced to buyers on a mis-route. | Buyer-safe message without the raw id. | ? |
+| BDA-127 | Finding inspect | "Technical traceability appendix ? ? Not part of the governed decision summary." ? `FindingInspectView.tsx` (~122?123). | Labels inspect as out-of-band, weakening the single-proof-package narrative. | Frame as "supporting evidence" within the package. | "Supporting evidence trace" |
+| BDA-128 | Finding detail/inspect | Same surface, two names: detail link "Open technical evidence trace" vs inspect H1 "Technical evidence trail" ? `FindingDetailPageView.tsx` (~89), `FindingInspectView.tsx` (~103). | Procurement notices the inconsistency. | Standardize. | "Evidence trace" |
+| BDA-129 | Ask | Saved thread title "Example review question ? PHI risk briefing" ? `AskPageContent.tsx` (~102). | "Example" in the thread list breaks enterprise conversation framing. | Hide example threads in buyer mode, or relabel. | ? |
+| BDA-130 | Ask | "<summary>Sample review anchors</summary>" + "On the Claims Intake review package, replies include quick links?" ? `AskContextParagraph.tsx` (~20?24), `buyer-polish-copy.ts` (~78?79). | Demo scaffolding visible in the Ask chrome. | Generic in buyer mode. | ? |
+| BDA-131 | Ask | Auto-seeded thread/messages from `tryStaticDemoConversationMessages("thread-claims-intake-001")` on empty API ? `AskPageContent.tsx` (~91?109), `ask-static-demo-messages.ts`. | Conversation history looks populated without tenant-backed threads. | Seed only in demo mode; real empty state otherwise. | ? |
+| BDA-132 | Ask | Banner "Scoped to {buyerFacingReviewLinkLabelFromRunId(runId)}" while default `runId` is the showcase static demo id ? `AskPageContent.tsx` (~35, 367). | Scope banner implies live anchoring on an always-on sample run. | Scope to the active tenant run in buyer mode. | ? |
+| BDA-133 | Cross-cutting ("Learn more" links) | "Learn more" / help links resolve raw internal repo doc paths via `toDocsBlobUrl` ? `"/docs/CORE_PILOT.md"` (`RunsPageView.tsx` ~152, `OnboardingTour.tsx` ~294), `"/docs/runbooks/TROUBLESHOOTING.md"` + `"/docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md"` (`OperatorApiProblem.tsx` ~87?91). | Buyer-facing help opens raw GitHub `.md` files with internal filenames. | Route through the in-app docs renderer (TB-143?148); never expose raw repo paths in buyer mode. | "Learn more" ? in-app `/help/{topic}` |
 
-### P2 — lower-priority polish
+### P2 ? lower-priority polish
 
 | ID | Screen / area | Exact problem (quote + file) | Why it hurts buyer confidence | Recommended fix | Replacement copy |
 |----|---------------|------------------------------|-------------------------------|-----------------|------------------|
-| BDA-134 | Home | "artifact bundle" lowercase mid-list next to Title Case items ("Governed decision record") — `WelcomeBanner.tsx` (~277). | Inconsistent casing in the glossary list. | Standardize casing. | "Artifact bundle" |
-| BDA-135 | Home | Weak hierarchy: hero `pageTitle` (`text-lg`) vs section heading (`text-sm`) — `WelcomeBanner.tsx` (~243), `design-tokens.ts` (~47–63). | Zone labels can feel as heavy as the hero. | Increase hero scale or reduce section weight per the design system. | — |
-| BDA-136 | Reviews list | Footer "1 finalized review package" when `totalCount === 1` — `RunsListClient.tsx` (~795). | Reinforces a single-demo workspace impression. | Neutral count copy; seed a second example if appropriate. | — |
-| BDA-137 | Executive summary | Tooltip-only enums "{realRunCount} Real · {simulatorRunCount} Simulator" — `ExecutiveRoiTrendSection.tsx` (~43). | Raw run-mode enums in tooltips (low exposure). | Map to buyer labels or remove from buyer mode. | — |
-| BDA-138 | Executive summary | Hardcoded KPI label "Findings remediated (30d)" vs vocabulary-driven tiles — `ExecutiveRoiDashboardLiveKpiCards.tsx` (~264–265). | Inconsistent labeling pattern suggests half-migrated copy. | Move into the buyer vocabulary object. | — |
-| BDA-139 | Executive summary | KPI typography `font-mono text-4xl` vs report `text-sm font-semibold` for money/counts — `ExecutiveRoiDashboardLiveKpiCards.tsx` vs `ExecutiveRoiSummarySection.tsx` (~249). | Mixed "dashboard counter" and "report" hierarchy on one page. | Pick one numeric type treatment. | — |
-| BDA-140 | Executive scorecard | Engineering-empty copy "Trend: not enough buckets in range" on a CISO compliance tile — `ExecutiveScorecardClient.tsx` (~49). | Reads as a debug message. | Buyer-safe empty trend copy. | "Not enough data in this range yet." |
-| BDA-141 | Executive scorecard | Weak/generic CTA "View →" on recommended actions — `ExecutiveScorecardClient.tsx` (~392). | Generic CTA vs governance-specific next step. | Action-specific label. | "Review this action →" |
-| BDA-142 | Executive scorecard | "${hoursRounded} h saved" in the narrative banner without audit proof — `executive-value-narrative.ts` (~36). | "Saved hours" reads as marketing. | Add basis/methodology, or qualify as estimate. | "~{N} h saved (estimated)" |
-| BDA-143 | Executive scorecard | Absolute claim "No actions needed — all signals are healthy." — `ExecutiveScorecardClient.tsx` (~380). | Over-confident while ROI may still be estimated/demo-derived elsewhere. | Qualify. | "No actions needed for the current period." |
-| BDA-144 | Manifest summary | "View PHI minimization risk and evidence" — showcase-specific finding baked into a CTA label — `ManifestDetailPageView.tsx` (~154). | Demo-package-specific CTA. | Generic CTA in buyer mode. | "View top risk and evidence" |
-| BDA-145 | Manifest summary | Authority blurb repeats "Claims Intake Modernization package" — `ManifestDetailPageView.tsx` (~284–285). | Repeats the sample program name as authoritative. | Generic in buyer mode. | — |
-| BDA-146 | Manifest summary | Dead-end "Open the review for full context" with count only (no excerpts) on non-showcase decisions — `ManifestTopDecisionsCard.tsx` (~48–50). | Promises decisions but pushes away with no excerpt. | Render top decision bullets from the API. | — |
-| BDA-147 | Evidence graph | "the Claims Intake sample loads this graph automatically" when `demoUi && !buyerPolishedShell` — `GraphLoadedExperience.tsx` (~222–223). | Explicit sample auto-load messaging (operator/hybrid). | Gate to demo mode only. | — |
-| BDA-148 | Evidence graph | Auxiliary fields "Decision ID" / "Node ID" / placeholder "Graph node identifier" — `GraphModeAuxiliaryFields.tsx` (~32, 48, 53). | Internal graph identifiers leak in hybrid builds. | Hide these modes/fields in buyer mode. | — |
-| BDA-149 | Evidence graph | `presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}` always relabels to demo trail in buyer shell even when not static demo — `GraphLoadedExperience.tsx` (~208). | Risk of mislabeled nodes if a real graph shape differs from the demo trail. | Only apply "buyerTrail" relabeling to the static demo graph. | — |
-| BDA-150 | Cross-cutting (adjacent risk) | Mock KPI module "DEMO-ONLY illustrative KPIs" sits adjacent to production (`executive-roi-dashboard-mock-kpis.ts` ~2); static spine constant `SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD = 94_360` (`showcase-static-demo.ts` ~54). | Mock ROI is one mis-wire away from a buyer surface. | Add a CI guard that production routes never import mock-KPI / static-spine modules. | — |
+| BDA-134 | Home | "artifact bundle" lowercase mid-list next to Title Case items ("Governed decision record") ? `WelcomeBanner.tsx` (~277). | Inconsistent casing in the glossary list. | Standardize casing. | "Artifact bundle" |
+| BDA-135 | Home | Weak hierarchy: hero `pageTitle` (`text-lg`) vs section heading (`text-sm`) ? `WelcomeBanner.tsx` (~243), `design-tokens.ts` (~47?63). | Zone labels can feel as heavy as the hero. | Increase hero scale or reduce section weight per the design system. | ? |
+| BDA-136 | Reviews list | Footer "1 finalized review package" when `totalCount === 1` ? `RunsListClient.tsx` (~795). | Reinforces a single-demo workspace impression. | Neutral count copy; seed a second example if appropriate. | ? |
+| BDA-137 | Executive summary | Tooltip-only enums "{realRunCount} Real ? {simulatorRunCount} Simulator" ? `ExecutiveRoiTrendSection.tsx` (~43). | Raw run-mode enums in tooltips (low exposure). | Map to buyer labels or remove from buyer mode. | ? |
+| BDA-138 | Executive summary | Hardcoded KPI label "Findings remediated (30d)" vs vocabulary-driven tiles ? `ExecutiveRoiDashboardLiveKpiCards.tsx` (~264?265). | Inconsistent labeling pattern suggests half-migrated copy. | Move into the buyer vocabulary object. | ? |
+| BDA-139 | Executive summary | KPI typography `font-mono text-4xl` vs report `text-sm font-semibold` for money/counts ? `ExecutiveRoiDashboardLiveKpiCards.tsx` vs `ExecutiveRoiSummarySection.tsx` (~249). | Mixed "dashboard counter" and "report" hierarchy on one page. | Pick one numeric type treatment. | ? |
+| BDA-140 | Executive scorecard | Engineering-empty copy "Trend: not enough buckets in range" on a CISO compliance tile ? `ExecutiveScorecardClient.tsx` (~49). | Reads as a debug message. | Buyer-safe empty trend copy. | "Not enough data in this range yet." |
+| BDA-141 | Executive scorecard | Weak/generic CTA "View ?" on recommended actions ? `ExecutiveScorecardClient.tsx` (~392). | Generic CTA vs governance-specific next step. | Action-specific label. | "Review this action ?" |
+| BDA-142 | Executive scorecard | "${hoursRounded} h saved" in the narrative banner without audit proof ? `executive-value-narrative.ts` (~36). | "Saved hours" reads as marketing. | Add basis/methodology, or qualify as estimate. | "~{N} h saved (estimated)" |
+| BDA-143 | Executive scorecard | Absolute claim "No actions needed ? all signals are healthy." ? `ExecutiveScorecardClient.tsx` (~380). | Over-confident while ROI may still be estimated/demo-derived elsewhere. | Qualify. | "No actions needed for the current period." |
+| BDA-144 | Manifest summary | "View PHI minimization risk and evidence" ? showcase-specific finding baked into a CTA label ? `ManifestDetailPageView.tsx` (~154). | Demo-package-specific CTA. | Generic CTA in buyer mode. | "View top risk and evidence" |
+| BDA-145 | Manifest summary | Authority blurb repeats "Claims Intake Modernization package" ? `ManifestDetailPageView.tsx` (~284?285). | Repeats the sample program name as authoritative. | Generic in buyer mode. | ? |
+| BDA-146 | Manifest summary | Dead-end "Open the review for full context" with count only (no excerpts) on non-showcase decisions ? `ManifestTopDecisionsCard.tsx` (~48?50). | Promises decisions but pushes away with no excerpt. | Render top decision bullets from the API. | ? |
+| BDA-147 | Evidence graph | "the Claims Intake sample loads this graph automatically" when `demoUi && !buyerPolishedShell` ? `GraphLoadedExperience.tsx` (~222?223). | Explicit sample auto-load messaging (operator/hybrid). | Gate to demo mode only. | ? |
+| BDA-148 | Evidence graph | Auxiliary fields "Decision ID" / "Node ID" / placeholder "Graph node identifier" ? `GraphModeAuxiliaryFields.tsx` (~32, 48, 53). | Internal graph identifiers leak in hybrid builds. | Hide these modes/fields in buyer mode. | ? |
+| BDA-149 | Evidence graph | `presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}` always relabels to demo trail in buyer shell even when not static demo ? `GraphLoadedExperience.tsx` (~208). | Risk of mislabeled nodes if a real graph shape differs from the demo trail. | Only apply "buyerTrail" relabeling to the static demo graph. | ? |
+| BDA-150 | Cross-cutting (adjacent risk) | Mock KPI module "DEMO-ONLY illustrative KPIs" sits adjacent to production (`executive-roi-dashboard-mock-kpis.ts` ~2); static spine constant `SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD = 94_360` (`showcase-static-demo.ts` ~54). | Mock ROI is one mis-wire away from a buyer surface. | Add a CI guard that production routes never import mock-KPI / static-spine modules. | ? |
 
-**Recommended remediation sequence:** (1) Land BDA-024 + BDA-150 as a single **env-gating + import guard** so demo content/constants can never reach the buyer-polished shell (kills the largest class at once); (2) fix the fabrication P0s (BDA-012/013/014) and the dead anchor (BDA-001) — these are wrong regardless of mode; (3) sweep persona/sample/route copy (BDA-002 – BDA-011, BDA-015 – BDA-023); (4) terminology + raw-label + CTA pass (P1); (5) P2 polish. Items marked *(flag-drift)* and *(UNCERTAIN)* should be verified against the demo env before the walkthrough.
+**Recommended remediation sequence:** (1) Land BDA-024 + BDA-150 as a single **env-gating + import guard** so demo content/constants can never reach the buyer-polished shell (kills the largest class at once); (2) fix the fabrication P0s (BDA-012/013/014) and the dead anchor (BDA-001) ? these are wrong regardless of mode; (3) sweep persona/sample/route copy (BDA-002 ? BDA-011, BDA-015 ? BDA-023); (4) terminology + raw-label + CTA pass (P1); (5) P2 polish. Items marked *(flag-drift)* and *(UNCERTAIN)* should be verified against the demo env before the walkthrough.
 
 **Affected files / projects:** `archlucid-ui/src/**` (operator + executive route groups, `lib/buyer-polish-copy.ts`, `lib/operator-static-demo.ts`, `lib/showcase-static-demo.ts`, `lib/*-copy.ts`, graph/governance/audit/manifest/ask sections), and `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs` (BDA-023, verify). Primary lever is env gating in the buyer-polished shell, not large code rewrites.
 
-**Cross-ref:** TB-143–148 (in-app docs presentation — BDA-045/133), TB-168 (KPI semantic guard — BDA-150), TB-270–272 (operator usability), **TB-275** (2026-06-04 re-validation spot-check), `.cursor/rules/Assessment-Scope-V1_1.mdc` (these do not change `(A)` scores).
+**Cross-ref:** TB-143?148 (in-app docs presentation ? BDA-045/133), TB-168 (KPI semantic guard ? BDA-150), TB-270?272 (operator usability), **TB-275** (2026-06-04 re-validation spot-check), `.cursor/rules/Assessment-Scope-V1_1.mdc` (these do not change `(A)` scores).
 
-## TB-275 — Buyer-demo harsh audit re-validation (2026-06-04)
+## TB-275 ? Buyer-demo harsh audit re-validation (2026-06-04)
 
 **Source:** Same harsh pre-demo audit prompt re-run 2026-06-04 (chat displayed top **100** only; user requested all issues on disk).
 
@@ -8969,34 +8969,34 @@ Make operator empty/loading states consistent.
 
 | ID | What it is | Where |
 | --- | --- | --- |
-| **TB-273** | Umbrella + **full 150-issue register** | `## TB-273` below — sub-IDs **BDA-001…BDA-150** |
-| **TB-274** | Backend/platform + security audit (different audit) | [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md) — sub-IDs **BE-001…BE-061**, **SEC-001…SEC-035** (no `## TB-274` section in this file) |
-| **TB-275** | This re-validation index only — **does not re-number or duplicate BDA rows** | Spot-check after TB-273 batches marked Done |
+| **TB-273** | Umbrella + **full 150-issue register** | `## TB-273` below ? sub-IDs **BDA-001?BDA-150** |
+| **TB-274** | Backend/platform + security audit (different audit) | [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md) ? sub-IDs **BE-001?BE-061**, **SEC-001?SEC-035** (no `## TB-274` section in this file) |
+| **TB-275** | This re-validation index only ? **does not re-number or duplicate BDA rows** | Spot-check after TB-273 batches marked Done |
 
 **Canonical register:** All **150** buyer-demo UI defects are already captured under **TB-273** (24 P0 + 109 P1 + 17 P2). Do not fork a second BDA numbering scheme.
 
-### 2026-06-04 spot-check — residual buyer/demo leakage still in tree
+### 2026-06-04 spot-check ? residual buyer/demo leakage still in tree
 
-Re-read of golden-path sources after TB-273 **Done** marking. Items below still show demo fingerprints or misleading buyer copy when demo/static or buyer-polished paths are active — verify env gating before the live demo:
+Re-read of golden-path sources after TB-273 **Done** marking. Items below still show demo fingerprints or misleading buyer copy when demo/static or buyer-polished paths are active ? verify env gating before the live demo:
 
 | BDA ref | Severity | Still observed (2026-06-04) | File / note |
 | --- | --- | --- | --- |
-| BDA-006–007 | P0 | `demo-jordan`, `demo-tenant`, `corr-intake-demo-*`, personas Jordan Lee / Taylor Morgan | `demo-audit-sample-events.ts` — OK only if never rendered in buyer-polished tenant mode |
-| BDA-008 | P0 | "Audit trail complete — review package finalized" on buyer completion card | `AuditResultsSection.tsx` ~195 (`buyerPolishedShell && events.length > 0`) |
-| BDA-009 | P0 | "You have now seen the sample audit trail…" admission | `AuditResultsSection.tsx` ~273 |
+| BDA-006?007 | P0 | `demo-jordan`, `demo-tenant`, `corr-intake-demo-*`, personas Jordan Lee / Taylor Morgan | `demo-audit-sample-events.ts` ? OK only if never rendered in buyer-polished tenant mode |
+| BDA-008 | P0 | "Audit trail complete ? review package finalized" on buyer completion card | `AuditResultsSection.tsx` ~195 (`buyerPolishedShell && events.length > 0`) |
+| BDA-009 | P0 | "You have now seen the sample audit trail?" admission | `AuditResultsSection.tsx` ~273 |
 | BDA-015 | P0 | "Demo-derived" KPI display string | `executive-roi-kpi-display.ts` ~74 |
 | BDA-001 | P0 | Operator `FIRST_WEEK_ROUTE_GUIDANCE["review-detail-in-progress"]` still `#run-actions` / "Go to finalize actions" | `first-week-route-guidance.ts` ~68 (buyer override fixed via `#finalize-review`) |
-| BDA-013 | P0 | **Fixed** — fallback is "Confidence not available for this finding." | `FindingDetailPageView.tsx` ~171 |
+| BDA-013 | P0 | **Fixed** ? fallback is "Confidence not available for this finding." | `FindingDetailPageView.tsx` ~171 |
 
 **Action:** Before demo, run the buyer-polished shell with production-like flags and walk the golden path; any row above that still renders is a **TB-273 regression**, not a new TB item. Log fixes against the existing **BDA-NNN** id.
 
-**Cross-ref:** [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md), **TB-273**, **TB-274** (backend — separate concern).
+**Cross-ref:** [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md), **TB-273**, **TB-274** (backend ? separate concern).
 
 ---
 
-## TB-276 — Route tenant scope binding filter (P0)
+## TB-276 ? Route tenant scope binding filter (P0)
 
-**Source:** Route-based tenant addressing assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)), 2026-06-04. Extends **TB-274 / BE-014–016** (per-controller guards shipped batch **5DE–5DI**).
+**Source:** Route-based tenant addressing assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)), 2026-06-04. Extends **TB-274 / BE-014?016** (per-controller guards shipped batch **5DE?5DI**).
 
 **Problem:** Four tenant-scoped routes compare `{tenantId}` to `IScopeContextProvider.GetCurrentScope().TenantId` via manual `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` calls. New endpoints can omit the guard; services must never trust the route parameter (today they correctly use `scope.TenantId`, but the HTTP layer is fragile).
 
@@ -9019,13 +9019,13 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Api/Controllers/ValueReports/ValueReportController.cs`
 - `ArchLucid.Api/Startup/PipelineExtensions.cs`
 
-**Size estimate:** **M** — ~1 eng day.
+**Size estimate:** **M** ? ~1 eng day.
 
-**Cross-ref:** **TB-072** (scope ingress), **TB-277** (CI), **TB-278** (tests), **TB-279–281** (route migration).
+**Cross-ref:** **TB-072** (scope ingress), **TB-277** (CI), **TB-278** (tests), **TB-279?281** (route migration).
 
 ---
 
-## TB-277 — Route `{tenantId}` CI drift guard (P1)
+## TB-277 ? Route `{tenantId}` CI drift guard (P1)
 
 **Source:** Route-based tenant addressing assessment, 2026-06-04.
 
@@ -9033,7 +9033,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **What to do:**
 
-1. Add `scripts/ci/assert_route_tenant_scope_guard.py` — scan `ArchLucid.Api/Controllers/**/*.cs` for route templates containing `{tenantId` or tenant-admin `{id:guid}` patterns.
+1. Add `scripts/ci/assert_route_tenant_scope_guard.py` ? scan `ArchLucid.Api/Controllers/**/*.cs` for route templates containing `{tenantId` or tenant-admin `{id:guid}` patterns.
 2. Require either registration in a central allowlist (platform lifecycle + internal cross-tenant) or evidence the global filter/convention applies (attribute name constant in repo).
 3. Wire as a blocking step in the API CI workflow; pytest for pass/fail fixtures.
 
@@ -9043,22 +9043,22 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `.github/workflows/*.yml` (CI step)
 - `docs/library/API_CONTRACTS.md` (one paragraph on tenant-in-route policy)
 
-**Size estimate:** **S** — ~2–4 hours.
+**Size estimate:** **S** ? ~2?4 hours.
 
 **Cross-ref:** **TB-276**, **INV-001** / **TB-010** tenant boundary.
 
 ---
 
-## TB-278 — Route tenant IDOR integration test matrix (P1)
+## TB-278 ? Route tenant IDOR integration test matrix (P1)
 
 **Source:** Route-based tenant addressing assessment, 2026-06-04.
 
-**Problem:** **BE-014–016** guards have **no** dedicated integration tests (`RouteTenantScopeAuthorization` is untested). Cross-tenant denial for route/param mismatch is unproven in CI.
+**Problem:** **BE-014?016** guards have **no** dedicated integration tests (`RouteTenantScopeAuthorization` is untested). Cross-tenant denial for route/param mismatch is unproven in CI.
 
 **What to do:**
 
 1. Add `ArchLucid.Api.Tests/Security/RouteTenantScopeBindingIntegrationTests.cs`.
-2. For each route: `GET/POST …` with tenant A JWT/API key + `{tenantId}` = tenant B → **403**; matching tenant → success path (or **404** when no data — not **403** from scope mismatch).
+2. For each route: `GET/POST ?` with tenant A JWT/API key + `{tenantId}` = tenant B ? **403**; matching tenant ? success path (or **404** when no data ? not **403** from scope mismatch).
 3. Cover: `api/authority/executive-summary/{tenantId}`, `v1/admin/tenants/{tenantId}/reference-evidence`, `v1/admin/metering/tenants/{tenantId}/summary`, `v1/value-report/{tenantId}/generate`.
 4. Add `scripts/ci/test_route_tenant_batch.py` drift guard listing covered routes.
 
@@ -9067,13 +9067,13 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Api.Tests/Security/RouteTenantScopeBindingIntegrationTests.cs` (new)
 - Existing `ArchLucidApiFactory` / security test harness
 
-**Size estimate:** **S** — ~4–6 hours.
+**Size estimate:** **S** ? ~4?6 hours.
 
 **Cross-ref:** **TB-276**, **TB-078** (cross-tenant matrix), **ScopedSnapshotReadIdorIntegrationTests**.
 
 ---
 
-## TB-281 — Value-report scope-only URL (P1) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
+## TB-281 ? Value-report scope-only URL (P1) ? **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
 **Shipped:** `POST /v1/value-report/generate`; legacy `{tenantId}` alias retained; `downloads-api.ts` + UI callers updated; `test_route_tenant_p1_batch.py`.
 
@@ -9081,7 +9081,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-279 — Tenant-scoped admin route migration (P2) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
+## TB-279 ? Tenant-scoped admin route migration (P2) ? **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
 **Shipped:** `GET /v1/admin/reference-evidence`, `GET /v1/admin/metering/summary`; legacy aliases + `ReferenceEvidenceAdminLegacyController`; CLI scope-only path; `API_CONTRACTS.md`.
 
@@ -9089,15 +9089,15 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-280 — Retire legacy authority executive-summary `{tenantId}` route (P2) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
+## TB-280 ? Retire legacy authority executive-summary `{tenantId}` route (P2) ? **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
 **Shipped:** removed `Authority/ExecutiveSummaryController`; positive-path matrix uses `/v1/reports/executive-summary`; CI guard blocks new legacy references.
 
-**Cross-ref:** **TB-279**, EVV cluster (**TB-244–249**).
+**Cross-ref:** **TB-279**, EVV cluster (**TB-244?249**).
 
 ---
 
-## TB-282 — Cross-tenant usage rollup policy alignment (P2) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
+## TB-282 ? Cross-tenant usage rollup policy alignment (P2) ? **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
 **Shipped:** `AdminCrossTenantUsageRollupController` with **RequireOperatorRole**; `AdminCrossTenantUsageRollupAuthorizationIntegrationTests`; RBAC note in `contributor-reference/SECURITY.md`.
 
@@ -9105,7 +9105,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-283 — Buyer run detail summary DTO (P0)
+## TB-283 ? Buyer run detail summary DTO (P0)
 
 **Source:** DTO boundary assessment ([`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx)), 2026-06-05.
 
@@ -9113,8 +9113,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **What to do:**
 
-1. Introduce `BuyerRunDetailSummaryDto` (or buyer-scoped contract in `ArchLucid.Contracts`) with whitelisted proof fields only (`executionFlavorBuyerSummary`, `trustEvidenceCard`, `findingCoverageSummary`, etc. — align with `ProofSurfaceContractRegistry`).
-2. Add explicit mapper `RunDetailBuyerMapper` (Application or Contracts) — default-deny construction, no AutoMapper blind copy.
+1. Introduce `BuyerRunDetailSummaryDto` (or buyer-scoped contract in `ArchLucid.Contracts`) with whitelisted proof fields only (`executionFlavorBuyerSummary`, `trustEvidenceCard`, `findingCoverageSummary`, etc. ? align with `ProofSurfaceContractRegistry`).
+2. Add explicit mapper `RunDetailBuyerMapper` (Application or Contracts) ? default-deny construction, no AutoMapper blind copy.
 3. Wire buyer-polished UI data loaders / proxy routes to the buyer DTO; keep full `RunDetailDto` on operator architecture endpoint only.
 4. Extend `ProofSurfaceContractDriftTests` for the new type.
 
@@ -9126,17 +9126,17 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `archlucid-ui` run detail loaders
 - `ArchLucid.Api.Tests/Contracts/ProofSurfaceContractRegistry.cs`
 
-**Size estimate:** **M** — ~1–2 eng days.
+**Size estimate:** **M** ? ~1?2 eng days.
 
 **Cross-ref:** **TB-106**, **TB-273** (raw id/enum leakage), **TB-285**.
 
 ---
 
-## TB-284 — Audience-tier Problem Details (P0)
+## TB-284 ? Audience-tier Problem Details (P0)
 
 **Source:** DTO boundary assessment, 2026-06-05.
 
-**Problem:** `ProblemSupportHints` attaches `extensions.supportHint` with operator route strings (`GET /v1/graph/…`, `POST /v1/tenant/convert`, Swagger paths, config keys) on all problem+json responses — visible to buyer-polished clients on 4xx/5xx.
+**Problem:** `ProblemSupportHints` attaches `extensions.supportHint` with operator route strings (`GET /v1/graph/?`, `POST /v1/tenant/convert`, Swagger paths, config keys) on all problem+json responses ? visible to buyer-polished clients on 4xx/5xx.
 
 **What to do:**
 
@@ -9151,13 +9151,13 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Api/Startup/MvcExtensions.cs`, `PipelineExtensions.cs`
 - `ArchLucid.Host.Core.Tests/ProblemSupportHintsTests.cs`
 
-**Size estimate:** **S** — ~4–6 hours.
+**Size estimate:** **S** ? ~4?6 hours.
 
 **Cross-ref:** **TB-271** (correlation id), **TB-273** BDA error-copy items.
 
 ---
 
-## TB-285 — CI forbidden-property guard for buyer OpenAPI schemas (P1)
+## TB-285 ? CI forbidden-property guard for buyer OpenAPI schemas (P1)
 
 **Status:** **Done** (batch **5DW-trust-paid-p1a**, 2026-06-05).
 
@@ -9176,19 +9176,19 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Api.Tests/Contracts/ProofSurfaceContractRegistry.cs`
 - `scripts/ci/` (new assert script + pytest)
 
-**Size estimate:** **S** — ~3–4 hours.
+**Size estimate:** **S** ? ~3?4 hours.
 
 **Cross-ref:** **TB-283**, **TB-286**.
 
 ---
 
-## TB-286 — OpenAPI audience tiers + buyer contract snapshot (P1)
+## TB-286 ? OpenAPI audience tiers + buyer contract snapshot (P1)
 
 **Status:** **Done** (batch **5DW-trust-paid-p1a**, 2026-06-05).
 
 **Source:** DTO boundary assessment, 2026-06-05.
 
-**Problem:** Single `openapi-v1.contract.snapshot.json` documents `/v1/internal/*`, admin diagnose routes, and buyer routes — procurement and UI codegen cannot distinguish product boundary.
+**Problem:** Single `openapi-v1.contract.snapshot.json` documents `/v1/internal/*`, admin diagnose routes, and buyer routes ? procurement and UI codegen cannot distinguish product boundary.
 
 **What to do:**
 
@@ -9203,25 +9203,25 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `archlucid-ui/package.json` (`generate:api-types` source)
 - `docs/library/API_CONTRACTS.md`
 
-**Size estimate:** **M** — ~1 eng day.
+**Size estimate:** **M** ? ~1 eng day.
 
 **Cross-ref:** **TB-285**, **TB-288**.
 
 ---
 
-## TB-287 — Forensics partition for full LLM traces (P1)
+## TB-287 ? Forensics partition for full LLM traces (P1)
 
 **Status:** **Done** (batch **5DW-trust-paid-p1a**, 2026-06-05).
 
 **Source:** DTO boundary assessment, 2026-06-05.
 
-**Problem:** `GET /v1/architecture/run/{runId}/traces` under `ReadAuthority` returns forensics-grade prompt/response bodies — product feature vs admin forensics boundary is unclear for buyers.
+**Problem:** `GET /v1/architecture/run/{runId}/traces` under `ReadAuthority` returns forensics-grade prompt/response bodies ? product feature vs admin forensics boundary is unclear for buyers.
 
 **What to do:**
 
 1. Restrict full trace bodies to `/v1/internal/*` or operator-only DTO + elevated policy.
 2. Buyer/proof routes keep `RunExplanationSummary` / faithfulness aggregates (`ProofSurfaceContractRegistry`).
-3. Update OpenAPI audience tags; integration test: buyer-scoped token → forensics route **403** or redacted payload.
+3. Update OpenAPI audience tags; integration test: buyer-scoped token ? forensics route **403** or redacted payload.
 
 **Affected files / projects:**
 
@@ -9229,30 +9229,30 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Application/Explanation/`
 - OpenAPI snapshots + pen-test matrix doc
 
-**Size estimate:** **M** — ~1 eng day.
+**Size estimate:** **M** ? ~1 eng day.
 
 **Cross-ref:** sonnet Q16 (`sonnet_questions_06042026.md`), **TB-072**.
 
 ---
 
-## TB-288 — Architecture test: no Persistence return types on buyer routes (P2) — **Done (2026-06-05 batch 5DX-trust-p2)**
+## TB-288 ? Architecture test: no Persistence return types on buyer routes (P2) ? **Done (2026-06-05 batch 5DX-trust-p2)**
 
-**Shipped:** `BuyerFacingDtoBoundaryArchitectureTests` + `BuyerFacingControllerRouteScanner` / `BuyerFacingPersistenceReturnTypeInspector` — buyer routes classified via `OpenApiAudiencePathClassifier`; drift guard in `test_dto_boundary_batch.py` + `test_trust_p2_batch.py`.
+**Shipped:** `BuyerFacingDtoBoundaryArchitectureTests` + `BuyerFacingControllerRouteScanner` / `BuyerFacingPersistenceReturnTypeInspector` ? buyer routes classified via `OpenApiAudiencePathClassifier`; drift guard in `test_dto_boundary_batch.py` + `test_trust_p2_batch.py`.
 
 **Cross-ref:** **TB-283**, **TB-286**.
 
 ---
 
-## TB-289 — Live buyer golden path E2E (P0)
+## TB-289 ? Live buyer golden path E2E (P0)
 
 **Source:** Risk-weighted coverage audit, 2026-06-05.
 
-**Problem:** `buyer-golden-path.smoke.spec.ts` walks the five-step diligence spine against **mock API only**; trusted pilot has no live Sql + API proof of executive → manifest → graph → governance → audit.
+**Problem:** `buyer-golden-path.smoke.spec.ts` walks the five-step diligence spine against **mock API only**; trusted pilot has no live Sql + API proof of executive ? manifest ? graph ? governance ? audit.
 
 **What to do:**
 
 1. Add `archlucid-ui/e2e/live-api-buyer-golden-path.spec.ts` reusing `helpers/buyer-golden-path.ts` hrefs against live API + seeded showcase run.
-2. Assert stepper, no generic error boundary, graph canvas/load, audit metric tiles — same as mock smoke.
+2. Assert stepper, no generic error boundary, graph canvas/load, audit metric tiles ? same as mock smoke.
 3. Wire into live-api CI job (optional nightly if too slow for PR).
 
 **Affected files / projects:**
@@ -9261,21 +9261,21 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `archlucid-ui/e2e/helpers/buyer-golden-path.ts`
 - `.github/workflows/ci.yml` (live e2e matrix)
 
-**Size estimate:** **M** — ~1 eng day.
+**Size estimate:** **M** ? ~1 eng day.
 
 **Cross-ref:** **TB-273**, `live-api-core-pilot-path.spec.ts`.
 
 ---
 
-## TB-290 — Commit-to-audit trail integrity SQL integration (P0)
+## TB-290 ? Commit-to-audit trail integrity SQL integration (P0)
 
 **Source:** Risk-weighted coverage audit, 2026-06-05.
 
-**Problem:** Audit events are asserted in unit/orchestrator mocks; no single SQL integration proves commit → durable `RunStarted` / `RunCompleted` / manifest events queryable by `runId` with tenant isolation on search/export.
+**Problem:** Audit events are asserted in unit/orchestrator mocks; no single SQL integration proves commit ? durable `RunStarted` / `RunCompleted` / manifest events queryable by `runId` with tenant isolation on search/export.
 
 **What to do:**
 
-1. Add integration test: create → execute → commit run → `GET /v1/audit/search?runId=` → assert expected `AuditEventTypes` and scope fields.
+1. Add integration test: create ? execute ? commit run ? `GET /v1/audit/search?runId=` ? assert expected `AuditEventTypes` and scope fields.
 2. Extend `TenantIsolationSmokeTests` pattern to `/v1/audit/export` and `/v1/audit/export/csv` (tenant B must not see tenant A `runId`).
 
 **Affected files / projects:**
@@ -9283,13 +9283,13 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs` (extend)
 - New `AuditTrailCommitIntegrityIntegrationTests.cs`
 
-**Size estimate:** **S** — ~4–6 hours.
+**Size estimate:** **S** ? ~4?6 hours.
 
 **Cross-ref:** `AUDIT_COVERAGE_MATRIX.md`, **TB-295**.
 
 ---
 
-## TB-291 — Reference evidence admin export integration (P0)
+## TB-291 ? Reference evidence admin export integration (P0)
 
 **Source:** Risk-weighted coverage audit, 2026-06-05.
 
@@ -9298,41 +9298,41 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **What to do:**
 
 1. Integration tests: tenant A zip contains only A qualifying runs; links use configured base URL not raw `Host`.
-2. Cross-tenant route 403 already partially in `ScopedSnapshotReadIdorIntegrationTests` — add content/hash smoke on success path.
+2. Cross-tenant route 403 already partially in `ScopedSnapshotReadIdorIntegrationTests` ? add content/hash smoke on success path.
 
 **Affected files / projects:**
 
 - `ArchLucid.Application/` (export service)
 - `ArchLucid.Api.Tests/Security/` or Application.Tests
 
-**Size estimate:** **S** — ~4–6 hours.
+**Size estimate:** **S** ? ~4?6 hours.
 
 **Cross-ref:** **TB-274** batch **5DG-export-p0**, `ReferenceEvidenceAdminController`.
 
 ---
 
-## TB-292 — Route-tenant positive-path matrix (P0)
+## TB-292 ? Route-tenant positive-path matrix (P0)
 
 **Source:** Risk-weighted coverage audit, 2026-06-05. Extends **TB-278** (403-only matrix shipped batch **5DU-route-tenant-p0**).
 
-**Problem:** `ScopedSnapshotReadIdorIntegrationTests` proves cross-tenant **403** for route `{tenantId}` mismatch but not matching-tenant **200/404-not-403** — regressions could over-forbid or leak via wrong status.
+**Problem:** `ScopedSnapshotReadIdorIntegrationTests` proves cross-tenant **403** for route `{tenantId}` mismatch but not matching-tenant **200/404-not-403** ? regressions could over-forbid or leak via wrong status.
 
 **What to do:**
 
-1. For executive-summary, reference-evidence, metering, value-report routes: tenant A token + `{tenantId}` = A → not **403** (200 or 404 when no data).
+1. For executive-summary, reference-evidence, metering, value-report routes: tenant A token + `{tenantId}` = A ? not **403** (200 or 404 when no data).
 2. Update `scripts/ci/tests/test_route_tenant_batch.py` drift guard.
 
 **Affected files / projects:**
 
 - `ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs`
 
-**Size estimate:** **S** — ~3 hours.
+**Size estimate:** **S** ? ~3 hours.
 
-**Cross-ref:** **TB-276–278**, **TB-281**.
+**Cross-ref:** **TB-276?278**, **TB-281**.
 
 ---
 
-## TB-293 — Production demo fail-fast host integration (P0)
+## TB-293 ? Production demo fail-fast host integration (P0)
 
 **Source:** Risk-weighted coverage audit, 2026-06-05.
 
@@ -9340,7 +9340,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **What to do:**
 
-1. `WebApplicationFactory` with `ASPNETCORE_ENVIRONMENT=Production` + `Demo:Enabled=true` → host fails startup with validator error.
+1. `WebApplicationFactory` with `ASPNETCORE_ENVIRONMENT=Production` + `Demo:Enabled=true` ? host fails startup with validator error.
 2. Mirror for `Demo:AnonymousViewer:Enabled` in production.
 
 **Affected files / projects:**
@@ -9348,13 +9348,13 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Api.Tests/` or `ArchLucid.Host.Core.Tests/`
 - `ArchLucid.Host.Core/Startup/CriticalConfigurationValidator.cs`
 
-**Size estimate:** **XS** — ~2 hours.
+**Size estimate:** **XS** ? ~2 hours.
 
-**Cross-ref:** **TB-274** batch **5DE–5DI**, `buyer-demo-content-gating.test.ts`.
+**Cross-ref:** **TB-274** batch **5DE?5DI**, `buyer-demo-content-gating.test.ts`.
 
 ---
 
-## TB-294 — Sponsor value report demo-run isolation API test (P0)
+## TB-294 ? Sponsor value report demo-run isolation API test (P0)
 
 **Source:** Risk-weighted coverage audit, 2026-06-05.
 
@@ -9362,7 +9362,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **What to do:**
 
-1. SQL integration: tenant with real committed run + demo seed present → generated value report / sponsor export must not reference showcase run ids.
+1. SQL integration: tenant with real committed run + demo seed present ? generated value report / sponsor export must not reference showcase run ids.
 2. Align with **BDA** sponsor-export class defects under **TB-273**.
 
 **Affected files / projects:**
@@ -9370,37 +9370,37 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - `ArchLucid.Application/` value-report builders
 - `ArchLucid.Api.Tests/ValueReports/`
 
-**Size estimate:** **S** — ~4 hours.
+**Size estimate:** **S** ? ~4 hours.
 
 **Cross-ref:** **TB-273**, `shouldMergeDemoRunsIntoProjectPicker`.
 
 ---
 
-## TB-295 — SQL-backed audit export tenant isolation (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
+## TB-295 ? SQL-backed audit export tenant isolation (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Shipped:** `AuditExportTenantIsolationIntegrationTests` — tenant B `GET /v1/audit`, `/v1/audit/search`, and `/v1/audit/export/csv` exclude tenant A `runId` under greenfield SQL.
+**Shipped:** `AuditExportTenantIsolationIntegrationTests` ? tenant B `GET /v1/audit`, `/v1/audit/search`, and `/v1/audit/export/csv` exclude tenant A `runId` under greenfield SQL.
 
 **Cross-ref:** **TB-290**, `DapperAuditRepositoryContractTests`.
 
 ---
 
-## TB-296 — Export blob push SSRF integration via API (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
+## TB-296 ? Export blob push SSRF integration via API (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Shipped:** `ScopedSnapshotReadIdorIntegrationTests` — internal IP + non-blob host → **400**; Azure blob placeholder → **202**.
+**Shipped:** `ScopedSnapshotReadIdorIntegrationTests` ? internal IP + non-blob host ? **400**; Azure blob placeholder ? **202**.
 
 **Cross-ref:** **TB-274** **5DG-export-p0**, BE-034.
 
 ---
 
-## TB-297 — Governance HTTP negative-path matrix (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
+## TB-297 ? Governance HTTP negative-path matrix (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Shipped:** `GovernanceNegativePathIntegrationTests` — self-approval, reject-after-approve, double-promote, stale manifest → problem types + audit types; `test_trust_paid_p1b_batch.py`.
+**Shipped:** `GovernanceNegativePathIntegrationTests` ? self-approval, reject-after-approve, double-promote, stale manifest ? problem types + audit types; `test_trust_paid_p1b_batch.py`.
 
 **Cross-ref:** **TB-197**, `GovernanceWorkflowServiceTests`.
 
 ---
 
-## TB-298 — Manifest artifact download integrity (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
+## TB-298 ? Manifest artifact download integrity (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
 **Shipped:** matching-tenant committed-run artifact list + download success path in `ScopedSnapshotReadIdorIntegrationTests` (cross-tenant denial rows pre-existed).
 
@@ -9408,7 +9408,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-299 — Executive ROI board-pack live E2E (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
+## TB-299 ? Executive ROI board-pack live E2E (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
 **Shipped:** `ExecutiveRoiBoardPackEndpointTests` orphan/freshness contract checks + `live-api-executive-board-pack.spec.ts`.
 
@@ -9416,7 +9416,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-300 — Scope identity auth permutation table (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
+## TB-300 ? Scope identity auth permutation table (P1) ? **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
 **Shipped:** JWT + DevBypass permutation rows in `ScopeIdentityBindingIntegrationTests`; pen-test matrix section in `2026-Q2-OWNER-CONDUCTED.md`; drift guards in `test_cross_tenant_isolation_matrix_batch.py` + `test_trust_paid_p1b_batch.py`.
 
@@ -9424,7 +9424,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-301 — Targeted Persistence tenant-read SQL probes (P2) — **Done (2026-06-05 batch 5DX-trust-p2)**
+## TB-301 ? Targeted Persistence tenant-read SQL probes (P2) ? **Done (2026-06-05 batch 5DX-trust-p2)**
 
 **Shipped:** `SqlRunRepositoryScopeIsolationSqlIntegrationTests`, `SqlGoldenManifestRepositoryScopeIsolationSqlIntegrationTests`, `DapperAuditRepositoryScopeIsolationSqlIntegrationTests`, `SqlGovernanceApprovalRequestRepositoryScopeIsolationSqlIntegrationTests`, `SqlDecisionTraceRepositoryScopeIsolationSqlIntegrationTests`; hotspot notes in `COVERAGE_GAP_ANALYSIS.md`; `test_trust_p2_batch.py`.
 
@@ -9432,7 +9432,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-302 — Lift authority orchestration out of Persistence into Application (V1.1)
+## TB-302 ? Lift authority orchestration out of Persistence into Application (V1.1)
 
 **Status:** **Done** (2026-06-06).
 
@@ -9447,11 +9447,11 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Out of scope for this item:** Replacing Worker/outbox mechanics (addressed in 2026-06-06 durability fixes). Full DTF replay remains **6f** / V1.1 evaluation.
 
-**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6r; [`ORCHESTRATOR_RETRIES.md`](ORCHESTRATOR_RETRIES.md); ADR-0038.
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6r; [`ORCHESTRATOR_RETRIES.md`](ORCHESTRATOR_RETRIES.md); ADR-0038.
 
 ---
 
-## TB-303 — Commit-sealed evidence immutability (V1.1)
+## TB-303 ? Commit-sealed evidence immutability (V1.1)
 
 **Status:** **Done** (2026-06-06).
 
@@ -9459,7 +9459,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Shipped:**
 
-1. `SealedEvidenceTableRegistry` + migration **247** / `ArchLucid.sql` — `DENY UPDATE/DELETE` on sealed tables for `[ArchLucidApp]`.
+1. `SealedEvidenceTableRegistry` + migration **247** / `ArchLucid.sql` ? `DENY UPDATE/DELETE` on sealed tables for `[ArchLucidApp]`.
 2. `dbo.AgentResultEnrichments` overlay for post-commit calibration, IaC stubs, and proposal promotion; `AgentResults` insert-only.
 3. `SqlSealedEvidenceImmutabilityRules` startup probe (production-like SQL hosts fail closed).
 4. Repository fixes: no delete-then-insert on agent results or evidence packages; duplicate `(RunId, TaskId)` throws.
@@ -9471,25 +9471,25 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-304 — Fail-closed scope derivation on production-like hosts
+## TB-304 ? Fail-closed scope derivation on production-like hosts
 
 **Status:** **Done** (2026-06-06).
 
-**Problem:** `HttpScopeContextProvider` silently fell back to `ScopeIds.Default*` when JWT claims and headers were absent — in all environments including production-like hosts. Cross-tenant routing was strong; inward workspace/project leakage and default-tenant reads remained possible.
+**Problem:** `HttpScopeContextProvider` silently fell back to `ScopeIds.Default*` when JWT claims and headers were absent ? in all environments including production-like hosts. Cross-tenant routing was strong; inward workspace/project leakage and default-tenant reads remained possible.
 
 **Shipped:**
 
 1. `ScopeSource` + `ScopeResolution` + `IScopeContextProvider.ResolveCurrentScope()` with per-dimension source tracking.
-2. `ScopeResolutionGuardMiddleware` — 403 on production-like when scope is header/default/ambient-default unless `[AllowUnscopedRoute]`.
+2. `ScopeResolutionGuardMiddleware` ? 403 on production-like when scope is header/default/ambient-default unless `[AllowUnscopedRoute]`.
 3. `[AllowUnscopedRoute]` on marketing, webhooks, registration, and other scope-free controllers.
-4. `ProductionSafetyRules.CollectScopeDerivationUnsafeInProductionLike` — rejects `DevelopmentBypass` and `AllowTestActorHeaders` on production-like hosts.
+4. `ProductionSafetyRules.CollectScopeDerivationUnsafeInProductionLike` ? rejects `DevelopmentBypass` and `AllowTestActorHeaders` on production-like hosts.
 5. ADR **0041**, [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B update, architecture + unit tests.
 
 **Out of scope:** SQL RLS; JWT issuance changes; schema NOT NULL TenantId backfills.
 
 **Refs:** ADR-0037; ADR-0041; TB-072; TB-276.
 
-## TB-305 — Collapse the dual run-pipeline write surface to one canonical lifecycle
+## TB-305 ? Collapse the dual run-pipeline write surface to one canonical lifecycle
 
 **Status:** **Done** (2026-06-06).
 
@@ -9497,11 +9497,11 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Shipped:**
 
-1. `RunWriteLifecycleRoutes` — single source of truth for the canonical↔alias mapping; canonical = `v1/architecture/*` (the only family used by the UI + CLI).
-2. `RunAliasDeprecationMiddleware` — emits RFC 8594 `Deprecation: true` + `Link; rel="successor-version"` headers on the deprecated `v1/runs/*` + `v1/requests` aliases (kept routable; **not** deleted).
-3. Unified idempotency + audit **by construction** — each canonical route and its alias are multiple `[HttpPost]` attributes on one MVC action; `CanonicalRunWriteSurfaceArchitectureTests` pins the shared-action contract.
+1. `RunWriteLifecycleRoutes` ? single source of truth for the canonical?alias mapping; canonical = `v1/architecture/*` (the only family used by the UI + CLI).
+2. `RunAliasDeprecationMiddleware` ? emits RFC 8594 `Deprecation: true` + `Link; rel="successor-version"` headers on the deprecated `v1/runs/*` + `v1/requests` aliases (kept routable; **not** deleted).
+3. Unified idempotency + audit **by construction** ? each canonical route and its alias are multiple `[HttpPost]` attributes on one MVC action; `CanonicalRunWriteSurfaceArchitectureTests` pins the shared-action contract.
 4. `/result` documented + tested as append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`); cannot finalize/commit or mutate a committed run.
-5. Decision D: renamed `RegisterCoordinatorDecisionEngineAndRepositories` → `RegisterAuthorityDecisionEngineAndRepositories` (`DecisionEngineV2` / `IDecisionNodeRepository` / `DecisionNodeManifestMerger` are live authority components, not vestigial coordinator primitives — no behaviour change).
+5. Decision D: renamed `RegisterCoordinatorDecisionEngineAndRepositories` ? `RegisterAuthorityDecisionEngineAndRepositories` (`DecisionEngineV2` / `IDecisionNodeRepository` / `DecisionNodeManifestMerger` are live authority components, not vestigial coordinator primitives ? no behaviour change).
 6. Architecture guard fails the build on a new dual-write verb without an ADR-cited `RunWriteLifecycleRoutes` entry.
 7. ADR **0042**; ADR 0022/0029 status notes amended; `COORDINATOR_TO_AUTHORITY_PARITY.md` + `DI_REGISTRATION_MAP.md` updated.
 
@@ -9509,7 +9509,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Refs:** ADR-0021; ADR-0022; ADR-0029; ADR-0030; ADR-0042; TB-302.
 
-## TB-306 — Durable outbox for run-export blob push
+## TB-306 ? Durable outbox for run-export blob push
 
 **Status:** **Done** (2026-06-06).
 
@@ -9518,7 +9518,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Shipped:**
 
 1. `dbo.RunExportBlobPushOutbox` + Dapper/InMemory repositories (migration 248; mirrors retrieval/Cosmos outbox lease/backoff/dead-letter).
-2. `RunExportBlobPushOutboxProcessor` + leader-elected `RunExportBlobPushOutboxHostedService` — rebuilds ZIP via `IRunExportPackageBuilder` (no Mermaid PNG in worker), re-validates SAS, uploads via `IRunExportBlobPushService`.
+2. `RunExportBlobPushOutboxProcessor` + leader-elected `RunExportBlobPushOutboxHostedService` ? rebuilds ZIP via `IRunExportPackageBuilder` (no Mermaid PNG in worker), re-validates SAS, uploads via `IRunExportBlobPushService`.
 3. `IRunExportPackageBuilder` shared with GET download under strict guardrails (callers own PNG render + audit; worker passes `null` PNG).
 4. Push endpoint enqueues + `RunExportBlobPushQueued` audit; removed `Task.Run`.
 5. `RunExportBlobPushDeadLettered` audit; push service throws on HTTP failure so outbox retries.
@@ -9528,7 +9528,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Refs:** ADR-0004; ADR-0038; ADR-0043; TB-251; TB-305.
 
-## TB-307 — Application-layer tamper-evident export lineage + verify
+## TB-307 ? Application-layer tamper-evident export lineage + verify
 
 **Status:** **Done** (2026-06-06).
 
@@ -9536,8 +9536,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Shipped:**
 
-1. `export-manifest.json` inside run export ZIPs — per-entry SHA-256 (UPPER hex), sorted paths, committed manifest hash + rule-set anchors (`ExportManifestBuilder` in shared `BuildRunExportPackage`).
-2. `IRunExportLineageVerifier` + `GET …/runs/{runId}/export/verify` — recomputes hash vs `ManifestGenerated` anchor; returns `Match` / `Mismatch` / `NotAttested` (HTTP 200).
+1. `export-manifest.json` inside run export ZIPs ? per-entry SHA-256 (UPPER hex), sorted paths, committed manifest hash + rule-set anchors (`ExportManifestBuilder` in shared `BuildRunExportPackage`).
+2. `IRunExportLineageVerifier` + `GET ?/runs/{runId}/export/verify` ? recomputes hash vs `ManifestGenerated` anchor; returns `Match` / `Mismatch` / `NotAttested` (HTTP 200).
 3. `RunExportLineageVerified` audit on each verify call.
 4. ADR 0040 implementation note; `EVIDENCE_IMMUTABILITY.md` + `FIRST_PILOT_EVIDENCE_BUNDLE.md` updated.
 
@@ -9545,7 +9545,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Refs:** ADR-0039; ADR-0040; TB-303; TB-306; `sonnet_questions_06042026.md` Q7.
 
-## TB-309 — Durable outbox for post-commit projection side effects
+## TB-309 ? Durable outbox for post-commit projection side effects
 
 **Status:** **Done** (2026-06-06).
 
@@ -9555,7 +9555,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 1. `dbo.PostCommitProjectionOutbox` + Dapper/InMemory repositories (migration 249; `WorkType` discriminator + scope triple + optional `RunId`/`PayloadJson`).
 2. `PostCommitProjectionEnqueuer` replaces all five `Task.Run` call sites; feature gates apply at enqueue.
-3. `PostCommitProjectionOutboxProcessor` + leader-elected `PostCommitProjectionOutboxHostedService` — dispatches by work type with ambient scope restoration.
+3. `PostCommitProjectionOutboxProcessor` + leader-elected `PostCommitProjectionOutboxHostedService` ? dispatches by work type with ambient scope restoration.
 4. `PostCommitProjectionDeadLettered` audit; observability gauges/counters aligned with other outboxes.
 5. ADR **0044**; data consistency matrix, orphan-probe registry, DI map updated.
 
@@ -9563,7 +9563,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Refs:** ADR-0004; ADR-0043; ADR-0044; TB-306.
 
-## TB-310 — Committed run header evidence-anchor immutability
+## TB-310 ? Committed run header evidence-anchor immutability
 
 **Status:** **Done** (2026-06-06).
 
@@ -9571,9 +9571,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Shipped:**
 
-1. `CommittedRunHeaderAnchorRegistry` — canonical list of 15 anchor columns + trigger name (Core).
-2. Migration **250** / `ArchLucid.sql` — `TR_Runs_SealCommittedHeader` (`AFTER UPDATE`) raises 50310 when `DELETED.GoldenManifestId IS NOT NULL` and any anchor column changes; commit transition (NULL → manifest id) allowed.
-3. `CommittedRunHeaderAnchorGuard` + `RunEvidenceAnchorImmutableException` — fail-fast in `SqlRunRepository.UpdateAsync` and in-memory parity; SQL 50310 mapped to same exception.
+1. `CommittedRunHeaderAnchorRegistry` ? canonical list of 15 anchor columns + trigger name (Core).
+2. Migration **250** / `ArchLucid.sql` ? `TR_Runs_SealCommittedHeader` (`AFTER UPDATE`) raises 50310 when `DELETED.GoldenManifestId IS NOT NULL` and any anchor column changes; commit transition (NULL ? manifest id) allowed.
+3. `CommittedRunHeaderAnchorGuard` + `RunEvidenceAnchorImmutableException` ? fail-fast in `SqlRunRepository.UpdateAsync` and in-memory parity; SQL 50310 mapped to same exception.
 4. `SqlCommittedRunHeaderImmutabilityRules` startup probe (production-like SQL hosts fail closed).
 5. ADR **0045**, [`EVIDENCE_IMMUTABILITY.md`](EVIDENCE_IMMUTABILITY.md), architecture + SQL + Core unit tests.
 
@@ -9583,7 +9583,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-311 — Committed run header FK repoint detection
+## TB-311 ? Committed run header FK repoint detection
 
 **Status:** **Done** (2026-06-07).
 
@@ -9591,10 +9591,10 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Shipped:**
 
-1. `CommittedRunHeaderFkRepointRegistry` — six evidence pointer probes (Core).
-2. `CommittedRunHeaderFkRepointProbeSql` + resolver — dangling/cross-run `COUNT_BIG` queries (Host.Core).
-3. `DataConsistencyOrphanProbeExecutor` — runs repoint probes on each orphan probe pass; emits **`archlucid_data_consistency_header_repoints_detected_total`**.
-4. Admin **`GET /admin/diagnostics/data-consistency/header-repoints`** → `DataConsistencyHeaderRepointCounts`.
+1. `CommittedRunHeaderFkRepointRegistry` ? six evidence pointer probes (Core).
+2. `CommittedRunHeaderFkRepointProbeSql` + resolver ? dangling/cross-run `COUNT_BIG` queries (Host.Core).
+3. `DataConsistencyOrphanProbeExecutor` ? runs repoint probes on each orphan probe pass; emits **`archlucid_data_consistency_header_repoints_detected_total`**.
+4. Admin **`GET /admin/diagnostics/data-consistency/header-repoints`** ? `DataConsistencyHeaderRepointCounts`.
 5. ADR **0046**, architecture + SQL integration + Host.Core unit tests.
 
 **Out of scope:** Blocking triggers; auto-delete of forensic evidence; quarantine inserts.
@@ -9603,7 +9603,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-312 — Tenant-scoped persistence SQL Roslyn guard (ARCH006)
+## TB-312 ? Tenant-scoped persistence SQL Roslyn guard (ARCH006)
 
 **Status:** **Done** (2026-06-07).
 
@@ -9611,8 +9611,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Shipped:**
 
-1. `TenantScopedQueryScopeBindingAnalyzer` (**ARCH006**) — Dapper call-site guard on `ArchLucid.Persistence`.
-2. `scripts/ci/data/tenant_scoped_tables.v1.json` + generator — consumes scope-triple + tenant-id buckets from the classification matrix.
+1. `TenantScopedQueryScopeBindingAnalyzer` (**ARCH006**) ? Dapper call-site guard on `ArchLucid.Persistence`.
+2. `scripts/ci/data/tenant_scoped_tables.v1.json` + generator ? consumes scope-triple + tenant-id buckets from the classification matrix.
 3. `TenantScopeExemptAttribute` + finite operational/residual exemptions on worker/admin paths.
 4. ADR **0047**, analyzer unit tests, architecture parity test.
 
@@ -9622,7 +9622,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-316 — Cross-catalog atomic write inventory (P2)
+## TB-316 ? Cross-catalog atomic write inventory (P2)
 
 **Status:** **Done** (2026-06-07).
 
@@ -9630,23 +9630,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Cross-catalog write paths identified (all sequential, not atomic):**
 
-1. `SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync` — provisioning saga across `dbo.TenantDatabaseBindings` (system) and tenant catalog schema + mirror row. Partial failure logged; idempotent retry supported.
-2. `DapperTenantRepository` lifecycle mirroring (`SuspendTenantAsync`, erasure offboard/restore/legal-hold methods) — dual `UPDATE dbo.Tenants` on separate connections. Mitigated by column-authority matrix (TB-313) and CI guard.
-3. `TenantDeletionService.DeleteTenantAsync` — purge tenant catalog rows, then audit-append to system `dbo.PlatformAuditEvents`; no rollback of the purge on append failure.
+1. `SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync` ? provisioning saga across `dbo.TenantDatabaseBindings` (system) and tenant catalog schema + mirror row. Partial failure logged; idempotent retry supported.
+2. `DapperTenantRepository` lifecycle mirroring (`SuspendTenantAsync`, erasure offboard/restore/legal-hold methods) ? dual `UPDATE dbo.Tenants` on separate connections. Mitigated by column-authority matrix (TB-313) and CI guard.
+3. `TenantDeletionService.DeleteTenantAsync` ? purge tenant catalog rows, then audit-append to system `dbo.PlatformAuditEvents`; no rollback of the purge on append failure.
 
 **Invariant established:** Core product paths (run create/execute/commit, all outbox families, usage metering, run archival, retention purge) write to exactly one catalog per user-visible operation and use `IArchLucidUnitOfWork` for local SQL transactions. Cross-catalog 2PC is not implemented and not required. Any future cross-catalog write that requires atomicity must file a superseding ADR before implementation.
 
-**Documented in:** [`DATA_CONSISTENCY_MATRIX.md`](DATA_CONSISTENCY_MATRIX.md) — *Cross-catalog write patterns* section.
+**Documented in:** [`DATA_CONSISTENCY_MATRIX.md`](DATA_CONSISTENCY_MATRIX.md) ? *Cross-catalog write patterns* section.
 
 **Refs:** SAQ-005; ADR-0038.
 
 ---
 
-## TB-317 — RC evidence bundle gate for release signoff (P0)
+## TB-317 ? RC evidence bundle gate for release signoff (P0)
 
-**Status:** **Done** (2026-06-12) — `scripts/ci/build_rc_evidence_signoff_bundle.py` composes per-gate **PASS/WARN/HOLD/SKIPPED** rows into `rc-evidence-signoff-bundle.json` / `.md`; wired into `Emit-ReleaseReadinessEvidence.ps1`, `rc-release-gate.yml`, and `RC_RELEASE_GATE.md`. Unit tests: `scripts/ci/tests/test_build_rc_evidence_signoff_bundle.py`.
+**Status:** **Done** (2026-06-12) ? `scripts/ci/build_rc_evidence_signoff_bundle.py` composes per-gate **PASS/WARN/HOLD/SKIPPED** rows into `rc-evidence-signoff-bundle.json` / `.md`; wired into `Emit-ReleaseReadinessEvidence.ps1`, `rc-release-gate.yml`, and `RC_RELEASE_GATE.md`. Unit tests: `scripts/ci/tests/test_build_rc_evidence_signoff_bundle.py`.
 
-**Assessment source:** `docs/assessments/latest_202606122049.md` — Tier 1 improvement 6.
+**Assessment source:** `docs/assessments/latest_202606122049.md` ? Tier 1 improvement 6.
 
 **Problem:** Release confidence can be overstated when release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, AI readiness evidence, and procurement/claim-boundary checks live in separate artifacts. A skipped high-risk gate can disappear from the release narrative.
 
@@ -9669,11 +9669,11 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-318 — V1 automation handoff pack over REST / CLI / OpenAPI (P1)
+## TB-318 ? V1 automation handoff pack over REST / CLI / OpenAPI (P1)
 
-**Status:** **Done** (2026-06-12) — `docs/library/V1_AUTOMATION_HANDOFF_PACK.md` linked from `INTEGRATION_CATALOG.md` and `customer-facing/OPERATOR_QUICKSTART.md`; paths validated via existing `check_v1_integration_starter_contracts.py` gate.
+**Status:** **Done** (2026-06-12) ? `docs/library/V1_AUTOMATION_HANDOFF_PACK.md` linked from `INTEGRATION_CATALOG.md` and `customer-facing/OPERATOR_QUICKSTART.md`; paths validated via existing `check_v1_integration_starter_contracts.py` gate.
 
-**Assessment source:** `docs/assessments/latest_202606122049.md` — Tier 2 improvement 9.
+**Assessment source:** `docs/assessments/latest_202606122049.md` ? Tier 2 improvement 9.
 
 **Problem:** First-party Jira, ServiceNow, Confluence, Slack, Teams, and webhook buyer-contract integrations are V1.1, so V1 enterprise pilots need a concrete automation handoff using the surfaces that are in scope now: REST, CLI, OpenAPI, exports, SCIM, and CI examples.
 
@@ -9692,15 +9692,15 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `docs/go-to-market/INTEGRATION_CATALOG.md`, `docs/library/OPERATOR_QUICKSTART.md`, `docs/library/API_CONTRACTS.md`, `scripts/ci/data/v1_integration_starter_contracts.v1.json`.
 
-**Refs:** `V1_SCOPE.md` §2.8 / §2.13–§2.15, `API_CONTRACTS.md`.
+**Refs:** `V1_SCOPE.md` ?2.8 / ?2.13??2.15, `API_CONTRACTS.md`.
 
 ---
 
-## TB-319 — Pilot-critical performance evidence step (P2)
+## TB-319 ? Pilot-critical performance evidence step (P2)
 
-**Status:** **Done** (2026-06-12) — `scripts/ci/build_pilot_critical_performance_evidence.py` emits pilot-critical flow timings; integrates with RC signoff bundle; documented in `RELEASE_SMOKE.md`. Unit tests in `test_build_rc_evidence_signoff_bundle.py`.
+**Status:** **Done** (2026-06-12) ? `scripts/ci/build_pilot_critical_performance_evidence.py` emits pilot-critical flow timings; integrates with RC signoff bundle; documented in `RELEASE_SMOKE.md`. Unit tests in `test_build_rc_evidence_signoff_bundle.py`.
 
-**Assessment source:** `docs/assessments/latest_202606122049.md` — Tier 2 improvement 13.
+**Assessment source:** `docs/assessments/latest_202606122049.md` ? Tier 2 improvement 13.
 
 **Problem:** Current release evidence is stronger on correctness than on pilot-critical latency. Buyers do not need broad performance benchmarking for V1, but release signoff should show whether create review, commit/finalize, dashboard ROI, Ask, and export paths are obviously slow or timing out.
 
@@ -9721,7 +9721,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Refs:** TB-317, `RELEASE_SMOKE.md`.
 
-## TB-320 — UI/API KPI Parity Drift Guard (P1)
+## TB-320 ? UI/API KPI Parity Drift Guard (P1)
 
 - **Status:** **Done (2026-06-13).** `RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json`, `run-detail-kpi-semantic-contract.ts` + Vitest drift guard.
 
@@ -9732,7 +9732,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 2. Mount the React components (or parse their output) to ensure the rendered KPIs strictly match the server payload without client-side recalculation.
 **Acceptance Criteria:** A CI step fails if the UI attempts to render a KPI value that differs from the provided mock API payload.
 
-## TB-321 — Route/Policy/Tier Matrix Snapshot Enforcer (P1)
+## TB-321 ? Route/Policy/Tier Matrix Snapshot Enforcer (P1)
 
 - **Status:** **Done (2026-06-13).** `RouteTierPolicyNavSnapshotArchitectureTests` + `test_route_tier_policy_nav_snapshot_enforcer.py`.
 
@@ -9744,7 +9744,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 3. Compare them against the canonical markdown matrix. 
 **Acceptance Criteria:** The build fails if a route changes its security posture without a corresponding explicit snapshot/matrix update.
 
-## TB-322 — Finalized Evidence Immutability Enforcer (P0)
+## TB-322 ? Finalized Evidence Immutability Enforcer (P0)
 
 - **Status:** **Done (2026-06-13).** `FinalizedEvidenceImmutabilityIntegrationTests` (post-commit mutation rejection + manifest fingerprint stability).
 
@@ -9756,7 +9756,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 3. Assert that all such attempts return `409 Conflict` or `403 Forbidden`.
 **Acceptance Criteria:** Automated tests prove that once a review is finalized, its proof is immutable at the API boundary, maintaining buyer trust.
 
-## TB-323 — Strict Idempotency Contract Verification (P1)
+## TB-323 ? Strict Idempotency Contract Verification (P1)
 
 - **Status:** **Done (2026-06-13).** `MutatingEndpointIdempotencyContractIntegrationTests` + architecture harness guard.
 
@@ -9769,7 +9769,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 4. Assert the response is identical (including status code) and the database state has not changed (no duplicate rows, no side effects).
 **Acceptance Criteria:** Core mutating endpoints are proven idempotent under test, ensuring safe retries during automation.
 
-## TB-324 — RAG Citation Fidelity Enforcer (P0)
+## TB-324 ? RAG Citation Fidelity Enforcer (P0)
 
 - **Status:** **Done (2026-06-13).** `AgentResultEvidenceFaithfulnessChecker` citation-fidelity path + unit tests.
 
@@ -9781,7 +9781,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 3. Reject or flag claims where the citation is present but the grounding is false.
 **Acceptance Criteria:** The system actively detects and degrades/flags outputs where citations are fabricated or do not support the generated text.
 
-## TB-325 — Adversarial Prompt Injection Guard (P1)
+## TB-325 ? Adversarial Prompt Injection Guard (P1)
 
 - **Status:** **Done (2026-06-13).** `RequestContentSafetyRejectedException` + `PromptInjectionDetected` reason code; adversarial `prompt-injection-override` corpus scenario; `assert_prompt_injection_guard.py` CI step.
 
@@ -9793,7 +9793,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 3. Ensure the pipeline rejects the run with a specific `PromptInjectionDetected` failure reason rather than executing.
 **Acceptance Criteria:** Adversarial prompt injection attempts are detected and blocked before consuming significant token budget or altering agent behavior.
 
-## TB-326 — LLM Fallback Degradation Handling (P1)
+## TB-326 ? LLM Fallback Degradation Handling (P1)
 
 - **Status:** **Done (2026-06-13).** Verified `FallbackAgentCompletionClient` + `RunExecutionDegradation` wiring; architecture drift guard `AiAgentReadinessGuardArchitectureTests`.
 
@@ -9805,7 +9805,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 3. If fallback is used, clearly annotate the `AgentExecutionTrace` and `RunDetailDto` so the operator knows the run executed in a degraded state.
 **Acceptance Criteria:** The system transparently falls back to a secondary model on transient failures and explicitly flags the degraded state in the run's evidence package.
 
-## TB-327 — Agent Token Budget Enforcement (P2)
+## TB-327 ? Agent Token Budget Enforcement (P2)
 
 - **Status:** **Done (2026-06-13).** `CostLimitExceededKind.RunTokenBudget` + `TokenBudgetExceeded` reason code; `CostGuardrailInterceptorTests`; `MaxTokensPerRun` in Production/Staging appsettings.
 
@@ -9817,17 +9817,17 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 3. If the budget is exceeded, immediately halt the pipeline and mark the run as `Failed` with a `TokenBudgetExceeded` reason.
 **Acceptance Criteria:** No individual architecture run can exceed its configured token budget, protecting the tenant's quota and preventing runaway LLM costs.
 
-## TB-328 — Finding severity enum ↔ SeverityTag semantic contract (P1)
+## TB-328 ? Finding severity enum ? SeverityTag semantic contract (P1)
 
 - **Status:** **Done (2026-06-13).** `FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json`; `normalizeFindingSeverity` maps `Warning`/`Error` without `unknown` fallback; Vitest + architecture + CI drift guards.
 
 **Context:** UI/API parity guard extension after TB-320. API `FindingSeverity` enum strings (`Info`, `Warning`, `Error`, `Critical`) must render consistently in `<SeverityTag>`.
 
-**Problem:** `normalizeFindingSeverity` only recognized fuzzy tokens like `high`/`medium`/`low`, so contract enum values `Warning` and `Error` fell through to `unknown` — a correctness defect on governance and review surfaces.
+**Problem:** `normalizeFindingSeverity` only recognized fuzzy tokens like `high`/`medium`/`low`, so contract enum values `Warning` and `Error` fell through to `unknown` ? a correctness defect on governance and review surfaces.
 
 **Solution:**
 
-1. Add `docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json` with enum → uiKind → displayLabel mappings.
+1. Add `docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json` with enum ? uiKind ? displayLabel mappings.
 2. Extend `FindingSeverityKind` with explicit `warning` and `error` kinds; update `SEVERITY_LABELS` and `severityTagClass`.
 3. Add `finding-severity-tag-semantic-contract.ts` Vitest drift guard and architecture/CI batch tests.
 
@@ -9839,9 +9839,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-329 — Propagate tenant/workspace Activity tags (P0)
+## TB-329 ? Propagate tenant/workspace Activity tags (P0)
 
-**Status:** **Done (2026-06-14 ADR 0053 batch)** — `ActivityScopeTags`, `CorrelationIdMiddleware` (+ OnStarting re-apply), outbox processors; `CorrelationIdMiddlewareTests`, `PostCommitProjectionOutboxProcessorTests`.
+**Status:** **Done (2026-06-14 ADR 0053 batch)** ? `ActivityScopeTags`, `CorrelationIdMiddleware` (+ OnStarting re-apply), outbox processors; `CorrelationIdMiddlewareTests`, `PostCommitProjectionOutboxProcessorTests`.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14 (readiness 72/100).
 
@@ -9849,7 +9849,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Scope:**
 
-1. In `CorrelationIdMiddleware.cs`, after resolving scope, set `activity?.SetTag("archlucid.tenant_id", …)` and `archlucid.workspace_id` when values are non-null GUIDs.
+1. In `CorrelationIdMiddleware.cs`, after resolving scope, set `activity?.SetTag("archlucid.tenant_id", ?)` and `archlucid.workspace_id` when values are non-null GUIDs.
 2. In outbox processors that create child Activities (`PostCommitProjectionOutboxProcessor`, `RunExportBlobPushOutboxProcessor`, `RetrievalIndexingOutboxProcessor`, etc.), propagate the same tags from message payload or `AmbientScopeContext`.
 3. Do **not** duplicate tenant/workspace into Serilog `LogContext` on every line (audit rows already carry scope; avoid log PII duplication).
 4. Add unit/integration tests in `CorrelationIdMiddlewareTests` (and one outbox processor test) verifying tags appear on `Activity.Current`.
@@ -9868,9 +9868,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-330 — Canonical LoggingPolicy.cs Do Not Log reference (P0)
+## TB-330 ? Canonical LoggingPolicy.cs Do Not Log reference (P0)
 
-**Status:** **Done (2026-06-14 ADR 0053 batch)** — `LoggingPolicy.cs`, cross-refs in `LogSanitizer` / `PromptRedactor`, `LoggingPolicyTests`, OBSERVABILITY § Do Not Log.
+**Status:** **Done (2026-06-14 ADR 0053 batch)** ? `LoggingPolicy.cs`, cross-refs in `LogSanitizer` / `PromptRedactor`, `LoggingPolicyTests`, OBSERVABILITY ? Do Not Log.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
@@ -9878,10 +9878,10 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Scope:**
 
-1. Create `ArchLucid.Core/Diagnostics/LoggingPolicy.cs` — static class with XML-doc constants categorizing forbidden content: secrets, connection strings, raw customer evidence, full prompts/responses, embedding vectors, PII unless explicit audit path.
+1. Create `ArchLucid.Core/Diagnostics/LoggingPolicy.cs` ? static class with XML-doc constants categorizing forbidden content: secrets, connection strings, raw customer evidence, full prompts/responses, embedding vectors, PII unless explicit audit path.
 2. Cross-reference from `LogSanitizer.cs`, `PromptRedactor.cs`, and ADR 0053.
 3. Add a smoke unit test asserting `LoggingPolicy.NeverLogCategories` is non-empty.
-4. Add a short **Do Not Log** section to [`OBSERVABILITY.md`](OBSERVABILITY.md) linking the type (no duplicate prose — point to source).
+4. Add a short **Do Not Log** section to [`OBSERVABILITY.md`](OBSERVABILITY.md) linking the type (no duplicate prose ? point to source).
 
 **Acceptance criteria:**
 
@@ -9890,15 +9890,15 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `ArchLucid.Core/Diagnostics/LoggingPolicy.cs`, `ArchLucid.Core.Tests/Diagnostics/LoggingPolicyTests.cs`, `docs/library/OBSERVABILITY.md`.
 
-**Refs:** ADR 0053, TB-124 (audit coverage drift — complementary).
+**Refs:** ADR 0053, TB-124 (audit coverage drift ? complementary).
 
 **Size estimate:** XS
 
 ---
 
-## TB-331 — EvidencePackageId log scope + Activity tags at evidence ingest (P1)
+## TB-331 ? EvidencePackageId log scope + Activity tags at evidence ingest (P1)
 
-**Status:** **Done (2026-06-14 ADR 0053 batch)** — Azure extractor, zip expander, bulk upload paths; `ActivityScopeTags.ApplyEvidencePackageId`.
+**Status:** **Done (2026-06-14 ADR 0053 batch)** ? Azure extractor, zip expander, bulk upload paths; `ActivityScopeTags.ApplyEvidencePackageId`.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
@@ -9906,9 +9906,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Scope:**
 
-1. `AzureExtractorIngestService.cs` — `LogContext.PushProperty("EvidencePackageId", …)` + `archlucid.evidence_package_id` Activity tag at ingest start (before first `await`).
-2. `ZipEvidenceExpanderService.cs` — add `archlucid.evidence_package_id` tag on `ArchLucid.Evidence.ZipExpansion` span.
-3. `BulkEvidenceUploadService.cs` — same scope/tag pattern when package id is assigned.
+1. `AzureExtractorIngestService.cs` ? `LogContext.PushProperty("EvidencePackageId", ?)` + `archlucid.evidence_package_id` Activity tag at ingest start (before first `await`).
+2. `ZipEvidenceExpanderService.cs` ? add `archlucid.evidence_package_id` tag on `ArchLucid.Evidence.ZipExpansion` span.
+3. `BulkEvidenceUploadService.cs` ? same scope/tag pattern when package id is assigned.
 4. Tests using `RecordingLoggerProvider` or Activity listener verifying scope/tag presence.
 
 **Acceptance criteria:**
@@ -9918,15 +9918,15 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `ArchLucid.Application/AzureExtractor/AzureExtractorIngestService.cs`, `ArchLucid.Application/Evidence/ZipEvidenceExpanderService.cs`, `ArchLucid.Application/Evidence/BulkEvidenceUploadService.cs`.
 
-**Refs:** ADR 0053, `AuditEventTypes.EvidenceBulkAttached`, TB-250 (stage timeline — complementary).
+**Refs:** ADR 0053, `AuditEventTypes.EvidenceBulkAttached`, TB-250 (stage timeline ? complementary).
 
 **Size estimate:** S
 
 ---
 
-## TB-332 — Structured diagnostic event taxonomy constants (P1)
+## TB-332 ? Structured diagnostic event taxonomy constants (P1)
 
-**Status:** **Done (2026-06-14 ADR 0053 batch)** — `DiagnosticEventNames.cs`, `DiagnosticEventNamesTests`, OBSERVABILITY § Diagnostic event taxonomy.
+**Status:** **Done (2026-06-14 ADR 0053 batch)** ? `DiagnosticEventNames.cs`, `DiagnosticEventNamesTests`, OBSERVABILITY ? Diagnostic event taxonomy.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
@@ -9934,9 +9934,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Scope:**
 
-1. Add `ArchLucid.Core/Diagnostics/DiagnosticEventNames.cs` with canonical string constants for review lifecycle (`review.created`, `review.stage.completed`, …), evidence lifecycle, AI/model lifecycle, export lifecycle, and failure events (per ADR 0053 naming rules).
-2. Migrate **new** log sites only in touched files — do not bulk-rewrite ~300 call sites in this item.
-3. Document the taxonomy table in [`OBSERVABILITY.md`](OBSERVABILITY.md) § *Diagnostic event taxonomy* (generated from constants or maintained in sync via architecture test).
+1. Add `ArchLucid.Core/Diagnostics/DiagnosticEventNames.cs` with canonical string constants for review lifecycle (`review.created`, `review.stage.completed`, ?), evidence lifecycle, AI/model lifecycle, export lifecycle, and failure events (per ADR 0053 naming rules).
+2. Migrate **new** log sites only in touched files ? do not bulk-rewrite ~300 call sites in this item.
+3. Document the taxonomy table in [`OBSERVABILITY.md`](OBSERVABILITY.md) ? *Diagnostic event taxonomy* (generated from constants or maintained in sync via architecture test).
 4. Optional architecture test: constants are non-empty and lowercase dot-separated.
 
 **Acceptance criteria:**
@@ -9946,15 +9946,15 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `ArchLucid.Core/Diagnostics/DiagnosticEventNames.cs`, `docs/library/OBSERVABILITY.md`, `ArchLucid.Architecture.Tests/Diagnostics/DiagnosticEventNamesArchitectureTests.cs`.
 
-**Refs:** ADR 0053, `AuditEventTypes.cs` (durable audit — parallel catalog, not duplicate).
+**Refs:** ADR 0053, `AuditEventTypes.cs` (durable audit ? parallel catalog, not duplicate).
 
 **Size estimate:** S
 
 ---
 
-## TB-333 — Production observability operator runbook (P1)
+## TB-333 ? Production observability operator runbook (P1)
 
-**Status:** **Done (2026-06-14 ADR 0053 batch)** — OBSERVABILITY § Production operator runbook; BUILD.md link.
+**Status:** **Done (2026-06-14 ADR 0053 batch)** ? OBSERVABILITY ? Production operator runbook; BUILD.md link.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
@@ -9962,7 +9962,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Scope:**
 
-1. Extend `OBSERVABILITY.md` with § *Production operator runbook*: connection string injection order (`APPLICATIONINSIGHTS_CONNECTION_STRING` → config keys), Worker parity requirement, Live Metrics smoke, canonical App Insights queries for run/tenant/triage, sampling ratio guidance, how to disable export without breaking startup.
+1. Extend `OBSERVABILITY.md` with ? *Production operator runbook*: connection string injection order (`APPLICATIONINSIGHTS_CONNECTION_STRING` ? config keys), Worker parity requirement, Live Metrics smoke, canonical App Insights queries for run/tenant/triage, sampling ratio guidance, how to disable export without breaking startup.
 2. Link from [`docs/engineering/BUILD.md`](../engineering/BUILD.md) and ADR 0053.
 3. Cross-reference existing `scripts/report_observability_export_readiness.py` and `ProductionValidation:RequireTelemetryExport`.
 
@@ -9973,25 +9973,25 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `docs/library/OBSERVABILITY.md`, `docs/engineering/BUILD.md`.
 
-**Refs:** ADR 0053, TB-004 (exporter wiring — Done), TB-128 (support triage one-pager — link).
+**Refs:** ADR 0053, TB-004 (exporter wiring ? Done), TB-128 (support triage one-pager ? link).
 
 **Size estimate:** XS
 
 ---
 
-## TB-334 — Observability correlation integration test matrix (P1)
+## TB-334 ? Observability correlation integration test matrix (P1)
 
-**Status:** **Done (2026-06-14 ADR 0053 batch)** — `ObservabilityCorrelationIntegrationTests.cs`; OBSERVABILITY § Verification.
+**Status:** **Done (2026-06-14 ADR 0053 batch)** ? `ObservabilityCorrelationIntegrationTests.cs`; OBSERVABILITY ? Verification.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
-**Problem:** Correlation middleware and trace response headers have unit tests, but there is no **integration matrix** proving correlation IDs flow from HTTP request → Activity tags → Serilog output → Problem Details → outbox child spans for a single review lifecycle smoke path.
+**Problem:** Correlation middleware and trace response headers have unit tests, but there is no **integration matrix** proving correlation IDs flow from HTTP request ? Activity tags ? Serilog output ? Problem Details ? outbox child spans for a single review lifecycle smoke path.
 
 **Scope:**
 
 1. Add integration test (Api.Tests or Host.Core.Tests) that: sends `X-Correlation-ID`, creates/triggers a minimal run path, asserts response headers (`traceparent`, `X-Correlation-ID`), Problem Details correlation on forced 500, and Activity tag `correlation.id` on captured export.
 2. After **TB-329** lands, extend matrix to assert `archlucid.tenant_id` / `archlucid.workspace_id` tags.
-3. Document verification steps in OBSERVABILITY.md § *Verification* (link to test class name).
+3. Document verification steps in OBSERVABILITY.md ? *Verification* (link to test class name).
 
 **Acceptance criteria:**
 
@@ -10006,9 +10006,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-335 — Browser W3C traceparent propagation (P2)
+## TB-335 ? Browser W3C traceparent propagation (P2)
 
-**Status:** Open — Tier 2 (high-value next wave).
+**Status:** Open ? Tier 2 (high-value next wave).
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
@@ -10032,19 +10032,19 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-336 — Worker/Jobs.Cli observability config parity verification (P2)
+## TB-336 ? Worker/Jobs.Cli observability config parity verification (P2)
 
-**Status:** Open — Tier 2.
+**Status:** Open ? Tier 2.
 
 **Assessment source:** Diagnostic logging and observability assessment 2026-06-14.
 
-**Problem:** API host observability configuration is documented and linted; Worker and Jobs.Cli inherit `ArchLucidSerilogConfiguration` + `AddArchLucidOpenTelemetry` but their `appsettings.json` Observability sections are minimal. Parity across all three hosts is unverified — worker-originated spans may be orphaned in production.
+**Problem:** API host observability configuration is documented and linted; Worker and Jobs.Cli inherit `ArchLucidSerilogConfiguration` + `AddArchLucidOpenTelemetry` but their `appsettings.json` Observability sections are minimal. Parity across all three hosts is unverified ? worker-originated spans may be orphaned in production.
 
 **Scope:**
 
 1. Audit Worker and Jobs.Cli merged configuration vs Api for export paths (App Insights, OTLP, Prometheus).
 2. Extend `scripts/report_observability_export_readiness.py` to emit per-host readiness (Api, Worker, Jobs.Cli) when Worker appsettings are present.
-3. Document required Worker export settings in OBSERVABILITY.md § *Production operator runbook* (**TB-333**).
+3. Document required Worker export settings in OBSERVABILITY.md ? *Production operator runbook* (**TB-333**).
 
 **Acceptance criteria:**
 
@@ -10059,9 +10059,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-337 — Evidence-first first-run empty-state copy (P0)
+## TB-337 ? Evidence-first first-run empty-state copy (P0)
 
-**Status:** **Done (2026-06-15)** — evidence-first `FIRST_RUN_STEPS` + neutral icon in `OperatorHomeFirstReviewEmptyState.tsx`.
+**Status:** **Done (2026-06-15)** ? evidence-first `FIRST_RUN_STEPS` + neutral icon in `OperatorHomeFirstReviewEmptyState.tsx`.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
@@ -10070,11 +10070,11 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Scope:**
 
 1. Rewrite `FIRST_RUN_STEPS` in `OperatorHomeAzureExtractorEmptyState.tsx` to evidence-first:
-   - Step 1 — **"Provide architecture evidence"**: "Paste a brief, drop design docs, ADRs, diagrams, or IaC — or upload an Azure export. *Connected to Azure? The read-only extractor is the fastest path to production-faithful evidence (no credentials leave your tenant).*"
-   - Step 2 — **"Set review scope"**: "Choose the governance / policy packs to apply." List Azure CIS as *one of several* examples, not the lead.
-   - Step 3 — **"Get your first finding"**: keep (already cloud-neutral).
-2. Keep the Azure extractor mention as the named *accelerated* option inside step 1 — do **not** delete it (preserve the Azure onboarding strength).
-3. Keep the existing primary CTA "Begin architecture review" → `/reviews/new`; the `CloudUpload` icon should become a neutral evidence icon (e.g. `FileSearch`/`FileStack`) to stop signalling "cloud upload" as *the* action.
+   - Step 1 ? **"Provide architecture evidence"**: "Paste a brief, drop design docs, ADRs, diagrams, or IaC ? or upload an Azure export. *Connected to Azure? The read-only extractor is the fastest path to production-faithful evidence (no credentials leave your tenant).*"
+   - Step 2 ? **"Set review scope"**: "Choose the governance / policy packs to apply." List Azure CIS as *one of several* examples, not the lead.
+   - Step 3 ? **"Get your first finding"**: keep (already cloud-neutral).
+2. Keep the Azure extractor mention as the named *accelerated* option inside step 1 ? do **not** delete it (preserve the Azure onboarding strength).
+3. Keep the existing primary CTA "Begin architecture review" ? `/reviews/new`; the `CloudUpload` icon should become a neutral evidence icon (e.g. `FileSearch`/`FileStack`) to stop signalling "cloud upload" as *the* action.
 
 **Acceptance criteria:**
 
@@ -10082,35 +10082,35 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - An AWS-only or pre-deployment (no-cloud) operator sees a step 1 they can immediately act on.
 - Existing empty-state snapshot/`data-testid` tests updated; no other behavior change.
 
-**Likely files:** `archlucid-ui/src/components/operator-home/OperatorHomeAzureExtractorEmptyState.tsx`, `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx` (renders it), `archlucid-ui/src/lib/welcome-marketing-copy.ts` (reuse canonical `Capture → Evidence → Review` spine wording).
+**Likely files:** `archlucid-ui/src/components/operator-home/OperatorHomeAzureExtractorEmptyState.tsx`, `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx` (renders it), `archlucid-ui/src/lib/welcome-marketing-copy.ts` (reuse canonical `Capture ? Evidence ? Review` spine wording).
 
-**Refs:** TB-338 (component rename — pair), TB-342 (copy sweep), POSITIONING.md §7, UI_DESIGN_SYSTEM.md.
+**Refs:** TB-338 (component rename ? pair), TB-342 (copy sweep), POSITIONING.md ?7, UI_DESIGN_SYSTEM.md.
 
 **Size estimate:** S
 
 ---
 
-## TB-338 — Rename `OperatorHomeAzureExtractorEmptyState` → `OperatorHomeFirstReviewEmptyState` (P0)
+## TB-338 ? Rename `OperatorHomeAzureExtractorEmptyState` ? `OperatorHomeFirstReviewEmptyState` (P0)
 
-**Status:** **Done (2026-06-15)** — renamed to `OperatorHomeFirstReviewEmptyState`; `data-testid="operator-home-first-review-empty-state"`.
+**Status:** **Done (2026-06-15)** ? renamed to `OperatorHomeFirstReviewEmptyState`; `data-testid="operator-home-first-review-empty-state"`.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
-**Problem:** The product's opening screen is, at the code level, *named after Azure extraction*. A component name is a durable signal of intent to every future contributor and AI agent; as long as the first-run empty state is called `…AzureExtractorEmptyState`, new code and copy will keep gravitating to Azure-first framing. The name encodes the drift.
+**Problem:** The product's opening screen is, at the code level, *named after Azure extraction*. A component name is a durable signal of intent to every future contributor and AI agent; as long as the first-run empty state is called `?AzureExtractorEmptyState`, new code and copy will keep gravitating to Azure-first framing. The name encodes the drift.
 
 **Scope:**
 
-1. Rename the component file and symbol `OperatorHomeAzureExtractorEmptyState` → `OperatorHomeFirstReviewEmptyState`.
+1. Rename the component file and symbol `OperatorHomeAzureExtractorEmptyState` ? `OperatorHomeFirstReviewEmptyState`.
 2. Update the import in `RunsDashboardPanel.tsx` and any other references (grep `OperatorHomeAzureExtractor`).
-3. Update `data-testid="operator-home-azure-extractor-empty-state"` → `operator-home-first-review-empty-state` and the matching selector in tests (coordinate with `UI-Stable-Selectors-And-Snapshots.mdc`).
-4. Pure rename + selector change — no rendered behavior change beyond TB-337 copy.
+3. Update `data-testid="operator-home-azure-extractor-empty-state"` ? `operator-home-first-review-empty-state` and the matching selector in tests (coordinate with `UI-Stable-Selectors-And-Snapshots.mdc`).
+4. Pure rename + selector change ? no rendered behavior change beyond TB-337 copy.
 
 **Acceptance criteria:**
 
 - No symbol, filename, or test id references "AzureExtractor" for the generic first-run empty state.
 - `npm run build` / type-check pass; selector tests updated in the same change.
 
-**Likely files:** `archlucid-ui/src/components/operator-home/OperatorHomeAzureExtractorEmptyState.tsx` (→ new name), `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, related Vitest/Playwright selectors.
+**Likely files:** `archlucid-ui/src/components/operator-home/OperatorHomeAzureExtractorEmptyState.tsx` (? new name), `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, related Vitest/Playwright selectors.
 
 **Refs:** TB-337, `.cursor/rules/UI-Stable-Selectors-And-Snapshots.mdc`.
 
@@ -10118,9 +10118,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-339 — Evidence-first Core Pilot step 1 reframe (P0)
+## TB-339 ? Evidence-first Core Pilot step 1 reframe (P0)
 
-**Status:** **Done (2026-06-15)** — `CORE_PILOT_STEPS[0]` evidence-first; primary CTA `/reviews/new` ("Start a review").
+**Status:** **Done (2026-06-15)** ? `CORE_PILOT_STEPS[0]` evidence-first; primary CTA `/reviews/new` ("Start a review").
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
@@ -10129,11 +10129,11 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Scope:**
 
 1. Rewrite `CORE_PILOT_STEPS[0]` in `core-pilot-steps.ts`:
-   - `title` → **"Provide architecture evidence"**
-   - `shortBody` → brief/docs/diagrams/IaC first; Azure extractor named as the *fastest* path to production-faithful evidence.
-   - `primaryLabel` → **"Add evidence"** (or "Provide evidence"); keep `primaryHref` pointing at the evidence/extract-upload entry, but ensure the extract-upload page is framed as one option, not the only one.
+   - `title` ? **"Provide architecture evidence"**
+   - `shortBody` ? brief/docs/diagrams/IaC first; Azure extractor named as the *fastest* path to production-faithful evidence.
+   - `primaryLabel` ? **"Add evidence"** (or "Provide evidence"); keep `primaryHref` pointing at the evidence/extract-upload entry, but ensure the extract-upload page is framed as one option, not the only one.
 2. Keep `EXTRACT_UPLOAD_SETTINGS_PATH` and the Azure extractor walkthrough reachable from inside step 1 (do not remove the Azure path).
-3. Leave steps 2–5 unchanged (already review-package framed).
+3. Leave steps 2?5 unchanged (already review-package framed).
 
 **Acceptance criteria:**
 
@@ -10143,87 +10143,87 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `archlucid-ui/src/lib/core-pilot-steps.ts`, `archlucid-ui/src/components/CorePilotChecklist.tsx`, `archlucid-ui/src/app/(operator)/onboarding/_sections/OnboardingPageView.tsx`.
 
-**Refs:** TB-337, TB-342, TB-169 (progressive disclosure — different axis), CANONICAL_FIRST_RUN_PATH.md, CORE_PILOT.md.
+**Refs:** TB-337, TB-342, TB-169 (progressive disclosure ? different axis), CANONICAL_FIRST_RUN_PATH.md, CORE_PILOT.md.
 
 **Size estimate:** S
 
 ---
 
-## TB-340 — Make `cloudProvider` optional at intake for non-cloud reviews (P1, owner-confirm)
+## TB-340 ? Make `cloudProvider` optional at intake for non-cloud reviews (P1, owner-confirm)
 
-**Status:** **Done (2026-06-18 Imp-17)** — `CloudProvider.None` at intake; Azure only when Azure extractor evidence is attached.
+**Status:** **Done (2026-06-18 Imp-17)** ? `CloudProvider.None` at intake; Azure only when Azure extractor evidence is attached.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
-**Problem:** The new-review wizard schema hard-codes `cloudProvider: z.literal("Azure")` (`wizard-schema.ts`). This is the architectural encoding of the drift: an *evidence source* (one of many) is baked into the product's primary intake as "*the* environment." It makes a paper-architecture or pre-deployment review — arguably the highest-value governance use case (review *before* you build) — impossible to represent honestly at intake, even though the request already accepts cloud-neutral `documents[]` and `infrastructureDeclarations[]` inputs.
+**Problem:** The new-review wizard schema hard-codes `cloudProvider: z.literal("Azure")` (`wizard-schema.ts`). This is the architectural encoding of the drift: an *evidence source* (one of many) is baked into the product's primary intake as "*the* environment." It makes a paper-architecture or pre-deployment review ? arguably the highest-value governance use case (review *before* you build) ? impossible to represent honestly at intake, even though the request already accepts cloud-neutral `documents[]` and `infrastructureDeclarations[]` inputs.
 
-**Scope (V1-safe — no multi-cloud analysis):**
+**Scope (V1-safe ? no multi-cloud analysis):**
 
 1. Allow `cloudProvider` to be optional / `"NotApplicable"` (or null) in `wizard-schema.ts` so a review with brief/docs/diagram evidence and no cloud environment is a first-class submission.
-2. Default to `"Azure"` only when the operator chooses the Azure extractor / Azure-targeted path — do **not** expose AWS/GCP as *analysis* targets (V1 deep analysis stays Azure-only per `V1_SCOPE.md` §2.19).
-3. Ensure downstream payload mapping and `WizardStepEvidenceUpload` copy ("Upload Azure evidence (optional)") read as "evidence (optional) — Azure extractor accelerates it", not "Azure is the evidence".
+2. Default to `"Azure"` only when the operator chooses the Azure extractor / Azure-targeted path ? do **not** expose AWS/GCP as *analysis* targets (V1 deep analysis stays Azure-only per `V1_SCOPE.md` ?2.19).
+3. Ensure downstream payload mapping and `WizardStepEvidenceUpload` copy ("Upload Azure evidence (optional)") read as "evidence (optional) ? Azure extractor accelerates it", not "Azure is the evidence".
 4. Add wizard schema/unit tests for the no-cloud-provider review path.
 
-**Pending question — PQ-DRIFT-01 (owner):** `V1_SCOPE.md` §2.19 states the Azure-only `CloudProvider` enum is the shipped contract. Confirm that allowing an *optional/`NotApplicable`* provider **at intake** (while keeping Azure as the only deep target-analysis provider) is acceptable, or whether this must wait for the V1.1 multi-cloud window. Do not implement the schema change until resolved.
+**Pending question ? PQ-DRIFT-01 (owner):** `V1_SCOPE.md` ?2.19 states the Azure-only `CloudProvider` enum is the shipped contract. Confirm that allowing an *optional/`NotApplicable`* provider **at intake** (while keeping Azure as the only deep target-analysis provider) is acceptable, or whether this must wait for the V1.1 multi-cloud window. Do not implement the schema change until resolved.
 
 **Acceptance criteria:**
 
 - A review can be created with evidence and no cloud provider (when PQ-DRIFT-01 approves).
-- No AWS/GCP *analysis* capability is implied or added; `V1_SCOPE.md` §2.19 honored.
+- No AWS/GCP *analysis* capability is implied or added; `V1_SCOPE.md` ?2.19 honored.
 - API contract (`architecture-runs.ts` union already allows the values) stays consistent with `CloudProvider` enum reality.
 
 **Likely files:** `archlucid-ui/src/lib/wizard-schema.ts`, `archlucid-ui/src/app/(operator)/reviews/new/QuickReviewWizard.tsx` (hard-coded `cloudProvider: "Azure"`), `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`, `ArchLucid.Contracts` `CloudProvider` enum (confirm `NotApplicable`/optional handling).
 
-**Refs:** TB-214 (non-Azure ingest — DEFERRED, do not duplicate), V1_SCOPE.md §2.19, V1_DEFERRED.md §6n, FIRST_RUN_WIZARD.md (Step 5 documents[]/infrastructureDeclarations[]).
+**Refs:** TB-214 (non-Azure ingest ? DEFERRED, do not duplicate), V1_SCOPE.md ?2.19, V1_DEFERRED.md ?6n, FIRST_RUN_WIZARD.md (Step 5 documents[]/infrastructureDeclarations[]).
 
 **Size estimate:** M
 
 ---
 
-## TB-341 — Multi-source evidence picker with honest V1.1 badges (P1)
+## TB-341 ? Multi-source evidence picker with honest V1.1 badges (P1)
 
-**Status:** Open — P1.
+**Status:** Open ? P1.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
-**Problem:** The wizard's evidence step is effectively "Azure ZIP or demo data", so the UI never *teaches* that ArchLucid reviews multiple evidence types. Making the plurality visible (even where sources are not yet shipped) is what aligns the user's mental model with the platform mission — without overclaiming.
+**Problem:** The wizard's evidence step is effectively "Azure ZIP or demo data", so the UI never *teaches* that ArchLucid reviews multiple evidence types. Making the plurality visible (even where sources are not yet shipped) is what aligns the user's mental model with the platform mission ? without overclaiming.
 
 **Scope:**
 
-1. In the new-review evidence step, render an explicit evidence-source picker: **Brief · Documents · Diagrams · IaC / Terraform · Azure export (fastest) · Demo**.
-2. Sources not shippable in V1 (AWS/GCP connect, Structurizr/ArchiMate import, generic non-Azure JSON) appear **disabled with a "V1.1" tag** — honest, not hidden. This teaches "multi-source review platform" while respecting `POSITIONING.md` §7 (do not imply capabilities that do not exist).
-3. Wire the enabled options to existing paths: brief → `QuickReviewWizard` brief step; documents/diagrams → `WizardEvidenceUploadZone` (already accepts PDF/DOCX/MD/TXT/JSON/YAML/images); Azure export → extract-upload; demo → demo seed.
-4. Reuse the existing upload components — do not build a parallel uploader (aggressive reuse).
+1. In the new-review evidence step, render an explicit evidence-source picker: **Brief ? Documents ? Diagrams ? IaC / Terraform ? Azure export (fastest) ? Demo**.
+2. Sources not shippable in V1 (AWS/GCP connect, Structurizr/ArchiMate import, generic non-Azure JSON) appear **disabled with a "V1.1" tag** ? honest, not hidden. This teaches "multi-source review platform" while respecting `POSITIONING.md` ?7 (do not imply capabilities that do not exist).
+3. Wire the enabled options to existing paths: brief ? `QuickReviewWizard` brief step; documents/diagrams ? `WizardEvidenceUploadZone` (already accepts PDF/DOCX/MD/TXT/JSON/YAML/images); Azure export ? extract-upload; demo ? demo seed.
+4. Reuse the existing upload components ? do not build a parallel uploader (aggressive reuse).
 
 **Acceptance criteria:**
 
-- Evidence step visibly presents ≥4 source types with Azure labelled "fastest", not "only".
+- Evidence step visibly presents ?4 source types with Azure labelled "fastest", not "only".
 - Unshipped sources are clearly badged "V1.1" and disabled (no dead clicks, no false promise).
 - Extends TB-215 (upload mechanic) without duplicating it.
 
 **Likely files:** `archlucid-ui/src/components/wizard/steps/WizardStepEvidenceUpload.tsx`, `archlucid-ui/src/components/usability/WizardEvidenceUploadZone.tsx`, `archlucid-ui/src/app/(operator)/reviews/new/QuickReviewWizard.tsx`, `archlucid-ui/src/app/(operator)/reviews/new/NewRunWizardClient.tsx`.
 
-**Refs:** TB-215 (evidence upload in wizard — extend), TB-214 (non-Azure ingest backend — DEFERRED, badge only), INTEGRATION_CATALOG.md (Planned import rows), POSITIONING.md §7.
+**Refs:** TB-215 (evidence upload in wizard ? extend), TB-214 (non-Azure ingest backend ? DEFERRED, badge only), INTEGRATION_CATALOG.md (Planned import rows), POSITIONING.md ?7.
 
 **Size estimate:** M
 
 ---
 
-## TB-342 — Onboarding secondary-surface copy sweep (evidence-first) (P1)
+## TB-342 ? Onboarding secondary-surface copy sweep (evidence-first) (P1)
 
-**Status:** **Partial (2026-06-15)** — `first-pilot-buyer-copy.ts`, operating-rail ingest label, quick-review placeholder; welcome/tour sweep remains open.
+**Status:** **Partial (2026-06-15)** ? `first-pilot-buyer-copy.ts`, operating-rail ingest label, quick-review placeholder; welcome/tour sweep remains open.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
-**Problem:** Beyond the empty state and Core Pilot, several secondary onboarding surfaces still lead with Azure-upload phrasing, so the Azure-first model is reinforced even after TB-337–339. The fix is to make the operator first-run surfaces say what the marketing surfaces already say (`Capture → Evidence → Review → Findings → Decisions → Report`).
+**Problem:** Beyond the empty state and Core Pilot, several secondary onboarding surfaces still lead with Azure-upload phrasing, so the Azure-first model is reinforced even after TB-337?339. The fix is to make the operator first-run surfaces say what the marketing surfaces already say (`Capture ? Evidence ? Review ? Findings ? Decisions ? Report`).
 
 **Scope (relabel toward the "evidence" verb; keep Azure as the named accelerator):**
 
-1. `first-pilot-operating-rail-steps.ts` / `first-pilot-buyer-copy.ts` — ingest step `primaryLabel "Extract and upload"` and `ingestEvidenceWithoutUpload` copy → evidence-first with Azure as fastest path.
-2. `welcome-modal.tsx` — operator step copy and final CTA already mostly review-framed; ensure no Azure-as-prerequisite wording.
-3. `FirstVisitHelpAutoOpen.tsx` — "...explore a sample package if you are not ready to connect Azure..." → "...if you are not ready to connect a cloud environment...".
-4. `OnboardingTour.tsx` — verify no Azure-prerequisite framing in operator (non-buyer) variant.
-5. `buyer-polish-copy.ts` — promote the already-good "Connect environment or upload evidence" phrasing as the standard; keep "Connect Azure" only as one tertiary connector, not the headline.
+1. `first-pilot-operating-rail-steps.ts` / `first-pilot-buyer-copy.ts` ? ingest step `primaryLabel "Extract and upload"` and `ingestEvidenceWithoutUpload` copy ? evidence-first with Azure as fastest path.
+2. `welcome-modal.tsx` ? operator step copy and final CTA already mostly review-framed; ensure no Azure-as-prerequisite wording.
+3. `FirstVisitHelpAutoOpen.tsx` ? "...explore a sample package if you are not ready to connect Azure..." ? "...if you are not ready to connect a cloud environment...".
+4. `OnboardingTour.tsx` ? verify no Azure-prerequisite framing in operator (non-buyer) variant.
+5. `buyer-polish-copy.ts` ? promote the already-good "Connect environment or upload evidence" phrasing as the standard; keep "Connect Azure" only as one tertiary connector, not the headline.
 
 **Acceptance criteria:**
 
@@ -10233,19 +10233,19 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `archlucid-ui/src/lib/first-pilot-operating-rail-steps.ts`, `archlucid-ui/src/lib/first-pilot-buyer-copy.ts`, `archlucid-ui/src/components/FirstPilotOperatingRail.tsx`, `archlucid-ui/src/components/ui/welcome-modal.tsx`, `archlucid-ui/src/components/usability/FirstVisitHelpAutoOpen.tsx`, `archlucid-ui/src/components/OnboardingTour.tsx`, `archlucid-ui/src/lib/buyer-polish-copy.ts`.
 
-**Refs:** TB-337, TB-339, welcome-marketing-copy.ts (canonical spine), POSITIONING.md §7.
+**Refs:** TB-337, TB-339, welcome-marketing-copy.ts (canonical spine), POSITIONING.md ?7.
 
 **Size estimate:** M
 
 ---
 
-## TB-343 — Reconcile cloud-connections "cloud providers" plural with Azure-only reality (P2)
+## TB-343 ? Reconcile cloud-connections "cloud providers" plural with Azure-only reality (P2)
 
-**Status:** Open — P2.
+**Status:** Open ? P2.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
-**Problem:** `CloudConnectionsPageClient.tsx` says "Configure continuous ingestion from your cloud **providers**" (plural) but ships only "Connect Azure (Tier 2)". This both over-promises (violating `POSITIONING.md` §7) and, paradoxically, reinforces Azure-centrality by making Azure the *only* realized connector under a plural promise.
+**Problem:** `CloudConnectionsPageClient.tsx` says "Configure continuous ingestion from your cloud **providers**" (plural) but ships only "Connect Azure (Tier 2)". This both over-promises (violating `POSITIONING.md` ?7) and, paradoxically, reinforces Azure-centrality by making Azure the *only* realized connector under a plural promise.
 
 **Scope:**
 
@@ -10259,19 +10259,19 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `archlucid-ui/src/app/(operator)/settings/cloud-connections/_sections/CloudConnectionsPageClient.tsx`.
 
-**Refs:** TB-341, POSITIONING.md §7, MULTI_CLOUD_ANALYSIS_V1_1.md.
+**Refs:** TB-341, POSITIONING.md ?7, MULTI_CLOUD_ANALYSIS_V1_1.md.
 
 **Size estimate:** XS
 
 ---
 
-## TB-344 — Onboarding narrative-spine drift guard (P2)
+## TB-344 ? Onboarding narrative-spine drift guard (P2)
 
-**Status:** **Done (2026-06-15)** — `ONBOARDING_NARRATIVE_SPINE_CONTRACT.json` + Vitest guard in `onboarding-narrative-spine-contract.ts`.
+**Status:** **Done (2026-06-15)** ? `ONBOARDING_NARRATIVE_SPINE_CONTRACT.json` + Vitest guard in `onboarding-narrative-spine-contract.ts`.
 
 **Assessment source:** Product-drift / onboarding narrative realignment assessment 2026-06-15.
 
-**Problem:** The Azure-first drift accumulated silently over time because nothing guarded the first-run narrative. After TB-337–339 realign it, a future change can re-introduce "Upload your Azure environment" as step 1 with no signal. Same guard *pattern* as TB-320/321/328 (KPI/route/severity contracts), applied to the onboarding spine.
+**Problem:** The Azure-first drift accumulated silently over time because nothing guarded the first-run narrative. After TB-337?339 realign it, a future change can re-introduce "Upload your Azure environment" as step 1 with no signal. Same guard *pattern* as TB-320/321/328 (KPI/route/severity contracts), applied to the onboarding spine.
 
 **Scope:**
 
@@ -10292,47 +10292,47 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-345 — Operator home sidebar: drop duplicate first-hour path rail (P0)
+## TB-345 ? Operator home sidebar: drop duplicate first-hour path rail (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
-**Problem:** The left sidebar renders a **First-hour path** (or buyer-polished **Review journey**) numbered 1–4 list that duplicates the first-hour path already shown in the home body (`OperatorFirstHourJourneyStrip` / advanced guidance). The duplication consumes vertical sidebar space without adding navigation value on home; returning users see permanent onboarding chrome.
+**Problem:** The left sidebar renders a **First-hour path** (or buyer-polished **Review journey**) numbered 1?4 list that duplicates the first-hour path already shown in the home body (`OperatorFirstHourJourneyStrip` / advanced guidance). The duplication consumes vertical sidebar space without adding navigation value on home; returning users see permanent onboarding chrome.
 
 **Scope:**
 
 1. In buyer-polished shell: keep primary **Review Work** nav group; remove the numbered quick-action strip (`sidebar-quick-actions` first-hour / review-journey block) from `SidebarNav.tsx`.
-2. In full operator shell: rename the sidebar section label from **First-hour path** to **Review work** (or merge into the existing Pilot/review nav group) — do **not** remove deep links to `/reviews/new`, `/reviews`, `/manifests`; only remove the redundant labeled duplicate rail when the home body already teaches the path.
+2. In full operator shell: rename the sidebar section label from **First-hour path** to **Review work** (or merge into the existing Pilot/review nav group) ? do **not** remove deep links to `/reviews/new`, `/reviews`, `/manifests`; only remove the redundant labeled duplicate rail when the home body already teaches the path.
 3. Preserve `OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS` for in-page journey strip and route-adjacent next/prev chrome (`resolveOperatorFirstHourJourneyNav`).
 
 **Acceptance criteria:**
 
-- Sidebar no longer shows a numbered 1–4 first-hour list that mirrors the home-body journey strip on `/`.
+- Sidebar no longer shows a numbered 1?4 first-hour list that mirrors the home-body journey strip on `/`.
 - Primary review destinations remain one click away via **Review Work** (or equivalent) nav.
 - Vitest/snapshot coverage for `SidebarNav` buyer-polished and operator modes updated.
 
 **Likely files:** `archlucid-ui/src/components/SidebarNav.tsx`, `archlucid-ui/src/lib/operator-first-hour-journey-nav.ts`, `archlucid-ui/src/components/OperatorFirstHourJourneyStrip.tsx`.
 
-**Refs:** TB-169, TB-337–339, [`NAV_CONFIG_CONTRACT.md`](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md).
+**Refs:** TB-169, TB-337?339, [`NAV_CONFIG_CONTRACT.md`](../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md).
 
 **Size estimate:** S
 
 ---
 
-## TB-346 — Compress operator home hero card (~40% vertical) (P0)
+## TB-346 ? Compress operator home hero card (~40% vertical) (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
-**Problem:** `PilotCommandCenterCard` (**Start your first review**) stacks title, lead paragraph, primary/secondary buttons, tertiary links, a bordered two-column **What you'll get** grid, and a **3 steps** stepper — leaving ~150–200px of empty vertical space and pushing the reviews list below the fold.
+**Problem:** `PilotCommandCenterCard` (**Start your first review**) stacks title, lead paragraph, primary/secondary buttons, tertiary links, a bordered two-column **What you'll get** grid, and a **3 steps** stepper ? leaving ~150?200px of empty vertical space and pushing the reviews list below the fold.
 
 **Scope:**
 
 1. Tighten vertical rhythm: reduce `mt-*` gaps; consider dropping or shortening `PILOT_COMMAND_CENTER_LEAD` on buyer-polished home (headline + CTA may suffice).
 2. Place primary CTA, outcome chips (Findings / Decision record / Review trail), and the 3-step preview on one compact row at `sm+` breakpoints (wrap on narrow viewports).
-3. Move **Connect Azure** / **Invite reviewer** tertiary links behind a single "Setup" disclosure or into advanced guidance — not in the hero fold.
+3. Move **Connect Azure** / **Invite reviewer** tertiary links behind a single "Setup" disclosure or into advanced guidance ? not in the hero fold.
 4. Keep `data-testid="pilot-command-center-*"` stable or update tests in the same change.
 
 **Acceptance criteria:**
@@ -10343,15 +10343,15 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`, `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/components/usability/PilotPathPreviewStepper.tsx`.
 
-**Refs:** TB-351 (outcomes copy — pair in same sprint), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) compact spacing.
+**Refs:** TB-351 (outcomes copy ? pair in same sprint), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md) compact spacing.
 
 **Size estimate:** S
 
 ---
 
-## TB-347 — Rename and elevate home reviews section heading (P0)
+## TB-347 ? Rename and elevate home reviews section heading (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
@@ -10371,43 +10371,43 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`, `archlucid-ui/src/lib/design-tokens.ts`.
 
-**Refs:** TB-352 (card richness — pair), POSITIONING.md §7 product language.
+**Refs:** TB-352 (card richness ? pair), POSITIONING.md ?7 product language.
 
 **Size estimate:** XS
 
 ---
 
-## TB-348 — Promote example request above the fold on operator home (P0)
+## TB-348 ? Promote example request above the fold on operator home (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
-**Problem:** The inline **Example request** block (`OPERATOR_HOME_EXAMPLE_*` in `RunsDashboardPanel`) sits below the reviews tabs/empty state — too low to answer "what kind of thing do I put in here?" for first-time architects. The hero already exposes **Open example review**, but the concrete sample query text is buried.
+**Problem:** The inline **Example request** block (`OPERATOR_HOME_EXAMPLE_*` in `RunsDashboardPanel`) sits below the reviews tabs/empty state ? too low to answer "what kind of thing do I put in here?" for first-time architects. The hero already exposes **Open example review**, but the concrete sample query text is buried.
 
 **Scope:**
 
-1. Move the example-request panel (sample query + description) to render **directly below** `PilotCommandCenterCard` / hero on buyer-polished home — before `BeforeAfterDeltaPanel` and before the reviews section.
+1. Move the example-request panel (sample query + description) to render **directly below** `PilotCommandCenterCard` / hero on buyer-polished home ? before `BeforeAfterDeltaPanel` and before the reviews section.
 2. Keep **Open example review** in the hero as a secondary path; ensure the inline example and the static demo run link tell a consistent story.
-3. Do not duplicate the full `RunsDashboardPanel` — extract a reusable `OperatorHomeExampleRequestPanel` if needed.
+3. Do not duplicate the full `RunsDashboardPanel` ? extract a reusable `OperatorHomeExampleRequestPanel` if needed.
 
 **Acceptance criteria:**
 
 - First-time user sees a concrete example architecture question without scrolling on a typical laptop viewport.
-- Example request remains hidden or de-emphasized once the tenant has ≥1 real (non-demo) review if that guard already exists — preserve current behavior.
+- Example request remains hidden or de-emphasized once the tenant has ?1 real (non-demo) review if that guard already exists ? preserve current behavior.
 - Vitest coverage for section order / test ids.
 
 **Likely files:** `archlucid-ui/src/components/operator-home/RunsDashboardPanel.tsx`, `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`, `archlucid-ui/src/lib/operator-home-example-request.ts`.
 
-**Refs:** TB-353 (sample review depth — pair), `SHOWCASE_STATIC_DEMO_RUN_ID`.
+**Refs:** TB-353 (sample review depth ? pair), `SHOWCASE_STATIC_DEMO_RUN_ID`.
 
 **Size estimate:** S
 
 ---
 
-## TB-349 — Hide ROI estimate pending until first committed review (P0)
+## TB-349 ? Hide ROI estimate pending until first committed review (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
@@ -10415,27 +10415,27 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Scope:**
 
-1. Gate `PilotRoiBaselineReadinessCard` (and buyer-polished equivalents in workspace status) on **≥1 committed review package** for the tenant — reuse existing run/commit queries or setup-health signals; do not add a new API if a client-side run list suffices.
+1. Gate `PilotRoiBaselineReadinessCard` (and buyer-polished equivalents in workspace status) on **?1 committed review package** for the tenant ? reuse existing run/commit queries or setup-health signals; do not add a new API if a client-side run list suffices.
 2. When gated off: render **nothing** (no compact "ROI estimate pending" strip after dismiss).
 3. After first commit: existing prompt/wizard behavior unchanged.
 
 **Acceptance criteria:**
 
-- Zero committed reviews → no ROI baseline / ROI estimate pending chrome on home or collapsed workspace status.
-- After first commit with incomplete baselines → existing readiness prompt returns.
+- Zero committed reviews ? no ROI baseline / ROI estimate pending chrome on home or collapsed workspace status.
+- After first commit with incomplete baselines ? existing readiness prompt returns.
 - Demo mode suppression unchanged.
 
 **Likely files:** `archlucid-ui/src/components/operator-home/PilotRoiBaselineReadinessCard.tsx`, `archlucid-ui/src/components/operator-home/OperatorHomeWorkspaceStatusSection.tsx`, `archlucid-ui/src/hooks/use-pilot-roi-baseline-completeness.ts`.
 
-**Refs:** TB-238 (wizard baseline capture — complementary), TB-169.
+**Refs:** TB-238 (wizard baseline capture ? complementary), TB-169.
 
 **Size estimate:** S
 
 ---
 
-## TB-350 — Deprioritize monthly analysis allowance in operator shell chrome (P0)
+## TB-350 ? Deprioritize monthly analysis allowance in operator shell chrome (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
@@ -10445,7 +10445,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 1. Reorder shell chrome so **Workspace** and **Operator/Executive** persona labels precede allowance.
 2. Reduce allowance prominence: move to far-right of header, smaller type, or account/settings menu on buyer-polished shell.
-3. Do not remove quota enforcement — UI priority only.
+3. Do not remove quota enforcement ? UI priority only.
 4. Preserve accessibility (meter still discoverable from settings/billing).
 
 **Acceptance criteria:**
@@ -10456,47 +10456,47 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Likely files:** Operator shell header components (grep `allowance`, `quota`, `analysis allowance`), `archlucid-ui/src/components/SidebarNav.tsx`, settings/billing surfaces.
 
-**Refs:** TB-014 (token wallet — backend), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+**Refs:** TB-014 (token wallet ? backend), [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Size estimate:** S
 
 ---
 
-## TB-351 — Replace hero "What you'll get" with discovery-value outcomes (P0)
+## TB-351 ? Replace hero "What you'll get" with discovery-value outcomes (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
-**Problem:** `PILOT_COMMAND_CENTER_OUTCOMES_HEADING` (**What you'll get**) lists delivery artifacts — Findings, Decisions, Review trail, Governed decision record — which describe output format, not buyer value. Architects purchase insight ("the thing I forgot"), not a review trail.
+**Problem:** `PILOT_COMMAND_CENTER_OUTCOMES_HEADING` (**What you'll get**) lists delivery artifacts ? Findings, Decisions, Review trail, Governed decision record ? which describe output format, not buyer value. Architects purchase insight ("the thing I forgot"), not a review trail.
 
 **Scope:**
 
-1. Change heading to **What ArchLucid discovers** (or product-approved variant aligned with POSITIONING.md §7 — no overclaim).
-2. Replace outcome bullets with value-oriented discoveries, e.g. **Missing dependencies**, **Hidden risks**, **Cost drivers**, **Governance gaps** — verify each is defensible for V1 shipped analysis (adjust list if any item overclaims).
+1. Change heading to **What ArchLucid discovers** (or product-approved variant aligned with POSITIONING.md ?7 ? no overclaim).
+2. Replace outcome bullets with value-oriented discoveries, e.g. **Missing dependencies**, **Hidden risks**, **Cost drivers**, **Governance gaps** ? verify each is defensible for V1 shipped analysis (adjust list if any item overclaims).
 3. Update Vitest/copy tests referencing `PILOT_COMMAND_CENTER_OUTCOMES`.
 
 **Acceptance criteria:**
 
 - Hero outcomes block uses discovery framing, not artifact receipts.
-- No POSITIONING.md §7 violations (capabilities implied must exist in V1).
+- No POSITIONING.md ?7 violations (capabilities implied must exist in V1).
 - Pair cleanly with TB-346 compressed layout.
 
 **Likely files:** `archlucid-ui/src/lib/buyer-polish-copy.ts`, `archlucid-ui/src/components/usability/PilotCommandCenterCard.tsx`.
 
-**Refs:** TB-346, POSITIONING.md §7, TB-134 (overclaim guard).
+**Refs:** TB-346, POSITIONING.md ?7, TB-134 (overclaim guard).
 
 **Size estimate:** XS
 
 ---
 
-## TB-352 — Enrich operator home review list / empty state cards (P0)
+## TB-352 ? Enrich operator home review list / empty state cards (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
-**Problem:** The home reviews section presents as a tab strip, filter chips, and a large empty card — visually weaker than the hero. When reviews exist, cards lack insight density (findings count, risk posture, last action) that would reinforce product value.
+**Problem:** The home reviews section presents as a tab strip, filter chips, and a large empty card ? visually weaker than the hero. When reviews exist, cards lack insight density (findings count, risk posture, last action) that would reinforce product value.
 
 **Scope:**
 
@@ -10518,19 +10518,19 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-353 — Add substantive "show me value" sample review on home (P0)
+## TB-353 ? Add substantive "show me value" sample review on home (P0)
 
-**Status:** Open — **P0**.
+**Status:** Open ? **P0**.
 
 **Assessment source:** External operator home first-run UX review 2026-06-16.
 
-**Problem:** **Open example review** links to `SHOWCASE_STATIC_DEMO_RUN_ID`, but the home page does not preview *why* that review matters — findings, risks discovered, governance outcome — so first-time users must navigate away before seeing value.
+**Problem:** **Open example review** links to `SHOWCASE_STATIC_DEMO_RUN_ID`, but the home page does not preview *why* that review matters ? findings, risks discovered, governance outcome ? so first-time users must navigate away before seeing value.
 
 **Scope:**
 
-1. Add a compact **sample review preview** on home (below hero or paired with TB-348 example request): 2–3 real findings from the static demo run, severity tags, and one-line "what ArchLucid found" summary — all buyer-safe/static-demo gated.
-2. Primary CTA: **Open full example review** → existing demo run route.
-3. Reuse static demo payloads (`tryStaticDemoRunSummariesPaged`, showcase run detail fragments) — no live API dependency for buyer-polished mode.
+1. Add a compact **sample review preview** on home (below hero or paired with TB-348 example request): 2?3 real findings from the static demo run, severity tags, and one-line "what ArchLucid found" summary ? all buyer-safe/static-demo gated.
+2. Primary CTA: **Open full example review** ? existing demo run route.
+3. Reuse static demo payloads (`tryStaticDemoRunSummariesPaged`, showcase run detail fragments) ? no live API dependency for buyer-polished mode.
 
 **Acceptance criteria:**
 
@@ -10541,5 +10541,114 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Likely files:** `archlucid-ui/src/lib/showcase-static-demo.ts`, `archlucid-ui/src/lib/operator-static-demo.ts`, `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`, new `OperatorHomeSampleReviewPreview` component.
 
 **Refs:** TB-348, TB-218, TB-273 (demo truthfulness), TB-351 (discovery framing).
+
+**Size estimate:** M
+
+---
+
+## TB-354 ? Automated Assessment Math Validator (CI Check) (P1)
+
+**Status:** **Done (2026-06-19)** ? extended `scripts/ci/check_assessment_score_consistency.py` (canonical 50-weight model, compact tables, appendix math, `--all-latest`); CI workflow + pytest coverage.
+
+**Problem:** The `latest_*.md` assessment files are updated frequently to reflect new dimensions, scores, and weights. Manual math errors in the 50-point weight summation or the (A) Headline calculation can misrepresent the product's quality posture.
+
+**Scope:**
+1. Write a Python or PowerShell script (`scripts/ci/check_assessment_score_consistency.py` or `.ps1`) that parses `docs/assessments/latest_*.md` files.
+2. Verify that the weights sum to exactly 50 and the formula `Sum(score ? weight) / 50` matches the reported Headline Readiness percentage.
+3. Add this script to the CI pipeline to block PRs with invalid assessment math.
+
+**Acceptance criteria:**
+- Script exits 0 on valid math, non-zero on errors.
+
+**Size estimate:** S
+
+---
+
+## TB-355 ? Global Terminology AST Linter for "Run" vs "Review" (P1)
+
+**Status:** **Done (2026-06-19)** ? `review-terminology-scanner.ts`, ESLint `buyer-review-terminology/no-run-primary-copy`, global Vitest guard, `npm run lint:terminology`.
+
+---
+
+## TB-356 ? Operator UI Telemetry: Expose Agent Execution Token Costs (P1)
+
+**Status:** **Done (2026-06-19)** ? `RunEstimatedLlmCostCard` **Cost & telemetry** card with total/prompt/completion tokens, USD estimate, and estimation basis.
+
+---
+
+## TB-357 ? M-49 Real-Mode Execution CI Harness Scaffolding (P2)
+
+**Status:** **Done (2026-06-19)** ? `scripts/validation/run-real-mode-faithfulness.ps1` orchestrates proof collection and emits rollup scaffold + manifest.
+
+
+---
+
+## TB-358 — CI Guard: Enforce Test ConfigureAwait Prohibition (P1)
+
+**Status:** **Done (2026-06-19)** — `check_test_configure_await.py` / `.ps1` wired into `run_guards_pre_corset.sh`; test violations remediated.
+
+**Problem:** A strict workspace rule prohibits the use of `ConfigureAwait(false)` in test projects, but this currently relies on human memory and code review. It needs automated enforcement to prevent test suite deadlocks or synchronization context loss.
+
+**Scope:**
+1. Create a CI scanner (`scripts/ci/check_test_configure_await.ps1`) that iterates through all `*Tests.cs` and `*Test.cs` files in the repository.
+2. Fail the build if `.ConfigureAwait(false)` is found in any test file.
+3. Wire this script into the local CI and GitHub Actions workflows.
+
+**Acceptance criteria:**
+- CI fails when `ConfigureAwait(false)` is introduced in a test file.
+- Script safely ignores `ConfigureAwait(false)` in non-test application code.
+
+**Size estimate:** S
+
+---
+
+## TB-359 — CI Guard: Single DDL File Per Database Enforcer (P1)
+
+**Status:** **Done (2026-06-19)** — `check_single_ddl_file.py` / `.ps1` enforces consolidated DDL allowlist under `ArchLucid.Persistence/Scripts/`.
+
+**Problem:** A core workspace architectural rule mandates that "All SQL DDL should be in a single file for each database." Over time, developers may accidentally add new incremental DbUp `.sql` scripts instead of updating the unified file.
+
+**Scope:**
+1. Write a CI script (`scripts/ci/check_single_ddl_file.ps1`) that inspects the `ArchLucid.Persistence` database script folders.
+2. Enforce that only one active DDL `.sql` file exists per bounded database context / schema.
+3. Block CI if multiple schema files are detected.
+
+**Acceptance criteria:**
+- The rule "one DDL file per DB" is programmatically enforced in CI.
+
+**Size estimate:** S
+
+---
+
+## TB-360 — UI: Enterprise Empty States for Governance and Ask (P2)
+
+**Status:** **Done (2026-06-19)** — `EnterpriseCompactEmptyState` on Governance Findings queue and Ask conversation/thread panels.
+
+**Problem:** Following TB-352 (which enriched the operator home review list empty state), the "Governance Findings" and "Ask" views still lack the compact, illustration-free IBM Carbon enterprise empty state pattern defined in the UI design system.
+
+**Scope:**
+1. Audit `GovernanceFindingsQueueClient.tsx` and `AskPageContent.tsx` for empty states.
+2. Replace any generic or "giant blank card" empty states with the compact enterprise pattern defined in `UI_DESIGN_SYSTEM.md`.
+3. Ensure appropriate calls to action (e.g., "Run a review to generate findings" or "Start a conversation").
+
+**Acceptance criteria:**
+- Governance and Ask surfaces use the standardized, compact enterprise empty state.
+
+**Size estimate:** S
+
+---
+
+## TB-361 — UI: "Download Golden Manifest (JSON)" Affordance (P2)
+
+**Status:** **Done (2026-06-19)** — `DownloadManifestButton` on `RunDetailManifestSummarySection` (authority manifest JSON download).
+
+**Problem:** The Golden Manifest is the primary artifact of an architecture review, but operators and buyers currently lack a one-click way to download the raw JSON representation for external ITSM integration or local inspection.
+
+**Scope:**
+1. Add a `DownloadManifestButton` component to the `RunDetailManifestSummarySection` (or adjacent artifact surfaces).
+2. Fetch the raw manifest JSON payload from the API and trigger a browser-side file download (`<runId>-manifest.json`).
+
+**Acceptance criteria:**
+- Users can download the raw JSON manifest directly from the review detail page.
 
 **Size estimate:** M

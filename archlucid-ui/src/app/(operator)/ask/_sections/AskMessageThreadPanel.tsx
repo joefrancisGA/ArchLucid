@@ -1,6 +1,6 @@
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
-import { EmptyState } from "@/components/EmptyState";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -59,7 +59,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         ) : null}
       </div>
       <div className="grid gap-3">
-        {messages.length === 0 ? <EmptyState {...ASK_CONVERSATION_EMPTY} /> : null}
+        {messages.length === 0 ? <EnterpriseCompactEmptyState {...ASK_CONVERSATION_EMPTY} /> : null}
         {messages.map((message) => (
           <Card
             key={message.messageId}

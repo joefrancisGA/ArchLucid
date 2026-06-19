@@ -57,13 +57,11 @@ public sealed class InMemoryLlmTenantBudgetRepositoryTests
                         WarnAtTokens = warnAt,
                         ExpectedRowVersion = rowVersion
                     },
-                    CancellationToken.None)
-                .ConfigureAwait(false);
+                    CancellationToken.None);
 
             if (result.ConcurrencyConflict)
             {
-                read = await sut.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, periodKey, CancellationToken.None)
-                    .ConfigureAwait(false);
+                read = await sut.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, periodKey, CancellationToken.None);
                 rowVersion = read.RowVersion;
 
                 continue;

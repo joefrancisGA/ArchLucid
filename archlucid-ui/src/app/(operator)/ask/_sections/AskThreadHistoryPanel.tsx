@@ -1,8 +1,10 @@
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
+import { ASK_THREAD_HISTORY_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import type { ConversationThread } from "@/types/conversation";
 
 export type AskThreadHistoryPanelProps = {
@@ -67,6 +69,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
         >
           {buyerPolishedShell ? "Ask a new review question" : "New conversation"}
         </Button>
+        {threads.length === 0 ? <EnterpriseCompactEmptyState {...ASK_THREAD_HISTORY_EMPTY} /> : null}
         <ul className="m-0 list-none space-y-1 p-0">
           {threads.map((thread) => (
             <li key={thread.threadId}>

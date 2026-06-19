@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { DownloadManifestButton } from "@/components/DownloadManifestButton";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
@@ -69,6 +70,7 @@ export function RunDetailManifestSummarySection(
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>
+          <DownloadManifestButton runId={manifestSummary.runId} />
         </CardContent>
       </Card>
 
