@@ -1022,7 +1022,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-140 — Real-LLM eval corpus: real-mode scenarios + nightly scoring (TB-007 Gap C)
 
-**Status:** Open. All `tests/eval-corpus/` scenarios remain `"mode": "simulator"`. No CI job asserts real-model finding quality against keyword expectations.
+**Status:** **Partial (2026-06-18 Imp-18)** — 18 committed `*.real.json` exemplars, manifest real-mode scenarios, and `golden-cohort-expanded-nightly.yml` scoring. Live credentialed API invoke remains **G-REAL-01** (owner).
 
 **Pick up when:**
 
