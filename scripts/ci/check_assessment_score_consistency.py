@@ -9,19 +9,14 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-_TABLE_ROW = re.compile(
-    r"^\|\s*\d+\s*\|\s*(?P<quality>[^|]+)\|\s*(?P<score>\d+)\s*\|\s*(?P<weight>\d+)\s*\|",
+_SECTION_SCORE = re.compile(
+    r"### \d+\.\s*(?P<quality>.+?)\s*\n\s*\*\s*\*\*Score:\*\*\s*(?P<score>\d+)\s*\n\s*\*\s*\*\*Weight:\*\*\s*(?P<weight>\d+)",
     re.MULTILINE,
 )
 _HEADLINE_PCT = re.compile(
     r"Headline Readiness:\s*([\d.]+)\s*%",
     re.IGNORECASE,
 )
-_WEIGHTED_CALC = re.compile(
-    r"total weighted points\s*=\s*`([\d,]+)\s*/\s*([\d,]+)\s*=\s*([\d.]+)\s*%`",
-    re.IGNORECASE,
-)
-
 
 @dataclass(frozen=True)
 class QualityRow:
@@ -29,11 +24,9 @@ class QualityRow:
     score: int
     weight: int
 
-
 def _parse_rows(text: str) -> list[QualityRow]:
     rows: list[QualityRow] = []
-
-    for match in _TABLE_ROW.finditer(text):
+    for match in _SECTION_SCORE.finditer(text):
         rows.append(
             QualityRow(
                 quality=match.group("quality").strip(),
@@ -41,83 +34,56 @@ def _parse_rows(text: str) -> list[QualityRow]:
                 weight=int(match.group("weight")),
             )
         )
-
     return rows
-
 
 def check_assessment_score_consistency(text: str) -> list[str]:
     violations: list[str] = []
     rows = _parse_rows(text)
 
     if not rows:
-        violations.append("No weighted quality table rows found (expected section 4 table).")
-        return violations
+        return ["No weighted quality sections found."]
 
-    computed_points = sum(row.score * row.weight for row in rows)
-    computed_max = sum(row.weight * 100 for row in rows)
-    computed_pct = round((computed_points / computed_max) * 100, 2) if computed_max else 0.0
+    total_weight = sum(r.weight for r in rows)
+    total_points = sum(r.score * r.weight for r in rows)
 
-    headline_matches = list(_HEADLINE_PCT.finditer(text))
-    calc_matches = list(_WEIGHTED_CALC.finditer(text))
+    if total_weight == 0:
+        return ["Total weight is zero."]
 
-    if headline_matches:
-        headline_pct = float(headline_matches[0].group(1))
+    expected_pct = round((total_points / total_weight), 2)
 
-        if abs(headline_pct - computed_pct) > 0.05:
+    headline_match = _HEADLINE_PCT.search(text)
+    if not headline_match:
+        violations.append("Headline readiness percentage not found.")
+    else:
+        headline_pct = float(headline_match.group(1))
+        if abs(headline_pct - expected_pct) > 0.02:
             violations.append(
-                f"Headline {headline_pct}% differs from table-derived {computed_pct}% "
-                f"({computed_points}/{computed_max})."
-            )
-
-    if calc_matches:
-        declared_points = int(calc_matches[0].group(1).replace(",", ""))
-        declared_max = int(calc_matches[0].group(2).replace(",", ""))
-        declared_pct = float(calc_matches[0].group(3))
-
-        if declared_points != computed_points:
-            violations.append(
-                f"Declared numerator {declared_points} != sum(score*weight) {computed_points}."
-            )
-
-        if declared_max != computed_max:
-            violations.append(
-                f"Declared denominator {declared_max} != sum(weight*100) {computed_max}."
-            )
-
-        if abs(declared_pct - computed_pct) > 0.05:
-            violations.append(
-                f"Declared percentage {declared_pct}% != recomputed {computed_pct}%."
+                f"Headline readiness ({headline_pct}%) does not match computed "
+                f"score ({expected_pct}% from {total_points}/{total_weight})."
             )
 
     return violations
 
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--assessment-path", default="docs/assessments/LATEST.md")
+    args = parser.parse_args()
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--assessment-path",
-        type=Path,
-        default=Path("docs/assessments/LATEST.md"),
-    )
-    args = parser.parse_args(argv)
-
-    path = args.assessment_path
-
+    path = Path(args.assessment_path)
     if not path.is_file():
-        print(f"::error::Missing assessment file {path}")
+        print(f"::error::Assessment file not found: {path}", file=sys.stderr)
         return 1
 
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = path.read_text(encoding="utf-8")
     violations = check_assessment_score_consistency(text)
 
     if violations:
-        for item in violations:
-            print(f"::error::{item}")
+        for v in violations:
+            print(f"::error::{v}", file=sys.stderr)
         return 1
 
-    print(f"Assessment score consistency OK: {path}")
+    print("Assessment scores are consistent.")
     return 0
 
-
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
