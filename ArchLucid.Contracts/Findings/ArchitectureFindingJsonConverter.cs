@@ -72,6 +72,8 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             }
         }
 
+        ReadInsightDensityFields(root, finding);
+
         return finding;
     }
 
@@ -98,7 +100,68 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             writer.WriteStringValue(evidenceRef);
 
         writer.WriteEndArray();
+        WriteInsightDensityFields(writer, value);
         writer.WriteEndObject();
+    }
+
+    private static void ReadInsightDensityFields(JsonElement root, ArchitectureFinding finding)
+    {
+        if (root.TryGetProperty("insightDensityScore", out JsonElement scoreElement) &&
+            scoreElement.ValueKind == JsonValueKind.Number &&
+            scoreElement.TryGetInt32(out int insightDensityScore))
+        {
+            finding.InsightDensityScore = insightDensityScore;
+        }
+
+        if (root.TryGetProperty("treatment", out JsonElement treatmentElement) &&
+            treatmentElement.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(treatmentElement.GetString(), ignoreCase: true, out FindingTreatment treatment))
+        {
+            finding.Treatment = treatment;
+        }
+
+        if (root.TryGetProperty("classification", out JsonElement classificationElement) &&
+            classificationElement.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(classificationElement.GetString(), ignoreCase: true, out FindingClassification classification))
+        {
+            finding.Classification = classification;
+        }
+
+        finding.WhyThisIsNotGeneric = ReadOptionalStringProperty(root, "whyThisIsNotGeneric");
+        finding.PrincipalArchitectValue = ReadOptionalStringProperty(root, "principalArchitectValue");
+        finding.DecisionConsequence = ReadOptionalStringProperty(root, "decisionConsequence");
+    }
+
+    private static void WriteInsightDensityFields(Utf8JsonWriter writer, ArchitectureFinding value)
+    {
+        if (value.InsightDensityScore is { } insightDensityScore)
+            writer.WriteNumber("insightDensityScore", insightDensityScore);
+
+        if (value.Treatment is { } treatment)
+            writer.WriteString("treatment", treatment.ToString());
+
+        if (value.Classification is { } classification)
+            writer.WriteString("classification", classification.ToString());
+
+        WriteOptionalStringProperty(writer, "whyThisIsNotGeneric", value.WhyThisIsNotGeneric);
+        WriteOptionalStringProperty(writer, "principalArchitectValue", value.PrincipalArchitectValue);
+        WriteOptionalStringProperty(writer, "decisionConsequence", value.DecisionConsequence);
+    }
+
+    private static string? ReadOptionalStringProperty(JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out JsonElement property) || property.ValueKind == JsonValueKind.Null)
+            return null;
+
+        return property.GetString();
+    }
+
+    private static void WriteOptionalStringProperty(Utf8JsonWriter writer, string propertyName, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        writer.WriteString(propertyName, value);
     }
 
     private static string ReadMessage(JsonElement root)

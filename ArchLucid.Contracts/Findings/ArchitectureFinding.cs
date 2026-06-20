@@ -112,4 +112,46 @@ public sealed class ArchitectureFinding
         get;
         set;
     } = FindingEnforcementTier.PolicyViolation;
+
+    /// <summary>Deterministic or LLM-refined insight-density score in [0, 100] (TB-382).</summary>
+    public int? InsightDensityScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Post-gate routing after insight-density scoring (TB-382).</summary>
+    public FindingTreatment? Treatment
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Whether this observation is a decision-grade finding or checklist coverage (TB-384).</summary>
+    public FindingClassification? Classification
+    {
+        get;
+        set;
+    }
+
+    /// <summary>LLM-derived rationale for why the insight is not generic (TB-382; Phase 2).</summary>
+    public string? WhyThisIsNotGeneric
+    {
+        get;
+        set;
+    }
+
+    /// <summary>LLM-derived principal-architect value statement (TB-382; Phase 2).</summary>
+    public string? PrincipalArchitectValue
+    {
+        get;
+        set;
+    }
+
+    /// <summary>LLM-derived decision consequence when the insight is acted on or ignored (TB-382; Phase 2).</summary>
+    public string? DecisionConsequence
+    {
+        get;
+        set;
+    }
 }
