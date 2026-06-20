@@ -23,7 +23,7 @@ class TestAdoptionBatch5AS(unittest.TestCase):
         self.assertIn("risk-exceptions-expiring-warning", text)
 
     def test_tb_226_nav_after_findings(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "pilot-nav-group-builder.ts"
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-governance-nav-group-builder.ts"
         text = path.read_text(encoding="utf-8")
         findings_index = text.index("/governance/findings")
         risk_index = text.index("/governance/risk-exceptions")

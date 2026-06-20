@@ -34,7 +34,8 @@ class TestAdoptionBatch5AO(unittest.TestCase):
         self.assertNotIn("/governance/recurrence-schedules", operate_text)
 
     def test_tb_222_pilot_nav_link(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "pilot-nav-group-builder.ts"
+        # Recurrence schedules live in Operate · operations after sidebar group refactor (nav-config.structure forbids duplicate hrefs).
+        path = REPO_ROOT / "archlucid-ui" / "src" / "lib" / "operate-operations-nav-group-builder.ts"
         text = path.read_text(encoding="utf-8")
         self.assertIn("/governance/recurrence-schedules", text)
         self.assertIn("recurrenceSchedules", text)

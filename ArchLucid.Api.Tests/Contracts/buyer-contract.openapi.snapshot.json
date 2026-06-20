@@ -2964,6 +2964,16 @@
           "category": {
             "type": "string"
           },
+          "classification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "oneOf": [
               {
@@ -2980,6 +2990,12 @@
             "type": [
               "null",
               "number",
+              "string"
+            ]
+          },
+          "decisionConsequence": {
+            "type": [
+              "null",
               "string"
             ]
           },
@@ -3017,6 +3033,13 @@
               "string"
             ]
           },
+          "insightDensityScore": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "isMuted": {
             "type": "boolean"
           },
@@ -3035,6 +3058,12 @@
               "string"
             ]
           },
+          "principalArchitectValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "reasoningTrace": {
             "type": [
               "null",
@@ -3046,6 +3075,22 @@
           },
           "sourceAgent": {
             "$ref": "#/components/schemas/AgentType"
+          },
+          "treatment": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
+          },
+          "whyThisIsNotGeneric": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -9515,6 +9560,16 @@
           "category": {
             "type": "string"
           },
+          "classification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "oneOf": [
               {
@@ -9531,6 +9586,12 @@
             "type": [
               "null",
               "number",
+              "string"
+            ]
+          },
+          "decisionConsequence": {
+            "type": [
+              "null",
               "string"
             ]
           },
@@ -9559,6 +9620,13 @@
           },
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
+          },
+          "insightDensityScore": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "isMuted": {
             "type": "boolean"
@@ -9589,6 +9657,12 @@
             ]
           },
           "policyRuleId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "principalArchitectValue": {
             "type": [
               "null",
               "string"
@@ -9675,6 +9749,22 @@
           },
           "trace": {
             "$ref": "#/components/schemas/ExplainabilityTrace"
+          },
+          "treatment": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTreatment"
+              }
+            ]
+          },
+          "whyThisIsNotGeneric": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -9697,6 +9787,9 @@
           }
         },
         "type": "object"
+      },
+      "FindingClassification": {
+        "type": "integer"
       },
       "FindingConfidenceLevel": {
         "type": "integer"
@@ -10460,6 +10553,9 @@
           "traceConfidenceLabel"
         ],
         "type": "object"
+      },
+      "FindingTreatment": {
+        "type": "integer"
       },
       "FindingsSnapshot": {
         "properties": {
