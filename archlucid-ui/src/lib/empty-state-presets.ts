@@ -1,6 +1,7 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
+import { BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
@@ -41,7 +42,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
   actions: [
     { label: "View reviews list", href: "/reviews?projectId=default" },
     {
-      label: "Open signed manifest",
+      label: BUYER_OPEN_SIGNED_RECORD_CTA,
       href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
       variant: "outline",
     },

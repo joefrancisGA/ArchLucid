@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { fetchProvenanceNodeExplanationViaProxy } from "@/lib/fetch-provenance-node-explanation";
 import {
@@ -321,7 +322,7 @@ export function GraphViewer({
             <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
               Evidence-to-decision trail: each item in the graph represents source context, analysis, findings, decisions,
-              or deliverable evidence; the highlighted finding anchors the signed manifest and deliverables bundle.
+              or deliverable evidence; the highlighted finding anchors the signed review record and deliverables bundle.
             </p>
           </div>
         ) : null}
@@ -505,7 +506,7 @@ export function GraphViewer({
                 <div className="mt-3 flex flex-col gap-2">
                   <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                     <Link href={`/manifests/${encodeURIComponent(selectedNode.id.trim())}`}>
-                      Open signed manifest record
+                      Open signed review record
                     </Link>
                   </Button>
                 </div>
@@ -541,7 +542,7 @@ export function GraphViewer({
                     return (
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
-                          <Link href={getShowcaseManifestHref()}>View signed manifest</Link>
+                          <Link href={getShowcaseManifestHref()}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
                         </Button>
                         <Button type="button" variant="outline" size="sm" className="h-9 w-full justify-center" asChild>
                           <Link href={graphFindingDetailHref(rid, fid)}>View finding detail</Link>

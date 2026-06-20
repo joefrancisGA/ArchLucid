@@ -1,10 +1,9 @@
 "use client";
 
-import { StatusPill } from "@/components/StatusPill";
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isDataArchivalHealthDegraded } from "@/lib/health-dashboard-types";
 
 import { isInternalTestBuildVersion } from "./admin-health-helpers";
@@ -23,21 +22,11 @@ export function AdminHealthPageView(props: Props) {
   const m = props.model;
 
   if (m.isDemo) {
-    if (isBuyerPolishedOperatorShellEnv()) {
-      return (
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">
-            This workspace administration page is not part of the sample review.
-          </p>
-        </div>
-      );
-    }
-
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Diagnostics not available in demo mode.</p>
-        <p className="m-0 mt-1">Platform health is visible to operators with a live API connection.</p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Workspace health diagnostics"
+        description="Platform health and readiness diagnostics are available to operators with a live API connection."
+      />
     );
   }
 

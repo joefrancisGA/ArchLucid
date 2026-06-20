@@ -50,8 +50,8 @@ describe("usability improvements", () => {
     expect(explanation?.title.toLowerCase()).toContain("evidence");
   });
 
-  it("canonical product terms use audit trail and signed manifest", () => {
+  it("canonical product terms use audit trail and signed review record", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
-    expect(SIGNED_MANIFEST_LABEL).toBe("Signed manifest");
+    expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
   });
 });

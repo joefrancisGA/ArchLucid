@@ -418,7 +418,7 @@ export function GraphPageContent() {
     buyerPolishedShell
       ? BUYER_GRAPH_PAGE_LEAD
       : demoUi
-        ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
+        ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed review record outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
         : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
@@ -520,7 +520,7 @@ export function GraphPageContent() {
         title={pageTitle}
         subtitle={
           buyerPolishedShell
-            ? `${BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE} This graph links your architecture inputs, pipeline steps, findings, and the signed manifest.`
+            ? `${BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE} This graph links your architecture inputs, pipeline steps, findings, and the signed review record.`
             : "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh."
         }
       />

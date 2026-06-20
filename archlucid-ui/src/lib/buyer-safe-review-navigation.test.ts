@@ -84,7 +84,7 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("./buyer-safe-review-navigation");
     const manifest = mod.getBuyerSafeSignedManifestTableLink("claims-intake-modernization");
 
-    expect(manifest.label).toBe("View signed manifest");
+    expect(manifest.label).toBe("View signed record");
     expect(manifest.href).toBe("/reviews/claims-intake-modernization/manifest");
   });
 });

@@ -2,8 +2,8 @@
  * Canonical buyer-facing product nouns — single source for UI copy sweeps (TB-273).
  */
 
-/** Committed architecture output (prefer over "golden manifest" or "decision record" in buyer copy). */
-export const SIGNED_MANIFEST_LABEL = "Signed manifest";
+/** Committed architecture output (prefer over "golden manifest" or internal "manifest" in buyer copy). */
+export const SIGNED_MANIFEST_LABEL = "Signed review record";
 
 /** Append-only authenticated action ledger (prefer over "audit log" in buyer nav). */
 export const AUDIT_TRAIL_LABEL = "Audit trail";

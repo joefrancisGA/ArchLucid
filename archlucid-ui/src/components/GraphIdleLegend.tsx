@@ -19,7 +19,7 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
       </p>
       {buyerPolished ? (
         <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
-          Shapes how reviewed context, findings, and deliverables connect to the signed manifest for this review package.
+          Shapes how reviewed context, findings, and deliverables connect to the signed review record for this review package.
         </p>
       ) : (
         <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">

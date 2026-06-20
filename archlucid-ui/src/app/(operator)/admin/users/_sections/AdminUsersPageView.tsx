@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,10 +19,10 @@ export function AdminUsersPageView(props: Props) {
 
   if (m.isDemo) {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">User management not available in demo mode.</p>
-        <p className="m-0 mt-1">Manage users and access through your identity provider.</p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="User management"
+        description="Manage users and access through your identity provider in a connected tenant."
+      />
     );
   }
 

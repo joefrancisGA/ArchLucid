@@ -464,7 +464,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/compare")) {
-      return "Jump to review package, signed manifest, or evidence trail…";
+      return "Jump to review package, signed review record, or evidence trail…";
     }
 
     if (path.startsWith("/audit")) {
@@ -476,7 +476,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/dashboard")) {
-      return "Jump to signed manifest, evidence graph, audit…";
+      return "Jump to signed review record, evidence graph, audit…";
     }
 
     if (path.startsWith("/manifests")) {

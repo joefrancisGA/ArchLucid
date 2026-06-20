@@ -4,6 +4,7 @@ import { FileDown } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import {
   Dialog,
   DialogContent,
@@ -71,7 +72,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
   return (
     <>
       <Button type="button" variant="outline" data-testid="generate-adr-button" onClick={() => onOpenChange(true)}>
-        {buyerPolished ? "View signed manifest" : "Generate ADR"}
+        {buyerPolished ? BUYER_VIEW_SIGNED_RECORD_CTA : "Generate ADR"}
       </Button>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-h-[min(90vh,56rem)] max-w-3xl gap-4 overflow-y-auto">

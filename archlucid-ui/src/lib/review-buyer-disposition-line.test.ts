@@ -73,7 +73,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("Finalize the reviewed manifest");
+    ).toContain("Finalize the review package");
   });
 
   it("joins posture, gate, findings, and warnings for a finalized showcase-shaped package", () => {

@@ -7,7 +7,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL, BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   isBuyerPolishedOperatorShellEnv,
@@ -92,9 +92,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       : run.hasArtifactBundle
         ? buyerPolished
           ? "Browse sponsor-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
-          : "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
+          : "Artifacts are summarized alongside the finalized review record — open the signed record link below."
         : buyerPolished
-          ? "Evidence package available from the signed manifest."
+          ? "Evidence package available from the signed review record."
           : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
@@ -173,7 +173,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
-            Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed manifest)
+            Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed review record)
           </p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Evidence trail: Ready</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Audit trail: Complete</p>
@@ -312,7 +312,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   <>
                     {!buyerSafePrimary ? (
                       <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href={manifestHref}>Open manifest</Link>
+                        <Link href={manifestHref}>{signedManifestExplore.label}</Link>
                       </Button>
                     ) : null}
                     {hasFindingsLink ? (

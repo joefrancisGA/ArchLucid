@@ -3,13 +3,14 @@ import type { ReactElement } from "react";
 
 import { SampleReviewAhaMomentPanel } from "@/components/operator-home/SampleReviewAhaMomentPanel";
 import { Button } from "@/components/ui/button";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import {
   BUYER_HOME_PRIMARY_CTA,
+  BUYER_OPEN_SIGNED_RECORD_CTA,
   SAMPLE_REVIEW_PACKAGE_AHA_HEADING,
   SAMPLE_REVIEW_PACKAGE_AHA_LEAD,
   SAMPLE_REVIEW_AHA_DEMO_LABEL,
 } from "@/lib/buyer-polish-copy";
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_HOME_AHA_MOMENT, showcasePrimaryFindingHref } from "@/lib/showcase-home-aha-moment";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 
@@ -50,7 +51,7 @@ export function SampleReviewPackageSummary({
           Claims Intake sample review package
         </h2>
         <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed">
-          Inspect the manifest, evidence trail, and audit record when you need the full package. Numbers are
+          Inspect the signed review record, evidence trail, and audit record when you need the full package. Numbers are
           illustrative only and do not represent customer ROI without a live workspace.
         </p>
 
@@ -67,7 +68,7 @@ export function SampleReviewPackageSummary({
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
             <dt className="text-[11px] font-medium uppercase tracking-wide opacity-80">Artifacts</dt>
             <dd className="m-0 text-lg font-semibold">{artifactCount}</dd>
-            <p className="m-0 text-[11px] opacity-80">Generated outputs attached to the reviewed manifest.</p>
+            <p className="m-0 text-[11px] opacity-80">Generated outputs attached to the review package.</p>
           </div>
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
             <dt className="text-[11px] font-medium uppercase tracking-wide opacity-80">Evidence confidence</dt>
@@ -79,7 +80,7 @@ export function SampleReviewPackageSummary({
         <div className="mt-4 flex flex-wrap gap-2">
           {manifestId ? (
             <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">
-              <Link href={getShowcaseManifestHref()}>Open signed manifest</Link>
+              <Link href={getShowcaseManifestHref()}>{BUYER_OPEN_SIGNED_RECORD_CTA}</Link>
             </Button>
           ) : null}
           <Button asChild variant="outline" className="h-9 border-amber-300 bg-white/80 text-amber-950 hover:bg-white dark:border-amber-700 dark:bg-neutral-950/60 dark:text-amber-100">

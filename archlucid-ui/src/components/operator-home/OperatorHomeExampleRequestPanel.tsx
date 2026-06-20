@@ -6,6 +6,9 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  BUYER_SEE_COMPLETED_OUTPUT_CTA,
+} from "@/lib/buyer-polish-copy";
+import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
 } from "@/lib/operator-home-example-request";
@@ -52,7 +55,7 @@ export function OperatorHomeExampleRequestPanel(): React.JSX.Element | null {
             href={sampleReviewHref}
             data-testid="operator-home-example-request-completed"
           >
-            See completed output
+            {BUYER_SEE_COMPLETED_OUTPUT_CTA}
           </Link>
         </Button>
       </CardContent>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
-import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
+import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -436,8 +436,37 @@ export function RunDetailOutcomeCards({
             {statusHeadline}
           </p>
           <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
-            Blocking issues: 0 · Evidence basis: signed manifest, evidence trail, audit trail
+            {BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE}
           </p>
+          {hasGoldenManifest ? (
+            <dl
+              className="m-0 mt-3 grid gap-2 text-xs sm:grid-cols-2"
+              data-testid="buyer-review-decision-summary"
+            >
+              <div>
+                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Decision</dt>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                  {(aggregateRiskPosture ?? governanceGateLabel ?? "Package finalized").trim()}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Material finding</dt>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">PHI minimization risk</dd>
+              </div>
+              <div>
+                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence basis</dt>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                  {typeof findingCountDisplay === "number"
+                    ? `${findingCountDisplay} citation${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
+                    : "Evidence trail ready"}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Exports</dt>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review package, decision record, audit trail</dd>
+              </div>
+            </dl>
+          ) : null}
           {(aggregateRiskPosture ?? "").trim().toLowerCase() === "approved with monitoring" ? (
             <p
               className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"

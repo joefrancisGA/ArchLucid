@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 
 type RunDetailExecutiveSummaryCtaCardProps = {
   readonly runId: string;
@@ -18,7 +19,7 @@ export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummar
           Executive summary
         </CardTitle>
         <CardDescription>
-          Board-ready risk posture, evidence basis, and governance status. Start here before manifest detail and
+          Board-ready risk posture, evidence basis, and governance status. Start here before the signed review record and
           deliverables.
         </CardDescription>
       </CardHeader>
@@ -31,7 +32,7 @@ export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummar
             href="#manifest-summary"
             className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
           >
-            View the signed manifest →
+            {BUYER_OPEN_SIGNED_RECORD_CTA} →
           </Link>
         </p>
       </CardContent>

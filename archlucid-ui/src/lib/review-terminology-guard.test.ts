@@ -75,7 +75,7 @@ describe("review terminology guard", () => {
 
   it("canonical product terms export audit trail label constant", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
-    expect(SIGNED_MANIFEST_LABEL).toBe("Signed manifest");
+    expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
   });
 
   it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", () => {

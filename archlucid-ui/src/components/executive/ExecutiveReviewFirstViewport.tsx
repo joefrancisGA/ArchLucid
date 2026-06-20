@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -190,7 +191,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 href={manifestDetailHref(runId, goldenManifestId)}
               >
-                View signed manifest
+                {BUYER_VIEW_SIGNED_RECORD_CTA}
               </Link>
             </li>
             <li>

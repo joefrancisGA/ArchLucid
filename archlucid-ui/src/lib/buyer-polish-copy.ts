@@ -575,6 +575,32 @@ export const BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE =
 export const BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE =
   "ITSM integration is not connected in this demo workspace.";
 
+export const BUYER_VIEW_SIGNED_RECORD_CTA = "View signed record";
+
+export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open signed record";
+
+export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View signed review record";
+
+export const BUYER_DEMO_EVALUATION_WORKSPACE_BADGE = "Evaluation workspace";
+
+export const BUYER_DEMO_EVALUATION_WORKSPACE_STATUS = "Claims Intake Demo · Buyer evaluation workspace";
+
+export const BUYER_SEED_SAMPLE_WORKSPACE_CTA = "Load sample workspace";
+
+export const BUYER_TRY_SAMPLE_REVIEW_CTA = "Try sample review";
+
+export const BUYER_SEE_COMPLETED_OUTPUT_CTA = "See completed output";
+
+export const BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE =
+  "Blocking issues: 0 · Evidence basis: signed review record, evidence trail, audit trail";
+
+export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY =
+  "In a connected tenant, administrators configure users, support settings, digest delivery, and workspace health here.";
+
+export function buyerDemoCapabilityUnavailableTitle(capability: string): string {
+  return `${capability} is not enabled in the demo workspace.`;
+}
+
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 
 export const BUYER_MANIFEST_HEADLINE_SUFFIX = "architecture review package";

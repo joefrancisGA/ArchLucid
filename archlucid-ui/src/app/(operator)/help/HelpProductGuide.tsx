@@ -37,7 +37,7 @@ export function HelpProductGuide() {
               — start with the business decision and monitored risks.
             </li>
             <li>
-              Open the <strong>signed manifest</strong> — the governed decision record for this review package.
+              Open the <strong>signed review record</strong> — the governed decision record for this review package.
             </li>
             <li>
               Follow the <strong>evidence trail</strong> to see how findings tie to decisions and artifacts.
@@ -74,10 +74,10 @@ export function HelpProductGuide() {
 
         <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
           <CardHeader>
-            <CardTitle className="text-base">Signed manifests</CardTitle>
+            <CardTitle className="text-base">Signed review records</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
-            The signed manifest is the governed architecture decision record — versioned, hash-verified, and ready for
+            The signed review record is the governed architecture decision record — versioned, hash-verified, and ready for
             export.
           </CardContent>
         </Card>

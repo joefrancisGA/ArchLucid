@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BUYER_SEED_SAMPLE_WORKSPACE_CTA } from "@/lib/buyer-polish-copy";
 import { showError } from "@/lib/toast";
 
 /**
@@ -72,7 +73,7 @@ async function readErrorDetail(response: Response): Promise<string> {
 
 export function SeedSampleReviewButton({
   className,
-  label = "Load sample workspace",
+  label = BUYER_SEED_SAMPLE_WORKSPACE_CTA,
 }: SeedSampleReviewButtonProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);

@@ -7,6 +7,7 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,7 @@ export function PostCommitRetentionRail({
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
             ? showcaseSpine
-              ? "After the sample review, continue Executive Summary → signed manifest → evidence trail → governance approval → audit trail."
+              ? "After the sample review, continue Executive Summary → signed review record → evidence trail → governance approval → audit trail."
               : "Finalized package — use Executive Summary, then manifest, evidence trail, governance, and audit trail in order."
             : "You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
@@ -67,7 +68,7 @@ export function PostCommitRetentionRail({
                       : `/manifests/${encodeURIComponent(goldenManifestId.trim())}`
                   }
                 >
-                  View signed manifest
+                  {BUYER_VIEW_SIGNED_RECORD_CTA}
                 </Link>
               </Button>
             ) : null}

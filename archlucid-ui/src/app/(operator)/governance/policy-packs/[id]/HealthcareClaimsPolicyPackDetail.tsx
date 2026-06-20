@@ -4,7 +4,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
@@ -84,7 +84,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
       <section className="flex flex-wrap gap-3">
         <Button asChild variant="default">
           <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
-            {buyerPolishedShell ? "Open signed manifest" : "Open Claims Intake manifest"}
+            {buyerPolishedShell ? BUYER_OPEN_SIGNED_RECORD_CTA : "Open Claims Intake review record"}
           </Link>
         </Button>
         <Button asChild variant="outline">

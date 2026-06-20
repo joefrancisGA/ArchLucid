@@ -1,3 +1,4 @@
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
@@ -94,13 +95,13 @@ export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryRevie
   if (isDemoRunIdEligibleForStaticFallback(id)) {
     return {
       href: getShowcaseManifestHref(),
-      label: "View signed manifest",
+      label: BUYER_VIEW_SIGNED_RECORD_CTA,
     };
   }
 
   return {
     href: `/reviews/${encodeURIComponent(id)}/manifest`,
-    label: "View signed manifest",
+    label: BUYER_VIEW_SIGNED_RECORD_CTA,
   };
 }
 export function getCanonicalReviewWorkspaceHref(runId: string): string {
