@@ -17,7 +17,11 @@ class TestStickinessBatch5CK(unittest.TestCase):
         callout = REPO_ROOT / "archlucid-ui" / "src" / "components" / "FirstValueReachedCallout.tsx"
         home = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "_sections" / "OperatorHomePageView.tsx"
         self.assertTrue(callout.is_file())
-        self.assertIn("FirstValueReachedCallout", home.read_text(encoding="utf-8"))
+        home_text = home.read_text(encoding="utf-8")
+        self.assertTrue(
+            "FirstValueReachedCallout" in home_text or "OperatorHomeFirstValueCallout" in home_text,
+            "Operator home must wire FirstValueReachedCallout (directly or via OperatorHomeFirstValueCallout)",
+        )
 
 
 if __name__ == "__main__":

@@ -45,6 +45,6 @@ public static class CriticFindingObviousnessPruner
         if (!GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(finding.Message))
             return false;
 
-        return GenericArchitectureAdvicePatterns.HasArchitectureSpecificAnchor(finding.Message, finding.EvidenceRefs);
+        return !GenericArchitectureAdvicePatterns.HasArchitectureSpecificAnchor(finding.Message, finding.EvidenceRefs);
     }
 }
