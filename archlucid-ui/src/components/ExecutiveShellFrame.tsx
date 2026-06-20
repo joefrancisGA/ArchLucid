@@ -7,10 +7,9 @@ import type { ReactNode } from "react";
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveShellDeferredChrome";
+import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
-import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,7 +22,7 @@ export type ExecutiveShellFrameProps = {
 };
 
 /**
- * Minimal authenticated chrome for the executive route group: wordmark, operator link, auth, theme — no sidebar.
+ * Minimal authenticated chrome for the executive route group: wordmark, nav, scope, auth — no sidebar.
  */
 function executiveNavLinkClassName(isActive: boolean): string {
   const base = "shrink-0 text-neutral-700 dark:text-neutral-300";
@@ -83,12 +82,14 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                 </Link>
               </Button>
             </div>
-            <div className="flex items-center gap-2">
+            <div
+              data-testid="executive-shell-topbar-session"
+              className="flex min-w-0 flex-wrap items-center justify-end gap-2"
+            >
               <ExecutiveOperatorShellSwitcher />
-              <TenantWorkspaceBoundaryBadge variant="compact" />
+              <ScopeSwitcher density="compact" />
               <AuthPanel />
               {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
-              <ColorModeToggle />
             </div>
           </div>
         </header>

@@ -9,16 +9,12 @@ vi.mock("@/components/AuthPanel", () => ({
   AuthPanel: () => <div data-testid="auth-panel-stub" />,
 }));
 
-vi.mock("@/components/ColorModeToggle", () => ({
-  ColorModeToggle: () => null,
-}));
-
 vi.mock("@/components/executive/ExecutiveShellDeferredChrome", () => ({
   ExecutiveShellDeferredChrome: () => null,
 }));
 
-vi.mock("@/components/shell/TenantWorkspaceBoundaryBadge", () => ({
-  TenantWorkspaceBoundaryBadge: () => <div data-testid="tenant-workspace-boundary-badge-compact" />,
+vi.mock("@/components/ScopeSwitcher", () => ({
+  ScopeSwitcher: () => <div data-testid="executive-shell-scope-switcher-stub" />,
 }));
 
 import { ExecutiveShellFrame } from "./ExecutiveShellFrame";
@@ -57,14 +53,16 @@ describe("ExecutiveShellFrame", () => {
     expect(screen.getByTestId("executive-shell-nav-dashboard").className).toContain("font-semibold");
   });
 
-  it("renders tenant boundary badge and widened main content shell", () => {
+  it("renders scope switcher in the session rail without toolbar help or color-mode toggles", () => {
     render(
       <ExecutiveShellFrame>
         <p>child</p>
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("tenant-workspace-boundary-badge-compact")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-shell-scope-switcher-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-shell-topbar-session")).toBeInTheDocument();
+    expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
     expect(screen.getByRole("main")).toHaveClass("max-w-[1600px]");
     expect(screen.getByTestId("executive-shell-topbar")).toHaveClass("overflow-x-hidden");
   });
