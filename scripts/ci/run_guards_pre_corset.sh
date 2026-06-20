@@ -34,6 +34,8 @@ if [[ -n "${ARCHLUCID_GIT_DIFF_RANGE:-}" ]]; then
   python3 scripts/ci/check_no_console_writeline.py
   python3 scripts/ci/check_no_base_exception.py
   python3 scripts/ci/check_datetime_now.py
+  python3 scripts/ci/check_no_async_void.py
+  python3 scripts/ci/check_no_sync_over_async.py
 fi
 
 python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"

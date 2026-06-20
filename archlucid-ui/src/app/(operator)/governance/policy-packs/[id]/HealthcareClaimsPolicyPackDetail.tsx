@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -39,9 +40,12 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <Badge variant="outline">HIPAA-aligned intake posture</Badge>
           <Badge variant="outline">{versionBadgeLabel}</Badge>
         </div>
-        {buyerPolishedShell ? null : (
-          <p className="m-0 font-mono text-xs text-neutral-500 dark:text-neutral-400">Pack reference id: {policyPackId}</p>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="m-0 font-mono text-xs text-neutral-500 dark:text-neutral-400">
+            {buyerPolishedShell ? "Pack reference" : "Pack reference id"}: {policyPackId}
+          </p>
+          <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
+        </div>
       </header>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">

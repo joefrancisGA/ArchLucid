@@ -8,6 +8,7 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -393,7 +394,13 @@ export function WebhooksSettingsClient() {
                           <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">{row.name}</h3>
                           <p className="mt-1 text-xs uppercase tracking-wide text-neutral-500">{row.channelType}</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <BooleanStatusChip
+                            value={row.isEnabled === true}
+                            trueLabel="Enabled"
+                            falseLabel="Disabled"
+                            data-testid={`webhook-enabled-${row.routingSubscriptionId}`}
+                          />
                           <Button
                             type="button"
                             size="sm"

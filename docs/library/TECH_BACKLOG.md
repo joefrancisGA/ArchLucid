@@ -10935,7 +10935,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-378 — CI Guard: Block `async void` methods (P2)
 
-**Status:** Open — **P2**
+**Status:** **Done (2026-06-20)** — `check_no_async_void.py` / `.ps1`; diff-scoped pre-corset guard + unit tests.
 
 **Problem:** `async void` methods cannot be reliably awaited, and unhandled exceptions within them will crash the process. They should only be used for UI event handlers, which are not present in this backend.
 
@@ -10953,7 +10953,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-379 — CI Guard: Prevent Sync-over-Async (`.GetAwaiter().GetResult()`) (P2)
 
-**Status:** Open — **P2**
+**Status:** **Done (2026-06-20)** — `check_no_sync_over_async.py` / `.ps1`; excludes tests/CLI/benchmarks/scripts; diff-scoped pre-corset guard + unit tests.
 
 **Problem:** Synchronously waiting on asynchronous tasks using `.GetAwaiter().GetResult()` or `.Wait()` can cause thread pool starvation and deadlocks in ASP.NET Core applications.
 
@@ -10972,7 +10972,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-380 — UI: Standardize boolean status chips across tables (P3)
 
-**Status:** Open — **P3**
+**Status:** **Done (2026-06-20)** — `BooleanStatusChip` in `components/ui/`; migrated recurrence schedules and webhook subscriptions enabled columns.
 
 **Problem:** Boolean flags (like "Active" vs "Inactive", "Yes" vs "No") are displayed using ad-hoc text or varying badge styles across different operator tables.
 
@@ -10989,7 +10989,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-381 — UI: Surface `CopyIdButton` for Policy Pack IDs (P3)
 
-**Status:** Open — **P3**
+**Status:** **Done (2026-06-20)** — `CopyIdButton` on policy pack registry list rows and Healthcare Claims pack detail header.
 
 **Problem:** Operators need to copy Policy Pack IDs to use them in CLI automation and API requests, but the IDs are not easily selectable with one click.
 

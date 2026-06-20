@@ -7,6 +7,8 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
+import { CopyIdButton } from "@/components/CopyIdButton";
+import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { PolicyPack } from "@/types/policy-packs";
 
@@ -42,9 +44,17 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
                 ) : (
                   <StatusTag kind="neutral" label="Advanced / domain" data-testid={`policy-pack-advanced-${p.policyPackId}`} />
                 )}
-                {!effectivePackIds.has(p.policyPackId) ? (
-                  <StatusTag kind="draft" label="Disabled — opt in to enable" />
-                ) : null}
+                <BooleanStatusChip
+                  value={effectivePackIds.has(p.policyPackId)}
+                  trueLabel="Enabled in scope"
+                  falseLabel="Disabled — opt in to enable"
+                  falseIsAttention={false}
+                  data-testid={`policy-pack-enabled-${p.policyPackId}`}
+                />
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <code className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{p.policyPackId}</code>
+                <CopyIdButton value={p.policyPackId} aria-label="Copy policy pack ID" />
               </div>
               <span className="text-sm text-neutral-700 dark:text-neutral-300">
                 {" "}

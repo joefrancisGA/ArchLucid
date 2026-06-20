@@ -15,6 +15,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   listArchitectureReviewRecurrenceSchedules,
@@ -225,6 +226,12 @@ export default function RecurrenceSchedulesClient() {
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <div className="flex flex-col gap-1">
+                      <BooleanStatusChip
+                        value={schedule.isEnabled}
+                        trueLabel="Enabled"
+                        falseLabel="Disabled"
+                        data-testid={`recurrence-enabled-${schedule.scheduleId}`}
+                      />
                       <Button
                         type="button"
                         size="sm"

@@ -15,8 +15,10 @@ if str(_CI_DIR) not in sys.path:
 import check_control_flow_spacing as control_flow  # noqa: E402
 import check_csharp_is_null as csharp_is_null  # noqa: E402
 import check_datetime_now as datetime_now  # noqa: E402
+import check_no_async_void as no_async_void  # noqa: E402
 import check_no_base_exception as no_base_exception  # noqa: E402
 import check_no_console_writeline as no_console  # noqa: E402
+import check_no_sync_over_async as no_sync_over_async  # noqa: E402
 import check_single_class_per_file as single_class  # noqa: E402
 
 
@@ -158,6 +160,46 @@ public void Demo()
 """
 
         self.assertEqual(datetime_now.scan_source(source), [4])
+
+
+class TestNoAsyncVoidGuard(unittest.TestCase):
+    def test_allows_async_task(self) -> None:
+        source = """
+public async Task Demo()
+{
+    await Task.CompletedTask;
+}
+"""
+
+        self.assertEqual(no_async_void.scan_source(source), [])
+
+    def test_flags_async_void(self) -> None:
+        source = """
+public async void Demo()
+{
+}
+"""
+
+        self.assertEqual(no_async_void.scan_source(source), [2])
+
+
+class TestNoSyncOverAsyncGuard(unittest.TestCase):
+    def test_excludes_test_and_cli_paths(self) -> None:
+        self.assertFalse(no_sync_over_async.should_scan_path("ArchLucid.Core.Tests/FooTests.cs"))
+        self.assertFalse(no_sync_over_async.should_scan_path("ArchLucid.Cli/Program.cs"))
+        self.assertTrue(no_sync_over_async.should_scan_path("ArchLucid.Api/Controllers/HealthController.cs"))
+
+    def test_flags_get_awaiter_get_result(self) -> None:
+        source = """
+public void Demo()
+{
+    work.GetAwaiter().GetResult();
+}
+"""
+
+        hits = no_sync_over_async.scan_source(source)
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0][0], 4)
 
 
 if __name__ == "__main__":
