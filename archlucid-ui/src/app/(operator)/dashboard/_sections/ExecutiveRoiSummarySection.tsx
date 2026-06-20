@@ -29,11 +29,8 @@ const ExecutiveRoiSystemicIssueTrendChart = dynamic(
     ),
   },
 );
-import {
-  formatExecutiveRoiPricingBasisLabel,
-  formatRoiCostEvidenceFreshnessWarning,
-  shouldShowRoiCostEvidenceFreshnessWarning,
-} from "@/lib/roi-pricing-basis-label";
+import { ExecutiveRoiIdentifiedVsRealizedPanel } from "./ExecutiveRoiIdentifiedVsRealizedPanel";
+import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive-roi-identified-vs-realized";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { showError } from "@/lib/toast";
 
@@ -59,18 +56,6 @@ function executiveRoiSummaryCardTitle(): string {
   }
 
   return "Portfolio ROI summary";
-}
-
-function formatUsd(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
 }
 
 export type ExecutiveRoiSummarySectionProps = {
@@ -322,58 +307,11 @@ export function ExecutiveRoiSummarySection({
       </CardHeader>
       <CardContent className="space-y-4">
         {workspaceHasNoCommittedReviews && !executiveSurface ? <DemoTenantSeedCallout /> : null}
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings (headline)</div>
-            <p
-              className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-400"
-              data-testid="exec-roi-headline-scope-description"
-            >
-              {resolveExecutiveHeadlineScopeLabel(displayData)}
-            </p>
-            <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
-              {formatUsd(displayData.totalEstimatedUsdSavings)}
-            </div>
-            <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-pricing-basis">
-              {formatExecutiveRoiPricingBasisLabel(displayData.savingsPricingBasis, displayData.eaDiscountMultiplier)}
-            </div>
-            {displayData.savingsPricingBasisDescription ? (
-              <p
-                className="mt-2 text-xs text-neutral-600 dark:text-neutral-400"
-                data-testid="exec-roi-pricing-basis-description"
-              >
-                {displayData.savingsPricingBasisDescription}
-              </p>
-            ) : null}
-          </div>
-          {displayData.basisBreakdown ? (
-            <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
-              <div className="text-xs font-medium text-teal-800 dark:text-teal-200">Realized USD (remediated)</div>
-              <div
-                className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
-                data-testid="exec-roi-realized-usd"
-              >
-                {formatUsd(displayData.basisBreakdown.realizedUsd)}
-              </div>
-              <p className="mt-1 text-xs text-teal-900 dark:text-teal-100">
-                Open estimated ${displayData.basisBreakdown.openEstimatedUsd.toFixed(0)} · Deferred/waived $
-                {(displayData.basisBreakdown.deferredUsd + displayData.basisBreakdown.waivedUsd).toFixed(0)}
-              </p>
-            </div>
-          ) : null}
-          {shouldShowRoiCostEvidenceFreshnessWarning(displayData.costEvidenceFreshnessStatus) ? (
-            <div
-              className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 sm:col-span-3 px-3 py-2 text-xs"
-              role="alert"
-              data-testid="exec-roi-cost-evidence-freshness-warning"
-            >
-              {formatRoiCostEvidenceFreshnessWarning(
-                displayData.costEvidenceFreshnessStatus,
-                displayData.costEvidenceStaleAfterDays,
-                displayData.latestCostEvidenceCollectionTimestampUtc ?? null,
-              )}
-            </div>
-          ) : null}
+        <ExecutiveRoiIdentifiedVsRealizedPanel
+          summary={displayData}
+          buckets={resolveExecutiveRoiIdentifiedVsRealized(displayData)}
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Systems reviewed</div>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>

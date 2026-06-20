@@ -114,11 +114,17 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
   lines.push("# Executive summary — portfolio ROI");
   lines.push("");
   lines.push(`- **Scope (headline):** ${resolveExecutiveHeadlineScopeLabel(summary)}`);
-  lines.push(`- **Estimated USD savings:** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
 
   if (summary.basisBreakdown) {
-    lines.push(`- **Realized USD (remediated dispositions):** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
-    lines.push(`- **Deferred / waived / accepted-risk USD:** ${formatUsd(summary.basisBreakdown.deferredUsd + summary.basisBreakdown.waivedUsd + summary.basisBreakdown.acceptedRiskUsd)}`);
+    const identifiedPending = summary.basisBreakdown.openEstimatedUsd + summary.basisBreakdown.needsEvidenceUsd;
+
+    lines.push(`- **Identified savings (pending approval):** ${formatUsd(identifiedPending)}`);
+    lines.push(`- **Realized savings (committed & applied):** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
+    lines.push(
+      `- **Excluded from realized (deferred / waived / accepted-risk / not applicable):** ${formatUsd(summary.basisBreakdown.deferredUsd + summary.basisBreakdown.waivedUsd + summary.basisBreakdown.acceptedRiskUsd + summary.basisBreakdown.rejectedNotApplicableUsd)}`,
+    );
+  } else {
+    lines.push(`- **Estimated USD savings (headline):** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
   }
 
   lines.push(`- **Savings pricing basis:** ${summary.savingsPricingBasis} (EA multiplier ${summary.eaDiscountMultiplier})`);
