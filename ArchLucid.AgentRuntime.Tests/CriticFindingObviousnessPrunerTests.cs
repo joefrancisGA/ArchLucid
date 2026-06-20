@@ -100,6 +100,8 @@ public sealed class CriticFindingObviousnessPrunerTests
     [InlineData("Use HTTPS for all public endpoints.")]
     [InlineData("Implement encryption at rest for all data stores.")]
     [InlineData("Follow security best practices for Azure workloads.")]
+    [InlineData("Apply defense in depth across all tiers.")]
+    [InlineData("Align with the Azure Well-Architected Framework.")]
     public void IsObviousGenericAdvice_detects_checklist_phrasing(string message)
     {
         CriticFindingObviousnessPatterns.IsObviousGenericAdvice(message).Should().BeTrue();

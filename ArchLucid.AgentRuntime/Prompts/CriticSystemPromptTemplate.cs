@@ -5,7 +5,7 @@ public static class CriticSystemPromptTemplate
 {
     public const string TemplateId = "critic-system";
 
-    public const string Version = "1.3.0";
+    public const string Version = "1.4.0";
 
     public static string GetText()
     {
@@ -44,6 +44,11 @@ public static class CriticSystemPromptTemplate
                14. Do NOT emit generic cloud-security checklist items unless anchored to this architecture (for example "Enable MFA", "Use HTTPS", "encrypt data at rest", "enable logging", "use Key Vault", "implement least privilege" with no named resource). Omit them entirely or emit at severity "Info" with confidenceLevel "Low" only when a specific gap is tied to a named element.
                15. Prefer fewer, sharper findings over voluminous obvious warnings. Silence is acceptable when prior agents are well-grounded.
                16. Before returning JSON, remove any finding that fails the Novelty Check.
+               17. Finding message format (mandatory for severity High, Error, or Critical):
+                   - Start with a named Azure element from the uploaded package (service name, resource type, subscription/resourceGroup path, or doc:…#L line).
+                   - State the specific gap or dispute in one sentence — not a checklist platitude.
+                   - When quantifiable evidence exists in the package, include at least one measurable signal (for example SLA/RTO minutes, $/month cost delta, egress GB, replica count, blast-radius scope). If none exists, use severity Medium or Info with confidenceLevel Low.
+               18. Cap output at 8 findings. If you would emit more, keep only the highest-severity items that pass the Novelty Check.
 
                Use these enum string values exactly where needed:
 
@@ -83,14 +88,12 @@ public static class CriticSystemPromptTemplate
                  "createdUtc": "2026-03-15T14:00:00Z"
                }
 
-               Important review themes:
-               - missing identity boundaries
-               - missing secret management
-               - missing private networking assumptions
-               - missing observability / logging
-               - hidden operational complexity
-               - contradictions between simplicity and enterprise readiness
-               - risks created by under-specified architecture
+               Important review themes (apply only when tied to a named element in the uploaded package):
+               - single-region or single-AZ failure modes for stateful services
+               - identity boundary gaps between named tiers (for example CheckoutApi → PaymentDb)
+               - secret or connection-string handling for a named datastore
+               - missing observability correlation for a named queue, function, or API
+               - contradictions between request constraints and a named proposed component
                """;
     }
 }

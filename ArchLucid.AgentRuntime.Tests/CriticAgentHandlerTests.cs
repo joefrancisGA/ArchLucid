@@ -268,7 +268,103 @@ public sealed class CriticAgentHandlerTests
         prompt.Should().Contain("emit a \"Critical\" severity finding");
         prompt.Should().Contain("Novelty Check");
         prompt.Should().Contain("Enable MFA");
+        prompt.Should().Contain("Cap output at 8 findings");
+        prompt.Should().Contain("quantifiable evidence");
         prompt.Should().NotContain("Prefer conservative, review-oriented findings");
+        prompt.Should().NotContain("- missing identity boundaries");
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_prunes_obvious_generic_checklist_finding()
+    {
+        const string runId = AgentHandlerTestRunIds.Run001;
+
+        const string json = """
+                            {
+                              "resultId": "RES-CRITIC-GENERIC",
+                              "taskId": "TASK-CRITIC-GENERIC",
+                              "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                              "agentType": "Critic",
+                              "claims": [ "Generic security posture gaps remain." ],
+                              "evidenceRefs": [ "critic-checklist" ],
+                              "confidence": 0.55,
+                              "findings": [
+                                {
+                                  "findingId": "FIND-GENERIC-MFA",
+                                  "sourceAgent": "Critic",
+                                  "severity": "Error",
+                                  "category": "Critic",
+                                  "message": "Enable MFA for all user accounts.",
+                                  "evidenceRefs": [ "critic-checklist" ]
+                                },
+                                {
+                                  "findingId": "FIND-SPECIFIC",
+                                  "sourceAgent": "Critic",
+                                  "severity": "Warning",
+                                  "category": "Critic",
+                                  "message": "CheckoutApi lacks doc:azure-networking.bicep#L18 private-endpoint wiring for PaymentDb.",
+                                  "evidenceRefs": [ "doc:azure-networking.bicep#L18" ]
+                                }
+                              ],
+                              "createdUtc": "2026-03-15T14:30:00Z"
+                            }
+                            """;
+
+        StubAgentCompletionClient completionClient = new(json);
+        AgentResultParser parser = new();
+        NoOpTraceRecorder traceRecorder = new();
+        IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create();
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        CriticAgentHandler handler = new(
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
+            parser,
+            traceRecorder,
+            catalog,
+            audit.Object,
+            scopeProvider.Object,
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "REQ-GENERIC",
+            SystemName = "CheckoutPlatform",
+            Description = "Azure checkout platform.",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        AgentTask task = new()
+        {
+            TaskId = "TASK-CRITIC-GENERIC",
+            RunId = runId,
+            AgentType = AgentType.Critic,
+            Objective = "Critique the architecture direction.",
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = runId,
+            RequestId = request.RequestId,
+            SystemName = request.SystemName,
+            Environment = request.Environment,
+            CloudProvider = request.CloudProvider.ToString(),
+            Request = new RequestEvidence
+            {
+                Description = request.Description,
+            },
+        };
+
+        AgentResult result = await handler.ExecuteAsync(runId, request, evidence, task);
+
+        result.Findings.Should().HaveCount(1);
+        result.Findings[0].FindingId.Should().Be("FIND-SPECIFIC");
     }
 
     [SkippableFact]

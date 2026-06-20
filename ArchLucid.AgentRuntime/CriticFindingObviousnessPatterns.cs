@@ -40,6 +40,9 @@ public static partial class CriticFindingObviousnessPatterns
         "follow best practice",
         "security best practice",
         "cloud best practice",
+        "well-architected framework",
+        "defense in depth",
+        "zero trust posture",
         "ensure compliance",
         "meet compliance requirement",
     ];

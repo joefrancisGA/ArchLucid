@@ -198,14 +198,12 @@ public sealed class CriticAgentHandler(
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
         sb.AppendLine("Important guidance:");
-        sb.AppendLine("- Be skeptical but constructive.");
-        sb.AppendLine("- Identify omissions that could materially weaken a secure Azure architecture.");
-        sb.AppendLine("- Favor findings and warnings over redesign.");
-        sb.AppendLine("- If observability, identity, or secret management are clearly under-specified, call that out.");
-        sb.AppendLine("- Every finding must pass a Novelty Check: cite a specific service, resource, diagram element, or evidence ref from the uploaded package.");
+        sb.AppendLine("- Challenge prior agent claims; do not restate generic Azure well-architected checklist items.");
+        sb.AppendLine("- Every High/Error/Critical finding must name a specific uploaded element and state a concrete gap or dispute.");
+        sb.AppendLine("- Prefer machine-friendly UnderSpecified messages (for example ObservabilityUnderSpecified) only when tied to doc:… or azureExtractor:… evidence refs.");
         sb.AppendLine("- Do NOT emit generic checklist advice (for example Enable MFA, Use HTTPS, encrypt data at rest) unless you tie it to a named element in this architecture.");
         sb.AppendLine("- Omit obvious findings entirely; downgrade any borderline generic item to severity Info with Low confidenceLevel.");
-        sb.AppendLine("- Return JSON only.");
+        sb.AppendLine("- Return at most 8 findings; return JSON only.");
 
         return sb.ToString();
     }
