@@ -783,8 +783,8 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
 
                   {deltaStatus === "ready" && outcomesWindow === 0 ? (
                     <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
-                      After your first finalized review, this panel will show manifests finalized, findings surfaced, and
-                      average time to finalization.
+                      After your first finalized review, this panel will show review packages finalized, findings
+                      surfaced, and average time to finalization.
                     </p>
                   ) : null}
 
