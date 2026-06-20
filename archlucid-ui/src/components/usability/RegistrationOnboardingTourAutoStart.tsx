@@ -3,13 +3,13 @@
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { dispatchOnboardingTourStart, readOnboardingTourCompleted } from "@/lib/onboarding-tour";
+import { readHasSeenWelcomeOnboarding } from "@/lib/operator-welcome-onboarding-storage";
 import {
-  dispatchOnboardingTourStart,
   hasConsumedRegistrationTourAutoStart,
   markRegistrationTourAutoStartConsumed,
   shouldAutoStartRegistrationTour,
 } from "@/lib/usability/onboarding-registration-tour";
-import { readOnboardingTourCompleted } from "@/lib/onboarding-tour";
 
 /** Auto-starts the onboarding tour once after registration verify lands on Home or onboarding. */
 export function RegistrationOnboardingTourAutoStart() {
@@ -27,7 +27,11 @@ export function RegistrationOnboardingTourAutoStart() {
       return;
     }
 
-    if (hasConsumedRegistrationTourAutoStart() || readOnboardingTourCompleted()) {
+    if (
+      hasConsumedRegistrationTourAutoStart()
+      || readOnboardingTourCompleted()
+      || !readHasSeenWelcomeOnboarding()
+    ) {
       return;
     }
 

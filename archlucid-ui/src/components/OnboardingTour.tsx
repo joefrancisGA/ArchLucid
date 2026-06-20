@@ -13,9 +13,9 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHLUCID_ONBOARDING_TOUR_START_EVENT,
-  readOnboardingTourCompleted,
   writeOnboardingTourCompleted,
 } from "@/lib/onboarding-tour";
+import { isWelcomeModalVisible } from "@/lib/operator-onboarding-coordination";
 
 type TourStep = {
   id: string;
@@ -117,29 +117,11 @@ function onboardingTourSteps(): TourStep[] {
   });
 }
 
-function shouldSuppressAutoStart(): boolean {
-  if (typeof window === "undefined") {
-    return true;
-  }
-
-  if (process.env.NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR === "1") {
-    return true;
-  }
-
-  const nav = window.navigator as Navigator & { webdriver?: boolean };
-
-  if (nav.webdriver === true) {
-    return true;
-  }
-
-  return false;
-}
-
 type Rect = { top: number; left: number; width: number; height: number };
 
 /**
- * Lightweight first-visit tour: spotlight via box-shadow, no third-party library.
- * Auto-opens on operator home when not completed; Help dispatches a start event.
+ * Guided operator tour: spotlight via box-shadow. Starts from the welcome modal, Help, or registration handoff — never
+ * alongside the welcome modal.
  */
 export function OnboardingTour() {
   const pathname = usePathname();
@@ -244,33 +226,6 @@ export function OnboardingTour() {
   }, []);
 
   useEffect(() => {
-    if (pathname !== "/") {
-      return;
-    }
-
-    if (isBuyerPolishedOperatorShellEnv()) {
-      return;
-    }
-
-    if (shouldSuppressAutoStart()) {
-      return;
-    }
-
-    if (readOnboardingTourCompleted()) {
-      return;
-    }
-
-    const t = window.setTimeout(() => {
-      setStepIndex(0);
-      setOpen(true);
-    }, 400);
-
-    return () => {
-      window.clearTimeout(t);
-    };
-  }, [pathname]);
-
-  useEffect(() => {
     if (!open) {
       return;
     }
@@ -289,7 +244,7 @@ export function OnboardingTour() {
     };
   }, [open, closeAndPersist]);
 
-  if (!open) {
+  if (!open || isWelcomeModalVisible()) {
     return null;
   }
 

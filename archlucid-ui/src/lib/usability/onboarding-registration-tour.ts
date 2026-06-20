@@ -1,4 +1,4 @@
-import { ARCHLUCID_ONBOARDING_TOUR_START_EVENT } from "@/lib/onboarding-tour";
+import { dispatchOnboardingTourStart } from "@/lib/onboarding-tour";
 
 export const REGISTRATION_TOUR_AUTO_START_KEY = "archlucid.registrationTourAutoStart.v1";
 
@@ -34,10 +34,4 @@ export function hasConsumedRegistrationTourAutoStart(): boolean {
   }
 }
 
-export function dispatchOnboardingTourStart(): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.dispatchEvent(new Event(ARCHLUCID_ONBOARDING_TOUR_START_EVENT));
-}
+export { dispatchOnboardingTourStart };

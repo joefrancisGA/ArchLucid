@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { WelcomeModal } from "@/components/ui/welcome-modal";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { dispatchOnboardingTourStart } from "@/lib/onboarding-tour";
+import {
+  setWelcomeModalVisible,
+  WELCOME_MODAL_TOUR_START_DELAY_MS,
+} from "@/lib/operator-onboarding-coordination";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   persistHasSeenWelcomeOnboarding,
@@ -22,12 +27,22 @@ export type OperatorWelcomeOnboardingProps = {
 const DEFAULT_PROJECT_ID = "default";
 
 /**
- * First-time welcome dialog on home, reviews (`/reviews`), or executive `/dashboard`: shown when onboarding was not
- * dismissed and the default project has no runs (unless `serverEligible` is false).
+ * First-time welcome dialog on home, reviews (`/reviews`), or executive `/dashboard`: shown when the welcome modal was
+ * not dismissed and the default project has no runs (unless `serverEligible` is false).
  */
 export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps) {
   const { serverEligible } = props;
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setWelcomeModalVisible(open);
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      setWelcomeModalVisible(false);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -82,10 +97,21 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
     };
   }, [serverEligible]);
 
-  const dismiss = () => {
+  const dismiss = useCallback(() => {
     persistHasSeenWelcomeOnboarding();
     setOpen(false);
-  };
+  }, []);
 
-  return <WelcomeModal open={open} onDismiss={dismiss} buyerShell={isBuyerPolishedOperatorShellEnv()} />;
+  const startTour = useCallback(() => {
+    persistHasSeenWelcomeOnboarding();
+    setOpen(false);
+
+    window.setTimeout(() => {
+      dispatchOnboardingTourStart();
+    }, WELCOME_MODAL_TOUR_START_DELAY_MS);
+  }, []);
+
+  return (
+    <WelcomeModal open={open} onDismiss={dismiss} onStartTour={startTour} buyerShell={isBuyerPolishedOperatorShellEnv()} />
+  );
 }
