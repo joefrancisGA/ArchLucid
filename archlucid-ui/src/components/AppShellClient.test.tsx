@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShellClient } from "@/components/AppShellClient";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
@@ -77,6 +77,8 @@ describe("AppShellClient — LLM budget chrome", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
+
+  beforeEach(() => {
     buyerPolishedMock.value = false;
     vi.stubGlobal(
       "fetch",
