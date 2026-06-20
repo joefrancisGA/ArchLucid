@@ -16,6 +16,8 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 internal sealed class RateLimitProbeWebAppFactory : WebApplicationFactory<Program>
 {
+    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("InMemory");
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -71,5 +73,14 @@ internal sealed class RateLimitProbeWebAppFactory : WebApplicationFactory<Progra
             ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
             config.AddInMemoryCollection(settings);
         });
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            _storageProviderEnvironment.Dispose();
+
+        base.Dispose(disposing);
     }
 }

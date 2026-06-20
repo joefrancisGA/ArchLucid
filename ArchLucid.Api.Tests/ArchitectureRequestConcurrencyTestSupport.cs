@@ -528,6 +528,66 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             + " greenfield transient retries.");
     }
 
+    /// <summary>
+    ///     Commit can return <c>409 Conflict</c> when manifest materialization races under CI SQL load; retry with backoff
+    ///     like execute/create-run helpers (TB-290/TB-291/TB-295 commit flakes on integration shards).
+    /// </summary>
+    internal static async Task PostCommitWithGreenfieldTransientRetryAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default,
+        int maxAttempts = 10)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+        int delayMs = 250;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            using CancellationTokenSource attemptBudget =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+            try
+            {
+                using HttpResponseMessage response = await client.PostAsync(
+                    $"/v1/architecture/run/{runId}/commit",
+                    null,
+                    attemptBudget.Token);
+
+                if (response.IsSuccessStatusCode)
+                    return;
+
+                if (response.StatusCode is not (HttpStatusCode.Conflict or HttpStatusCode.ServiceUnavailable))
+                    await response.EnsureSuccessForTestAsync();
+            }
+            catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested
+                                                  && IndicatesClientAbortedResponseBuffering(ex))
+            {
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested
+                                                   && ex.InnerException is TimeoutException)
+            {
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+            }
+
+            await Task.Delay(delayMs, cancellationToken);
+            delayMs = Math.Min(delayMs * 2, 4000);
+        }
+
+        throw new InvalidOperationException(
+            "POST /v1/architecture/run/{runId}/commit did not succeed after "
+            + maxAttempts
+            + " greenfield transient retries.");
+    }
+
     internal static void DisposeAll(HttpResponseMessage[] responses)
     {
         foreach (HttpResponseMessage response in responses)

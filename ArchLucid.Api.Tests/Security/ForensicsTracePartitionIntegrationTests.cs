@@ -43,7 +43,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
         json.Should().NotContain("userPrompt", "summary traces must not expose user prompts.");
 
         AgentExecutionTraceResponse? payload =
-            await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>();
+            await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(IntegrationTestTraceJson.Options);
         payload.Should().NotBeNull();
         payload!.Traces.Should().NotBeEmpty();
     }

@@ -15,6 +15,8 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 public class OpenApiContractWebAppFactory : BaseIntegrationTestFixture
 {
+    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("InMemory");
+
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
         settings["ArchLucid:StorageProvider"] = "InMemory";
@@ -23,5 +25,14 @@ public class OpenApiContractWebAppFactory : BaseIntegrationTestFixture
         settings["IntegrationEvents:ServiceBusConnectionString"] = "";
         settings["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "";
         settings["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "";
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            _storageProviderEnvironment.Dispose();
+
+        base.Dispose(disposing);
     }
 }

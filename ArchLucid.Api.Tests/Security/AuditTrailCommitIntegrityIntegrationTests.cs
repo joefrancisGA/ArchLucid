@@ -45,13 +45,14 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
 
         try
         {
-            await using GreenfieldSqlApiFactory factory = new();
+            await using IdorGreenfieldSqlApiFactory factory = new();
             using (HttpClient primer = factory.CreateClient())
             {
                 IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-                // Full create-run warmup: TB-290 depends on POST /v1/architecture/request on a cold greenfield catalog.
-                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                    primer,
+                    includePostCreateRunWarmup: false);
             }
 
             using HttpClient client = factory.CreateClient();
@@ -64,11 +65,8 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             string runId = created!.Run.RunId;
             Guid runGuid = Guid.Parse(runId);
 
-            HttpResponseMessage execute = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-            await execute.EnsureSuccessForTestAsync();
-
-            HttpResponseMessage commit = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-            commit.StatusCode.Should().Be(HttpStatusCode.OK);
+            await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, runId);
+            await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, runId);
 
             HttpResponseMessage search = await client.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
             await search.EnsureSuccessForTestAsync();

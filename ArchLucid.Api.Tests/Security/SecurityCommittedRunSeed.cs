@@ -1,13 +1,9 @@
-using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 
-using FluentAssertions;
-
 namespace ArchLucid.Api.Tests.Security;
-
 /// <summary>
 ///     Shared committed-run seed for security integration tests. Uses <see cref="IdorGreenfieldSqlApiFactory" />
 ///     (<c>Hosting:Role=Api</c>) and readiness-only warmup so each case does not repeat a create-run POST during primer.
@@ -61,19 +57,13 @@ internal static class SecurityCommittedRunSeed
         string runId = created!.Run.RunId;
         Guid runGuid = Guid.Parse(runId);
 
-        HttpResponseMessage execute = await clientA.PostAsync(
-            $"/v1/architecture/run/{runId}/execute",
-            null,
-            cancellationToken).ConfigureAwait(false);
+        await ArchitectureRequestConcurrencyTestSupport
+            .PostExecuteWithGreenfieldTransientRetryAsync(clientA, runId, cancellationToken)
+            .ConfigureAwait(false);
 
-        await execute.EnsureSuccessForTestAsync();
-
-        HttpResponseMessage commit = await clientA.PostAsync(
-            $"/v1/architecture/run/{runId}/commit",
-            null,
-            cancellationToken).ConfigureAwait(false);
-
-        commit.StatusCode.Should().Be(HttpStatusCode.OK);
+        await ArchitectureRequestConcurrencyTestSupport
+            .PostCommitWithGreenfieldTransientRetryAsync(clientA, runId, cancellationToken)
+            .ConfigureAwait(false);
 
         return new Result(runId, runGuid);
     }

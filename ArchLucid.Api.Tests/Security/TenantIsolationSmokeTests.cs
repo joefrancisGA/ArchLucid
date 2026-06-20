@@ -171,6 +171,10 @@ public sealed class TenantIsolationSmokeTests
         art.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    /// <summary>
+    ///     Targeted archive-by-ids from tenant A must not archive tenant B's run (batch cutoff is catalog-wide;
+    ///     by-ids matches operator intent for scoped archival).
+    /// </summary>
     [SkippableFact]
     public async Task Admin_archive_batch_with_tenant_a_headers_does_not_archive_tenant_b_runs()
     {
@@ -208,8 +212,8 @@ public sealed class TenantIsolationSmokeTests
         string runIdB = createdB!.Run.RunId;
 
         HttpResponseMessage archive = await clientA.PostAsJsonAsync(
-            "/v1/admin/runs/archive-batch",
-            new AdminArchiveRunsBatchRequest { CreatedBeforeUtc = TimeProvider.System.GetUtcNow().AddYears(1) });
+            "/v1/admin/runs/archive-by-ids",
+            new AdminArchiveRunsByIdsRequest { RunIds = [Guid.Parse(runIdA)] });
 
         await archive.EnsureSuccessForTestAsync();
         HttpResponseMessage getB = await clientB.GetAsync($"/v1/architecture/run/{runIdB}");
@@ -357,16 +361,37 @@ public sealed class TenantIsolationSmokeTests
     private static bool ListContainsRunId(string json, string runId)
     {
         using JsonDocument doc = JsonDocument.Parse(json);
-        foreach (JsonElement row in doc.RootElement.EnumerateArray())
+        JsonElement root = doc.RootElement;
+
+        if (root.ValueKind == JsonValueKind.Array)
         {
-            if (row.TryGetProperty("runId", out JsonElement id) && string.Equals(
-                    id.GetString(),
-                    runId,
-                    StringComparison.Ordinal))
-                return true;
+            foreach (JsonElement row in root.EnumerateArray())
+            {
+                if (RowContainsRunId(row, runId))
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (root.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement row in items.EnumerateArray())
+            {
+                if (RowContainsRunId(row, runId))
+                    return true;
+            }
         }
 
         return false;
+    }
+
+    private static bool RowContainsRunId(JsonElement row, string runId)
+    {
+        if (!row.TryGetProperty("runId", out JsonElement id))
+            return false;
+
+        return string.Equals(id.GetString(), runId, StringComparison.Ordinal);
     }
 
     /// <summary>Inserts a second registry row so <c>CommercialTenantTierFilter</c> allows tenant B's HTTP scope.</summary>

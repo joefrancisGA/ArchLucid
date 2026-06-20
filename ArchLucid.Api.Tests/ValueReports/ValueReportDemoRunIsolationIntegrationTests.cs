@@ -31,13 +31,13 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        await using GreenfieldSqlApiFactory factory = new();
+        await using IdorGreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            // Full create-run warmup: this test's assertion path depends on POST /v1/architecture/request succeeding
-            // on a cold greenfield catalog; list/health warmup alone leaves the first create-run on the 15m retry loop.
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer,
+                includePostCreateRunWarmup: false);
         }
 
         using HttpClient client = factory.CreateClient();
@@ -49,10 +49,8 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string realRunId = created!.Run.RunId;
 
-        HttpResponseMessage execute = await client.PostAsync($"/v1/architecture/run/{realRunId}/execute", null);
-        await execute.EnsureSuccessForTestAsync();
-        HttpResponseMessage commit = await client.PostAsync($"/v1/architecture/run/{realRunId}/commit", null);
-        commit.StatusCode.Should().Be(HttpStatusCode.OK);
+        await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
+        await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
 
         HttpResponseMessage report = await client.GetAsync($"/v1/pilots/runs/{realRunId}/first-value-report");
         report.StatusCode.Should().Be(HttpStatusCode.OK);

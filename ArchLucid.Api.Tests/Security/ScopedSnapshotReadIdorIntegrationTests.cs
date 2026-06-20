@@ -339,9 +339,18 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer,
+                includePostCreateRunWarmup: false);
+        }
 
-        await using GreenfieldSqlApiFactory factory = new();
+        SecurityCommittedRunSeed.Result seed =
+            await SecurityCommittedRunSeed.SeedCommittedRunOnWarmFactoryAsync(factory);
+
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
@@ -357,9 +366,18 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer,
+                includePostCreateRunWarmup: false);
+        }
 
-        await using GreenfieldSqlApiFactory factory = new();
+        SecurityCommittedRunSeed.Result seed =
+            await SecurityCommittedRunSeed.SeedCommittedRunOnWarmFactoryAsync(factory);
+
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 

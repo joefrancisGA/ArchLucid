@@ -31,13 +31,14 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        await using GreenfieldSqlApiFactory factory = new();
+        await using IdorGreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-            // Full create-run warmup: TB-291 depends on POST /v1/architecture/request on a cold greenfield catalog.
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer,
+                includePostCreateRunWarmup: false);
         }
 
         using HttpClient client = factory.CreateClient();
@@ -49,10 +50,8 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string realRunId = created!.Run.RunId;
 
-        HttpResponseMessage execute = await client.PostAsync($"/v1/architecture/run/{realRunId}/execute", null);
-        await execute.EnsureSuccessForTestAsync();
-        HttpResponseMessage commit = await client.PostAsync($"/v1/architecture/run/{realRunId}/commit", null);
-        await commit.EnsureSuccessForTestAsync();
+        await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
+        await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
 
         HttpResponseMessage export = await client.GetAsync(
             "/v1/admin/reference-evidence?includeDemo=false");
