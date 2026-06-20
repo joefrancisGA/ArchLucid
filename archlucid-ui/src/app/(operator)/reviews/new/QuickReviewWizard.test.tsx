@@ -33,8 +33,8 @@ vi.mock("./SocraticIntakeWizard", () => ({
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   QuickReviewWizard,
-  ReviewsNewPathSwitcher,
 } from "./QuickReviewWizard";
+import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 describe("QuickReviewWizard", () => {

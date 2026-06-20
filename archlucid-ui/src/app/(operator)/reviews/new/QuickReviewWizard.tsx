@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
-import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { REVIEWS_NEW_BRIEF_PLACEHOLDER } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { showApiRequestErrorToast } from "@/lib/api-error-toast";
@@ -32,9 +32,6 @@ import {
 import { ReviewSubmitPhaseProgress, type ReviewSubmitPhaseId } from "@/components/usability/ReviewSubmitPhaseProgress";
 import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
 import { WizardPackagePreview } from "@/components/usability/WizardPackagePreview";
-import { NewRunWizardClient } from "./NewRunWizardClient";
-import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
-import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreatePanel";
 import {
   CtoDemoReviewModeCallout,
@@ -56,14 +53,6 @@ import {
   QUICK_REVIEW_SAMPLE_BRIEFS,
 } from "@/lib/quick-review-sample-briefs";
 
-/** Persisted when the operator switches paths; missing key defaults to guided intake (onboarding-friendly). */
-const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
-
-type ReviewsNewPathMode = "quick-review" | "full-guided";
-
-/** Active creation path — maps to persisted storage keys and wizard component. */
-type ReviewsNewActivePath = "guided-intake" | "quick-review" | "detailed";
-
 export { CONTOSO_RETAIL_SAMPLE_BRIEF };
 
 const MIN_BRIEF_CHARS = 100;
@@ -73,101 +62,6 @@ const QUICK_REVIEW_STEPS = [
   { label: "Review scope", description: "Confirm workspace scope and optional title." },
   { label: "Confirm and start architecture review", description: "Create the request and open pipeline progress." },
 ] as const;
-
-function readStoredPathMode(): ReviewsNewPathMode {
-  if (typeof window === "undefined") {
-    return "full-guided";
-  }
-
-  try {
-    const raw = window.localStorage.getItem(REVIEWS_NEW_PATH_STORAGE_KEY);
-
-    if (raw === "full-guided" || raw === "quick-review") {
-      return raw;
-    }
-
-    if (raw === "detailed" || raw === "guided-intake") {
-      return "full-guided";
-    }
-
-    const legacy = window.localStorage.getItem("archlucid_reviews_new_path_v1");
-
-    if (legacy === "detailed" || legacy === "guided-intake") {
-      return "full-guided";
-    }
-
-    if (legacy === "quick-review") {
-      return legacy;
-    }
-  } catch {
-    /* ignore */
-  }
-
-  return "full-guided";
-}
-
-function readStoredActivePath(): ReviewsNewActivePath {
-  const pathMode = readStoredPathMode();
-
-  if (pathMode === "quick-review") {
-    return "quick-review";
-  }
-
-  const subMode = readStoredFullGuidedSubMode();
-
-  return subMode === "detailed" ? "detailed" : "guided-intake";
-}
-
-function persistActivePath(path: ReviewsNewActivePath): void {
-  if (path === "quick-review") {
-    persistPathMode("quick-review");
-
-    return;
-  }
-
-  persistPathMode("full-guided");
-  persistFullGuidedSubMode(path === "detailed" ? "detailed" : "guided-intake");
-}
-
-function persistPathMode(mode: ReviewsNewPathMode): void {
-  try {
-    window.localStorage.setItem(REVIEWS_NEW_PATH_STORAGE_KEY, mode);
-  } catch {
-    /* ignore */
-  }
-}
-
-type FullGuidedSubMode = "guided-intake" | "detailed";
-
-function readStoredFullGuidedSubMode(): FullGuidedSubMode {
-  if (typeof window === "undefined") {
-    return "guided-intake";
-  }
-
-  try {
-    const raw = window.localStorage.getItem("archlucid_reviews_new_full_guided_sub_v1");
-
-    if (raw === "detailed" || raw === "guided-intake") {
-      return raw;
-    }
-  } catch {
-    /* ignore */
-  }
-
-  return "guided-intake";
-}
-
-function persistFullGuidedSubMode(mode: FullGuidedSubMode): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    window.localStorage.setItem("archlucid_reviews_new_full_guided_sub_v1", mode);
-  } catch {
-    /* ignore */
-  }
-}
 
 /** V1 evidence-first default; Azure is set when Azure extractor evidence is attached. */
 const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
@@ -639,116 +533,6 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       <aside className="hidden lg:block">
         <WizardPackagePreview systemName={displaySystemName} hasEvidence={evidenceAttached} />
       </aside>
-    </OperatorPageContainer>
-  );
-}
-
-/**
- * Path switcher at the top of `/reviews/new`: guided intake (default), quick review, or templates wizard.
- */
-export function ReviewsNewPathSwitcher() {
-  const searchParams = useSearchParams();
-  const baselineFirst = searchParams?.get("baseline") === "1";
-  const presetGreenfield = searchParams?.get("preset") === "greenfield";
-  const [activePath, setActivePath] = useState<ReviewsNewActivePath>("guided-intake");
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const activeTour = readBuyerCtoDemoTourActive();
-    const pathQuery = searchParams?.get("path")?.trim().toLowerCase() ?? "";
-
-    if (pathQuery === "quick-review") {
-      setActivePath("quick-review");
-      persistActivePath("quick-review");
-    } else if (baselineFirst) {
-      setActivePath("detailed");
-      persistActivePath("detailed");
-    } else if (presetGreenfield) {
-      setActivePath("quick-review");
-      persistActivePath("quick-review");
-    } else if (activeTour) {
-      setActivePath("quick-review");
-      persistActivePath("quick-review");
-    } else {
-      setActivePath(readStoredActivePath());
-    }
-
-    setReady(true);
-  }, [baselineFirst, presetGreenfield, searchParams]);
-
-  const selectPath = (path: ReviewsNewActivePath) => {
-    setActivePath(path);
-    persistActivePath(path);
-  };
-
-  return (
-    <OperatorPageContainer variant="workflow" className="space-y-3">
-      <Suspense fallback={null}>
-        <NewReviewIntentCallout />
-      </Suspense>
-      {ready ? (
-        <div
-          className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
-          role="tablist"
-          aria-label="Review creation path"
-          data-testid="reviews-new-path-toggle"
-        >
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "guided-intake"}
-            variant={activePath === "guided-intake" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("guided-intake");
-            }}
-            data-testid="reviews-new-path-guided-intake"
-          >
-            Guided intake
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "quick-review"}
-            variant={activePath === "quick-review" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("quick-review");
-            }}
-            data-testid="reviews-new-path-quick"
-          >
-            Quick review
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "detailed"}
-            variant={activePath === "detailed" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("detailed");
-            }}
-            data-testid="reviews-new-path-detailed"
-          >
-            Templates and imports
-          </Button>
-        </div>
-      ) : null}
-      {ready ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
-          {REVIEWS_NEW_PATH_HINTS[activePath]}
-        </p>
-      ) : null}
-      {ready ? null : (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
-      )}
-      {!ready ? null : activePath === "quick-review" ? (
-        <QuickReviewWizard />
-      ) : activePath === "guided-intake" ? (
-        <SocraticIntakeWizard />
-      ) : (
-        <NewRunWizardClient />
-      )}
     </OperatorPageContainer>
   );
 }

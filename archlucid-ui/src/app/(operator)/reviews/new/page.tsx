@@ -8,7 +8,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { ReviewsNewPathSwitcher } from "./QuickReviewWizard";
+import { ReviewsNewPathSwitcher } from "./ReviewsNewPathSwitcher";
 
 export const metadata: Metadata = {
   title: "New Architecture Review",

@@ -3,6 +3,12 @@ import type { ReactNode } from "react";
 
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
+export {
+  dynamic,
+  fetchCache,
+  revalidate,
+} from "@/lib/next/operator-data-route-policy";
+
 export default async function ExecutiveReviewRunLayout({
   children,
   params,
