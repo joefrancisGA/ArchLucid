@@ -158,7 +158,7 @@ describe("authority seam regression", () => {
   /**
    * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` omits the Operate governance
    * cluster until progressive disclosure opts into advanced tiers (Alerts, Audit, and governance workflow hubs).
-   * Findings remains in the Pilot group (extended tier). System health stays under **`operator-admin`**
+   * Findings lives in the Governance group at extended tier. System health stays under **`operator-admin`**
    * (`platform-admin` surface).
    */
   it("Reader default shell lists Pilot and omits operate-governance until advanced disclosure is enabled", () => {
@@ -179,10 +179,10 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Findings link lives in the Pilot group at extended tier so it appears beside Reviews after "Show more".
+   * Findings link lives in the Governance group at extended tier so it appears after "Show more".
    * Confirm it is visible for a Reader with extended links enabled.
    */
-  it("Reader with extended links sees Findings in the Pilot group", () => {
+  it("Reader with extended links sees Findings in the Governance group", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -193,8 +193,8 @@ describe("authority seam regression", () => {
       true,
     );
 
-    const pilot = rows.find((r) => r.group.id === "pilot");
-    const hrefs = pilot?.visibleLinks.map((l) => l.href) ?? [];
+    const governance = rows.find((r) => r.group.id === "operate-governance");
+    const hrefs = governance?.visibleLinks.map((l) => l.href) ?? [];
 
     expect(hrefs).toContain("/governance/findings");
   });

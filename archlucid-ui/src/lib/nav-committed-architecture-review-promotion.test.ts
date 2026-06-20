@@ -6,11 +6,13 @@ import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("committed architecture review nav promotion", () => {
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
+  const operations = NAV_GROUPS.find((g) => g.id === "operate-operations");
 
-  it("promotes Compare and Export to essential tier but keeps them out of the collapsed Analysis cluster", () => {
+  it("promotes Compare and Export to essential tier but keeps them out of the collapsed sidebar clusters", () => {
     expect(analysis).toBeDefined();
+    expect(operations).toBeDefined();
 
-    const collapsed = filterNavLinksForOperatorShell(
+    const collapsedAnalysis = filterNavLinksForOperatorShell(
       analysis!.links,
       false,
       false,
@@ -19,10 +21,20 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(collapsed.some((l) => l.href === "/compare")).toBe(false);
-    expect(collapsed.some((l) => l.href === "/value-report/pilot")).toBe(false);
+    expect(collapsedAnalysis.some((l) => l.href === "/compare")).toBe(false);
 
-    const expanded = filterNavLinksForOperatorShell(
+    const collapsedOperations = filterNavLinksForOperatorShell(
+      operations!.links,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      true,
+      true,
+    );
+
+    expect(collapsedOperations.some((l) => l.href === "/value-report/pilot")).toBe(false);
+
+    const expandedAnalysis = filterNavLinksForOperatorShell(
       analysis!.links,
       false,
       false,
@@ -31,8 +43,18 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(expanded.some((l) => l.href === "/compare")).toBe(true);
-    expect(expanded.some((l) => l.href === "/value-report/pilot")).toBe(true);
+    expect(expandedAnalysis.some((l) => l.href === "/compare")).toBe(true);
+
+    const expandedOperations = filterNavLinksForOperatorShell(
+      operations!.links,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      true,
+    );
+
+    expect(expandedOperations.some((l) => l.href === "/value-report/pilot")).toBe(true);
   });
 
   it("keeps Compare hidden in collapsed sidebar before the first committed review", () => {
