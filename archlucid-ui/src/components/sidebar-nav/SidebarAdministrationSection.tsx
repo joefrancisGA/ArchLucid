@@ -32,9 +32,9 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
   }
 
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
-  const disclosureLabel = props.showAdministration
-    ? SIDEBAR_ADMINISTRATION.hide
-    : SIDEBAR_ADMINISTRATION.show;
+  const ariaLabel = props.showAdministration
+    ? SIDEBAR_ADMINISTRATION.ariaExpanded
+    : SIDEBAR_ADMINISTRATION.ariaCollapsed;
 
   return (
     <div
@@ -45,28 +45,23 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-800/80"
+        className="sidebar-disclosure-trigger flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-800/80"
         id="sidebar-admin-section-heading"
         data-testid="sidebar-administration-toggle"
         aria-expanded={props.showAdministration}
         aria-controls="sidebar-administration-content"
-        aria-label={disclosureLabel}
+        aria-label={ariaLabel}
         title={SIDEBAR_ADMINISTRATION.title}
         onClick={() => {
           props.onShowAdministrationChange(!props.showAdministration);
         }}
       >
-        <span className="flex min-w-0 items-center gap-2">
-          {props.showAdministration ? (
-            <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-          ) : (
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-          )}
-          <span>Administration</span>
-        </span>
-        <span className="shrink-0 normal-case tracking-normal text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
-          {disclosureLabel}
-        </span>
+        {props.showAdministration ? (
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+        )}
+        <span className="min-w-0 truncate">Administration</span>
       </button>
       {props.showAdministration ? (
         <div id="sidebar-administration-content" className="pt-1">

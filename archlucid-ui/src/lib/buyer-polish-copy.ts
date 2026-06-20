@@ -463,19 +463,29 @@ export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";
 
 export const BUYER_WORKSPACE_SHORT_NAME = "Claims Intake";
 
+/** Compact top-bar label for the dev/sample workspace selector button. */
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL = "Claims Intake Demo";
+
+/** Full sample workspace name shown in the scope dropdown and accessible labels. */
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME = "Claims Intake Modernization";
+
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT = "Demo data only. Your workspace is unchanged.";
+
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE = "Sample workspace";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_BODY =
-  "You are viewing the Claims Intake sample workspace. Workspace switching is disabled in this local demo.";
+  "Workspace switching is disabled in this local demo. In a connected tenant, this menu lets you switch between workspaces and projects.";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT =
   "In a connected tenant, this menu lets you switch between workspaces and projects.";
 
-/** Shown only inside the sample-workspace popover technical-details disclosure. */
+export const BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS = "Workspace details";
+
+/** Shown only inside the sample-workspace popover workspace-details disclosure. */
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS =
   "Scope headers (tenant, workspace, project) route API requests. The workspace directory API is not available in this local demo, so the sample workspace stays active.";
 
-export const BUYER_SCOPE_SWITCHER_CONTINUE = "Continue";
+export const BUYER_SCOPE_SWITCHER_GOT_IT = "Got it.";
 
 export const BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES = "Learn about workspaces";
 

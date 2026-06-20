@@ -37,7 +37,7 @@ type StepDef = {
 
 /** Operator first-run welcome — single screen before the guided tour. */
 export const OPERATOR_FIRST_RUN_WELCOME = {
-  title: "Welcome to ArchLucid.",
+  title: "Welcome to ArchLucid",
   description:
     "Use the operator workspace to start architecture reviews, inspect evidence, track findings, and commit review packages.",
 } as const;
@@ -63,7 +63,7 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
 
 const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
-    title: "Welcome to ArchLucid.",
+    title: "Welcome to ArchLucid",
     description:
       "Walk through a completed executive review package—risk posture, evidence-linked findings, governance status, and audit-ready exports—without operator tooling upfront.",
     Icon: Package,

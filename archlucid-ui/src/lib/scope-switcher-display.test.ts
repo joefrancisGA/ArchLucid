@@ -1,23 +1,35 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
+} from "@/lib/buyer-polish-copy";
+import {
   countSelectableScopeOptions,
+  formatScopeSwitcherSampleFullTitle,
+  formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
   isScopeSwitchingAvailable,
   workspaceShortNameFromLabel,
 } from "@/lib/scope-switcher-display";
 
 describe("scope-switcher-display", () => {
-  it("formats sample and connected trigger labels without W:/P: shorthand", () => {
-    expect(
-      formatScopeSwitcherTriggerLabel({
-        workspaceLabel: "Claims Intake Workspace",
-        projectLabel: "Primary project",
-        isSampleWorkspaceSession: true,
-        includeProject: false,
-      }),
-    ).toBe("Sample workspace: Claims Intake");
+  it("formats compact and accessible sample workspace labels separately", () => {
+    const args = {
+      workspaceLabel: "Claims Intake Workspace",
+      projectLabel: "Primary project",
+      isSampleWorkspaceSession: true,
+      includeProject: false,
+    };
 
+    expect(formatScopeSwitcherTriggerLabel(args)).toBe(BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL);
+    expect(formatScopeSwitcherSampleFullTitle()).toBe("Sample workspace: Claims Intake Modernization");
+    expect(formatScopeSwitcherTriggerAccessibleLabel(args)).toBe(
+      `Sample workspace: Claims Intake Modernization. ${BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}`,
+    );
+  });
+
+  it("formats connected trigger labels without sample metadata in the compact label", () => {
     expect(
       formatScopeSwitcherTriggerLabel({
         workspaceLabel: "Claims Intake Workspace",
@@ -26,6 +38,15 @@ describe("scope-switcher-display", () => {
         includeProject: true,
       }),
     ).toBe("Workspace: Claims Intake — Primary project");
+
+    expect(
+      formatScopeSwitcherTriggerAccessibleLabel({
+        workspaceLabel: "Claims Intake Workspace",
+        projectLabel: "Primary project",
+        isSampleWorkspaceSession: false,
+        includeProject: true,
+      }),
+    ).toBe("Active workspace: Workspace: Claims Intake — Primary project");
   });
 
   it("derives short workspace names from display labels", () => {

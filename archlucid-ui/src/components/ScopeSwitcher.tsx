@@ -21,12 +21,14 @@ import {
   BUYER_SCOPE_CURRENT_WORKSPACE_BODY,
   BUYER_SCOPE_CURRENT_WORKSPACE_TITLE,
   BUYER_SCOPE_LIST_UNAVAILABLE,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
   BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
-  BUYER_SCOPE_SWITCHER_CONTINUE,
+  BUYER_SCOPE_SWITCHER_GOT_IT,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
   BUYER_SCOPE_SWITCHER_LOAD_ERROR,
   BUYER_WORKSPACE_DISPLAY_NAME,
@@ -44,6 +46,8 @@ import {
 } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
+  formatScopeSwitcherSampleFullTitle,
+  formatScopeSwitcherTriggerAccessibleLabel,
   formatScopeSwitcherTriggerLabel,
   isScopeSwitchingAvailable,
   type ScopeSwitcherWorkspaceOption,
@@ -217,6 +221,15 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
     includeProject: !isSampleWorkspaceSession,
   });
 
+  const triggerAccessibleLabel = formatScopeSwitcherTriggerAccessibleLabel({
+    workspaceLabel,
+    projectLabel,
+    isSampleWorkspaceSession,
+    includeProject: !isSampleWorkspaceSession,
+  });
+
+  const sampleFullTitle = formatScopeSwitcherSampleFullTitle();
+
   const canShow =
     !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority;
 
@@ -381,11 +394,13 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   }
 
   const polishedMaxWidthClass =
-    density === "compact" ? "max-w-[min(12rem,28vw)]" : "max-w-[min(22rem,46vw)]";
+    density === "compact" ? "max-w-[min(12.5rem,32vw)]" : "max-w-[min(22rem,46vw)]";
   const polishedTriggerMaxWidthClass =
-    density === "compact" ? "max-w-[min(10rem,24vw)]" : "max-w-[min(18rem,38vw)]";
+    density === "compact" ? "max-w-[min(12.5rem,32vw)]" : "max-w-[min(18rem,38vw)]";
   const scopeTriggerMaxWidthClass =
-    density === "compact" ? "max-w-[min(12rem,28vw)]" : "max-w-[min(20rem,42vw)]";
+    density === "compact" ? "max-w-[min(12.5rem,32vw)]" : "max-w-[min(20rem,42vw)]";
+  const scopeTriggerLabelClass =
+    "min-w-0 flex-1 truncate whitespace-nowrap text-left text-xs font-medium text-neutral-800 dark:text-neutral-200";
 
   const scopePanel =
     open && panelStyle != null ? (
@@ -423,24 +438,29 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
               {BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT}
             </p>
             <Button type="button" size="sm" onClick={closePanel}>
-              {BUYER_SCOPE_SWITCHER_CONTINUE}
+              {BUYER_SCOPE_SWITCHER_GOT_IT}
             </Button>
           </>
         ) : null}
         {panelMode === "sample-info" ? (
           <>
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-              {BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE}
+            <div className="flex flex-wrap items-start gap-2">
+              <p className="m-0 min-w-0 flex-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                {sampleFullTitle}
+              </p>
+              <span className="shrink-0 rounded border border-teal-200 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
+                Sample
+              </span>
+            </div>
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}
             </p>
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300" data-testid="operator-scope-sample-info-body">
               {BUYER_SCOPE_SAMPLE_WORKSPACE_BODY}
             </p>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              {BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT}
-            </p>
             <details className="rounded-md border border-neutral-200 p-2 text-xs dark:border-neutral-700">
               <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
-                Technical details
+                {BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS}
               </summary>
               <p className="mt-2 mb-0 text-neutral-600 dark:text-neutral-400">
                 {BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS}
@@ -448,7 +468,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             </details>
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <Button type="button" size="sm" onClick={closePanel}>
-                {BUYER_SCOPE_SWITCHER_CONTINUE}
+                {BUYER_SCOPE_SWITCHER_GOT_IT}
               </Button>
               <Button type="button" variant="link" size="sm" className="h-8 px-0" asChild>
                 <Link href={SCOPE_SWITCHER_HELP_HREF}>{BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES}</Link>
@@ -470,7 +490,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
               </p>
             </details>
             <Button type="button" size="sm" variant="secondary" onClick={closePanel}>
-              {BUYER_SCOPE_SWITCHER_CONTINUE}
+              {BUYER_SCOPE_SWITCHER_GOT_IT}
             </Button>
           </>
         ) : null}
@@ -556,18 +576,20 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             aria-expanded={open}
             aria-haspopup="dialog"
             data-testid="operator-scope-switcher-trigger"
-            aria-label={`Active workspace: ${triggerLabel}`}
+            aria-label={triggerAccessibleLabel}
+            title={triggerAccessibleLabel}
             onClick={() => {
               setOpen((current) => !current);
             }}
           >
             <span
               className={cn(
-                "inline-flex min-w-0 shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+                "inline-flex min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
                 polishedTriggerMaxWidthClass,
               )}
             >
-              {triggerLabel}
+              <span className={scopeTriggerLabelClass}>{triggerLabel}</span>
+              <ChevronsUpDown className="size-3 shrink-0 opacity-50" aria-hidden />
             </span>
           </Button>
         </span>
@@ -588,17 +610,14 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           aria-expanded={open}
           aria-haspopup="dialog"
           data-testid="operator-scope-switcher-trigger"
-          aria-label={`Active workspace: ${triggerLabel}`}
+          aria-label={triggerAccessibleLabel}
+          title={triggerAccessibleLabel}
           onClick={() => {
             setOpen((current) => !current);
           }}
         >
-          <span className="min-w-0 flex-1 truncate text-left text-xs font-medium text-neutral-800 dark:text-neutral-200">
-            {triggerLabel}
-          </span>
-          {switchingAvailable || !isSampleWorkspaceSession ? (
-            <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
-          ) : null}
+          <span className={scopeTriggerLabelClass}>{triggerLabel}</span>
+          <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
         </Button>
       </div>
       {scopePanel != null && typeof document !== "undefined" ? createPortal(scopePanel, document.body) : null}

@@ -1,4 +1,9 @@
-import { BUYER_WORKSPACE_SHORT_NAME } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME,
+  BUYER_WORKSPACE_SHORT_NAME,
+} from "@/lib/buyer-polish-copy";
 
 export type ScopeSwitcherWorkspaceOption = {
   readonly workspaceId: string;
@@ -18,6 +23,12 @@ export function workspaceShortNameFromLabel(workspaceLabel: string): string {
   return withoutSuffix.length > 0 ? withoutSuffix : BUYER_WORKSPACE_SHORT_NAME;
 }
 
+/** Full sample-workspace heading for dropdowns, tooltips, and accessible names. */
+export function formatScopeSwitcherSampleFullTitle(): string {
+  return `Sample workspace: ${BUYER_SCOPE_SAMPLE_WORKSPACE_FULL_NAME}`;
+}
+
+/** Visible compact label for the top-bar scope switcher button. */
 export function formatScopeSwitcherTriggerLabel(args: {
   readonly workspaceLabel: string;
   readonly projectLabel: string;
@@ -27,7 +38,7 @@ export function formatScopeSwitcherTriggerLabel(args: {
   const shortName = workspaceShortNameFromLabel(args.workspaceLabel);
 
   if (args.isSampleWorkspaceSession) {
-    return `Sample workspace: ${shortName}`;
+    return BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL;
   }
 
   if (!args.includeProject) {
@@ -35,6 +46,22 @@ export function formatScopeSwitcherTriggerLabel(args: {
   }
 
   return `Workspace: ${shortName} — ${args.projectLabel}`;
+}
+
+/** Screen-reader and tooltip text — includes sample metadata not shown in the compact button. */
+export function formatScopeSwitcherTriggerAccessibleLabel(args: {
+  readonly workspaceLabel: string;
+  readonly projectLabel: string;
+  readonly isSampleWorkspaceSession: boolean;
+  readonly includeProject: boolean;
+}): string {
+  if (args.isSampleWorkspaceSession) {
+    return `${formatScopeSwitcherSampleFullTitle()}. ${BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}`;
+  }
+
+  const compactLabel = formatScopeSwitcherTriggerLabel(args);
+
+  return `Active workspace: ${compactLabel}`;
 }
 
 export function countSelectableScopeOptions(

@@ -170,11 +170,15 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByTestId("sidebar-layout-settings-dialog")).toBeNull();
     expect(screen.queryByTestId("sidebar-operator-advanced-mode-toggle")).toBeNull();
     expect(screen.queryByText("Enable advanced features")).toBeNull();
-    expect(screen.getByTestId("sidebar-administration-toggle")).toHaveTextContent("Show administration");
+    const adminToggle = screen.getByTestId("sidebar-administration-toggle");
+    expect(adminToggle).toHaveTextContent("Administration");
+    expect(adminToggle.textContent?.trim()).toBe("Administration");
+    expect(adminToggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Show administration")).toBeNull();
     expect(screen.queryByTestId("sidebar-administration-section")).toBeNull();
   });
 
-  it("uses Administration-specific copy and omits child-count badges on the section heading", async () => {
+  it("uses chevron Administration disclosure and omits child-count badges on the section heading", async () => {
     render(<SidebarNav />);
 
     fireEvent.click(screen.getByTestId("sidebar-administration-toggle"));
@@ -183,10 +187,14 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByTestId("sidebar-administration-section")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("sidebar-administration-toggle")).toHaveTextContent("Hide administration");
-    expect(screen.queryByText("Admin tools")).toBeNull();
-
     const heading = screen.getByTestId("sidebar-administration-toggle");
+
+    expect(heading).toHaveTextContent("Administration");
+    expect(heading.textContent?.trim()).toBe("Administration");
+    expect(heading).toHaveAttribute("aria-expanded", "true");
+    expect(screen.queryByText("Show administration")).toBeNull();
+    expect(screen.queryByText("Hide administration")).toBeNull();
+    expect(screen.queryByText("Admin tools")).toBeNull();
 
     expect(heading.textContent).not.toMatch(/\b2\b/);
     expect(screen.queryByRole("button", { name: /Show \d+ more destinations in Admin tools/ })).toBeNull();

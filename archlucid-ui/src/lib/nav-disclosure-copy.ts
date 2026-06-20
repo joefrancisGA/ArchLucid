@@ -19,9 +19,9 @@ export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
 
 /** Platform-admin sidebar section — tenant settings and operator tooling, not operate governance. */
 export const SIDEBAR_ADMINISTRATION = {
-  show: "Show administration",
-  hide: "Hide administration",
   title: "Show or hide tenant settings and platform administration destinations in the sidebar.",
+  ariaCollapsed: "Administration, collapsed",
+  ariaExpanded: "Administration, expanded",
   assistiveShow: "Administration section hidden. Tenant settings and recycle bin are not listed.",
   assistiveHide: "Administration section visible. Tenant settings and platform admin links are listed below.",
 } as const;
