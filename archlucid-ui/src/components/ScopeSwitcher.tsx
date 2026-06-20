@@ -24,8 +24,6 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
   BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS,
   BUYER_SCOPE_SAMPLE_WORKSPACE_TITLE,
   BUYER_SCOPE_SWITCHER_CONNECTED_INTRO,
   BUYER_SCOPE_SWITCHER_GOT_IT,
@@ -452,27 +450,30 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
                 Sample
               </span>
             </div>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
-              {BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}
-            </p>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300" data-testid="operator-scope-sample-info-body">
-              {BUYER_SCOPE_SAMPLE_WORKSPACE_BODY}
-            </p>
-            <details className="rounded-md border border-neutral-200 p-2 text-xs dark:border-neutral-700">
-              <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
-                {BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS}
-              </summary>
-              <p className="mt-2 mb-0 text-neutral-600 dark:text-neutral-400">
-                {BUYER_SCOPE_SAMPLE_WORKSPACE_TECHNICAL_DETAILS}
+            <div className="space-y-1.5">
+              <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+                {BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}
               </p>
-            </details>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <p
+                className="m-0 text-sm text-neutral-600 dark:text-neutral-300"
+                data-testid="operator-scope-sample-info-body"
+              >
+                {BUYER_SCOPE_SAMPLE_WORKSPACE_BODY}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <Button type="button" size="sm" onClick={closePanel}>
                 {BUYER_SCOPE_SWITCHER_GOT_IT}
               </Button>
-              <Button type="button" variant="link" size="sm" className="h-8 px-0" asChild>
-                <Link href={SCOPE_SWITCHER_HELP_HREF}>{BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES}</Link>
-              </Button>
+              <Link
+                href={SCOPE_SWITCHER_HELP_HREF}
+                className={cn(
+                  "text-xs font-medium text-neutral-500 underline-offset-2 hover:text-neutral-700 hover:underline",
+                  "dark:text-neutral-400 dark:hover:text-neutral-200",
+                )}
+              >
+                {BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES}
+              </Link>
             </div>
           </>
         ) : null}

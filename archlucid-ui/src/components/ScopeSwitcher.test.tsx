@@ -46,7 +46,6 @@ import {
   BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
   BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,
   BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT,
-  BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS,
   BUYER_SCOPE_SWITCHER_GOT_IT,
   BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES,
 } from "@/lib/buyer-polish-copy";
@@ -112,7 +111,6 @@ describe("ScopeSwitcher — operator shell", () => {
       BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
     );
     expect(screen.queryByText(/directory is unavailable/i)).not.toBeInTheDocument();
-    expect(screen.getByText(BUYER_SCOPE_SAMPLE_WORKSPACE_DETAILS)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES })).toHaveAttribute(
       "href",
       "/help/scope",

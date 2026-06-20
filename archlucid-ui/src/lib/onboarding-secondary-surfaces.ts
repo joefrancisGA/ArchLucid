@@ -17,7 +17,7 @@ export const WELCOME_OPERATOR_EVIDENCE_STEP = {
 
 /** First-visit help banner on operator home (TB-342). */
 export const FIRST_VISIT_HELP_THREE_THINGS =
-  "start one review package, explore a sample package if you are not ready to provide your own evidence yet, then invite a reviewer when you want governance sign-off.";
+  "start one review, explore a sample package, then invite a reviewer for governance sign-off.";
 
 /** Operator first-run tour welcome step — workflow-oriented, not pipeline jargon (TB-342). */
 export const ONBOARDING_TOUR_WELCOME_BODY =
