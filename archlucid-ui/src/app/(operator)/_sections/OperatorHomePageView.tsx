@@ -1,5 +1,8 @@
-import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
-import { OperatorHomeAdvancedGuidanceSection } from "@/components/operator-home/OperatorHomeAdvancedGuidanceSection";
+import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
+import {
+  OperatorHomeDeferredOnboarding,
+  OperatorHomeFirstValueCallout,
+} from "@/components/operator-home/OperatorHomeDeferredOnboarding";
 import { OperatorHomeExampleRequestPanel } from "@/components/operator-home/OperatorHomeExampleRequestPanel";
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import {
@@ -10,8 +13,6 @@ import {
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
-import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
-import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OPERATOR_HOME_PRIMARY_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
@@ -46,7 +47,7 @@ function BuyerPolishedHomePageBody() {
         <OperatorHomeRunsPanel hideHeading />
       </section>
 
-      <OperatorHomeAdvancedGuidanceSection buyerPolishedShell checklistVariant="compact" />
+      <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
     </>
   );
 }
@@ -57,7 +58,7 @@ function OperatorHomePageBody() {
   return (
     <>
       <PilotCommandCenterCard />
-      <FirstValueReachedCallout />
+      <OperatorHomeFirstValueCallout />
 
       <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
@@ -69,7 +70,7 @@ function OperatorHomePageBody() {
         <OperatorHomeRunsPanel hideHeading />
       </section>
 
-      <OperatorHomeAdvancedGuidanceSection
+      <OperatorHomeAdvancedGuidancePanel
         buyerPolishedShell={false}
         fullOperatorShell={fullOperatorShell}
         checklistVariant={fullOperatorShell ? "full" : "compact"}
@@ -86,8 +87,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
 
   return (
     <OperatorHomeGate>
-      <TrialWelcomeRunDeepLink />
-      <OperatorWelcomeOnboarding />
+      <OperatorHomeDeferredOnboarding />
       <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </OperatorPageContainer>

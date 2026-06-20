@@ -5,12 +5,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
-import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
-import { DraftIntakeDecisionReceiptCard } from "@/components/draft-intake/DraftIntakeDecisionReceiptCard";
-import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
-import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +39,11 @@ import {
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+
+import {
+  DraftIntakeDecisionReceiptCard,
+  SocraticIntakeWizardAdvancedRail,
+} from "./SocraticIntakeWizardDeferredPanels";
 
 const MIN_INTENT_CHARS = 10;
 const MIN_OUTCOME_CHARS = 10;
@@ -96,6 +97,9 @@ export function SocraticIntakeWizard() {
     !busy;
 
   const allMustAnswered = pendingQuestions.length === 0;
+  const canReviewAnswers =
+    pendingQuestions.length > 0 &&
+    pendingQuestions.every((question) => (answers[question.questionKey]?.trim() ?? "").length > 0);
   const canSubmit = draftId !== null && allMustAnswered && !busy && !blocksLlmExecution;
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
@@ -171,37 +175,40 @@ export function SocraticIntakeWizard() {
     }
   }, [actorSet, businessOutcome, freeTextIntent, refreshQuestions, systemName]);
 
-  const saveAnswer = useCallback(
-    async (questionKey: string) => {
-      if (draftId === null) {
-        return;
+  const reviewAnswers = useCallback(async () => {
+    if (draftId === null) {
+      return;
+    }
+
+    const unansweredQuestions = pendingQuestions.filter(
+      (question) => (answers[question.questionKey]?.trim() ?? "").length === 0,
+    );
+
+    if (unansweredQuestions.length > 0) {
+      showError("Guided intake", "Enter an answer for each clarification or skip it explicitly.");
+      return;
+    }
+
+    setBusy(true);
+    setSubmitError(null);
+
+    try {
+      for (const question of pendingQuestions) {
+        const answer = answers[question.questionKey]?.trim() ?? "";
+        await answerDraftQuestion(draftId, question.questionKey, answer);
       }
 
-      const answer = answers[questionKey]?.trim() ?? "";
-
-      if (answer.length === 0) {
-        showError("Guided intake", "Enter an answer or skip the question explicitly.");
-        return;
+      await refreshQuestions(draftId);
+      setStep(2);
+    } catch (error) {
+      setSubmitError(error);
+      if (isApiRequestError(error)) {
+        showError("Guided intake", error.message);
       }
-
-      setBusy(true);
-      setSubmitError(null);
-
-      try {
-        await answerDraftQuestion(draftId, questionKey, answer);
-        await refreshQuestions(draftId);
-        showSuccess("Answer recorded.");
-      } catch (error) {
-        setSubmitError(error);
-        if (isApiRequestError(error)) {
-          showError("Guided intake", error.message);
-        }
-      } finally {
-        setBusy(false);
-      }
-    },
-    [answers, draftId, refreshQuestions],
-  );
+    } finally {
+      setBusy(false);
+    }
+  }, [answers, draftId, pendingQuestions, refreshQuestions]);
 
   const skipQuestion = useCallback(
     async (questionKey: string) => {
@@ -384,7 +391,8 @@ export function SocraticIntakeWizard() {
             <CardDescription>
               {pendingQuestions.length === 0
                 ? "All required clarifications are answered or skipped. You can continue."
-                : `${pendingQuestions.length} required clarification${pendingQuestions.length === 1 ? "" : "s"} remaining before review.`}
+                : `${pendingQuestions.length} required clarification${pendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
+              Your answers will be included when you review and submit.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -403,9 +411,6 @@ export function SocraticIntakeWizard() {
                     ...current,
                     [questionKey]: value,
                   }));
-                }}
-                onSave={(questionKey) => {
-                  void saveAnswer(questionKey);
                 }}
                 onSkip={(questionKey) => {
                   void skipQuestion(questionKey);
@@ -449,9 +454,6 @@ export function SocraticIntakeWizard() {
                         [questionKey]: value,
                       }));
                     }}
-                    onSave={(questionKey) => {
-                      void saveAnswer(questionKey);
-                    }}
                     onSkip={(questionKey) => {
                       void skipQuestion(questionKey);
                     }}
@@ -463,17 +465,24 @@ export function SocraticIntakeWizard() {
             <div className="space-y-2">
               {!allMustAnswered ? (
                 <p className="m-0 text-sm text-neutral-500" data-testid="socratic-submit-hint">
-                  Answer or skip all required clarifications to continue.
+                  Answer or skip all required clarifications, then review your answers before starting the review.
                 </p>
               ) : null}
               <Button
                 type="button"
                 variant="primary"
-                disabled={!allMustAnswered || busy}
-                onClick={() => setStep(2)}
+                disabled={(!allMustAnswered && !canReviewAnswers) || busy}
+                onClick={() => {
+                  if (allMustAnswered) {
+                    setStep(2);
+                    return;
+                  }
+
+                  void reviewAnswers();
+                }}
                 data-testid="socratic-questions-done"
               >
-                Review & submit
+                {busy ? "Saving answers…" : "Review answers"}
               </Button>
             </div>
           </CardContent>
@@ -481,25 +490,19 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {draftId !== null && step === 1 ? (
-        <DraftIntakeAdvancedSection defaultOpen={false}>
-          <DraftIntakeReasoningPanel
-            draftId={draftId}
-            disabled={busy || blocksLlmExecution}
-            embedded
-          />
-          <DraftIntakeWhatIfBranchPanel
-            draftId={draftId}
-            intent={freeTextIntent}
-            outcome={businessOutcome}
-            systemName={systemName}
-            questionOptions={allQuestions}
-            suppressQuestionAnswerOverride={pendingQuestions.length > 0}
-            disabled={busy}
-            onBranched={(response) => {
-              void applyBranchDraft(response);
-            }}
-          />
-        </DraftIntakeAdvancedSection>
+        <SocraticIntakeWizardAdvancedRail
+          draftId={draftId}
+          busy={busy}
+          blocksLlmExecution={blocksLlmExecution}
+          freeTextIntent={freeTextIntent}
+          businessOutcome={businessOutcome}
+          systemName={systemName}
+          allQuestions={allQuestions}
+          pendingQuestions={pendingQuestions}
+          onBranched={(response) => {
+            void applyBranchDraft(response);
+          }}
+        />
       ) : null}
 
       {step === 2 ? (

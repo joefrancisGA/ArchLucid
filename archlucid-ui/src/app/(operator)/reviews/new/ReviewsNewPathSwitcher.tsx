@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
-import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
+import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import {
   persistActivePath,
   readStoredActivePath,
@@ -74,7 +74,7 @@ export function ReviewsNewPathSwitcher() {
   return (
     <OperatorPageContainer variant="workflow" className="space-y-3">
       <Suspense fallback={null}>
-        <NewReviewIntentCallout />
+        <ReviewsNewDeferredIntentCallout />
       </Suspense>
       {ready ? (
         <div

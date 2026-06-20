@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const admitDraftRequest = vi.fn();
+const answerDraftQuestion = vi.fn();
 const createDraftRequest = vi.fn();
 const getDraftQuestions = vi.fn();
 const patchDraftRequest = vi.fn();
@@ -26,7 +27,7 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   createDraftRequest: (...args: unknown[]) => createDraftRequest(...args),
   patchDraftRequest: (...args: unknown[]) => patchDraftRequest(...args),
   getDraftQuestions: (...args: unknown[]) => getDraftQuestions(...args),
-  answerDraftQuestion: vi.fn(),
+  answerDraftQuestion: (...args: unknown[]) => answerDraftQuestion(...args),
   skipDraftQuestion: (...args: unknown[]) => skipDraftQuestion(...args),
   submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
 }));
@@ -59,6 +60,16 @@ vi.mock("@/components/draft-intake/DraftIntakeAdvancedSection", () => ({
 vi.mock("@/components/draft-intake/DraftIntakeWhatIfBranchPanel", () => ({
   DraftIntakeWhatIfBranchPanel: () => <div data-testid="draft-intake-what-if-stub">What-if stub</div>,
 }));
+
+vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
+  const advancedRail = await import("./SocraticIntakeWizardAdvancedRail");
+  const decisionReceipt = await import("@/components/draft-intake/DraftIntakeDecisionReceiptCard");
+
+  return {
+    SocraticIntakeWizardAdvancedRail: advancedRail.SocraticIntakeWizardAdvancedRail,
+    DraftIntakeDecisionReceiptCard: decisionReceipt.DraftIntakeDecisionReceiptCard,
+  };
+});
 
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
@@ -182,13 +193,76 @@ describe("SocraticIntakeWizard", () => {
 
     expect(screen.getAllByTestId("socratic-question")).toHaveLength(1);
     expect(screen.getByTestId("socratic-submit-hint")).toHaveTextContent(
-      /answer or skip all required clarifications to continue/i,
+      /answer or skip all required clarifications, then review your answers/i,
     );
+    expect(screen.getByText(/your answers will be included when you review and submit/i)).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(/review answers/i);
 
     const hint = screen.getByTestId("socratic-submit-hint");
     const reviewButton = screen.getByTestId("socratic-questions-done");
 
     expect(hint.compareDocumentPosition(reviewButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("persists draft clarification answers when Review answers is clicked", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security"],
+          pendingMustQuestions: [sampleQuestion],
+        },
+      })
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security"],
+          pendingMustQuestions: [],
+        },
+      });
+    answerDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Modernize the claims intake workflow for analysts." },
+    });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-question")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(sampleQuestion.prompt), {
+      target: { value: "Encrypt data at rest and in transit." },
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-questions-done"));
+
+    await waitFor(() => {
+      expect(answerDraftQuestion).toHaveBeenCalledWith(
+        "draft-1",
+        "l0.pillar.security",
+        "Encrypt data at rest and in transit.",
+      );
+      expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
+    });
   });
 
   it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {

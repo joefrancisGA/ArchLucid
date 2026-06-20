@@ -23,8 +23,13 @@ vi.mock("@/components/operator-home/OperatorHomeSampleReviewPreview", () => ({
   OperatorHomeSampleReviewPreview: () => <div data-testid="home-block-sample-review-preview" />,
 }));
 
-vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidanceSection", () => ({
-  OperatorHomeAdvancedGuidanceSection: () => <div data-testid="home-block-advanced-guidance" />,
+vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
+  OperatorHomeAdvancedGuidancePanel: () => <div data-testid="home-block-advanced-guidance" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeDeferredOnboarding", () => ({
+  OperatorHomeDeferredOnboarding: () => null,
+  OperatorHomeFirstValueCallout: () => null,
 }));
 
 vi.mock("@/components/operator-home/OperatorHomeWorkspaceStatusSection", () => ({
@@ -46,14 +51,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
-vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
-  TrialWelcomeRunDeepLink: () => null,
-}));
-
-vi.mock("@/components/OperatorWelcomeOnboarding", () => ({
-  OperatorWelcomeOnboarding: () => null,
 }));
 
 import { OperatorHomePageView } from "./OperatorHomePageView";
