@@ -60536,6 +60536,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("enforcementTier")]
+        public int? EnforcementTier { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("estimatedUsdSavings")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? EstimatedUsdSavings { get; set; } = default!;
@@ -60560,6 +60563,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("muteReason")]
         public string? MuteReason { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("policyRuleId")]
+        public string? PolicyRuleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reasoningTrace")]
         public string? ReasoningTrace { get; set; } = default!;
@@ -67293,6 +67299,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("enforcementTier")]
+        public int? EnforcementTier { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
         public string? EngineType { get; set; } = default!;
