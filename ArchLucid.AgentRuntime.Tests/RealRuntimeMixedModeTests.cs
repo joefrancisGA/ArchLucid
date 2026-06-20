@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
@@ -248,7 +249,8 @@ public sealed class RealRuntimeMixedModeTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            schemaRemediation,
+            DeterministicInsightDensityGate.CreateDefault());
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });

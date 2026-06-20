@@ -4,6 +4,7 @@ using ArchLucid.Capabilities.Cost;
 using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandler;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -92,7 +93,8 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            schemaRemediation,
+            DeterministicInsightDensityGate.CreateDefault());
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });

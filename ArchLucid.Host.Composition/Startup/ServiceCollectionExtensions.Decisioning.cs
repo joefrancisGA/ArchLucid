@@ -1,4 +1,5 @@
 using ArchLucid.Capabilities.Cost;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Configuration;
@@ -56,6 +57,8 @@ public static partial class ServiceCollectionExtensions
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
+        services.Configure<InsightDensityGateOptions>(configuration.GetSection(InsightDensityGateOptions.SectionPath));
+        services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
 
         RegisterPluginFindingEngines(services, configuration);
 

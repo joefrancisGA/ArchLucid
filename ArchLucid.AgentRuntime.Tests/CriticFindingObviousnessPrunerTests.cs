@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 using FluentAssertions;
 
@@ -10,6 +11,8 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class CriticFindingObviousnessPrunerTests
 {
+    private static readonly IInsightDensityGate Gate = DeterministicInsightDensityGate.CreateDefault();
+
     [Fact]
     public void Apply_retains_obvious_generic_advice_as_advisory_instead_of_removing()
     {
@@ -29,7 +32,7 @@ public sealed class CriticFindingObviousnessPrunerTests
                 EvidenceRefs = ["doc:azure-networking-bicep#L42"],
             });
 
-        CriticFindingObviousnessPruner.Apply(result);
+        CriticFindingObviousnessPruner.Apply(result, Gate);
 
         result.Findings.Should().HaveCount(2);
         result.Findings.Should().ContainSingle(f =>
@@ -54,7 +57,7 @@ public sealed class CriticFindingObviousnessPrunerTests
 
         AgentResult result = BuildCriticResult(finding);
 
-        CriticFindingObviousnessPruner.Apply(result);
+        CriticFindingObviousnessPruner.Apply(result, Gate);
 
         result.Findings.Should().HaveCount(1);
         result.Findings[0].Severity.Should().Be(FindingSeverity.Error);
@@ -75,7 +78,7 @@ public sealed class CriticFindingObviousnessPrunerTests
 
         AgentResult result = BuildCriticResult(finding);
 
-        CriticFindingObviousnessPruner.Apply(result);
+        CriticFindingObviousnessPruner.Apply(result, Gate);
 
         result.Findings.Should().HaveCount(1);
         result.Findings[0].Severity.Should().Be(FindingSeverity.Warning);
@@ -98,7 +101,7 @@ public sealed class CriticFindingObviousnessPrunerTests
             ],
         };
 
-        CriticFindingObviousnessPruner.Apply(result);
+        CriticFindingObviousnessPruner.Apply(result, Gate);
 
         result.Findings.Should().HaveCount(1);
     }

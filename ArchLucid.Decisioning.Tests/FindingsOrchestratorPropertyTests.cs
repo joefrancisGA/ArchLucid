@@ -2,6 +2,7 @@ using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Core.Findings;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -48,7 +49,8 @@ public sealed class FindingsOrchestratorPropertyTests
             engineObjects,
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            DeterministicInsightDensityGate.CreateDefault());
 
         FindingsSnapshot snapshot = sut.GenerateFindingsSnapshotAsync(
                 Guid.NewGuid(),

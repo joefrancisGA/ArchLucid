@@ -17,17 +17,32 @@ public static class CriticFindingObviousnessPruner
     /// </summary>
     public static void Apply(AgentResult result)
     {
+        Apply(result, DeterministicInsightDensityGate.CreateDefault());
+    }
+
+    /// <summary>
+    ///     Applies the shared insight-density gate, then preserves legacy Critic severity downgrades for obvious advice.
+    /// </summary>
+    public static void Apply(AgentResult result, IInsightDensityGate gate)
+    {
         ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(gate);
 
         if (result.AgentType != AgentType.Critic)
+        {
             return;
+        }
 
         if (result.Findings.Count == 0)
+        {
             return;
+        }
+
+        FindingInsightDensityGateApplicator.ApplyToArchitectureFindings(result.Findings, gate);
 
         foreach (ArchitectureFinding finding in result.Findings)
         {
-            if (ShouldDowngradeToInfo(finding))
+            if (ShouldDowngradeSeverityToInfo(finding))
             {
                 finding.Severity = FindingSeverity.Info;
                 finding.ConfidenceLevel = FindingConfidenceLevel.Low;
@@ -37,13 +52,17 @@ public static class CriticFindingObviousnessPruner
         }
     }
 
-    private static bool ShouldDowngradeToInfo(ArchitectureFinding finding)
+    private static bool ShouldDowngradeSeverityToInfo(ArchitectureFinding finding)
     {
         if (finding.Severity == FindingSeverity.Info)
+        {
             return false;
+        }
 
         if (!GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(finding.Message))
+        {
             return false;
+        }
 
         return !GenericArchitectureAdvicePatterns.HasArchitectureSpecificAnchor(finding.Message, finding.EvidenceRefs);
     }

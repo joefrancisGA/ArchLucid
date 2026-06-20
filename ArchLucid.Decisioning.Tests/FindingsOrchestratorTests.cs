@@ -2,6 +2,7 @@ using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Core.Findings;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -20,6 +21,8 @@ namespace ArchLucid.Decisioning.Tests;
 [Trait("Suite", "Core")]
 public sealed class FindingsOrchestratorTests
 {
+    private static readonly IInsightDensityGate InsightDensityGate = DeterministicInsightDensityGate.CreateDefault();
+
     private static GraphSnapshot EmptyGraph() => new()
     {
         GraphSnapshotId = Guid.NewGuid(),
@@ -36,7 +39,8 @@ public sealed class FindingsOrchestratorTests
             [engine.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), null!, CancellationToken.None));
@@ -56,7 +60,8 @@ public sealed class FindingsOrchestratorTests
             [e1.Object, e2.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -79,7 +84,8 @@ public sealed class FindingsOrchestratorTests
             [e1.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         AggregateException ax = await Assert.ThrowsAsync<AggregateException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
@@ -117,13 +123,87 @@ public sealed class FindingsOrchestratorTests
             [bad.Object, good.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
         snapshot.Findings.Should().ContainSingle();
         snapshot.EngineFailures.Should().ContainSingle()
             .Which.EngineType.Should().Be("bad");
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_applies_insight_density_gate_to_generic_findings()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding generic = new()
+        {
+            FindingId = "generic-mfa",
+            FindingType = "T",
+            Category = "Security",
+            EngineType = "ok",
+            Title = "Enable MFA for all user accounts.",
+            Rationale = "Enable MFA for all user accounts.",
+            Severity = FindingSeverity.Warning,
+        };
+
+        Mock<IFindingEngine> engine = CreateEngine("ok", "Security", [generic]);
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = new(
+            [engine.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        Finding finding = snapshot.Findings.Should().ContainSingle().Subject;
+        finding.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        finding.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        finding.InsightDensityScore.Should().BeLessThan(50);
+        finding.WhyThisIsNotGeneric.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_promotes_evidence_anchored_findings()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding anchored = new()
+        {
+            FindingId = "anchored",
+            FindingType = "T",
+            Category = "Security",
+            EngineType = "ok",
+            Title = "CheckoutApiUnderSpecified",
+            Rationale = "CheckoutApiUnderSpecified",
+            Severity = FindingSeverity.Warning,
+            Trace = new ExplainabilityTrace
+            {
+                Notes = ["evidence:doc:manifest.json#services"],
+            },
+        };
+
+        Mock<IFindingEngine> engine = CreateEngine("ok", "Security", [anchored]);
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = new(
+            [engine.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        Finding finding = snapshot.Findings.Should().ContainSingle().Subject;
+        finding.Treatment.Should().Be(FindingTreatment.Promote);
+        finding.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        finding.InsightDensityScore.Should().BeGreaterThan(50);
     }
 
     [Fact]
@@ -141,7 +221,8 @@ public sealed class FindingsOrchestratorTests
             [e1.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         await Assert.ThrowsAsync<OperationCanceledException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
@@ -169,7 +250,8 @@ public sealed class FindingsOrchestratorTests
             [e1.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
@@ -206,7 +288,8 @@ public sealed class FindingsOrchestratorTests
             [e1.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -235,7 +318,8 @@ public sealed class FindingsOrchestratorTests
             [e1.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
-            Options.Create(new HumanReviewFindingOptions()));
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -263,6 +347,7 @@ public sealed class FindingsOrchestratorTests
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate,
             clock);
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);

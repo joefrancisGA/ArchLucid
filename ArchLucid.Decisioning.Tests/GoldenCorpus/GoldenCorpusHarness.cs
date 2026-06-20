@@ -19,6 +19,7 @@ using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Rules;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.KnowledgeGraph.Models;
@@ -61,6 +62,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new FindingPayloadValidator(),
             NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
+            DeterministicInsightDensityGate.CreateDefault(),
             _timeProvider);
 
         FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(runId, contextSnapshotId, graph, ct);

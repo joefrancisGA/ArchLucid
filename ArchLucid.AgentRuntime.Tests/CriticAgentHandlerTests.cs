@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -97,7 +98,8 @@ public sealed class CriticAgentHandlerTests
             catalog,
             audit.Object,
             scopeProvider.Object,
-            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
+            DeterministicInsightDensityGate.CreateDefault());
 
         ArchitectureRequest request = new()
         {
@@ -213,7 +215,8 @@ public sealed class CriticAgentHandlerTests
             catalog,
             audit.Object,
             scopeProvider.Object,
-            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
+            DeterministicInsightDensityGate.CreateDefault());
 
         ArchitectureRequest request = new()
         {
@@ -329,7 +332,8 @@ public sealed class CriticAgentHandlerTests
             catalog,
             audit.Object,
             scopeProvider.Object,
-            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
+            DeterministicInsightDensityGate.CreateDefault());
 
         ArchitectureRequest request = new()
         {

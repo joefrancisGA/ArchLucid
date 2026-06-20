@@ -26,6 +26,8 @@ public static partial class GenericArchitectureAdvicePatterns
         "enable logging",
         "enable diagnostic logging",
         "enable monitoring",
+        "add monitoring",
+        "ensure scalability",
         "use azure monitor",
         "enable defender",
         "implement backup",
@@ -90,6 +92,31 @@ public static partial class GenericArchitectureAdvicePatterns
 
         if (ConflictFindingPattern().IsMatch(trimmed))
             return true;
+
+        return false;
+    }
+
+    /// <summary>
+    ///     True when the message encodes a falsifiable architecture signal (under-specified or conflict wording).
+    /// </summary>
+    public static bool HasFalsifiabilitySignal(string? message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        string trimmed = message.Trim();
+
+        if (UnderSpecifiedFindingPattern().IsMatch(trimmed))
+        {
+            return true;
+        }
+
+        if (ConflictFindingPattern().IsMatch(trimmed))
+        {
+            return true;
+        }
 
         return false;
     }

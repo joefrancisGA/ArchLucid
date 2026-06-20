@@ -9,6 +9,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Options;
@@ -27,9 +28,13 @@ public sealed class CriticAgentHandler(
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
-    IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions)
+    IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
+    IInsightDensityGate insightDensityGate)
     : IAgentHandler
 {
+    private readonly IInsightDensityGate _insightDensityGate =
+        insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
+
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
@@ -116,7 +121,7 @@ public sealed class CriticAgentHandler(
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
             CriticFindingConfidenceNormalizer.Apply(parsed);
-            CriticFindingObviousnessPruner.Apply(parsed);
+            CriticFindingObviousnessPruner.Apply(parsed, _insightDensityGate);
 
             return parsed;
         }

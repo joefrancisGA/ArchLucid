@@ -15,11 +15,15 @@ public partial class FindingsOrchestrator(
     IFindingPayloadValidator validator,
     ILogger<FindingsOrchestrator> logger,
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
+    IInsightDensityGate insightDensityGate,
     TimeProvider? timeProvider = null)
     : IFindingsOrchestrator
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
         humanReviewOptions ?? throw new ArgumentNullException(nameof(humanReviewOptions));
+
+    private readonly IInsightDensityGate _insightDensityGate =
+        insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -32,13 +36,14 @@ public partial class FindingsOrchestrator(
     ///     injected from the DI container.
     /// </remarks>
     [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator, ILogger<FindingsOrchestrator>, " +
-              "IOptions<HumanReviewFindingOptions>, and optional TimeProvider.")]
+              "IOptions<HumanReviewFindingOptions>, IInsightDensityGate, and optional TimeProvider.")]
     public FindingsOrchestrator(IEnumerable<IFindingEngine> engines)
         : this(
             engines,
             new NoOpFindingPayloadValidator(),
             SilentLogger.Instance,
             Options.Create(new HumanReviewFindingOptions()),
+            DeterministicInsightDensityGate.CreateDefault(),
             TimeProvider.System)
     {
     }
@@ -50,13 +55,13 @@ public partial class FindingsOrchestrator(
     ///     No structured logging is emitted when using this overload.
     ///     Prefer the primary constructor that also accepts <see cref="ILogger{TCategoryName}" />.
     /// </remarks>
-    [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator> " +
-              "and IOptions<HumanReviewFindingOptions>.")]
+    [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator>, " +
+              "IOptions<HumanReviewFindingOptions>, and IInsightDensityGate.")]
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator)
         : this(engines, validator, SilentLogger.Instance, Options.Create(new HumanReviewFindingOptions()),
-            TimeProvider.System)
+            DeterministicInsightDensityGate.CreateDefault(), TimeProvider.System)
     {
     }
 
@@ -151,6 +156,8 @@ public partial class FindingsOrchestrator(
 
         foreach (Finding finding in snapshot.Findings)
             FindingEnforcementTierClassifier.ApplyToFinding(finding);
+
+        FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, _insightDensityGate);
 
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 

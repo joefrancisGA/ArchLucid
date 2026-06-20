@@ -7,6 +7,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Rules;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -142,6 +143,7 @@ public sealed class TypedFindingsGoldenPathTests
             new FindingPayloadValidator(),
             NullLogger<FindingsOrchestrator>.Instance,
             Options.Create(new HumanReviewFindingOptions()),
+            DeterministicInsightDensityGate.CreateDefault(),
             TimeProvider.System);
 
         FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
