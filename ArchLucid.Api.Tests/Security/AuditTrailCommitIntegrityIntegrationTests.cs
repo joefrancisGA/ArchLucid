@@ -50,9 +50,7 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             {
                 IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                    primer,
-                    includePostCreateRunWarmup: false);
+                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
             }
 
             using HttpClient client = factory.CreateClient();

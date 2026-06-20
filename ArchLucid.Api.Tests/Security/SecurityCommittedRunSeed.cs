@@ -6,7 +6,7 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Api.Tests.Security;
 /// <summary>
 ///     Shared committed-run seed for security integration tests. Uses <see cref="IdorGreenfieldSqlApiFactory" />
-///     (<c>Hosting:Role=Api</c>) and readiness-only warmup so each case does not repeat a create-run POST during primer.
+///     (<c>Hosting:Role=Api</c>) and full architecture-request warmup (including one create-run POST) before seeding.
 /// </summary>
 internal static class SecurityCommittedRunSeed
 {
@@ -23,7 +23,6 @@ internal static class SecurityCommittedRunSeed
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
                 primer,
-                includePostCreateRunWarmup: false,
                 cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 

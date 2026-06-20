@@ -36,9 +36,7 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                primer,
-                includePostCreateRunWarmup: false);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         using HttpClient client = factory.CreateClient();

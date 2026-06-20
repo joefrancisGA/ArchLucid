@@ -343,9 +343,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                primer,
-                includePostCreateRunWarmup: false);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         SecurityCommittedRunSeed.Result seed =
@@ -370,9 +368,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                primer,
-                includePostCreateRunWarmup: false);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         SecurityCommittedRunSeed.Result seed =

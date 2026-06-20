@@ -102,9 +102,7 @@ public sealed class AuditExportTenantIsolationIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                primer,
-                includePostCreateRunWarmup: false);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
