@@ -2983,6 +2983,9 @@
               "string"
             ]
           },
+          "enforcementTier": {
+            "$ref": "#/components/schemas/FindingEnforcementTier"
+          },
           "estimatedUsdSavings": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -3021,6 +3024,12 @@
             "type": "string"
           },
           "muteReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyRuleId": {
             "type": [
               "null",
               "string"
@@ -9525,6 +9534,9 @@
               "string"
             ]
           },
+          "enforcementTier": {
+            "$ref": "#/components/schemas/FindingEnforcementTier"
+          },
           "engineType": {
             "type": "string"
           },
@@ -9739,6 +9751,9 @@
           }
         },
         "type": "object"
+      },
+      "FindingEnforcementTier": {
+        "type": "integer"
       },
       "FindingEngineFailure": {
         "properties": {

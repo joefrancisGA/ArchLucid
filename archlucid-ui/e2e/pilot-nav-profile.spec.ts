@@ -22,7 +22,7 @@ async function dismissBlockingHomeModals(page: Page): Promise<void> {
   const welcomeModal = page.getByTestId("welcome-modal");
 
   if (await welcomeModal.isVisible().catch(() => false)) {
-    await page.getByRole("button", { name: "Skip tour" }).click();
+    await page.getByRole("button", { name: "Skip for now" }).click();
     await expect(welcomeModal).toBeHidden();
   }
 
@@ -111,12 +111,14 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(analysisNav).toBeVisible({ timeout: 15_000 });
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
+
+    await scrollOperatorSidebarFooterIntoView(page);
+    await page.getByTestId("sidebar-governance-disclosure-toggle").click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
 
-    await expect(governanceNav).toBeVisible();
-    // Matches SidebarNav.test.tsx: Show all features sets navAdvanced and hides the footer advanced toggle.
-    await expect(page.getByTestId("sidebar-show-advanced-operations-toggle")).toHaveCount(0);
+    await expect(governanceNav).toBeVisible({ timeout: 15_000 });
     await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveAttribute(
       "href",
       "/governance",
