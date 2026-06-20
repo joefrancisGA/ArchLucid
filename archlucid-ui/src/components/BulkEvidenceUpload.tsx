@@ -185,22 +185,47 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
       >
         <UploadCloud className="mb-2 h-8 w-8 text-neutral-400" />
         <p className="text-sm font-medium text-neutral-700">Drag files here or click to browse</p>
-        <input
-          type="file"
-          multiple
-          className="hidden"
-          ref={inputRef}
-          aria-label="Drag and drop evidence files here"
-          data-testid="evidence-file-input"
-          onChange={(e) => {
-            if (e.target.files) {
-              handleFiles(e.target.files);
-            }
-
-            e.target.value = "";
-          }}
-          aria-describedby="upload-error"
-        />
+        <div className="mt-4 flex gap-4" onClick={(e) => e.stopPropagation()}>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <label className="cursor-pointer">
+              Select files
+              <input
+                type="file"
+                multiple
+                className="hidden"
+                ref={inputRef}
+                data-testid="evidence-file-input"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    handleFiles(e.target.files);
+                  }
+                  e.target.value = "";
+                }}
+                aria-describedby="upload-error"
+              />
+            </label>
+          </Button>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <label className="cursor-pointer">
+              Select folder
+              <input
+                type="file"
+                multiple
+                className="hidden"
+                // @ts-expect-error - webkitdirectory is a non-standard attribute but supported in modern browsers
+                webkitdirectory=""
+                data-testid="evidence-folder-input"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    handleFiles(e.target.files);
+                  }
+                  e.target.value = "";
+                }}
+                aria-describedby="upload-error"
+              />
+            </label>
+          </Button>
+        </div>
       </div>
 
       <div aria-live="polite" className="sr-only">

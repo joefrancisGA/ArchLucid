@@ -66,6 +66,19 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
             />
           </label>
         </Button>
+        <Button type="button" variant="outline" size="sm" asChild>
+          <label className="cursor-pointer">
+            Browse folder
+            <input
+              type="file"
+              className="sr-only"
+              multiple
+              // @ts-expect-error - webkitdirectory is a non-standard attribute but supported in modern browsers
+              webkitdirectory=""
+              onChange={(event) => handleFiles(event.target.files)}
+            />
+          </label>
+        </Button>
         <Link
           href="/help/evidence-intake"
           className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
