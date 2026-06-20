@@ -7,6 +7,7 @@ import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 import type { components } from "@/lib/openapi-schemas";
 
@@ -423,7 +424,7 @@ export function RunDetailOutcomeCards({
   });
 
   return (
-    <div className="space-y-3">
+    <div id="run-decision-summary" className="scroll-mt-24 space-y-3">
       {coverageBanner}
       {dispositionPanel}
       {statusHeadline !== null ? (
@@ -544,7 +545,7 @@ export function RunDetailOutcomeCards({
         </p>
         {unresolvedTrunc !== null && unresolvedTrunc > 0 ? (
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-            {unresolvedTrunc} unresolved on manifest
+            {unresolvedTrunc} unresolved in this review record
           </p>
         ) : null}
       </CardContent>
@@ -561,7 +562,7 @@ export function RunDetailOutcomeCards({
         <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
           {finiteIntegerCountDisplay(artifactCount)}
         </p>
-        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">Attached to manifest when finalized</p>
+        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">Attached when the review record is finalized</p>
       </CardContent>
     </Card>
   );
@@ -573,7 +574,7 @@ export function RunDetailOutcomeCards({
       <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Manifest</CardTitle>
+          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{SIGNED_MANIFEST_LABEL}</CardTitle>
           <CardDescription>Reviewed architecture record</CardDescription>
         </CardHeader>
         <CardContent className="pt-0">

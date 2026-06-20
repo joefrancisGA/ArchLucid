@@ -957,7 +957,7 @@ export default function GovernanceFindingsQueueClient() {
                   : "We could not load reviews for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
                 : buyerPolishedShell
                   ? `When reviews surface items that need attention, they will appear here. ${BUYER_GOVERNANCE_FINDINGS_EMPTY}`
-                  : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a manifest, then return or open findings from review detail."
+                  : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a review record, then return or open findings from review detail."
             }
             actions={[
               { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
@@ -982,7 +982,7 @@ export default function GovernanceFindingsQueueClient() {
             </p>
             <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
               <li>Create an architecture request and wait for the pipeline to complete.</li>
-              <li>Finalize the review to lock the manifest and surface findings.</li>
+              <li>Finalize the review to lock the signed review record and surface findings.</li>
               <li>Return here or open review detail to inspect findings.</li>
             </ol>
           </details>

@@ -16,6 +16,7 @@ describe("buildRunDetailNavSections", () => {
 
     expect(sections.find((s) => s.id === "architecture-graph")?.available).toBe(false);
     expect(sections.find((s) => s.id === "artifacts-exports")?.label).toBe("Deliverables");
+    expect(sections.find((s) => s.id === "run-decision-summary")?.label).toBe("Decision");
   });
 
   it("full operator includes review trail and diagnostics sections", () => {

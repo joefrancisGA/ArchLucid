@@ -540,7 +540,7 @@ export const auditResultsSectionIntroBuyerPolished =
 
 /** Audit log — buyer-polished public sample: short note when bulk CSV is not enabled (date window and/or role). */
 export const auditExportSampleWorkspaceCsvHintBuyerPolished =
-  "In the public sample, bulk CSV export follows the same role and date-window rules as production.";
+  "In this demonstration workspace, bulk CSV export follows the same role and date-window rules as production.";
 
 /** Audit log — buyer-polished: collapsible region for export and related operator actions (after the timeline). */
 export const auditBuyerUtilitiesDetailsSummary = "Audit utilities";

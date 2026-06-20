@@ -22,6 +22,8 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import {
   BUYER_AUDIT_DOWNLOAD_CTA,
+  BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP,
+  BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD,
   BUYER_AUDIT_PACKAGE_READY_LEAD,
   BUYER_AUDIT_TIMELINE_INTRO,
   BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
@@ -277,9 +279,8 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         Next steps for enterprise workspace
                       </p>
                       <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-                        When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a
-                        separate request flow. You have now seen the sample audit trail — use this section when you are ready to
-                        discuss tenant-backed workspaces.
+                        {BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD}{" "}
+                        {BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP}
                       </p>
                       <p className="m-0 mt-3 text-xs">
                         <Link

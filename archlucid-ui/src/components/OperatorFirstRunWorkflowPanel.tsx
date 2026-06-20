@@ -401,7 +401,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
               </h2>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                Claims Intake is the sample package — start with the manifest summary, then review detail or the read-only
+                Claims Intake is the sample package — start with the signed review record summary, then review detail or the read-only
                 walkthrough. The checklist below is optional.
               </p>
               <p className="m-0 mt-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">

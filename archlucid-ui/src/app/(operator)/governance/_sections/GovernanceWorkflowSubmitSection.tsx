@@ -101,7 +101,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
             <CardDescription>
               {canMutateWorkflow ? (
                 <>
-                  Starts an approval request so reviewers can promote your finalized manifest from a source environment
+                  Starts an approval request so reviewers can promote your finalized review record from a source environment
                   toward a target (for example staging to production).
                 </>
               ) : (
@@ -125,7 +125,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               <Label htmlFor="gov-submit-version">
                 Review record version (the{" "}
                 <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
-                  reviewed manifest
+                  signed review record
                 </GlossaryTooltip>{" "}
                 label)
               </Label>

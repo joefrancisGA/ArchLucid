@@ -141,6 +141,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
   const buyerFinalizedPackage =
     m.buyerPolishedArtifactTable === true && Boolean(m.manifestId);
 
+  const sectionNavEl = <RunDetailSectionNav sections={m.runDetailNavSections} />;
+
   const showDemoMarketingChrome = shouldShowOperatorDemoMarketingChrome(
     m.buyerPolishedArtifactTable === true,
     m.usedStaticDemoRun,
@@ -217,6 +219,13 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
+      {buyerFinalizedPackage ? (
+        <>
+          {outcomeCardsEl}
+          {sectionNavEl}
+        </>
+      ) : null}
+
       <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
 
       {m.manifestId ? (
@@ -280,7 +289,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {governanceAlertsEl}
-      {outcomeCardsEl}
+      {buyerFinalizedPackage ? null : outcomeCardsEl}
 
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailLastFailureCard
@@ -329,7 +338,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <RunProgressTracker runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
       ) : null}
 
-      <RunDetailSectionNav sections={m.runDetailNavSections} />
+      {buyerFinalizedPackage ? null : sectionNavEl}
 
       {m.buyerPolishedArtifactTable ? (
         <RunDetailBuyerModeFallbackBanner

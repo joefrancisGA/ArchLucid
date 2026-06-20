@@ -457,6 +457,28 @@ export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
 
 export const BUYER_AUDIT_DOWNLOAD_CTA = "Download governance evidence package";
 
+export const BUYER_EVIDENCE_CHAIN_SOURCE_LINE =
+  "Persisted evidence chain pointers for this finding (review record version, snapshots, and trace ids).";
+
+export const BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO =
+  "Pretty-printed review record JSON for each package. Red and green lines are removed or added; unchanged lines provide context around edits.";
+
+export const BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING = "Loading review record documents.";
+
+export const BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY = "Fetching both review records for diff…";
+
+export const BUYER_WHY_ARCHLUCID_SOURCES_LINE =
+  "Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.";
+
+export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
+  "Aggregated sponsor-facing proof from the sponsor evidence pack service — complements the seeded Claims Intake review below.";
+
+export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD =
+  "When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a separate request flow.";
+
+export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP =
+  "Use this section when you are ready to discuss tenant-backed workspaces and production onboarding.";
+
 export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";

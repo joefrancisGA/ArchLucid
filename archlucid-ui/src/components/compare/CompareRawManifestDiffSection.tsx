@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
+import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL, BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO, BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY, BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING } from "@/lib/buyer-polish-copy";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import {
   formatArchitectureManifestJsonForDiff,
@@ -95,14 +95,28 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       </summary>
       <div className="mt-3 space-y-3">
         <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-          Pretty-printed JSON from <strong>GET /v1/authority/runs/…/manifest</strong> for each review. Red and green
-          lines are removed or added; unchanged lines provide context around edits.
+          {props.buyerPolished === true ? (
+            BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO
+          ) : (
+            <>
+              Pretty-printed JSON from <strong>GET /v1/authority/runs/…/manifest</strong> for each review. Red and green
+              lines are removed or added; unchanged lines provide context around edits.
+            </>
+          )}
         </p>
 
         {loading ? (
           <OperatorLoadingNotice>
-            <strong>Loading manifest documents.</strong>
-            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">Fetching both manifests for diff…</p>
+            <strong>
+              {props.buyerPolished === true
+                ? BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING
+                : "Loading manifest documents."}
+            </strong>
+            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+              {props.buyerPolished === true
+                ? BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY
+                : "Fetching both manifests for diff…"}
+            </p>
           </OperatorLoadingNotice>
         ) : null}
 

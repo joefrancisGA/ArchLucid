@@ -24,14 +24,14 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>Review trail</h3>
           <CardDescription>
-            The reviewed manifest anchors the authoritative record. Recent pipeline milestones summarize how snapshots
+            The signed review record anchors the authoritative decision. Recent pipeline milestones summarize how snapshots
             converged toward finalization.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
             <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-              <GlossaryTooltip termKey="golden_manifest">Reviewed manifest</GlossaryTooltip>
+              <GlossaryTooltip termKey="golden_manifest">Signed review record</GlossaryTooltip>
             </p>
             <div className="mt-2 min-w-0">
               {manifestId ? (
@@ -39,7 +39,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                   className="inline-block text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                   href={`/manifests/${encodeURIComponent(manifestId)}`}
                 >
-                  Finalized Architecture Manifest
+                  Finalized signed review record
                 </Link>
               ) : (
                 <span className="font-mono text-xs">—</span>

@@ -18,7 +18,8 @@ export function buildRunDetailNavSections(
 
     if (buyerPolishedSections) {
       return [
-        { id: "manifest-summary", label: "Outcome", available: Boolean(manifestSummary) },
+        { id: "run-decision-summary", label: "Decision", available: Boolean(manifestId) },
+        { id: "manifest-summary", label: "Outcome record", available: Boolean(manifestSummary) },
         { id: "capture-evidence", label: "Capture evidence", available: !Boolean(manifestId) },
         { id: "trust-evidence", label: "Evidence", available: Boolean(trustEvidenceCard) },
         { id: "run-explanation", label: "Assessment", available: Boolean(manifestId) },
@@ -33,7 +34,7 @@ export function buildRunDetailNavSections(
     }
   
     return [
-      { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
+      { id: "manifest-summary", label: "Signed review record", available: Boolean(manifestSummary) },
       { id: "capture-evidence", label: "Add evidence", available: !Boolean(manifestId) },
       { id: "trust-evidence", label: "Evidence card", available: Boolean(trustEvidenceCard) },
     { id: "run-metadata", label: "Review", available: true },

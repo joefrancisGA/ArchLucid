@@ -1,3 +1,4 @@
+import { BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE } from "@/lib/buyer-polish-copy";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidSponsorPackBody } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody";
@@ -25,8 +26,7 @@ export function WhyArchLucidSponsorEvidencePackSection(props: WhyArchLucidSponso
           Sponsor KPI evidence pack
         </h2>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Aggregated sponsor-facing proof from <code className="text-xs">GET /v1/pilots/sponsor-evidence-pack</code> —
-          complements the seeded Contoso review below without replacing it.
+          {BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE}
         </p>
       </div>
 

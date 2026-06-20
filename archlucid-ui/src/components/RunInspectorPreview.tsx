@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL, BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   isBuyerPolishedOperatorShellEnv,
   isBuyerSafeDemoMarketingChromeEnv,
@@ -245,7 +246,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </li>
           <li className="flex justify-between gap-2">
             <span>{buyerPolished ? "Package finalized" : "Manifest finalized"}</span>
-            <span aria-label={run.hasGoldenManifest ? "Reviewed manifest present" : "Reviewed manifest missing"}>
+            <span aria-label={run.hasGoldenManifest ? `${SIGNED_MANIFEST_LABEL} present` : `${SIGNED_MANIFEST_LABEL} missing`}>
               {snapshotLabel(run.hasGoldenManifest)}
             </span>
           </li>
@@ -378,7 +379,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                 <div className="mt-2 flex flex-wrap gap-2">
                   {!buyerSafePrimary ? (
                     <Button variant="outline" size="sm" className="h-8" asChild>
-                      <Link href={manifestHref}>Manifest</Link>
+                      <Link href={manifestHref}>{SIGNED_MANIFEST_LABEL}</Link>
                     </Button>
                   ) : null}
                   {hasFindingsLink ? (

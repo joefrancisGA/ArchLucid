@@ -6,6 +6,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type BreadcrumbItem = {
   label: string;
@@ -241,6 +242,12 @@ function finalizeTrustRouteBreadcrumbs(
   return next;
 }
 
+const BUYER_DEMO_PATH_SEGMENT_TITLES: Partial<Record<string, string>> = {
+  "f0000001-0000-4000-8000-000000000001": "Sample finalized review record",
+  "f0000002-0000-4000-8000-000000000002": "Review record (artifacts pending)",
+  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: `${SHOWCASE_BUYER_REVIEW_TITLE} signed record`,
+};
+
 /** E2E / demo fixture ids in path segments — show realistic titles instead of slug-style labels. */
 const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-run-001": "Claims Intake Modernization",
@@ -377,7 +384,7 @@ function labelForSegment(
     return "Policy pack detail";
   }
 
-  const demoTitle = DEMO_PATH_SEGMENT_TITLES[segment];
+  const demoTitle = buyer ? BUYER_DEMO_PATH_SEGMENT_TITLES[segment] ?? DEMO_PATH_SEGMENT_TITLES[segment] : DEMO_PATH_SEGMENT_TITLES[segment];
 
   if (
     demoTitle !== undefined &&
@@ -402,7 +409,7 @@ function labelForSegment(
     }
 
     if (prev === "manifests") {
-      return "Manifest";
+      return buyer ? SIGNED_MANIFEST_LABEL : "Manifest";
     }
 
     if (prev === "approval-requests") {
@@ -425,6 +432,14 @@ function labelForSegment(
   const mapped = SEGMENT_LABELS[segment];
 
   if (mapped !== undefined && mapped !== null) {
+
+    if (buyer === true && segment === "manifests") {
+      return "Signed review records";
+    }
+
+    if (buyer === true && segment === "manifest") {
+      return SIGNED_MANIFEST_LABEL;
+    }
 
     if (buyer === true && segment === "reviews") {
 

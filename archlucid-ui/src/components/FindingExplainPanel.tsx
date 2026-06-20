@@ -11,6 +11,8 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
+import { BUYER_EVIDENCE_CHAIN_SOURCE_LINE } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -30,6 +32,7 @@ export type FindingExplainPanelProps = {
  */
 export function FindingExplainPanel({ runId, findingId, confidenceLevel }: FindingExplainPanelProps) {
   const rank = useNavCallerAuthorityRank();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [audit, setAudit] = useState<FindingLlmAudit | null>(null);
   const [evidenceChain, setEvidenceChain] = useState<FindingEvidenceChain | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -106,11 +109,17 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
             Evidence chain (persisted pointers)
           </h4>
           <p className="m-0 text-xs text-violet-900/90 dark:text-violet-100/90">
-            From{" "}
-            <code className="rounded bg-violet-200/80 px-1 text-[0.65rem] dark:bg-violet-900/80">
-              GET /v1/architecture/run/…/findings/…/evidence-chain
-            </code>
-            .
+            {buyerPolishedShell ? (
+              BUYER_EVIDENCE_CHAIN_SOURCE_LINE
+            ) : (
+              <>
+                From{" "}
+                <code className="rounded bg-violet-200/80 px-1 text-[0.65rem] dark:bg-violet-900/80">
+                  GET /v1/architecture/run/…/findings/…/evidence-chain
+                </code>
+                .
+              </>
+            )}
           </p>
           <dl className="m-0 grid gap-2 text-xs text-violet-950 dark:text-violet-50 sm:grid-cols-2">
             <div>
@@ -126,7 +135,7 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
               <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? "—"}</dd>
             </div>
             <div>
-              <dt className="font-semibold">Reviewed manifest id</dt>
+              <dt className="font-semibold">Review record id</dt>
               <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? "—"}</dd>
             </div>
           </dl>

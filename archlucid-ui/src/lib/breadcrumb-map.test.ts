@@ -49,6 +49,16 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("buyer-polished: showcase manifest detail uses signed review record trail", () => {
+    expect(
+      getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, { buyerPolishedShell: true }),
+    ).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Signed review records", href: "/manifests" },
+      { label: `${SHOWCASE_BUYER_REVIEW_TITLE} signed record` },
+    ]);
+  });
+
   it("maps governance approval lineage with demo request title", () => {
     expect(getBreadcrumbs("/governance/approval-requests/e2e-approval-001/lineage")).toEqual([
       { label: "Home", href: "/" },
