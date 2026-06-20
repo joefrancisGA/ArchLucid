@@ -44,12 +44,12 @@ describe("SeedSampleReviewButton", () => {
   it("renders the default seed label", () => {
     render(<SeedSampleReviewButton />);
 
-    expect(screen.getByRole("button", { name: /seed a sample review/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /load sample workspace/i })).toBeInTheDocument();
   });
 
   it("posts to /api/seed-sample and pushes the redirectTo target on success", async () => {
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify({ redirectTo: "/reviews" }), {
+      new Response(JSON.stringify({ redirectTo: "/dashboard" }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }),
@@ -57,7 +57,7 @@ describe("SeedSampleReviewButton", () => {
 
     render(<SeedSampleReviewButton />);
 
-    fireEvent.click(screen.getByRole("button", { name: /seed a sample review/i }));
+    fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -68,12 +68,12 @@ describe("SeedSampleReviewButton", () => {
     expect((init as RequestInit).method).toBe("POST");
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/reviews");
+      expect(pushMock).toHaveBeenCalledWith("/dashboard");
     });
     expect(refreshMock).toHaveBeenCalledTimes(1);
   });
 
-  it("falls back to /reviews when the response omits a redirectTo", async () => {
+  it("falls back to /dashboard when the response omits a redirectTo", async () => {
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({}), {
         status: 200,
@@ -83,10 +83,10 @@ describe("SeedSampleReviewButton", () => {
 
     render(<SeedSampleReviewButton />);
 
-    fireEvent.click(screen.getByRole("button", { name: /seed a sample review/i }));
+    fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/reviews");
+      expect(pushMock).toHaveBeenCalledWith("/dashboard");
     });
   });
 
@@ -100,7 +100,7 @@ describe("SeedSampleReviewButton", () => {
 
     render(<SeedSampleReviewButton />);
 
-    const trigger = screen.getByRole("button", { name: /seed a sample review/i });
+    const trigger = screen.getByRole("button", { name: /load sample workspace/i });
     fireEvent.click(trigger);
 
     await waitFor(() => {
@@ -116,7 +116,7 @@ describe("SeedSampleReviewButton", () => {
 
     render(<SeedSampleReviewButton />);
 
-    fireEvent.click(screen.getByRole("button", { name: /seed a sample review/i }));
+    fireEvent.click(screen.getByRole("button", { name: /load sample workspace/i }));
 
     await waitFor(() => {
       expect(showErrorMock).toHaveBeenCalledWith("offline");

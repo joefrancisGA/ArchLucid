@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { DemoTenantSeedCallout } from "@/components/DemoTenantSeedCallout";
 import { Button } from "@/components/ui/button";
 import {
   buildExecutiveSummaryMarkdown,
@@ -239,6 +240,11 @@ export function ExecutiveRoiSummarySection({
 
   const displayData = usesExternalSummary ? (summaryProp ?? null) : data;
   const showLoading = usesExternalSummary ? (loadingProp ?? false) : displayData === null;
+  const workspaceHasNoCommittedReviews =
+    displayData !== null &&
+    displayData.systemCount === 0 &&
+    displayData.latestRunCount === 0 &&
+    displayData.totalEstimatedUsdSavings === 0;
 
   if (showLoading || displayData === null) {
     return (
@@ -312,6 +318,7 @@ export function ExecutiveRoiSummarySection({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {workspaceHasNoCommittedReviews ? <DemoTenantSeedCallout /> : null}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings (headline)</div>
@@ -391,7 +398,7 @@ export function ExecutiveRoiSummarySection({
           </div>
         ) : (
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            No committed reviews with findings yet — run an architecture review to populate this summary.
+            No committed reviews with findings yet — load the sample workspace or run an architecture review to populate this summary.
           </p>
         )}
 

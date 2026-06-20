@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -15,6 +15,8 @@ export type EnterpriseCompactEmptyStateProps = {
   readonly title: string;
   readonly description: string;
   readonly actions?: readonly EnterpriseCompactEmptyStateAction[];
+  /** Optional client actions (e.g. demo seed button) rendered after link actions. */
+  readonly footer?: ReactNode;
   readonly testId?: string;
 };
 
@@ -23,7 +25,7 @@ export type EnterpriseCompactEmptyStateProps = {
  * Prefer over centered {@link EmptyState} cards on dense operator surfaces.
  */
 export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStateProps): ReactElement {
-  const { title, description, actions, testId } = props;
+  const { title, description, actions, footer, testId } = props;
   const actionList = actions ?? [];
 
   return (
@@ -57,6 +59,7 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
           })}
         </div>
       ) : null}
+      {footer ? <div className="flex flex-wrap gap-2 pt-1">{footer}</div> : null}
     </div>
   );
 }

@@ -1,19 +1,23 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 
 import { OperatorHomeWorkspaceEmptyState } from "@/components/operator-home/OperatorHomeWorkspaceEmptyState";
-import {
-  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
-  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 
 describe("OperatorHomeWorkspaceEmptyState (TB-352)", () => {
-  it("uses the compact enterprise empty pattern without duplicate CTAs", () => {
+  it("uses the compact enterprise empty pattern with demo seed CTA", () => {
     render(<OperatorHomeWorkspaceEmptyState />);
 
     expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
-    expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_BODY)).toBeInTheDocument();
-    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByTestId("seed-sample-review-button")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Load sample workspace" })).toBeInTheDocument();
   });
 });

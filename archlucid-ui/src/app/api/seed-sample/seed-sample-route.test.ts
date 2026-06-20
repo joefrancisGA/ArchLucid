@@ -6,7 +6,7 @@ import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 
 /**
  * Covers the OS-1 internal seed-sample route handler. The handler bridges the Reviews empty-state button to the
- * upstream `/api/proxy/v1/demo/seed` proxy: on 204 it returns `{ redirectTo: "/reviews" }`, otherwise it passes
+ * upstream `/api/proxy/v1/demo/seed` proxy: on 204 it returns `{ redirectTo: "/dashboard" }`, otherwise it passes
  * the upstream status and body through so callers can surface a Problem Details toast.
  */
 describe("POST /api/seed-sample", () => {
@@ -30,7 +30,7 @@ describe("POST /api/seed-sample", () => {
 
     expect(res.status).toBe(200);
     const json: unknown = await res.json();
-    expect(json).toEqual({ redirectTo: "/reviews" });
+    expect(json).toEqual({ redirectTo: "/dashboard" });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [calledUrl] = fetchMock.mock.calls[0]!;

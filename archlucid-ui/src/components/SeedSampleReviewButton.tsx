@@ -11,8 +11,8 @@ import { showError } from "@/lib/toast";
  * V1 Operator Shell — OS-1 (LATEST.md improvement #1).
  *
  * Reviews-empty-state CTA that POSTs to the internal `/api/seed-sample` route handler. On success the route
- * returns `{ redirectTo: "/reviews" }`; we forward there with `router.push` so the freshly-seeded reviews list
- * is visible. Errors surface via the shared sonner toast (`showError`) — the button stays interactive so the
+ * returns `{ redirectTo: "/dashboard" }`; we forward there with `router.push` so the freshly-seeded executive ROI
+ * dashboard is visible. Errors surface via the shared sonner toast (`showError`) — the button stays interactive so the
  * operator can retry without a page reload.
  *
  * Static showcase / `SampleFirstReviewPackageCard` flows are intentionally untouched.
@@ -20,11 +20,11 @@ import { showError } from "@/lib/toast";
 
 const SEED_SAMPLE_ROUTE = "/api/seed-sample";
 
-const FALLBACK_ERROR_MESSAGE = "Could not seed a sample review. Please try again.";
+const FALLBACK_ERROR_MESSAGE = "Could not load the sample workspace. Please try again.";
 
 export type SeedSampleReviewButtonProps = {
   readonly className?: string;
-  /** Optional override for the visible label (defaults to "Seed a sample review"). */
+  /** Optional override for the visible label (defaults to "Load sample workspace"). */
   readonly label?: string;
 };
 
@@ -72,7 +72,7 @@ async function readErrorDetail(response: Response): Promise<string> {
 
 export function SeedSampleReviewButton({
   className,
-  label = "Seed a sample review",
+  label = "Load sample workspace",
 }: SeedSampleReviewButtonProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -95,7 +95,7 @@ export function SeedSampleReviewButton({
       }
 
       const payload: unknown = await response.json();
-      const target = readRedirectTarget(payload) ?? "/reviews";
+      const target = readRedirectTarget(payload) ?? "/dashboard";
 
       router.push(target);
       router.refresh();

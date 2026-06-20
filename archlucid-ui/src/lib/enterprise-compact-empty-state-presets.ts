@@ -1,26 +1,24 @@
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
-import {
-  OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
-  OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-} from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_WORKSPACE_EMPTY_TITLE } from "@/lib/buyer-polish-copy";
 
 /** Reviews list when the project has zero review packages. */
 export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "runs-list-empty-state",
   title: "No review packages yet",
   description:
-    "Start an architecture review to generate a package with findings, evidence, manifest, and exports. Or open the sample package to see the completed flow.",
+    "Start an architecture review to generate a package with findings, evidence, manifest, and exports. Or load the Contoso sample workspace to populate reviews and the executive ROI dashboard immediately.",
   actions: [
     { label: "Start architecture review", href: "/reviews/new", variant: "primary" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
   ],
 };
 
-/** Operator home reviews zone — CTAs live in the hero; no duplicate actions here (TB-352). */
+/** Operator home reviews zone — hero CTAs above; demo seed below when the live list is empty. */
 export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
-  description: OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
+  description:
+    "Your workspace has no committed reviews yet. Load the Contoso sample workspace to see findings, manifests, and portfolio ROI — or start a review from the actions above.",
 };
 
 /** Semantic search returned no hits. */
