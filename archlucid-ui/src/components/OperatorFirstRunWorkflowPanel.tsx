@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import {
@@ -12,7 +12,6 @@ import {
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
@@ -241,38 +240,6 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
     setGraduated(true);
   }, [hydrated, allDone]);
 
-  const toggleStep = useCallback(
-    (index: number) => {
-      autoGraduateBlockedRef.current = false;
-
-      setDoneByIndex((prev) => {
-        const next = [...prev];
-        next[index] = !next[index];
-
-        try {
-          if (next[index]) {
-            window.localStorage.setItem(corePilotStepDoneStorageKey(index), "1");
-          } else {
-            window.localStorage.removeItem(corePilotStepDoneStorageKey(index));
-          }
-        } catch {
-          /* ignore */
-        }
-
-        if (!exploreCompletedOutput) {
-          void putCorePilotTeamChecklistStep(index, next[index]).catch(() => {});
-        }
-
-        if (next[index]) {
-          recordCorePilotRailChecklistStep(index);
-        }
-
-        return next;
-      });
-      emitCorePilotChecklistChanged();
-    },
-    [exploreCompletedOutput],
-  );
 
   function minimize() {
     setMinimized(true);

@@ -4,7 +4,6 @@ import {
   READINESS_AZURE_EXTRACTOR_LABEL,
 } from "@/lib/onboarding-secondary-surfaces";
 import {
-  FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
 } from "@/lib/first-pilot-diagnostics-copy";
 import { isBuyerShellHomePresentation } from "@/lib/buyer-shell-home-present";

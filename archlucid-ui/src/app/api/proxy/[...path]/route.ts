@@ -60,7 +60,7 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
 
   const incomingTraceParent = request.headers.get(TRACE_PARENT_HEADER);
 
-  if (isValidTraceParent(incomingTraceParent)) {
+  if (typeof incomingTraceParent === "string" && isValidTraceParent(incomingTraceParent)) {
     h.set(TRACE_PARENT_HEADER, incomingTraceParent.trim());
   }
 

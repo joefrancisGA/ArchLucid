@@ -13,6 +13,6 @@ describe("runsListPageFilterStatusLine", () => {
   });
 
   it("uses neutral count copy for buyer-polished workspaces", () => {
-    expect(runsListPageFilterStatusLine(1, 1, false, { buyerPolished: true })).toBe("1 review on this page.");
+    expect(runsListPageFilterStatusLine(1, 1, false)).toBe("1 review on this page.");
   });
 });

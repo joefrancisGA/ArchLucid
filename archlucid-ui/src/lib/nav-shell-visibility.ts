@@ -7,6 +7,7 @@ import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
+import { filterNavLinksByOperateUnlockPhase, type OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 /** Buyer default shell: hide Compare only; golden-path links render in the fixed sidebar cluster. */
 const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/compare"]);
@@ -174,6 +175,7 @@ export function listNavGroupsVisibleInOperatorShell(
   applyCollapsedSidebarPilotFilter = false,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 2,
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
@@ -185,15 +187,19 @@ export function listNavGroupsVisibleInOperatorShell(
     const useCollapsedPilot =
       applyCollapsedSidebarPilotFilter && group.surface === "review-workflow";
 
-    const visibleLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        useCollapsedPilot,
-        hasCommittedArchitectureReview,
+    const visibleLinks = filterNavLinksByOperateUnlockPhase(
+      filterNavLinksByPublishReadiness(
+        filterNavLinksForOperatorShell(
+          group.links,
+          showExtended,
+          showAdvanced,
+          callerAuthorityRank,
+          useCollapsedPilot,
+          hasCommittedArchitectureReview,
+        ),
       ),
+      hasCommittedArchitectureReview,
+      operateNavUnlockPhase,
     );
 
     if (visibleLinks.length === 0) {

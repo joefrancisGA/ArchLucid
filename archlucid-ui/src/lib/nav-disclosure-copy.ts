@@ -18,13 +18,16 @@ export const V1_SIDEBAR_CUSTOMIZATION_VISIBLE = false;
 export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
 
 export const OPERATOR_ADVANCED_MODE = {
-  /** Single disclosure control — replaces separate extended/advanced toggles in V1. */
-  show: "Advanced mode",
-  hide: "Essential mode only",
+  /** Single disclosure control — governance, audit, and alerting stay hidden until enabled. */
+  show: "Enable advanced features",
+  hide: "Hide advanced features",
   title:
-    "Show governance, audit, compare, replay, and deeper analysis destinations in the sidebar.",
-  assistiveOn: "Advanced mode on. Governance and analysis tools are visible.",
-  assistiveOff: "Essential mode. Core Pilot destinations only until Advanced mode is on.",
+    "Show governance workflow, alerts, audit trail, and policy packs in the sidebar.",
+  assistiveOn: "Advanced features on. Governance, audit, and alerting destinations are visible.",
+  assistiveOff:
+    "Advanced features off. Core Pilot review destinations stay visible until you enable governance tooling.",
+  footnote:
+    "Governance, audit, and alerting stay hidden until you turn this on — default for new workspaces.",
 } as const;
 
 export const NAV_DISCLOSURE = {

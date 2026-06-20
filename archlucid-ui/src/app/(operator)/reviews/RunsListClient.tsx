@@ -427,8 +427,7 @@ export function RunsListClient({
   const filterStatusLine = runsListPageFilterStatusLine(
     filteredSorted.length,
     safeRuns.length,
-    listNarrowingActive,
-    { buyerPolished },
+    listNarrowingActive
   );
 
   const runsSortControl = (

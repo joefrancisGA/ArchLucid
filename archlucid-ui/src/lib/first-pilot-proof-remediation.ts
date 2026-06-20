@@ -90,6 +90,6 @@ export function resolveFirstPilotProofRemediation(
   };
 }
 
-export function buildDocsBlobHref(docPath: string, _githubBlobBase?: string): string {
+export function buildDocsBlobHref(docPath: string): string {
   return resolveInAppDocHref(docPath);
 }

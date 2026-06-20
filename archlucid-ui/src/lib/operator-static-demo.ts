@@ -128,7 +128,7 @@ export type StaticDemoRunsListFallbackOptions = {
   readonly afterEmptyLiveList?: boolean;
 };
 
-function isRunsListCuratedShowcaseAllowed(_options?: StaticDemoRunsListFallbackOptions): boolean {
+function isRunsListCuratedShowcaseAllowed(): boolean {
   return isStaticDemoPayloadFallbackEnabled();
 }
 
@@ -138,9 +138,10 @@ function isRunsListCuratedShowcaseAllowed(_options?: StaticDemoRunsListFallbackO
  */
 export function tryStaticDemoRunSummariesPaged(
   projectId: string,
-  options?: StaticDemoRunsListFallbackOptions,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options?: StaticDemoRunsListFallbackOptions,
 ): { items: RunSummary[]; totalCount: number } | null {
-  if (!isRunsListCuratedShowcaseAllowed(options)) {
+  if (!isRunsListCuratedShowcaseAllowed()) {
     return null;
   }
 
@@ -167,9 +168,10 @@ export function tryStaticDemoRunSummariesPaged(
  */
 export function tryStaticDemoCompareRunSummaries(
   projectId: string,
-  options?: StaticDemoRunsListFallbackOptions,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _options?: StaticDemoRunsListFallbackOptions,
 ): { items: RunSummary[]; totalCount: number } | null {
-  if (!isRunsListCuratedShowcaseAllowed(options)) {
+  if (!isRunsListCuratedShowcaseAllowed()) {
     return null;
   }
 

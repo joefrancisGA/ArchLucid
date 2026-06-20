@@ -30,6 +30,8 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { filterNavLinksByOperateUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import { operateNavUnlockPhaseForAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
 import { cn } from "@/lib/utils";
 
 function renderMobileNavBlock(
@@ -37,12 +39,25 @@ function renderMobileNavBlock(
   pathname: string,
   demoUi: boolean,
   buyerPolishedShell: boolean,
+  hasCommittedArchitectureReview: boolean,
+  advancedFeaturesEnabled: boolean,
   close: () => void,
 ): ReactElement[] {
+  const operateUnlockPhase = operateNavUnlockPhaseForAdvancedFeatures(advancedFeaturesEnabled);
+
   return rows.map(({ group, visibleLinks }) => {
     const linksAfterDemo = demoUi
       ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
       : visibleLinks;
+    const linksForRender = filterNavLinksByOperateUnlockPhase(
+      linksAfterDemo,
+      hasCommittedArchitectureReview,
+      operateUnlockPhase,
+    );
+
+    if (linksForRender.length === 0) {
+      return <div key={group.id} />;
+    }
 
     return (
       <div key={group.id}>
@@ -58,7 +73,7 @@ function renderMobileNavBlock(
           {group.id === "operate-governance" ? <OperateCapabilityNavGroupHint /> : null}
         </div>
         <nav className="flex flex-col gap-0.5" aria-label={group.label}>
-          {linksAfterDemo.map((link) => {
+          {linksForRender.map((link) => {
             const presented = resolveNavLinkPresentation(link, buyerPolishedShell);
             const active = isNavLinkActive(pathname, presented.href);
             const Icon = link.icon;
@@ -112,6 +127,7 @@ export function MobileNavDrawer() {
   const extendedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
   const advancedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
   const operatorAdvancedModeOn = showExtended && showAdvanced;
+  const operateNavUnlockPhase = operateNavUnlockPhaseForAdvancedFeatures(operatorAdvancedModeOn);
 
   function toggleOperatorAdvancedMode(): void {
     setOperatorAdvancedMode(!operatorAdvancedModeOn);
@@ -125,6 +141,7 @@ export function MobileNavDrawer() {
     false,
     "review-workflow",
     hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
 
   const omitAdminClusters = demoUi || buyerPolishedShell;
@@ -139,6 +156,7 @@ export function MobileNavDrawer() {
         false,
         "platform-admin",
         hasCommittedArchitectureReview,
+        operateNavUnlockPhase,
       );
 
   return (
@@ -161,19 +179,6 @@ export function MobileNavDrawer() {
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
-            {renderMobileNavBlock(reviewNavRows, pathname, demoUi, buyerPolishedShell, () => {
-              setOpen(false);
-            })}
-            {adminNavRows.length > 0 ? (
-              <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-                  Administration
-                </h3>
-                {renderMobileNavBlock(adminNavRows, pathname, demoUi, buyerPolishedShell, () => {
-                  setOpen(false);
-                })}
-              </div>
-            ) : null}
             {demoUi || buyerPolishedShell ? null : (
               <OperatorAdvancedModeToggle
                 advancedModeOn={operatorAdvancedModeOn}
@@ -181,6 +186,19 @@ export function MobileNavDrawer() {
                 testId="mobile-operator-advanced-mode-toggle"
               />
             )}
+            {renderMobileNavBlock(reviewNavRows, pathname, demoUi, buyerPolishedShell, hasCommittedArchitectureReview, operatorAdvancedModeOn, () => {
+              setOpen(false);
+            })}
+            {adminNavRows.length > 0 ? (
+              <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+                  Administration
+                </h3>
+                {renderMobileNavBlock(adminNavRows, pathname, demoUi, buyerPolishedShell, hasCommittedArchitectureReview, operatorAdvancedModeOn, () => {
+                  setOpen(false);
+                })}
+              </div>
+            ) : null}
             {buyerPolishedShell ? null : (
               <p className="text-xs text-neutral-700 dark:text-neutral-300" aria-keyshortcuts="Shift+?">
                 Press Shift+/ for documentation search; open Guides from the panel for shortcuts

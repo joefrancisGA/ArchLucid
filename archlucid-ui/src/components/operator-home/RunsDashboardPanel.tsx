@@ -15,7 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
 import {
-  ARCHITECTURE_REVIEW_LABELS,
   RUNS_DASHBOARD_LABELS,
 } from "@/lib/i18n";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";

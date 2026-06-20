@@ -112,7 +112,7 @@ describe("SidebarNav (primary navigation)", () => {
   );
 
   it(
-    "exposes Analysis and Governance group navigations when Review work disclosure is expanded",
+    "exposes Analysis when Review work disclosure expands and Governance only after Enable advanced features",
     async () => {
       render(<SidebarNav />);
 
@@ -124,13 +124,18 @@ describe("SidebarNav (primary navigation)", () => {
       });
       expect(screen.getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
       expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
+      expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Alerts" })).toBeNull();
 
-      const governanceNav = screen.getByRole("navigation", { name: "Governance" });
+      fireEvent.click(screen.getByTestId("sidebar-operator-advanced-mode-toggle"));
 
-      expect(governanceNav).toBeInTheDocument();
-      expect(within(governanceNav).getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
-      expect(within(governanceNav).getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/audit");
-      expect(screen.queryByRole("button", { name: "Governance" })).toBeNull();
+      await waitFor(() => {
+        const governanceNav = screen.getByRole("navigation", { name: "Governance" });
+
+        expect(governanceNav).toBeInTheDocument();
+        expect(within(governanceNav).getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
+        expect(within(governanceNav).getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/audit");
+      });
       expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
     },
@@ -165,18 +170,20 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.getByTestId("sidebar-operator-advanced-mode-toggle")).toBeInTheDocument();
   });
 
-  it("reveals Analysis destinations when Advanced mode is enabled", async () => {
+  it("reveals Analysis and Governance destinations when Enable advanced features is on", async () => {
     render(<SidebarNav />);
 
     fireEvent.click(screen.getByTestId("sidebar-operator-advanced-mode-toggle"));
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Compare two reviews" })).toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
     });
 
     expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
     expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("1");
     expect(localStorage.getItem("archlucid-nav-expanded")).toBe("true");
+    expect(localStorage.getItem("archlucid.operateNavUnlockPhase.v1")).toBe("2");
   });
 
   it("does not render collapsible triggers for review-workflow nav groups", () => {
@@ -259,6 +266,7 @@ describe("SidebarNav progressive disclosure without navigation presets", () => {
     expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
@@ -275,10 +283,7 @@ describe("SidebarNav progressive disclosure without navigation presets", () => {
       );
     });
     expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");
-
-    const governanceNav = screen.getByRole("navigation", { name: "Governance" });
-
-    expect(within(governanceNav).getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/audit");
+    expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
   });
 });
 

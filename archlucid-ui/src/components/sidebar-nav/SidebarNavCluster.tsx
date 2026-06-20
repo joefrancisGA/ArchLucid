@@ -50,6 +50,10 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   const groupHeadingLabel = group.id === "pilot" && props.buyerPolishedShell ? "Reviews" : group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
 
+  if (linksForRender.length === 0) {
+    return <div key={group.id} hidden />;
+  }
+
   return (
     <div key={group.id} data-testid={`sidebar-group-${group.id}`}>
       <div

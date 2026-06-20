@@ -131,7 +131,7 @@ function EvidenceSourcePicker(props: {
             )}
             data-testid={wizardEvidenceSourceTestId(option.id)}
             onClick={() => {
-              props.onSelectSource(option.id);
+              props.onSelectSource(option.id as WizardEvidenceSourceId);
             }}
           >
             <div className="flex items-start justify-between gap-2">

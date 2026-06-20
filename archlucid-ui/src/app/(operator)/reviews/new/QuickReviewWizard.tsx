@@ -16,7 +16,6 @@ import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
-import { REVIEWS_NEW_BRIEF_PLACEHOLDER } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { showApiRequestErrorToast } from "@/lib/api-error-toast";

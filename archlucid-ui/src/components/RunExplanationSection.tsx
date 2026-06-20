@@ -20,7 +20,6 @@ export type RunExplanationSectionProps = {
   displayFindingCount?: number | null;
 };
 
-const badgeShell = "inline-block rounded-md border px-2.5 py-1 text-[13px] font-semibold";
 
 /** Tailwind mapping for faithfulness support ratio (0–100). */
 export function faithfulnessBadgeClass(pct: number): string {

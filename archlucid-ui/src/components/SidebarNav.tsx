@@ -27,11 +27,8 @@ import {
 } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
-import { OperateGovernanceUnlockPrompt } from "@/components/usability/OperateGovernanceUnlockPrompt";
 import { OperatorAdvancedModeToggle } from "@/components/OperatorAdvancedModeToggle";
-import {
-  readOperateNavUnlockPhase,
-} from "@/lib/usability/operate-nav-progressive-unlock";
+import { operateNavUnlockPhaseForAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
 
 const SidebarRecentActivityCard = dynamic(
   () => import("@/components/SidebarRecentActivityCard").then((module) => module.SidebarRecentActivityCard),
@@ -147,7 +144,31 @@ export function SidebarNav() {
     setShowExtended,
   ]);
 
+  const operatorAdvancedModeOn = showExtended && showAdvanced;
+
+  function toggleOperatorAdvancedMode(): void {
+    const next = !operatorAdvancedModeOn;
+
+    setNavDisclosurePathOverride(next);
+    setOperatorAdvancedMode(next);
+    setNavAllFeaturesExpanded(next);
+
+    try {
+      window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
+    } catch {
+      /* private mode */
+    }
+  }
+
   function revealHiddenLinksInGroup(groupId: string, groupSurface: string): void {
+    if (groupId === "operate-governance") {
+      if (!operatorAdvancedModeOn) {
+        toggleOperatorAdvancedMode();
+      }
+
+      return;
+    }
+
     setNavDisclosurePathOverride(true);
 
     // Extended-tier Review work links (e.g. Risk register, Scorecard) stay hidden while the
@@ -174,6 +195,9 @@ export function SidebarNav() {
   }
 
   const omitAdminClusters = demoUi || buyerPolishedShell;
+  const effectiveOperateUnlockPhase = mounted
+    ? operateNavUnlockPhaseForAdvancedFeatures(operatorAdvancedModeOn)
+    : 1;
 
   const reviewNavRowsRaw = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -183,6 +207,7 @@ export function SidebarNav() {
     applyCollapsedSidebarPilotFilter,
     "review-workflow",
     hasCommittedArchitectureReview,
+    effectiveOperateUnlockPhase,
   );
 
   const adminNavRowsRaw = omitAdminClusters
@@ -195,35 +220,26 @@ export function SidebarNav() {
         false,
         "platform-admin",
         hasCommittedArchitectureReview,
+        effectiveOperateUnlockPhase,
       );
 
 
   const reviewNavRows = reviewNavRowsRaw;
 
   const adminNavRows = adminNavRowsRaw;
-  const operateUnlockPhase = mounted ? readOperateNavUnlockPhase() : 2;
-  // Full progressive disclosure ("Show all features") opts into governance cluster links without a separate unlock click.
-  const effectiveOperateUnlockPhase = navExpanded && navAdvanced ? 2 : operateUnlockPhase;
   const adminLinkCount = adminNavRows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
-  const operatorAdvancedModeOn = showExtended && showAdvanced;
-
-  function toggleOperatorAdvancedMode(): void {
-    const next = !operatorAdvancedModeOn;
-
-    setNavDisclosurePathOverride(next);
-    setOperatorAdvancedMode(next);
-    setNavAllFeaturesExpanded(next);
-
-    try {
-      window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
-    } catch {
-      /* private mode */
-    }
-  }
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
-      <OperateGovernanceUnlockPrompt />
+      {showProgressiveDisclosureChrome && !showSidebarCustomizationChrome ? (
+        <div className="px-2 pt-1" data-testid="sidebar-advanced-mode-wrap">
+          <OperatorAdvancedModeToggle
+            advancedModeOn={operatorAdvancedModeOn}
+            onToggle={toggleOperatorAdvancedMode}
+            testId="sidebar-operator-advanced-mode-toggle"
+          />
+        </div>
+      ) : null}
       <SidebarRecentActivityCard />
 
       {reviewNavRows.map((row) => (
@@ -242,16 +258,6 @@ export function SidebarNav() {
           onRevealHiddenLinks={revealHiddenLinksInGroup}
         />
       ))}
-
-      {showProgressiveDisclosureChrome && !showSidebarCustomizationChrome ? (
-        <div className="mt-2 px-2" data-testid="sidebar-advanced-mode-wrap">
-          <OperatorAdvancedModeToggle
-            advancedModeOn={operatorAdvancedModeOn}
-            onToggle={toggleOperatorAdvancedMode}
-            testId="sidebar-operator-advanced-mode-toggle"
-          />
-        </div>
-      ) : null}
 
       {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
@@ -275,12 +281,10 @@ export function SidebarNav() {
               if (next) {
                 // Expanding: one-click full sidebar — tiers and first-run path suppression.
                 setNavDisclosurePathOverride(true);
-                setShowExtended(true);
-                setShowAdvanced(true);
+                setOperatorAdvancedMode(true);
               } else {
                 setNavDisclosurePathOverride(false);
-                setShowExtended(false);
-                setShowAdvanced(false);
+                setOperatorAdvancedMode(false);
               }
 
               try {

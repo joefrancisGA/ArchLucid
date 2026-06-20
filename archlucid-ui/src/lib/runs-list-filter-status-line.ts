@@ -7,7 +7,6 @@ export function runsListPageFilterStatusLine(
   filteredCount: number,
   pageRunCount: number,
   filterActive: boolean,
-  options?: RunsListPageFilterStatusOptions,
 ): string {
   const filterSuffix = filterActive ? " (matches filter)" : "";
 

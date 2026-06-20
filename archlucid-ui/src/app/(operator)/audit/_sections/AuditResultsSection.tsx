@@ -23,7 +23,6 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-t
 import {
   BUYER_AUDIT_DOWNLOAD_CTA,
   BUYER_AUDIT_PACKAGE_READY_LEAD,
-  BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION,
   BUYER_AUDIT_TIMELINE_INTRO,
   BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
 } from "@/lib/buyer-polish-copy";

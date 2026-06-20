@@ -10,7 +10,6 @@ import {
   listFindingDispositions,
   listRiskExceptions,
   recordFindingDisposition,
-  renewRiskException,
   revokeRiskException,
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -45,7 +44,6 @@ export function FindingInspectGovernanceStickinessPanel({
   const [waiverOwnerUserId, setWaiverOwnerUserId] = useState("");
   const [waiverExpiresAtUtc, setWaiverExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [waiverEvidenceRef, setWaiverEvidenceRef] = useState("");
-  const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -128,27 +126,6 @@ export function FindingInspectGovernanceStickinessPanel({
     }
   }
 
-  async function renewWaiver(): Promise<void> {
-    if (activeWaiver === null) return;
-
-    setBusy(true);
-    setErrorMessage(null);
-    setStatusMessage(null);
-
-    try {
-      await renewRiskException(activeWaiver.riskExceptionId, {
-        expiresAtUtc: renewExpiresAtUtc,
-        evidenceRef: waiverEvidenceRef.trim().length > 0 ? waiverEvidenceRef.trim() : activeWaiver.evidenceRef ?? undefined,
-      });
-
-      setStatusMessage("Waiver renewed.");
-      await reload();
-    } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to renew waiver.");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function revokeWaiver(): Promise<void> {
     if (activeWaiver === null) return;

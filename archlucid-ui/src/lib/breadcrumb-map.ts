@@ -172,7 +172,6 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 function injectReviewPackagePathCrumbs(
   items: BreadcrumbItem[],
   normalizedPath: string,
-  options?: GetBreadcrumbsOptions,
 ): BreadcrumbItem[] {
   const segments = normalizedPath.split("/").filter(Boolean);
 
@@ -236,7 +235,7 @@ function finalizeTrustRouteBreadcrumbs(
   options?: GetBreadcrumbsOptions,
 ): BreadcrumbItem[] {
   let next = injectBuyerShowcaseReviewPackageCrumb(items, normalizedPath, options);
-  next = injectReviewPackagePathCrumbs(next, normalizedPath, options);
+  next = injectReviewPackagePathCrumbs(next, normalizedPath);
   next = injectGovernanceLineageCrumbs(next, normalizedPath);
 
   return next;

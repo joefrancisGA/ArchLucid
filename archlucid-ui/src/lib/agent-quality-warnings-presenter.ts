@@ -1,6 +1,5 @@
 import type {
   AgentExecutionTraceRow,
-  AgentOutputEvaluationScoreRow,
   AgentOutputEvaluationSummaryPayload,
 } from "@/types/agent-forensics";
 

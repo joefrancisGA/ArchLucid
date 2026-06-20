@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";

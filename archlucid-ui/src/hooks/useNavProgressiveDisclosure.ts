@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { syncOperateNavUnlockWithAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
+
 const STORAGE_SHOW_EXTENDED = "archlucid_nav_show_extended";
 const STORAGE_SHOW_ADVANCED = "archlucid_nav_show_advanced";
 
@@ -70,6 +72,7 @@ export function useNavProgressiveDisclosure(): {
     writeBooleanStorage(STORAGE_SHOW_EXTENDED, enabled);
     setShowAdvancedState(enabled);
     writeBooleanStorage(STORAGE_SHOW_ADVANCED, enabled);
+    syncOperateNavUnlockWithAdvancedFeatures(enabled);
   }, []);
 
   return {

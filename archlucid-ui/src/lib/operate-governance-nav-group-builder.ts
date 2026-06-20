@@ -1,6 +1,5 @@
 import {
   Bell,
-  CalendarClock,
   FileSearch,
   FileText,
   GitBranch,

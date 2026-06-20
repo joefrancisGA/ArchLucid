@@ -23,7 +23,7 @@ function resolveKind(value: boolean, falseIsAttention: boolean): EnterpriseStatu
     return "needs-attention";
   }
 
-  return "muted";
+  return "neutral";
 }
 
 /** Canonical boolean Active/Inactive (or custom labels) chip for operator tables. */

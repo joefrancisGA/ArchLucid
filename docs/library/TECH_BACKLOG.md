@@ -11001,3 +11001,75 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - Operators can copy Policy Pack IDs with one click.
 
 **Size estimate:** S
+---
+
+## TB-382 — Architecture: Insight Density Gate pipeline design and scoring (P0)
+
+**Status:** **Backlog**
+
+**Problem:** The AI generation pipeline risks producing generic, high-volume architecture advice (`ensure scalability`, `add monitoring`) that principal architects will dismiss immediately. We need fewer, denser, evidence-bound insights.
+
+**Scope:**
+1. Design the `InsightDensityGate` layer to process candidate LLM observations before they become findings.
+2. Define the scoring rubric: Evidence specificity, Architecture specificity, Decision impact, Non-obviousness, Falsifiability, and Severity calibration.
+3. Add a genericness penalty and duplication penalty.
+4. Extend finding schemas with internal fields: `evidenceRefs`, `whyThisIsNotGeneric`, `principalArchitectValue`, `decisionConsequence`, `insightDensityScore`, `treatment`.
+
+**Acceptance criteria:**
+- Candidate observations must pass the Insight Density Gate to be promoted to a Review Finding or Executive Finding; otherwise, they are suppressed or demoted.
+
+**Size estimate:** M
+
+---
+
+## TB-383 — Architecture: "So What" Loop and Adversarial Critic Pass (P1)
+
+**Status:** **Backlog**
+
+**Problem:** Initial LLM outputs often lack business consequence or actionable decision impact.
+
+**Scope:**
+1. Implement a second-pass critic mechanism for candidate findings.
+2. Force the model to answer `So what for this specific architecture?` and `What decision changes?`.
+3. Introduce an adversarial review prompt (e.g., Skeptical Principal Architect) to challenge and discard findings that read like generic AI templates.
+4. If a finding cannot justify its existence with specific evidence and a decision change, it gets discarded.
+
+**Acceptance criteria:**
+- Candidate findings that cannot articulate specific business consequence are removed from the final output.
+
+**Size estimate:** M
+
+---
+
+## TB-384 — UI/Domain: Separate Findings from Checklist Coverage (P1)
+
+**Status:** **Backlog**
+
+**Problem:** Basic hygiene checks (`encryption mentioned/not mentioned`) clutter the findings list, hiding actual decision-changing risks.
+
+**Scope:**
+1. Create a clear taxonomy separating `Decision-grade risks` (Findings) from `Basic hygiene` (Checklist Coverage).
+2. Update the review package UI to display the Coverage Checklist separately.
+3. Update the LLM prompts to direct hygiene observations to the checklist rather than candidate findings.
+
+**Acceptance criteria:**
+- Generic hygiene items no longer appear as standalone findings but are tracked in a dedicated checklist UI.
+
+**Size estimate:** M
+
+---
+
+## TB-385 — UI: Insight Density Framing and Evidence Snippets (P2)
+
+**Status:** **Backlog**
+
+**Problem:** The product does not currently signal to the user that it has curated its output, nor does it aggressively tie findings to specific input evidence.
+
+**Scope:**
+1. Update the Review Package UI to explicitly state the filtering action (e.g., `ArchLucid suppressed X low-specificity advisories and retained Y decision-grade findings.`).
+2. For all retained findings, aggressively display the `evidenceRefs` snippets so the user sees exactly what input text triggered the finding.
+
+**Acceptance criteria:**
+- The UI visibly communicates its curation restraint and binds every major finding to source evidence.
+
+**Size estimate:** S

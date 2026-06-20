@@ -67,14 +67,10 @@ export function advanceOperateNavUnlockToGovernance(): void {
 
 export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
   links: readonly T[],
-  hasCommittedArchitectureReview: boolean,
+  _hasCommittedArchitectureReview: boolean,
   unlockPhase: OperateNavUnlockPhase,
 ): T[] {
   const filtered = links.filter((link) => !NAV_CONSOLIDATED_OMIT_HREFS.has(link.href.split("?")[0] ?? ""));
-
-  if (!hasCommittedArchitectureReview) {
-    return filtered;
-  }
 
   if (unlockPhase >= 2) {
     return filtered;

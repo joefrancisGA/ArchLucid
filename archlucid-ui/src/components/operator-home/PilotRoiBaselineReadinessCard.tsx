@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 

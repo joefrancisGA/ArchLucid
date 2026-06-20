@@ -37,7 +37,6 @@ import {
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -45,7 +44,7 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
-import type { FindingConfidenceLevel, FindingTraceConfidenceDto } from "@/types/explanation";
+import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import type { RunSummary } from "@/types/authority";
 
@@ -63,11 +62,10 @@ const SHOWCASE_GOVERNANCE_DECISION_RECOMMENDED: readonly string[] = [
 
 import {
   formatGovernanceQueueRecordKind,
-  type GovernanceFindingQueueRecordKind,
   type GovernanceFindingQueueRow,
 } from "./governance-finding-queue-row";
 
-export type { GovernanceFindingQueueRecordKind, GovernanceFindingQueueRow } from "./governance-finding-queue-row";
+export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
 type RiskRegisterFilter = "all" | "stale" | "waiver-expiring";
 

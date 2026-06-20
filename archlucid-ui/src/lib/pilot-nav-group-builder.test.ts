@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, vi, afterEach } from "vitest";
 
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
