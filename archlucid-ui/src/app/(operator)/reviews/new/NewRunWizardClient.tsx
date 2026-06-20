@@ -6,22 +6,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { ArchitectureRequestWizardHelpDrawer } from "@/components/wizard/ArchitectureRequestWizardHelpDrawer";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
-import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
-import { WizardStepAzureContext } from "@/components/wizard/steps/WizardStepAzureContext";
-import { WizardStepBaselineZip } from "@/components/wizard/steps/WizardStepBaselineZip";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
-import { WizardStepBaselineMetrics } from "@/components/wizard/steps/WizardStepBaselineMetrics";
 import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
-import { WizardPostCreateEvidenceUploadPanel } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
-import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -68,8 +61,17 @@ import {
   isZeroConfigDemoQuery,
 } from "@/lib/zero-config-demo-mode";
 
-import { QuickStartWizard } from "./QuickStartWizard";
-import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
+import {
+  ArchitectureRequestWizardHelpDrawer,
+  QuickStartWizard,
+  SimplifiedPilotWizard,
+  WizardPostCreateEvidenceUploadPanel,
+  WizardStepAdvanced,
+  WizardStepAzureContext,
+  WizardStepBaselineMetrics,
+  WizardStepBaselineZip,
+  WizardStepTrack,
+} from "./NewRunWizardDeferredChunks";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS_FULL = [

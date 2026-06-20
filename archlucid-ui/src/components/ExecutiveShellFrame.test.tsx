@@ -13,8 +13,8 @@ vi.mock("@/components/ColorModeToggle", () => ({
   ColorModeToggle: () => null,
 }));
 
-vi.mock("@/components/LayerContextFromRoute", () => ({
-  LayerContextFromRoute: () => null,
+vi.mock("@/components/executive/ExecutiveShellDeferredChrome", () => ({
+  ExecutiveShellDeferredChrome: () => null,
 }));
 
 vi.mock("@/components/shell/TenantWorkspaceBoundaryBadge", () => ({

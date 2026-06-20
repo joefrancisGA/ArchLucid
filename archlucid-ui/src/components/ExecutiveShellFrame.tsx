@@ -8,8 +8,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
-import { ExecutiveShellOrientationCallout } from "@/components/executive/ExecutiveShellOrientationCallout";
-import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
+import { ExecutiveShellDeferredChrome } from "@/components/executive/ExecutiveShellDeferredChrome";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
@@ -93,8 +92,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             </div>
           </div>
         </header>
-        <ExecutiveShellOrientationCallout />
-        <LayerContextFromRoute />
+        <ExecutiveShellDeferredChrome />
         <main
           id="main-content"
           tabIndex={-1}

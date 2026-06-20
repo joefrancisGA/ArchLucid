@@ -23,20 +23,13 @@ import { showApiRequestErrorToast } from "@/lib/api-error-toast";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
-import { QuickReviewAdvancedConfigAccordion } from "@/components/usability/QuickReviewAdvancedConfigAccordion";
 import {
   QuickReviewProofScopeField,
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
 import { ReviewSubmitPhaseProgress, type ReviewSubmitPhaseId } from "@/components/usability/ReviewSubmitPhaseProgress";
-import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
-import { WizardPackagePreview } from "@/components/usability/WizardPackagePreview";
-import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreatePanel";
-import {
-  CtoDemoReviewModeCallout,
-  type CtoDemoReviewExecutionMode,
-} from "@/components/cto-demo/CtoDemoReviewModeCallout";
+import type { CtoDemoReviewExecutionMode } from "@/components/cto-demo/CtoDemoReviewModeCallout";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -52,6 +45,14 @@ import {
   findQuickReviewSampleBrief,
   QUICK_REVIEW_SAMPLE_BRIEFS,
 } from "@/lib/quick-review-sample-briefs";
+
+import {
+  CtoDemoFastCreatePanel,
+  CtoDemoReviewModeCallout,
+  QuickReviewAdvancedConfigAccordion,
+  WizardEvidenceUploadZone,
+  WizardPackagePreview,
+} from "./QuickReviewWizardDeferredPanels";
 
 export { CONTOSO_RETAIL_SAMPLE_BRIEF };
 
