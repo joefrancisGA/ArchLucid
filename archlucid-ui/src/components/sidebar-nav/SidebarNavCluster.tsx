@@ -1,20 +1,21 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
-import { SidebarNavLink, SIDEBAR_GOVERNANCE_PINNED_HREFS } from "@/components/sidebar-nav/SidebarNavLink";
+import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
-import { countLinksHiddenByProgressiveDisclosure } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
   filterSidebarNavClusterLinks,
   isSidebarNavLinkAdvancedInDemo,
   presentSidebarNavLink,
 } from "@/lib/sidebar-nav-link-filters";
+import type { SidebarCollapsibleNavGroupId } from "@/lib/sidebar-nav-group-expansion-storage";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import { cn } from "@/lib/utils";
 
 type SidebarNavClusterProps = {
   readonly row: NavGroupWithVisibleLinks;
@@ -23,11 +24,10 @@ type SidebarNavClusterProps = {
   readonly buyerPolishedShell: boolean;
   readonly hasCommittedArchitectureReview: boolean;
   readonly effectiveOperateUnlockPhase: OperateNavUnlockPhase;
-  readonly navExpanded: boolean;
-  readonly navAdvanced: boolean;
-  readonly callerAuthorityRank: number;
-  readonly showProgressiveDisclosureChrome: boolean;
-  readonly onRevealHiddenLinks: (groupId: string, groupSurface: string) => void;
+  readonly isCollapsible: boolean;
+  readonly isExpanded: boolean;
+  readonly onToggleExpanded?: () => void;
+  readonly onNavLinkNavigate?: () => void;
 };
 
 export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
@@ -40,70 +40,77 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
   });
 
-  const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
-    group,
-    props.navExpanded,
-    props.navAdvanced,
-    props.callerAuthorityRank,
-    props.hasCommittedArchitectureReview,
-  );
   const groupHeadingLabel = group.id === "pilot" && props.buyerPolishedShell ? "Reviews" : group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
+  const contentId = `sidebar-group-${group.id}-content`;
+  const headingId = `sidebar-group-heading-${group.id}`;
 
   if (linksForRender.length === 0) {
     return <div key={group.id} hidden />;
   }
 
-  return (
-    <div key={group.id} data-testid={`sidebar-group-${group.id}`}>
-      <div
-        className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200"
-        title={group.caption}
-        id={`sidebar-group-heading-${group.id}`}
-        {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
-      >
-        <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
-          <span>{groupHeadingLabel}</span>
-          {group.id === "operate-governance" ? (
-            <span id="sidebar-governance-nav-hint-slot">
-              <OperateCapabilityNavGroupHint />
-            </span>
-          ) : null}
-        </span>
-      </div>
-      {group.id === "operate-governance" ? (
-        <nav
-          className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
-          aria-label="Governance — pinned links"
-        >
-          {linksForRender
-            .filter((link) => SIDEBAR_GOVERNANCE_PINNED_HREFS.has(link.href))
-            .map((link) => {
-              const presented = presentSidebarNavLink(link, props.buyerPolishedShell);
+  const headingClassName = cn(
+    "flex w-full min-w-0 items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200",
+    props.isCollapsible && "hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
+  );
 
-              return (
-                <SidebarNavLink
-                  key={`pinned-${presented.href}`}
-                  presented={presented}
-                  active={isNavLinkActive(props.pathname, presented.href)}
-                  advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
-                  buyerPolishedShell={props.buyerPolishedShell}
-                />
-              );
-            })}
-        </nav>
+  const headingInner = (
+    <>
+      {props.isCollapsible ? (
+        props.isExpanded ? (
+          <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+        ) : (
+          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+        )
       ) : null}
-      <nav
-        id={`sidebar-group-${group.id}-content`}
-        className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
-        aria-label={group.label}
-      >
-        {linksForRender
-          .filter(
-            (link) =>
-              group.id !== "operate-governance" || !SIDEBAR_GOVERNANCE_PINNED_HREFS.has(link.href),
-          )
-          .map((link) => {
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+        <span>{groupHeadingLabel}</span>
+      </span>
+    </>
+  );
+
+  return (
+    <div key={group.id} data-testid={`sidebar-group-${group.id}`} className="mt-1 first:mt-0">
+      {props.isCollapsible ? (
+        <button
+          type="button"
+          className={cn(headingClassName, "sidebar-disclosure-trigger")}
+          id={headingId}
+          data-testid={`sidebar-group-toggle-${group.id}`}
+          aria-expanded={props.isExpanded}
+          aria-controls={contentId}
+          title={group.caption}
+          onClick={() => {
+            props.onToggleExpanded?.();
+          }}
+        >
+          {headingInner}
+        </button>
+      ) : (
+        <div
+          className={headingClassName}
+          title={group.caption}
+          id={headingId}
+          {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
+        >
+          {headingInner}
+        </div>
+      )}
+
+      {group.id === "operate-governance" && props.isExpanded ? (
+        <div id="sidebar-governance-nav-hint-slot" className="px-2 pb-1">
+          <OperateCapabilityNavGroupHint />
+        </div>
+      ) : null}
+
+      {props.isExpanded ? (
+        <nav
+          id={contentId}
+          className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+          aria-labelledby={headingId}
+          aria-label={group.label}
+        >
+          {linksForRender.map((link) => {
             const presented = presentSidebarNavLink(link, props.buyerPolishedShell);
 
             return (
@@ -113,26 +120,19 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
                 active={isNavLinkActive(props.pathname, presented.href)}
                 advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
                 buyerPolishedShell={props.buyerPolishedShell}
+                onNavigate={props.onNavLinkNavigate}
                 afterLabel={
                   presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null
                 }
               />
             );
           })}
-      </nav>
-      {props.showProgressiveDisclosureChrome && hiddenByDisclosure > 0 ? (
-        <button
-          type="button"
-          className="auth-panel-focus sidebar-disclosure-trigger ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-200 dark:hover:text-neutral-50"
-          aria-label={`Show ${hiddenByDisclosure} more destinations in ${group.label}`}
-          onClick={() => {
-            props.onRevealHiddenLinks(group.id, group.surface);
-          }}
-        >
-          <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
-          {`${hiddenByDisclosure} more`}
-        </button>
+        </nav>
       ) : null}
     </div>
   );
+}
+
+export function sidebarClusterToggleId(groupId: SidebarCollapsibleNavGroupId): string {
+  return `sidebar-group-toggle-${groupId}`;
 }

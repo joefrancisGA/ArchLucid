@@ -26,7 +26,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operator-admin",
-      label: "Admin tools",
+      label: "Administration",
       surface: "platform-admin",
       caption: "Tenant cost, settings, support bundles, and user administration.",
       links: [

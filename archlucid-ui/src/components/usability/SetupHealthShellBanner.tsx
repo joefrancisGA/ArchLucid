@@ -35,7 +35,9 @@ export function SetupHealthShellBanner(props: SetupHealthShellBannerProps): Reac
     >
       <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{presentation.label}</p>
       <p className="m-0 mt-1 leading-snug">
-        Workspace setup is not fully ready.{" "}
+        {presentation.tone === "unknown"
+          ? "Open troubleshooting or review system health."
+          : "Workspace setup is not fully ready."}{" "}
         <Link
           href="/help/troubleshooting"
           className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100"

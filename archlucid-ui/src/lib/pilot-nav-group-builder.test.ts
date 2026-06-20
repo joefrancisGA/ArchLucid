@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 
+import { OperateOperationsNavGroupBuilder } from "@/lib/operate-operations-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
@@ -38,11 +39,24 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
   });
 
-  it("includes recurrence schedules in the pilot nav group for post-commit operating rhythm", () => {
-    const group = new PilotNavGroupBuilder().build();
+  it("includes recurrence schedules in the operations nav group for post-commit operating rhythm", () => {
+    const group = new OperateOperationsNavGroupBuilder().build();
     const recurrenceLink = group.links.find((link) => link.href === "/governance/recurrence-schedules");
 
     expect(recurrenceLink).toBeDefined();
     expect(recurrenceLink?.label).toBe("Recurrence schedules");
+  });
+
+  it("keeps Review work focused on first-review essentials only", () => {
+    const group = new PilotNavGroupBuilder().build();
+
+    expect(group.links.map((link) => link.label)).toEqual([
+      "Home",
+      "Start review",
+      "Evidence trail",
+      "Review packages",
+      "Portfolio overview",
+      "Onboarding",
+    ]);
   });
 });

@@ -1,4 +1,5 @@
 import {
+  AlertCircle,
   Bell,
   FileSearch,
   FileText,
@@ -24,12 +25,23 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
       caption: "Policy, audit, alerts, and trust controls.",
       links: [
         {
-          href: "/alerts",
-          label: OPERATOR_NAV_LINK_LABELS.alerts,
-          title: this.shortcutTitle("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
-          keyShortcut: "alt+l",
-          icon: Bell,
-          tier: "advanced",
+          href: "/governance/findings",
+          label: OPERATOR_NAV_LINK_LABELS.findings,
+          title: this.shortcutTitle(
+            "Findings — open risks from completed reviews, severity and recommended actions",
+            "alt+f",
+          ),
+          keyShortcut: "alt+f",
+          icon: AlertCircle,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/risk-exceptions",
+          label: OPERATOR_NAV_LINK_LABELS.riskExceptions,
+          title: "Risk exceptions — active waivers, renewals, and revocations",
+          icon: AlertCircle,
+          tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
         {
@@ -70,6 +82,15 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           title: "Decision register — architecture decisions with confidence and buyer attestation",
           icon: FileText,
           tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/alerts",
+          label: OPERATOR_NAV_LINK_LABELS.alerts,
+          title: this.shortcutTitle("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
+          keyShortcut: "alt+l",
+          icon: Bell,
+          tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
         {

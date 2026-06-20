@@ -23,6 +23,6 @@ describe("resolveSetupHealthPresentation", () => {
 
     expect(result.isHealthy).toBe(false);
     expect(result.tone).toBe("unknown");
-    expect(result.label).toBe("Setup unknown");
+    expect(result.label).toBe("Workspace setup incomplete");
   });
 });

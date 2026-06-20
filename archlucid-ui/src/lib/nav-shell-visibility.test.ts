@@ -50,8 +50,7 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(true);
     expect(visible.some((l) => l.href === "/alerts")).toBe(false);
     expect(visible.some((l) => l.href === "/audit")).toBe(false);
-    // Findings now lives in the Pilot group (extended tier), not in operate-governance.
-    expect(visible.some((l) => l.href === "/governance/findings")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
   });
 
@@ -99,8 +98,7 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
-    // Findings is in the Pilot group; the operate-governance filter should not include it.
-    expect(visible.some((l) => l.href === "/governance/findings")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
   });
 
   /**

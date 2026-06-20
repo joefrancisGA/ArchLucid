@@ -133,7 +133,8 @@ describe("HomePage — buyer-polished shell", () => {
     renderWithOperatorQuery(<HomePage />);
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByText("Missing dependencies")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("design brief");
+    expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.queryByText("What you'll get")).toBeNull();
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();

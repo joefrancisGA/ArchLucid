@@ -106,6 +106,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Review work",
   analysis: "Analysis",
   governance: "Governance",
+  operations: "Operations",
 } as const;
 
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */

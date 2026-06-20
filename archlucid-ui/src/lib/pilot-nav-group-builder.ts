@@ -1,7 +1,4 @@
 import {
-  AlertCircle,
-  BarChart3,
-  CalendarClock,
   ClipboardList,
   GitGraph,
   Home,
@@ -90,44 +87,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           tier: "essential",
           icon: ClipboardList,
           defaultVisibleInCollapsedSidebar: true,
-        },
-        {
-          href: "/governance/findings",
-          label: OPERATOR_NAV_LINK_LABELS.findings,
-          title: this.shortcutTitle(
-            "Findings — open risks from completed reviews, severity and recommended actions",
-            "alt+f",
-          ),
-          keyShortcut: "alt+f",
-          icon: AlertCircle,
-          // extended so ReadAuthority does not break Pilot-essential invariant
-          // (nav-config.structure.test.ts §"keeps requiredAuthority unset on Pilot essential-tier links").
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance/risk-exceptions",
-          label: OPERATOR_NAV_LINK_LABELS.riskExceptions,
-          title: "Risk exceptions — active waivers, renewals, and revocations",
-          icon: AlertCircle,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/scorecard",
-          label: OPERATOR_NAV_LINK_LABELS.scorecard,
-          title: "Pilot scorecard — finalized-review metrics and ROI baselines",
-          icon: BarChart3,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance/recurrence-schedules",
-          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
-          title: "Recurrence schedules — automated follow-up architecture reviews after commit",
-          icon: CalendarClock,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
         },
       ],
     };

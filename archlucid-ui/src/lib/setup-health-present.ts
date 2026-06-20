@@ -13,7 +13,7 @@ export function resolveSetupHealthPresentation(body: HealthReadyResponse | null)
   if (body === null) {
     return {
       tone: "unknown",
-      label: "Setup unknown",
+      label: "Workspace setup incomplete",
       isHealthy: false,
     };
   }

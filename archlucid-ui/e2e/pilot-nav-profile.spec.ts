@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
 import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator-welcome-onboarding-storage";
+import { SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY } from "@/lib/sidebar-nav-group-expansion-storage";
 
 /** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */
 const TRIAL_WELCOME_HOME_REDIRECT_SESSION_KEY = "archlucid_trial_welcome_home_redirect_v1";
@@ -34,44 +35,32 @@ async function dismissBlockingHomeModals(page: Page): Promise<void> {
   }
 }
 
-/** Matches SidebarNav.test.tsx: per-group "N more" avoids removed Sidebar layout dialog in V1. */
-async function enableExtendedNavTierViaReviewWorkDisclosure(page: Page): Promise<void> {
-  await expect(async () => {
-    await scrollOperatorSidebarFooterIntoView(page);
-
-    const reviewMore = page.getByRole("button", { name: /Show \d+ more destinations in Review work/ });
-
-    await expect(reviewMore).toBeVisible();
-    await reviewMore.click();
-    await expect(page.getByRole("navigation", { name: "Analysis" })).toBeVisible();
-  }).toPass({ timeout: 30_000 });
-}
-
 /**
- * Collapsed pilot sidebar + progressive disclosure tiers (Improvement #13).
+ * Collapsed pilot sidebar + per-group chevron disclosure (V1 calm first-run nav).
  * Requires a full-operator build — run `npx playwright test -c playwright.operator-mock.config.ts`
- * (buyer-polished mock builds omit the “Show all features” control).
+ * (buyer-polished mock builds omit Administration and some platform-admin clusters).
  */
 test.describe("pilot-default operator navigation profile @pilot-nav", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(
-      (keys: { hasSeenOnboardingKey: string; onboardingTourCompletedKey: string }) => {
+      (keys: {
+        hasSeenOnboardingKey: string;
+        onboardingTourCompletedKey: string;
+        sidebarGroupExpansionKey: string;
+      }) => {
+        localStorage.removeItem(keys.sidebarGroupExpansionKey);
         localStorage.setItem("archlucid-nav-expanded", "false");
         localStorage.setItem("archlucid_nav_show_extended", "false");
         localStorage.setItem("archlucid_nav_show_advanced", "false");
+        localStorage.setItem("archlucid_nav_show_administration", "0");
         localStorage.setItem(keys.hasSeenOnboardingKey, "true");
         localStorage.setItem(keys.onboardingTourCompletedKey, "1");
         localStorage.setItem("archlucid_sidebar_recent_activity_open", "0");
-        // Collapsed Analysis/Governance groups must not hide extended links from role queries.
-        for (const key of Object.keys(localStorage)) {
-          if (key.startsWith("archlucid_sidebar_group_")) {
-            localStorage.removeItem(key);
-          }
-        }
       },
       {
         hasSeenOnboardingKey: HAS_SEEN_ONBOARDING_STORAGE_KEY,
         onboardingTourCompletedKey: ONBOARDING_TOUR_COMPLETED_KEY,
+        sidebarGroupExpansionKey: SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
       },
     );
     await page.addInitScript(
@@ -83,7 +72,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     );
   });
 
-  test("pilot profile hides compare and governance until expanded @pilot-nav", async ({ page }) => {
+  test("pilot profile hides compare and governance until group disclosure @pilot-nav", async ({ page }) => {
     const meResponse = page.waitForResponse(
       (response) => response.url().includes("/api/proxy/api/auth/me") && response.ok(),
     );
@@ -102,9 +91,10 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("link", { name: "Governance workflow" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Analysis" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Governance — pinned links" })).toHaveCount(0);
 
-    await enableExtendedNavTierViaReviewWorkDisclosure(page);
+    await expect(page.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
+
+    await page.getByTestId("sidebar-group-toggle-operate-analysis").click();
 
     const analysisNav = page.getByRole("navigation", { name: "Analysis" });
 
@@ -114,7 +104,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
     await scrollOperatorSidebarFooterIntoView(page);
-    await page.getByTestId("sidebar-governance-disclosure-toggle").click();
+    await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
 

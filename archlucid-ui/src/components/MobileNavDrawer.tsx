@@ -1,9 +1,8 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactElement } from "react";
+import { useLayoutEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,170 +11,73 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
-import { SidebarAdministrationSection } from "@/components/sidebar-nav/SidebarAdministrationSection";
-import { SidebarGovernanceDisclosureSection } from "@/components/sidebar-nav/SidebarGovernanceDisclosureSection";
+import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
-import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
-import { useSidebarAdministrationVisibility } from "@/hooks/useSidebarAdministrationVisibility";
+import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
+import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
-import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
-  listNavGroupsVisibleInOperatorShell,
-  type NavGroupWithVisibleLinks,
-} from "@/lib/nav-shell-visibility";
-import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
-import { shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
-import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
-import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
-import { filterNavLinksByOperateUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
-import { operateNavUnlockPhaseForAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
-import { cn } from "@/lib/utils";
-
-function renderMobileNavBlock(
-  rows: NavGroupWithVisibleLinks[],
-  pathname: string,
-  demoUi: boolean,
-  buyerPolishedShell: boolean,
-  hasCommittedArchitectureReview: boolean,
-  advancedFeaturesEnabled: boolean,
-  close: () => void,
-): ReactElement[] {
-  const operateUnlockPhase = operateNavUnlockPhaseForAdvancedFeatures(advancedFeaturesEnabled);
-
-  return rows.map(({ group, visibleLinks }) => {
-    const linksAfterDemo = demoUi
-      ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
-      : visibleLinks;
-    const linksForRender = filterNavLinksByOperateUnlockPhase(
-      linksAfterDemo,
-      hasCommittedArchitectureReview,
-      operateUnlockPhase,
-    );
-
-    if (linksForRender.length === 0) {
-      return <div key={group.id} />;
-    }
-
-    return (
-      <div key={group.id}>
-        <div className="mb-1">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-            {group.label}
-          </h3>
-          {group.caption ? (
-            <span className="mt-0.5 block text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-700 dark:text-neutral-300">
-              {group.caption}
-            </span>
-          ) : null}
-          {group.id === "operate-governance" ? <OperateCapabilityNavGroupHint /> : null}
-        </div>
-        <nav className="flex flex-col gap-0.5" aria-label={group.label}>
-          {linksForRender.map((link) => {
-            const presented = resolveNavLinkPresentation(link, buyerPolishedShell);
-            const active = isNavLinkActive(pathname, presented.href);
-            const Icon = link.icon;
-
-            return (
-              <Link
-                key={presented.href}
-                href={presented.href}
-                data-onboarding={onboardingTourAnchorForHref(presented.href)}
-                className={cn(
-                  "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                  active
-                    ? "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] font-semibold text-al-text-primary dark:bg-neutral-800/80"
-                    : "text-neutral-900 dark:text-neutral-100",
-                )}
-                title={presented.title}
-                aria-current={active ? "page" : undefined}
-                aria-keyshortcuts={link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined}
-                onClick={() => {
-                  close();
-                }}
-              >
-                {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                {presented.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-    );
-  });
-}
+  isSidebarCollapsibleNavGroupId,
+  sidebarNavGroupIsExpanded,
+  type SidebarCollapsibleNavGroupId,
+} from "@/lib/sidebar-nav-group-expansion-storage";
 
 /**
  * Hamburger + full-height drawer for small screens (sidebar is hidden below `lg`).
+ * Uses the same collapsible group model as desktop {@link SidebarNav}.
  */
 export function MobileNavDrawer() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const { showExtended, showAdvanced, setOperatorAdvancedMode } = useNavProgressiveDisclosure();
-  const { showAdministration, setShowAdministration } = useSidebarAdministrationVisibility();
+  const [mounted, setMounted] = useState(false);
+  const { expansion, toggleGroupExpanded } = useSidebarNavGroupExpansion();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
-    pathname,
-    showExtended,
-    showAdvanced,
-  );
 
-  const extendedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
-  const advancedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
-  const operatorAdvancedModeOn = showExtended && showAdvanced;
-  const operateNavUnlockPhase = operateNavUnlockPhaseForAdvancedFeatures(operatorAdvancedModeOn);
+  useLayoutEffect(() => {
+    setMounted(true);
+  }, []);
 
-  function toggleOperatorAdvancedMode(): void {
-    setOperatorAdvancedMode(!operatorAdvancedModeOn);
-  }
+  const navExpanded = true;
+  const navAdvanced = true;
+  const effectiveOperateUnlockPhase = 2 as const;
+  const omitAdminClusters = demoUi || buyerPolishedShell;
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
-    extendedForShell,
-    advancedForShell,
+    navExpanded,
+    navAdvanced,
     callerAuthorityRank,
     false,
     "review-workflow",
     hasCommittedArchitectureReview,
-    operateNavUnlockPhase,
+    effectiveOperateUnlockPhase,
   );
 
-  const omitAdminClusters = demoUi || buyerPolishedShell;
+  const adminNavRows: NavGroupWithVisibleLinks[] =
+    omitAdminClusters
+      ? []
+      : listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          navExpanded,
+          navAdvanced,
+          callerAuthorityRank,
+          false,
+          "platform-admin",
+          hasCommittedArchitectureReview,
+          effectiveOperateUnlockPhase,
+        );
 
-  const adminNavRowsCandidate = omitAdminClusters
-    ? ([] as NavGroupWithVisibleLinks[])
-    : listNavGroupsVisibleInOperatorShell(
-        NAV_GROUPS,
-        true,
-        false,
-        callerAuthorityRank,
-        false,
-        "platform-admin",
-        hasCommittedArchitectureReview,
-        operateNavUnlockPhase,
-      );
+  const allRows = [...reviewNavRows, ...adminNavRows];
 
-  const governanceDisclosureVisible =
-    !demoUi &&
-    !buyerPolishedShell &&
-    !operatorAdvancedModeOn &&
-    listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      true,
-      true,
-      callerAuthorityRank,
-      false,
-      "review-workflow",
-      hasCommittedArchitectureReview,
-      2,
-    ).some((row) => row.group.id === "operate-governance" && row.visibleLinks.length > 0);
+  function closeDrawer(): void {
+    setOpen(false);
+  }
 
   return (
     <>
@@ -196,34 +98,37 @@ export function MobileNavDrawer() {
           <DialogHeader className="border-b border-neutral-200 px-4 py-3 text-left dark:border-neutral-700">
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 px-3 py-3">
-            {renderMobileNavBlock(reviewNavRows, pathname, demoUi, buyerPolishedShell, hasCommittedArchitectureReview, operatorAdvancedModeOn, () => {
-              setOpen(false);
+          <div className="flex flex-col gap-0 px-1 py-2">
+            {allRows.map((row) => {
+              const collapsible = isSidebarCollapsibleNavGroupId(row.group.id);
+              const isExpanded = mounted
+                ? sidebarNavGroupIsExpanded(row.group.id, expansion)
+                : row.group.id === "pilot";
+
+              return (
+                <SidebarNavCluster
+                  key={row.group.id}
+                  row={row}
+                  pathname={pathname}
+                  demoUi={demoUi}
+                  buyerPolishedShell={buyerPolishedShell}
+                  hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+                  effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
+                  isCollapsible={collapsible}
+                  isExpanded={isExpanded}
+                  onToggleExpanded={
+                    collapsible
+                      ? () => {
+                          toggleGroupExpanded(row.group.id as SidebarCollapsibleNavGroupId);
+                        }
+                      : undefined
+                  }
+                  onNavLinkNavigate={closeDrawer}
+                />
+              );
             })}
-            {governanceDisclosureVisible ? (
-              <SidebarGovernanceDisclosureSection
-                onRevealGovernance={() => {
-                  toggleOperatorAdvancedMode();
-                }}
-              />
-            ) : null}
-            {adminNavRowsCandidate.length > 0 ? (
-              <SidebarAdministrationSection
-                showAdministration={showAdministration}
-                onShowAdministrationChange={setShowAdministration}
-                adminNavRows={adminNavRowsCandidate}
-                pathname={pathname}
-                demoUi={demoUi}
-                buyerPolishedShell={buyerPolishedShell}
-                hasCommittedArchitectureReview={hasCommittedArchitectureReview}
-                effectiveOperateUnlockPhase={operateNavUnlockPhase}
-                onNavLinkNavigate={() => {
-                  setOpen(false);
-                }}
-              />
-            ) : null}
             {buyerPolishedShell ? null : (
-              <p className="text-xs text-neutral-700 dark:text-neutral-300" aria-keyshortcuts="Shift+?">
+              <p className="px-2 pt-2 text-xs text-neutral-700 dark:text-neutral-300" aria-keyshortcuts="Shift+?">
                 Press Shift+/ for documentation search; open Guides from the panel for shortcuts
               </p>
             )}
