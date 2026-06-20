@@ -159,7 +159,7 @@ describe("formatGoldenManifestMarkdown", () => {
       manifestSummaryFallback: summary,
     });
 
-    expect(md).toContain("# Architecture manifest summary");
+    expect(md).toContain("# Architecture review record summary");
     expect(md).toContain("**Decisions:** 4");
     expect(md).toContain("One-line operator summary.");
   });
@@ -167,7 +167,7 @@ describe("formatGoldenManifestMarkdown", () => {
   it("returns a clear message when nothing is available", () => {
     const md = formatGoldenManifestMarkdown({ demo: true });
 
-    expect(md).toContain("Manifest JSON was not available");
+    expect(md).toContain("Review record JSON was not available");
   });
 });
 

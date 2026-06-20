@@ -837,7 +837,7 @@ export default function GovernanceFindingsQueueClient() {
                             className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                             href={manifestRecordHref(row.runId, row.manifestId)}
                           >
-                            Open manifest
+                            Open signed record
                           </Link>
                         </div>
                       </div>

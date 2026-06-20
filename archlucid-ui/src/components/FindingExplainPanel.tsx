@@ -114,7 +114,7 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
           </p>
           <dl className="m-0 grid gap-2 text-xs text-violet-950 dark:text-violet-50 sm:grid-cols-2">
             <div>
-              <dt className="font-semibold">Manifest version</dt>
+              <dt className="font-semibold">Review record version</dt>
               <dd className="m-0 font-mono">{evidenceChain.manifestVersion?.trim() ? evidenceChain.manifestVersion : "—"}</dd>
             </div>
             <div>

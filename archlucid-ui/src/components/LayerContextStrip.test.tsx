@@ -55,7 +55,7 @@ describe("LayerContextStrip", () => {
     const { getByTestId, unmount } = render(
       <LayerContextStrip
         layerId="pilot"
-        buyerRouteOrientation={{ label: "Signed manifest", line: "Demo manifest copy." }}
+        buyerRouteOrientation={{ label: "Signed review record", line: "Demo review record copy." }}
         buyerOperateBackLink={{ label: "Back to review package", href: "/reviews/demo-run" }}
       />,
     );
@@ -73,7 +73,7 @@ describe("LayerContextStrip", () => {
         buyerRouteOrientation={{ label: "View evidence trail", line: "Demo orientation." }}
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Signed manifest", href: "/reviews/x/manifest" },
+          prev: { label: "Signed review record", href: "/reviews/x/manifest" },
           next: { label: "Governance approval", href: "/governance" },
           currentStepIndex: 2,
         }}

@@ -172,7 +172,7 @@ describe("resolveBuyerCtoDemoTourNavigation", () => {
 
     expect(nav.prev).toBeNull();
 
-    expect(nav.next?.label).toBe("Signed manifest");
+    expect(nav.next?.label).toBe("Signed review record");
 
     expect(nav.presenterLine.length).toBeGreaterThan(20);
 
@@ -258,7 +258,7 @@ describe("buildCtoDemoRunOfShowMarkdown", () => {
 
     expect(markdown).toContain("Executive summary");
 
-    expect(markdown).toContain("Signed manifest");
+    expect(markdown).toContain("Signed review record");
 
     expect(markdown).toContain("Evidence trail");
 

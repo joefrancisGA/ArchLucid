@@ -98,7 +98,7 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
                 {executiveSurface ? "Download executive review (DOCX)" : "Download sponsor review (DOCX)"}
               </a>
               <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
-                Board-ready architecture review from your latest committed manifest.
+                Board-ready architecture review from your latest committed review record.
               </p>
             </li>
           ) : null}

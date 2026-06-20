@@ -52,7 +52,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         <h2 className="m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">What sponsors see first</h2>
         <ul className="m-0 mt-3 list-disc space-y-2 ps-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           <li>Explicit minimization checks where identifiers cross trust boundaries (mirrors the PHI finding storyline).</li>
-          <li>Required evidence artifacts for regulators — manifests, graph excerpts, and governance approvals stay linked.</li>
+          <li>Required evidence artifacts for regulators — signed review records, graph excerpts, and governance approvals stay linked.</li>
           <li>Operational drift hooks when unstructured attachments spike risk (Alerts ties back to the sample intake graph).</li>
         </ul>
       </section>
@@ -63,7 +63,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           <div>
             <dt className="font-semibold text-neutral-900 dark:text-neutral-50">Identity &amp; lineage</dt>
             <dd className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
-              Tie findings to manifest versions and governance approvals so remediation retains provenance.
+              Tie findings to review record versions and governance approvals so remediation retains provenance.
             </dd>
           </div>
           <div>
@@ -105,7 +105,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
             <span className="font-mono">3.4.1</span>
           </p>
           <p className="m-0">
-            Governance approvals recorded against manifest hash shown on the finalized Claims Intake package — cross-check the
+            Governance approvals recorded against review record hash shown on the finalized Claims Intake package — cross-check the
             Governance tab for promotion readiness.
           </p>
         </CollapsibleContent>

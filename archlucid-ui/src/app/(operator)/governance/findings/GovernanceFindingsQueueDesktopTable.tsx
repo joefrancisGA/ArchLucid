@@ -271,7 +271,7 @@ export function GovernanceFindingsQueueDesktopTable(
                       className="font-sans font-medium text-teal-800 underline dark:text-teal-300"
                       href={manifestRecordHref(row.runId, row.manifestId)}
                     >
-                      Open manifest
+                      Open signed record
                     </Link>
                   </EnterpriseTableCell>
                 )}

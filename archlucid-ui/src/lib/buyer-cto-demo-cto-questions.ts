@@ -1,4 +1,5 @@
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type CtoDemoQuestion = {
   readonly id: string;
@@ -69,9 +70,9 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     id: "lock-in",
     question: "Will we be locked in?",
     answer:
-      "Every review produces downloadable manifests, audit trails, and export bundles you can take offline.",
+      "Every review produces downloadable review records, audit trails, and export bundles you can take offline.",
     proofHref: getShowcaseManifestHref(),
-    proofLabel: "Signed manifest",
+    proofLabel: SIGNED_MANIFEST_LABEL,
     proofQueryParam: "focus=export",
   },
   {

@@ -40,7 +40,7 @@ export function GovernanceInteractiveQuickstartCard({
       <CardHeader className={cn("space-y-1 pb-2", suppressCardTitle && "pt-0")}>
         {suppressCardTitle ? null : <CardTitle className="text-base">Governance quick path</CardTitle>}
         <CardDescription>
-          Use this sequence the first time you move a finalized manifest through approval. Skipping steps is fine once
+          Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once
           your team knows the rhythm.
         </CardDescription>
       </CardHeader>
@@ -57,7 +57,7 @@ export function GovernanceInteractiveQuickstartCard({
               Run an architecture review
             </Link>
             {" — "}
-            finalize so you have a manifest version to submit below.
+            finalize so you have a review record version to submit below.
           </li>
           <li>
             Load that review in the approval section on this page, then submit for approval when your role allows.

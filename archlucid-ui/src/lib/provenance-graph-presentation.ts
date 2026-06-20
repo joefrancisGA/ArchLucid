@@ -1,4 +1,5 @@
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { GraphViewModel } from "@/types/graph";
 
 /** Known coordinator provenance node kinds surfaced on the review-trail graph. */
@@ -18,7 +19,7 @@ export const PROVENANCE_TYPE_BUSINESS_LABEL: Readonly<Record<string, string>> = 
   ContextSnapshot: "Reviewed source context",
   GraphSnapshot: "Evidence graph",
   FindingsSnapshot: "Findings recorded",
-  GoldenManifest: "Signed manifest",
+  GoldenManifest: SIGNED_MANIFEST_LABEL,
   ArtifactBundle: "Deliverables packaged",
 };
 

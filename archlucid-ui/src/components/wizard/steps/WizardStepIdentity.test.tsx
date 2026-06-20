@@ -36,11 +36,11 @@ describe("WizardStepIdentity", () => {
     expect(screen.getByLabelText("System name")).toBeInTheDocument();
     expect(screen.getByText("Environment")).toBeInTheDocument();
     expect(screen.getByText("Cloud target")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Prior manifest version (optional)")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Prior review record version (optional)")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /advanced options/i }));
 
-    expect(screen.getByLabelText("Prior manifest version (optional)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Prior review record version (optional)")).toBeInTheDocument();
   });
 
   it("shows None as the default cloud target and lists Azure as the accelerated V1 option", () => {

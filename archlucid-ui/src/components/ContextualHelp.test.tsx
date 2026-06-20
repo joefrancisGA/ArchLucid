@@ -35,7 +35,7 @@ describe("ContextualHelp", () => {
     });
 
     expect(await screen.findByRole("region", { name: /contextual help/i })).toBeInTheDocument();
-    expect(getByText(/versioned, reviewed manifest/i)).toBeInTheDocument();
+    expect(getByText(/versioned, reviewed decision record/i)).toBeInTheDocument();
 
     act(() => {
       fireEvent.click(button);

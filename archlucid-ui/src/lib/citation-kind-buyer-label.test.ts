@@ -7,6 +7,6 @@ describe("citationKindBuyerLabel", () => {
     expect(citationKindBuyerLabel("GraphSnapshot")).toBe("Decision traceability graph");
     expect(citationKindBuyerLabel("ContextSnapshot")).toBe("Reviewed source context");
     expect(citationKindBuyerLabel("DecisionTrace")).toBe("Decision record");
-    expect(citationKindBuyerLabel("Manifest")).toBe("Signed manifest");
+    expect(citationKindBuyerLabel("Manifest")).toBe("Signed review record");
   });
 });

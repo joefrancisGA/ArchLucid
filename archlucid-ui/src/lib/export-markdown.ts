@@ -75,7 +75,7 @@ function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): string {
   const title =
     normalizeInlineText(m.systemName) ??
     normalizeInlineText(m.manifestVersion) ??
-    "Committed architecture manifest";
+    "Committed architecture review record";
   const env = normalizeInlineText(m.environment);
   const cloud = normalizeInlineText(m.cloudProvider);
   const status = normalizeInlineText(m.status);
@@ -129,7 +129,7 @@ function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): string {
       lines.push(`- **Cost posture:** ${costPosture}`);
     }
   } else {
-    lines.push("_No summary object was present in the manifest JSON._");
+    lines.push("_No summary object was present in the review record JSON._");
   }
 
   lines.push("");
@@ -137,7 +137,7 @@ function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): string {
   lines.push("## Architecture overview");
   lines.push("");
   lines.push(
-    "High-level decisions and patterns captured in this manifest (from embedded highlights).",
+    "High-level decisions and patterns captured in this review record (from embedded highlights).",
   );
   lines.push("");
 
@@ -192,7 +192,7 @@ function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): string {
   const warnings = Array.isArray(m.warnings) ? m.warnings : [];
 
   if (warnings.length === 0) {
-    lines.push("_No warnings were listed on the manifest._");
+    lines.push("_No warnings were listed on the review record._");
     lines.push("");
   } else {
     for (const w of warnings) {
@@ -331,7 +331,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
   const changeDescription = meta ? normalizeInlineText(meta.changeDescription) : null;
   const manifestVersion = meta ? normalizeInlineText(meta.manifestVersion) : null;
 
-  const titleBase = changeDescription ?? manifestVersion ?? "Architecture manifest";
+  const titleBase = changeDescription ?? manifestVersion ?? "Architecture review record";
 
   lines.push(`# ${titleBase}`);
   lines.push("");
@@ -340,7 +340,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
   lines.push("");
 
   if (manifestId) {
-    lines.push(`- **Manifest id:** \`${manifestId}\``);
+    lines.push(`- **Review record id:** \`${manifestId}\``);
   }
 
   if (runId) {
@@ -354,11 +354,11 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
   }
 
   if (manifestHash) {
-    lines.push(`- **Manifest hash:** \`${manifestHash}\``);
+    lines.push(`- **Review record hash:** \`${manifestHash}\``);
   }
 
   if (manifestVersion) {
-    lines.push(`- **Manifest version:** ${manifestVersion}`);
+    lines.push(`- **Review record version:** ${manifestVersion}`);
   }
 
   lines.push("");
@@ -383,7 +383,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
     requirements === null &&
     policy === null
   ) {
-    lines.push("_No explicit objectives were present on the manifest document._");
+    lines.push("_No explicit objectives were present on the review record document._");
     lines.push("");
   }
 
@@ -619,7 +619,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
 function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string | null): string {
   const lines: string[] = [];
 
-  lines.push(`# Architecture manifest summary`);
+  lines.push(`# Architecture review record summary`);
   lines.push("");
 
   lines.push("## Document metadata");
@@ -629,10 +629,10 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
     lines.push(`- **Review id:** \`${runId}\``);
   }
 
-  lines.push(`- **Manifest id:** \`${summary.manifestId}\``);
+  lines.push(`- **Review record id:** \`${summary.manifestId}\``);
   lines.push(`- **Status:** ${summary.status}`);
   lines.push(`- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`);
-  lines.push(`- **Manifest hash:** \`${summary.manifestHash}\``);
+  lines.push(`- **Review record hash:** \`${summary.manifestHash}\``);
   lines.push("");
 
   lines.push("## Objectives");
@@ -649,7 +649,7 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
   lines.push("## Architecture overview");
   lines.push("");
   lines.push(
-    "Full manifest JSON was not available in the browser session; this export contains summary counts only.",
+    "Full review record JSON was not available in the browser session; this export contains summary counts only.",
   );
   lines.push("");
   lines.push(`- **Decisions:** ${summary.decisionCount}`);
@@ -659,12 +659,12 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
 
   lines.push("## Component breakdown");
   lines.push("");
-  lines.push("_Unavailable without full manifest JSON._");
+  lines.push("_Unavailable without full review record JSON._");
   lines.push("");
 
   lines.push("## Security model");
   lines.push("");
-  lines.push("_Unavailable without full manifest JSON._");
+  lines.push("_Unavailable without full review record JSON._");
   lines.push("");
 
   return lines.join("\n");
@@ -757,7 +757,7 @@ export function formatGoldenManifestMarkdown(
   } else {
     body =
       `# Signed review record export\n\n` +
-      `Manifest JSON was not available and no summary fallback was provided.\n`;
+      `Review record JSON was not available and no summary fallback was provided.\n`;
   }
 
   return appendTrustEvidenceMarkdownSection(body, options?.trustEvidenceCard);

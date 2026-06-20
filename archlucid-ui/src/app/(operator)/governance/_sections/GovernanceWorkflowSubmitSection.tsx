@@ -123,7 +123,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
             </div>
             <div className="grid gap-2">
               <Label htmlFor="gov-submit-version">
-                Manifest version (the{" "}
+                Review record version (the{" "}
                 <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
                   reviewed manifest
                 </GlossaryTooltip>{" "}

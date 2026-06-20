@@ -17,7 +17,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     <p
       class="text-sm text-neutral-600 dark:text-neutral-400"
     >
-      See how ArchLucid turns architecture review into a governed decision package — executive summary, signed manifest, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.
+      See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.
     </p>
   </header>
   <section

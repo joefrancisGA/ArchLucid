@@ -204,7 +204,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
             <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
               <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
-              <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
+              <CopyIdButton value={summary.manifestId} aria-label="Copy review record ID" />
             </dd>
           </>
         ) : null}

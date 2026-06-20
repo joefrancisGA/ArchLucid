@@ -34,7 +34,7 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
       const message =
         copyError instanceof Error
           ? copyError.message
-          : "Could not copy manifest JSON — check connectivity and try again.";
+          : "Could not copy review record JSON — check connectivity and try again.";
       setError(message);
     } finally {
       setCopying(false);
@@ -52,7 +52,7 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
         className="border-neutral-300 dark:border-neutral-600"
         onClick={() => void onCopy()}
       >
-        {copying ? "Preparing JSON…" : copied ? "Copied!" : buyerPolishedLayout === true ? BUYER_COPY_REVIEW_RECORD_JSON : "Copy manifest JSON"}
+        {copying ? "Preparing JSON…" : copied ? "Copied!" : buyerPolishedLayout === true ? BUYER_COPY_REVIEW_RECORD_JSON : "Copy review record JSON"}
       </Button>
       {error !== null ? (
         <p

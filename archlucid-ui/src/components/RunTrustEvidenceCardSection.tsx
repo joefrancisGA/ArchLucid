@@ -137,11 +137,11 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard }): ReactEl
     >
       <div className="space-y-1">
         <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-          Evidence → finding → manifest → artifact → audit proof chain
+          Evidence → finding → review record → artifact → audit proof chain
         </h4>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
           This chain shows why a committed ArchLucid review is stronger than a free-form AI answer: each sponsor-facing
-          claim can point back to stored evidence, a finding, a committed manifest, an exportable artifact, and durable
+          claim can point back to stored evidence, a finding, a committed review record, an exportable artifact, and durable
           audit or trace metadata. It is not a legal attestation.
         </p>
       </div>
@@ -273,7 +273,7 @@ export function RunTrustEvidenceCardSection(props: {
                 Ask evidence-backed questions about this review
               </p>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                Answers reference this review&apos;s persisted summary, manifest, and cited evidence where your workspace
+                Answers reference this review&apos;s persisted summary, signed review record, and cited evidence where your workspace
                 allows.
               </p>
               <div className="mt-3">

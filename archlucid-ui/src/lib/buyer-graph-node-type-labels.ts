@@ -1,3 +1,5 @@
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+
 /** Maps provenance graph node kind strings to buyer-facing filter labels (BDA-093). */
 export function buyerGraphNodeTypeLabel(kind: string): string {
   const normalized = kind.trim().toLowerCase();
@@ -17,7 +19,7 @@ export function buyerGraphNodeTypeLabel(kind: string): string {
 
     case "manifest":
     case "goldenmanifest":
-      return "Signed manifest";
+      return SIGNED_MANIFEST_LABEL;
 
     case "governance":
     case "approval":

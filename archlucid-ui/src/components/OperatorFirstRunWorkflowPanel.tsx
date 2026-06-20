@@ -409,7 +409,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                   href={getShowcaseManifestHref()}
                 >
-                  View manifest summary
+                  View signed record summary
                 </Link>{" "}
                 ·{" "}
                 <Link

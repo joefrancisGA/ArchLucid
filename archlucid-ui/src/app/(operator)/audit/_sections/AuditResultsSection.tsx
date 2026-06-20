@@ -203,7 +203,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   {BUYER_AUDIT_TRAIL_COMPLETE_HEADING}
                 </h3>
                 <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-                  {BUYER_AUDIT_PACKAGE_READY_LEAD} Download the audit trail or open the manifest bundle for diligence
+                  {BUYER_AUDIT_PACKAGE_READY_LEAD} Download the audit trail or open the review package bundle for diligence
                   export.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">

@@ -18,7 +18,7 @@ export type WhyHardComparisonRow = {
  * Ordered row labels — keep in sync with the markdown table first column (CI enforces).
  */
 export const WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER = [
-  "Every commit produces a versioned, immutable manifest",
+  "Every commit produces a versioned, immutable review record",
   "Every material change produces a typed audit record in an append-only store",
   "Tenant isolation uses database-per-tenant SQL catalogs via TenantDatabaseBindings, plus application-layer scope enforcement within each tenant (SQL RLS is not the production boundary)",
   "Authentication fails closed by default (API keys disabled until enabled)",

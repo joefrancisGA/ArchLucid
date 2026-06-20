@@ -197,7 +197,7 @@ export function WelcomeBanner() {
     </>
   ) : buyerPolishedShell ? (
     <>
-      Start with the <strong>executive view</strong>, then the <strong>signed manifest</strong>, <strong>audit trail</strong>, and prioritized{" "}
+      Start with the <strong>executive view</strong>, then the <strong>signed review record</strong>, <strong>audit trail</strong>, and prioritized{" "}
       <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
     </>
   ) : (

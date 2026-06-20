@@ -35,7 +35,7 @@ export function DownloadManifestButton(props: DownloadManifestButtonProps): Reac
       const message =
         downloadError instanceof Error
           ? downloadError.message
-          : "Could not download manifest JSON — check connectivity and try again.";
+          : "Could not download review record JSON — check connectivity and try again.";
       setError(message);
     } finally {
       setDownloading(false);
@@ -53,7 +53,7 @@ export function DownloadManifestButton(props: DownloadManifestButtonProps): Reac
         className="border-neutral-300 dark:border-neutral-600"
         onClick={() => void onDownload()}
       >
-        {downloading ? "Preparing JSON…" : buyerPolishedLayout === true ? BUYER_DOWNLOAD_REVIEW_RECORD_JSON : "Download manifest (JSON)"}
+        {downloading ? "Preparing JSON…" : buyerPolishedLayout === true ? BUYER_DOWNLOAD_REVIEW_RECORD_JSON : "Download review record (JSON)"}
       </Button>
       {error !== null ? (
         <p

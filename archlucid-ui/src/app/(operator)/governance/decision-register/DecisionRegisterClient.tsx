@@ -227,7 +227,7 @@ export default function DecisionRegisterClient() {
                   className="text-blue-700 underline dark:text-blue-400"
                   href={`/manifests/${decision.manifestId}`}
                 >
-                  View manifest
+                  View signed record
                 </Link>
                 {" · "}
                 <Link

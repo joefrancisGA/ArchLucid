@@ -63,7 +63,7 @@ export const RUNS_DASHBOARD_LABELS = {
   recentSummary: "Showing the latest reviews for this workspace.",
   attentionSummary: "Reviews with findings awaiting a finalized manifest.",
   attentionSummaryBuyer:
-    "Architecture reviews still moving toward a finalized signed manifest before sponsor sign-off.",
+    "Architecture reviews still moving toward a finalized signed review record before sponsor sign-off.",
   noReviewsNeedAttention: "No reviews currently need attention.",
   oneReviewNeedsAttention: "1 review needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,

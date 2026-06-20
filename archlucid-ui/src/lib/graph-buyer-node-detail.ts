@@ -113,7 +113,7 @@ export function graphBuyerTrailMetadataLines(
         summaryLines.push({
           label: "Why it matters",
           value:
-            "Mis-handled PHI creates compliance exposure and sponsor distrust; this finding ties evidence to the signed manifest.",
+            "Mis-handled PHI creates compliance exposure and sponsor distrust; this finding ties evidence to the signed review record.",
         });
       }
 

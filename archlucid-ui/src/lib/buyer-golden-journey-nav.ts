@@ -1,5 +1,6 @@
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { comparePageHref } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
@@ -25,15 +26,15 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   },
   {
     step: 2,
-    label: "Signed manifest",
+    label: SIGNED_MANIFEST_LABEL,
     href: getShowcaseManifestHref(),
-    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized signed package.",
+    chipTooltip: "Versioned record of decisions, findings, and downloadable outputs in this finalized review package.",
   },
   {
     step: 3,
     label: "Evidence trail",
     href: `/graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
-    chipTooltip: "Interactive graph linking evidence → findings → decisions → manifest outputs.",
+    chipTooltip: "Interactive graph linking evidence → findings → decisions → signed review record outputs.",
   },
   {
     step: 4,
@@ -133,7 +134,7 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
       canonicalizeDemoRunId(workspace[1]) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
     ) {
       return {
-        summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and signed manifest`,
+        summaryLine: `Review package overview — between ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle} and ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
         prev: { label: defs[0].label, href: defs[0].href },
         next: { label: defs[1].label, href: defs[1].href },
         currentStepIndex: null,

@@ -111,7 +111,7 @@ export function FindingDetailPageView(props: Props) {
                     className="mt-1 inline-flex text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                     href={linkedManifestHref}
                   >
-                    Open manifest decision
+                    Open signed decision record
                   </Link>
                 ) : (
                   <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">Manifest link unavailable</p>
@@ -351,7 +351,7 @@ export function FindingDetailPageView(props: Props) {
             {inspectPayload.manifestVersion ? (
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                  Manifest version
+                  Review record version
                 </dt>
                 <dd className="m-0 mt-1 font-mono text-xs">{inspectPayload.manifestVersion}</dd>
               </div>

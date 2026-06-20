@@ -195,7 +195,7 @@ export function RunDetailPageHeader({
                 <span className="inline-flex min-w-0 items-center gap-1">
                   <span className="font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</span>
                   <code className="max-w-[14rem] truncate font-mono">{trimmedManifestId}</code>
-                  <CopyIdButton value={trimmedManifestId} aria-label="Copy manifest ID" />
+                  <CopyIdButton value={trimmedManifestId} aria-label="Copy review record ID" />
                 </span>
               ) : null}
             </div>

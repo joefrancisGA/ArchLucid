@@ -46,7 +46,7 @@ export function buildExplanationConfidenceSummary(
       detail:
         warning.length > 0
           ? warning
-          : "Faithfulness was too low for sponsor-safe LLM narrative — review manifest-backed text before external send.",
+          : "Faithfulness was too low for sponsor-safe LLM narrative — review record-backed text before external send.",
     };
   }
 
@@ -86,7 +86,7 @@ export function buildExplanationConfidenceSummary(
     return {
       disposition: "WARN",
       title: "No persisted citations on aggregate explanation",
-      detail: "Narrative loaded without citation chips — verify findings and manifest artifacts before sponsor send.",
+      detail: "Narrative loaded without citation chips — verify findings and review record artifacts before sponsor send.",
     };
   }
 

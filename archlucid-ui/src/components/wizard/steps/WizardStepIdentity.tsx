@@ -144,7 +144,7 @@ export function WizardStepIdentity() {
           <div>
             <WizardFieldHint
               htmlFor="wizard-priorManifest"
-              label="Prior manifest version (optional)"
+              label="Prior review record version (optional)"
               hint="Leave blank for greenfield. Enter a version string to use as baseline for incremental changes."
             />
             <Input

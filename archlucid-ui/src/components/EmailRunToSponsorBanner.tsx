@@ -322,8 +322,8 @@ export function EmailRunToSponsorBanner({
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
-            title="UTC days since your tenant's first finalized manifest"
-            aria-label={`Day ${badgeDayN} since your tenant's first finalized manifest`}
+            title="UTC days since your tenant's first finalized review record"
+            aria-label={`Day ${badgeDayN} since your tenant's first finalized review record`}
             className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
           >
             Day {badgeDayN} since first finalization
@@ -664,7 +664,7 @@ export function EmailRunToSponsorBanner({
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
             href={getBundleDownloadUrl(manifestId)}
           >
-            Manifest bundle (ZIP)
+            Review package bundle (ZIP)
           </a>
           {" · "}
           <a

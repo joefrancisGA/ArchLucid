@@ -65,7 +65,7 @@ export function evaluateBuyerCtoDemoJourneyRoutesCheck(): BuyerCtoDemoReadinessC
       id: "journey-routes",
       label: "Five-step demo path",
       status: "pass",
-      detail: "Executive summary, signed manifest, evidence trail, governance, and audit routes resolve.",
+      detail: "Executive summary, signed review record, evidence trail, governance, and audit routes resolve.",
     };
   }
 

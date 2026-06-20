@@ -143,7 +143,7 @@ export function FindingInspectView({
           </li>
           <li>
             <strong className="font-medium text-neutral-900 dark:text-neutral-100">Trace path:</strong> decision rule →
-            finding record → manifest version; correlated events appear in the audit trail.
+            finding record → review record version; correlated events appear in the audit trail.
           </li>
           <li>
             <strong className="font-medium text-neutral-900 dark:text-neutral-100">Audit metadata:</strong> model and
@@ -152,7 +152,7 @@ export function FindingInspectView({
         </ul>
         {!buyerPolishedShell ? (
           <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}
+            Finding <span className="font-mono text-xs">{decodedFindingId}</span> — review record{" "}
             <span className="font-mono text-xs">{payload.manifestVersion ?? "—"}</span>
           </p>
         ) : null}

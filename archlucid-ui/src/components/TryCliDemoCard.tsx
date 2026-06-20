@@ -12,7 +12,7 @@ export function TryCliDemoCard(): React.JSX.Element {
       <CardHeader>
         <CardTitle className="text-base">Try with CLI (no Docker required)</CardTitle>
         <CardDescription>
-          Clone a demo repo, run one architecture review, and produce a committed manifest plus Markdown report in a single command.
+          Clone a demo repo, run one architecture review, and produce a committed review record plus Markdown report in a single command.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">

@@ -1,4 +1,5 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -56,7 +57,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.includes(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)) {
     return {
-      label: "Signed manifest",
+      label: SIGNED_MANIFEST_LABEL,
       line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
     };
   }
@@ -65,14 +66,14 @@ export function buyerPolishedRouteOrientation(
 
   if (path.replace(/\/$/, "") === friendlyManifestPath) {
     return {
-      label: "Signed manifest",
+      label: SIGNED_MANIFEST_LABEL,
       line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
     };
   }
 
   if (path.startsWith("/manifests/")) {
     return {
-      label: "Architecture review manifest",
+      label: SIGNED_MANIFEST_LABEL,
       line: `${BUYER_SURFACE_VOCABULARY.finalizedSignedManifestRecord} — decisions, findings counts, artifacts, and download bundle.`,
     };
   }
@@ -80,7 +81,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/graph")) {
     return {
       label: "Evidence trail",
-      line: "Decision traceability graph — reviewed context, policy basis, architecture analysis, prioritized findings, decisions, signed manifest, and deliverables.",
+      line: "Decision traceability graph — reviewed context, policy basis, architecture analysis, prioritized findings, decisions, signed review record, and deliverables.",
     };
   }
 
@@ -101,7 +102,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith(`/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
       label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      line: "Finalized decision record — findings, finalized signed manifest, evidence trail, governance disposition, and deliverables.",
+      line: "Finalized decision record — findings, finalized signed review record, evidence trail, governance disposition, and deliverables.",
     };
   }
 
@@ -122,7 +123,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/ask")) {
     return {
       label: "Ask this review",
-      line: `Pose questions scoped to persisted reviews; answers cite the manifest and evidence trail when available.`,
+      line: `Pose questions scoped to persisted reviews; answers cite the signed review record and evidence trail when available.`,
     };
   }
 
@@ -132,13 +133,13 @@ export function buyerPolishedRouteOrientation(
     if (searchRunId.length > 0) {
       return {
         label: "Search this review's evidence",
-        line: "Find language across this review package's summaries, manifest, and linked metadata.",
+        line: "Find language across this review package's summaries, signed review record, and linked metadata.",
       };
     }
 
     return {
       label: "Search review evidence",
-      line: "Find language across review summaries, manifests, and linked metadata (tenant-scoped). Narrow with an optional run filter when you open Search from a review.",
+      line: "Find language across review summaries, signed review records, and linked metadata (tenant-scoped). Narrow with an optional run filter when you open Search from a review.",
     };
   }
 

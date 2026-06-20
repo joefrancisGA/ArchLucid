@@ -19,6 +19,7 @@ import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
 import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { getDocHref, helpTopicsForGuidesTab, helpTopicsForTroubleshootingTab, type HelpTopic } from "@/lib/help-topics";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,8 @@ const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin
 
 const KEY_CONCEPTS: { label: string; text: string }[] = [
   { label: "Request", text: "The architecture intent you submit." },
-  { label: "Architecture review", text: "The packaged review created from a request (context, graph, findings, signed manifest)." },
-  { label: "Signed manifest", text: "The governed architecture output produced when a review is finalized." },
+  { label: "Architecture review", text: "The packaged review created from a request (context, graph, findings, signed review record)." },
+  { label: SIGNED_MANIFEST_LABEL, text: "The governed architecture output produced when a review is finalized." },
   { label: "Artifacts", text: "Supporting files, findings, and review materials." },
 ];
 

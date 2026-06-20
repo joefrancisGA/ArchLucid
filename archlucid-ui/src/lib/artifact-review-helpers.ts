@@ -5,22 +5,22 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   ReferenceArchitectureMarkdown: {
     label: "Reference architecture (Markdown)",
     description:
-      "Narrative reference architecture derived from the reviewed manifest—suitable for review and handoff as documentation.",
+      "Narrative reference architecture derived from the reviewed decision record—suitable for review and handoff as documentation.",
   },
   ArchitectureNarrative: {
     label: "Architecture narrative",
     description:
-      "Structured narrative summary of the architecture decisions and context captured in the manifest.",
+      "Structured narrative summary of the architecture decisions and context captured in the review record.",
   },
   DiagramAst: {
     label: "Diagram AST (JSON)",
     description:
-      "Machine-oriented graph of nodes and edges representing manifest-linked elements; used for rendering or tooling.",
+      "Machine-oriented graph of nodes and edges representing review-record-linked elements; used for rendering or tooling.",
   },
   MermaidDiagram: {
     label: "Mermaid diagram",
     description:
-      "Mermaid source for a high-level diagram (often decisions linked to the manifest). Render in a Mermaid-capable viewer or download the file.",
+      "Mermaid source for a high-level diagram (often decisions linked to the review record). Render in a Mermaid-capable viewer or download the file.",
   },
   Inventory: {
     label: "Inventory",
@@ -30,17 +30,17 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   CostSummary: {
     label: "Cost summary",
     description:
-      "JSON summary of cost signals associated with the architecture (where modeled in the manifest pipeline).",
+      "JSON summary of cost signals associated with the architecture (where modeled in the review pipeline).",
   },
   ComplianceMatrix: {
     label: "Compliance matrix",
     description:
-      "JSON matrix of compliance-related controls or requirements versus the current manifest posture.",
+      "JSON matrix of compliance-related controls or requirements versus the current review record posture.",
   },
   CoverageSummary: {
     label: "Coverage summary",
     description:
-      "JSON summary of coverage dimensions (e.g. requirements or controls) for the finalized manifest.",
+      "JSON summary of coverage dimensions (e.g. requirements or controls) for the finalized review record.",
   },
   UnresolvedIssuesReport: {
     label: "Unresolved issues",

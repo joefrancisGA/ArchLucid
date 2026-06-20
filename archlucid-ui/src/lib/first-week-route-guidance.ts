@@ -25,7 +25,7 @@ export type FirstWeekRouteGuidanceConfig = {
 export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review";
 
 const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
-  useWhen: "The review is running or findings are ready but the signed manifest is not finalized yet.",
+  useWhen: "The review is running or findings are ready but the signed review record is not finalized yet.",
   bridgeCopy:
     "Stay on this page until you finalize — that locks the signed decision record and unlocks sponsor exports.",
   primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
@@ -36,7 +36,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review package.",
     bridgeCopy:
-      "Each architecture review is tracked as one review package — the same object from capture through signed manifest and export. Start with briefs, diagrams, or IaC only (evidence-only); Azure extractor ZIP is optional when you need live topology or cost grounding.",
+      "Each architecture review is tracked as one review package — the same object from capture through signed review record and export. Start with briefs, diagrams, or IaC only (evidence-only); Azure extractor ZIP is optional when you need live topology or cost grounding.",
     primaryAction: { label: "Start new review", href: "/reviews/new" },
     operateDeferralNote:
       "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
@@ -44,7 +44,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   onboarding: {
     useWhen: "You want a guided checklist before opening the full product.",
     bridgeCopy:
-      "The checklist below walks one architecture review from capture to committed signed manifest.",
+      "The checklist below walks one architecture review from capture to committed signed review record.",
     primaryAction: { label: "Open new review wizard", href: "/reviews/new" },
     operateDeferralNote: "Finish this four-step path before exploring Operate analysis or governance lanes.",
   },

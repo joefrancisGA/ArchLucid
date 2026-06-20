@@ -47,7 +47,7 @@ export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPage
           Review package
         </Link>
         <Link href={`/manifests/${encodeURIComponent(manifestId)}`} className={btnClass}>
-          Open manifest
+          Open signed record
         </Link>
         <Link href={findingHref} className={btnClass}>
           Review finding

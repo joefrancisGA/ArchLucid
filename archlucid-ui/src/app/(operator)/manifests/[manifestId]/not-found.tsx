@@ -12,7 +12,7 @@ export default function ManifestDetailNotFound() {
         <Link href="/reviews?projectId=default" className="font-medium text-teal-800 underline dark:text-teal-300">
           review packages
         </Link>{" "}
-        to reach its signed manifest.
+        to reach its signed review record.
       </p>
     </div>
   );

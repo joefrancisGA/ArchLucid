@@ -39,7 +39,7 @@ export function SamplePackageShortcutsCard(): React.JSX.Element {
           <Link href={sampleReviewHref}>{BUYER_HOME_EXAMPLE_EXPLORE_LINK}</Link>
         </Button>
         <Button asChild variant="outline" className="w-full justify-center">
-          <Link href={manifestHref}>View manifest</Link>
+          <Link href={manifestHref}>View signed record</Link>
         </Button>
         <Button asChild variant="outline" className="w-full justify-center">
           <Link href={findingsHref}>View findings</Link>

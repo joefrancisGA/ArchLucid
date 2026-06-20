@@ -6,6 +6,7 @@ import {
 } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -28,9 +29,9 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     searchValue: "review package claims intake modernization",
   },
   {
-    label: "Signed manifest",
+    label: SIGNED_MANIFEST_LABEL,
     href: getShowcaseManifestHref(),
-    searchValue: "signed manifest package deliverables",
+    searchValue: "signed review record package deliverables",
   },
   {
     label: "Policy pack basis",

@@ -229,7 +229,7 @@ describe("EmailRunToSponsorBanner", () => {
 
     expect(docx.getAttribute("href")).toContain("/api/proxy/v1/docx/runs/run-42/architecture-package");
 
-    const bundle = screen.getByRole("link", { name: /manifest bundle \(zip\)/i });
+    const bundle = screen.getByRole("link", { name: /review package bundle \(zip\)/i });
 
     expect(bundle.getAttribute("href")).toContain("/api/proxy/v1/artifacts/manifests/manifest-fixture/bundle");
   });

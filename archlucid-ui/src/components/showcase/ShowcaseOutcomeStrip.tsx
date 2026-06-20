@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type ShowcaseOutcomeStripProps = {
   runId: string;
@@ -59,12 +60,12 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
 
       {hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">2 · Signed manifest</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Signed architecture record and deliverables index</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">2 · Signed manifest</span>
+          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
           <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
         </div>
       )}
@@ -81,7 +82,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the finalized signed manifest</span>
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the finalized signed review record</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
@@ -122,7 +123,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">PHI minimization posture — see related items in the manifest</span>
+            <span className="text-xs text-neutral-600 dark:text-neutral-400">PHI minimization posture — see related items in the signed review record</span>
           </Link>
         ) : (
           <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>

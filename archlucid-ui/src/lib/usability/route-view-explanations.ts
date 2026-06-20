@@ -13,7 +13,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     prefix: "/graph",
     explanation: {
       title: "Evidence trail",
-      summary: "This graph links your architecture inputs, pipeline steps, findings, and the signed manifest.",
+      summary: "This graph links your architecture inputs, pipeline steps, findings, and the signed review record.",
       nextAction: "Select a node to inspect provenance, then open linked findings from the side panel.",
     },
   },
@@ -21,7 +21,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     prefix: "/compare",
     explanation: {
       title: "Compare reviews",
-      summary: "Side-by-side diff of two architecture reviews — findings, manifest decisions, and cost deltas.",
+      summary: "Side-by-side diff of two architecture reviews — findings, decision records, and cost deltas.",
       nextAction: "Pick a baseline and candidate review, then read the structured comparison summary.",
     },
   },

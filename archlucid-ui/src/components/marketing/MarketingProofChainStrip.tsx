@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 const PROOF_CHAIN_STEPS = [
   "Evidence",
   "Finding",
-  "Manifest",
+  "Review record",
   "Artifact",
   "Audit",
 ] as const;
@@ -20,7 +20,7 @@ export function MarketingProofChainStrip(): ReactElement {
         Why this is not a chat answer
       </h2>
       <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-        Each sponsor-facing claim can trace through stored evidence, a finding, a committed manifest, an exportable
+        Each sponsor-facing claim can trace through stored evidence, a finding, a committed review record, an exportable
         artifact, and durable audit metadata — not a disposable LLM thread.
       </p>
       <ol className="m-0 mt-4 flex list-none flex-wrap items-center gap-2 p-0">

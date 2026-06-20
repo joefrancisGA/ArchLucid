@@ -11,7 +11,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Architecture review",
     definition:
-      "A versioned, evidence-linked analysis package produced by ArchLucid. Contains findings, a signed manifest, and a full audit trail.",
+      "A versioned, evidence-linked analysis package produced by ArchLucid. Contains findings, a signed review record, and a full audit trail.",
   },
   {
     term: "Finding",

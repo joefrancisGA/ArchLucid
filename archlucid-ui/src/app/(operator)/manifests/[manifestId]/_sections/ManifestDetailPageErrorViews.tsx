@@ -55,7 +55,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
       <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
         <OperatorBrandedTransientFailure
           failure={props.summaryFailure}
-          retryLabel="Retry loading manifest"
+          retryLabel="Retry loading review record"
         />
       </ManifestDetailPageErrorFrame>
     );
@@ -70,7 +70,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
         correlationId={props.summaryFailure.correlationId}
       />
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        Try reloading, or return to the reviews list, open a review, then the manifest from review detail.
+        Try reloading, or return to the reviews list, open a review, then the signed review record from review detail.
       </p>
       <ManifestDetailPageErrorFooterLinks />
     </ManifestDetailPageErrorFrame>
@@ -101,13 +101,13 @@ export function ManifestDetailSummaryMissingView(props: { readonly buyerPolished
       <OperatorErrorCallout>
         <strong>Manifest summary missing.</strong>
         <p className="mt-2">
-          The response did not include manifest details. Try reloading once, or return from review detail instead of a
+          The response did not include review record details. Try reloading once, or return from review detail instead of a
           pasted link.
         </p>
         <OperatorErrorUiReferenceLine />
       </OperatorErrorCallout>
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        If this continues, try reloading, or return to the reviews list and open a review, then the manifest.
+        If this continues, try reloading, or return to the reviews list and open a review, then the signed review record.
       </p>
       <ManifestDetailPageErrorFooterLinks />
     </ManifestDetailPageErrorFrame>

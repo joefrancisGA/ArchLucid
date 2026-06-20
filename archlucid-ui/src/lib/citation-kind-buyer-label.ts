@@ -1,6 +1,7 @@
 import type { CitationReference } from "@/types/explanation";
 
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /**
  * Maps persisted citation `kind` to buyer-facing chip labels (avoids exposing internal enum names).
@@ -14,7 +15,7 @@ export function citationKindBuyerLabel(kind: CitationReference["kind"]): string 
     case "DecisionTrace":
       return "Decision record";
     case "Manifest":
-      return "Signed manifest";
+      return SIGNED_MANIFEST_LABEL;
     case "Finding":
       return "Finding";
     case "EvidenceBundle":

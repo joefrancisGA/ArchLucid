@@ -2,6 +2,7 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 import type { FindingProvenance } from "@/lib/api/finding-provenance";
 import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
@@ -294,7 +295,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       faithfulnessWarning: null,
       findingTraceConfidences: null,
       citations: [
-        { kind: "Manifest", id: SHOWCASE_STATIC_DEMO_MANIFEST_ID, label: "Signed manifest", runId },
+        { kind: "Manifest", id: SHOWCASE_STATIC_DEMO_MANIFEST_ID, label: SIGNED_MANIFEST_LABEL, runId },
         {
           kind: "GraphSnapshot",
           id: "graph-snapshot-01",

@@ -312,7 +312,7 @@ export function GovernanceWorkflowPageContent() {
     const runId = submitRunId.trim();
 
     if (!runId || !submitManifestVersion.trim()) {
-      setToast({ kind: "err", message: "Choose a review and enter a manifest version." });
+      setToast({ kind: "err", message: "Choose a review and enter a review record version." });
 
       return;
     }
