@@ -81,6 +81,7 @@ import HomePage from "./page";
 
 afterEach(() => {
   vi.clearAllMocks();
+  vi.unstubAllGlobals();
 });
 
 beforeEach(() => {
@@ -93,27 +94,30 @@ beforeEach(() => {
   });
   getPilotScorecard.mockResolvedValue(null);
 
-  globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-    if (url.includes("/api/proxy/health/ready")) {
-      return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
-    }
+      if (url.includes("/api/proxy/health/ready")) {
+        return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
+      }
 
-    if (url.includes("/api/proxy/v1/tenant/roi-baseline")) {
-      return new Response(JSON.stringify({ complete: true }), { status: 200 });
-    }
+      if (url.includes("/api/proxy/v1/tenant/roi-baseline")) {
+        return new Response(JSON.stringify({ complete: true }), { status: 200 });
+      }
 
-    if (url.includes("/api/proxy/v1/tenant/trial-status")) {
-      return new Response(JSON.stringify({ status: "None" }), { status: 200 });
-    }
+      if (url.includes("/api/proxy/v1/tenant/trial-status")) {
+        return new Response(JSON.stringify({ status: "None" }), { status: 200 });
+      }
 
-    if (url.includes("/api/proxy/v1/pilots/runs/recent-deltas")) {
-      return new Response(JSON.stringify({ runs: [] }), { status: 200 });
-    }
+      if (url.includes("/api/proxy/v1/pilots/runs/recent-deltas")) {
+        return new Response(JSON.stringify({ runs: [] }), { status: 200 });
+      }
 
-    return new Response("not found", { status: 404 });
-  }) as unknown as typeof fetch;
+      return new Response("not found", { status: 404 });
+    }),
+  );
 });
 
 describe("HomePage — buyer-polished shell", () => {

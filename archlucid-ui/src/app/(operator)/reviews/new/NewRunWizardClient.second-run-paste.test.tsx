@@ -87,6 +87,9 @@ components = ["api"]
       expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
     });
 
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-evidence-source-demo")).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
     await waitFor(() => {
       expect(screen.getByTestId("wizard-evidence-upload-skip-demo")).toBeInTheDocument();

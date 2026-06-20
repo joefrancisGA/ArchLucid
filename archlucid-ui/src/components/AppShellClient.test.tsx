@@ -74,17 +74,22 @@ vi.mock("@/components/shell/AppShellStatusBanners", () => ({
 describe("AppShellClient — LLM budget chrome", () => {
   useOperatorQueryTestLifecycle();
 
-  beforeEach(() => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
     buyerPolishedMock.value = false;
-    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
-      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-      if (url.includes("/api/proxy/health/ready")) {
-        return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
-      }
+        if (url.includes("/api/proxy/health/ready")) {
+          return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
+        }
 
-      return new Response("not found", { status: 404 });
-    }) as unknown as typeof fetch;
+        return new Response("not found", { status: 404 });
+      }),
+    );
     const budgetStatus = {
       monthlyBudgetMonitoringActive: true,
       blocksAdditionalLlmExecution: false,

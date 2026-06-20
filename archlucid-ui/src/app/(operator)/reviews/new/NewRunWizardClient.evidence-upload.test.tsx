@@ -73,6 +73,11 @@ import { NewRunWizardClient } from "./NewRunWizardClient";
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
   beforeEach(() => {
     searchParamsState.value = new URLSearchParams();
     window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");

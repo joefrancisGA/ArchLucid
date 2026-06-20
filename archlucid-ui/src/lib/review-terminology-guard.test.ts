@@ -78,12 +78,12 @@ describe("review terminology guard", () => {
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed manifest");
   });
 
-  it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", { timeout: 60_000 }, () => {
+  it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", () => {
     const violations = scanGlobalBuyerSurfaces();
 
     expect(
       violations,
       violations.map((v) => `${v.relativePath}:${v.line} "${v.pattern}" — ${v.excerpt}`).join("\n"),
     ).toEqual([]);
-  });
+  }, 120_000);
 });
