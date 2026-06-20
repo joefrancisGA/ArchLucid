@@ -399,6 +399,7 @@ export function FirstPilotReadinessCockpit() {
 
           <OperatorHomeDisclosureSection
             title="View readiness details"
+            titleId="first-pilot-readiness-details-heading"
             storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails}
             defaultExpanded={false}
             collapsedSummary={collapsedReadinessSummary(pendingProbes, rows)}
@@ -426,6 +427,7 @@ export function FirstPilotReadinessCockpit() {
 
             <OperatorHomeDisclosureSection
               title="Assistant readiness diagnostics"
+              titleId="first-pilot-assistant-diagnostics-heading"
               storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics}
               defaultExpanded={false}
               collapsedSummary="AI quality proof signals for assistant readiness."

@@ -72,7 +72,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     persistExpanded(!expanded);
   }, [expanded, persistExpanded]);
 
-  const showExpandedContent = !hydrated || expanded;
+  const showExpandedContent = hydrated ? expanded : defaultExpanded;
   const toggleLabel = expanded ? collapseAriaLabel(title) : expandAriaLabel(title);
   const slim = density === "slim";
 

@@ -74,6 +74,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
   return (
     <OperatorHomeDisclosureSection
       title="First review checklist"
+      titleId="core-pilot-diagnostics-checklist-heading"
       sectionTestId="core-pilot-diagnostics-checklist"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.diagnosticsChecklist}
       defaultExpanded={false}

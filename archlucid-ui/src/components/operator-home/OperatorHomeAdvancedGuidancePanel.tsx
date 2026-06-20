@@ -7,7 +7,7 @@ const OperatorHomeAdvancedGuidanceSection = dynamic(
     import("@/components/operator-home/OperatorHomeAdvancedGuidanceSection").then(
       (module) => module.OperatorHomeAdvancedGuidanceSection,
     ),
-  { loading: () => null },
+  { loading: () => null, ssr: false },
 );
 
 type OperatorHomeAdvancedGuidancePanelProps = {

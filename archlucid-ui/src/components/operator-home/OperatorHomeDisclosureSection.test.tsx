@@ -33,4 +33,21 @@ describe("OperatorHomeDisclosureSection", () => {
 
     expect(screen.getByText("Expanded body")).toBeInTheDocument();
   });
+
+  it("keeps collapsed sections closed before hydration when defaultExpanded is false", () => {
+    render(
+      <OperatorHomeDisclosureSection
+        title="Advanced guidance"
+        sectionTestId="disclosure-collapsed-test"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
+        defaultExpanded={false}
+        collapsedSummary="Collapsed summary"
+      >
+        <p>Expanded body</p>
+      </OperatorHomeDisclosureSection>,
+    );
+
+    expect(screen.queryByText("Expanded body")).not.toBeInTheDocument();
+    expect(screen.getByText("Collapsed summary")).toBeInTheDocument();
+  });
 });

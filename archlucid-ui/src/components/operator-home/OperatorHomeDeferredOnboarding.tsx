@@ -4,17 +4,17 @@ import dynamic from "next/dynamic";
 
 const OperatorWelcomeOnboarding = dynamic(
   () => import("@/components/OperatorWelcomeOnboarding").then((module) => module.OperatorWelcomeOnboarding),
-  { loading: () => null },
+  { loading: () => null, ssr: false },
 );
 
 const TrialWelcomeRunDeepLink = dynamic(
   () => import("@/components/TrialWelcomeRunDeepLink").then((module) => module.TrialWelcomeRunDeepLink),
-  { loading: () => null },
+  { loading: () => null, ssr: false },
 );
 
 const FirstValueReachedCallout = dynamic(
   () => import("@/components/FirstValueReachedCallout").then((module) => module.FirstValueReachedCallout),
-  { loading: () => null },
+  { loading: () => null, ssr: false },
 );
 
 /** Trial deep-link and welcome overlays — not needed for first paint of the home dashboard. */
