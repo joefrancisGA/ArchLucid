@@ -5,8 +5,11 @@ import type { RunTrustEvidenceCard, TrustEvidenceFieldSnapshot } from "@/types/a
 
 import { RunTrustEvidenceCardSection } from "./RunTrustEvidenceCardSection";
 
-vi.mock("next/link", () => ({
-  default: ({
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
+}));
+
+vi.mock("next/link", () => ({  default: ({
     href,
     children,
     ...rest
@@ -20,6 +23,9 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
+const buyerPolishedMock = vi.mocked(isBuyerPolishedOperatorShellEnv);
 function field(title: string, status = "Available", detail = `${title} detail`): TrustEvidenceFieldSnapshot {
   return { title, status, detail };
 }
@@ -83,5 +89,15 @@ describe("RunTrustEvidenceCardSection", () => {
 
     expect(screen.getByText(/No top finding evidence-chain pointer is available/i)).toBeInTheDocument();
     expect(screen.getAllByText(/WARN: supporting link is missing/i).length).toBeGreaterThan(0);
+  });
+
+  it("buyer-polished shell maps golden manifest labels to signed review record", () => {
+    buyerPolishedMock.mockReturnValue(true);
+
+    render(<RunTrustEvidenceCardSection card={card()} />);
+
+    expect(screen.getByText(/Step 3: Signed review record/i)).toBeInTheDocument();
+    expect(screen.queryByText("Golden manifest snapshot")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Signed review record").length).toBeGreaterThanOrEqual(2);
   });
 });

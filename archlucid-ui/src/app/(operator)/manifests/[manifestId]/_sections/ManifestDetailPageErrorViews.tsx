@@ -7,6 +7,11 @@ import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+import {
+  BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING,
+  BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING,
+  BUYER_MANIFEST_SUMMARY_MISSING_HEADING,
+} from "@/lib/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
 
@@ -63,7 +68,11 @@ export function ManifestDetailSummaryLoadErrorView(props: {
 
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
-      <p className="m-0 text-sm font-semibold">Manifest summary could not be loaded.</p>
+      <p className="m-0 text-sm font-semibold">
+        {props.buyerPolishedLayout
+          ? BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING
+          : "Manifest summary could not be loaded."}
+      </p>
       <OperatorApiProblem
         problem={props.summaryFailure.problem}
         fallbackMessage={props.summaryFailure.message}
@@ -84,7 +93,11 @@ export function ManifestDetailSummaryMalformedView(props: {
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
       <OperatorMalformedCallout>
-        <strong>Manifest summary response was not usable.</strong>
+        <strong>
+          {props.buyerPolishedLayout
+            ? BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING
+            : "Manifest summary response was not usable."}
+        </strong>
         <p className="mt-2">{props.message}</p>
       </OperatorMalformedCallout>
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
@@ -99,7 +112,9 @@ export function ManifestDetailSummaryMissingView(props: { readonly buyerPolished
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
       <OperatorErrorCallout>
-        <strong>Manifest summary missing.</strong>
+        <strong>
+          {props.buyerPolishedLayout ? BUYER_MANIFEST_SUMMARY_MISSING_HEADING : "Manifest summary missing."}
+        </strong>
         <p className="mt-2">
           The response did not include review record details. Try reloading once, or return from review detail instead of a
           pasted link.

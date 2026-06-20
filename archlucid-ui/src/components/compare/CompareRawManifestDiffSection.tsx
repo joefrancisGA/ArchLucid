@@ -4,8 +4,16 @@ import { useEffect, useState } from "react";
 
 import { ArchitectureManifestUnifiedDiffView } from "@/components/compare/ArchitectureManifestUnifiedDiffView";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL, BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO, BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY, BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL,
+  BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO,
+  BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY,
+  BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING,
+  COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO,
+} from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   formatArchitectureManifestJsonForDiff,
   resolveArchitectureManifestJsonForDiff,
@@ -27,6 +35,7 @@ export type CompareRawManifestDiffSectionProps = {
  * Lazy-loads finalized manifest documents and shows a scroll-contained unified JSON line diff.
  */
 export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSectionProps) {
+  const buyerPolished = props.buyerPolished === true || isBuyerPolishedOperatorShellEnv();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -61,7 +70,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
           return;
         }
 
-        const message = err instanceof Error ? err.message : "Manifest diff could not be loaded.";
+        const message = err instanceof Error ? err.message : "Review record diff could not be loaded.";
         setErrorMessage(message);
         setBeforeText(null);
         setAfterText(null);
@@ -91,31 +100,24 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
       <summary className="cursor-pointer list-none text-[15px] font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
-        {props.buyerPolished === true ? BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL : "Manifest diff appendix"}
+        {buyerPolished ? BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL : "Review record diff appendix"}
       </summary>
       <div className="mt-3 space-y-3">
         <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-          {props.buyerPolished === true ? (
-            BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO
-          ) : (
-            <>
-              Pretty-printed JSON from <strong>GET /v1/authority/runs/…/manifest</strong> for each review. Red and green
-              lines are removed or added; unchanged lines provide context around edits.
-            </>
-          )}
+          {buyerPolished ? BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO : COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO}
         </p>
 
         {loading ? (
           <OperatorLoadingNotice>
             <strong>
-              {props.buyerPolished === true
+              {buyerPolished
                 ? BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING
-                : "Loading manifest documents."}
+                : `Loading ${SIGNED_MANIFEST_LABEL.toLowerCase()} documents.`}
             </strong>
             <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-              {props.buyerPolished === true
+              {buyerPolished
                 ? BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY
-                : "Fetching both manifests for diff…"}
+                : "Fetching both review records for diff…"}
             </p>
           </OperatorLoadingNotice>
         ) : null}

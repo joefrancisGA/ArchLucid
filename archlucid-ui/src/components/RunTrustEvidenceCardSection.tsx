@@ -10,6 +10,10 @@ import {
   formatProofConfidenceLabelFromTrustStatus,
   PROOF_CONFIDENCE_FIELD_LABEL,
 } from "@/lib/proof-confidence-taxonomy";
+import {
+  trustEvidenceGoldenManifestFieldTitle,
+  trustEvidenceProofChainManifestStepLabel,
+} from "@/lib/trust-evidence-display";
 import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 function proxyApiPath(path: string): string {
@@ -123,8 +127,8 @@ function ProofChainStep(props: {
   );
 }
 
-function ProofChainView(props: { readonly card: RunTrustEvidenceCard }): ReactElement {
-  const { card } = props;
+function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly buyerPolishedShell: boolean }): ReactElement {
+  const { card, buyerPolishedShell } = props;
   const evidenceLink = linkByRel(card.links, "evidence");
   const topFindingLink = linkByRel(card.links, "topFindingEvidenceChain");
   const traceabilityLink = linkByRel(card.links, "traceabilityZip");
@@ -164,7 +168,14 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard }): ReactEl
           href={topFindingLink?.path}
           linkLabel={topFindingLink?.label}
         />
-        <ProofChainStep index={3} label="Manifest" field={card.goldenManifest} />
+        <ProofChainStep
+          index={3}
+          label={trustEvidenceProofChainManifestStepLabel(buyerPolishedShell)}
+          field={{
+            ...card.goldenManifest,
+            title: trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell),
+          }}
+        />
         <ProofChainStep
           index={4}
           label="Artifact"
@@ -212,7 +223,7 @@ export function RunTrustEvidenceCardSection(props: {
     />,
     <FieldRow
       key="manifest"
-      title={card.goldenManifest.title}
+      title={trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell)}
       status={card.goldenManifest.status}
       detail={card.goldenManifest.detail}
     />,
@@ -262,7 +273,7 @@ export function RunTrustEvidenceCardSection(props: {
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">{rows}</div>
 
-          <ProofChainView card={card} />
+          <ProofChainView card={card} buyerPolishedShell={buyerPolishedShell} />
 
           {trimmedAskRun.length > 0 ? (
             <div

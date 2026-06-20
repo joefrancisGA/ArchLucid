@@ -334,6 +334,15 @@ export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
 export const BUYER_RUNS_LIST_GLOSSARY_LEAD =
   "Open a review package for the signed record, evidence, findings, and deliverables.";
 
+export const BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING = "Review record summary could not be loaded.";
+
+export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary response was not usable.";
+
+export const BUYER_MANIFEST_SUMMARY_MISSING_HEADING = "Review record summary missing.";
+
+export const COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO =
+  "Pretty-printed JSON review record documents for each architecture review. Red and green lines are removed or added; unchanged lines provide context around edits.";
+
 export const BUYER_PIPELINE_IN_PROGRESS_LABEL = "In progress";
 
 export const BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE = "Policy pack used for this review.";

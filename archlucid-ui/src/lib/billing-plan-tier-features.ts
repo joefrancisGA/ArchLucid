@@ -6,7 +6,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
   team: [
     "1 workspace · up to 5 architect seats",
     "20 architecture reviews / month included ($10 / review overage)",
-    "Golden manifests, comparison reviews — core architecture review checks",
+    "Signed review records, comparison reviews — core architecture review checks",
     "Basic governance checkpoint for high-severity review findings",
     "90-day audit retention · Entra ID · community / email support",
   ],

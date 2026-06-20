@@ -22,6 +22,7 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
@@ -181,7 +182,7 @@ export function GovernanceFindingsQueueDesktopTable(
             <EnterpriseTableHeaderCell>{buyerPolishedShell ? "Record" : "Record kind"}</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>{buyerPolishedShell ? "Record summary" : "Finding"}</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-            {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Manifest</EnterpriseTableHeaderCell>}
+            {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>{SIGNED_MANIFEST_LABEL}</EnterpriseTableHeaderCell>}
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
             {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>}
             {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Aging</EnterpriseTableHeaderCell>}

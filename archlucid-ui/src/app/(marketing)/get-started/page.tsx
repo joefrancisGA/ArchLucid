@@ -36,12 +36,12 @@ const STEPS: readonly Step[] = [
   {
     n: 3,
     title: "Start a sample review & read your first finding",
-    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline — no upload required for the first pass. Within a few seconds you get a finalized manifest with structured findings. Open the review and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
+    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline — no upload required for the first pass. Within a few seconds you get a signed review record with structured findings. Open the review and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
   },
   {
     n: 4,
     title: "Decide what to do next",
-    body: "Either invite a colleague and start a second sample review, or hand off to a guided pilot. Invite a colleague to sign in and repeat the same sample or a different vertical — no configuration is needed. When you are ready for real inputs, the guided pilot path walks through finalizing a manifest and reviewing artifacts you would ship in production.",
+    body: "Either invite a colleague and start a second sample review, or hand off to a guided pilot. Invite a colleague to sign in and repeat the same sample or a different vertical — no configuration is needed. When you are ready for real inputs, the guided pilot path walks through finalizing a signed review record and reviewing artifacts you would ship in production.",
   },
 ] as const;
 

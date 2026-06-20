@@ -31,7 +31,7 @@ export const RUNS_LIST_PAGE_TITLES = {
 
 /** `/reviews` index {@link OperatorPageHeader} subtitle (`RunsPageView`). */
 export const RUNS_LIST_PAGE_SUBTITLE =
-  "Finalized architecture reviews with findings, evidence, manifest, and exports.";
+  "Finalized architecture reviews with findings, evidence, signed review records, and exports.";
 
 export const PIPELINE_STATUS_LABELS = {
   finalized: "Finalized",
@@ -61,7 +61,7 @@ export const RUNS_DASHBOARD_LABELS = {
   packagingPreFinalPosture: "Packaging and pre-final posture",
   reviewOutcomes: "Review outcomes",
   recentSummary: "Showing the latest reviews for this workspace.",
-  attentionSummary: "Reviews with findings awaiting a finalized manifest.",
+  attentionSummary: "Reviews with findings awaiting a finalized signed review record.",
   attentionSummaryBuyer:
     "Architecture reviews still moving toward a finalized signed review record before sponsor sign-off.",
   noReviewsNeedAttention: "No reviews currently need attention.",

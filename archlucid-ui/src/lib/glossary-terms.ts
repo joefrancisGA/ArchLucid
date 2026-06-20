@@ -16,8 +16,9 @@ export const GLOSSARY_TERMS = {
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   golden_manifest: {
-    term: "Golden manifest",
-    definition: "The provenance-backed record that closes the authority ledger for committed work (what was decided, bound to lineage). PKI-style cryptographic signing of manifests is not claimed for current V1 storage unless a deployment explicitly enables it — treat “signed” as lineage / provenance closure unless an architecture note says otherwise. Treat “manifest” alone as ambiguous until provenance semantics are stated.",
+    term: "Signed review record",
+    definition:
+      "The provenance-backed record that closes the authority ledger for committed work — what was decided, bound to evidence and lineage. This is the finalized, auditable output of an architecture review.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   review_package: {

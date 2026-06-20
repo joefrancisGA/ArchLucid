@@ -44,6 +44,7 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import type { RunSummary } from "@/types/authority";
@@ -831,7 +832,7 @@ export default function GovernanceFindingsQueueClient() {
                   <div className="mt-2 grid gap-3 border-t border-neutral-100 pt-2 text-xs sm:grid-cols-3 dark:border-neutral-800">
                     {buyerPolishedShell ? null : (
                       <div>
-                        <div className="font-medium text-neutral-600 dark:text-neutral-400">Manifest</div>
+                        <div className="font-medium text-neutral-600 dark:text-neutral-400">{SIGNED_MANIFEST_LABEL}</div>
                         <div className="mt-0.5">
                           <Link
                             className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
