@@ -15,13 +15,19 @@ internal static class ScimIntegrationClientFactory
         return CreateAuthenticatedClientAsync(factory, ScopeIds.DefaultTenant);
     }
 
-    public static async Task<HttpClient> CreateAuthenticatedClientAsync(JwtLocalSigningWebAppFactory factory, Guid tenantId)
+    public static async Task<HttpClient> CreateAuthenticatedClientAsync(
+        JwtLocalSigningWebAppFactory factory,
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
     {
         HttpClient http = factory.CreateClient();
 
+        await ScimIntegrationTestTenantSeed.EnsureDefaultTenantAsync(factory.Services, cancellationToken)
+            .ConfigureAwait(false);
+
         using IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
         IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
-        ScimTokenIssueResult minted = await issuer.IssueTokenAsync(tenantId, CancellationToken.None);
+        ScimTokenIssueResult minted = await issuer.IssueTokenAsync(tenantId, cancellationToken).ConfigureAwait(false);
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minted.PlaintextToken);
 
         return http;

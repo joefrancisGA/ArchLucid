@@ -1,11 +1,9 @@
 using System.Net;
 using System.Net.Http.Headers;
 
-using ArchLucid.Application.Scim.Tokens;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
-
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests.Scim;
 
@@ -16,15 +14,9 @@ public sealed class ScimDiscoveryAuthenticatedIntegrationTests(JwtLocalSigningWe
     [SkippableFact]
     public async Task ServiceProviderConfig_returns_application_scim_json_when_scim_bearer_accepted()
     {
-        HttpClient http = factory.CreateClient();
-
-        using (IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-        {
-            IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
-            ScimTokenIssueResult minted = await issuer.IssueTokenAsync(Guid.NewGuid(), CancellationToken.None);
-
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minted.PlaintextToken);
-        }
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(
+            factory,
+            ScopeIds.DefaultTenant);
 
         HttpResponseMessage response = await http.GetAsync("/scim/v2/ServiceProviderConfig");
 
@@ -38,15 +30,9 @@ public sealed class ScimDiscoveryAuthenticatedIntegrationTests(JwtLocalSigningWe
     [SkippableFact]
     public async Task ResourceTypes_lists_user_and_group_endpoints()
     {
-        HttpClient http = factory.CreateClient();
-
-        using (IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-        {
-            IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
-            ScimTokenIssueResult minted = await issuer.IssueTokenAsync(Guid.NewGuid(), CancellationToken.None);
-
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minted.PlaintextToken);
-        }
+        HttpClient http = await ScimIntegrationClientFactory.CreateAuthenticatedClientAsync(
+            factory,
+            ScopeIds.DefaultTenant);
 
         HttpResponseMessage response = await http.GetAsync("/scim/v2/ResourceTypes");
 

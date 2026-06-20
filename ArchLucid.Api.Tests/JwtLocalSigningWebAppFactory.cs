@@ -52,6 +52,8 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 
     private readonly RsaSecurityKey _validationSigningKey;
 
+    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("InMemory");
+
     public JwtLocalSigningWebAppFactory()
     {
         using RSA rsa = RSA.Create(2048);
@@ -154,6 +156,10 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
+            ["IntegrationEvents:QueueOrTopicName"] = "",
+            ["IntegrationEvents:ServiceBusConnectionString"] = "",
+            ["IntegrationEvents:ServiceBusFullyQualifiedNamespace"] = "",
+            ["IntegrationEvents:ServiceBusManagedIdentityClientId"] = "",
             ["AgentExecution:Mode"] = "Simulator",
             ["AzureOpenAI:Endpoint"] = "",
             ["AzureOpenAI:ApiKey"] = "",
@@ -184,6 +190,9 @@ public class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 
     protected override void Dispose(bool disposing)
     {
+        if (disposing)
+            _storageProviderEnvironment.Dispose();
+
         base.Dispose(disposing);
 
         if (!disposing)

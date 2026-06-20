@@ -533,31 +533,9 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
 
     private static async Task<CommittedRunSeed> SeedTenantACommittedRunAsync()
     {
-        await using GreenfieldSqlApiFactory factory = new();
-        using (HttpClient primer = factory.CreateClient())
-        {
-            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
-        }
+        SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.SeedDefaultScopeCommittedRunAsync();
 
-        using HttpClient clientA = factory.CreateClient();
-        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
-
-        string requestId = "REQ-COMMIT-ART-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
-        await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
-        string runId = created!.Run.RunId;
-
-        HttpResponseMessage execute = await clientA.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await execute.EnsureSuccessForTestAsync();
-
-        HttpResponseMessage commit = await clientA.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commit.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        return new CommittedRunSeed(runId);
+        return new CommittedRunSeed(seed.RunId);
     }
 
     private static bool IsSqlServerReachableWithShortTimeout()

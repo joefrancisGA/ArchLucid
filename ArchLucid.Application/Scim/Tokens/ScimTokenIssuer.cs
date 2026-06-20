@@ -11,6 +11,9 @@ public sealed class ScimTokenIssuer(IScimTenantTokenRepository tokens) : IScimTo
     /// <inheritdoc/>
     public async Task<ScimTokenIssueResult> IssueTokenAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId must be set.", nameof(tenantId));
+
         byte[] publicBytes = RandomNumberGenerator.GetBytes(24);
         byte[] secretBytes = RandomNumberGenerator.GetBytes(32);
         string publicKey = Base64UrlEncode(publicBytes);

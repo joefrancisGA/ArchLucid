@@ -98,39 +98,29 @@ public sealed class AuditExportTenantIsolationIntegrationTests
 
     private static async Task<Guid> SeedTenantACommittedRunAsync()
     {
-        await using GreenfieldSqlApiFactory factory = new();
+        await using IdorGreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer,
+                includePostCreateRunWarmup: false);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
+        SecurityCommittedRunSeed.Result seed =
+            await SecurityCommittedRunSeed.SeedCommittedRunOnWarmFactoryAsync(factory);
+
         using HttpClient clientA = factory.CreateClient();
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
-        string requestId = "REQ-AUDIT-EXPORT-ISO-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await PostArchitectureRequestAsync(
-            clientA,
-            TestRequestFactory.CreateArchitectureRequest(requestId));
-        await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        string runId = created!.Run.RunId;
-        Guid runGuid = Guid.Parse(runId);
-
-        HttpResponseMessage execute = await clientA.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await execute.EnsureSuccessForTestAsync();
-
-        HttpResponseMessage commit = await clientA.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commit.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        HttpResponseMessage search = await clientA.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=50");
+        HttpResponseMessage search = await clientA.GetAsync($"/v1/audit/search?runId={seed.RunGuid:D}&take=50");
         await search.EnsureSuccessForTestAsync();
         string json = await search.Content.ReadAsStringAsync();
         json.Should().Contain(AuditEventTypes.RunCompleted, because: "seed must produce durable audit rows for tenant A");
 
-        return runGuid;
+        return seed.RunGuid;
     }
 
     private static bool IsSqlServerReachableWithShortTimeout()
