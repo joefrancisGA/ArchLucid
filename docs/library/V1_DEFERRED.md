@@ -213,14 +213,16 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ## 6r. Authority orchestration layer — lift out of Persistence (V1.1 backlog) (engineering note 2026-06-06)
 
-**V1 stance:** `AuthorityRunOrchestrator` and pipeline stage execution remain in `ArchLucid.Persistence` for V1 GA. Deferred queue + transactional outbox improvements (2026-06-06) harden durability without restructuring layers.
+**Status:** **Done** (2026-06-06, **TB-302**).
 
-**V1.1 target:** Move orchestration into Application (or dedicated authority module) per **TB-302** so Persistence is repositories/transactions only. Revisit DTF embedding (**§6f**) after the layer split.
+**Shipped:** `AuthorityRunOrchestrator`, pipeline stage execution, and committed-pipeline finalization live in **`ArchLucid.Application/Runs/Orchestration/`**. Persistence hosts SQL/work adapters only (`IAuthorityPipelineWorkRepository`, tenant concurrency gate, run-stage outcomes). Architecture tests **`Persistence_must_not_contain_authority_orchestrator`** and **`Application_must_not_reference_Persistence_assembly`** enforce the split.
+
+**V1 stance:** Layer lift is complete for V1 GA; deferred queue + transactional outbox improvements (2026-06-06) harden durability without reversing the Application/Persistence boundary.
 
 **Rules:**
 
-- Quality assessments **must not** treat Persistence-resident orchestration as a **V1 GA** blocker after this note.
-- Promotion to a dated release window requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) and [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-302**.
+- Quality assessments **must not** treat Persistence-resident orchestration as a current defect — it was remediated in **TB-302**.
+- Full DTF replay and Worker/outbox mechanics remain **§6f** / V1.1 evaluation.
 
 ---
 

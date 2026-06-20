@@ -2783,9 +2783,9 @@ If the authority pipeline throws mid-run (e.g. after context ingestion and graph
 
 **Affected files / projects:**
 
-- `ArchLucid.Persistence/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs`
-- `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`
-- Persistence tests / authority pipeline integration tests
+- `ArchLucid.Application/Runs/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs`
+- `ArchLucid.Application/Runs/Orchestration/AuthorityRunOrchestrator.cs`
+- Application.Tests authority pipeline unit tests
 
 **Size estimate:** **M** ? ~1?2 eng days.
 

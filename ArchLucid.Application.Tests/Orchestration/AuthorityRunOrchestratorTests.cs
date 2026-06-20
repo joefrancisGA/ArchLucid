@@ -16,7 +16,9 @@ using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.TestSupport;
 
@@ -28,9 +30,11 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using FluentAssertions;
+
 using DecisioningManifestMetadata = ArchLucid.Core.Manifest.Sections.ManifestMetadata;
 
-namespace ArchLucid.Persistence.Tests;
+namespace ArchLucid.Application.Tests.Orchestration;
 
 /// <summary>
 ///     <see cref="AuthorityRunOrchestrator" /> unit tests (commit vs rollback, sync vs queued modes).

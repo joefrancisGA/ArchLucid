@@ -126,4 +126,4 @@ flowchart TD
   ARS --> PERSIST_APP
 ```
 
-**Where to read code:** `ArchLucid.Api/Controllers/Authority/RunsController.cs`, `ArchLucid.Application/ArchitectureRunService.cs`, `ArchLucid.Coordinator/Services/CoordinatorService.cs`, `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`.
+**Where to read code:** `ArchLucid.Api/Controllers/Authority/RunsController.cs`, `ArchLucid.Application/ArchitectureRunService.cs`, `ArchLucid.Coordinator/Services/CoordinatorService.cs`, `ArchLucid.Application/Runs/Orchestration/AuthorityRunOrchestrator.cs`.

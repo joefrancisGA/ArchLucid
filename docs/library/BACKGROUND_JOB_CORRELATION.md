@@ -93,7 +93,7 @@ The synchronous authority path (`AuthorityRunOrchestrator` → `AuthorityPipelin
 
 **Metric (same `ArchLucid` meter):** `archlucid_authority_pipeline_stage_duration_ms` (unit **ms**), labels **`stage`** (values above) and **`outcome`** (`success` | `error`). See [OBSERVABILITY.md](OBSERVABILITY.md).
 
-**Tests:** `ArchLucid.Persistence.Tests` — `AuthorityPipelineStagesExecutorTests` (`Suite=Core`).
+**Tests:** `ArchLucid.Application.Tests` — `AuthorityPipelineStagesExecutorTests` (`Suite=Core`).
 
 ## 11. References
 

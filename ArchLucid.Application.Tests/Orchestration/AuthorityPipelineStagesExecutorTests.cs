@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
@@ -22,6 +23,8 @@ using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
+
 using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging.Abstractions;
@@ -29,7 +32,9 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchLucid.Persistence.Tests;
+using FluentAssertions;
+
+namespace ArchLucid.Application.Tests.Orchestration;
 
 /// <summary>
 ///     <see cref="AuthorityPipelineStagesExecutor" /> OTel span parenting, stage tags, histogram, and error propagation.
