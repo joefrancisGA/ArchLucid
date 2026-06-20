@@ -4,9 +4,15 @@ import { describe, expect, it, vi } from "vitest";
 import { PilotCommandCenterCard } from "./PilotCommandCenterCard";
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
+import {
+  PILOT_COMMAND_CENTER_CONNECT_AZURE,
+  PILOT_COMMAND_CENTER_INVITE_REVIEWER,
+  PILOT_COMMAND_CENTER_LEAD,
+  PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
+} from "@/lib/buyer-polish-copy";
 
 describe("PilotCommandCenterCard", () => {
-  it("renders primary start review CTA, outcomes, path preview, and sample-data link", () => {
+  it("renders primary start review CTA, design-first lead, path preview, and sample-data link", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
@@ -16,23 +22,22 @@ describe("PilotCommandCenterCard", () => {
       "/reviews/new?zeroConfig=1",
     );
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-first-run-steps")).toHaveTextContent(
-      "Open sample finding → Review evidence → See decision impact",
-    );
+    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_COMMAND_CENTER_LEAD);
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
-    expect(screen.getByText("Evidence gaps")).toBeInTheDocument();
-    expect(screen.getByText("Decision impact")).toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
   });
 
-  it("tucks optional setup links behind a Setup disclosure (TB-346)", () => {
+  it("shows optional setup links inline instead of a Setup disclosure (TB-346)", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-command-center-setup-disclosure")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-optional-setup")).toBeInTheDocument();
+    expect(screen.getByText(PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL)).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/settings/cloud-connections");
     expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", "/settings/roles");
-    expect(screen.queryByText("Optional setup:")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();
   });
 });
 

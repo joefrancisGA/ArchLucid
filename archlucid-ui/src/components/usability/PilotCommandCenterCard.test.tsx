@@ -3,33 +3,33 @@ import { describe, expect, it } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import {
-  PILOT_COMMAND_CENTER_OUTCOMES,
-  PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
+  PILOT_COMMAND_CENTER_LEAD,
+  PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 
 describe("PilotCommandCenterCard", () => {
-  it("uses discovery-value outcomes instead of artifact receipt framing", () => {
+  it("leads with design-first body copy and evidence-optional workflow steps", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByText(PILOT_COMMAND_CENTER_OUTCOMES_HEADING)).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_COMMAND_CENTER_LEAD);
+    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("design brief");
+    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("optional azure");
 
-    for (const outcome of PILOT_COMMAND_CENTER_OUTCOMES) {
-      expect(screen.getByText(outcome)).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
+
+    for (const step of PILOT_PATH_PREVIEW_STEPS) {
+      expect(screen.getByText(step.label)).toBeInTheDocument();
     }
 
-    expect(screen.queryByText("What you'll get")).not.toBeInTheDocument();
-    expect(screen.queryByText("Governed decision record")).not.toBeInTheDocument();
-    expect(screen.queryByText("Review trail")).not.toBeInTheDocument();
+    expect(screen.queryByText("Open sample finding → Review evidence → See decision impact")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
   });
 
   it("keeps Start review as the primary action above the compact action row", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveTextContent("Start review");
-    expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-first-run-steps")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveTextContent("Try sample review");
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
   });
 });

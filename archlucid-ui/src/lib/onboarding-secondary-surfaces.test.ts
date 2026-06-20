@@ -39,7 +39,8 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
   });
 
   it("uses evidence-first path preview and tertiary Connect Azure label", () => {
-    expect(PILOT_PATH_PREVIEW_STEPS[0]?.label.toLowerCase()).toContain("upload evidence");
+    expect(PILOT_PATH_PREVIEW_STEPS[0]?.label.toLowerCase()).toContain("design");
+    expect(PILOT_PATH_PREVIEW_STEPS[0]?.label.toLowerCase()).toContain("evidence");
     expect(PILOT_COMMAND_CENTER_CONNECT_AZURE).toBe("Connect Azure");
     expect(READINESS_AZURE_EXTRACTOR_CTA.toLowerCase()).toBe("add evidence");
   });

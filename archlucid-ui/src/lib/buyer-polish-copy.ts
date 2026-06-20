@@ -27,7 +27,10 @@ export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Start with one sample finding";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "See what ArchLucid surfaces in the first five minutes — one finding, the evidence behind it, and the decision it changes.";
+  "See how ArchLucid connects a finding to evidence and a decision before opening a full sample package.";
+
+export const OPERATOR_HOME_SAMPLE_FINDINGS_WORKFLOW =
+  "Open sample finding → Review evidence → See decision impact";
 
 export const OPERATOR_HOME_SAMPLE_REVIEW_DISCOVERED_SUMMARY =
   "Representative discoveries from the example review — severity, evidence basis, and governance posture before you open the full package.";
@@ -57,13 +60,10 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
   "Start your first review or open the example review package.";
 
-export const PILOT_COMMAND_CENTER_FIRST_RUN_STEPS =
-  "Open sample finding → Review evidence → See decision impact";
-
 export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
 export const PILOT_COMMAND_CENTER_LEAD =
-  "Create a governed, evidence-linked review package.";
+  "Create an architecture review from a design brief, uploaded evidence, or an optional Azure import.";
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
@@ -82,8 +82,6 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
 
 export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL = "Optional setup:";
 
-export const PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL = "Setup";
-
 export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
 export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
@@ -91,9 +89,9 @@ export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
 export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
 
 export const PILOT_PATH_PREVIEW_STEPS = [
-  { id: "connect", label: "Connect environment or upload evidence" },
-  { id: "analyze", label: "Execute review analysis" },
-  { id: "review", label: "Review findings" },
+  { id: "start", label: "Start with a design or evidence" },
+  { id: "review", label: "Review findings and missing evidence" },
+  { id: "commit", label: "Commit review package" },
 ] as const;
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Advanced guidance";

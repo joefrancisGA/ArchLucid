@@ -11,6 +11,7 @@ import {
   OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
   OPERATOR_HOME_SAMPLE_FINDINGS_HEADING,
   OPERATOR_HOME_SAMPLE_FINDINGS_LEAD,
+  OPERATOR_HOME_SAMPLE_FINDINGS_WORKFLOW,
   OPERATOR_HOME_SAMPLE_REVIEW_DISCOVERED_SUMMARY,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -44,6 +45,13 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
         lead={OPERATOR_HOME_SAMPLE_FINDINGS_LEAD}
         demoLabel={undefined}
       />
+
+      <p
+        className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+        data-testid="operator-home-sample-findings-workflow"
+      >
+        {OPERATOR_HOME_SAMPLE_FINDINGS_WORKFLOW}
+      </p>
 
       <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
         {OPERATOR_HOME_SAMPLE_REVIEW_DISCOVERED_SUMMARY}

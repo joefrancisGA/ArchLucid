@@ -6,13 +6,11 @@ import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
-  PILOT_COMMAND_CENTER_FIRST_RUN_STEPS,
   PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
-  PILOT_COMMAND_CENTER_OUTCOMES,
-  PILOT_COMMAND_CENTER_OUTCOMES_HEADING,
+  PILOT_COMMAND_CENTER_LEAD,
+  PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
-  PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL,
   PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
@@ -25,14 +23,9 @@ import {
 import { ZERO_CONFIG_DEMO_WIZARD_HREF } from "@/lib/zero-config-demo-mode";
 import { cn } from "@/lib/utils";
 
-const tertiaryLinkClass = cn(
+const optionalSetupLinkClass = cn(
   OPERATOR_TYPOGRAPHY.meta,
   "font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-al-accent-interactive",
-);
-
-const setupDisclosureSummaryClass = cn(
-  OPERATOR_TYPOGRAPHY.meta,
-  "cursor-pointer list-none font-medium text-al-text-secondary marker:content-none [&::-webkit-details-marker]:hidden",
 );
 
 /**
@@ -51,25 +44,12 @@ export function PilotCommandCenterCard(): React.JSX.Element {
             <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
               {PILOT_COMMAND_CENTER_HEADING}
             </h2>
-            <div data-testid="pilot-command-center-outcomes-wrap">
-              <p className="sr-only">{PILOT_COMMAND_CENTER_OUTCOMES_HEADING}</p>
-              <ul
-                className={cn("m-0 flex flex-wrap list-none gap-1.5 p-0", OPERATOR_TYPE_SCALE.meta)}
-                data-testid="pilot-command-center-outcomes"
-              >
-                {PILOT_COMMAND_CENTER_OUTCOMES.map((outcome) => (
-                  <li
-                    key={outcome}
-                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50 px-1.5 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/50"
-                  >
-                    <span aria-hidden className="text-al-accent-interactive">
-                      ✓
-                    </span>
-                    {outcome}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <p
+              className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+              data-testid="pilot-command-center-lead"
+            >
+              {PILOT_COMMAND_CENTER_LEAD}
+            </p>
           </div>
 
           <div
@@ -89,29 +69,31 @@ export function PilotCommandCenterCard(): React.JSX.Element {
           </div>
         </div>
 
-        <p
-          className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
-          data-testid="pilot-command-center-first-run-steps"
-        >
-          {PILOT_COMMAND_CENTER_FIRST_RUN_STEPS}
-        </p>
-
         <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="mt-0" />
 
-        <details data-testid="pilot-command-center-setup-disclosure">
-          <summary className={setupDisclosureSummaryClass}>{PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL}</summary>
-          <div
-            className={cn("mt-1 flex flex-wrap items-center gap-x-3 gap-y-1", OPERATOR_TYPE_SCALE.meta)}
-            data-testid="pilot-command-center-tertiary-actions"
+        <p
+          className={cn("m-0 flex flex-wrap items-center gap-x-1 gap-y-1", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
+          data-testid="pilot-command-center-optional-setup"
+        >
+          <span>{PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL}</span>
+          <Link
+            href="/settings/cloud-connections"
+            className={optionalSetupLinkClass}
+            data-testid="pilot-command-center-connect-azure"
           >
-            <Link href="/settings/cloud-connections" className={tertiaryLinkClass} data-testid="pilot-command-center-connect-azure">
-              {PILOT_COMMAND_CENTER_CONNECT_AZURE}
-            </Link>
-            <Link href="/settings/roles" className={tertiaryLinkClass} data-testid="pilot-command-center-invite-reviewer">
-              {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
-            </Link>
-          </div>
-        </details>
+            {PILOT_COMMAND_CENTER_CONNECT_AZURE}
+          </Link>
+          <span aria-hidden className="text-al-text-secondary/60">
+            ·
+          </span>
+          <Link
+            href="/settings/roles"
+            className={optionalSetupLinkClass}
+            data-testid="pilot-command-center-invite-reviewer"
+          >
+            {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
+          </Link>
+        </p>
       </div>
     </section>
   );

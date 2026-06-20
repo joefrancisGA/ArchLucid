@@ -25,10 +25,10 @@ describe("review terminology guard", () => {
   });
 
   it("pilot path preview steps use review-first labels", () => {
-    const analyzeStep = PILOT_PATH_PREVIEW_STEPS.find((step) => step.id === "analyze");
+    const reviewStep = PILOT_PATH_PREVIEW_STEPS.find((step) => step.id === "review");
 
-    expect(analyzeStep?.label.toLowerCase()).toContain("review");
-    expect(analyzeStep?.label.toLowerCase()).not.toContain("run analysis");
+    expect(reviewStep?.label.toLowerCase()).toContain("review");
+    expect(reviewStep?.label.toLowerCase()).not.toContain("run analysis");
   });
 
   it("high-traffic copy files avoid legacy run-primary labels", () => {
