@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -12,6 +13,7 @@ public static class CriticFindingObviousnessPruner
 {
     /// <summary>
     ///     Applies obviousness penalties to parsed Critic output before persistence.
+    ///     Generic advice is retained as <see cref="FindingEnforcementTier.Advisory" /> instead of removed.
     /// </summary>
     public static void Apply(AgentResult result)
     {
@@ -23,35 +25,16 @@ public static class CriticFindingObviousnessPruner
         if (result.Findings.Count == 0)
             return;
 
-        List<ArchitectureFinding> retained = new(result.Findings.Count);
-
         foreach (ArchitectureFinding finding in result.Findings)
         {
-            if (ShouldRemove(finding))
-                continue;
-
             if (ShouldDowngradeToInfo(finding))
             {
                 finding.Severity = FindingSeverity.Info;
                 finding.ConfidenceLevel = FindingConfidenceLevel.Low;
             }
 
-            retained.Add(finding);
+            FindingEnforcementTierClassifier.ApplyToArchitectureFinding(finding);
         }
-
-        result.Findings.Clear();
-        result.Findings.AddRange(retained);
-    }
-
-    private static bool ShouldRemove(ArchitectureFinding finding)
-    {
-        if (!CriticFindingObviousnessPatterns.IsObviousGenericAdvice(finding.Message))
-            return false;
-
-        if (CriticFindingObviousnessPatterns.HasArchitectureSpecificAnchor(finding.Message, finding.EvidenceRefs))
-            return false;
-
-        return true;
     }
 
     private static bool ShouldDowngradeToInfo(ArchitectureFinding finding)
@@ -59,9 +42,9 @@ public static class CriticFindingObviousnessPruner
         if (finding.Severity == FindingSeverity.Info)
             return false;
 
-        if (!CriticFindingObviousnessPatterns.IsObviousGenericAdvice(finding.Message))
+        if (!GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(finding.Message))
             return false;
 
-        return CriticFindingObviousnessPatterns.HasArchitectureSpecificAnchor(finding.Message, finding.EvidenceRefs);
+        return GenericArchitectureAdvicePatterns.HasArchitectureSpecificAnchor(finding.Message, finding.EvidenceRefs);
     }
 }

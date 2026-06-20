@@ -130,6 +130,7 @@ public sealed class TopologyAgentHandler(
                 cancellationToken: cancellationToken);
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
+            AgentResultFindingEnforcementTierApplier.Apply(parsed);
 
             return parsed;
         }

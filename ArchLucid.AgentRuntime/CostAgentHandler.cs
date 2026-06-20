@@ -129,6 +129,7 @@ public sealed class CostAgentHandler(
                 cancellationToken: cancellationToken);
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
+            AgentResultFindingEnforcementTierApplier.Apply(parsed);
 
             return parsed;
         }

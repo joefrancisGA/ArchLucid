@@ -11,7 +11,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class CriticFindingObviousnessPrunerTests
 {
     [Fact]
-    public void Apply_removes_obvious_generic_advice_without_architecture_anchor()
+    public void Apply_retains_obvious_generic_advice_as_advisory_instead_of_removing()
     {
         AgentResult result = BuildCriticResult(
             new ArchitectureFinding
@@ -31,8 +31,13 @@ public sealed class CriticFindingObviousnessPrunerTests
 
         CriticFindingObviousnessPruner.Apply(result);
 
-        result.Findings.Should().HaveCount(1);
-        result.Findings[0].FindingId.Should().Be("f-specific");
+        result.Findings.Should().HaveCount(2);
+        result.Findings.Should().ContainSingle(f =>
+            f.FindingId == "f-generic-mfa" &&
+            f.EnforcementTier == FindingEnforcementTier.Advisory);
+        result.Findings.Should().ContainSingle(f =>
+            f.FindingId == "f-specific" &&
+            f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
     }
 
     [Fact]
@@ -54,6 +59,7 @@ public sealed class CriticFindingObviousnessPrunerTests
         result.Findings.Should().HaveCount(1);
         result.Findings[0].Severity.Should().Be(FindingSeverity.Info);
         result.Findings[0].ConfidenceLevel.Should().Be(FindingConfidenceLevel.Low);
+        result.Findings[0].EnforcementTier.Should().Be(FindingEnforcementTier.PolicyViolation);
     }
 
     [Fact]
@@ -73,6 +79,7 @@ public sealed class CriticFindingObviousnessPrunerTests
 
         result.Findings.Should().HaveCount(1);
         result.Findings[0].Severity.Should().Be(FindingSeverity.Warning);
+        result.Findings[0].EnforcementTier.Should().Be(FindingEnforcementTier.PolicyViolation);
     }
 
     [Fact]

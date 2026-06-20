@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -20,33 +21,6 @@ public static class CriticFindingEvidenceCitationRules
     /// <summary>
     ///     Returns true when at least one evidence ref points to a specific artifact, document line, or topology element.
     /// </summary>
-    public static bool HasConcreteEvidenceCitation(IReadOnlyList<string> evidenceRefs)
-    {
-        ArgumentNullException.ThrowIfNull(evidenceRefs);
-
-        if (evidenceRefs.Count == 0)
-            return false;
-
-        foreach (string rawRef in evidenceRefs)
-        {
-            if (string.IsNullOrWhiteSpace(rawRef))
-                continue;
-
-            string normalized = rawRef.Trim();
-
-            if (IsGenericEvidenceRef(normalized))
-                continue;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsGenericEvidenceRef(string normalized)
-    {
-        return normalized.Equals("request", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("critic-checklist", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("architecture-request", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool HasConcreteEvidenceCitation(IReadOnlyList<string> evidenceRefs) =>
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(evidenceRefs);
 }

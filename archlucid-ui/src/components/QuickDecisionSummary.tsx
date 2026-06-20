@@ -33,9 +33,11 @@ import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-gr
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   firstRecommendationSentence,
+  partitionQuickDecisionFindings,
   severityBadgeLabel,
   sortQuickDecisionFindings,
 } from "@/lib/quick-decision-summary-derive";
+import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 
 const badgeBase =
   "inline-flex shrink-0 rounded-md border px-2 py-0.5 text-xs font-semibold tabular-nums";
@@ -73,8 +75,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const canMutate = useOperateCapability();
   const sorted = sortQuickDecisionFindings(props.findings);
   const [showMuted, setShowMuted] = useState(false);
+  const [showAdvisory, setShowAdvisory] = useState(false);
   const visibleFindings = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
-  const top = visibleFindings.slice(0, 3);
+  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(visibleFindings);
+  const top = policyViolations.slice(0, 3);
   const hasSourceFindings = props.findings.length > 0;
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const headlineFindingCount = props.headlineFindingCount;
@@ -117,6 +121,147 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     }
 
     return <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>;
+  }
+
+  function renderFindingRow(f: QuickDecisionFinding, showTierBadge: boolean): ReactElement {
+    const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
+    const snippet =
+      f.recommendation.length > 0
+        ? firstRecommendationSentence(f.recommendation)
+        : "See finding detail for recommended actions.";
+    const badgeLabel = severityBadgeLabel(f.severityValue);
+    const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
+    const evidenceRefCount = f.evidenceRefCount ?? 0;
+    const viewEvidenceHref =
+      evidenceRefCount > 0 || graphFocusId !== null
+        ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
+        : null;
+
+    return (
+      <li key={f.findingId} className="pl-1">
+        <div className="flex flex-wrap items-start gap-2">
+          <span className={severityBadgeClass(f.severityValue)}>
+            <span className="sr-only">Severity </span>
+            {badgeLabel}
+          </span>
+          {showTierBadge ? (
+            <span
+              className={`${badgeBase} border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}
+            >
+              {findingEnforcementTierLabel(f.enforcementTier)}
+            </span>
+          ) : null}
+          {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
+            <FindingConfidenceBadge level={f.confidenceLevel} />
+          ) : null}
+          <FindingTrustChip finding={f} />
+          {f.isMuted ? (
+            <span className={`${badgeBase} border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}>
+              Muted
+            </span>
+          ) : null}
+          <Link
+            href={href}
+            className="min-w-0 flex-1 font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+          >
+            <span className="sr-only">Finding {f.findingId}: </span>
+            {f.title}
+          </Link>
+          {viewEvidenceHref !== null ? (
+            <FindingEvidenceLinkChip
+              href={viewEvidenceHref}
+              evidenceRefCount={evidenceRefCount}
+              className="shrink-0"
+            />
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 shrink-0 text-xs"
+            onClick={() => {
+              setActiveReasoning(f);
+              setReasoningOpen(true);
+            }}
+          >
+            View AI reasoning
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 shrink-0 text-xs"
+            onClick={() => {
+              setAskFindingId((current) => (current === f.findingId ? null : f.findingId));
+            }}
+            aria-pressed={askFindingId === f.findingId}
+            title="Ask about this finding"
+          >
+            <MessageCircle className="mr-1 h-3.5 w-3.5" aria-hidden />
+            Ask
+          </Button>
+          {f.iacStub !== null && f.iacStub !== undefined && f.iacStub.length > 0 ? (
+            <span className={`${badgeBase} border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700`}>
+              Bicep stub
+            </span>
+          ) : null}
+          {canMutate && !f.isMuted ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              className="h-8 shrink-0 text-xs"
+              title="Hide this finding from the default list for this review"
+              onClick={() => {
+                setMuteTarget(f);
+                setMuteReason("");
+                setMuteError(null);
+                setMuteOpen(true);
+              }}
+            >
+              Mute
+            </Button>
+          ) : null}
+          {canMutate ? (
+            <FindingFeedbackThumbs runId={props.runId} findingId={f.findingId} compact />
+          ) : null}
+        </div>
+        {f.traceConfidenceLabel !== null &&
+        f.traceConfidenceLabel !== undefined &&
+        f.traceConfidenceLabel.trim().length > 0 ? (
+          <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            Evaluation trace: {f.traceConfidenceLabel}
+          </p>
+        ) : null}
+        {f.evaluationConfidenceScore !== null &&
+        f.evaluationConfidenceScore !== undefined &&
+        Number.isFinite(f.evaluationConfidenceScore) &&
+        (f.confidenceLevel !== "High" &&
+          f.confidenceLevel !== "Medium" &&
+          f.confidenceLevel !== "Low") ? (
+          <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            Evaluation score {Math.round(f.evaluationConfidenceScore)}
+          </p>
+        ) : null}
+        {snippet.length > 0 ? (
+          <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
+        ) : null}
+        <div
+          className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
+          data-testid={`finding-itsm-sync-${f.findingId}`}
+        >
+          <p className="m-0 mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            Work tracking
+          </p>
+          <ItsmOutboundQuickActions findingId={f.findingId} compact />
+        </div>
+        {askFindingId === f.findingId ? (
+          <div className="mt-3">
+            <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
+          </div>
+        ) : null}
+      </li>
+    );
   }
 
   return (
@@ -199,141 +344,59 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
             </p>
           ) : (
-            <ol className="m-0 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
-              {top.map((f) => {
-                const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
-                const snippet =
-                  f.recommendation.length > 0
-                    ? firstRecommendationSentence(f.recommendation)
-                    : "See finding detail for recommended actions.";
-                const badgeLabel = severityBadgeLabel(f.severityValue);
-                const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
-                const evidenceRefCount = f.evidenceRefCount ?? 0;
-                const viewEvidenceHref =
-                  evidenceRefCount > 0 || graphFocusId !== null
-                    ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
-                    : null;
+            <div className="space-y-4">
+              <div>
+                <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                  Policy violations
+                </h3>
+                {policyViolations.length === 0 ? (
+                  <p className="m-0 text-neutral-600 dark:text-neutral-400">
+                    No governance-blocking findings on this review. Baseline guidance may still appear under advisory notes.
+                  </p>
+                ) : (
+                  <ol
+                    className="m-0 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400"
+                    data-testid="quick-decision-policy-violations"
+                  >
+                    {top.map((f) => renderFindingRow(f, false))}
+                  </ol>
+                )}
+              </div>
 
-                return (
-                  <li key={f.findingId} className="pl-1">
-                    <div className="flex flex-wrap items-start gap-2">
-                      <span className={severityBadgeClass(f.severityValue)}>
-                        <span className="sr-only">Severity </span>
-                        {badgeLabel}
-                      </span>
-                      {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
-                        <FindingConfidenceBadge level={f.confidenceLevel} />
-                      ) : null}
-                      <FindingTrustChip finding={f} />
-                      {f.isMuted ? (
-                        <span className={`${badgeBase} border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}>
-                          Muted
-                        </span>
-                      ) : null}
-                      <Link
-                        href={href}
-                        className="min-w-0 flex-1 font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                      >
-                        <span className="sr-only">Finding {f.findingId}: </span>
-                        {f.title}
-                      </Link>
-                      {viewEvidenceHref !== null ? (
-                        <FindingEvidenceLinkChip
-                          href={viewEvidenceHref}
-                          evidenceRefCount={evidenceRefCount}
-                          className="shrink-0"
-                        />
-                      ) : null}
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="h-8 shrink-0 text-xs"
-                        onClick={() => {
-                          setActiveReasoning(f);
-                          setReasoningOpen(true);
-                        }}
-                      >
-                        View AI reasoning
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="h-8 shrink-0 text-xs"
-                        onClick={() => {
-                          setAskFindingId((current) => (current === f.findingId ? null : f.findingId));
-                        }}
-                        aria-pressed={askFindingId === f.findingId}
-                        title="Ask about this finding"
-                      >
-                        <MessageCircle className="mr-1 h-3.5 w-3.5" aria-hidden />
-                        Ask
-                      </Button>
-                      {f.iacStub !== null && f.iacStub !== undefined && f.iacStub.length > 0 ? (
-                        <span className={`${badgeBase} border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700`}>
-                          Bicep stub
-                        </span>
-                      ) : null}
-                      {canMutate && !f.isMuted ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="secondary"
-                          className="h-8 shrink-0 text-xs"
-                          title="Hide this finding from the default list for this review"
-                          onClick={() => {
-                            setMuteTarget(f);
-                            setMuteReason("");
-                            setMuteError(null);
-                            setMuteOpen(true);
-                          }}
-                        >
-                          Mute
-                        </Button>
-                      ) : null}
-                      {canMutate ? (
-                        <FindingFeedbackThumbs runId={props.runId} findingId={f.findingId} compact />
-                      ) : null}
-                    </div>
-                    {f.traceConfidenceLabel !== null &&
-                    f.traceConfidenceLabel !== undefined &&
-                    f.traceConfidenceLabel.trim().length > 0 ? (
+              {advisoryNotes.length > 0 ? (
+                <div
+                  className="rounded-md border border-neutral-200 bg-neutral-50/70 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
+                  data-testid="quick-decision-advisory-notes"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                        Advisory notes
+                      </h3>
                       <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                        Evaluation trace: {f.traceConfidenceLabel}
+                        Opt-in baseline guidance from enabled policy packs. These do not block commit.
                       </p>
-                    ) : null}
-                    {f.evaluationConfidenceScore !== null &&
-                    f.evaluationConfidenceScore !== undefined &&
-                    Number.isFinite(f.evaluationConfidenceScore) &&
-                    (f.confidenceLevel !== "High" &&
-                      f.confidenceLevel !== "Medium" &&
-                      f.confidenceLevel !== "Low") ? (
-                      <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                        Evaluation score {Math.round(f.evaluationConfidenceScore)}
-                      </p>
-                    ) : null}
-                    {snippet.length > 0 ? (
-                      <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
-                    ) : null}
-                    <div
-                      className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
-                      data-testid={`finding-itsm-sync-${f.findingId}`}
-                    >
-                      <p className="m-0 mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-                        Work tracking
-                      </p>
-                      <ItsmOutboundQuickActions findingId={f.findingId} compact />
                     </div>
-                    {askFindingId === f.findingId ? (
-                      <div className="mt-3">
-                        <FindingAskInlinePanel findingId={f.findingId} defaultOpen />
-                      </div>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ol>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowAdvisory((current) => !current);
+                      }}
+                      aria-expanded={showAdvisory}
+                    >
+                      {showAdvisory ? "Hide advisory notes" : `Show ${advisoryNotes.length} advisory note${advisoryNotes.length === 1 ? "" : "s"}`}
+                    </Button>
+                  </div>
+                  {showAdvisory ? (
+                    <ol className="m-0 mt-3 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
+                      {advisoryNotes.map((f) => renderFindingRow(f, true))}
+                    </ol>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           )}
         </CardContent>
       </Card>

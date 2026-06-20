@@ -179,6 +179,7 @@ public static class FindingFactory
             ConfidenceScore = finding.ConfidenceScore,
             EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
             ConfidenceLevel = finding.ConfidenceLevel,
+            EnforcementTier = finding.EnforcementTier,
             AgentExecutionTraceId = agentExecutionTraceId,
             ModelDeploymentName = trace?.ModelDeploymentName,
             ModelVersion = trace?.ModelVersion,

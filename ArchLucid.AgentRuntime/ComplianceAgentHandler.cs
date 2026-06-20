@@ -142,6 +142,7 @@ public sealed class ComplianceAgentHandler(
                 cancellationToken: cancellationToken);
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
+            AgentResultFindingEnforcementTierApplier.Apply(parsed);
 
             return parsed;
         }

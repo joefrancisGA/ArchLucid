@@ -42,6 +42,19 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (root.TryGetProperty("category", out JsonElement category) && category.ValueKind == JsonValueKind.String)
             finding.Category = category.GetString() ?? string.Empty;
 
+        if (root.TryGetProperty("policyRuleId", out JsonElement policyRuleId) &&
+            policyRuleId.ValueKind == JsonValueKind.String)
+        {
+            finding.PolicyRuleId = policyRuleId.GetString();
+        }
+
+        if (root.TryGetProperty("enforcementTier", out JsonElement enforcementTier) &&
+            enforcementTier.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(enforcementTier.GetString(), ignoreCase: true, out FindingEnforcementTier tier))
+        {
+            finding.EnforcementTier = tier;
+        }
+
         finding.Message = ReadMessage(root);
 
         if (root.TryGetProperty("evidenceRefs", out JsonElement evidenceRefs) &&
@@ -71,6 +84,11 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         writer.WriteString("sourceAgent", value.SourceAgent.ToString());
         writer.WriteString("severity", value.Severity.ToString());
         writer.WriteString("category", value.Category);
+        writer.WriteString("enforcementTier", value.EnforcementTier.ToString());
+
+        if (!string.IsNullOrWhiteSpace(value.PolicyRuleId))
+            writer.WriteString("policyRuleId", value.PolicyRuleId);
+
         writer.WriteString("message", value.Message);
 
         writer.WritePropertyName("evidenceRefs");

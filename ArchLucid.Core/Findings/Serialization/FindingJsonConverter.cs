@@ -51,6 +51,18 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
+        if (root.TryGetProperty("enforcementTier", out JsonElement tierEl) &&
+            tierEl.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(tierEl.GetString(), ignoreCase: true, out FindingEnforcementTier tier))
+        {
+            finding.EnforcementTier = tier;
+        }
+        else if (finding.Properties.TryGetValue(FindingPropertyKeys.EnforcementTier, out string? tierFromProps) &&
+                 Enum.TryParse(tierFromProps, ignoreCase: true, out FindingEnforcementTier tierFromProperties))
+        {
+            finding.EnforcementTier = tierFromProperties;
+        }
+
         if (root.TryGetProperty("confidenceScore", out JsonElement confEl) &&
             confEl.ValueKind == JsonValueKind.Number &&
             confEl.TryGetDouble(out double conf))
@@ -138,6 +150,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         WriteOptionalString(writer, "promptTemplateId", value.PromptTemplateId);
         WriteOptionalString(writer, "promptTemplateVersion", value.PromptTemplateVersion);
         WriteOptionalString(writer, "policyRuleId", value.PolicyRuleId);
+        writer.WriteString("enforcementTier", value.EnforcementTier.ToString());
 
         if (value.ConfidenceScore is { } score)
             writer.WriteNumber("confidenceScore", score);

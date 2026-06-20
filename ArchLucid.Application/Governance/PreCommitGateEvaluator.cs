@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 
@@ -33,9 +34,14 @@ public static class PreCommitGateEvaluator
         ArgumentException.ThrowIfNullOrWhiteSpace(policyPackIdLabel);
         if (!blockCommitOnCritical && !blockCommitMinimumSeverity.HasValue)
             return PreCommitGateResult.Allowed();
+
+        IReadOnlyList<Finding> gateFindings = findings
+            .Where(static f => f.EnforcementTier != FindingEnforcementTier.Advisory)
+            .ToList();
+
         int effectiveMinSeverity = blockCommitMinimumSeverity ?? (int)FindingSeverity.Critical;
         FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
-        List<string> blockingIds = findings.Where(f => (int)f.Severity >= effectiveMinSeverity).Select(static f => f.FindingId).ToList();
+        List<string> blockingIds = gateFindings.Where(f => (int)f.Severity >= effectiveMinSeverity).Select(static f => f.FindingId).ToList();
         if (blockingIds.Count == 0)
             return PreCommitGateResult.Allowed();
         string severityLabel = effectiveSeverityEnum.ToString();

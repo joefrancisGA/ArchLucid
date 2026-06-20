@@ -1,6 +1,7 @@
 import type { RunDetail } from "@/types/authority";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
+import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/finding-enforcement-tier";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -36,6 +37,8 @@ export type QuickDecisionFinding = {
   evidenceRefCount?: number | null;
   /** Optional Azure Bicep remediation snippet from agent results (`iacStub`). */
   iacStub?: string | null;
+  /** Governance tier: blocking violations vs opt-in baseline guidance. */
+  enforcementTier: FindingEnforcementTierKind;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -206,6 +209,7 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
         ? row.traceConfidenceLabel.trim()
         : null,
     evidenceRefCount,
+    enforcementTier: "PolicyViolation",
   };
 }
 
@@ -302,6 +306,8 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       const iacStub =
         typeof iacStubRaw === "string" && iacStubRaw.trim().length > 0 ? iacStubRaw.trim() : null;
 
+      const enforcementTier: FindingEnforcementTierKind = normalizeFindingEnforcementTier(fr.enforcementTier);
+
       out.push({
         findingId,
         title,
@@ -316,6 +322,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         traceConfidenceLabel: null,
         evidenceRefCount,
         iacStub,
+        enforcementTier,
       });
     }
   }
@@ -485,13 +492,38 @@ export function extractIacStubForFinding(detail: RunDetail, findingId: string): 
   return match.iacStub ?? null;
 }
 
-/** Highest severity first, then original finding order. */
+/** Highest severity first, then original finding order. Policy violations precede advisory notes. */
 export function sortQuickDecisionFindings(findings: readonly QuickDecisionFinding[]): QuickDecisionFinding[] {
   return [...findings].sort((a, b) => {
+    const aAdvisory = a.enforcementTier === "Advisory" ? 1 : 0;
+    const bAdvisory = b.enforcementTier === "Advisory" ? 1 : 0;
+
+    if (aAdvisory !== bAdvisory) {
+      return aAdvisory - bAdvisory;
+    }
+
     if (b.severityValue !== a.severityValue) {
       return b.severityValue - a.severityValue;
     }
 
     return a.findingOrder - b.findingOrder;
   });
+}
+
+export function partitionQuickDecisionFindings(findings: readonly QuickDecisionFinding[]): {
+  policyViolations: QuickDecisionFinding[];
+  advisoryNotes: QuickDecisionFinding[];
+} {
+  const policyViolations: QuickDecisionFinding[] = [];
+  const advisoryNotes: QuickDecisionFinding[] = [];
+
+  for (const finding of findings) {
+    if (finding.enforcementTier === "Advisory") {
+      advisoryNotes.push(finding);
+    } else {
+      policyViolations.push(finding);
+    }
+  }
+
+  return { policyViolations, advisoryNotes };
 }

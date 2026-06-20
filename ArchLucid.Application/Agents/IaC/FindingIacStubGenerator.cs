@@ -195,6 +195,8 @@ public sealed class FindingIacStubGenerator(
             ReasoningTrace = source.ReasoningTrace,
             IsMuted = source.IsMuted,
             MuteReason = source.MuteReason,
+            PolicyRuleId = source.PolicyRuleId,
+            EnforcementTier = source.EnforcementTier,
             EvidenceRefs = source.EvidenceRefs.ToList(),
             IacStub = source.IacStub
         };

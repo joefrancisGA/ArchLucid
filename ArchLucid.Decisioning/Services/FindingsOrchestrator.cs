@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
@@ -147,6 +148,9 @@ public partial class FindingsOrchestrator(
         };
 
         FindingHumanReviewInitializer.Apply(snapshot.Findings, _humanReviewOptions.Value);
+
+        foreach (Finding finding in snapshot.Findings)
+            FindingEnforcementTierClassifier.ApplyToFinding(finding);
 
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 

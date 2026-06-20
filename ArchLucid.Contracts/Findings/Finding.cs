@@ -204,4 +204,14 @@ public class Finding
         get;
         set;
     }
+
+    /// <summary>
+    ///     Whether the finding is governance-blocking (<see cref="FindingEnforcementTier.PolicyViolation" />)
+    ///     or opt-in baseline guidance (<see cref="FindingEnforcementTier.Advisory" />).
+    /// </summary>
+    public FindingEnforcementTier EnforcementTier
+    {
+        get;
+        set;
+    } = FindingEnforcementTier.PolicyViolation;
 }

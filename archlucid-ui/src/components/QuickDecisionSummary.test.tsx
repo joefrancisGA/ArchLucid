@@ -54,6 +54,7 @@ describe("QuickDecisionSummary", () => {
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
         isMuted: false,
         muteReason: null,
+        enforcementTier: "PolicyViolation",
       },
       {
         findingId: "f-high",
@@ -64,6 +65,7 @@ describe("QuickDecisionSummary", () => {
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
         isMuted: false,
         muteReason: null,
+        enforcementTier: "PolicyViolation",
       },
       {
         findingId: "f-critical",
@@ -74,6 +76,7 @@ describe("QuickDecisionSummary", () => {
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
         isMuted: false,
         muteReason: null,
+        enforcementTier: "PolicyViolation",
       },
       {
         findingId: "f-extra",
@@ -84,6 +87,7 @@ describe("QuickDecisionSummary", () => {
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
         isMuted: false,
         muteReason: null,
+        enforcementTier: "PolicyViolation",
       },
     ];
 
@@ -107,6 +111,40 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getAllByTestId("itsm-sync-servicenow")).toHaveLength(3);
   });
 
+  it("segregates advisory notes from policy violations", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-blocking",
+        title: "Custom policy breach",
+        recommendation: "Fix before commit.",
+        severityValue: 3,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+      {
+        findingId: "f-advisory",
+        title: "Enable MFA for all users.",
+        recommendation: "Baseline guidance.",
+        severityValue: 1,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "Advisory",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-tier" findings={findings} />);
+
+    expect(screen.getByTestId("quick-decision-policy-violations")).toBeInTheDocument();
+    expect(screen.getByTestId("quick-decision-advisory-notes")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Custom policy breach/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Enable MFA for all users/i })).not.toBeInTheDocument();
+  });
+
   it("shows View evidence graph link when synthetic evidence ref count is present", () => {
     const findings: QuickDecisionFinding[] = [
       {
@@ -120,6 +158,7 @@ describe("QuickDecisionSummary", () => {
         muteReason: null,
         evidenceRefCount: 1,
         confidenceLevel: "Medium",
+        enforcementTier: "PolicyViolation",
       },
     ];
 
@@ -143,6 +182,7 @@ describe("QuickDecisionSummary", () => {
         aiReasoning: { wireJson: "{}", reasoningTrace: "" },
         isMuted: false,
         muteReason: null,
+        enforcementTier: "PolicyViolation",
       },
     ];
 
