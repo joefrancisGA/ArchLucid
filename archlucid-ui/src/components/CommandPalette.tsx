@@ -39,6 +39,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
+import { operateNavUnlockPhaseForAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
@@ -210,6 +211,7 @@ function CommandPaletteNavGroups({
   shellShowAdvanced,
   hasCommittedArchitectureReview,
   buyerPolishedShell,
+  operateNavUnlockPhase,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -217,6 +219,7 @@ function CommandPaletteNavGroups({
   shellShowAdvanced: boolean;
   hasCommittedArchitectureReview: boolean;
   buyerPolishedShell: boolean;
+  operateNavUnlockPhase: ReturnType<typeof operateNavUnlockPhaseForAdvancedFeatures>;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
@@ -230,6 +233,7 @@ function CommandPaletteNavGroups({
     false,
     "review-workflow",
     hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
 
   const adminRows = listNavGroupsVisibleInOperatorShell(
@@ -240,6 +244,7 @@ function CommandPaletteNavGroups({
     false,
     "platform-admin",
     hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
 
   return (
@@ -378,6 +383,8 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const paletteExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
   const paletteAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const operatorAdvancedModeOn = showExtended && showAdvanced;
+  const operateNavUnlockPhase = operateNavUnlockPhaseForAdvancedFeatures(operatorAdvancedModeOn);
 
   const visibleHrefs = useMemo(
     () =>
@@ -386,12 +393,14 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         paletteAdvanced,
         callerAuthorityRank,
         hasCommittedArchitectureReview,
+        operateNavUnlockPhase,
       ),
     [
       paletteExtended,
       paletteAdvanced,
       callerAuthorityRank,
       hasCommittedArchitectureReview,
+      operateNavUnlockPhase,
     ],
   );
 
@@ -536,6 +545,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             shellShowAdvanced={paletteAdvanced}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
+            operateNavUnlockPhase={operateNavUnlockPhase}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

@@ -221,6 +221,7 @@ export function visibleOperatorShellHrefSet(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 2,
 ): Set<string> {
   const rows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -230,6 +231,7 @@ export function visibleOperatorShellHrefSet(
     false,
     "all",
     hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
   const hrefs = new Set<string>();
 
@@ -271,6 +273,7 @@ export function countSidebarLinksHiddenByCollapsedPilot(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview = true,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 2,
 ): number {
   let full = 0;
   let collapsed = 0;
@@ -280,25 +283,33 @@ export function countSidebarLinksHiddenByCollapsedPilot(
       continue;
     }
 
-    full += filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        false,
-        hasCommittedArchitectureReview,
+    full += filterNavLinksByOperateUnlockPhase(
+      filterNavLinksByPublishReadiness(
+        filterNavLinksForOperatorShell(
+          group.links,
+          showExtended,
+          showAdvanced,
+          callerAuthorityRank,
+          false,
+          hasCommittedArchitectureReview,
+        ),
       ),
+      hasCommittedArchitectureReview,
+      operateNavUnlockPhase,
     ).length;
-    collapsed += filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(
-        group.links,
-        showExtended,
-        showAdvanced,
-        callerAuthorityRank,
-        true,
-        hasCommittedArchitectureReview,
+    collapsed += filterNavLinksByOperateUnlockPhase(
+      filterNavLinksByPublishReadiness(
+        filterNavLinksForOperatorShell(
+          group.links,
+          showExtended,
+          showAdvanced,
+          callerAuthorityRank,
+          true,
+          hasCommittedArchitectureReview,
+        ),
       ),
+      hasCommittedArchitectureReview,
+      operateNavUnlockPhase,
     ).length;
   }
 

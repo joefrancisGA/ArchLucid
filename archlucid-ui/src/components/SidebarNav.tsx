@@ -36,6 +36,8 @@ const SidebarRecentActivityCard = dynamic(
 );
 
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
+/** Session-only: Review work "N more" expands collapsed pilot without enabling advanced Operate nav. */
+const SIDEBAR_COLLAPSED_PILOT_EXPANDED_KEY = "archlucid-nav-collapsed-pilot-expanded";
 
 /**
  * Grouped sidebar navigation (desktop). Progressive disclosure: essential links always;
@@ -45,6 +47,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [navAllFeaturesExpanded, setNavAllFeaturesExpanded] = useState(false);
+  const [collapsedPilotExpanded, setCollapsedPilotExpanded] = useState(false);
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced, setOperatorAdvancedMode } =
     useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
@@ -73,7 +76,8 @@ export function SidebarNav() {
     runtimeCtoDemoTourActive,
   });
 
-  const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded;
+  const applyCollapsedSidebarPilotFilter =
+    mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded && !collapsedPilotExpanded;
   const extraLinksBehindCollapsedPilot = applyCollapsedSidebarPilotFilter
     ? countSidebarLinksRevealedByShowAllFeatures(
         NAV_GROUPS,
@@ -87,6 +91,7 @@ export function SidebarNav() {
   useLayoutEffect(() => {
     try {
       setNavAllFeaturesExpanded(window.localStorage.getItem(SIDEBAR_NAV_EXPAND_ALL_KEY) === "true");
+      setCollapsedPilotExpanded(window.localStorage.getItem(SIDEBAR_COLLAPSED_PILOT_EXPANDED_KEY) === "true");
     } catch {
       /* private mode — keep collapsed default */
     }
@@ -174,10 +179,10 @@ export function SidebarNav() {
     // Extended-tier Review work links (e.g. Risk register, Scorecard) stay hidden while the
     // collapsed-pilot sidebar filter is active even after showExtended — expand that filter too.
     if (applyCollapsedSidebarPilotFilter && groupSurface === "review-workflow") {
-      setNavAllFeaturesExpanded(true);
+      setCollapsedPilotExpanded(true);
 
       try {
-        window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, "true");
+        window.localStorage.setItem(SIDEBAR_COLLAPSED_PILOT_EXPANDED_KEY, "true");
       } catch {
         /* private mode */
       }
@@ -187,10 +192,6 @@ export function SidebarNav() {
       setShowExtended(true);
 
       return;
-    }
-
-    if (!showAdvanced) {
-      setShowAdvanced(true);
     }
   }
 
