@@ -4,6 +4,7 @@
 # Triggers:
 #   - workflow_dispatch — manual refresh on any branch
 #   - pull_request (same-repo only) — auto-commit when OpenAPI-relevant paths change
+#   - push to main/master (same paths) — auto-commit when contract-layer changes land directly on default branch
 #
 # See docs/library/OPENAPI_CONTRACT_DRIFT.md
 name: "Refresh OpenAPI v1 snapshot"
@@ -31,9 +32,9 @@ on:
         type: boolean
         default: true
 
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
+  push:
+    branches: [main, master]
+    paths: &openapi-contract-paths
       - 'ArchLucid.Api/**'
       - 'ArchLucid.Api.Tests/**'
       - 'ArchLucid.Application/**'
@@ -57,6 +58,10 @@ on:
       - 'Directory.Packages.props'
       - 'global.json'
 
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: *openapi-contract-paths
+
 concurrency:
   group: openapi-snapshot-refresh-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -74,6 +79,7 @@ jobs:
     timeout-minutes: 30
     if: >-
       github.event_name == 'workflow_dispatch'
+      || github.event_name == 'push'
       || (
         github.event_name == 'pull_request'
         && github.event.pull_request.head.repo.full_name == github.repository
@@ -136,6 +142,7 @@ jobs:
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.commit_and_push)
           || github.event_name == 'pull_request'
+          || github.event_name == 'push'
         env:
           PUSH_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
         run: |
