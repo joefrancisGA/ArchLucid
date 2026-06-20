@@ -22,7 +22,16 @@ function formatUsd(value: number | null | undefined): string {
 }
 
 /** Server-authoritative orphan KPI tile (TB-103). */
-export function ExecutiveOrphanCandidatesCard() {
+export type ExecutiveOrphanCandidatesCardProps = {
+  readonly surface?: "operator" | "executive";
+};
+
+export function ExecutiveOrphanCandidatesCard({ surface = "operator" }: ExecutiveOrphanCandidatesCardProps) {
+  const executiveSurface = surface === "executive";
+  const orphanTitle = executiveSurface ? "Unattached resources" : "Orphan Candidates";
+  const orphanDescription = executiveSurface
+    ? "Resources flagged for cleanup from the latest committed review"
+    : "Server-classified from latest committed review";
   const [data, setData] = useState<{ count: number; savings: number | null } | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
@@ -60,10 +69,10 @@ export function ExecutiveOrphanCandidatesCard() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-            Orphan Candidates
+            {orphanTitle}
           </CardTitle>
           <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-            Server-classified from latest committed review
+            {orphanDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,10 +87,10 @@ export function ExecutiveOrphanCandidatesCard() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-            Orphan Candidates
+            {orphanTitle}
           </CardTitle>
           <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-            Server-classified from latest committed review
+            {orphanDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -95,10 +104,10 @@ export function ExecutiveOrphanCandidatesCard() {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-          Orphan Candidates
+          {orphanTitle}
         </CardTitle>
         <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-          Server-classified from latest committed review
+          {orphanDescription}
         </CardDescription>
       </CardHeader>
       <CardContent>

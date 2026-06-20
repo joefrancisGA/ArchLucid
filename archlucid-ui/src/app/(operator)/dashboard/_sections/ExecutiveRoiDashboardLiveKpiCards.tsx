@@ -52,13 +52,18 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
 export type ExecutiveRoiDashboardLiveKpiCardsProps = {
   readonly summary?: ExecutiveRoiSummary | null;
   readonly loading?: boolean;
+  /** `executive-details` omits primary-strip metrics and suppresses repeated zero footnotes. */
+  readonly variant?: "full" | "executive-details";
 };
 
 export function ExecutiveRoiDashboardLiveKpiCards({
   summary: summaryProp,
   loading: loadingProp,
+  variant = "full",
 }: ExecutiveRoiDashboardLiveKpiCardsProps = {}) {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const executiveDetails = variant === "executive-details";
+  const suppressZeroFootnote = executiveDetails;
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
   const [state, setState] = useState<LiveKpiState>({
     summary: summaryProp ?? null,
@@ -132,19 +137,36 @@ export function ExecutiveRoiDashboardLiveKpiCards({
     );
   }
 
-  const resolved = presentExecutiveKpiCount(state.summary?.resolvedFindingsCount30Days, { loading });
-  const discovered = presentExecutiveKpiCount(state.summary?.newlyDiscoveredFindingsCount30Days, { loading });
+  const resolved = presentExecutiveKpiCount(state.summary?.resolvedFindingsCount30Days, {
+    loading,
+    suppressZeroFootnote,
+  });
+  const discovered = presentExecutiveKpiCount(state.summary?.newlyDiscoveredFindingsCount30Days, {
+    loading,
+    suppressZeroFootnote,
+  });
   const remediated = presentExecutiveKpiCount(state.summary?.realizedValue?.findingsRemediatedCount30Days, {
     loading,
+    suppressZeroFootnote,
   });
-  const staleRisks = presentExecutiveKpiCount(loading ? undefined : state.staleRiskCount, { loading });
-  const expiringWaivers = presentExecutiveKpiCount(loading ? undefined : state.expiringWaiversCount, { loading });
-  const decisionsNeeded = presentExecutiveKpiCount(loading ? undefined : state.decisionsNeededCount, { loading });
+  const staleRisks = presentExecutiveKpiCount(loading ? undefined : state.staleRiskCount, {
+    loading,
+    suppressZeroFootnote,
+  });
+  const expiringWaivers = presentExecutiveKpiCount(loading ? undefined : state.expiringWaiversCount, {
+    loading,
+    suppressZeroFootnote,
+  });
+  const decisionsNeeded = presentExecutiveKpiCount(loading ? undefined : state.decisionsNeededCount, {
+    loading,
+    suppressZeroFootnote,
+  });
   const costFreshness = presentCostEvidenceFreshness({
     loading,
     status: state.summary?.costEvidenceFreshnessStatus,
     savingsPricingBasis: state.summary?.savingsPricingBasis,
     staleAfterDays: state.summary?.costEvidenceStaleAfterDays,
+    executiveSurface: executiveDetails,
   });
   const pilotDayNumber = computePilotDayNumber(state.summary?.firstCommitUtc);
 
@@ -202,6 +224,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
         </CardContent>
       </Card>
 
+      {!executiveDetails ? (
       <Card data-testid="exec-kpi-stale-risks">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
@@ -226,7 +249,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
           <KpiFootnote text={staleRisks.footnote} />
         </CardContent>
       </Card>
+      ) : null}
 
+      {!executiveDetails ? (
+        <>
       <Card data-testid="exec-kpi-decisions-needed">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
@@ -273,6 +299,8 @@ export function ExecutiveRoiDashboardLiveKpiCards({
           <KpiFootnote text={expiringWaivers.footnote} />
         </CardContent>
       </Card>
+        </>
+      ) : null}
 
       <Card data-testid="exec-kpi-remediated-30d">
         <CardHeader className="pb-2">
@@ -298,13 +326,14 @@ export function ExecutiveRoiDashboardLiveKpiCards({
         </CardContent>
       </Card>
 
+      {!executiveDetails ? (
       <Card data-testid="exec-kpi-cost-evidence-freshness">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-            Cost evidence freshness
+            {v.costEvidenceStatusMetric.title}
           </CardTitle>
           <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-            Azure extractor evidence backing ROI cost findings
+            {v.costEvidenceStatusMetric.description}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -319,6 +348,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
           <KpiFootnote text={costFreshness.footnote} runbookHref={costFreshness.runbookHref} />
         </CardContent>
       </Card>
+      ) : null}
     </>
   );
 }

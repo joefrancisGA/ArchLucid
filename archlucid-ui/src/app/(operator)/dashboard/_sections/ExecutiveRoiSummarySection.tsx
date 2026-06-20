@@ -77,14 +77,17 @@ export type ExecutiveRoiSummarySectionProps = {
   readonly summary?: ExecutiveRoiSummary | null;
   readonly loading?: boolean;
   readonly summaryError?: string | null;
+  readonly surface?: "operator" | "executive";
 };
 
-/** Live cross-run executive ROI panel backed by `GET /v1/roi/executive-summary`. */
+/** Live cross-run executive ROI panel backed by executive ROI summary API. */
 export function ExecutiveRoiSummarySection({
   summary: summaryProp,
   loading: loadingProp,
   summaryError: summaryErrorProp,
+  surface = "operator",
 }: ExecutiveRoiSummarySectionProps = {}) {
+  const executiveSurface = surface === "executive";
   const [data, setData] = useState<ExecutiveRoiSummary | null>(summaryProp ?? null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined || summaryErrorProp !== undefined;
@@ -307,7 +310,7 @@ export function ExecutiveRoiSummarySection({
             : "Include AI executive summary (uses 1 fast LLM call when enabled in API config)"}
         </label>
         <CardDescription className="text-xs">
-          {isBuyerPolishedOperatorShellEnv() ? (
+          {isBuyerPolishedOperatorShellEnv() || executiveSurface ? (
             <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
           ) : (
             <>
@@ -318,7 +321,7 @@ export function ExecutiveRoiSummarySection({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {workspaceHasNoCommittedReviews ? <DemoTenantSeedCallout /> : null}
+        {workspaceHasNoCommittedReviews && !executiveSurface ? <DemoTenantSeedCallout /> : null}
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings (headline)</div>
@@ -398,7 +401,9 @@ export function ExecutiveRoiSummarySection({
           </div>
         ) : (
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            No committed reviews with findings yet — load the sample workspace or run an architecture review to populate this summary.
+            {executiveSurface
+              ? "Run or commit a review to populate portfolio findings and savings estimates."
+              : "No committed reviews with findings yet — load the sample workspace or run an architecture review to populate this summary."}
           </p>
         )}
 

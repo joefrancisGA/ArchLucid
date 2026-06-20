@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
@@ -19,7 +20,12 @@ type SponsorDocxTarget = {
  * Sponsor-ready quick links for executive reporting exports and ROI framing context.
  * Includes a direct sponsor DOCX download when a committed manifest exposes `architecture-review-board`.
  */
-export function SponsorExportsSection() {
+export type SponsorExportsSectionProps = {
+  readonly surface?: "operator" | "executive";
+};
+
+export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSectionProps) {
+  const executiveSurface = surface === "executive";
   const [sponsorDocx, setSponsorDocx] = useState<SponsorDocxTarget | null>(null);
 
   useEffect(() => {
@@ -69,9 +75,15 @@ export function SponsorExportsSection() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Sponsor exports</CardTitle>
+        <CardTitle className="text-base">
+          {executiveSurface
+            ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsTitle
+            : "Sponsor exports"}
+        </CardTitle>
         <CardDescription className="text-xs">
-          Open executive-ready views used in sponsor updates and pilot value readouts.
+          {executiveSurface
+            ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsDescription
+            : "Open executive-ready views used in sponsor updates and pilot value readouts."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -83,7 +95,7 @@ export function SponsorExportsSection() {
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                 data-testid="sponsor-exports-docx-download"
               >
-                Download sponsor review (DOCX)
+                {executiveSurface ? "Download executive review (DOCX)" : "Download sponsor review (DOCX)"}
               </a>
               <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
                 Board-ready architecture review from your latest committed manifest.

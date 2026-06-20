@@ -15,6 +15,13 @@ describe("presentExecutiveKpiCount", () => {
 
     expect(result.display).toBe("0");
     expect(result.state).toBe("zero");
+    expect(result.footnote).toContain("Zero is a measured count");
+  });
+
+  it("can suppress repeated zero footnotes on executive surfaces", () => {
+    const result = presentExecutiveKpiCount(0, { loading: false, suppressZeroFootnote: true });
+
+    expect(result.footnote).toBeNull();
   });
 
   it("formats finite counts", () => {
@@ -60,5 +67,17 @@ describe("presentCostEvidenceFreshness", () => {
 
     expect(result.state).toBe("missing");
     expect(result.display).toBe("Unavailable");
+  });
+
+  it("uses executive-friendly labels when requested", () => {
+    const result = presentCostEvidenceFreshness({
+      loading: false,
+      status: "Missing",
+      savingsPricingBasis: "Measured",
+      staleAfterDays: 30,
+      executiveSurface: true,
+    });
+
+    expect(result.display).toBe("Not uploaded");
   });
 });

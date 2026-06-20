@@ -11,7 +11,7 @@ export type ExecutiveKpiCountPresentation = {
 
 export function presentExecutiveKpiCount(
   value: number | undefined,
-  options: { readonly loading: boolean },
+  options: { readonly loading: boolean; readonly suppressZeroFootnote?: boolean },
 ): ExecutiveKpiCountPresentation {
   if (options.loading) {
     return { display: "…", state: "loading", footnote: null };
@@ -31,7 +31,9 @@ export function presentExecutiveKpiCount(
     return {
       display: "0",
       state: "zero",
-      footnote: "Zero is a measured count for this window — not a missing-data placeholder.",
+      footnote: options.suppressZeroFootnote === true
+        ? null
+        : "Zero is a measured count for this window — not a missing-data placeholder.",
     };
   }
 
@@ -54,7 +56,9 @@ export function presentCostEvidenceFreshness(input: {
   readonly status: string | undefined;
   readonly savingsPricingBasis: string | undefined;
   readonly staleAfterDays: number | undefined;
+  readonly executiveSurface?: boolean;
 }): CostEvidenceFreshnessPresentation {
+  const executiveSurface = input.executiveSurface === true;
   if (input.loading) {
     return { display: "…", state: "loading", footnote: null, runbookHref: null };
   }
@@ -89,36 +93,40 @@ export function presentCostEvidenceFreshness(input: {
 
   if (!status) {
     return {
-      display: "Unavailable",
+      display: executiveSurface ? "Not uploaded" : "Unavailable",
       state: "missing",
-      footnote: "No cost evidence freshness signal was returned.",
+      footnote: executiveSurface
+        ? "Upload Azure inventory to ground savings in measured spend."
+        : "No cost evidence freshness signal was returned.",
       runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
     };
   }
 
   if (/stale/i.test(status)) {
     return {
-      display: status,
+      display: executiveSurface ? "Out of date" : status,
       state: "stale",
       footnote:
         input.staleAfterDays && input.staleAfterDays > 0
-          ? `Evidence is older than ${input.staleAfterDays} day(s). Refresh Azure extractor upload or attach proof-packet cost artifacts.`
-          : "Evidence is stale. Refresh Azure extractor upload or attach proof-packet cost artifacts.",
+          ? `Evidence is older than ${input.staleAfterDays} day(s). Refresh your Azure inventory upload.`
+          : "Evidence is stale. Refresh your Azure inventory upload.",
       runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
     };
   }
 
   if (/not estimated|unavailable|missing/i.test(status)) {
     return {
-      display: status,
+      display: executiveSurface ? "Not uploaded" : status,
       state: "not-estimated",
-      footnote: "ROI cost findings are not backed by fresh measured evidence yet.",
-      runbookHref: "/docs/go-to-market/demo-proof-packets/README.md",
+      footnote: executiveSurface
+        ? "Upload Azure inventory to ground savings in measured spend."
+        : "ROI cost findings are not backed by fresh measured evidence yet.",
+      runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
     };
   }
 
   return {
-    display: status,
+    display: executiveSurface && /fresh/i.test(status) ? "Current" : status,
     state: "fresh",
     footnote: null,
     runbookHref: null,

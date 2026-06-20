@@ -37,7 +37,11 @@ function dispositionStatusKind(disposition: OperatorAiQualitySnapshotDisposition
 }
 
 /** Dashboard tile: offline retrieval + quality snapshot metrics for operators. */
-export function QualityGateMetricsTile(): React.JSX.Element {
+export type QualityGateMetricsTileProps = {
+  readonly surface?: "operator" | "executive";
+};
+
+export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetricsTileProps): React.JSX.Element {
   const [snapshot, setSnapshot] = useState<OperatorAiQualitySnapshot | null>(null);
 
   useEffect(() => {
@@ -69,12 +73,15 @@ export function QualityGateMetricsTile(): React.JSX.Element {
 
   const recall = snapshot?.retrievalIr.meanRecallAt5 ?? null;
   const mrr = snapshot?.retrievalIr.meanMrr ?? null;
+  const executiveSurface = surface === "executive";
 
   return (
     <Card data-testid="quality-gate-metrics-tile">
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>AI quality metrics</h2>
+          <h2 className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
+            {executiveSurface ? "Evidence retrieval quality" : "AI quality metrics"}
+          </h2>
           {snapshot !== null ? (
             <StatusTag kind={dispositionStatusKind(snapshot.disposition)} label={dispositionLabel(snapshot.disposition)} />
           ) : null}
@@ -82,11 +89,15 @@ export function QualityGateMetricsTile(): React.JSX.Element {
       </CardHeader>
       <CardContent className="grid gap-3 sm:grid-cols-2 text-sm">
         <div>
-          <p className="m-0 text-xs text-neutral-500">Mean recall@5 (golden cohort)</p>
+          <p className="m-0 text-xs text-neutral-500">
+            {executiveSurface ? "Retrieval accuracy (top results)" : "Mean recall@5 (golden cohort)"}
+          </p>
           <p className="m-0 font-mono text-lg text-neutral-900 dark:text-neutral-100">{formatMetric(recall, 4)}</p>
         </div>
         <div>
-          <p className="m-0 text-xs text-neutral-500">Mean MRR</p>
+          <p className="m-0 text-xs text-neutral-500">
+            {executiveSurface ? "Rank quality" : "Mean MRR"}
+          </p>
           <p className="m-0 font-mono text-lg text-neutral-900 dark:text-neutral-100">{formatMetric(mrr, 4)}</p>
         </div>
       </CardContent>

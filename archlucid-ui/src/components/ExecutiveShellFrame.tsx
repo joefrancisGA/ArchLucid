@@ -46,7 +46,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
         </a>
         <header
           data-testid="executive-shell-topbar"
-          className="sticky top-0 z-30 overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
+          className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
         >
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6")}>
             <div className="flex min-w-0 flex-wrap items-center gap-2">

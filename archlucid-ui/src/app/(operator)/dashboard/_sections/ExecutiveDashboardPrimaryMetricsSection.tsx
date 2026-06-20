@@ -1,0 +1,181 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
+import {
+  presentCostEvidenceFreshness,
+  presentExecutiveKpiCount,
+} from "@/lib/executive-roi-kpi-display";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+function formatUsd(value: number | undefined): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return "—";
+  }
+
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export type ExecutiveDashboardPrimaryMetricsSectionProps = {
+  readonly summary: ExecutiveRoiSummary | null;
+  readonly loading: boolean;
+};
+
+/** Top-tier executive metrics: risk posture, ROI impact, governance readiness. */
+export function ExecutiveDashboardPrimaryMetricsSection(
+  props: ExecutiveDashboardPrimaryMetricsSectionProps,
+): React.JSX.Element {
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const { summary, loading } = props;
+  const [decisionsNeededCount, setDecisionsNeededCount] = useState<number | null>(null);
+  const [staleRiskCount, setStaleRiskCount] = useState<number | null>(null);
+  const [expiringWaiversCount, setExpiringWaiversCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (loading) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const decisionsNeeded = await getGovernanceDecisionsNeededSummary();
+
+        if (!cancelled) {
+          setDecisionsNeededCount(decisionsNeeded.totalDecisionItems);
+          setStaleRiskCount(
+            summary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
+          );
+          setExpiringWaiversCount(decisionsNeeded.waiversExpiringWithin14Days);
+        }
+      } catch {
+        if (!cancelled) {
+          setDecisionsNeededCount(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, summary?.staleArchitectureRiskCount]);
+
+  const decisionsNeeded = presentExecutiveKpiCount(
+    loading ? undefined : decisionsNeededCount ?? undefined,
+    { loading, suppressZeroFootnote: true },
+  );
+  const staleRisks = presentExecutiveKpiCount(loading ? undefined : staleRiskCount ?? undefined, {
+    loading,
+    suppressZeroFootnote: true,
+  });
+  const expiringWaivers = presentExecutiveKpiCount(
+    loading ? undefined : expiringWaiversCount ?? undefined,
+    { loading, suppressZeroFootnote: true },
+  );
+  const costFreshness = presentCostEvidenceFreshness({
+    loading,
+    status: summary?.costEvidenceFreshnessStatus,
+    savingsPricingBasis: summary?.savingsPricingBasis,
+    staleAfterDays: summary?.costEvidenceStaleAfterDays,
+    executiveSurface: true,
+  });
+
+  return (
+    <section aria-labelledby="executive-primary-metrics-heading" className="space-y-3">
+      <h2 id="executive-primary-metrics-heading" className="sr-only">
+        {v.primaryMetricsSectionSrOnly}
+      </h2>
+      <p className={OPERATOR_TYPOGRAPHY.sectionTitle}>{v.primaryMetricsSectionTitle}</p>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card data-testid="executive-primary-decisions-needed">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+              {v.decisionsNeededMetric.title}
+            </CardTitle>
+            <CardDescription className="text-xs">{v.decisionsNeededMetric.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href={EXECUTIVE_KPI_DRILL_THROUGH.decisionsNeeded}
+              className="block rounded-sm no-underline outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{decisionsNeeded.display}</p>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="executive-primary-risk-posture">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+              Risk posture
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Stale architecture risks and waivers expiring within 14 days
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-neutral-600 dark:text-neutral-400">{v.staleArchitectureRisksMetric.title}</span>
+              <Link href={EXECUTIVE_KPI_DRILL_THROUGH.staleArchitectureRisks} className="font-semibold tabular-nums text-al-text-primary underline-offset-2 hover:underline">
+                {staleRisks.display}
+              </Link>
+            </div>
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-neutral-600 dark:text-neutral-400">{v.expiringWaiversMetric.title}</span>
+              <Link href={EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers} className="font-semibold tabular-nums text-al-text-primary underline-offset-2 hover:underline">
+                {expiringWaivers.display}
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="executive-primary-roi-impact">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+              Estimated savings
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Directional portfolio impact from committed reviews
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
+              {loading ? "…" : formatUsd(summary?.totalEstimatedUsdSavings)}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="executive-primary-governance-readiness">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+              {v.costEvidenceStatusMetric.title}
+            </CardTitle>
+            <CardDescription className="text-xs">{v.costEvidenceStatusMetric.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href={EXECUTIVE_KPI_DRILL_THROUGH.costEvidenceFreshness}
+              className="block rounded-sm no-underline outline-none transition-shadow hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <p className="text-2xl font-semibold tabular-nums text-al-text-primary">{costFreshness.display}</p>
+            </Link>
+            {costFreshness.footnote ? (
+              <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{costFreshness.footnote}</p>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}

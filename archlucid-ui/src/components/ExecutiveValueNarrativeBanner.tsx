@@ -111,8 +111,9 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
 
   return (
     <p
-      className="m-0 rounded-lg border border-teal-200 bg-teal-50/80 px-4 py-3 text-sm leading-relaxed text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
+      className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200"
       data-testid="executive-value-narrative"
+      role="status"
     >
       {narrative}
     </p>

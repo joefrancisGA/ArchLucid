@@ -46,7 +46,7 @@ export function ExecutiveShellOrientationCallout(props: ExecutiveShellOrientatio
       data-testid="executive-shell-orientation-callout"
       role="status"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "border-b border-neutral-200 bg-neutral-100 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/60 lg:px-6")}>
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "border-b border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800 lg:px-6")}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
             <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Executive view</p>

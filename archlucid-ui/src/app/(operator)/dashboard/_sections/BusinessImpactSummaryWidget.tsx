@@ -44,13 +44,16 @@ function readBusinessImpactCounts(data: ExecutiveRoiSummary | null) {
 export type BusinessImpactSummaryWidgetProps = {
   readonly summary?: ExecutiveRoiSummary | null;
   readonly loading?: boolean;
+  readonly surface?: "operator" | "executive";
 };
 
-/** Live business-impact tiles from `GET /v1/roi/executive-summary` (TB-062 / Batch C item 7). */
+/** Live business-impact tiles from executive ROI summary (TB-062 / Batch C item 7). */
 export function BusinessImpactSummaryWidget({
   summary: summaryProp,
   loading: loadingProp,
+  surface = "operator",
 }: BusinessImpactSummaryWidgetProps = {}) {
+  const executiveSurface = surface === "executive";
   const [data, setData] = useState<ExecutiveRoiSummary | null>(summaryProp ?? null);
   const [isLoading, setIsLoading] = useState(loadingProp ?? true);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -112,8 +115,14 @@ export function BusinessImpactSummaryWidget({
           Business impact summary
         </h2>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Live signals from committed reviews via{" "}
-          <span className="font-mono text-xs">GET /v1/roi/executive-summary</span>.
+          {executiveSurface
+            ? "Theme counts from committed reviews in this workspace."
+            : (
+              <>
+                Live signals from committed reviews via{" "}
+                <span className="font-mono text-xs">GET /v1/roi/executive-summary</span>.
+              </>
+            )}
           {!hasCommittedRuns && !isLoading ? " Commit a review to populate these cards." : null}
         </p>
       </div>
@@ -133,6 +142,7 @@ export function BusinessImpactSummaryWidget({
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {!executiveSurface ? (
         <Card className="sm:col-span-2 lg:col-span-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
@@ -157,6 +167,7 @@ export function BusinessImpactSummaryWidget({
             )}
           </CardContent>
         </Card>
+        ) : null}
 
         {themeCards.map((card) => {
           const Icon = card.icon;
