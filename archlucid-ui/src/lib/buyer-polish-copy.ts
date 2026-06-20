@@ -17,10 +17,10 @@ export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
   "Explore a completed example review package";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
-  "Completed architecture review package with signed manifest, evidence trail, and audit record.";
+  "Completed architecture review package with signed review record, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Review a completed example package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
+  "Review a completed example package with evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
@@ -55,7 +55,7 @@ export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 export const SAMPLE_REVIEW_PACKAGE_AHA_LEAD =
   "This sample review package leads with one decision-changing finding — expand evidence and exports below when ready.";
 
-export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No reviews yet";
+export const OPERATOR_HOME_WORKSPACE_EMPTY_TITLE = "No committed reviews yet";
 
 export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
   "Start your first review or open the example review package.";
@@ -301,7 +301,7 @@ export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
 export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture review package";
 
 export const BUYER_HOME_WELCOME_LEAD =
-  "Start with the executive view, then the signed manifest, audit trail, and prioritized findings.";
+  "Start with the executive view, then the signed review record, audit trail, and prioritized findings.";
 
 /** Canonical home reviews zone heading — both operator shells (TB-347). */
 export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";
@@ -317,8 +317,10 @@ export const BUYER_HOME_SETUP_SECTION_HEADING = "Start a new review";
 
 export const BUYER_RUNS_DASHBOARD_RECENT_LABEL = "Featured finalized review package";
 
+export const BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY = "Recent review packages";
+
 export const BUYER_RUNS_DASHBOARD_RECENT_SUMMARY =
-  "Recent review package: signed manifest, evidence, governance, and audit.";
+  "Recent review package: signed decision record, evidence, governance, and audit.";
 
 export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Example · finalized";
 
@@ -330,7 +332,7 @@ export const BUYER_SEED_EXAMPLE_REVIEW_HINT =
 export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
 
 export const BUYER_RUNS_LIST_GLOSSARY_LEAD =
-  "Open a review package for manifest, evidence, findings, and deliverables.";
+  "Open a review package for the signed record, evidence, findings, and deliverables.";
 
 export const BUYER_PIPELINE_IN_PROGRESS_LABEL = "In progress";
 
@@ -339,7 +341,7 @@ export const BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE = "Policy pack used for this r
 export const BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL = "Detailed comparison appendix";
 
 export const BUYER_SEALED_MANIFEST_TOOLTIP =
-  "Finalized signed manifest: hash-verified, write-locked record after governance approval — not informal draft text.";
+  "Finalized signed review record: hash-verified, write-locked record after governance approval — not informal draft text.";
 
 export const BUYER_PRICING_FAIR_USE_OVERAGE_NOTE = "Higher volumes are handled through procurement terms.";
 
@@ -373,10 +375,10 @@ export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence trail";
 
 export const BUYER_ASK_GROUNDING_ONCE =
-  "Answers are scoped to selected review evidence. Validate conclusions against the finalized signed manifest — Ask does not replace formal governance records.";
+  "Answers are scoped to selected review evidence. Validate conclusions against the finalized signed review record — Ask does not replace formal governance records.";
 
 export const BUYER_ASK_REVIEW_ANCHORS_LINE =
-  "Replies on this review package can include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";
+  "Replies on this review package can include quick links to executive summary, review record, policy basis, evidence trail, and audit anchors where available.";
 
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE = BUYER_ASK_REVIEW_ANCHORS_LINE;
 
@@ -415,7 +417,7 @@ export const BUYER_EARLY_ADOPTER_PRICING_NOTE =
 
 /** Outcome-led value proposition for marketing/demo surfaces (one problem, one proof package). */
 export const BUYER_OUTCOME_LED_VALUE_PROPOSITION =
-  "Cut architecture review cycle time with an evidence-backed proof package — signed manifest, findings, audit trail, and sponsor-ready readout — not a chat transcript.";
+  "Cut architecture review cycle time with an evidence-backed proof package — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.";
 
 export const BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD =
   "The answer below is scoped to this review package's indexed evidence.";
@@ -448,7 +450,7 @@ export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail for this review p
 
 /** Buyer completion card on audit results — scope framing without "complete" overclaim (BDA-008). */
 export const BUYER_AUDIT_PACKAGE_READY_LEAD =
-  "Decision record, signed manifest, evidence trail, governance approval, and audit events are available for this review package.";
+  "Decision record, signed review record, evidence trail, governance approval, and audit events are available for this review package.";
 
 export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
   "System-recorded events capture automated lifecycle steps.";
@@ -512,7 +514,7 @@ export const BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION =
   "Finding evaluation confidence — how strongly cited policy rules and evidence support this specific finding (not overall product accuracy).";
 
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
-  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed manifest, and audit record.";
+  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed review record, and audit record.";
 
 export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: committed reviews in this workspace.";
 
@@ -562,6 +564,16 @@ export const BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL = "Executive briefing packag
 export const BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT = 4;
 
 export const BUYER_TECHNICAL_APPENDIX_LABEL = "Technical appendix";
+
+export const BUYER_DOWNLOAD_REVIEW_RECORD_JSON = "Download review record (JSON)";
+
+export const BUYER_COPY_REVIEW_RECORD_JSON = "Copy review record JSON";
+
+export const BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE =
+  "Governance workflow is not configured in this demo workspace.";
+
+export const BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE =
+  "ITSM integration is not connected in this demo workspace.";
 
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 
@@ -685,7 +697,7 @@ export const BUYER_CTO_DEMO_PREFLIGHT_BEGIN_CTA = "Begin demo";
 export const BUYER_CTO_DEMO_AGENDA_HEADING = "Your 30-minute review journey";
 
 export const BUYER_CTO_DEMO_AGENDA_SUBTEXT =
-  "Five stops from executive outcomes through signed manifest, evidence, governance, and audit trail.";
+  "Five stops from executive outcomes through signed review record, evidence, governance, and audit trail.";
 
 export const BUYER_CTO_DEMO_AUDIT_VERIFY_CTA = "Verify integrity";
 
@@ -707,7 +719,7 @@ export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
 
 export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
   "This executive summary gives your sponsor a one-page risk and outcome verdict — no engineering context required.",
-  "This signed manifest is the verifiable record of every decision made in this review — your auditors' starting point.",
+  "This signed review record is the verifiable record of every decision made in this review — your auditors' starting point.",
   "Every finding traces back to the exact evidence that produced it — no black-box AI.",
   "This approval gate enforces separation-of-duties before any architecture change is promoted to production.",
   "Every event in this timeline is immutable and exportable — the compliance trail your auditors need on day one.",

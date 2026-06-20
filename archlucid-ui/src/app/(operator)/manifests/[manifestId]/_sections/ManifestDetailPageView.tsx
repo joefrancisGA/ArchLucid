@@ -218,9 +218,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         </Link>
         {" · "}
         <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
-          {buyerPolishedLayout === true && showcasePackage === true
-            ? BUYER_SIGNED_DECISION_RECORD_LABEL
-            : "Manifest"}
+          {buyerPolishedLayout === true ? BUYER_SIGNED_DECISION_RECORD_LABEL : "Manifest"}
         </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
           <>
@@ -252,7 +250,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         {buyerPolishedLayout !== true ? (
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Export manifest bundle</a>
+              <a href={getBundleDownloadUrl(manifestId)}>Export review package bundle</a>
             </Button>
           </div>
         ) : null}

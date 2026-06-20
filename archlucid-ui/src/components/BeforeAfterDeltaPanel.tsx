@@ -224,9 +224,8 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
         Review-cycle delta (before vs measured)
       </h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-        Baseline from <code>GET /v1/tenant/trial-status</code>; measured hours from the pilot-run-deltas JSON for this
-        review (<code>PilotRunDeltaComputer</code> / <code>PilotRunDeltasResponseMapper</code>). Same narrative shape
-        as <code>ValueReportReviewCycleSectionFormatter</code> in the value-report PDF.
+        Compares your estimated baseline review cycle time against measured time for finalized review packages in this
+        workspace. Estimated savings use accepted cost findings from committed review activity.
       </p>
 
       <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -256,8 +255,8 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           </dd>
           <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
             {data.measuredAvailable
-              ? `From GET /v1/pilots/runs/${data.effectiveRunId}/pilot-run-deltas.`
-              : "No finalized manifest yet — finalize your first review to populate the measurement."}
+              ? "Measured from committed review activity in this workspace."
+              : "Awaiting first finalized review package to populate the measurement."}
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">

@@ -3,16 +3,18 @@
 import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BUYER_DOWNLOAD_REVIEW_RECORD_JSON } from "@/lib/buyer-polish-copy";
 import { fetchManifestJsonText, manifestJsonDownloadFileName } from "@/lib/manifest-json-fetch";
 
 type DownloadManifestButtonProps = {
   readonly runId: string;
   readonly className?: string;
+  readonly buyerPolishedLayout?: boolean;
 };
 
 /** One-click browser download of the committed golden manifest JSON for a review package. */
 export function DownloadManifestButton(props: DownloadManifestButtonProps): ReactElement {
-  const { runId, className } = props;
+  const { runId, className, buyerPolishedLayout } = props;
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +53,7 @@ export function DownloadManifestButton(props: DownloadManifestButtonProps): Reac
         className="border-neutral-300 dark:border-neutral-600"
         onClick={() => void onDownload()}
       >
-        {downloading ? "Preparing JSON…" : "Download manifest (JSON)"}
+        {downloading ? "Preparing JSON…" : buyerPolishedLayout === true ? BUYER_DOWNLOAD_REVIEW_RECORD_JSON : "Download manifest (JSON)"}
       </Button>
       {error !== null ? (
         <p

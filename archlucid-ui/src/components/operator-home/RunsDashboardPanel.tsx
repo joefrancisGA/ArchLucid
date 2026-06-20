@@ -33,6 +33,7 @@ import { buyerFilterChipActiveClass } from "@/lib/buyer-shell-home-present";
 import {
   BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
+  BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
   BUYER_RUNS_DASHBOARD_TAB_APPROVED,
@@ -373,7 +374,13 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
             ))}
           </div>
           <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
-            {tab === "recent" && buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_LABEL : tab === "recent" ? RUNS_DASHBOARD_LABELS.latestInWorkspace : null}
+            {tab === "recent" && buyerPolishedShell
+              ? showcaseDemoRun !== undefined
+                ? BUYER_RUNS_DASHBOARD_RECENT_LABEL
+                : BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY
+              : tab === "recent"
+                ? RUNS_DASHBOARD_LABELS.latestInWorkspace
+                : null}
             {tab === "attention"
               ? buyerPolishedShell
                 ? RUNS_DASHBOARD_LABELS.packagingPreFinalPosture
@@ -395,7 +402,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
             {tab === "outcomes"
               ? buyerPolishedShell && showcaseDemoRun !== undefined
                 ? "Representative governance posture for this workspace."
-                : "Manifests finalized, findings surfaced, and average time to finalization."
+                : "Review packages finalized, findings surfaced, and average time to finalization."
               : null}
           </p>
         </CardHeader>
@@ -534,7 +541,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                           <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Review package</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={getShowcaseManifestHref()}>View finalized manifest</Link>
+                          <Link href={getShowcaseManifestHref()}>View signed record</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link
@@ -733,7 +740,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                     <StatusTag kind="ready" label="Outcome" />
                     <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Review finalized</p>
                     <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
-                      Signed manifest pinned with governance-approved posture for sponsor readout.
+                      Signed review record pinned with governance-approved posture for sponsor readout.
                     </p>
                   </li>
                   <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>

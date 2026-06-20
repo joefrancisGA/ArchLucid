@@ -15,6 +15,8 @@ import {
   type FindingDispositionKind,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -67,7 +69,13 @@ export function FindingInspectGovernanceStickinessPanel({
       try {
         await reload();
       } catch {
-        if (!cancelled) setErrorMessage("Governance workflow data unavailable for this finding.");
+        if (!cancelled) {
+          setErrorMessage(
+            isBuyerPolishedOperatorShellEnv()
+              ? BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE
+              : "Governance workflow data unavailable for this finding.",
+          );
+        }
       }
     })();
 

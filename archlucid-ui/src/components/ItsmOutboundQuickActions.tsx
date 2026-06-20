@@ -8,6 +8,8 @@ import {
   listItsmFindingCorrelations,
   type ItsmFindingCorrelationListItem,
 } from "@/lib/api/itsm-outbound-api";
+import { BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type ItsmOutboundQuickActionsProps = {
   readonly findingId: string;
@@ -33,7 +35,13 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
       try {
         await reload();
       } catch {
-        if (!cancelled) setErrorMessage("ITSM linkage unavailable.");
+        if (!cancelled) {
+          setErrorMessage(
+            isBuyerPolishedOperatorShellEnv()
+              ? BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE
+              : "ITSM linkage unavailable.",
+          );
+        }
       }
     })();
 

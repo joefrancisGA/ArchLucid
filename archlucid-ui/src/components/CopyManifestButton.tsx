@@ -3,16 +3,18 @@
 import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BUYER_COPY_REVIEW_RECORD_JSON } from "@/lib/buyer-polish-copy";
 import { fetchManifestJsonText } from "@/lib/manifest-json-fetch";
 
 type CopyManifestButtonProps = {
   readonly runId: string;
   readonly className?: string;
+  readonly buyerPolishedLayout?: boolean;
 };
 
 /** One-click copy of the committed golden manifest JSON to the clipboard. */
 export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement {
-  const { runId, className } = props;
+  const { runId, className, buyerPolishedLayout } = props;
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
         className="border-neutral-300 dark:border-neutral-600"
         onClick={() => void onCopy()}
       >
-        {copying ? "Preparing JSON…" : copied ? "Copied!" : "Copy manifest JSON"}
+        {copying ? "Preparing JSON…" : copied ? "Copied!" : buyerPolishedLayout === true ? BUYER_COPY_REVIEW_RECORD_JSON : "Copy manifest JSON"}
       </Button>
       {error !== null ? (
         <p

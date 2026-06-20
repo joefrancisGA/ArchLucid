@@ -48,7 +48,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const detailOpenDefault = !(buyerPolishedLayout ?? false) || isCuratedDemo;
 
   const manifestJsonActions =
-    summary.runId.trim().length > 0 ? <ManifestJsonActions runId={summary.runId} className="mt-3" /> : null;
+    summary.runId.trim().length > 0 ? (
+      <ManifestJsonActions runId={summary.runId} className="mt-3" buyerPolishedLayout={buyerPolishedLayout} />
+    ) : null;
 
   const operatorSummary =
     summary.operatorSummary ? (
@@ -190,6 +192,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
       defaultOpen={false}
       sectionTestId="manifest-verification-appendix"
     >
+      {(buyerPolishedLayout ?? false) ? manifestJsonActions : null}
       <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
         {buyerPolishedLayout !== true ? (
           <>
@@ -344,7 +347,6 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     return (
       <>
         {operatorSummary}
-        {manifestJsonActions}
         {buyerRecordedOutcomes}
         {buyerPolicyPackCallout}
         {relatedFinding}
