@@ -11,6 +11,7 @@ import {
   PROOF_CONFIDENCE_FIELD_LABEL,
 } from "@/lib/proof-confidence-taxonomy";
 import {
+  trustEvidenceGoldenManifestFieldDetail,
   trustEvidenceGoldenManifestFieldTitle,
   trustEvidenceProofChainManifestStepLabel,
 } from "@/lib/trust-evidence-display";
@@ -174,6 +175,7 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
           field={{
             ...card.goldenManifest,
             title: trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell),
+            detail: trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail, buyerPolishedShell),
           }}
         />
         <ProofChainStep
@@ -225,7 +227,7 @@ export function RunTrustEvidenceCardSection(props: {
       key="manifest"
       title={trustEvidenceGoldenManifestFieldTitle(card.goldenManifest.title, buyerPolishedShell)}
       status={card.goldenManifest.status}
-      detail={card.goldenManifest.detail}
+      detail={trustEvidenceGoldenManifestFieldDetail(card.goldenManifest.detail, buyerPolishedShell)}
     />,
     <FieldRow
       key="audit"

@@ -273,7 +273,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </>
         ) : (
           <>
-            A finalized manifest is the reviewed, versioned architecture record for this review. It captures decisions,
+            A signed review record is the reviewed, versioned architecture decision for this review. It captures decisions,
             findings, and the downloadable artifact bundle linked from review detail.
           </>
         )}

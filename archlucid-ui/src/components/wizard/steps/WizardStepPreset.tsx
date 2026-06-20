@@ -21,6 +21,7 @@ import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 const HERO_VERTICAL_IDS = new Set<string>(["vertical-healthcare", "vertical-financial-services"]);
 
@@ -124,7 +125,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
         <div className="space-y-2">
           <p className="m-0">
             An architecture request captures the system, goals, constraints, and context ArchLucid uses to generate a{" "}
-            <GlossaryTooltip termKey="golden_manifest">manifest</GlossaryTooltip>,{" "}
+            <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL.toLowerCase()}</GlossaryTooltip>,{" "}
             <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>, and artifacts.
           </p>
           <p className="m-0">

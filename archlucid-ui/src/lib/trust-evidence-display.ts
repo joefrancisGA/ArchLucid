@@ -19,3 +19,19 @@ export function trustEvidenceGoldenManifestFieldTitle(title: string, buyerPolish
 
   return title;
 }
+
+/** Maps internal API/demo golden-manifest field detail lines to buyer-safe copy. */
+export function trustEvidenceGoldenManifestFieldDetail(
+  detail: string | null | undefined,
+  buyerPolishedShell: boolean,
+): string | null | undefined {
+  if (!buyerPolishedShell || detail === null || detail === undefined) {
+    return detail;
+  }
+
+  if (GOLDEN_MANIFEST_TITLE_PATTERN.test(detail)) {
+    return detail.replace(/golden manifest snapshot/gi, `${SIGNED_MANIFEST_LABEL} snapshot`);
+  }
+
+  return detail;
+}

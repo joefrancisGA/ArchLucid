@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { RunSummary } from "@/types/authority";
 
 export type WizardStepTrackProps = {
@@ -72,7 +73,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
         </li>
         <li className="flex flex-wrap items-center gap-2">
           <span className="w-36 text-sm font-medium">
-            <GlossaryTooltip termKey="golden_manifest">Manifest ready</GlossaryTooltip>
+            <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL} ready</GlossaryTooltip>
           </span>
           <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
         </li>
@@ -84,7 +85,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
       {manifest ? (
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
-          <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">Reviewed manifest is available.</p>
+          <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">{SIGNED_MANIFEST_LABEL} is available.</p>
           <nav className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-sm">
             <Link className="text-teal-800 underline dark:text-teal-200" href={`/reviews/${runId}`}>
               Open review detail
@@ -102,7 +103,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
         </div>
       ) : (
         <p className="mt-4 text-xs text-neutral-500">
-          Waiting for reviewed manifest… (updates stream for up to several minutes; you can open review detail anytime.)
+          Waiting for {SIGNED_MANIFEST_LABEL.toLowerCase()}… (updates stream for up to several minutes; you can open review detail anytime.)
         </p>
       )}
     </WizardStepPanel>

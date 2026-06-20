@@ -184,7 +184,7 @@ export default function GetStartedPage(): ReactNode {
             >
               Core Pilot guide
             </Link>{" "}
-            walks through creating a request, committing a manifest, and reviewing real artifacts.
+            walks through creating a request, finalizing a signed review record, and reviewing real artifacts.
           </li>
           <li>
             For the operator path after the sample run, see{" "}

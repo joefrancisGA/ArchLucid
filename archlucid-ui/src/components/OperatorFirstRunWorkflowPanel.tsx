@@ -25,6 +25,7 @@ import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-archit
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
 const graduatedStorageKey = "archlucid_checklist_graduated";
@@ -367,7 +368,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
               href={getShowcaseManifestHref()}
             >
-              Manifest summary
+              {SIGNED_MANIFEST_LABEL} summary
             </Link>
             <Link
               className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"

@@ -98,6 +98,7 @@ describe("RunTrustEvidenceCardSection", () => {
 
     expect(screen.getByText(/Step 3: Signed review record/i)).toBeInTheDocument();
     expect(screen.queryByText("Golden manifest snapshot")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Golden manifest snapshot detail/i)).not.toBeInTheDocument();
     expect(screen.getAllByText("Signed review record").length).toBeGreaterThanOrEqual(2);
   });
 });

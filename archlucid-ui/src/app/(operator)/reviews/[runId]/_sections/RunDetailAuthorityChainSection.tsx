@@ -52,11 +52,11 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
               {manifestId ? (
                 <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
                   <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                    Reviewed manifest id
+                    Review record id
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
                     <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">{manifestId}</code>
-                    <CopyIdButton value={manifestId} aria-label="Copy reviewed manifest ID" />
+                    <CopyIdButton value={manifestId} aria-label="Copy review record ID" />
                   </span>
                 </li>
               ) : null}
