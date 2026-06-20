@@ -77,6 +77,10 @@ describe("OperatorShellTopBar", () => {
 
     expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
+    expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
+      "aria-label",
+      "ArchLucid — go to operator home",
+    );
     expect(screen.queryByTestId("app-shell-topbar-secondary")).not.toBeInTheDocument();
     expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-label", "Help (F1)");
     expect(screen.getByTestId("operator-shell-help-trigger")).toHaveAttribute("aria-keyshortcuts", "F1 Shift+?");
@@ -104,6 +108,21 @@ describe("OperatorShellTopBar", () => {
     expect(personaSwitcher.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(scopeTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(helpTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("does not render contextual help triggers in the top toolbar session rail", async () => {
+    render(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    const sessionRail = screen.getByTestId("app-shell-topbar-session");
+    const helpTriggers = sessionRail.querySelectorAll("[data-help-tooltip-trigger]");
+
+    expect(helpTriggers).toHaveLength(1);
+    expect(helpTriggers[0]).toHaveAttribute("data-testid", "operator-shell-help-trigger");
+    expect(helpTriggers[0]).toHaveAttribute("data-help-tooltip-icon", "help");
   });
 
   it("omits dev-only chrome in buyer-polished shell mode but keeps help", () => {
