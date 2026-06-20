@@ -7,7 +7,8 @@
 #
 # Optional:
 #   ARCHLUCID_REGENERATE_UI_API_TYPES=1   — refresh archlucid-ui api-types.generated.ts
-#   ARCHLUCID_REGENERATE_DOTNET_CLIENT=1  — rebuild ArchLucid.Api.Client (NSwag from snapshot)
+#
+# Always refreshes buyer-contract.openapi.snapshot.json and ArchLucid.Api.Client (NSwag).
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -15,6 +16,17 @@ cd "$ROOT"
 
 export ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1
 bash scripts/ci/check_openapi_contract_snapshot.sh
+
+echo "Regenerating buyer-tier OpenAPI contract snapshot from v1 baseline..."
+python3 scripts/ci/generate_buyer_openapi_snapshot.py
+
+dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
+  --no-build \
+  -c Release \
+  --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"
+
+echo "Regenerating ArchLucid.Api.Client (NSwag) from v1 baseline..."
+dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 
 if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
   echo "Regenerating archlucid-ui TypeScript API types..."
@@ -24,12 +36,7 @@ if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
   cd "$ROOT"
 fi
 
-if [ "${ARCHLUCID_REGENERATE_DOTNET_CLIENT:-0}" = "1" ]; then
-  echo "Regenerating ArchLucid.Api.Client (NSwag)..."
-  dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
-fi
-
-echo "Verifying snapshot matches generated /openapi/v1.json..."
+echo "Verifying snapshots match generated /openapi/v1.json..."
 unset ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT
 bash scripts/ci/check_openapi_contract_snapshot.sh
 

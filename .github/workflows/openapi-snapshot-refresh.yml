@@ -120,19 +120,12 @@ jobs:
         working-directory: archlucid-ui
         run: npm ci
 
-      - name: Regenerate OpenAPI snapshot (+ optional clients)
+      - name: Regenerate OpenAPI snapshot (+ optional UI api-types)
         env:
           ARCHLUCID_REGENERATE_UI_API_TYPES: >-
             ${{
               github.event_name == 'workflow_dispatch'
               && inputs.regenerate_ui_api_types
-              && '1'
-              || '0'
-            }}
-          ARCHLUCID_REGENERATE_DOTNET_CLIENT: >-
-            ${{
-              github.event_name == 'workflow_dispatch'
-              && inputs.regenerate_dotnet_client
               && '1'
               || '0'
             }}
@@ -153,6 +146,7 @@ jobs:
 
           paths=(
             ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json
+            ArchLucid.Api.Tests/Contracts/buyer-contract.openapi.snapshot.json
             archlucid-ui/src/lib/api-types.generated.ts
             ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs
           )

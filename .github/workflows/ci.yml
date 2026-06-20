@@ -58,8 +58,8 @@ on:
 # where we skip nested cache noise.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # OpenAPI snapshot already runs in job openapi-contract-snapshot; skip here to shorten corset test time.
-  DOTNET_FAST_CORE_TEST_FILTER: Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord&FullyQualifiedName!~OpenApiContractSnapshotTests
+  # OpenAPI snapshot tests run in job openapi-contract-snapshot; skip here to shorten corset test time.
+  DOTNET_FAST_CORE_TEST_FILTER: Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord&FullyQualifiedName!~OpenApiContractSnapshotTests&FullyQualifiedName!~OpenApiBuyerContractSnapshotTests
 
 jobs:
   gitleaks:
@@ -1374,7 +1374,7 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Build + OpenApiContractSnapshotTests
+      - name: Build + OpenAPI contract snapshot tests (v1 + buyer)
         env:
           ARCHLUCID_OPENAPI_SNAPSHOT_ARTIFACT_PATH: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
         run: bash scripts/ci/check_openapi_contract_snapshot.sh

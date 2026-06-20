@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build ArchLucid.Api.Tests and verify OpenAPI v1 matches the CI baseline snapshot.
+# Build ArchLucid.Api.Tests and verify OpenAPI v1 and buyer-tier snapshots match CI baselines.
 # Same assertion as CI job "openapi-contract-snapshot".
 #
 # Usage (repo root or any cwd):
@@ -23,3 +23,8 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
   --no-build \
   -c Release \
   --filter "FullyQualifiedName~OpenApiContractSnapshotTests"
+
+dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
+  --no-build \
+  -c Release \
+  --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"

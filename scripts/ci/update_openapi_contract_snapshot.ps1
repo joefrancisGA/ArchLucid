@@ -11,6 +11,20 @@ Set-Location $Root
 $env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT = '1'
 & (Join-Path $Root 'scripts/ci/check_openapi_contract_snapshot.ps1')
 
+Write-Host 'Regenerating buyer-tier OpenAPI contract snapshot from v1 baseline...'
+python (Join-Path $Root 'scripts/ci/generate_buyer_openapi_snapshot.py')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj `
+    --no-build `
+    -c Release `
+    --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host 'Regenerating ArchLucid.Api.Client (NSwag) from v1 baseline...'
+dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 if ($env:ARCHLUCID_REGENERATE_UI_API_TYPES -eq '1') {
     Write-Host 'Regenerating archlucid-ui TypeScript API types...'
     # Prefer npx.cmd on Windows under StrictMode (npx.ps1 can throw on $MyInvocation.Statement).
@@ -26,12 +40,7 @@ if ($env:ARCHLUCID_REGENERATE_UI_API_TYPES -eq '1') {
     }
 }
 
-if ($env:ARCHLUCID_REGENERATE_DOTNET_CLIENT -eq '1') {
-    Write-Host 'Regenerating ArchLucid.Api.Client (NSwag)...'
-    dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
-}
-
-Write-Host 'Verifying snapshot matches generated /openapi/v1.json...'
+Write-Host 'Verifying snapshots match generated /openapi/v1.json...'
 Remove-Item Env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT -ErrorAction SilentlyContinue
 & (Join-Path $Root 'scripts/ci/check_openapi_contract_snapshot.ps1')
 
