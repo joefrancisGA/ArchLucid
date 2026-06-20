@@ -74,71 +74,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/authority/executive-summary/{tenantId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    "api-version"?: string;
-                };
-                header?: {
-                    "api-version"?: string;
-                };
-                path: {
-                    tenantId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ExecutiveSummaryResponse"];
-                        "text/json": components["schemas"]["ExecutiveSummaryResponse"];
-                        "text/plain": components["schemas"]["ExecutiveSummaryResponse"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/robots.txt": {
         parameters: {
             query?: never;
@@ -1261,6 +1196,43 @@ export interface paths {
                         "application/json": components["schemas"]["AdminCacheDiagnosticsResponse"];
                         "text/json": components["schemas"]["AdminCacheDiagnosticsResponse"];
                         "text/plain": components["schemas"]["AdminCacheDiagnosticsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/diagnostics/data-consistency/header-repoints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DataConsistencyHeaderRepointCounts"];
+                        "text/json": components["schemas"]["DataConsistencyHeaderRepointCounts"];
+                        "text/plain": components["schemas"]["DataConsistencyHeaderRepointCounts"];
                     };
                 };
             };
@@ -2484,6 +2456,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/metering/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    periodStart?: string;
+                    periodEnd?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantUsageSummary"][];
+                        "text/json": components["schemas"]["TenantUsageSummary"][];
+                        "text/plain": components["schemas"]["TenantUsageSummary"][];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/metering/tenants/{tenantId}/summary": {
         parameters: {
             query?: never;
@@ -2718,6 +2741,52 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reference-evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    includeDemo?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["FileResult"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -6370,6 +6439,780 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["CreateDraftRequest"];
+                    "application/json": null | components["schemas"]["CreateDraftRequest"];
+                    "text/json": null | components["schemas"]["CreateDraftRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftRequestResponse"];
+                        "text/json": components["schemas"]["DraftRequestResponse"];
+                        "text/plain": components["schemas"]["DraftRequestResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftRequestResponse"];
+                        "text/json": components["schemas"]["DraftRequestResponse"];
+                        "text/plain": components["schemas"]["DraftRequestResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PatchDraftRequest"];
+                    "application/json": null | components["schemas"]["PatchDraftRequest"];
+                    "text/json": null | components["schemas"]["PatchDraftRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftRequestResponse"];
+                        "text/json": components["schemas"]["DraftRequestResponse"];
+                        "text/plain": components["schemas"]["DraftRequestResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/abandon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftRequestResponse"];
+                        "text/json": components["schemas"]["DraftRequestResponse"];
+                        "text/plain": components["schemas"]["DraftRequestResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/admit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftAdmissionResponse"];
+                        "text/json": components["schemas"]["DraftAdmissionResponse"];
+                        "text/plain": components["schemas"]["DraftAdmissionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["AnswerDraftQuestionRequest"];
+                    "application/json": null | components["schemas"]["AnswerDraftQuestionRequest"];
+                    "text/json": null | components["schemas"]["AnswerDraftQuestionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftRequestResponse"];
+                        "text/json": components["schemas"]["DraftRequestResponse"];
+                        "text/plain": components["schemas"]["DraftRequestResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/branch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["BranchDraftRequest"];
+                    "application/json": null | components["schemas"]["BranchDraftRequest"];
+                    "text/json": null | components["schemas"]["BranchDraftRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BranchDraftResponse"];
+                        "text/json": components["schemas"]["BranchDraftResponse"];
+                        "text/plain": components["schemas"]["BranchDraftResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/branch-quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftBranchQuotaResponse"];
+                        "text/json": components["schemas"]["DraftBranchQuotaResponse"];
+                        "text/plain": components["schemas"]["DraftBranchQuotaResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/decision-receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftQuestionsResponse"];
+                        "text/json": components["schemas"]["DraftQuestionsResponse"];
+                        "text/plain": components["schemas"]["DraftQuestionsResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/reason": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["DraftIntakeReasonRequest"];
+                    "application/json": null | components["schemas"]["DraftIntakeReasonRequest"];
+                    "text/json": null | components["schemas"]["DraftIntakeReasonRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftIntakeReasonResponse"];
+                        "text/json": components["schemas"]["DraftIntakeReasonResponse"];
+                        "text/plain": components["schemas"]["DraftIntakeReasonResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SkipDraftQuestionRequest"];
+                    "application/json": null | components["schemas"]["SkipDraftQuestionRequest"];
+                    "text/json": null | components["schemas"]["SkipDraftQuestionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DraftRequestResponse"];
+                        "text/json": components["schemas"]["DraftRequestResponse"];
+                        "text/plain": components["schemas"]["DraftRequestResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/draft/{draftId}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    draftId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubmitDraftResponse"];
+                        "text/json": components["schemas"]["SubmitDraftResponse"];
+                        "text/plain": components["schemas"]["SubmitDraftResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -12229,6 +13072,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/artifacts/runs/{runId}/decision-receipt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/artifacts/runs/{runId}/export": {
         parameters: {
             query?: never;
@@ -12372,6 +13279,78 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artifacts/runs/{runId}/export/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RunExportLineageVerificationResponse"];
+                        "text/json": components["schemas"]["RunExportLineageVerificationResponse"];
+                        "text/plain": components["schemas"]["RunExportLineageVerificationResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -13443,6 +14422,89 @@ export interface paths {
                         "application/json": components["schemas"]["RunDetailDto"];
                         "text/json": components["schemas"]["RunDetailDto"];
                         "text/plain": components["schemas"]["RunDetailDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/authority/runs/{runId}/buyer-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BuyerRunDetailSummaryDto"];
+                        "text/json": components["schemas"]["BuyerRunDetailSummaryDto"];
+                        "text/plain": components["schemas"]["BuyerRunDetailSummaryDto"];
                     };
                 };
                 /** @description Unauthorized */
@@ -21246,6 +22308,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/internal/architecture/run/{runId}/traces/forensics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    pageNumber?: number | string;
+                    pageSize?: number | string;
+                };
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AgentExecutionTraceForensicsPageResponse"];
+                        "text/json": components["schemas"]["AgentExecutionTraceForensicsPageResponse"];
+                        "text/plain": components["schemas"]["AgentExecutionTraceForensicsPageResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/internal/architecture/runs/{runId}/determinism-check": {
         parameters: {
             query?: never;
@@ -28767,6 +29904,184 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/user/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserPreferencesResponse"];
+                        "text/json": components["schemas"]["UserPreferencesResponse"];
+                        "text/plain": components["schemas"]["UserPreferencesResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/preferences/appearance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SetAppearancePreferenceRequest"];
+                    "application/json": null | components["schemas"]["SetAppearancePreferenceRequest"];
+                    "text/json": null | components["schemas"]["SetAppearancePreferenceRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/value-report/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FileContentResult"];
+                        "text/json": components["schemas"]["FileContentResult"];
+                        "text/plain": components["schemas"]["FileContentResult"];
+                    };
+                };
+                /** @description Accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/value-report/jobs/{jobId}/docx": {
         parameters: {
             query?: never;
@@ -29139,6 +30454,25 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ActorDescriptor: {
+            /** Format: int32 */
+            confidence?: number;
+            contract?: components["schemas"]["InteractionContract"];
+            kind?: components["schemas"]["ActorKind"];
+            label?: null | string;
+            origin?: components["schemas"]["ActorOrigin"];
+            trustOrigin?: components["schemas"]["TrustOrigin"];
+        };
+        /** @enum {unknown} */
+        ActorKind: "Human" | "Machine" | "Both";
+        /** @enum {unknown} */
+        ActorOrigin: "Asserted" | "Inferred";
+        ActorSet: {
+            actors?: components["schemas"]["ActorDescriptor"][];
+            assertedActors?: null | components["schemas"]["ActorDescriptor"][];
+            inferredActors?: null | components["schemas"]["ActorDescriptor"][];
+            meetsAdmissionMinimum?: boolean;
+        };
         AdminApiKeyRotateRequest: {
             invalidatePrevious?: boolean;
             slot?: string;
@@ -29505,6 +30839,15 @@ export interface components {
             traceId?: string;
             userPrompt?: string;
         };
+        AgentExecutionTraceForensicsPageResponse: {
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+            traces?: components["schemas"]["AgentExecutionTrace"][];
+        };
         AgentExecutionTraceResponse: {
             /** Format: int32 */
             pageNumber?: number;
@@ -29829,6 +31172,10 @@ export interface components {
         AlertsAcknowledgeBatchResponse: {
             results?: components["schemas"]["AlertsAcknowledgeBatchItemResult"][];
         };
+        AnswerDraftQuestionRequest: {
+            answer?: string;
+            questionKey?: string;
+        };
         ApiKeySlotStatusDto: {
             /** Format: date-time */
             expiresAtUtc?: null | string;
@@ -29922,9 +31269,12 @@ export interface components {
         };
         ArchitectureFinding: {
             category?: string;
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: double */
             confidenceScore?: null | number | string;
+            decisionConsequence?: null | string;
+            enforcementTier?: components["schemas"]["FindingEnforcementTier"];
             /** Format: double */
             estimatedUsdSavings?: null | number | string;
             /** Format: int32 */
@@ -29932,12 +31282,18 @@ export interface components {
             evidenceRefs?: string[];
             findingId?: string;
             iacStub?: null | string;
+            /** Format: int32 */
+            insightDensityScore?: null | number;
             isMuted?: boolean;
             message?: string;
             muteReason?: null | string;
+            policyRuleId?: null | string;
+            principalArchitectValue?: null | string;
             reasoningTrace?: null | string;
             severity?: components["schemas"]["FindingSeverity"];
             sourceAgent?: components["schemas"]["AgentType"];
+            treatment?: null | components["schemas"]["FindingTreatment"];
+            whyThisIsNotGeneric?: null | string;
         };
         ArchitectureFindingFeedbackPostRequest: {
             comment?: null | string;
@@ -30001,6 +31357,7 @@ export interface components {
             environment: string;
             infrastructureDeclarations: components["schemas"]["InfrastructureDeclarationRequest"][];
             inlineRequirements: string[];
+            intakeTransparencyTrail?: null | components["schemas"]["TransparencyTrail"];
             isArchived?: boolean;
             /** Format: int32 */
             maxTokensOverride?: null | number;
@@ -30104,6 +31461,7 @@ export interface components {
             taskIds?: string[];
         };
         ArchitectureRunDetail: {
+            agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
             decisionTraces?: unknown[];
             hasBrokenManifestReference?: boolean;
             isCommitted?: boolean;
@@ -30224,6 +31582,10 @@ export interface components {
             /** Format: uuid */
             threadId?: string;
         };
+        AssertedTrailEntry: {
+            key?: string;
+            value?: string;
+        };
         AssignPolicyPackRequest: {
             isPinned?: boolean;
             scopeLevel?: string;
@@ -30343,6 +31705,17 @@ export interface components {
             /** Format: int32 */
             year?: number;
         };
+        BranchDraftRequest: {
+            overrideKey?: null | string;
+            overrideKind?: components["schemas"]["DraftBranchOverrideKind"];
+            overrideValue?: string;
+        };
+        BranchDraftResponse: {
+            branch?: components["schemas"]["DraftRequestResponse"];
+            /** Format: uuid */
+            parentDraftId?: string;
+            parentSpawnedRunId?: null | string;
+        };
         BuildInfoResponse: {
             application?: string;
             assemblyVersion?: string;
@@ -30353,6 +31726,36 @@ export interface components {
             /** Format: int64 */
             processUptimeSeconds?: number | string;
             runtimeFramework?: string;
+        };
+        BuyerRunDetailRunDto: {
+            /** Format: date-time */
+            createdUtc?: string;
+            degradedExecutionAgents?: string[];
+            description?: null | string;
+            displayName?: null | string;
+            /** Format: uuid */
+            goldenManifestId?: null | string;
+            hasFindingsSnapshot?: boolean;
+            hasGoldenManifest?: boolean;
+            hasGraphSnapshot?: boolean;
+            projectId?: string;
+            runDegradedExecution?: boolean;
+            /** Format: uuid */
+            runId?: string;
+        };
+        BuyerRunDetailSummaryDto: {
+            agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            decisionExplainability?: null | components["schemas"]["RunDecisionExplainabilityDto"];
+            degradedExecutionAgents?: string[];
+            degradedFindingCoverage?: boolean;
+            estimatedUsdSavingsSummary?: null | components["schemas"]["RunEstimatedUsdSavingsDto"];
+            executionFlavorBuyerSummary?: null | string;
+            findingCoverageSummary?: null | components["schemas"]["RunFindingCoverageSummary"];
+            lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
+            retrievalGroundingSummary?: null | components["schemas"]["RunRetrievalGroundingSummaryDto"];
+            run?: components["schemas"]["BuyerRunDetailRunDto"];
+            runDegradedExecution?: boolean;
+            trustEvidenceCard?: null | components["schemas"]["RunTrustEvidenceCard"];
         };
         CallerClaimResponse: {
             type?: string;
@@ -30724,6 +32127,9 @@ export interface components {
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
         };
+        CreateDraftRequest: {
+            freeTextIntent?: string;
+        };
         CreateGovernanceActivationRequest: {
             environment?: string;
             manifestVersion?: string;
@@ -30787,7 +32193,10 @@ export interface components {
             runId?: null | string;
         };
         CrossTenantPortfolioSummaryResponse: {
+            headlineSavingsScopeCode?: string;
+            headlineSavingsScopeDescription?: string;
             isKAnonymitySatisfied?: boolean;
+            portfolioScopeDescription?: string;
             topSystemicIssues?: components["schemas"]["SystemicIssueSummary"][];
             /** Format: int32 */
             totalCriticalFindings?: number;
@@ -30876,6 +32285,20 @@ export interface components {
         };
         CytoscapeNodeElement: {
             data: components["schemas"]["CytoscapeNodeData"];
+        };
+        DataConsistencyHeaderRepointCounts: {
+            /** Format: int64 */
+            artifactBundleIdRepoints: number | string;
+            /** Format: int64 */
+            contextSnapshotIdRepoints: number | string;
+            /** Format: int64 */
+            decisionTraceIdRepoints: number | string;
+            /** Format: int64 */
+            findingsSnapshotIdRepoints: number | string;
+            /** Format: int64 */
+            goldenManifestIdRepoints: number | string;
+            /** Format: int64 */
+            graphSnapshotIdRepoints: number | string;
         };
         DataConsistencyOrphanCounts: {
             /** Format: int64 */
@@ -31134,6 +32557,15 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        DraftAdmissionResponse: {
+            admitted?: boolean;
+            draft?: components["schemas"]["DraftRequestResponse"];
+            pendingMustQuestions?: components["schemas"]["DraftElicitationQuestion"][];
+            redirectReason?: null | string;
+            requiredMustQuestionKeys?: string[];
+            status?: components["schemas"]["DraftRequestStatus"];
+            verdict?: components["schemas"]["FeasibilityVerdict"];
+        };
         DraftArchitectureRequestInput: {
             freeTextDescription: string;
         };
@@ -31144,6 +32576,40 @@ export interface components {
             suggestedConstraints?: string[];
             topologyHints?: string[];
         };
+        /** @enum {unknown} */
+        DraftBranchOverrideKind: "QuestionAnswer" | "BusinessOutcome" | "FreeTextIntent" | "SystemName";
+        DraftBranchQuotaResponse: {
+            canBranch?: boolean;
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: double */
+            estimatedBranchRunCostUsd?: number | string;
+            /** Format: int32 */
+            existingBranchCount?: number;
+            /** Format: int32 */
+            maxBranchesPerParent?: number;
+            /** Format: int32 */
+            remainingBranches?: number;
+        };
+        DraftElicitationQuestion: {
+            answerKind?: components["schemas"]["ElicitationAnswerKind"];
+            prompt?: string;
+            questionKey?: string;
+            ruleKeys?: string[];
+            source?: components["schemas"]["ElicitationQuestionSource"];
+            tier?: components["schemas"]["ElicitationQuestionTier"];
+        };
+        DraftIntakeReasonRequest: {
+            message?: string;
+        };
+        DraftIntakeReasonResponse: {
+            answer?: string;
+            /** Format: uuid */
+            conversationThreadId?: string;
+            /** Format: uuid */
+            draftId?: string;
+            status?: components["schemas"]["DraftRequestStatus"];
+        };
         DraftPolicyPackInput: {
             freeTextIntent: string;
         };
@@ -31151,6 +32617,49 @@ export interface components {
             disclaimer?: string;
             draftRuleJson?: string;
         };
+        DraftQuestionsResponse: {
+            /** Format: uuid */
+            draftId?: string;
+            selection?: components["schemas"]["QuestionSelectionResult"];
+            status?: components["schemas"]["DraftRequestStatus"];
+        };
+        DraftRequestDocument: {
+            actorSet?: components["schemas"]["ActorSet"];
+            businessOutcome?: null | string;
+            /** Format: uuid */
+            conversationThreadId?: null | string;
+            freeTextIntent?: string;
+            /** Format: uuid */
+            parentDraftId?: null | string;
+            questionAnswers?: {
+                [key: string]: string;
+            };
+            requiredMustQuestionKeys?: string[];
+            /** Format: int32 */
+            schemaVersion?: number;
+            systemName?: null | string;
+            transparencyTrail?: components["schemas"]["TransparencyTrail"];
+        };
+        DraftRequestResponse: {
+            /** Format: date-time */
+            createdUtc?: string;
+            document?: components["schemas"]["DraftRequestDocument"];
+            /** Format: uuid */
+            draftId?: string;
+            /** Format: uuid */
+            projectId?: string;
+            redirectReason?: null | string;
+            spawnedRunId?: null | string;
+            status?: components["schemas"]["DraftRequestStatus"];
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        /** @enum {unknown} */
+        DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
         DriftAnalysisResponse: {
             driftDetected?: boolean;
             items?: components["schemas"]["DriftItemResponse"][];
@@ -31184,6 +32693,19 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        /** @enum {unknown} */
+        ElicitationAnswerKind: "Text" | "Bool" | "Number" | "Enum";
+        ElicitationQuestion: {
+            answerKind?: components["schemas"]["ElicitationAnswerKind"];
+            prompt?: string;
+            questionKey?: string;
+            ruleKeys?: string[];
+            tier?: components["schemas"]["ElicitationQuestionTier"];
+        };
+        /** @enum {unknown} */
+        ElicitationQuestionSource: "L0Universal" | "L1PackExplicit" | "L1PackDerived";
+        /** @enum {unknown} */
+        ElicitationQuestionTier: "Must" | "Should";
         EndToEndReplayComparisonExportResponse: {
             content?: null | string;
             fileName?: string;
@@ -31446,6 +32968,8 @@ export interface components {
             expiringWaiversCount14Days?: number;
             /** Format: date-time */
             firstCommitUtc?: null | string;
+            headlineSavingsScopeCode?: string;
+            headlineSavingsScopeDescription?: string;
             historicalTrends?: components["schemas"]["ExecutiveRoiSystemicIssueTrendSeries"][];
             /** Format: date-time */
             latestCostEvidenceCollectionTimestampUtc?: null | string;
@@ -31463,10 +32987,13 @@ export interface components {
             staleArchitectureRiskCount?: number;
             /** Format: int32 */
             systemCount?: number;
+            systemRowSavingsScopeCode?: string;
+            systemRowSavingsScopeDescription?: string;
             systems?: components["schemas"]["SystemLatestRunRoi"][];
             topSystemicIssues?: components["schemas"]["SystemicIssueSummary"][];
             /** Format: double */
             totalEstimatedUsdSavings?: number | string;
+            trailing30DayActivityScopeDescription?: string;
         };
         ExecutiveRoiSystemicIssueTrendPoint: {
             /** Format: int32 */
@@ -31479,21 +33006,13 @@ export interface components {
             points?: components["schemas"]["ExecutiveRoiSystemicIssueTrendPoint"][];
             severity?: string;
         };
-        ExecutiveSummaryResponse: {
-            /** Format: int32 */
-            complianceAlignmentScore?: number;
-            /** Format: date-time */
-            latestRunCompletedUtc?: null | string;
-            latestRunId?: null | string;
-            /** Format: int32 */
-            securityPostureScore?: number;
-            /** Format: int32 */
-            techDebtRiskScore?: number;
-            tenantId?: string;
-        };
         ExecutiveSummaryResult: {
             /** Format: double */
             costWasteUsd: null | number | string;
+            /** @default headline-disposition-aware-open-needs-evidence */
+            headlineSavingsScopeCode: string;
+            /** @default Single-tenant portfolio headline: disposition-aware open + needs-evidence estimated USD from the latest committed run per system (cap 200). Excludes remediated, waived, deferred, and accepted-risk findings. */
+            headlineSavingsScopeDescription: string;
             /**
              * Format: int32
              * @default 0
@@ -31509,6 +33028,8 @@ export interface components {
             totalCostSavingsUsd: number | string;
             /** Format: int32 */
             totalRiskReductionScore: number;
+            /** @default Trailing 30-day UTC activity: distinct finding IDs resolved via review trail or discovered on committed runs. Counts only — not USD savings. */
+            trailing30DayActivityScopeDescription: string;
             /** Format: int32 */
             uniqueFindingCount: number;
         };
@@ -31604,6 +33125,26 @@ export interface components {
             mode?: string;
             sourceUrl?: string;
         };
+        /** @enum {unknown} */
+        FeasibilityCitationKind: "NamedLaw" | "NamedTheorem" | "InvariantContradiction";
+        FeasibilityHardCitation: {
+            invariantKeys?: string[];
+            kind?: components["schemas"]["FeasibilityCitationKind"];
+            reference?: string;
+        };
+        FeasibilityVerdict: {
+            /** Format: int32 */
+            confidence?: null | number;
+            hardCitations?: components["schemas"]["FeasibilityHardCitation"][];
+            kind?: components["schemas"]["FeasibilityVerdictKind"];
+            proposedRelaxations?: components["schemas"]["ProposedRelaxation"][];
+            softEnvelope?: null | components["schemas"]["SoftInfeasibilityEnvelope"];
+            summary?: string;
+            transparencyTrail?: components["schemas"]["TransparencyTrail"];
+            unsatCoreInvariantKeys?: string[];
+        };
+        /** @enum {unknown} */
+        FeasibilityVerdictKind: "Feasible" | "SoftInfeasible" | "HardInfeasible";
         FileContentResult: {
             contentType?: null | string;
             enableRangeProcessing?: boolean;
@@ -31625,9 +33166,12 @@ export interface components {
         Finding: {
             agentExecutionTraceId?: null | string;
             category?: string;
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: double */
             confidenceScore?: null | number | string;
+            decisionConsequence?: null | string;
+            enforcementTier?: components["schemas"]["FindingEnforcementTier"];
             engineType?: string;
             /** Format: int32 */
             evaluationConfidenceScore?: null | number;
@@ -31636,6 +33180,8 @@ export interface components {
             findingSchemaVersion?: number;
             findingType?: string;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
+            /** Format: int32 */
+            insightDensityScore?: null | number;
             isMuted?: boolean;
             modelDeploymentName?: null | string;
             modelVersion?: null | string;
@@ -31643,6 +33189,7 @@ export interface components {
             payload?: unknown;
             payloadType?: null | string;
             policyRuleId?: null | string;
+            principalArchitectValue?: null | string;
             /** Format: double */
             projectedImpactUsd?: null | number | string;
             promptTemplateId?: null | string;
@@ -31662,6 +33209,8 @@ export interface components {
             severity?: components["schemas"]["FindingSeverity"];
             title?: string;
             trace?: components["schemas"]["ExplainabilityTrace"];
+            treatment?: null | components["schemas"]["FindingTreatment"];
+            whyThisIsNotGeneric?: null | string;
         };
         FindingAskRequest: {
             /** Format: uuid */
@@ -31670,6 +33219,7 @@ export interface components {
             /** Format: uuid */
             threadId?: null | string;
         };
+        FindingClassification: number;
         FindingConfidenceLevel: number;
         FindingDisposition: number;
         FindingDispositionEventDto: {
@@ -31687,6 +33237,7 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
         };
+        FindingEnforcementTier: number;
         FindingEngineFailure: {
             category: string;
             /** Format: int64 */
@@ -31861,6 +33412,7 @@ export interface components {
             traceCompletenessRatio?: number | string;
             traceConfidenceLabel: string;
         };
+        FindingTreatment: number;
         FindingsSnapshot: {
             /** Format: uuid */
             contextSnapshotId?: string;
@@ -32342,6 +33894,12 @@ export interface components {
             title?: string;
             urgency?: string;
         };
+        InferredTrailEntry: {
+            /** Format: int32 */
+            confidence?: number;
+            key?: string;
+            value?: string;
+        };
         InfrastructureDeclarationRequest: {
             content?: string;
             format?: string;
@@ -32390,6 +33948,8 @@ export interface components {
         IntegrationOutboxDeadLetterSuppressRequest: {
             comment?: null | string;
         };
+        /** @enum {unknown} */
+        InteractionContract: "Sync" | "AsyncBatch" | "Event" | "Streaming";
         InternalCrossTenantAnalyticsResponse: {
             /** Format: double */
             averageCompletedRunDurationSeconds?: null | number | string;
@@ -32796,6 +34356,7 @@ export interface components {
             /** Format: uuid */
             decisionTraceId?: string;
             decisions?: components["schemas"]["ResolvedArchitectureDecision"][];
+            feasibilityVerdict?: null | components["schemas"]["FeasibilityVerdict"];
             /** Format: uuid */
             findingsSnapshotId?: string;
             /** Format: uuid */
@@ -32888,6 +34449,7 @@ export interface components {
             createdUtc: string;
             /** Format: int32 */
             decisionCount: number;
+            feasibilityVerdict?: null | components["schemas"]["FeasibilityVerdict"];
             hasUnresolvedIssues?: boolean;
             hasWarnings?: boolean;
             manifestHash: string;
@@ -33061,6 +34623,12 @@ export interface components {
             pageSize?: number;
             /** Format: int32 */
             totalCount?: number;
+        };
+        PatchDraftRequest: {
+            actorSet?: null | components["schemas"]["ActorSet"];
+            businessOutcome?: null | string;
+            freeTextIntent?: null | string;
+            systemName?: null | string;
         };
         PatternEvidence: {
             applicableCapabilities?: string[];
@@ -33277,6 +34845,8 @@ export interface components {
             hoursSaved?: null | number | string;
             /** Format: date-time */
             periodEnd?: string;
+            periodScopeCode?: string;
+            periodScopeDescription?: string;
             /** Format: date-time */
             periodStart?: string;
             qualitativeNotes?: null | string;
@@ -33469,6 +35039,7 @@ export interface components {
             complianceRuleIds?: string[];
             complianceRuleKeys?: string[];
             compositeAlertRuleIds?: string[];
+            elicitationQuestions?: components["schemas"]["ElicitationQuestion"][];
             metadata?: {
                 [key: string]: string;
             };
@@ -33833,6 +35404,10 @@ export interface components {
             timeToCommittedManifestResolved?: boolean;
             topFindingEvidenceChainPresentOrNotApplicable?: boolean;
         };
+        ProposedRelaxation: {
+            invariantKey?: string;
+            tradeOffDescription?: string;
+        };
         ProvenanceEdge: {
             /** Format: uuid */
             fromNodeId?: string;
@@ -33858,6 +35433,11 @@ export interface components {
         PublishPolicyPackVersionRequest: {
             contentJson?: string;
             version?: string;
+        };
+        QuestionSelectionResult: {
+            allQuestions?: components["schemas"]["DraftElicitationQuestion"][];
+            pendingMustQuestions?: components["schemas"]["DraftElicitationQuestion"][];
+            requiredMustQuestionKeys?: string[];
         };
         RealizedValueAttestationResponse: {
             /** Format: int32 */
@@ -34215,6 +35795,23 @@ export interface components {
             sourceType?: string;
             title?: string;
         };
+        ReviewRunEngineProvenance: {
+            deploymentOrModelId?: string;
+            engineProfileId?: null | string;
+            /** Format: double */
+            estimatedCostUsd?: null | number | string;
+            evidenceSnapshotVersion?: null | string;
+            outputSchemaVersion?: null | string;
+            policyPackVersion?: null | string;
+            promptPackVersion?: null | string;
+            providerKind?: string;
+            /** Format: date-time */
+            runTimestampUtc?: string;
+            /** Format: int32 */
+            totalInputTokens?: null | number;
+            /** Format: int32 */
+            totalOutputTokens?: null | number;
+        };
         RiskExceptionRecord: {
             /** Format: date-time */
             createdAtUtc?: string;
@@ -34420,6 +36017,7 @@ export interface components {
             decisionTrace?: null | components["schemas"]["DecisionTraceDto"];
             degradedExecutionAgents?: string[];
             degradedFindingCoverage?: boolean;
+            engineProvenance?: null | components["schemas"]["ReviewRunEngineProvenance"];
             estimatedUsdSavingsSummary?: null | components["schemas"]["RunEstimatedUsdSavingsDto"];
             executionFlavorBuyerSummary?: null | string;
             findingCoverageSummary?: null | components["schemas"]["RunFindingCoverageSummary"];
@@ -34474,6 +36072,16 @@ export interface components {
         };
         RunExportHistoryResponse: {
             exports?: components["schemas"]["RunExportRecord"][];
+        };
+        RunExportLineageVerificationResponse: {
+            committedManifestHash?: null | string;
+            detail?: null | string;
+            /** Format: uuid */
+            manifestId?: string;
+            recomputedManifestHash?: null | string;
+            /** Format: uuid */
+            runId?: string;
+            status?: string;
         };
         RunExportRecord: {
             analysisRequestJson?: null | string;
@@ -34658,6 +36266,7 @@ export interface components {
             /** Format: uuid */
             decisionTraceId?: null | string;
             description?: null | string;
+            engineProvenanceJson?: null | string;
             /** Format: uuid */
             findingsSnapshotId?: null | string;
             /** Format: uuid */
@@ -34867,6 +36476,9 @@ export interface components {
             tags?: string[];
         };
         ServiceType: number;
+        SetAppearancePreferenceRequest: {
+            value?: string;
+        };
         SimulatedAlertOutcome: {
             /** Format: uuid */
             comparedToRunId?: null | string;
@@ -34882,6 +36494,22 @@ export interface components {
             title?: string;
             wouldBeSuppressed?: boolean;
             wouldCreateAlert?: boolean;
+        };
+        SkipDraftQuestionRequest: {
+            questionKey?: string;
+        };
+        SkippedQuestionTrailEntry: {
+            questionKey?: string;
+            tier?: components["schemas"]["ElicitationQuestionTier"];
+        };
+        SoftInfeasibilityEnvelope: {
+            /** Format: int32 */
+            confidenceHigh?: number;
+            /** Format: int32 */
+            confidenceLow?: number;
+            costOfBeingWrong?: string;
+            envelopeDescription?: string;
+            softAssumption?: string;
         };
         SponsorBannerFirstCommitBadgeRequest: {
             daysSinceFirstCommitBucket?: null | string;
@@ -34942,6 +36570,14 @@ export interface components {
         };
         SubmitAgentResultResponse: {
             resultId?: string;
+        };
+        SubmitDraftResponse: {
+            /** Format: uuid */
+            draftId?: string;
+            parentSpawnedRunId?: null | string;
+            requestId?: string;
+            runId?: string;
+            status?: components["schemas"]["DraftRequestStatus"];
         };
         SynthesisTrace: {
             /** Format: date-time */
@@ -35417,6 +37053,13 @@ export interface components {
             selectedPatterns?: string[];
             services?: components["schemas"]["ManifestService"][];
         };
+        TransparencyTrail: {
+            asserted?: components["schemas"]["AssertedTrailEntry"][];
+            hasSkippedMustQuestions?: boolean;
+            hasValidInferredConfidences?: boolean;
+            inferred?: components["schemas"]["InferredTrailEntry"][];
+            skipped?: components["schemas"]["SkippedQuestionTrailEntry"][];
+        };
         TriageQueueItem: {
             affectedArtifactTypeOrWorkflowArea?: string;
             detailSummary?: string;
@@ -35498,6 +37141,8 @@ export interface components {
             status?: string;
             title?: string;
         };
+        /** @enum {unknown} */
+        TrustOrigin: "Internal" | "External" | "PublicAnonymous";
         UnresolvedIssuesSection: {
             items?: components["schemas"]["ManifestIssue"][];
         };
@@ -35517,6 +37162,9 @@ export interface components {
             attestedReviewerTimeSavedNote?: null | string;
         };
         UsageMeterKind: number;
+        UserPreferencesResponse: {
+            appearancePreference?: string;
+        };
         WeeklyDigestHealthResponse: {
             /** Format: int32 */
             digestSubscriptionCount?: number;

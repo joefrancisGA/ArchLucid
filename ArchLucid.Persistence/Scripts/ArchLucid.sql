@@ -1366,6 +1366,24 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Findi
 
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ReasoningTraceDigestSha256') IS NULL
     ALTER TABLE dbo.FindingRecords ADD ReasoningTraceDigestSha256 NVARCHAR(64) NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'InsightDensityScore') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD InsightDensityScore INT NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'Treatment') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD Treatment TINYINT NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'Classification') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD Classification TINYINT NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'WhyThisIsNotGeneric') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD WhyThisIsNotGeneric NVARCHAR(MAX) NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'PrincipalArchitectValue') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD PrincipalArchitectValue NVARCHAR(MAX) NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'DecisionConsequence') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD DecisionConsequence NVARCHAR(MAX) NULL;
 GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteExpiresAtUtc') IS NULL
     ALTER TABLE dbo.FindingRecords ADD MuteExpiresAtUtc DATETIME2(3) NULL;

@@ -98,6 +98,64 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
     }
 
     [SkippableFact]
+    public async Task Save_then_GetById_round_trips_insight_density_columns()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
+
+        Guid findingsId = Guid.NewGuid();
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = new DateTime(2026, 6, 20, 12, 0, 0, DateTimeKind.Utc),
+            SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "f-density",
+                    FindingType = "RequirementFinding",
+                    Category = "Requirement",
+                    EngineType = "TestEngine",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Density",
+                    Rationale = "Because",
+                    InsightDensityScore = 72,
+                    Treatment = FindingTreatment.DemoteToChecklist,
+                    Classification = FindingClassification.ChecklistCoverage,
+                    WhyThisIsNotGeneric = "Anchored to intake OCR path.",
+                    PrincipalArchitectValue = "Avoids duplicate PHI routing.",
+                    DecisionConsequence = "Delays sponsor sign-off until waiver recorded.",
+                }
+            ]
+        };
+
+        FindingsSnapshotMigrator.Apply(snapshot);
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        Finding f = loaded!.Findings.Should().ContainSingle().Subject;
+        f.InsightDensityScore.Should().Be(72);
+        f.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        f.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        f.WhyThisIsNotGeneric.Should().Be("Anchored to intake OCR path.");
+        f.PrincipalArchitectValue.Should().Be("Avoids duplicate PHI routing.");
+        f.DecisionConsequence.Should().Be("Delays sponsor sign-off until waiver recorded.");
+    }
+
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_falls_back_to_FindingsJson()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

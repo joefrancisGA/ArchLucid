@@ -474,7 +474,9 @@ public sealed class SqlFindingsSnapshotRepository(
                                ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
                                ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
                                HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                               IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
+                               IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256,
+                               InsightDensityScore, Treatment, Classification,
+                               WhyThisIsNotGeneric, PrincipalArchitectValue, DecisionConsequence
                            )
                            VALUES
                            (
@@ -486,7 +488,9 @@ public sealed class SqlFindingsSnapshotRepository(
                                @ModelDeploymentName, @ModelVersion, @PromptTemplateId, @PromptTemplateVersion,
                                @ConfidenceScore, @EvaluationConfidenceScore, @EvaluationConfidenceLevel, @PolicyRuleId,
                                @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes,
-                               @IsMuted, @MuteReason, @ReasoningTrace, @ReasoningTraceDigestSha256
+                               @IsMuted, @MuteReason, @ReasoningTrace, @ReasoningTraceDigestSha256,
+                               @InsightDensityScore, @Treatment, @Classification,
+                               @WhyThisIsNotGeneric, @PrincipalArchitectValue, @DecisionConsequence
                            );
                            """;
 
@@ -526,7 +530,13 @@ public sealed class SqlFindingsSnapshotRepository(
             finding.IsMuted,
             finding.MuteReason,
             ReasoningTrace = finding.Trace.ReasoningTrace,
-            ReasoningTraceDigestSha256 = finding.Trace.ReasoningTraceDigestSha256
+            ReasoningTraceDigestSha256 = finding.Trace.ReasoningTraceDigestSha256,
+            finding.InsightDensityScore,
+            Treatment = FindingInsightDensityColumnCodec.ToTreatmentStorage(finding.Treatment),
+            Classification = FindingInsightDensityColumnCodec.ToClassificationStorage(finding.Classification),
+            finding.WhyThisIsNotGeneric,
+            finding.PrincipalArchitectValue,
+            finding.DecisionConsequence
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));

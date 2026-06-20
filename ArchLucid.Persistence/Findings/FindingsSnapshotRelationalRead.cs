@@ -30,7 +30,9 @@ internal static class FindingsSnapshotRelationalRead
                                   ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
                                   ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
                                   HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                                  IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
+                                  IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256,
+                                  InsightDensityScore, Treatment, Classification,
+                                  WhyThisIsNotGeneric, PrincipalArchitectValue, DecisionConsequence
                               FROM dbo.FindingRecords
                               WHERE FindingsSnapshotId = @FindingsSnapshotId
                               """ + RepositoryScopePredicate.AndTripleWhere(scope) + " ORDER BY SortOrder;";
@@ -118,6 +120,12 @@ internal static class FindingsSnapshotRelationalRead
                 ReviewNotes = rec.ReviewNotes,
                 IsMuted = rec.IsMuted,
                 MuteReason = rec.MuteReason,
+                InsightDensityScore = rec.InsightDensityScore,
+                Treatment = FindingInsightDensityColumnCodec.FromTreatmentStorage(rec.Treatment),
+                Classification = FindingInsightDensityColumnCodec.FromClassificationStorage(rec.Classification),
+                WhyThisIsNotGeneric = rec.WhyThisIsNotGeneric,
+                PrincipalArchitectValue = rec.PrincipalArchitectValue,
+                DecisionConsequence = rec.DecisionConsequence,
                 Trace = new ExplainabilityTrace
                 {
                     SourceAgentExecutionTraceId = rec.AgentExecutionTraceId,
@@ -549,6 +557,42 @@ internal static class FindingsSnapshotRelationalRead
         }
 
         public string? ReasoningTraceDigestSha256
+        {
+            get;
+            init;
+        }
+
+        public int? InsightDensityScore
+        {
+            get;
+            init;
+        }
+
+        public byte? Treatment
+        {
+            get;
+            init;
+        }
+
+        public byte? Classification
+        {
+            get;
+            init;
+        }
+
+        public string? WhyThisIsNotGeneric
+        {
+            get;
+            init;
+        }
+
+        public string? PrincipalArchitectValue
+        {
+            get;
+            init;
+        }
+
+        public string? DecisionConsequence
         {
             get;
             init;
