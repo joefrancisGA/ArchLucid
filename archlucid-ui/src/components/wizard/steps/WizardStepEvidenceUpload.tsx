@@ -16,9 +16,15 @@ import {
 
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { Button } from "@/components/ui/button";
+import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import {
+  DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  type AzureExtractorDemoScenarioId,
+} from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
+import { ZERO_CONFIG_DEMO_TRY_DEMO_LABEL } from "@/lib/zero-config-demo-mode";
 import {
   isSelectableWizardEvidenceSourceId,
   WIZARD_EVIDENCE_SOURCE_OPTIONS,
@@ -34,7 +40,7 @@ export type WizardStepEvidenceUploadProps = {
   pendingDocumentFiles: File[];
   onPendingFileChange: (file: File | null) => void;
   onPendingDocumentFilesChange: (files: File[]) => void;
-  onTrySampleData: () => void;
+  onTryDemoData: (scenarioId: AzureExtractorDemoScenarioId) => void;
   onSkipDemoData: () => void;
 };
 
@@ -150,10 +156,13 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     pendingDocumentFiles,
     onPendingFileChange,
     onPendingDocumentFilesChange,
-    onTrySampleData,
+    onTryDemoData,
     onSkipDemoData,
   } = props;
   const [selectedSourceId, setSelectedSourceId] = useState<WizardEvidenceSourceId>("azure-export");
+  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
+    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  );
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   const handleSelectSource = (sourceId: WizardEvidenceSourceId) => {
@@ -279,17 +288,27 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
             data-testid="wizard-evidence-source-panel-demo"
           >
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-              Load the bundled Azure sample package or continue with guided intake — demo outputs are labeled Simulator.
+              Choose a bundled synthetic Azure extractor package — no PowerShell script required. Demo outputs are
+              labeled Simulator.
             </p>
+            <div className="mt-3">
+              <AzureExtractorDemoScenarioPicker
+                selectedScenarioId={selectedDemoScenarioId}
+                onSelectScenario={setSelectedDemoScenarioId}
+                testIdPrefix="wizard-evidence-demo"
+              />
+            </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="primary"
-                data-testid="wizard-evidence-upload-try-sample"
-                onClick={onTrySampleData}
+                data-testid="wizard-evidence-upload-try-demo"
+                onClick={() => {
+                  onTryDemoData(selectedDemoScenarioId);
+                }}
               >
                 <Sparkles className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                Try with Sample Data
+                {ZERO_CONFIG_DEMO_TRY_DEMO_LABEL}
               </Button>
               <Button
                 type="button"

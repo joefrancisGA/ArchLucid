@@ -8,8 +8,13 @@ import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZon
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
+import {
+  DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  type AzureExtractorDemoScenarioId,
+} from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { recordPilotBaselineZipApplied } from "@/lib/pilot-baseline-zip-signal";
@@ -17,7 +22,7 @@ import {
   readArchLucidAzurePackageZipFromFile,
 } from "@/lib/read-arch-lucid-azure-package-zip";
 import { showError, showSuccess } from "@/lib/toast";
-import { applyBundledSamplePackageToWizard } from "@/lib/zero-config-demo-mode";
+import { applyBundledDemoPackageToWizard, ZERO_CONFIG_DEMO_TRY_DEMO_LABEL } from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type AzureExtractorPackageZipFieldProps = {
@@ -33,6 +38,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   const { setValue } = useFormContext<WizardFormValues>();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
+    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  );
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const successMessage =
     variant === "baseline"
@@ -58,12 +66,12 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     showSuccess(successMessage);
   }
 
-  function loadSampleZip(): void {
+  function loadDemoZip(): void {
     setLocalError(null);
     setBusy(true);
 
     try {
-      const applied = applyBundledSamplePackageToWizard(setValue, (file) => {
+      const applied = applyBundledDemoPackageToWizard(selectedDemoScenarioId, setValue, (file) => {
         if (file !== null) {
           recordPilotBaselineZipApplied();
         }
@@ -110,16 +118,23 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
               is parsed in the browser; upload the full ZIP to ingestion when your review is configured.
             </p>
             {variant === "baseline" ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={busy}
-                data-testid="wizard-azure-zip-try-sample"
-                onClick={loadSampleZip}
-              >
-                Try with Sample Data
-              </Button>
+              <div className="space-y-2">
+                <AzureExtractorDemoScenarioPicker
+                  selectedScenarioId={selectedDemoScenarioId}
+                  onSelectScenario={setSelectedDemoScenarioId}
+                  testIdPrefix="wizard-baseline-demo"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={busy}
+                  data-testid="wizard-azure-zip-try-demo"
+                  onClick={loadDemoZip}
+                >
+                  {ZERO_CONFIG_DEMO_TRY_DEMO_LABEL}
+                </Button>
+              </div>
             ) : null}
             {busy ? (
               <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="wizard-azure-zip-busy">

@@ -9,7 +9,7 @@ describe("WizardStepEvidenceUpload", () => {
     pendingDocumentFiles: [] as File[],
     onPendingFileChange: vi.fn(),
     onPendingDocumentFilesChange: vi.fn(),
-    onTrySampleData: vi.fn(),
+    onTryDemoData: vi.fn(),
     onSkipDemoData: vi.fn(),
   };
 
@@ -48,15 +48,16 @@ describe("WizardStepEvidenceUpload", () => {
     );
   });
 
-  it("calls try sample handler from the demo panel", () => {
-    const onTrySampleData = vi.fn();
+  it("calls try demo handler with selected scenario from the demo panel", () => {
+    const onTryDemoData = vi.fn();
 
-    render(<WizardStepEvidenceUpload {...baseProps} onTrySampleData={onTrySampleData} />);
+    render(<WizardStepEvidenceUpload {...baseProps} onTryDemoData={onTryDemoData} />);
 
     fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
-    fireEvent.click(screen.getByTestId("wizard-evidence-upload-try-sample"));
+    fireEvent.click(screen.getByTestId("wizard-evidence-demo-scenario-finops-optimization-snapshot"));
+    fireEvent.click(screen.getByTestId("wizard-evidence-upload-try-demo"));
 
-    expect(onTrySampleData).toHaveBeenCalledTimes(1);
+    expect(onTryDemoData).toHaveBeenCalledWith("finops-optimization-snapshot");
   });
 
   it("calls skip without requiring a file", () => {

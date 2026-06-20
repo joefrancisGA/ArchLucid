@@ -59,7 +59,9 @@ import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFaile
 import {
   applyBundledSamplePackageToWizard,
   isZeroConfigDemoQuery,
+  resolveZeroConfigDemoScenarioId,
 } from "@/lib/zero-config-demo-mode";
+import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 
 import {
   ArchitectureRequestWizardHelpDrawer,
@@ -197,6 +199,10 @@ export function NewRunWizardClient() {
     return tryParseSampleRunQuery(raw);
   }, [searchParams]);
   const zeroConfigDemo = useMemo(() => isZeroConfigDemoQuery(searchParams), [searchParams]);
+  const zeroConfigScenarioId = useMemo(
+    () => resolveZeroConfigDemoScenarioId(searchParams),
+    [searchParams],
+  );
   const zeroConfigAppliedRef = useRef(false);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
@@ -533,18 +539,21 @@ export function NewRunWizardClient() {
     setStepIndex((current) => Math.min(stepMax, current + 1));
   };
 
-  const tryWithSampleData = useCallback(() => {
-    const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange);
+  const tryWithDemoData = useCallback(
+    (scenarioId: AzureExtractorDemoScenarioId) => {
+      const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange, scenarioId);
 
-    if (!applied.ok) {
-      showToast("err", applied.message);
+      if (!applied.ok) {
+        showToast("err", applied.message);
 
-      return;
-    }
+        return;
+      }
 
-    showToast("ok", "Sample Azure package loaded — it uploads automatically after the review is created.");
-    setStepIndex((current) => Math.min(stepMax, current + 1));
-  }, [handlePendingEvidenceFileChange, setValue, showToast, stepMax]);
+      showToast("ok", "Demo Azure package loaded — it uploads automatically after the review is created.");
+      setStepIndex((current) => Math.min(stepMax, current + 1));
+    },
+    [handlePendingEvidenceFileChange, setValue, showToast, stepMax],
+  );
 
   useEffect(() => {
     if (!zeroConfigDemo || zeroConfigAppliedRef.current) {
@@ -554,7 +563,11 @@ export function NewRunWizardClient() {
     zeroConfigAppliedRef.current = true;
     persistWizardMode("full");
 
-    const applied = applyBundledSamplePackageToWizard(setValue, handlePendingEvidenceFileChange);
+    const applied = applyBundledSamplePackageToWizard(
+      setValue,
+      handlePendingEvidenceFileChange,
+      zeroConfigScenarioId,
+    );
 
     if (!applied.ok) {
       showToast("err", applied.message);
@@ -563,8 +576,8 @@ export function NewRunWizardClient() {
     }
 
     setStepIndex(2);
-    showToast("ok", "Sample Azure package loaded — confirm identity and submit your review.");
-  }, [zeroConfigDemo, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
+    showToast("ok", "Demo Azure package loaded — confirm identity and submit your review.");
+  }, [zeroConfigDemo, zeroConfigScenarioId, handlePendingEvidenceFileChange, persistWizardMode, setValue, showToast]);
 
   const goNext = async () => {
     if (stepIndex === 0) {
@@ -849,7 +862,7 @@ export function NewRunWizardClient() {
               pendingDocumentFiles={pendingDocumentFiles}
               onPendingFileChange={handlePendingEvidenceFileChange}
               onPendingDocumentFilesChange={setPendingDocumentFiles}
-              onTrySampleData={tryWithSampleData}
+              onTryDemoData={tryWithDemoData}
               onSkipDemoData={skipEvidenceAndAdvance}
             />
           ) : null}

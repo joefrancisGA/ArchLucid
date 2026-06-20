@@ -70,15 +70,15 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
   });
 
-  test("Try with Sample Data loads bundled sample ZIP", async ({ page }) => {
-    await expect(page.getByTestId("wizard-azure-zip-try-sample")).toBeVisible();
-    await page.getByTestId("wizard-azure-zip-try-sample").click();
+  test("Try with Demo Data loads bundled demo ZIP", async ({ page }) => {
+    await expect(page.getByTestId("wizard-azure-zip-try-demo")).toBeVisible();
+    await page.getByTestId("wizard-azure-zip-try-demo").click();
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 15_000 });
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
 
     await page.getByRole("button", { name: /^(Continue|Next)$/ }).click();
-    await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("SampleRg", {
+    await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("ClaimsIntakeRg", {
       timeout: 15_000,
     });
   });

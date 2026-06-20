@@ -9,12 +9,18 @@ import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUpl
 import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
-import { getBundledArchLucidAzurePackageSampleZipBytes } from "@/lib/arch-lucid-azure-package-sample-zip";
+import {
+  DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  getAzureExtractorDemoScenario,
+  getAzureExtractorDemoZipBytes,
+  type AzureExtractorDemoScenarioId,
+} from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
 import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -41,6 +47,9 @@ export function ExtractUploadSettingsPageClient() {
   const [packageId, setPackageId] = useState<string | null>(null);
   const [fileStatuses, setFileStatuses] = useState<FolderPackageFileStatus[]>([]);
   const [extractorUpdateBanner, setExtractorUpdateBanner] = useState<string | null>(null);
+  const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
+    DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  );
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   useEffect(() => {
@@ -133,7 +142,8 @@ export function ExtractUploadSettingsPageClient() {
     setPackageId(null);
     setFileStatuses([]);
 
-    const bytes = getBundledArchLucidAzurePackageSampleZipBytes();
+    const scenario = getAzureExtractorDemoScenario(selectedDemoScenarioId);
+    const bytes = getAzureExtractorDemoZipBytes(selectedDemoScenarioId);
     const validation = readArchLucidAzurePackageZipFromBytes(bytes);
 
     if (!validation.ok) {
@@ -147,7 +157,7 @@ export function ExtractUploadSettingsPageClient() {
       return;
     }
 
-    const demoFile = new File([new Uint8Array(bytes)], "contoso-sample-architecture.zip", {
+    const demoFile = new File([new Uint8Array(bytes)], scenario.zipFilename, {
       type: "application/zip",
     });
     setSelectedFileLabel(`${demoFile.name} (bundled demo)`);
@@ -267,11 +277,16 @@ export function ExtractUploadSettingsPageClient() {
         <CardHeader>
           <CardTitle className="text-base">Try it now with demo data</CardTitle>
           <CardDescription>
-            Upload a bundled Contoso sample architecture ZIP — same schema as{" "}
+            Upload a bundled synthetic Azure extractor ZIP — same schema as{" "}
             <code>Get-ArchLucidAzurePackage.ps1</code> output — without running the extractor locally.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          <AzureExtractorDemoScenarioPicker
+            selectedScenarioId={selectedDemoScenarioId}
+            onSelectScenario={setSelectedDemoScenarioId}
+            testIdPrefix="extract-upload-demo"
+          />
           <Button
             type="button"
             variant="secondary"
@@ -282,7 +297,7 @@ export function ExtractUploadSettingsPageClient() {
               void onTryDemoData();
             }}
           >
-            Try with demo data
+            Try with Demo Data
           </Button>
         </CardContent>
       </Card>

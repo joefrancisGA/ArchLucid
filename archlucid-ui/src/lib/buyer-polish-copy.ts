@@ -67,7 +67,7 @@ export const PILOT_COMMAND_CENTER_LEAD =
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
-export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try with Sample Data";
+export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try with Demo Data";
 
 export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
 
