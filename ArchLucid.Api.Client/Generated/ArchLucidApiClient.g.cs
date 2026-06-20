@@ -60529,12 +60529,18 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("category")]
         public string? Category { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("classification")]
+        public int? Classification { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
         public int? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionConsequence")]
+        public string? DecisionConsequence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("enforcementTier")]
         public int? EnforcementTier { get; set; } = default!;
@@ -60555,6 +60561,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("iacStub")]
         public string? IacStub { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("insightDensityScore")]
+        public int? InsightDensityScore { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("isMuted")]
         public bool? IsMuted { get; set; } = default!;
 
@@ -60567,6 +60576,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("policyRuleId")]
         public string? PolicyRuleId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("principalArchitectValue")]
+        public string? PrincipalArchitectValue { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("reasoningTrace")]
         public string? ReasoningTrace { get; set; } = default!;
 
@@ -60575,6 +60587,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAgent")]
         public int? SourceAgent { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("treatment")]
+        public int? Treatment { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("whyThisIsNotGeneric")]
+        public string? WhyThisIsNotGeneric { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -67293,12 +67311,18 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("category")]
         public string? Category { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("classification")]
+        public int? Classification { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
         public int? ConfidenceLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionConsequence")]
+        public string? DecisionConsequence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("enforcementTier")]
         public int? EnforcementTier { get; set; } = default!;
@@ -67321,6 +67345,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("humanReviewStatus")]
         public int? HumanReviewStatus { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("insightDensityScore")]
+        public int? InsightDensityScore { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("isMuted")]
         public bool? IsMuted { get; set; } = default!;
 
@@ -67341,6 +67368,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("policyRuleId")]
         public string? PolicyRuleId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("principalArchitectValue")]
+        public string? PrincipalArchitectValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectedImpactUsd")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
@@ -67387,6 +67417,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("trace")]
         public ExplainabilityTrace? Trace { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("treatment")]
+        public int? Treatment { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("whyThisIsNotGeneric")]
+        public string? WhyThisIsNotGeneric { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
