@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  usePathname: () => "",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api")>();
 
@@ -157,7 +163,7 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
       expect(screen.getByText("No reviews yet")).toBeInTheDocument();
-      expect(screen.getByText("Start your first review or open the example review package.")).toBeInTheDocument();
+      expect(screen.getByText(/Your workspace has no committed reviews yet/i)).toBeInTheDocument();
     } finally {
       fallbackSpy.mockRestore();
     }
@@ -364,7 +370,7 @@ describe("RunsDashboardPanel", () => {
         expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
       });
       expect(screen.getByText("No reviews yet")).toBeInTheDocument();
-      expect(screen.getByText("Start your first review or open the example review package.")).toBeInTheDocument();
+      expect(screen.getByText(/Your workspace has no committed reviews yet/i)).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "View review package" })).toBeNull();
       expect(screen.queryByTestId("example-request-panel")).toBeNull();
     } finally {

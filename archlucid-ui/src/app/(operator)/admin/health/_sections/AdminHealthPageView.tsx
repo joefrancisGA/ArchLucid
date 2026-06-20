@@ -1,6 +1,5 @@
 "use client";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +51,6 @@ export function AdminHealthPageView(props: Props) {
       <div>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">System health</h1>
-          <ContextualHelp helpKey="system-health" />
           <StatusPill
             status={overall}
             domain="health"
@@ -62,7 +60,10 @@ export function AdminHealthPageView(props: Props) {
             ariaLabel={`Overall readiness: ${overall}`}
           />
         </div>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">API readiness, circuit breakers, and in-process onboarding counters for this deployment.</p>
+        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          API readiness, circuit breakers, and in-process onboarding counters for this deployment. For full metrics,
+          connect Prometheus or Application Insights from the Observability help topic.
+        </p>
         <div className="mt-3">
           <Button
             type="button"

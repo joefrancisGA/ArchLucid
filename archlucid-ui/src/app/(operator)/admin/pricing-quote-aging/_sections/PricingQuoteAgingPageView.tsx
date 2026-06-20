@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -70,13 +69,10 @@ export function PricingQuoteAgingPageView(props: Props) {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
       <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Pricing quote aging</h1>
-          <ContextualHelp helpKey="admin-pricing-quote-aging" />
-        </div>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Pricing quote aging</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Unanswered marketing quote requests with SLA posture (warn at 18h, breach at 24h). V1 uses human sales
-          follow-up only — live self-serve checkout remains deferred. Escalation steps:{" "}
+          Open marketing pricing quote requests with SLA posture (warn at 18h, breach at 24h). Sales follow-up is manual —
+          no automated buyer replies. Escalation steps:{" "}
           <span className="font-mono text-xs">docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md</span>.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">

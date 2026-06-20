@@ -50,7 +50,7 @@ describe("operator shell components — axe (Vitest)", () => {
   });
 
   it("ContextualHelp has no accessibility violations when closed", async () => {
-    const { container } = render(<ContextualHelp helpKey="new-run-wizard" />);
+    const { container } = render(<ContextualHelp helpKey="commit-manifest" />);
 
     expect(await axe(container)).toHaveNoViolations();
   });
@@ -65,21 +65,11 @@ describe("operator shell components — axe (Vitest)", () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it("ContextualHelp (semantic-search) has no accessibility violations when open", async () => {
-    const { container, getByLabelText } = render(<ContextualHelp helpKey="semantic-search" />);
+  it("ContextualHelp (governance-gate) has no accessibility violations when open", async () => {
+    const { container, getByLabelText } = render(<ContextualHelp helpKey="governance-gate" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(contextualHelpTriggerAriaLabel("semantic-search")!));
-    });
-
-    expect(await axe(container)).toHaveNoViolations();
-  });
-
-  it("ContextualHelp (ask-archlucid) has no accessibility violations when open", async () => {
-    const { container, getByLabelText } = render(<ContextualHelp helpKey="ask-archlucid" />);
-
-    act(() => {
-      fireEvent.click(getByLabelText(contextualHelpTriggerAriaLabel("ask-archlucid")!));
+      fireEvent.click(getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!));
     });
 
     expect(await axe(container)).toHaveNoViolations();

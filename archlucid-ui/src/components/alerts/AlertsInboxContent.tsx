@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -351,12 +350,12 @@ export function AlertsInboxContent() {
       <LayerHeader pageKey="alerts" />
       <div className="mb-0 flex flex-wrap items-center gap-2">
         <h2 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Alerts</h2>
-        <ContextualHelp helpKey="alerts-inbox" />
       </div>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
       </p>
       <p className="mt-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        Deduplicated architecture-risk alerts in this workspace. Acknowledge or resolve items tied to findings in scope.
         Each card links a risk signal to a <GlossaryTooltip termKey="findings">finding</GlossaryTooltip> in scope so
         you can triage, acknowledge, or resolve.
       </p>

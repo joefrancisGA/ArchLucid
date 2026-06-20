@@ -2,7 +2,8 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const helpKeyProp = /\bhelpKey=["']([^"']+)["']/g;
+/** Only keys rendered by {@link ContextualHelp} in production JSX (not deprecated header props). */
+const contextualHelpUsage = /<ContextualHelp[^>]*\bhelpKey=["']([^"']+)["']/g;
 
 function isSkippableSourceFile(filePath: string): boolean {
   const base = filePath.replace(/\\/g, "/");
@@ -19,7 +20,6 @@ function isSkippableSourceFile(filePath: string): boolean {
     return true;
   }
 
-  // Never scrape this helper for `helpKey=` patterns (regex definition contains `helpKey=["']`).
   if (base.endsWith("/contextual-help-keys-from-source.ts")) {
     return true;
   }
@@ -52,8 +52,7 @@ function walkSourceFiles(dir: string, out: string[]): void {
 }
 
 /**
- * Collects every JSX `helpKey` string literal from production `src` (excludes `*.test.*` / `*.spec.*`).
- * Includes keys on `OperatorPageHeader` and any other component that forwards to {@link ContextualHelp}.
+ * Collects every `<ContextualHelp helpKey="…" />` string literal from production `src`.
  */
 export function collectContextualHelpKeysFromSource(srcRoot: string): string[] {
   const files: string[] = [];
@@ -63,17 +62,16 @@ export function collectContextualHelpKeysFromSource(srcRoot: string): string[] {
   for (const file of files) {
     const text = readFileSync(file, "utf8");
 
-    // Count `helpKey=` anywhere (e.g. `<ContextualHelp />` or `OperatorPageHeader` forwarding to it).
-    if (!/\bhelpKey=["']/.test(text)) {
+    if (!text.includes("<ContextualHelp")) {
       continue;
     }
 
-    helpKeyProp.lastIndex = 0;
-    let match = helpKeyProp.exec(text);
+    contextualHelpUsage.lastIndex = 0;
+    let match = contextualHelpUsage.exec(text);
 
     while (match !== null) {
       keys.add(match[1]);
-      match = helpKeyProp.exec(text);
+      match = contextualHelpUsage.exec(text);
     }
   }
 

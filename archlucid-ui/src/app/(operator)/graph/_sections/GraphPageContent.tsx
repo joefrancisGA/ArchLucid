@@ -518,12 +518,10 @@ export function GraphPageContent() {
       <CtoDemoBuyerValueStrip stepIndex={2} />
       <OperatorPageHeader
         title={pageTitle}
-        subtitle={buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE : undefined}
-        helpKey="architecture-graph"
-        buyerTitleHint={
+        subtitle={
           buyerPolishedShell
-            ? "This graph links your architecture inputs, pipeline steps, findings, and the signed manifest."
-            : undefined
+            ? `${BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE} This graph links your architecture inputs, pipeline steps, findings, and the signed manifest.`
+            : "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh."
         }
       />
       {effectiveGraph === null && !buyerPolishedShell ? (

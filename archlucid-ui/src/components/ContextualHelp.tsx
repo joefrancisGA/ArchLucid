@@ -11,9 +11,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { CircleHelp } from "lucide-react";
-
 import { ExternalLink } from "@/components/ui/external-link";
+import { HelpTooltipTrigger } from "@/components/ui/help-tooltip-trigger";
 import {
   contextualHelpByKey,
   contextualHelpTriggerAriaLabel,
@@ -81,7 +80,11 @@ function computePanelStyle(trigger: HTMLElement, placement: ContextualHelpPlacem
  * focusable Learn more link. Content from `contextualHelpByKey` in `src/lib/contextual-help-content.ts`;
  * trigger `aria-label` from {@link contextualHelpTriggerAriaLabel}.
  */
-export function ContextualHelp({ helpKey, placement = "bottom", className }: ContextualHelpProps) {
+export function ContextualHelp({
+  helpKey,
+  placement = "bottom",
+  className,
+}: ContextualHelpProps) {
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const visible = open || hover;
@@ -192,7 +195,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
   return (
     <>
       <span
-        className={cn("relative inline-flex items-center", className)}
+        className={cn("inline-flex items-center", className)}
         onPointerEnter={() => {
           setHover(true);
         }}
@@ -200,14 +203,14 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
           setHover(false);
         }}
       >
-        <button
+        <HelpTooltipTrigger
           ref={triggerRef}
-          type="button"
-          className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-600 shadow-sm hover:border-teal-600 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-teal-500 dark:hover:text-teal-200"
+          size="contextual"
+          icon="info"
           aria-expanded={visible}
           aria-controls={visible ? panelId : undefined}
           aria-describedby={visible ? panelId : undefined}
-          aria-label={triggerAriaLabel ?? undefined}
+          aria-label={triggerAriaLabel ?? "Contextual help"}
           onClick={() => {
             setOpen((o) => !o);
           }}
@@ -217,9 +220,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
               setOpen((o) => !o);
             }
           }}
-        >
-          <CircleHelp className="h-3 w-3" aria-hidden />
-        </button>
+        />
       </span>
       {panel != null && typeof document !== "undefined" ? createPortal(panel, document.body) : null}
     </>

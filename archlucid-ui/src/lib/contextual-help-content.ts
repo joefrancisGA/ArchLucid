@@ -6,131 +6,28 @@ export type ContextualHelpEntry = {
 };
 
 /**
- * In-app help copy for the core pilot flow. `learnMoreUrl` values are app-relative; see
- * Relative in-repo docs paths (e.g. `/docs/CORE_PILOT.md`) resolve to in-app `/help/{topic}` routes via
+ * In-app help copy for field-local {@link ContextualHelp} triggers. Major page headings use subtitle
+ * text and guidance links instead. `learnMoreUrl` values resolve to in-app `/help/{topic}` routes via
  * {@link toDocsBlobUrl}.
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
-  "new-run-wizard": {
-    text: "Create an architecture request for what ArchLucid should analyze. Guided intake covers intent, actors, and constraints. Quick review accepts a pasted brief.",
-    learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
-  },
-  "runs-list-overview": {
-    text: "Each row is one architecture review. Open a row to review its manifest, evidence, findings, deliverables, and pipeline timeline.",
-    learnMoreUrl: "/docs/CORE_PILOT.md",
-  },
-  "run-pipeline-status": {
-    text: "The pipeline shows each agent step. When all complete, the review is ready to finalize. Elapsed labels (when shown) are wall time since the prior event.",
-    learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
-  },
   "commit-manifest": {
     text: "Finalizing produces a versioned, reviewed manifest and synthesizes artifacts. This is the primary pilot deliverable.",
     learnMoreUrl: "/docs/CORE_PILOT.md#commit",
-  },
-  "manifest-review": {
-    text: "Review the manifest's decisions, findings, and structured metadata. Download artifacts for offline review.",
-    learnMoreUrl: "/docs/CORE_PILOT.md#manifest-review",
   },
   "governance-gate": {
     text: "When enabled, governance approval rules check findings against severity thresholds before allowing finalization.",
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
-  "alerts-inbox": {
-    text: "Alerts inbox shows deduplicated architecture-risk alerts. Acknowledge or resolve items tied to findings in this workspace.",
-    learnMoreUrl: "/docs/ALERTS.md",
-  },
-  "compare-runs": {
-    text: "Compare diffs two finalized manifests. Enter base and target review IDs from the Reviews list.",
-    learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
-  },
-  "governance-dashboard": {
-    text:
-      "Executive Workspace Health summarizes pre-commit outcomes, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy for the active tenant/workspace/project scope.",
-    learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
-  },
-  "governance-workflow": {
-    text:
-      "Submit governed changes for approval, promote manifest versions, and activate environments. Execute role required for mutations; readers can review pending items.",
-    learnMoreUrl: "/docs/library/governance_workflow_ui.md",
-  },
-  "replay-run": {
-    text: "Replay re-validates a stored comparison. Verify mode detects drift since the original comparison.",
-    learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
-  },
-  "architecture-graph": {
-    text: "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh.",
-    learnMoreUrl: "/docs/KNOWLEDGE_GRAPH.md",
-  },
-  "audit-log": {
-    text: "Append-only audit trail with filters. See who approved what, when, and why.",
-    learnMoreUrl: "/docs/AUDIT_COVERAGE_MATRIX.md",
-  },
-  "policy-packs": {
-    text: "Policy packs bundle rules and scope defaults. Assign them to workspaces to enforce governance.",
-    learnMoreUrl: "/docs/API_CONTRACTS.md",
-  },
-  "advisory-hub": {
-    text: "Advisory scans evaluate your architecture against configurable advisory rules.",
-    learnMoreUrl: "/docs/operator-shell.md",
-  },
-  "semantic-search": {
-    text: "Scoped to your workspace. Uses the same embedding index as Ask ArchLucid.",
-    learnMoreUrl: "/docs/operator-shell.md",
-  },
-  "ask-archlucid": {
-    text: "Multi-turn conversations about an architecture review. Golden path in this workspace: New review → Reviews table → Manifest → Key finding → Ask → Governance handoff.",
-    learnMoreUrl: "/docs/operator-shell.md",
-  },
-  "operator-scope-switcher": {
-    text: "Scope headers (tenant / workspace / project) slice API data. Pick a project when the workspace list exists; otherwise dev defaults or registration scope apply.",
-    learnMoreUrl: "/docs/library/GLOSSARY.md#scope-tenant--workspace--project",
-  },
-  "tenant-settings-page": {
-    text: "Operator-facing tenant preferences: trial status, executive digest email schedule, and the active request scope. Sensitive infrastructure settings remain server-only.",
-    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
-  },
-  "tenant-cost-settings": {
-    text: "Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot review deltas and executive ROI. 1.0 = Retail list; lower applies EA-adjusted Cost-category savings only.",
-    learnMoreUrl: "/docs/go-to-market/ROI_MODEL.md",
-  },
-  "admin-configuration": {
-    text:
-      "Effective host configuration (masked). With more than one API replica, per-process graph caches are not shared — configure Redis before scale-out.",
-    learnMoreUrl: "/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md",
-  },
-  "admin-pricing-quote-aging": {
-    text:
-      "Open marketing pricing quote requests with SLA posture (warn at 18h, breach at 24h). Sales follow-up is manual — no automated buyer replies.",
-    learnMoreUrl: "/docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md",
-  },
-  "admin-users-page": {
-    text: "Principals in this tenant and their effective authority rank. The API is authoritative; role changes need the admin user management endpoints to be available on your environment.",
-    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
-  },
-  "settings-roles-page": {
-    text: "Assign ArchLucid application roles to human users and API keys. Writes go through admin endpoints when your API supports them; otherwise the UI records intent for operators.",
-    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
-  },
-  "settings-cost-reporting-page": {
-    text: "Estimated LLM spend and token volumes from ArchLucid usage records — not an invoice. Use Azure Cost Management or your reseller statements for billing truth.",
-    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
-  },
-  "system-health": {
-    text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights from the Observability help topic.",
-    learnMoreUrl: "/docs/library/OBSERVABILITY.md",
-  },
 };
 
 /** Accessible name fallbacks when help copy is empty — avoids legacy run-primary aria labels. */
 const CONTEXTUAL_HELP_KEY_FALLBACK_LABEL: Partial<Record<string, string>> = {
-  "new-run-wizard": "new review wizard",
-  "runs-list-overview": "reviews list overview",
-  "run-pipeline-status": "review pipeline status",
-  "compare-runs": "compare reviews",
-  "replay-run": "replay review",
+  "commit-manifest": "finalize review",
+  "governance-gate": "governance gate",
 };
 
-/** First sentence (or short excerpt) of help copy — used for the trigger’s accessible name. */
+/** First sentence (or short excerpt) of help copy — used for the trigger's accessible name. */
 export function contextualHelpTriggerSummary(text: string, helpKey: string): string {
   if (text.trim().length === 0) {
     return CONTEXTUAL_HELP_KEY_FALLBACK_LABEL[helpKey] ?? helpKey.replace(/-/g, " ");

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusPill } from "@/components/StatusPill";
 import { planningTableCls, planningThTdCls } from "@/components/planning/planning-table-styles";
 import { Button } from "@/components/ui/button";
@@ -34,10 +33,9 @@ export function SystemHealthPageView(props: Props) {
     <div className="max-w-3xl" data-testid="system-health-page">
       <OperatorPageHeader
         title="System health"
-        subtitle="API liveness, readiness dependencies, build identity, and process uptime for this deployment."
+        subtitle="API liveness, readiness dependencies, build identity, and process uptime. For full metrics, connect Prometheus or Application Insights from the Observability help topic."
       />
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <ContextualHelp helpKey="system-health" />
         <StatusPill
           status={overall}
           domain="health"

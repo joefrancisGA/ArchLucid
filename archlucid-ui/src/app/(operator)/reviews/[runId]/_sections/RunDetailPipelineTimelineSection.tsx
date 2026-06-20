@@ -3,7 +3,6 @@ import type { ReactElement } from "react";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -35,7 +34,7 @@ function pipelineTimelineDescription(runId: string, buyerPolishedArtifactTable: 
     );
   }
 
-  return <>Audit events for this review, oldest first.</>;
+  return <>Audit events for this review, oldest first. When all steps complete, the review is ready to finalize.</>;
 }
 
 function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): ReactElement {
@@ -87,9 +86,6 @@ export function RunDetailPipelineTimelineSection(
     return (
       <section id="pipeline-timeline" className="scroll-mt-24" aria-labelledby="pipeline-timeline-title">
         <CollapsibleSection title="Recent lifecycle events" defaultOpen={false} sectionTestId="run-pipeline-timeline-collapsible">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <ContextualHelp helpKey="run-pipeline-status" placement="right" />
-          </div>
           <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
             {pipelineTimelineDescription(runId, buyerPolishedArtifactTable)}
           </p>
@@ -103,12 +99,9 @@ export function RunDetailPipelineTimelineSection(
     <section id="pipeline-timeline" className="scroll-mt-24" aria-labelledby="pipeline-timeline-title">
       <Card>
         <CardHeader>
-          <div className="mb-1 flex flex-wrap items-center gap-2">
-            <h3 id="pipeline-timeline-title" className={runDetailSectionHeadingClass}>
-              Pipeline timeline
-            </h3>
-            <ContextualHelp helpKey="run-pipeline-status" placement="right" />
-          </div>
+          <h3 id="pipeline-timeline-title" className={runDetailSectionHeadingClass}>
+            Pipeline timeline
+          </h3>
           <CardDescription>{pipelineTimelineDescription(runId, buyerPolishedArtifactTable)}</CardDescription>
         </CardHeader>
         <CardContent>

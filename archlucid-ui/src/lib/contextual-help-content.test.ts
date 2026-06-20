@@ -17,7 +17,7 @@ describe("contextualHelpByKey", () => {
     }
   });
 
-  it("index keys match production helpKey props exactly (no unused index entries, no typo orphans)", () => {
+  it("index keys match active ContextualHelp usage exactly (no unused index entries, no typo orphans)", () => {
     const fromSource = collectContextualHelpKeysFromSource(defaultArchlucidUiSrcRoot());
     const indexKeys = Object.keys(contextualHelpByKey).sort((a, b) => a.localeCompare(b));
 
@@ -78,31 +78,25 @@ describe("contextualHelpByKey", () => {
 
 describe("contextualHelpTriggerSummary", () => {
   it("returns the first sentence when help copy contains a period", () => {
-    expect(contextualHelpTriggerSummary(contextualHelpByKey["new-run-wizard"].text, "new-run-wizard")).toBe(
-      "Create an architecture request for what ArchLucid should analyze.",
+    expect(contextualHelpTriggerSummary(contextualHelpByKey["commit-manifest"].text, "commit-manifest")).toBe(
+      "Finalizing produces a versioned, reviewed manifest and synthesizes artifacts.",
     );
   });
 
   it("falls back to helpKey words when text is empty", () => {
-    expect(contextualHelpTriggerSummary("   ", "new-run-wizard")).toBe("new review wizard");
+    expect(contextualHelpTriggerSummary("   ", "commit-manifest")).toBe("finalize review");
   });
 });
 
 describe("contextualHelpTriggerAriaLabel", () => {
   it("prefixes the summary with Contextual help for known keys", () => {
-    expect(contextualHelpTriggerAriaLabel("new-run-wizard")).toBe(
-      "Contextual help: Create an architecture request for what ArchLucid should analyze.",
+    expect(contextualHelpTriggerAriaLabel("commit-manifest")).toBe(
+      "Contextual help: Finalizing produces a versioned, reviewed manifest and synthesizes artifacts.",
     );
   });
 
   it("returns null for unknown keys", () => {
     expect(contextualHelpTriggerAriaLabel("not-a-real-key")).toBeNull();
-  });
-
-  it("builds ask-archlucid label from first sentence (axe/regression)", () => {
-    expect(contextualHelpTriggerAriaLabel("ask-archlucid")).toBe(
-      "Contextual help: Multi-turn conversations about an architecture review.",
-    );
   });
 
   it("builds governance-gate label from help copy (ContextualHelp keyboard test)", () => {

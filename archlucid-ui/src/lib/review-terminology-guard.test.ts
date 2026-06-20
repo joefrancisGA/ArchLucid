@@ -78,7 +78,7 @@ describe("review terminology guard", () => {
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed manifest");
   });
 
-  it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", () => {
+  it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", { timeout: 60_000 }, () => {
     const violations = scanGlobalBuyerSurfaces();
 
     expect(

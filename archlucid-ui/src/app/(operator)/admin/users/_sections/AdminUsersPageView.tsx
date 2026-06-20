@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,12 +28,10 @@ export function AdminUsersPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-users-page">
       <div>
-        <div className="flex items-start gap-2">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Users & roles</h1>
-          <ContextualHelp helpKey="admin-users-page" />
-        </div>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Users & roles</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Directory of principals in this tenant and their ArchLucid authority tier (Reader / Operator / Admin).
+          Principals in this tenant and their effective authority rank. The API is authoritative; role changes require the
+          admin user management endpoints when available on your environment.
         </p>
       </div>
 

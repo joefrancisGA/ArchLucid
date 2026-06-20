@@ -16,11 +16,10 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly isPrimary?: boolean;
   readonly compactActions?: boolean;
   readonly onAnswerChange: (questionKey: string, value: string) => void;
-  readonly onSave: (questionKey: string) => void;
   readonly onSkip: (questionKey: string) => void;
 };
 
-/** Single required-clarification prompt with save / skip actions. */
+/** Single required-clarification prompt; answers persist when the operator reviews. */
 export function DraftIntakeRequiredClarificationField(
   props: DraftIntakeRequiredClarificationFieldProps,
 ) {
@@ -64,17 +63,6 @@ export function DraftIntakeRequiredClarificationField(
         aria-label={props.question.prompt}
       />
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size={actionSize}
-          disabled={props.busy}
-          onClick={() => {
-            props.onSave(props.question.questionKey);
-          }}
-        >
-          Save and continue
-        </Button>
         <Button
           type="button"
           size={actionSize}

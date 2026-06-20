@@ -67,6 +67,10 @@ vi.mock("@/components/SidebarNav", () => ({
   SidebarNav: () => <div data-testid="sidebar-nav-stub" />,
 }));
 
+vi.mock("@/components/shell/AppShellStatusBanners", () => ({
+  AppShellStatusBanners: () => <div data-testid="llm-budget-approaching-limit-banner" />,
+}));
+
 describe("AppShellClient — LLM budget chrome", () => {
   useOperatorQueryTestLifecycle();
 

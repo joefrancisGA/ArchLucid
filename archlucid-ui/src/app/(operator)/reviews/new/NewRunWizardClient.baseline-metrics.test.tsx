@@ -12,6 +12,8 @@ const { createArchitectureRunMock, saveTenantReviewCycleBaselineMock } = vi.hois
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParamsState.value,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  usePathname: () => "",
 }));
 
 vi.mock("next/link", () => ({
@@ -113,6 +115,7 @@ describe("NewRunWizardClient (baseline metrics step)", { timeout: 60_000 }, () =
       expect(screen.getByTestId("wizard-evidence-upload-step")).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {

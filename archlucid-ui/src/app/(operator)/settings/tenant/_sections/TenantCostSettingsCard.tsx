@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -172,13 +171,10 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   return (
     <Card data-testid="tenant-cost-settings-card">
       <CardHeader>
-        <div className="flex items-start gap-2">
-          <CardTitle className="text-base">Cost settings</CardTitle>
-          <ContextualHelp helpKey="tenant-cost-settings" />
-        </div>
+        <CardTitle className="text-base">Cost settings</CardTitle>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-          Customize architect hourly rate, average incident cost, and EA discount multiplier used when estimating USD
-          savings on runs and the executive ROI summary.
+          Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot review deltas and executive
+          ROI. Customize values below; 1.0 = retail list and lower applies EA-adjusted cost-category savings only.
           {!isTenantConfigured ? " Showing platform defaults until you save." : null}
         </p>
       </CardHeader>

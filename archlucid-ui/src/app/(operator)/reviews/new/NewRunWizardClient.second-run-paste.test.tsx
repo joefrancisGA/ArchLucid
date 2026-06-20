@@ -6,6 +6,8 @@ const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  usePathname: () => "",
 }));
 
 vi.mock("next/link", () => ({
@@ -85,9 +87,11 @@ components = ["api"]
       expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-evidence-upload-skip-demo")).toBeInTheDocument();
     });
+    fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {
       expect(screen.getByLabelText("System name")).toHaveValue("Pasted.Service");

@@ -5,7 +5,6 @@ import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionR
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { BuyerDeliverablesArtifactTabs } from "@/components/BuyerDeliverablesArtifactTabs";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportButton";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
@@ -83,14 +82,14 @@ export function RunDetailArtifactsExportsSection(
 
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
-      <div className="relative overflow-visible pr-9 sm:pr-10">
-        <div className="absolute end-0 top-0 z-10 sm:end-1 sm:top-1">
-          <ContextualHelp helpKey="manifest-review" placement="left" />
-        </div>
         <CollapsibleSection
           title={buyerPolishedArtifactTable ? "Deliverables" : "Artifacts & exports"}
           defaultOpen={!buyerPolishedArtifactTable}
         >
+          <p className="m-0 mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+            Review the manifest&apos;s decisions, findings, and structured metadata. Download artifacts for offline review
+            below.
+          </p>
           <div className="mb-4 flex flex-wrap gap-3">
             {showDecisionReceipt ? (
               <DecisionReceiptExportButton
@@ -271,7 +270,6 @@ export function RunDetailArtifactsExportsSection(
             )}
           </div>
         </CollapsibleSection>
-      </div>
     </section>
   );
 }

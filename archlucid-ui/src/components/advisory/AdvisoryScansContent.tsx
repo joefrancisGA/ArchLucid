@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -89,12 +88,12 @@ export function AdvisoryScansContent() {
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
           <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Architecture advisory</h2>
-          <ContextualHelp helpKey="advisory-hub" />
         </div>
         <p className="doc-meta m-0">
-          Generate ranked recommendations from a committed architecture review: changes, risks, tradeoffs, and follow-up actions. Output
-          can be accepted, rejected, deferred, or marked as implemented to feed the governance workflow. Optionally
-          compare to a second review for delta signals.
+          Advisory scans evaluate your architecture against configurable advisory rules. Generate ranked recommendations
+          from a committed architecture review: changes, risks, tradeoffs, and follow-up actions. Output can be accepted,
+          rejected, deferred, or marked as implemented to feed the governance workflow. Optionally compare to a second
+          review for delta signals.
         </p>
 
         <section

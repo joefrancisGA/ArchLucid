@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 
+import { helpTooltipIconClassName, helpTooltipLinkClassName } from "@/components/ui/help-tooltip-trigger";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,7 @@ export type InAppHelpLinkProps = {
   hashFragment?: string;
 };
 
-/** Opens canonical in-app help (`/help/{slug}`). Use `variant="text"` on operator Home; reserve icon `?` for sparse section-level use outside Home. */
+/** Opens canonical in-app help (`/help/{slug}`). Use `variant="text"` on operator Home; reserve icon help for sparse section-level use outside Home. */
 export function InAppHelpLink(props: InAppHelpLinkProps) {
   const href = inAppHelpHref(props.helpSlug, props.hashFragment);
 
@@ -38,14 +39,13 @@ export function InAppHelpLink(props: InAppHelpLinkProps) {
   return (
     <Link
       href={href}
-      className={cn(
-        "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700 shadow-sm hover:border-teal-600 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-teal-500 dark:hover:text-teal-200",
-        props.className,
-      )}
+      className={helpTooltipLinkClassName("contextual", props.className)}
       aria-label={props.label}
       title={props.label}
+      data-help-tooltip-trigger=""
+      data-help-tooltip-icon="help"
     >
-      <CircleHelp className="h-3.5 w-3.5" aria-hidden />
+      <CircleHelp className={helpTooltipIconClassName("contextual")} aria-hidden />
     </Link>
   );
 }

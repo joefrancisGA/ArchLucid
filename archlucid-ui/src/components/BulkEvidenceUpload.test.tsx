@@ -27,7 +27,7 @@ describe("BulkEvidenceUpload Component", () => {
   it("selecting 5 files shows '5 / 200'", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
 
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    const fileInput = screen.getByTestId("evidence-file-input");
 
     const files = Array.from({ length: 5 }).map((_, i) => new File(["content"], `file${i}.txt`, { type: "text/plain" }));
     fireEvent.change(fileInput, { target: { files } });
@@ -38,7 +38,7 @@ describe("BulkEvidenceUpload Component", () => {
   it("selecting 201 files shows error and disables upload button", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
 
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    const fileInput = screen.getByTestId("evidence-file-input");
 
     const files = Array.from({ length: 201 }).map((_, i) => new File(["content"], `file${i}.txt`, { type: "text/plain" }));
     fireEvent.change(fileInput, { target: { files } });
@@ -56,7 +56,7 @@ describe("BulkEvidenceUpload Component", () => {
   it("removing a file updates count", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
 
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    const fileInput = screen.getByTestId("evidence-file-input");
     const file = new File(["content"], "test.txt", { type: "text/plain" });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
@@ -81,7 +81,7 @@ describe("BulkEvidenceUpload Component", () => {
 
     render(<BulkEvidenceUpload runId="test-run-id" />);
 
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    const fileInput = screen.getByTestId("evidence-file-input");
     fireEvent.change(fileInput, {
       target: { files: [new File(["content"], "evidence.txt", { type: "text/plain" })] },
     });
@@ -111,7 +111,7 @@ describe("BulkEvidenceUpload Component", () => {
 
     render(<BulkEvidenceUpload runId="test-run-id" />);
 
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+    const fileInput = screen.getByTestId("evidence-file-input");
     fireEvent.change(fileInput, {
       target: {
         files: [

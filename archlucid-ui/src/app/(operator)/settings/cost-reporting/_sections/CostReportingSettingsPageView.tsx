@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
 import { LlmCostCommandCenterSummaryCard } from "@/components/LlmCostCommandCenterSummaryCard";
@@ -57,13 +56,10 @@ export function CostReportingSettingsPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
       <div>
-        <div className="flex items-start gap-2">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cost reporting</h1>
-          <ContextualHelp helpKey="settings-cost-reporting-page" />
-        </div>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cost reporting</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Aggregated LLM token usage and <strong>estimated cost</strong> (non-authoritative — reconcile with your cloud and billing
-          systems). Related monthly band:{" "}
+          Aggregated LLM token usage and <strong>estimated cost</strong> from ArchLucid usage records — not an invoice.
+          Reconcile with Azure Cost Management or your reseller statements for billing truth. Related monthly band:{" "}
           <Link className="text-teal-800 underline dark:text-teal-300" href="/settings/tenant-cost">
             Tenant cost estimate
           </Link>

@@ -6,7 +6,6 @@ import { CommitRunButton } from "@/components/CommitRunButton";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
-import { HelpButton } from "@/components/ui/help-button";
 import { Badge } from "@/components/ui/badge";
 import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -131,7 +130,6 @@ export function RunDetailPageHeader({
               ) : null}
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              <HelpButton pageKey="/runs/[id]" />
               <InAppHelpLink helpSlug="core-pilot" label="Architecture review steps — guide" />
             </div>
           </div>

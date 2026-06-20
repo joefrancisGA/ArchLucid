@@ -14,6 +14,8 @@ const { createArchitectureRunMock, uploadAzureExtractorPackageMock, saveTenantRe
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => searchParamsState.value,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  usePathname: () => "",
 }));
 
 vi.mock("next/link", () => ({
@@ -54,6 +56,15 @@ vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
   return {
     ...actual,
     saveTenantReviewCycleBaseline: (...args: unknown[]) => saveTenantReviewCycleBaselineMock(...args),
+  };
+});
+
+vi.mock("@/app/(operator)/reviews/new/NewRunWizardDeferredChunks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/app/(operator)/reviews/new/NewRunWizardDeferredChunks")>();
+  return {
+    ...actual,
+    WizardPostCreateEvidenceUploadPanel: (await import("@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel")).WizardPostCreateEvidenceUploadPanel,
+    WizardStepTrack: (await import("@/components/wizard/steps/WizardStepTrack")).WizardStepTrack,
   };
 });
 
@@ -160,6 +171,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   it("advances without upload when skip demo data is selected", async () => {
     await advanceToEvidenceStep();
 
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {
@@ -194,6 +206,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      await new Promise((resolve) => setTimeout(resolve, 50));
     });
 
     await waitFor(() => {
@@ -238,6 +251,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      await new Promise((resolve) => setTimeout(resolve, 50));
     });
 
     await waitFor(() => {

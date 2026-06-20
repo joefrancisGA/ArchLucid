@@ -10,12 +10,24 @@ describe("ContextualHelp", () => {
     vi.unstubAllEnvs();
   });
 
+  it("uses a recognizable info trigger instead of a question-mark help icon", () => {
+    render(<ContextualHelp helpKey="commit-manifest" />);
+
+    const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
+
+    expect(button).toHaveAttribute("data-help-tooltip-trigger");
+    expect(button).toHaveAttribute("data-help-tooltip-icon", "info");
+    expect(button.querySelector("svg")).not.toBeNull();
+    expect(button).toHaveClass("h-6", "w-6");
+    expect(button.className).not.toMatch(/rounded-full/);
+  });
+
   it("renders tooltip on click and toggles on second click", async () => {
     const { getByLabelText, queryByRole, getByText } = render(
-      <ContextualHelp helpKey="new-run-wizard" />,
+      <ContextualHelp helpKey="commit-manifest" />,
     );
 
-    const button = getByLabelText(contextualHelpTriggerAriaLabel("new-run-wizard")!);
+    const button = getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
     expect(queryByRole("region", { name: /contextual help/i })).toBeNull();
 
     act(() => {
@@ -23,7 +35,7 @@ describe("ContextualHelp", () => {
     });
 
     expect(await screen.findByRole("region", { name: /contextual help/i })).toBeInTheDocument();
-    expect(getByText(/create an architecture request/i)).toBeInTheDocument();
+    expect(getByText(/versioned, reviewed manifest/i)).toBeInTheDocument();
 
     act(() => {
       fireEvent.click(button);
@@ -60,8 +72,8 @@ describe("ContextualHelp", () => {
   });
 
   it("associates the trigger with the help panel for assistive technology when open", () => {
-    const { getByLabelText, getByRole } = render(<ContextualHelp helpKey="manifest-review" />);
-    const button = getByLabelText(contextualHelpTriggerAriaLabel("manifest-review")!);
+    const { getByLabelText, getByRole } = render(<ContextualHelp helpKey="governance-gate" />);
+    const button = getByLabelText(contextualHelpTriggerAriaLabel("governance-gate")!);
 
     act(() => {
       fireEvent.click(button);

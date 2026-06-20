@@ -1,20 +1,18 @@
 "use client";
 
-import { CircleHelp } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
 import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
-import { ContextualHelp } from "@/components/ContextualHelp";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getComplianceDriftTrend, getGovernanceDashboard } from "@/lib/api";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
@@ -248,7 +246,6 @@ export function ExecutiveWorkspaceHealthDashboard() {
           <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
             {buyerPolishedShell ? "Workspace overview" : "Executive Workspace Health"}
           </h1>
-          <ContextualHelp helpKey="governance-dashboard" />
           <InAppHelpLink helpSlug="governance-approval" label="Governance workflows documentation" />
         </div>
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
@@ -365,18 +362,12 @@ export function ExecutiveWorkspaceHealthDashboard() {
               <h2 className="m-0 flex-1 text-sm font-semibold text-al-text-primary">
                 5. Pre-commit blocks as value proxy
               </h2>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    className="rounded p-0.5 text-neutral-500 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 dark:text-neutral-400 dark:hover:text-neutral-200"
-                    aria-label="About the hours estimate"
-                  >
-                    <CircleHelp className="size-4" aria-hidden />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-left leading-snug">
-                  {buyerPolishedShell ? (
+              <FieldHelpTooltip
+                label="the hours estimate"
+                ariaLabel="About the hours estimate"
+                className="self-start"
+                hint={
+                  buyerPolishedShell ? (
                     <>
                       Estimated review-hours blend severity-weighted findings with an allowance per blocked merge attempt (
                       {HOURS_PER_PRECOMMIT_BLOCK} h each). Planning estimate — not measured wall-clock time.
@@ -386,9 +377,9 @@ export function ExecutiveWorkspaceHealthDashboard() {
                       Estimated review-hours combine severity-weighted findings and {HOURS_PER_PRECOMMIT_BLOCK} h per blocked event (
                       <span className="font-mono">roi-assumptions.ts</span>). This is a planning estimate, not measured wall-clock time.
                     </>
-                  )}
-                </TooltipContent>
-              </Tooltip>
+                  )
+                }
+              />
             </div>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
               Blocks in 30d:{" "}

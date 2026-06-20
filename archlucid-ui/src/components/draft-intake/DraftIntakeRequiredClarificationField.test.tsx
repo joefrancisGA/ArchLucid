@@ -16,7 +16,7 @@ const sampleQuestion = {
 };
 
 describe("DraftIntakeRequiredClarificationField", () => {
-  it("shows baseline label and de-emphasized actions", () => {
+  it("shows baseline label and skip-only actions", () => {
     render(
       <DraftIntakeRequiredClarificationField
         question={sampleQuestion}
@@ -25,7 +25,6 @@ describe("DraftIntakeRequiredClarificationField", () => {
         clarificationIndex={1}
         clarificationTotal={3}
         onAnswerChange={vi.fn()}
-        onSave={vi.fn()}
         onSkip={vi.fn()}
       />,
     );
@@ -36,7 +35,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.getByTestId("socratic-question-baseline-label")).toHaveTextContent(
       REQUIRED_CLARIFICATION_BASELINE_LABEL,
     );
-    expect(screen.getByRole("button", { name: "Save and continue" })).toHaveClass("border");
+    expect(screen.queryByRole("button", { name: "Save and continue" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Skip for now" })).toHaveClass("hover:bg-neutral-100");
   });
 
@@ -51,7 +50,6 @@ describe("DraftIntakeRequiredClarificationField", () => {
         isPrimary={false}
         compactActions
         onAnswerChange={vi.fn()}
-        onSave={vi.fn()}
         onSkip={vi.fn()}
       />,
     );
@@ -59,8 +57,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.getByTestId("socratic-question")).toHaveAttribute("data-question-primary", "false");
   });
 
-  it("invokes save and skip handlers", () => {
-    const onSave = vi.fn();
+  it("invokes skip handler", () => {
     const onSkip = vi.fn();
 
     render(
@@ -71,15 +68,12 @@ describe("DraftIntakeRequiredClarificationField", () => {
         clarificationIndex={1}
         clarificationTotal={1}
         onAnswerChange={vi.fn()}
-        onSave={onSave}
         onSkip={onSkip}
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Save and continue" }));
     fireEvent.click(screen.getByRole("button", { name: "Skip for now" }));
 
-    expect(onSave).toHaveBeenCalledWith("l0.pillar.security");
     expect(onSkip).toHaveBeenCalledWith("l0.pillar.security");
   });
 });

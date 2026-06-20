@@ -3,8 +3,8 @@
 import { CircleHelp } from "lucide-react";
 
 import { ExternalLink } from "@/components/ui/external-link";
+import { helpTooltipIconClassName, helpTooltipLinkClassName } from "@/components/ui/help-tooltip-trigger";
 import { getHelpUrl } from "@/lib/contextual-help";
-import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -33,13 +33,12 @@ export function HelpButton({ pageKey, className }: HelpButtonProps) {
         <TooltipTrigger asChild>
           <ExternalLink
             href={href}
-            className={cn(
-              "inline-flex shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 dark:text-neutral-400 dark:hover:text-neutral-200",
-              className,
-            )}
+            className={helpTooltipLinkClassName("contextual", className)}
             aria-label="View documentation"
+            data-help-tooltip-trigger=""
+            data-help-tooltip-icon="help"
           >
-            <CircleHelp className="h-3.5 w-3.5" aria-hidden />
+            <CircleHelp className={helpTooltipIconClassName("contextual")} aria-hidden />
           </ExternalLink>
         </TooltipTrigger>
         <TooltipContent side="bottom">View documentation</TooltipContent>

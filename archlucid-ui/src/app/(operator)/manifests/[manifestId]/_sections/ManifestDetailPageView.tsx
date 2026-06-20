@@ -6,7 +6,6 @@ import {
   OperatorEvidenceLimitsFooter,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
-import { BuyerTitleHint } from "@/components/BuyerTitleHint";
 import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
 import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
@@ -356,13 +355,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </CardTitle>
             <CardDescription>
               {buyerPolishedLayout
-                ? "These deliverables package the executive decision, architecture review board record, and audit evidence for sign-off and diligence."
+                ? "These deliverables package the executive decision, architecture review board record, and audit evidence for sign-off and diligence. Rows below list individual deliverable artifacts — prefer the consolidated package download when your workspace publishes a full bundle."
                 : "Outputs produced during this review — available for preview and download."}
             </CardDescription>
           </div>
-          {buyerPolishedLayout ? (
-            <BuyerTitleHint text="Rows below list individual deliverable artifacts. Prefer the consolidated package download below when your workspace publishes a full bundle." />
-          ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
           {!buyerPolishedLayout ? (

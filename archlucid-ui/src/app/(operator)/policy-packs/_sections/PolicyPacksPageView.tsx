@@ -28,7 +28,10 @@ export function PolicyPacksPageView(props: Props) {
   return (
     <div className="max-w-5xl">
       <LayerHeader pageKey="policy-packs" />
-      <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
+      <OperatorPageHeader
+        title="Policy packs"
+        subtitle="Policy packs bundle rules and scope defaults. Assign them to workspaces to enforce governance."
+      />
       <PolicyPacksMarketingIntro buyerPolishedShell={m.buyerPolishedShell} canMutatePacks={m.canMutatePacks} />
 
       <PolicyPacksMetricStrip

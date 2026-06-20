@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,13 +28,10 @@ export function TenantSettingsPageView(props: Props) {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
       <div>
-        <div className="flex items-start gap-2">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Tenant settings</h1>
-          <ContextualHelp helpKey="tenant-settings-page" />
-        </div>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Tenant settings</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Workspace defaults and operator-facing preferences for this tenant. Infrastructure and feature-flag controls stay server-side
-          only.
+          Workspace defaults and operator-facing preferences for this tenant: trial status, executive digest email schedule,
+          and the active request scope. Sensitive infrastructure and feature-flag controls stay server-side only.
         </p>
       </div>
 

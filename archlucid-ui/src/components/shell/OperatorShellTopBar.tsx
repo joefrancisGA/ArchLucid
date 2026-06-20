@@ -12,7 +12,7 @@ import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
@@ -65,25 +65,28 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             <ScopeSwitcher density="compact" />
             <AuthPanel />
             <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    data-testid="operator-shell-help-trigger"
-                    aria-label={OPERATOR_HELP_ARIA_LABEL}
-                    aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
-                    onClick={() => {
-                      props.onOpenHelpSearch();
-                    }}
-                  >
-                    <CircleHelp className="h-4 w-4" aria-hidden />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
-              </Tooltip>
+              <ToolbarHelpTooltip
+                aria-label={OPERATOR_HELP_ARIA_LABEL}
+                content={OPERATOR_HELP_TOOLTIP}
+                aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="inline-flex h-7 w-7 items-center justify-center p-0"
+                  data-testid="operator-shell-help-trigger"
+                  data-help-tooltip-trigger=""
+                  data-help-tooltip-icon="help"
+                  aria-label={OPERATOR_HELP_ARIA_LABEL}
+                  aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+                  onClick={() => {
+                    props.onOpenHelpSearch();
+                  }}
+                >
+                  <CircleHelp className="size-[18px]" aria-hidden />
+                </Button>
+              </ToolbarHelpTooltip>
               {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
               {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
             </div>

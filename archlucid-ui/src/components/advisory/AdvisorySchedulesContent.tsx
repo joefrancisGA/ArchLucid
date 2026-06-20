@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -126,11 +125,12 @@ export function AdvisorySchedulesContent() {
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
           <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Advisory schedules</h2>
-          <ContextualHelp helpKey="advisory-hub" />
         </div>
         <p className="doc-meta m-0">
-          Background worker polls every ~5 minutes for due schedules. Use the <strong>project slug</strong> (same as
-          the architecture reviews list, often <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">default</code>) so recent reviews are discovered.
+          Advisory scans evaluate your architecture against configurable advisory rules. Background worker polls every
+          ~5 minutes for due schedules. Use the <strong>project slug</strong> (same as the architecture reviews list,
+          often <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">default</code>) so recent
+          reviews are discovered.
         </p>
 
         {failure !== null ? (

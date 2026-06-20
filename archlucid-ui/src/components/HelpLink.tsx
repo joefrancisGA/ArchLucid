@@ -3,8 +3,8 @@
 import { CircleHelp } from "lucide-react";
 import Link from "next/link";
 
+import { helpTooltipIconClassName, helpTooltipLinkClassName } from "@/components/ui/help-tooltip-trigger";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
-import { cn } from "@/lib/utils";
 
 export type HelpLinkProps = {
   /** Repo-relative path such as `/docs/CORE_PILOT.md`; resolved via `toDocsBlobUrl` (same as ContextualHelp "Learn more"). */
@@ -24,14 +24,13 @@ export function HelpLink({ docPath, label, className }: HelpLinkProps) {
   return (
     <Link
       href={href}
-      className={cn(
-        "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-700 shadow-sm hover:border-teal-600 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:border-teal-500 dark:hover:text-teal-200",
-        className,
-      )}
+      className={helpTooltipLinkClassName("contextual", className)}
       aria-label={label}
       title={label}
+      data-help-tooltip-trigger=""
+      data-help-tooltip-icon="help"
     >
-      <CircleHelp className="h-3.5 w-3.5" aria-hidden />
+      <CircleHelp className={helpTooltipIconClassName("contextual")} aria-hidden />
     </Link>
   );
 }

@@ -5,6 +5,8 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
     get: (key: string) => (key === "example" ? "healthcare-claims-intake" : null),
   }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  usePathname: () => "",
 }));
 
 vi.mock("next/link", () => ({
@@ -105,6 +107,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
       expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
     });
 
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
     fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
 
     await waitFor(() => {

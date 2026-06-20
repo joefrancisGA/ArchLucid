@@ -36,7 +36,7 @@ import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { UserAppearancePreferenceSync } from "@/components/UserAppearancePreferenceSync";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
@@ -244,7 +244,12 @@ function AppShellInner({ children }: AppShellClientProps) {
         className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950"
       >
         <div className="mb-8">
-          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid" variant="operator" />
+          <ArchLucidWordmarkLink
+            href="/"
+            aria-label="ArchLucid"
+            variant="operator"
+            logoVariant="full"
+          />
         </div>
         <div className="w-full max-w-md">
           {children}
@@ -298,24 +303,27 @@ function AppShellInner({ children }: AppShellClientProps) {
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                       <AuthPanel />
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            aria-label={OPERATOR_HELP_ARIA_LABEL}
-                            aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
-                            onClick={() => {
-                              openHelpSearch();
-                            }}
-                          >
-                            <CircleHelp className="h-4 w-4" aria-hidden />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent sideOffset={6}>{OPERATOR_HELP_TOOLTIP}</TooltipContent>
-                      </Tooltip>
+                      <ToolbarHelpTooltip
+                        aria-label={OPERATOR_HELP_ARIA_LABEL}
+                        content={OPERATOR_HELP_TOOLTIP}
+                        aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="inline-flex h-7 w-7 items-center justify-center p-0"
+                          data-help-tooltip-trigger=""
+                          data-help-tooltip-icon="help"
+                          aria-label={OPERATOR_HELP_ARIA_LABEL}
+                          aria-keyshortcuts={OPERATOR_HELP_ARIA_KEYSHORTCUTS}
+                          onClick={() => {
+                            openHelpSearch();
+                          }}
+                        >
+                          <CircleHelp className="size-[18px]" aria-hidden />
+                        </Button>
+                      </ToolbarHelpTooltip>
                       {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
                       <ColorModeToggle />
                     </div>

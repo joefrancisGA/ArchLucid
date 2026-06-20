@@ -7,7 +7,6 @@ import { AlertSimulationContent } from "@/components/alerts/AlertSimulationConte
 import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
 import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
-import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
 
 vi.mock("@/lib/api/http", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/http")>();
@@ -269,17 +268,17 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Governance resolution" })).toBeInTheDocument();
   });
 
-  it("SearchPage renders primary heading and contextual help", async () => {
+  it("SearchPage renders primary heading without heading-level contextual help", async () => {
     const page = await SearchPage();
     render(page);
     expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
-    expect(screen.getByLabelText(contextualHelpTriggerAriaLabel("semantic-search")!)).toBeInTheDocument();
+    expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 
-  it("AskPage renders primary heading and contextual help", () => {
+  it("AskPage renders primary heading without heading-level contextual help", () => {
     render(<AskPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Ask about a review" })).toBeInTheDocument();
-    expect(screen.getByLabelText(contextualHelpTriggerAriaLabel("ask-archlucid")!)).toBeInTheDocument();
+    expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 
   it("OnboardingPage renders primary heading", async () => {

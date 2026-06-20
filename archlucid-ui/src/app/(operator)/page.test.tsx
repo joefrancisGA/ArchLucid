@@ -7,6 +7,12 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 const listRunsByProjectPaged = vi.fn();
 const getPilotScorecard = vi.fn();
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
+  usePathname: () => "",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
   getPilotScorecard: (...args: unknown[]) => getPilotScorecard(...args),
@@ -65,6 +71,10 @@ vi.mock("@/components/cto-demo/CtoDemoResetButton", () => ({
       Reset demo
     </button>
   ),
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeAdvancedGuidancePanel", () => ({
+  OperatorHomeAdvancedGuidancePanel: () => <div data-testid="operator-home-advanced-guidance" />,
 }));
 
 import HomePage from "./page";
@@ -129,7 +139,9 @@ describe("HomePage — buyer-polished shell", () => {
     const exampleRequestPanel = screen.getByTestId("operator-home-example-request-panel");
     expect(screen.getByTestId("pilot-command-center-card").compareDocumentPosition(exampleRequestPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(exampleRequestPanel.compareDocumentPosition(recentReviewsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    });
     expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
@@ -165,7 +177,9 @@ describe("HomePage (55R smoke — landing)", () => {
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
+    });
     expect(screen.queryByText("ROI estimate pending")).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });

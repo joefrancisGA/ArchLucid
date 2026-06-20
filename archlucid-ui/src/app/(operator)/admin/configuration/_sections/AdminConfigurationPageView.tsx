@@ -1,6 +1,5 @@
 "use client";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,10 +37,10 @@ export function AdminConfigurationPageView(props: Props) {
       <div>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Configuration summary</h1>
-          <ContextualHelp helpKey="admin-configuration" />
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Effective values for non-sensitive keys; secrets and connection material are masked by the API.
+          Effective values for non-sensitive keys; secrets and connection material are masked by the API. With more than
+          one API replica, per-process graph caches are not shared — configure Redis before scale-out.
         </p>
         <div className="mt-3 flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-1.5">

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,12 +61,11 @@ export function SettingsRolesPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
       <div>
-        <div className="flex items-start gap-2">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Role management</h1>
-          <ContextualHelp helpKey="settings-roles-page" />
-        </div>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Role management</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Define custom roles with fine-grained permissions and assign ArchLucid app roles to tenant users and API keys.
+          Assign ArchLucid application roles to human users and API keys. Writes go through admin endpoints when your API
+          supports them; otherwise the UI records intent for operators. Define custom roles with fine-grained permissions
+          below.
         </p>
       </div>
 

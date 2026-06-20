@@ -14,7 +14,6 @@ import {
 import { createPortal } from "react-dom";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -545,7 +544,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   if (polishedShell) {
     return (
       <>
-        <span className={cn("inline-flex shrink items-center gap-1", polishedMaxWidthClass)}>
+        <span className={cn("inline-flex shrink items-center", polishedMaxWidthClass)}>
           <Button
             ref={triggerRef}
             type="button"
@@ -579,7 +578,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
   return (
     <>
-      <div className="flex min-w-0 max-w-full shrink items-center gap-1">
+      <div className="flex min-w-0 max-w-full shrink items-center">
         <Button
           ref={triggerRef}
           type="button"
@@ -601,7 +600,6 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
           ) : null}
         </Button>
-        <ContextualHelp helpKey="operator-scope-switcher" />
       </div>
       {scopePanel != null && typeof document !== "undefined" ? createPortal(scopePanel, document.body) : null}
     </>

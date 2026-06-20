@@ -20,7 +20,7 @@ export function WizardFieldHint({ htmlFor, label, hint }: WizardFieldHintProps) 
     );
 
   return (
-    <div className="mb-1 flex flex-wrap items-center gap-2">
+    <div className="mb-1 flex flex-wrap items-center gap-1">
       {labelNode}
       <InlineInfoTooltip label={label} hint={hint} />
     </div>
