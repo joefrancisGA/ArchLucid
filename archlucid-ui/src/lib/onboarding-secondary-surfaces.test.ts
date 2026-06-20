@@ -6,8 +6,14 @@ import {
   buildReadinessAzureExtractorSummary,
   FIRST_VISIT_HELP_THREE_THINGS,
   listOnboardingSecondarySurfaceViolations,
+  listOnboardingTourCopyViolations,
+  ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY,
+  ONBOARDING_TOUR_GET_HELP_BODY,
   ONBOARDING_TOUR_NEW_REVIEW_BODY,
+  ONBOARDING_TOUR_READY_BODY,
+  ONBOARDING_TOUR_REVIEW_PACKAGES_BODY,
   ONBOARDING_TOUR_WELCOME_BODY,
+  OPERATOR_ONBOARDING_TOUR_STEPS,
   OPT_IN_TOUR_EVIDENCE_STEP,
   READINESS_AZURE_EXTRACTOR_CTA,
   WELCOME_OPERATOR_EVIDENCE_STEP,
@@ -36,5 +42,17 @@ describe("onboarding-secondary-surfaces (TB-342)", () => {
     expect(PILOT_PATH_PREVIEW_STEPS[0]?.label.toLowerCase()).toContain("upload evidence");
     expect(PILOT_COMMAND_CENTER_CONNECT_AZURE).toBe("Connect Azure");
     expect(READINESS_AZURE_EXTRACTOR_CTA.toLowerCase()).toBe("add evidence");
+  });
+
+  it("keeps first-run tour copy workflow-oriented and free of internal jargon", () => {
+    expect(listOnboardingTourCopyViolations()).toEqual([]);
+
+    expect(ONBOARDING_TOUR_WELCOME_BODY).toContain("review packages");
+    expect(ONBOARDING_TOUR_NEW_REVIEW_BODY).toContain("Start review");
+    expect(ONBOARDING_TOUR_REVIEW_PACKAGES_BODY).toContain("audit trail");
+    expect(ONBOARDING_TOUR_FOLLOW_WORKFLOW_BODY).toContain("Review work");
+    expect(ONBOARDING_TOUR_GET_HELP_BODY).toContain("restart the tour");
+    expect(ONBOARDING_TOUR_READY_BODY).toContain("pilot checklist");
+    expect(OPERATOR_ONBOARDING_TOUR_STEPS).toHaveLength(6);
   });
 });
