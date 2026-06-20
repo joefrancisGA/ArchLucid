@@ -13,9 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
-import { OperatorAdvancedModeToggle } from "@/components/OperatorAdvancedModeToggle";
+import { SidebarAdministrationSection } from "@/components/sidebar-nav/SidebarAdministrationSection";
+import { SidebarGovernanceDisclosureSection } from "@/components/sidebar-nav/SidebarGovernanceDisclosureSection";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { useSidebarAdministrationVisibility } from "@/hooks/useSidebarAdministrationVisibility";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
@@ -114,6 +116,7 @@ export function MobileNavDrawer() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { showExtended, showAdvanced, setOperatorAdvancedMode } = useNavProgressiveDisclosure();
+  const { showAdministration, setShowAdministration } = useSidebarAdministrationVisibility();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const demoUi = isStaticDemoPayloadFallbackEnabled();
@@ -146,18 +149,33 @@ export function MobileNavDrawer() {
 
   const omitAdminClusters = demoUi || buyerPolishedShell;
 
-  const adminNavRows = omitAdminClusters
+  const adminNavRowsCandidate = omitAdminClusters
     ? ([] as NavGroupWithVisibleLinks[])
     : listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
-        extendedForShell,
-        advancedForShell,
+        true,
+        false,
         callerAuthorityRank,
         false,
         "platform-admin",
         hasCommittedArchitectureReview,
         operateNavUnlockPhase,
       );
+
+  const governanceDisclosureVisible =
+    !demoUi &&
+    !buyerPolishedShell &&
+    !operatorAdvancedModeOn &&
+    listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      callerAuthorityRank,
+      false,
+      "review-workflow",
+      hasCommittedArchitectureReview,
+      2,
+    ).some((row) => row.group.id === "operate-governance" && row.visibleLinks.length > 0);
 
   return (
     <>
@@ -179,25 +197,30 @@ export function MobileNavDrawer() {
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
-            {demoUi || buyerPolishedShell ? null : (
-              <OperatorAdvancedModeToggle
-                advancedModeOn={operatorAdvancedModeOn}
-                onToggle={toggleOperatorAdvancedMode}
-                testId="mobile-operator-advanced-mode-toggle"
-              />
-            )}
             {renderMobileNavBlock(reviewNavRows, pathname, demoUi, buyerPolishedShell, hasCommittedArchitectureReview, operatorAdvancedModeOn, () => {
               setOpen(false);
             })}
-            {adminNavRows.length > 0 ? (
-              <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-                  Administration
-                </h3>
-                {renderMobileNavBlock(adminNavRows, pathname, demoUi, buyerPolishedShell, hasCommittedArchitectureReview, operatorAdvancedModeOn, () => {
+            {governanceDisclosureVisible ? (
+              <SidebarGovernanceDisclosureSection
+                onRevealGovernance={() => {
+                  toggleOperatorAdvancedMode();
+                }}
+              />
+            ) : null}
+            {adminNavRowsCandidate.length > 0 ? (
+              <SidebarAdministrationSection
+                showAdministration={showAdministration}
+                onShowAdministrationChange={setShowAdministration}
+                adminNavRows={adminNavRowsCandidate}
+                pathname={pathname}
+                demoUi={demoUi}
+                buyerPolishedShell={buyerPolishedShell}
+                hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+                effectiveOperateUnlockPhase={operateNavUnlockPhase}
+                onNavLinkNavigate={() => {
                   setOpen(false);
-                })}
-              </div>
+                }}
+              />
             ) : null}
             {buyerPolishedShell ? null : (
               <p className="text-xs text-neutral-700 dark:text-neutral-300" aria-keyshortcuts="Shift+?">

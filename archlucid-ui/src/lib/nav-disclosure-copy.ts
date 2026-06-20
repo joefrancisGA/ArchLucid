@@ -17,8 +17,17 @@ export const V1_SIDEBAR_CUSTOMIZATION_VISIBLE = false;
 
 export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
 
+/** Platform-admin sidebar section — tenant settings and operator tooling, not operate governance. */
+export const SIDEBAR_ADMINISTRATION = {
+  show: "Show administration",
+  hide: "Hide administration",
+  title: "Show or hide tenant settings and platform administration destinations in the sidebar.",
+  assistiveShow: "Administration section hidden. Tenant settings and recycle bin are not listed.",
+  assistiveHide: "Administration section visible. Tenant settings and platform admin links are listed below.",
+} as const;
+
 export const OPERATOR_ADVANCED_MODE = {
-  /** Single disclosure control — governance, audit, and alerting stay hidden until enabled. */
+  /** Operate-layer disclosure — governance, audit, and alerting stay hidden until enabled. */
   show: "Enable advanced features",
   hide: "Hide advanced features",
   title:

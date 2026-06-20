@@ -4,10 +4,13 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 
+import { SidebarAdministrationSection } from "@/components/sidebar-nav/SidebarAdministrationSection";
+import { SidebarGovernanceDisclosureSection } from "@/components/sidebar-nav/SidebarGovernanceDisclosureSection";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { SidebarNavLayoutSettingsPanel } from "@/components/sidebar-nav/SidebarNavLayoutSettingsPanel";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { useSidebarAdministrationVisibility } from "@/hooks/useSidebarAdministrationVisibility";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import {
@@ -27,7 +30,6 @@ import {
 } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { resolveSidebarNavExpansionState } from "@/lib/sidebar-nav-disclosure-state";
-import { OperatorAdvancedModeToggle } from "@/components/OperatorAdvancedModeToggle";
 import { operateNavUnlockPhaseForAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
 
 const SidebarRecentActivityCard = dynamic(
@@ -50,6 +52,7 @@ export function SidebarNav() {
   const [collapsedPilotExpanded, setCollapsedPilotExpanded] = useState(false);
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced, setOperatorAdvancedMode } =
     useNavProgressiveDisclosure();
+  const { showAdministration, setShowAdministration } = useSidebarAdministrationVisibility();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -211,12 +214,26 @@ export function SidebarNav() {
     effectiveOperateUnlockPhase,
   );
 
-  const adminNavRowsRaw = omitAdminClusters
+  const adminNavRowsRaw =
+    omitAdminClusters || !showAdministration
+      ? ([] as NavGroupWithVisibleLinks[])
+      : listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          true,
+          false,
+          callerAuthorityRank,
+          false,
+          "platform-admin",
+          hasCommittedArchitectureReview,
+          effectiveOperateUnlockPhase,
+        );
+
+  const adminNavRowsCandidate = omitAdminClusters
     ? ([] as NavGroupWithVisibleLinks[])
     : listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
-        navExpanded,
-        navAdvanced,
+        true,
+        false,
         callerAuthorityRank,
         false,
         "platform-admin",
@@ -224,23 +241,26 @@ export function SidebarNav() {
         effectiveOperateUnlockPhase,
       );
 
-
   const reviewNavRows = reviewNavRowsRaw;
 
   const adminNavRows = adminNavRowsRaw;
-  const adminLinkCount = adminNavRows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
+
+  const governanceDisclosureVisible =
+    showProgressiveDisclosureChrome &&
+    !operatorAdvancedModeOn &&
+    listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      callerAuthorityRank,
+      false,
+      "review-workflow",
+      hasCommittedArchitectureReview,
+      2,
+    ).some((row) => row.group.id === "operate-governance" && row.visibleLinks.length > 0);
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
-      {showProgressiveDisclosureChrome && !showSidebarCustomizationChrome ? (
-        <div className="px-2 pt-1" data-testid="sidebar-advanced-mode-wrap">
-          <OperatorAdvancedModeToggle
-            advancedModeOn={operatorAdvancedModeOn}
-            onToggle={toggleOperatorAdvancedMode}
-            testId="sidebar-operator-advanced-mode-toggle"
-          />
-        </div>
-      ) : null}
       <SidebarRecentActivityCard />
 
       {reviewNavRows.map((row) => (
@@ -259,6 +279,10 @@ export function SidebarNav() {
           onRevealHiddenLinks={revealHiddenLinksInGroup}
         />
       ))}
+
+      {governanceDisclosureVisible ? (
+        <SidebarGovernanceDisclosureSection onRevealGovernance={toggleOperatorAdvancedMode} />
+      ) : null}
 
       {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
@@ -314,44 +338,17 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showProgressiveDisclosureChrome && adminNavRows.length > 0 ? (
-        <div
-          className="mt-2 border-t border-neutral-200 pt-2 dark:border-neutral-700"
-          data-testid="sidebar-administration-section"
-        >
-          <div
-            className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200"
-            id="sidebar-admin-section-heading"
-          >
-            <span>Administration</span>
-            {adminLinkCount > 0 ? (
-              <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
-                {adminLinkCount}
-              </span>
-            ) : null}
-          </div>
-          <div id="sidebar-administration-content" className="pt-1">
-            <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
-              Tenant cost, support bundles, system health — separate from architecture review navigation.
-            </p>
-            {adminNavRows.map((row) => (
-              <SidebarNavCluster
-                key={row.group.id}
-                row={row}
-                pathname={pathname}
-                demoUi={demoUi}
-                buyerPolishedShell={buyerPolishedShell}
-                hasCommittedArchitectureReview={hasCommittedArchitectureReview}
-                effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
-                navExpanded={navExpanded}
-                navAdvanced={navAdvanced}
-                callerAuthorityRank={callerAuthorityRank}
-                showProgressiveDisclosureChrome={showProgressiveDisclosureChrome}
-                onRevealHiddenLinks={revealHiddenLinksInGroup}
-              />
-            ))}
-          </div>
-        </div>
+      {showProgressiveDisclosureChrome && adminNavRowsCandidate.length > 0 ? (
+        <SidebarAdministrationSection
+          showAdministration={showAdministration}
+          onShowAdministrationChange={setShowAdministration}
+          adminNavRows={showAdministration ? adminNavRows : adminNavRowsCandidate}
+          pathname={pathname}
+          demoUi={demoUi}
+          buyerPolishedShell={buyerPolishedShell}
+          hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+          effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
+        />
       ) : null}
 
       <SidebarNavLayoutSettingsPanel

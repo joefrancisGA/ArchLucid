@@ -45,13 +45,37 @@ export function PilotCommandCenterCard(): React.JSX.Element {
       className={cn(OPERATOR_SURFACE_CARD_CLASS, "px-4 py-3")}
       data-testid="pilot-command-center-card"
     >
-      <div className="space-y-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
-            {PILOT_COMMAND_CENTER_HEADING}
-          </h2>
+      <div className="space-y-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 space-y-2">
+            <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
+              {PILOT_COMMAND_CENTER_HEADING}
+            </h2>
+            <div data-testid="pilot-command-center-outcomes-wrap">
+              <p className="sr-only">{PILOT_COMMAND_CENTER_OUTCOMES_HEADING}</p>
+              <ul
+                className={cn("m-0 flex flex-wrap list-none gap-1.5 p-0", OPERATOR_TYPE_SCALE.meta)}
+                data-testid="pilot-command-center-outcomes"
+              >
+                {PILOT_COMMAND_CENTER_OUTCOMES.map((outcome) => (
+                  <li
+                    key={outcome}
+                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50 px-1.5 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/50"
+                  >
+                    <span aria-hidden className="text-al-accent-interactive">
+                      ✓
+                    </span>
+                    {outcome}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-          <div className={cn("flex flex-col sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.inlineGap)}>
+          <div
+            className={cn("flex shrink-0 flex-col sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.inlineGap)}
+            data-testid="pilot-command-center-cta-row"
+          >
             <Button asChild variant="primary" className="w-full justify-center sm:w-auto">
               <Link href="/reviews/new" data-testid="pilot-command-center-primary">
                 {PILOT_COMMAND_CENTER_PRIMARY_CTA}
@@ -65,39 +89,14 @@ export function PilotCommandCenterCard(): React.JSX.Element {
           </div>
         </div>
 
-        <div
-          className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2"
-          data-testid="pilot-command-center-action-row"
-        >
-          <div className="min-w-0 flex-1">
-            <p className="sr-only">{PILOT_COMMAND_CENTER_OUTCOMES_HEADING}</p>
-            <ul
-              className={cn("m-0 flex flex-wrap list-none gap-1.5 p-0", OPERATOR_TYPE_SCALE.meta)}
-              data-testid="pilot-command-center-outcomes"
-            >
-              {PILOT_COMMAND_CENTER_OUTCOMES.map((outcome) => (
-                <li
-                  key={outcome}
-                  className="inline-flex items-center gap-1 rounded-md border border-neutral-200/80 bg-neutral-50 px-1.5 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/50"
-                >
-                  <span aria-hidden className="text-al-accent-interactive">
-                    ✓
-                  </span>
-                  {outcome}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="mt-0 shrink-0" />
-        </div>
-
         <p
           className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}
           data-testid="pilot-command-center-first-run-steps"
         >
           {PILOT_COMMAND_CENTER_FIRST_RUN_STEPS}
         </p>
+
+        <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} className="mt-0" />
 
         <details data-testid="pilot-command-center-setup-disclosure">
           <summary className={setupDisclosureSummaryClass}>{PILOT_COMMAND_CENTER_SETUP_DISCLOSURE_LABEL}</summary>

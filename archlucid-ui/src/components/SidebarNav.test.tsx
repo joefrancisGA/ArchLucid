@@ -74,6 +74,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Portfolio overview" })).toHaveAttribute("href", "/dashboard");
+      expect(within(nav).getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
       expect(within(nav).queryByRole("link", { name: "ROI baselines" })).toBeNull();
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
@@ -112,7 +113,7 @@ describe("SidebarNav (primary navigation)", () => {
   );
 
   it(
-    "exposes Analysis when Review work disclosure expands and Governance only after Enable advanced features",
+    "exposes Analysis when Review work disclosure expands and Governance only after governance disclosure",
     async () => {
       render(<SidebarNav />);
 
@@ -127,7 +128,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Alerts" })).toBeNull();
 
-      fireEvent.click(screen.getByTestId("sidebar-operator-advanced-mode-toggle"));
+      fireEvent.click(screen.getByTestId("sidebar-governance-disclosure-toggle"));
 
       await waitFor(() => {
         const governanceNav = screen.getByRole("navigation", { name: "Governance" });
@@ -167,13 +168,34 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByRole("button", { name: "Fewer sidebar links" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Show governance & analysis tools/ })).toBeNull();
     expect(screen.queryByTestId("sidebar-layout-settings-dialog")).toBeNull();
-    expect(screen.getByTestId("sidebar-operator-advanced-mode-toggle")).toBeInTheDocument();
+    expect(screen.queryByTestId("sidebar-operator-advanced-mode-toggle")).toBeNull();
+    expect(screen.queryByText("Enable advanced features")).toBeNull();
+    expect(screen.getByTestId("sidebar-administration-toggle")).toHaveTextContent("Show administration");
+    expect(screen.queryByTestId("sidebar-administration-section")).toBeNull();
   });
 
-  it("reveals Analysis and Governance destinations when Enable advanced features is on", async () => {
+  it("uses Administration-specific copy and omits child-count badges on the section heading", async () => {
     render(<SidebarNav />);
 
-    fireEvent.click(screen.getByTestId("sidebar-operator-advanced-mode-toggle"));
+    fireEvent.click(screen.getByTestId("sidebar-administration-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-administration-section")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("sidebar-administration-toggle")).toHaveTextContent("Hide administration");
+    expect(screen.queryByText("Admin tools")).toBeNull();
+
+    const heading = screen.getByTestId("sidebar-administration-toggle");
+
+    expect(heading.textContent).not.toMatch(/\b2\b/);
+    expect(screen.queryByRole("button", { name: /Show \d+ more destinations in Admin tools/ })).toBeNull();
+  });
+
+  it("reveals Analysis and Governance destinations when governance disclosure is enabled", async () => {
+    render(<SidebarNav />);
+
+    fireEvent.click(screen.getByTestId("sidebar-governance-disclosure-toggle"));
 
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Compare two reviews" })).toBeInTheDocument();

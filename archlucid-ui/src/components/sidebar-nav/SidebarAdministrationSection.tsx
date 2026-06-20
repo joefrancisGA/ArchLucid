@@ -1,0 +1,106 @@
+"use client";
+
+import { ChevronDown, ChevronRight } from "lucide-react";
+import type { ReactElement } from "react";
+
+import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
+import { SIDEBAR_ADMINISTRATION } from "@/lib/nav-disclosure-copy";
+import { isNavLinkActive } from "@/lib/nav-link-active";
+import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import {
+  filterSidebarNavClusterLinks,
+  isSidebarNavLinkAdvancedInDemo,
+  presentSidebarNavLink,
+} from "@/lib/sidebar-nav-link-filters";
+import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+
+type SidebarAdministrationSectionProps = {
+  readonly showAdministration: boolean;
+  readonly onShowAdministrationChange: (value: boolean) => void;
+  readonly adminNavRows: readonly NavGroupWithVisibleLinks[];
+  readonly pathname: string;
+  readonly demoUi: boolean;
+  readonly buyerPolishedShell: boolean;
+  readonly hasCommittedArchitectureReview: boolean;
+  readonly effectiveOperateUnlockPhase: OperateNavUnlockPhase;
+  readonly onNavLinkNavigate?: () => void;
+};
+
+export function SidebarAdministrationSection(props: SidebarAdministrationSectionProps): ReactElement | null {
+  if (props.adminNavRows.length === 0) {
+    return null;
+  }
+
+  const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
+  const disclosureLabel = props.showAdministration
+    ? SIDEBAR_ADMINISTRATION.hide
+    : SIDEBAR_ADMINISTRATION.show;
+
+  return (
+    <div
+      className="mt-2 border-t border-neutral-200 pt-2 dark:border-neutral-700"
+      data-testid={
+        props.showAdministration ? "sidebar-administration-section" : "sidebar-administration-collapsed"
+      }
+    >
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-800/80"
+        id="sidebar-admin-section-heading"
+        data-testid="sidebar-administration-toggle"
+        aria-expanded={props.showAdministration}
+        aria-controls="sidebar-administration-content"
+        aria-label={disclosureLabel}
+        title={SIDEBAR_ADMINISTRATION.title}
+        onClick={() => {
+          props.onShowAdministrationChange(!props.showAdministration);
+        }}
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          {props.showAdministration ? (
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
+          )}
+          <span>Administration</span>
+        </span>
+        <span className="shrink-0 normal-case tracking-normal text-[11px] font-medium text-neutral-600 dark:text-neutral-300">
+          {disclosureLabel}
+        </span>
+      </button>
+      {props.showAdministration ? (
+        <div id="sidebar-administration-content" className="pt-1">
+          <nav
+            className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+            aria-label="Administration"
+          >
+            {props.adminNavRows.flatMap((row) => {
+              const linksForRender = filterSidebarNavClusterLinks({
+                visibleLinks: row.visibleLinks,
+                demoUi: props.demoUi,
+                buyerPolishedShell: props.buyerPolishedShell,
+                hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
+                effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
+              });
+
+              return linksForRender.map((link) => {
+                const presented = presentSidebarNavLink(link, props.buyerPolishedShell);
+
+                return (
+                  <SidebarNavLink
+                    key={presented.href}
+                    presented={presented}
+                    active={isNavLinkActive(props.pathname, presented.href)}
+                    advancedDemo={isSidebarNavLinkAdvancedInDemo(presented.href, demoOrBuyer)}
+                    buyerPolishedShell={props.buyerPolishedShell}
+                    onNavigate={props.onNavLinkNavigate}
+                  />
+                );
+              });
+            })}
+          </nav>
+        </div>
+      ) : null}
+    </div>
+  );
+}

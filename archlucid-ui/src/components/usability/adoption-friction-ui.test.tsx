@@ -23,7 +23,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
     expect(screen.getByText("Evidence gaps")).toBeInTheDocument();
     expect(screen.getByText("Decision impact")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-action-row")).toBeInTheDocument();
+    expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
   });
 
   it("tucks optional setup links behind a Setup disclosure (TB-346)", () => {

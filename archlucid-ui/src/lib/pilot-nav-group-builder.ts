@@ -89,6 +89,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: "Onboarding — checklist and milestones",
           tier: "essential",
           icon: ClipboardList,
+          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: "/governance/findings",

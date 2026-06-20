@@ -41,6 +41,7 @@ type SidebarNavLinkProps = {
   readonly advancedDemo: boolean;
   readonly buyerPolishedShell: boolean;
   readonly afterLabel?: ReactNode;
+  readonly onNavigate?: () => void;
 };
 
 export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
@@ -72,6 +73,9 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
       aria-keyshortcuts={
         presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
       }
+      onClick={() => {
+        props.onNavigate?.();
+      }}
     >
       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
       <SidebarNavLinkLabel presented={presented} />
