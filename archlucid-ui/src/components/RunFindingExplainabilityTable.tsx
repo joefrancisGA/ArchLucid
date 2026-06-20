@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -272,6 +273,7 @@ export function RunFindingExplainabilityTable({
                     </Button>
                   </div>
                   <CopyTraceRowWorkItemButton row={row} runId={runId} />
+                  <ItsmOutboundQuickActions findingId={row.findingId} compact />
                   {!buyerPolishedShell ? (
                     <ProductLearningFeedbackControls
                       runId={runId}

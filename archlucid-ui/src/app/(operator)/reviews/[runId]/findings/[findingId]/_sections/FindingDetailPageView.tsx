@@ -26,6 +26,7 @@ import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-eviden
 import { cn } from "@/lib/utils";
 
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
+import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";
 import {
   fallbackImpactedScope,
   fallbackSeverity,
@@ -317,10 +318,15 @@ export function FindingDetailPageView(props: Props) {
         <FindingIacStubPanel runId={runId} findingId={decodedFindingId} />
       ) : null}
 
+      {inspectPayload !== null ? (
+        <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
+      ) : null}
+
       {inspectPayload !== null && !buyerPolishedShell ? (
-        <CollapsibleSection title="Export for work tracking" defaultOpen={false}>
+        <CollapsibleSection title="Copy for work tracking" defaultOpen={false}>
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            Copy a structured summary formatted for your issue tracker (Markdown, GitHub Issues, Azure Boards, or Jira).
+            Copy a structured summary formatted for Markdown, GitHub Issues, or Azure Boards when your team does not
+            use the Jira or ServiceNow connectors above.
           </p>
           <div className="pt-3">
             <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />

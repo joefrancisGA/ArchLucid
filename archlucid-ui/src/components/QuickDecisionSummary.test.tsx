@@ -10,6 +10,11 @@ vi.mock("next/navigation", () => ({
   useRouter: (): { refresh: () => void } => ({ refresh: (): void => {} }),
 }));
 
+vi.mock("@/lib/api/itsm-outbound-api", () => ({
+  listItsmFindingCorrelations: vi.fn().mockResolvedValue({ correlations: [] }),
+  createItsmOutboundIssue: vi.fn(),
+}));
+
 expect.extend(toHaveNoViolations);
 
 describe("QuickDecisionSummary", () => {
@@ -98,6 +103,8 @@ describe("QuickDecisionSummary", () => {
     ]);
 
     expect(screen.getByText("Fix immediately.")).toBeInTheDocument();
+    expect(screen.getAllByTestId("itsm-sync-jira")).toHaveLength(3);
+    expect(screen.getAllByTestId("itsm-sync-servicenow")).toHaveLength(3);
   });
 
   it("shows View evidence graph link when synthetic evidence ref count is present", () => {

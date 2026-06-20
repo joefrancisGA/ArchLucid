@@ -14,9 +14,9 @@ export function FindingInspectItsmWorkflowPanel({
   humanReviewStatusLabel = null,
 }: FindingInspectItsmWorkflowPanelProps) {
   return (
-    <Card className="mt-4">
+    <Card className="border-teal-200 dark:border-teal-900">
       <CardHeader>
-        <CardTitle className="text-base">ITSM work items</CardTitle>
+        <CardTitle className="text-base">Sync to Jira or ServiceNow</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         {humanReviewStatusLabel ? (
@@ -24,9 +24,9 @@ export function FindingInspectItsmWorkflowPanel({
             Inbound sync human review: <span className="font-medium text-al-text-primary">{humanReviewStatusLabel}</span>
           </p>
         ) : null}
-        <p className="text-neutral-500 dark:text-neutral-400">
-          Create a linked Jira issue or ServiceNow incident from this finding. Duplicate creation per provider is
-          blocked when a correlation already exists.
+        <p className="text-neutral-600 dark:text-neutral-400">
+          Create a linked Jira issue or ServiceNow incident from this finding in one click. Duplicate creation per
+          provider is blocked when a correlation already exists.
         </p>
         <ItsmOutboundQuickActions findingId={findingId} />
       </CardContent>

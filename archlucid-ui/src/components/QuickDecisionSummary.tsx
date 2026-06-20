@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
@@ -126,9 +127,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       >
         <CardHeader className="pb-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">
-              {buyerPolishedShell ? "Decision summary" : "Quick decision summary"}
-            </CardTitle>
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-semibold text-al-text-primary">
+                {buyerPolishedShell ? "Decision summary" : "Quick decision summary"}
+              </CardTitle>
+              {hasSourceFindings ? (
+                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                  One-click Jira or ServiceNow sync is available on each priority finding below.
+                </p>
+              ) : null}
+            </div>
             {hasSourceFindings ? (
               <div className="flex flex-wrap items-center gap-3">
                 <Button
@@ -308,6 +316,15 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                     {snippet.length > 0 ? (
                       <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
                     ) : null}
+                    <div
+                      className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
+                      data-testid={`finding-itsm-sync-${f.findingId}`}
+                    >
+                      <p className="m-0 mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                        Work tracking
+                      </p>
+                      <ItsmOutboundQuickActions findingId={f.findingId} compact />
+                    </div>
                     {askFindingId === f.findingId ? (
                       <div className="mt-3">
                         <FindingAskInlinePanel findingId={f.findingId} defaultOpen />

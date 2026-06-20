@@ -72,8 +72,10 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
           className="h-7 text-xs"
           disabled={busy || jiraLinked}
           onClick={() => void onCreate("Jira")}
+          data-testid="itsm-sync-jira"
+          aria-label={jiraLinked ? "Jira issue already linked" : "Create linked Jira issue"}
         >
-          {jiraLinked ? "Jira linked" : "Jira"}
+          {jiraLinked ? "Jira linked" : compact ? "Sync Jira" : "Create Jira issue"}
         </Button>
         <Button
           type="button"
@@ -82,8 +84,10 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
           className="h-7 text-xs"
           disabled={busy || serviceNowLinked}
           onClick={() => void onCreate("ServiceNow")}
+          data-testid="itsm-sync-servicenow"
+          aria-label={serviceNowLinked ? "ServiceNow incident already linked" : "Create linked ServiceNow incident"}
         >
-          {serviceNowLinked ? "SN linked" : "ServiceNow"}
+          {serviceNowLinked ? "ServiceNow linked" : compact ? "Sync ServiceNow" : "Create ServiceNow incident"}
         </Button>
       </div>
 
