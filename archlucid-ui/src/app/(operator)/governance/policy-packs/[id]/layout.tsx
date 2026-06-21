@@ -5,7 +5,7 @@ import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = "force-no-store" as const;
+export const fetchCache = "force-no-store";
 
 export default async function GovernancePolicyPackLayout({
   children,
