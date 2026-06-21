@@ -52,7 +52,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
 
                 hits.Should().NotBeNull();
                 hits.Should().BeEmpty("no documents have been indexed");
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -71,7 +72,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
                     requestTimeout.Token);
 
                 response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -98,7 +100,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
 
                 hits.Should().NotBeNull();
                 hits.Should().NotBeEmpty("indexed documents should produce at least one retrieval hit");
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     [SkippableFact]
@@ -125,7 +128,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
 
                 hits.Should().NotBeNull();
                 hits.Should().HaveCountLessThanOrEqualTo(1);
-            });
+            },
+            IntegrationTestDeadline.SharedHostTestTimeout);
     }
 
     private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services, CancellationToken cancellationToken)

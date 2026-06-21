@@ -9,8 +9,20 @@ internal static class IntegrationTestDeadline
     /// <summary>
     ///     Host start (180s) + client wrap (30s) + bounded HTTP (90s) + bounded dispose (120s) can stack under slow CI;
     ///     8 minutes keeps headroom above the ~420s worst-case inner stack (AskThread 240s failures used the old 4-minute budget).
+    ///     Applies to classes that cold-boot (and dispose) the host inside the test body; shared-fixture classes should pass
+    ///     <see cref="SharedHostTestTimeout" /> instead.
     /// </summary>
     internal static readonly TimeSpan DefaultTestTimeout = TimeSpan.FromMinutes(8);
+
+    /// <summary>
+    ///     Per-test budget for classes that boot and dispose the API host once via a shared <c>IClassFixture</c>
+    ///     (e.g. <see cref="RetrievalQuerySmokeSharedHostFixture" />). Host start (180s) and bounded dispose (120s) run in the
+    ///     fixture's <c>InitializeAsync</c>/<c>DisposeAsync</c>, outside <see cref="RunAsync" />, so only the per-request inner
+    ///     stack — client wrap (30s) + bounded HTTP (90s) = 120s — can elapse inside the test body. 150s leaves the inner bounds
+    ///     room to fire first (attributable) while catching a truly unbounded request ~3x faster than <see cref="DefaultTestTimeout" />
+    ///     (CI #2268: retrieval search hung the full 480s because the inner 90s HTTP cancellation was not honored).
+    /// </summary>
+    internal static readonly TimeSpan SharedHostTestTimeout = TimeSpan.FromSeconds(150);
 
     internal static async Task RunAsync(
         string testName,
