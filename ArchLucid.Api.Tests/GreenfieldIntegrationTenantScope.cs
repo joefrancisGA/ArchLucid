@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Data.SqlClient;
@@ -10,6 +12,9 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class GreenfieldIntegrationTenantScope
 {
+    internal const string SchemaNotReadySkipReason =
+        "Required SQL schema for greenfield integration tests is not present.";
+
     internal sealed record Scope(Guid TenantId, Guid WorkspaceId, Guid ProjectId);
 
     internal static Scope CreateUniqueScope()
@@ -29,15 +34,33 @@ internal static class GreenfieldIntegrationTenantScope
         await using SqlConnection connection = new(connectionString);
         await connection.OpenAsync(cancellationToken);
 
+        await using (SqlCommand schemaCheck = connection.CreateCommand())
+        {
+            schemaCheck.CommandText =
+                """
+                SELECT
+                    CASE WHEN OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+                       AND OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NOT NULL
+                    THEN 1 ELSE 0 END
+                """;
+
+            object? ready = await schemaCheck.ExecuteScalarAsync(cancellationToken);
+            int schemaReady = Convert.ToInt32(ready, CultureInfo.InvariantCulture);
+
+            Skip.If(schemaReady != 1, SchemaNotReadySkipReason);
+        }
+
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText =
             """
             IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Tid)
                 INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
                 VALUES (@Tid, @TenantName, @TenantSlug, N'Standard', NULL);
+
             IF NOT EXISTS (SELECT 1 FROM dbo.TenantWorkspaces WHERE Id = @Wid)
                 INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
                 VALUES (@Wid, @Tid, @WorkspaceName, @Pid);
+
             IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
                AND NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = @Pid)
                 INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, CreatedUtc, IsDeleted)
