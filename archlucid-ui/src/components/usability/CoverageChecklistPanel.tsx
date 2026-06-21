@@ -44,7 +44,7 @@ export function CoverageChecklistPanel(props: CoverageChecklistPanelProps): Reac
             data-testid={`coverage-checklist-item-${item.findingId}`}
           >
             <div className="flex flex-wrap items-center gap-2">
-              <SeverityTag kind="info" label="Checklist" />
+              <SeverityTag severity={null} kind="info" label="Checklist" />
               <span className="text-sm font-medium text-al-text-primary">{item.title}</span>
             </div>
             {item.category !== null ? (

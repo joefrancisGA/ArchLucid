@@ -1,5 +1,4 @@
 import {
-  AlertCircle,
   GitCompare,
   MessageSquare,
   Play,
