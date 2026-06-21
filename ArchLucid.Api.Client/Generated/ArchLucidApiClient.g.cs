@@ -59020,6 +59020,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
         public int? AgentType { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("attemptIndex")]
+        public int? AttemptIndex { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
         public bool? BlobUploadFailed { get; set; } = default!;
 
