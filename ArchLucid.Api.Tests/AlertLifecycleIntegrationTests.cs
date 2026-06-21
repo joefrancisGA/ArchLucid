@@ -15,6 +15,7 @@ namespace ArchLucid.Api.Tests;
 ///     <see cref="AlertRecord" /> rows via HTTP.
 /// </summary>
 [Trait("Category", "Integration")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class AlertLifecycleIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)

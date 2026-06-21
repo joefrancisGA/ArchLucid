@@ -19,6 +19,7 @@ namespace ArchLucid.Api.Tests;
 ///     <c>InMemoryVectorIndex</c>).
 /// </summary>
 [Trait("Category", "Integration")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeSharedHostFixture sharedHost)
     : IClassFixture<RetrievalQuerySmokeSharedHostFixture>
 {
@@ -38,7 +39,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
             nameof(A_Query_with_no_indexed_documents_returns_empty_list),
             async testDeadline =>
             {
-                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
+                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
@@ -63,7 +64,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
             nameof(B_Query_without_q_returns_bad_request),
             async testDeadline =>
             {
-                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
+                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
                 using CancellationTokenSource requestTimeout =
                     IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
@@ -88,7 +89,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
 
                 await SeedRetrievalDocumentsAsync(sharedHost.Factory.Services, requestTimeout.Token);
 
-                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
+                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
 
                 HttpResponseMessage response = await client.GetAsync(
                     new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
@@ -116,7 +117,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
 
                 await SeedRetrievalDocumentsAsync(sharedHost.Factory.Services, requestTimeout.Token);
 
-                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
+                HttpClient client = await CreateRetrievalSearchClientAsync(sharedHost.Factory);
 
                 HttpResponseMessage response = await client.GetAsync(
                     new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
@@ -175,5 +176,13 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
         ];
 
         await indexingService.IndexDocumentsAsync(documents, cancellationToken);
+    }
+
+    private static async Task<HttpClient> CreateRetrievalSearchClientAsync(AlertLifecycleWebAppFactory factory)
+    {
+        HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        return client;
     }
 }

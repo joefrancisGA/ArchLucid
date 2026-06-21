@@ -18,6 +18,8 @@ public sealed class IntegrationTestStorageProviderEnvironmentTests
 
             using (IntegrationTestStorageProviderEnvironment scope = new("InMemory"))
             {
+                scope.Apply();
+
                 Environment.GetEnvironmentVariable("ArchLucid__StorageProvider").Should().Be("InMemory");
             }
 
@@ -40,6 +42,8 @@ public sealed class IntegrationTestStorageProviderEnvironmentTests
 
             using (IntegrationTestStorageProviderEnvironment scope = new("Sql"))
             {
+                scope.Apply();
+
                 Environment.GetEnvironmentVariable("ArchLucid__StorageProvider").Should().Be("Sql");
             }
 

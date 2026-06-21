@@ -55,21 +55,30 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
 
     private Task<IServiceProvider> StartServicesCoreAsync()
     {
+        return IntegrationTestStorageProviderHostGate.RunExclusiveAsync(StartServicesCoreUnderGateAsync);
+    }
+
+    private async Task<IServiceProvider> StartServicesCoreUnderGateAsync()
+    {
+        _storageProviderEnvironment.Apply();
+
         Console.Error.WriteLine(
             $"[{LogPrefix}] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
         // Services access and first CreateClient share one Task.Run worker so WebApplicationFactory.EnsureServer
         // is never entered concurrently from an abandoned startup thread and a later CreateClient (CI #2168).
-        return IntegrationTestHostStartup.EnsureStartedAsync(() =>
+        IServiceProvider services = await IntegrationTestHostStartup.EnsureStartedAsync(() =>
         {
-            IServiceProvider services = Services;
+            IServiceProvider resolvedServices = Services;
             _ = CreateClient();
 
             Console.Error.WriteLine(
                 $"[{LogPrefix}] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
-            return services;
-        });
+            return resolvedServices;
+        }).ConfigureAwait(false);
+
+        return services;
     }
 
     /// <summary>

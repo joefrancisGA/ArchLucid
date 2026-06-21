@@ -15,6 +15,7 @@ namespace ArchLucid.Api.Tests;
 ///     GET attempts.
 /// </summary>
 [Trait("Category", "Integration")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class DigestDeliveryLifecycleIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
