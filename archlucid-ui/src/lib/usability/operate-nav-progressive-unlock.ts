@@ -14,10 +14,6 @@ const GOVERNANCE_PHASE_HREFS = new Set<string>([
   "/governance",
   "/audit",
   "/governance/decision-register",
-  "/governance/first-30-days",
-  "/workspace/security-trust",
-  "/integrations/teams",
-  "/value-report",
 ]);
 
 /** Duplicate/near-duplicate routes hidden from primary nav (deep links still work). */

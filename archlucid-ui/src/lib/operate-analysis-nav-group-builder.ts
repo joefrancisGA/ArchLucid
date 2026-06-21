@@ -1,7 +1,6 @@
 import {
   GitCompare,
   MessageSquare,
-  Play,
   Search,
   Activity,
 } from "lucide-react";
@@ -19,7 +18,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.analysis,
       surface: "review-workflow",
       caption:
-        "Comparisons, Ask, search, and advisory scans — expand when you need deeper investigation beyond the review path.",
+        "Compare, Ask, search, and advisory — expand when you need deeper investigation beyond the review path.",
       links: [
         {
           href: "/compare",
@@ -29,15 +28,6 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
           icon: GitCompare,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/replay",
-          label: OPERATOR_NAV_LINK_LABELS.replayReview,
-          title: this.shortcutTitle("Replay a review — re-validate stored pipeline output", "alt+p"),
-          keyShortcut: "alt+p",
-          icon: Play,
-          tier: "extended",
-          requiredAuthority: "ExecuteAuthority",
         },
         {
           href: "/ask",

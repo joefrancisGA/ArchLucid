@@ -4,10 +4,8 @@ import {
   FileSearch,
   FileText,
   GitBranch,
-  MessageSquare,
   Scale,
   Shield,
-  ShieldCheck,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -15,14 +13,14 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-/** Operate · governance — Read-class hubs vs Execute workflow vs Admin health. */
+/** Operate · governance — findings, exceptions, policies, decisions, audit, and alerts. */
 export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-governance",
       label: OPERATOR_NAV_GROUP_LABELS.governance,
       surface: "review-workflow",
-      caption: "Policy, audit, alerts, and trust controls.",
+      caption: "Findings, exceptions, policies, decisions, audit, and alerts.",
       links: [
         {
           href: "/governance/findings",
@@ -92,38 +90,6 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           icon: Bell,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/governance/first-30-days",
-          label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
-          title: "First 30 days — minimal governance operating preset after pilot",
-          icon: ShieldCheck,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/workspace/security-trust",
-          label: OPERATOR_NAV_LINK_LABELS.securityTrust,
-          title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",
-          icon: ShieldCheck,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/integrations/teams",
-          label: OPERATOR_NAV_LINK_LABELS.teamsNotifications,
-          title: "Teams notifications — Key Vault reference for incoming webhook fan-out",
-          icon: MessageSquare,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: "/value-report",
-          label: OPERATOR_NAV_LINK_LABELS.valueReport,
-          title: "Value report — sponsor DOCX from ROI_MODEL-aligned tenant metrics",
-          icon: FileText,
-          tier: "advanced",
-          requiredAuthority: "ExecuteAuthority",
         },
       ],
     };

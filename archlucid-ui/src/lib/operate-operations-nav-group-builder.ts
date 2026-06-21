@@ -7,7 +7,10 @@ import {
   GitBranch,
   HeartPulse,
   LineChart,
+  MessageSquare,
+  Play,
   Plug,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 
@@ -16,14 +19,14 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-/** Operate · operations rhythm — scorecard, schedules, tuning, and platform health. */
+/** Operate · operations rhythm — connectors, recurrence, tuning, feedback, and system health. */
 export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-operations",
       label: OPERATOR_NAV_GROUP_LABELS.operations,
       surface: "review-workflow",
-      caption: "Scorecard, recurrence, tuning, portfolio operations, and system health.",
+      caption: "Connectors, recurrence, tuning, adoption feedback, replay, and system health.",
       links: [
         {
           href: "/scorecard",
@@ -58,18 +61,18 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/portfolio",
-          label: "Portfolio Dashboard",
-          title: "Portfolio Dashboard — cross-tenant aggregated ROI and risk metrics",
-          icon: BarChart3,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
           href: "/integrations/operations",
           label: OPERATOR_NAV_LINK_LABELS.connectorOperations,
           title: "Connector operations — readiness, smoke signals, and Service Bus posture",
           icon: Plug,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/integrations/teams",
+          label: OPERATOR_NAV_LINK_LABELS.teamsNotifications,
+          title: "Teams notifications — Key Vault reference for incoming webhook fan-out",
+          icon: MessageSquare,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
@@ -80,6 +83,39 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
           icon: HeartPulse,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/replay",
+          label: OPERATOR_NAV_LINK_LABELS.replayReview,
+          title: this.shortcutTitle("Replay a review — re-validate stored pipeline output", "alt+p"),
+          keyShortcut: "alt+p",
+          icon: Play,
+          tier: "extended",
+          requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/workspace/security-trust",
+          label: OPERATOR_NAV_LINK_LABELS.securityTrust,
+          title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",
+          icon: ShieldCheck,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/first-30-days",
+          label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
+          title: "First 30 days — minimal governance operating preset after pilot",
+          icon: ShieldCheck,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/value-report",
+          label: OPERATOR_NAV_LINK_LABELS.valueReport,
+          title: "Value report — sponsor DOCX from ROI_MODEL-aligned tenant metrics",
+          icon: FileText,
+          tier: "advanced",
+          requiredAuthority: "ExecuteAuthority",
         },
         {
           href: "/planning",

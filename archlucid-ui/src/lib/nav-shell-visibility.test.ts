@@ -163,13 +163,13 @@ describe("filterNavLinksForOperatorShell", () => {
    * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
    * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
    */
-  it("hides Advanced operations extended Execute link (/replay) until showExtended even for Admin rank", () => {
-    const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
+  it("hides Operations extended Execute link (/replay) until showExtended even for Admin rank", () => {
+    const operations = NAV_GROUPS.find((g) => g.id === "operate-operations");
 
-    expect(analysis).toBeDefined();
+    expect(operations).toBeDefined();
 
     const extendedOff = filterNavLinksForOperatorShell(
-      analysis!.links,
+      operations!.links,
       false,
       false,
       AUTHORITY_RANK.AdminAuthority,
@@ -180,7 +180,7 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(extendedOff.some((l) => l.href === "/replay")).toBe(false);
 
     const extendedOn = filterNavLinksForOperatorShell(
-      analysis!.links,
+      operations!.links,
       true,
       false,
       AUTHORITY_RANK.AdminAuthority,
@@ -429,6 +429,7 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
 
 describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
+  const operations = NAV_GROUPS.find((g) => g.id === "operate-operations");
   const prevDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
   const prevStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
@@ -461,7 +462,17 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
 
     expect(visible.some((l) => l.href === "/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/audit")).toBe(true);
-    expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+
+    const operationsVisible = filterNavLinksForOperatorShell(
+      operations!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
+
+    expect(operationsVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
   it("keeps governance destinations visible when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true", () => {
@@ -480,7 +491,17 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
 
     expect(visible.some((l) => l.href === "/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/audit")).toBe(true);
-    expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+
+    const operationsVisible = filterNavLinksForOperatorShell(
+      operations!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
+
+    expect(operationsVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
   it("keeps operator-admin links visible in buyer-polished demo builds", () => {

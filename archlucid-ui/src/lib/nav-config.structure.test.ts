@@ -111,10 +111,28 @@ describe("nav-config structure", () => {
 
     const executeLinks = advanced!.links.filter((link) => link.requiredAuthority === "ExecuteAuthority");
 
-    expect(executeLinks.length).toBeGreaterThan(0);
+    expect(executeLinks.length).toBe(0);
+  });
 
-    for (const link of executeLinks) {
-      expect(link.tier, link.href).not.toBe("essential");
-    }
+  it("keeps buyer-polished operate group membership aligned", () => {
+    const analysisHrefs = NAV_GROUPS.find((group) => group.id === "operate-analysis")!.links.map((link) => link.href);
+    const governanceHrefs = NAV_GROUPS.find((group) => group.id === "operate-governance")!.links.map((link) => link.href);
+    const operationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-operations")!.links.map((link) => link.href);
+
+    expect(analysisHrefs).toEqual(["/compare", "/ask", "/search", "/advisory"]);
+    expect(governanceHrefs).toEqual([
+      "/governance/findings",
+      "/governance/risk-exceptions",
+      "/policy-packs",
+      "/governance-resolution",
+      "/governance",
+      "/audit",
+      "/governance/decision-register",
+      "/alerts",
+    ]);
+    expect(operationsHrefs).toContain("/integrations/teams");
+    expect(operationsHrefs).toContain("/replay");
+    expect(operationsHrefs).not.toContain("/portfolio");
+    expect(governanceHrefs).not.toContain("/integrations/teams");
   });
 });
