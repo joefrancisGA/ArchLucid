@@ -7,6 +7,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
@@ -62,10 +63,7 @@ public static class Program
 
         if (configurationErrors.Count > 0)
         {
-            foreach (string error in configurationErrors)
-            {
-                app.Logger.LogError("Startup configuration error: {Error}", error); // lgtm[cs/cleartext-storage-of-sensitive-information] validation text only.
-            }
+            StartupConfigurationFailureLogger.LogErrors(configurationErrors, app.Logger);
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }

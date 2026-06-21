@@ -33,10 +33,10 @@ internal static class SqlConnectionCredentialRules
         if (!HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
             return;
 
-        string? message = DescribePasswordCredentialIssue(configuration, archLucidOptions);
+        SqlPasswordCredentialIssueKind? issueKind = DetectPasswordCredentialIssue(configuration, archLucidOptions);
 
-        if (message is not null)
-            errors.Add(message);
+        if (issueKind is not null)
+            errors.Add(SqlPasswordCredentialIssueMessages.For(issueKind.Value));
     }
 
     /// <summary>
@@ -55,21 +55,21 @@ internal static class SqlConnectionCredentialRules
             return;
 
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
-        string? message = DescribePasswordCredentialIssue(configuration, archLucidOptions);
+        SqlPasswordCredentialIssueKind? issueKind = DetectPasswordCredentialIssue(configuration, archLucidOptions);
 
-        if (message is null)
+        if (issueKind is null)
             return;
 
         if (logger.IsEnabled(LogLevel.Warning))
         {
-            logger.LogWarning("{Message}", message); // lgtm[cs/cleartext-storage-of-sensitive-information] operational remediation text only.
+            logger.LogWarning("{Message}", SqlPasswordCredentialIssueMessages.For(issueKind.Value));
         }
     }
 
     internal static bool ShouldEnforceServerCertificateTrust(IConfiguration configuration) =>
         ArchLucidConfigurationBridge.ShouldEnforceSqlServerCertificateTrust(configuration);
 
-    internal static string? DescribePasswordCredentialIssue(
+    internal static SqlPasswordCredentialIssueKind? DetectPasswordCredentialIssue(
         IConfiguration configuration,
         ArchLucidOptions archLucidOptions)
     {
@@ -84,21 +84,21 @@ internal static class SqlConnectionCredentialRules
         SqlConnectionStringBuilder builder = new(connectionString.Trim());
 
         if (!string.IsNullOrEmpty(builder.Password))
-        {
-            return "ConnectionStrings:ArchLucid contains a Password. "
-                   + "Use Managed Identity (Authentication=Active Directory Default) instead. "
-                   + "Remove Password from the connection string and configure Managed Identity per "
-                   + "docs/security/MANAGED_IDENTITY_SQL_BLOB.md.";
-        }
+            return SqlPasswordCredentialIssueKind.PasswordPresent;
 
         if (!string.IsNullOrEmpty(builder.UserID)
             && !connectionString.Contains("Authentication=", StringComparison.OrdinalIgnoreCase))
-        {
-            return "ConnectionStrings:ArchLucid contains a User ID without Authentication=. "
-                   + "Use Managed Identity (Authentication=Active Directory Default) instead. "
-                   + "See docs/security/MANAGED_IDENTITY_SQL_BLOB.md.";
-        }
+            return SqlPasswordCredentialIssueKind.UserIdWithoutAuthentication;
 
         return null;
+    }
+
+    internal static string? DescribePasswordCredentialIssue(
+        IConfiguration configuration,
+        ArchLucidOptions archLucidOptions)
+    {
+        SqlPasswordCredentialIssueKind? issueKind = DetectPasswordCredentialIssue(configuration, archLucidOptions);
+
+        return issueKind is null ? null : SqlPasswordCredentialIssueMessages.For(issueKind.Value);
     }
 }
