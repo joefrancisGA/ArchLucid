@@ -2739,6 +2739,8 @@ When execute is retried after a partial batch (some handlers succeeded, run stil
 
 ## TB-040 ? `LlmCompletionAccountingClient` ? await metering with `CancellationToken.None`
 
+**Status:** **Done (2026-06-21 batch tb040-llm-metering-cancellation)** ? `TryRecordLlmUsageMeteringAsync` awaited in `CompleteJsonAsync` and `StreamJsonAsync` finally blocks with `CancellationToken.None`; cancellation-after-completion tests; `test_traceability_batch_tb040.py` drift guard.
+
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). Parallel fan-out uses linked cancellation; completed handlers may cancel peers after budget or fault.
 
 **Problem:**

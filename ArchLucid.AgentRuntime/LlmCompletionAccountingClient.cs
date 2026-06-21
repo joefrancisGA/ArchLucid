@@ -294,7 +294,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     promptTok,
                     completionTok);
 
-                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None);
+                await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
         }
     }
@@ -441,7 +442,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     promptTok,
                     completionTok);
 
-                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None);
+                await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
         }
     }

@@ -233,9 +233,10 @@ public sealed class LlmCompletionAccountingClientTests
     }
 
     [Fact]
-    public async Task CompleteJsonAsync_when_request_cancelled_still_records_metering_with_non_cancellable_token()
+    public async Task CompleteJsonAsync_when_token_cancelled_after_inner_returns_still_records_metering_once()
     {
         Guid tenant = Guid.NewGuid();
+        using CancellationTokenSource cts = new();
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
         inner
@@ -243,6 +244,7 @@ public sealed class LlmCompletionAccountingClientTests
             .Returns(() =>
             {
                 AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(4, 6);
+                cts.Cancel();
 
                 return Task.FromResult("{}");
             });
@@ -254,19 +256,16 @@ public sealed class LlmCompletionAccountingClientTests
 
         LlmCompletionAccountingClient sut = CreateClient(inner.Object, tenant, usageMetering: metering.Object);
 
-        using CancellationTokenSource cts = new();
-        cts.Cancel();
-
         await sut.CompleteJsonAsync("s", "u", cancellationToken: cts.Token);
 
         metering.Verify(
             m => m.RecordAsync(
-                It.Is<UsageEvent>(e => e.IdempotencyKey != null && e.Kind == UsageMeterKind.LlmPromptTokens),
+                It.Is<UsageEvent>(e => e.TenantId == tenant && e.Kind == UsageMeterKind.LlmPromptTokens && e.Quantity == 4),
                 CancellationToken.None),
             Times.Once);
         metering.Verify(
             m => m.RecordAsync(
-                It.Is<UsageEvent>(e => e.IdempotencyKey != null && e.Kind == UsageMeterKind.LlmCompletionTokens),
+                It.Is<UsageEvent>(e => e.TenantId == tenant && e.Kind == UsageMeterKind.LlmCompletionTokens && e.Quantity == 6),
                 CancellationToken.None),
             Times.Once);
     }
