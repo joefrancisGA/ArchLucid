@@ -46,7 +46,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IOptions<AgentOutputQualityGateOptions> agentOutputBudgetGate,
         IPromptRedactor promptRedactor,
         IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions,
-        IAgentResultRepository agentResultRepository)
+        IAgentResultRepository agentResultRepository,
+        IAgentExecutionTraceRecorder traceRecorder)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         ArgumentNullException.ThrowIfNull(logger);
@@ -59,6 +60,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(promptRedactor);
         ArgumentNullException.ThrowIfNull(archLucidLlmOptions);
         ArgumentNullException.ThrowIfNull(agentResultRepository);
+        ArgumentNullException.ThrowIfNull(traceRecorder);
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -88,7 +90,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
             agentOutputBudgetGate,
             promptRedactor,
             archLucidLlmOptions,
-            agentResultRepository);
+            agentResultRepository,
+            traceRecorder);
     }
 
     /// <inheritdoc />

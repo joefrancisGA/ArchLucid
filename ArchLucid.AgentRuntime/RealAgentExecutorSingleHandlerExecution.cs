@@ -130,6 +130,18 @@ internal static class RealAgentExecutorSingleHandlerExecution
                             dispatchKey,
                             degradationReason);
 
+                        await AgentHandlerDegradedTraceRecorder.TryRecordAsync(
+                            dependencies.TraceRecorder,
+                            dependencies.Logger,
+                            runId,
+                            task,
+                            dispatchKey,
+                            degradationReason,
+                            result.Claims.FirstOrDefault() ?? "Agent handler degraded.",
+                            ex,
+                            ResolvePromptVersion(dependencies, dispatchKey),
+                            cancellationToken);
+
                         ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
                             1,
                             new KeyValuePair<string, object?>("agent_type_key", dispatchKey),

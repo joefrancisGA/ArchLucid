@@ -56,7 +56,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            new NoOpAgentExecutionTraceRecorder());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -91,7 +92,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            new NoOpAgentExecutionTraceRecorder());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -110,6 +112,8 @@ public sealed class AgentExecutionResilienceTests
     [SkippableFact]
     public async Task Per_handler_timeout_returns_degraded_result_for_non_critic_when_enabled()
     {
+        CapturingAgentExecutionTraceRecorder traceRecorder = new();
+
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
             new AgentExecutionResilienceOptions
             {
@@ -129,7 +133,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            traceRecorder);
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -142,6 +147,18 @@ public sealed class AgentExecutionResilienceTests
         results.Should().ContainSingle();
         results[0].Confidence.Should().Be(0);
         results[0].Claims.Should().ContainSingle(c => c.Contains("degraded", StringComparison.OrdinalIgnoreCase));
+
+        traceRecorder.CallCount.Should().Be(1);
+        CapturingAgentExecutionTraceRecorder.CapturedTraceCall? call = traceRecorder.LastCall;
+        call.Should().NotBeNull();
+        call!.RunId.Should().Be(runId);
+        call.TaskId.Should().Be("t1");
+        call.AgentType.Should().Be(AgentType.Topology);
+        call.ParseSucceeded.Should().BeFalse();
+        call.FailureReasonCode.Should().Be(AgentHandlerDegradationReasonCodes.HandlerTimeout);
+        call.ModelDeploymentName.Should().Be(AgentExecutionTraceModelMetadata.DegradedHandlerDeploymentName);
+        call.SystemPrompt.Should().BeEmpty();
+        call.UserPrompt.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -166,7 +183,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            new NoOpAgentExecutionTraceRecorder());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -208,7 +226,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            new NoOpAgentExecutionTraceRecorder());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

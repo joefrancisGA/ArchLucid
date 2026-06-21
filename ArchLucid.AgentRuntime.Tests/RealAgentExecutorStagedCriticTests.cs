@@ -54,7 +54,8 @@ public sealed class RealAgentExecutorStagedCriticTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            new NoOpAgentExecutionTraceRecorder());
     }
 
     [SkippableFact]

@@ -23,7 +23,8 @@ internal sealed class RealAgentExecutorExecutionDependencies
         IOptions<AgentOutputQualityGateOptions> agentOutputBudgetGate,
         IPromptRedactor promptRedactor,
         IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions,
-        IAgentResultRepository agentResultRepository)
+        IAgentResultRepository agentResultRepository,
+        IAgentExecutionTraceRecorder traceRecorder)
     {
         Handlers = handlers;
         Logger = logger;
@@ -36,6 +37,7 @@ internal sealed class RealAgentExecutorExecutionDependencies
         PromptRedactor = promptRedactor;
         ArchLucidLlmOptions = archLucidLlmOptions;
         AgentResultRepository = agentResultRepository;
+        TraceRecorder = traceRecorder;
     }
 
     internal IReadOnlyDictionary<string, IAgentHandler> Handlers { get; }
@@ -59,4 +61,6 @@ internal sealed class RealAgentExecutorExecutionDependencies
     internal IOptionsMonitor<ArchLucidLlmOptions> ArchLucidLlmOptions { get; }
 
     internal IAgentResultRepository AgentResultRepository { get; }
+
+    internal IAgentExecutionTraceRecorder TraceRecorder { get; }
 }

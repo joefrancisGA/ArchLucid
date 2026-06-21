@@ -29,8 +29,25 @@ The SQL columns **`ModelDeploymentName`** and **`ModelVersion`** are **nullable*
 | --- | --- | --- |
 | Real LLM path, value missing/blank | **`unspecified-deployment`** | **`unspecified-model-version`** |
 | Simulator / offline | **`AgentExecution:Simulator`** | **`deterministic-1.0`** |
+| Handler resilience degraded (no LLM completion, TB-034) | **`handler-degraded:no-llm-call`** | **`resilience-placeholder-1.0`** |
 
 Constants live in **`ArchLucid.Contracts.Agents.AgentExecutionTraceModelMetadata`**. Forensics queries should filter on real names (exclude these sentinels) when building “model mix” dashboards.
+
+### Degraded handler traces (TB-034)
+
+When **`RealAgentExecutor`** returns a **degraded placeholder** for a non-Critic handler (timeout / circuit-open / resilience failure), **`AgentHandlerDegradedTraceRecorder`** inserts a **partial** trace row **before** the placeholder **`AgentResult`** is returned:
+
+| Field | Value |
+| --- | --- |
+| **`ParseSucceeded`** | **`false`** |
+| **`FailureReasonCode`** | **`handler_timeout`**, **`circuit_open`**, or **`resilience_failure`** |
+| **`SystemPrompt` / `UserPrompt`** | Empty (degradation occurred before a durable LLM call) |
+| **`RawResponse`** | Operator-facing degraded claim text (not provider output) |
+| **`PromptTemplateId` / `PromptTemplateVersion`** | Handler dispatch key + catalog version when known |
+| **`ModelDeploymentName` / `ModelVersion`** | **`handler-degraded:no-llm-call`** / **`resilience-placeholder-1.0`** |
+| Token counts / **`EstimatedCostUsd`** | Zero / null — no completion occurred |
+
+Trace insert is **best-effort** (same posture as blob persistence audits): failures are logged and **do not** block the degraded result path.
 
 ### Host startup (Production / Staging, Real mode)
 

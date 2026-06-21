@@ -28,4 +28,12 @@ public static class AgentExecutionTraceModelMetadata
 
     /// <summary>Recorded for simulator traces; bumps if simulator output shape changes materially.</summary>
     public const string SimulatorModelVersion = "deterministic-1.0";
+
+    /// <summary>
+    ///     Recorded when handler resilience returns a degraded placeholder without an LLM completion (TB-034).
+    /// </summary>
+    public const string DegradedHandlerDeploymentName = "handler-degraded:no-llm-call";
+
+    /// <summary>Version label for degraded-handler partial traces (no provider model).</summary>
+    public const string DegradedHandlerModelVersion = "resilience-placeholder-1.0";
 }

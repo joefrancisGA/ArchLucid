@@ -272,7 +272,8 @@ public sealed class RealRuntimeMixedModeTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()),
+            new NoOpAgentExecutionTraceRecorder());
 
         ArchitectureRequest request = new()
         {

@@ -2562,6 +2562,8 @@ Without an explicit layer ordering, it is valid to ask: can Decisioning depend o
 
 ## TB-034 ? Degraded-handler minimal `AgentExecutionTrace` rows
 
+**Status:** **Done (2026-06-21)** ? **`AgentHandlerDegradedTraceRecorder`** records partial trace rows on degraded handler paths; sentinel model metadata on **`AgentExecutionTraceModelMetadata`**; docs in **`AGENT_TRACE_FORENSICS.md`** and **`OBSERVABILITY.md`**; tests in **`AgentHandlerDegradedTraceRecorderTests`** and **`AgentExecutionResilienceTests`**.
+
 **Source:** Replay / provenance completeness audit (2026-05-26). `RealAgentExecutor` resilience path uses `AgentHandlerDegradedResultFactory` when handlers time out, circuits open, or resilience fails.
 
 **Problem:**
