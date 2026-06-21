@@ -1,17 +1,19 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
+import { Button } from "@/components/ui/button";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { MARKETING_LAYOUT, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
 import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
 import { MARKETING_GENERIC_AI_CONTRAST_POINTS } from "@/lib/marketing-generic-ai-contrast";
 
 function renderWhyVerifyLink(link: WhyVerifyLink): ReactNode {
-  const className =
-    "break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400";
+  const className = `break-words ${MARKETING_SURFACES.inlineLink}`;
 
   const key = `${link.href}|${link.label}`;
 
@@ -59,12 +61,10 @@ export type WhyArchlucidMarketingViewProps = {
  */
 export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-        Why ArchLucid
-      </h1>
+    <MarketingPageShell>
+      <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Why ArchLucid</h1>
       <p
-        className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        className={`mt-3 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="why-brand-category-paragraph"
       >
         {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
@@ -74,30 +74,28 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         <MarketingProofChainStrip />
       </div>
 
-      <section className="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300">
-          First-principles outcome
-        </p>
-        <h2 id="why-hero-outcome-heading" className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+      <section className={`${MARKETING_LAYOUT.majorSectionGap} ${MARKETING_SURFACES.highlightPanel}`}>
+        <p className={MARKETING_TYPOGRAPHY.eyebrow}>First-principles outcome</p>
+        <h2 id="why-hero-outcome-heading" className={`mt-2 ${MARKETING_TYPOGRAPHY.sectionTitle}`}>
           One buyer problem, one proof package
         </h2>
         <p
-          className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+          className={`mt-3 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
           data-testid="why-outcome-led-value-proposition"
         >
           {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
         </p>
-        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className={`mt-3 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
           Multi-agent execution sits behind those outcomes so teams move faster without losing the governed record CFOs and
           regulators expect.
         </p>
       </section>
 
       <section className="mt-12" aria-labelledby="why-vs-chat-assistant-heading" data-testid="why-vs-chat-assistant">
-        <h2 id="why-vs-chat-assistant-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="why-vs-chat-assistant-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           vs a chat assistant (ChatGPT, Copilot, Claude)
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.meta}`}>
           Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it
           persists a committed review package, governance gate, and audit trail a session cannot replace.
         </p>
@@ -105,7 +103,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           {MARKETING_GENERIC_AI_CONTRAST_POINTS.map((point) => (
             <li
               key={point.label}
-              className="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+              className={MARKETING_SURFACES.card}
             >
               <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">{point.label}</p>
               <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">
@@ -121,7 +119,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </ul>
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
           More detail:{" "}
-          <Link className="text-sky-700 underline underline-offset-2 dark:text-sky-400" href="/faq">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/faq">
             FAQ — vs ChatGPT/Copilot
           </Link>
           .
@@ -129,7 +127,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       </section>
 
       <section className="mt-12" aria-labelledby="why-market-landscape-heading">
-        <h2 id="why-market-landscape-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="why-market-landscape-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           Where ArchLucid fits (adjacent tooling)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
@@ -188,11 +186,11 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </div>
       </section>
 
-      <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side audit evidence package</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <section className={MARKETING_SURFACES.mutedPanel}>
+        <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>Side-by-side audit evidence package</h2>
+        <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
           Download a single PDF that bundles the same read-only sample output as the{" "}
-          <a className="font-medium text-sky-800 underline underline-offset-2 dark:text-sky-300" href="/demo/preview">
+          <a className={`font-medium ${MARKETING_SURFACES.inlineLink}`} href="/demo/preview">
             public demo preview
           </a>{" "}
           (manifest excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
@@ -200,27 +198,28 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           your environment, use the contact path on the getting started page.
         </p>
         <p className="mt-3">
-          <a
-            data-testid="why-proof-pack-download"
-            className="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-medium text-white hover:bg-sky-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
-            href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
-            download="why-archlucid-pack.pdf"
-          >
-            Download the audit evidence package (PDF)
-          </a>
+          <Button asChild variant="primary">
+            <a
+              data-testid="why-proof-pack-download"
+              href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
+              download="why-archlucid-pack.pdf"
+            >
+              Download the audit evidence package (PDF)
+            </a>
+          </Button>
         </p>
       </section>
 
       <section className="mt-10" aria-labelledby="why-demo-heading">
-        <h2 id="why-demo-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="why-demo-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           See a finalized sample review page
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.meta}`}>
           Anonymous read-only preview of an illustrative sample review record — same layout as the product workspace, not
           a live customer outcome; no sign-in required.
         </p>
         {showDemoEmbed ? (
-          <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div className={`mt-4 overflow-hidden ${MARKETING_SURFACES.sectionPanel}`}>
             <iframe
               title="ArchLucid demo manifest page preview"
               src="/demo/preview"
@@ -234,7 +233,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
             data-testid="why-demo-embed-placeholder"
           >
             Demo embed omitted (test build). In production this area shows an iframe of{" "}
-            <Link className="text-sky-700 underline underline-offset-2 dark:text-sky-400" href="/demo/preview">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
               the demo preview page
             </Link>
             .
@@ -242,7 +241,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         )}
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
           {showDemoEmbed ? "Opens in-page above; " : null}
-          <Link className="text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400" href="/demo/preview">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
             Open demo preview
           </Link>
           {showDemoEmbed ? " in a full tab." : "."}
@@ -250,7 +249,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       </section>
 
       <section className="mt-12" aria-labelledby="why-hard-compare-heading">
-        <h2 id="why-hard-compare-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="why-hard-compare-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           Governance capability comparison
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
@@ -322,12 +321,12 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       <section className="mt-10 border-t border-neutral-200 pt-8 dark:border-neutral-800">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           For sponsor-ready language and procurement context, see the{" "}
-          <Link className="text-sky-700 underline underline-offset-2 dark:text-sky-400" href="/get-started">
+          <Link className={MARKETING_SURFACES.inlineLink} href="/get-started">
             getting started guide
           </Link>{" "}
           or ask your account team for the executive overview pack.
         </p>
       </section>
-    </main>
+    </MarketingPageShell>
   );
 }

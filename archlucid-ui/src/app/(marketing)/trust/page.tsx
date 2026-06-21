@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTrustCenterBuyerBody } from "@/components/marketing/MarketingTrustCenterBuyerBody";
 import { TrustCenterFocusScroll } from "@/components/marketing/TrustCenterFocusScroll";
 import { TrustCenterFaqJsonLd } from "@/components/TrustCenterFaqJsonLd";
+import { Button } from "@/components/ui/button";
+import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseTrustCenterLastReviewedUtc,
   readTrustCenterMarkdown,
@@ -26,7 +29,7 @@ export default function MarketingTrustCenterPage(): ReactNode {
   }
 
   return (
-    <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
+    <MarketingPageShell variant="reading">
       <Suspense fallback={null}>
         <TrustCenterFocusScroll />
       </Suspense>
@@ -34,8 +37,8 @@ export default function MarketingTrustCenterPage(): ReactNode {
       <MarketingTrustCenterBuyerBody lastReviewedUtc={lastReviewedUtc} />
 
       <div className="mt-10">
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Public evidence summary</span>
+        <p className={`m-0 ${MARKETING_TYPOGRAPHY.meta}`}>
+          <span className="font-medium text-al-text-primary">Public evidence summary</span>
           <span> · Version 2026.05</span>
           {lastReviewedUtc !== null ? (
             <>
@@ -45,19 +48,20 @@ export default function MarketingTrustCenterPage(): ReactNode {
           ) : null}
           <span> · Public-safe excerpt for questionnaires — suitable for initial diligence intake</span>
         </p>
-        <a
-          className="mt-2 inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-700"
-          data-testid="trust-center-evidence-pack-download"
-          href="mailto:security@archlucid.net?subject=Public%20evidence%20summary%20request"
-          rel="noopener"
-        >
-          Request evidence summary
-        </a>
-        <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        <Button asChild variant="primary" size="default" className="mt-2">
+          <a
+            data-testid="trust-center-evidence-pack-download"
+            href="mailto:security@archlucid.net?subject=Public%20evidence%20summary%20request"
+            rel="noopener"
+          >
+            Request evidence summary
+          </a>
+        </Button>
+        <p className={`mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
           We send the current public-safe evidence summary by email to ensure buyers receive the latest approved version.
           Email security review to request it — we confirm diligence intake when needed.
         </p>
       </div>
-    </main>
+    </MarketingPageShell>
   );
 }

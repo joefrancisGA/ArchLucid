@@ -11,9 +11,11 @@ import { MicrosoftClarityLoader } from "@/components/MicrosoftClarityLoader";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { Button } from "@/components/ui/button";
+import { MARKETING_LAYOUT } from "@/lib/design-tokens";
 import { getMarketingClarityProjectId } from "@/lib/marketing-analytics-consent";
 import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 import { isMarketingLiveDemoLinkEnabled } from "@/lib/public-demo-mode";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Welcome",
@@ -29,11 +31,11 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
   const clarityProjectId = getMarketingClarityProjectId();
 
   return (
-    <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <ShellReadySurface className={cn("min-h-screen", MARKETING_LAYOUT.page)}>
       <MarketingFirstTouchCapture />
       <MarketingJsonLd />
       <MicrosoftClarityLoader projectId={clarityProjectId} />
-      <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
+      <header className="sticky top-0 z-40 border-b border-neutral-200 bg-al-surface-raised/95 shadow-sm backdrop-blur dark:border-neutral-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <Button variant="ghost" className="h-auto shrink-0 p-0" asChild>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
 import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/MarketingPricingPublicCutoverNotice";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
@@ -13,6 +14,7 @@ import {
   CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
 } from "@/lib/marketing-custom-policy-pack-authoring";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   MARKETING_PRICING_OG_DESCRIPTION,
   buildMarketingSocialMetadata,
@@ -44,7 +46,7 @@ export default async function PricingPage(props: PricingPageProps) {
     (Array.isArray(interestParam) && interestParam.includes(CUSTOM_POLICY_PACK_QUOTE_INTEREST));
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <MarketingPageShell>
       {preferSalesLedQuoteCta ? <TrialNudgePricingQuoteFocus quoteSectionDomId="pricing-quote-request" /> : null}
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
@@ -57,20 +59,17 @@ export default async function PricingPage(props: PricingPageProps) {
       />
       <MarketingPricingPublicCutoverNotice />
       <p
-        className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        className={`mb-4 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="pricing-sales-led-v1-note"
       >
         {BUYER_SALES_LED_V1_PRICING_NOTE}
       </p>
       <p
-        className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        className={`mb-6 max-w-3xl ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="pricing-brand-category-paragraph"
       >
         ArchLucid is an {BRAND_CATEGORY} offering {BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE}. For procurement-led deployments,{" "}
-        <a
-          className="font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-200"
-          href="#pricing-quote-request"
-        >
+        <a className={MARKETING_SURFACES.inlineLink} href="#pricing-quote-request">
           request a quote
         </a>{" "}
         below.
@@ -82,6 +81,6 @@ export default async function PricingPage(props: PricingPageProps) {
         }
         openOnMount={customPolicyPackQuoteInterest}
       />
-    </main>
+    </MarketingPageShell>
   );
 }

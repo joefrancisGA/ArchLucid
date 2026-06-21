@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export const metadata: Metadata = {
@@ -41,7 +43,7 @@ const STEPS: readonly Step[] = [
   {
     n: 4,
     title: "Decide what to do next",
-    body: "Either invite a colleague and start a second sample review, or hand off to a guided pilot. Invite a colleague to sign in and repeat the same sample or a different vertical — no configuration is needed. When you are ready for real inputs, the guided pilot path walks through finalizing a signed review record and reviewing artifacts you would ship in production.",
+    body: "Either invite a colleague and start a second sample review, or hand off to a guided evaluation. Invite a colleague to sign in and repeat the same sample or a different vertical — no configuration is needed. When you are ready for real inputs, the guided evaluation path walks through finalizing a signed review record and reviewing artifacts you would ship in production.",
   },
 ] as const;
 
@@ -60,64 +62,59 @@ function getLiveDemoUrl(): string | null {
 export default function GetStartedPage(): ReactNode {
   const liveDemoUrl = getLiveDemoUrl();
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-        Your first 30 minutes with ArchLucid
-      </h1>
+    <MarketingPageShell variant="reading">
+      <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Your first 30 minutes with ArchLucid</h1>
       <p
-        className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="get-started-brand-category-paragraph"
       >
         ArchLucid is an {BRAND_CATEGORY} product — this page walks through signup, vertical selection, and your first
         sample review.
       </p>
       <p
-        className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}
         data-testid="get-started-outcome-led-lead"
       >
         {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
       </p>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={`mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
         ArchLucid is a SaaS product. Nothing on this page asks you to install Docker, SQL Server, .NET, Node, Terraform,
         or a CLI.
       </p>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={`mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
         Four milestones. Roughly thirty minutes end-to-end on a normal connection.
       </p>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={`mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
         Want proof without signing in first?{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/preview">
+        <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
           See the evidence trail walkthrough
         </Link>{" "}
         (same seeded demo surface as{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/preview">
+        <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
           the demo preview page
         </Link>
         , interactive explainability view).{" "}
-        <span className="font-medium text-neutral-700 dark:text-neutral-300">Verify:</span>{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/see-it">
+        <span className="font-medium text-al-text-primary">Verify:</span>{" "}
+        <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
           See it in 30 seconds
         </Link>
         ,{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/why">
+        <Link className={MARKETING_SURFACES.inlineLink} href="/why">
           Why ArchLucid
         </Link>
         .
       </p>
 
       {liveDemoUrl ? (
-        <div
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4 text-sm"
-          data-testid="get-started-live-demo-cta"
-        >
-          <p className="font-medium">Try the live demo</p>
-          <p className="mt-1 text-teal-900/90 dark:text-teal-200/90">
+        <div className={`${MARKETING_SURFACES.mutedPanel} mt-6`} data-testid="get-started-live-demo-cta">
+          <p className={`${MARKETING_TYPOGRAPHY.section} m-0`}>Try the live demo</p>
+          <p className={`mt-1 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
             Open the shared sandbox (ArchLucid in simulator mode — no install). You can review pre-seeded sample runs
             and start your own.
           </p>
           <p className="mt-3">
             <a
-              className="inline-flex font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              className={MARKETING_SURFACES.inlineLink}
               data-testid="get-started-live-demo-link"
               href={liveDemoUrl}
               rel="noopener noreferrer"
@@ -129,10 +126,10 @@ export default function GetStartedPage(): ReactNode {
       ) : null}
 
       <section aria-labelledby="vertical-picker-heading" className="mt-8" data-testid="get-started-vertical-picker">
-        <h2 id="vertical-picker-heading" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="vertical-picker-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           Pick a vertical to start
         </h2>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={`mt-1 ${MARKETING_TYPOGRAPHY.meta}`}>
           Defaults mirror the existing briefs in templates/briefs/.
         </p>
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3" role="list">
@@ -142,7 +139,7 @@ export default function GetStartedPage(): ReactNode {
                 type="button"
                 data-testid={`get-started-vertical-${slug}`}
                 data-vertical-slug={slug}
-                className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-left text-sm text-neutral-900 hover:border-teal-400 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50"
+                className={`w-full ${MARKETING_SURFACES.card} text-left hover:border-[var(--al-accent-interactive)]`}
               >
                 {VERTICAL_DISPLAY_NAMES[slug]}
               </button>
@@ -154,57 +151,45 @@ export default function GetStartedPage(): ReactNode {
       <ol className="mt-10 space-y-8" data-testid="get-started-steps">
         {STEPS.map((step) => (
           <li key={step.n} data-testid={`get-started-step-${step.n}`} className="flex gap-4">
-            <div
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-800 dark:bg-teal-900 dark:text-teal-200"
-              data-testid={`get-started-step-${step.n}-indicator`}
-              aria-hidden="true"
-            >
+            <div className={MARKETING_SURFACES.stepIndicator} data-testid={`get-started-step-${step.n}-indicator`} aria-hidden="true">
               {step.n}
             </div>
             <div>
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                {step.title}
-              </h3>
-              <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{step.body}</p>
+              <h3 className={MARKETING_TYPOGRAPHY.sectionTitle}>{step.title}</h3>
+              <p className={`mt-1 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>{step.body}</p>
             </div>
           </li>
         ))}
       </ol>
 
       <section aria-labelledby="next-heading" className="mt-12 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-        <h2 id="next-heading" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="next-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           Where to go next
         </h2>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+        <ul className={`mt-3 list-disc space-y-1 pl-5 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
           <li>
-            Ready for a real pilot with your own data? The{" "}
-            <Link
-              className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-              href={resolveInAppDocHref("docs/CORE_PILOT.md")}
-            >
-              Core Pilot guide
+            Ready for an evaluation with your own data? The{" "}
+            <Link className={MARKETING_SURFACES.inlineLink} href={resolveInAppDocHref("docs/CORE_PILOT.md")}>
+              Core evaluation guide
             </Link>{" "}
             walks through creating a request, finalizing a signed review record, and reviewing real artifacts.
           </li>
           <li>
             For the operator path after the sample run, see{" "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/pricing">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/pricing">
               pricing
             </Link>{" "}
             or request a quote from the pricing page.
           </li>
           <li>
             For the sponsor-facing narrative, see the{" "}
-            <Link
-              className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-              href={resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")}
-            >
+            <Link className={MARKETING_SURFACES.inlineLink} href={resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")}>
               executive sponsor brief
             </Link>
             .
           </li>
         </ul>
       </section>
-    </main>
+    </MarketingPageShell>
   );
 }

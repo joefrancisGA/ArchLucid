@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { Button } from "@/components/ui/button";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURITY_TRUST_MATURITY_SECTION_HEADINGS,
   SECURITY_TRUST_NDA_NOTICE,
@@ -37,7 +39,7 @@ function renderSummaryAccess(row: AssuranceEngagementRow): ReactNode {
   if (row.summaryAccess.kind === "public" && row.summaryAccess.href) {
     return (
       <Link
-        className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+        className={MARKETING_SURFACES.inlineLink}
         href={row.summaryAccess.href}
         rel={row.summaryAccess.href.startsWith("http") ? "noopener noreferrer" : undefined}
         target={row.summaryAccess.href.startsWith("http") ? "_blank" : undefined}
@@ -66,12 +68,12 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
   }
 
   return (
-    <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
-      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Security &amp; trust</h1>
-      <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+    <MarketingPageShell variant="reading">
+      <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Security &amp; trust</h1>
+      <p className={`mt-3 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
         This public page summarizes assurance status. Detailed reports are shared during diligence. Consolidated questionnaires
         and public evidence summaries are available in the{" "}
-        <Link className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300" href="/trust">
+        <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
           Trust Center
         </Link>
         .
@@ -126,7 +128,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
               <li>
                 Request detailed diligence materials at{" "}
-                <a className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300" href="mailto:security@archlucid.net">
+                <a className={MARKETING_SURFACES.inlineLink} href="mailto:security@archlucid.net">
                   security@archlucid.net
                 </a>
               </li>
@@ -141,7 +143,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
               <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">
                 Published OpenPGP material:{" "}
                 <Link
-                  className="font-medium text-blue-800 underline underline-offset-2 dark:text-blue-300"
+                  className={MARKETING_SURFACES.inlineLink}
                   href="/.well-known/pgp-key.txt"
                 >
                   /.well-known/pgp-key.txt
@@ -317,6 +319,6 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
           <span className="font-medium text-neutral-800 dark:text-neutral-200">security@archlucid.net</span>
         </p>
       </footer>
-    </main>
+    </MarketingPageShell>
   );
 }
