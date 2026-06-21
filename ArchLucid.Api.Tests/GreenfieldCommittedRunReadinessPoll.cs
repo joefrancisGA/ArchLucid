@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Api.Tests;
 
@@ -67,6 +68,40 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 return (Ready: true, Value: markdown);
             },
             "GET /v1/pilots/runs/{runId}/first-value-report did not return sponsor-safe markdown for the committed run.",
+            cancellationToken);
+    }
+
+    internal static Task<string> WaitUntilAuditSearchContainsScopedLifecycleEventsAsync(
+        HttpClient client,
+        Guid runGuid,
+        Guid expectedTenantId,
+        CancellationToken cancellationToken = default)
+    {
+        string tenantMarker = expectedTenantId.ToString("D");
+
+        return WaitUntilAsync(
+            async ct =>
+            {
+                using HttpResponseMessage response =
+                    await client.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200", ct);
+
+                if (!response.IsSuccessStatusCode)
+                    return (Ready: false, Value: (string?)null);
+
+                string json = await response.Content.ReadAsStringAsync(ct);
+
+                if (!json.Contains(AuditEventTypes.RunStarted, StringComparison.Ordinal))
+                    return (Ready: false, Value: json);
+
+                if (!json.Contains(AuditEventTypes.RunCompleted, StringComparison.Ordinal))
+                    return (Ready: false, Value: json);
+
+                if (!json.Contains(tenantMarker, StringComparison.Ordinal))
+                    return (Ready: false, Value: json);
+
+                return (Ready: true, Value: json);
+            },
+            "GET /v1/audit/search did not return scoped RunStarted/RunCompleted audit rows after commit.",
             cancellationToken);
     }
 

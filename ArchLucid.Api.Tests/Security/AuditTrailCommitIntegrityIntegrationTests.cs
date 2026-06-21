@@ -45,18 +45,23 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
 
         try
         {
+            GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
+            string testTag = "it-audit-trail-" + Guid.NewGuid().ToString("N");
+
             await using IdorGreenfieldSqlApiFactory factory = new();
+            await GreenfieldIntegrationTenantScope.EnsureScopeAsync(factory.SqlConnectionString, scope);
+
             using (HttpClient primer = factory.CreateClient())
             {
-                IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+                GreenfieldIntegrationTenantScope.WireScope(primer, scope);
 
                 await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
             }
 
             using HttpClient client = factory.CreateClient();
-            WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+            GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
-            string requestId = "REQ-AUDIT-TRAIL-" + Guid.NewGuid().ToString("N")[..12];
+            string requestId = testTag[..Math.Min(testTag.Length, 32)];
             HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
             await create.EnsureSuccessForTestAsync();
             CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
@@ -66,13 +71,14 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, runId);
             await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, runId);
 
-            HttpResponseMessage search = await client.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
-            await search.EnsureSuccessForTestAsync();
+            string json = await GreenfieldCommittedRunReadinessPoll.WaitUntilAuditSearchContainsScopedLifecycleEventsAsync(
+                client,
+                runGuid,
+                scope.TenantId);
 
-            string json = await search.Content.ReadAsStringAsync();
             json.Should().Contain(AuditEventTypes.RunStarted, because: "audit search must include run lifecycle events after commit");
             json.Should().Contain(AuditEventTypes.RunCompleted);
-            json.Should().Contain(ScopeIds.DefaultTenant.ToString("D"), because: "audit rows must carry tenant scope");
+            json.Should().Contain(scope.TenantId.ToString("D"), because: "audit rows must carry tenant scope");
         }
         catch (WarmupTimedOutException)
         {
