@@ -64,9 +64,6 @@ export function GraphPageContent() {
   const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const urlGraphNodeId = searchParams.get("graphNodeId")?.trim() ?? "";
   const workspaceRun = useWorkspaceActiveRun();
-  const [runId, setRunId] = useState(() =>
-    urlRunId.length > 0 ? urlRunId : SHOWCASE_STATIC_DEMO_RUN_ID,
-  );
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);
@@ -83,6 +80,18 @@ export function GraphPageContent() {
   const loadGenRef = useRef(0);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [runId, setRunId] = useState(() => {
+    if (urlRunId.length > 0) {
+      return urlRunId;
+    }
+
+    if (buyerPolishedShell) {
+      return "";
+    }
+
+    return SHOWCASE_STATIC_DEMO_RUN_ID;
+  });
+  const [graphLoadRequested, setGraphLoadRequested] = useState(() => urlRunId.length > 0);
   const canMutateEnterpriseShell = useOperateCapability();
   const graphMainColumnMaxClass = buyerPolishedShell
     ? OPERATOR_PAGE_CONTAINER.variant.dashboard
@@ -126,6 +135,7 @@ export function GraphPageContent() {
     }
 
     setRunId(urlRunId);
+    setGraphLoadRequested(true);
   }, [urlRunId]);
 
   useEffect(() => {
@@ -133,10 +143,11 @@ export function GraphPageContent() {
       return;
     }
 
-    if (
-      buyerPolishedShell &&
-      (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled())
-    ) {
+    if (buyerPolishedShell) {
+      return;
+    }
+
+    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
       setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
 
       return;
@@ -340,6 +351,10 @@ export function GraphPageContent() {
   performRef.current = performGraphLoad;
 
   useEffect(() => {
+    if (buyerPolishedShell && !graphLoadRequested) {
+      return;
+    }
+
     const rid = runId.trim();
 
     if (rid.length === 0) {
@@ -351,9 +366,13 @@ export function GraphPageContent() {
     }
 
     void performRef.current();
-  }, [runId, mode]);
+  }, [runId, mode, graphLoadRequested, buyerPolishedShell]);
 
   useEffect(() => {
+    if (buyerPolishedShell && !graphLoadRequested) {
+      return;
+    }
+
     const rid = runId.trim();
     const demo =
       isBuyerPolishedOperatorShellEnv() ||
@@ -372,7 +391,7 @@ export function GraphPageContent() {
     }
 
     setGraph(applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), mode, rid));
-  }, [runId, mode]);
+  }, [runId, mode, graphLoadRequested, buyerPolishedShell]);
 
   const demoUi =
     isBuyerPolishedOperatorShellEnv() ||
@@ -382,6 +401,7 @@ export function GraphPageContent() {
 
   const buyerTraceWithoutGraph =
     buyerPolishedShell &&
+    graphLoadRequested &&
     presentationView === "trace" &&
     effectiveGraph === null &&
     runId.trim().length > 0 &&
@@ -389,12 +409,16 @@ export function GraphPageContent() {
     loadFailure === null &&
     malformedMessage === null;
 
+  const buyerGraphAwaitingSelection =
+    buyerPolishedShell && (runId.trim().length === 0 || !graphLoadRequested);
+
   const showIdleCard =
-    effectiveGraph === null &&
-    !loading &&
-    loadFailure === null &&
-    malformedMessage === null &&
-    !buyerTraceWithoutGraph;
+    buyerGraphAwaitingSelection ||
+    (effectiveGraph === null &&
+      !loading &&
+      loadFailure === null &&
+      malformedMessage === null &&
+      !buyerTraceWithoutGraph);
 
   useEffect(() => {
     if (!demoUi && !buyerPolishedShell) {
@@ -432,8 +456,10 @@ export function GraphPageContent() {
       : "Load graph";
 
   const showLoadButton =
-    !(demoUi && mode === "provenance-full") &&
-    (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
+    buyerPolishedShell
+      ? !graphLoadRequested || effectiveGraph === null
+      : !(demoUi && mode === "provenance-full") &&
+        (!demoUi || mode !== "provenance-full" || effectiveGraph === null);
 
   const showSavedViews =
     canMutateEnterpriseShell &&
@@ -441,7 +467,8 @@ export function GraphPageContent() {
     !demoUi &&
     effectiveGraph !== null;
 
-  const showLoadFailureAlert = loadFailure !== null && effectiveGraph === null;
+  const showLoadFailureAlert =
+    loadFailure !== null && effectiveGraph === null && (!buyerPolishedShell || graphLoadRequested);
 
   const getGraphSavedViewPayload = useCallback(
     () =>
@@ -502,7 +529,10 @@ export function GraphPageContent() {
       showLoadButton={showLoadButton}
       loadButtonLabel={loadButtonLabel}
       loading={loading}
-      onLoadGraph={() => void performGraphLoad()}
+      onLoadGraph={() => {
+        setGraphLoadRequested(true);
+        void performGraphLoad();
+      }}
       decisionId={decisionId}
       nodeId={nodeId}
       presentationView={presentationView}
@@ -554,7 +584,10 @@ export function GraphPageContent() {
         malformedMessage={malformedMessage}
         buyerPolishedShell={buyerPolishedShell}
         runId={runId}
-        onRetry={() => void performGraphLoad()}
+        onRetry={() => {
+          setGraphLoadRequested(true);
+          void performGraphLoad();
+        }}
         graphEndpointHint={graphEndpointHint}
       />
 

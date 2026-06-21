@@ -13,7 +13,7 @@ const layerStripBase =
 const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: string; labelClass: string }> = {
   pilot: {
     label: "Review packages",
-    question: "Finalized packages with findings, evidence, manifest, and audit trail.",
+    question: "Finalized packages with findings, evidence, decisions, and audit trail.",
     strip: `${layerStripBase} border-l-blue-600`,
     labelClass: "text-al-text-primary",
   },

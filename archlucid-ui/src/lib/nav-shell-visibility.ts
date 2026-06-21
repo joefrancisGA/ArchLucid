@@ -9,8 +9,11 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import { filterNavLinksByOperateUnlockPhase, type OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
-/** Buyer default shell: hide Compare only; golden-path links render in the fixed sidebar cluster. */
-const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/compare"]);
+/**
+ * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
+ * inside their collapsed groups so buyers keep full product depth (route-level demo gating is separate).
+ */
+const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>([]);
 
 /** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
@@ -65,6 +68,10 @@ function isPublicDemoThinNavSurface(): boolean {
 }
 
 function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return links;
+  }
+
   if (!isPublicDemoThinNavSurface()) {
     return links;
   }

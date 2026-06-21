@@ -71,7 +71,12 @@ export function LayerHeader({ pageKey, className, density = "default" }: LayerHe
         }
       >
         {buyerDemoShell ? (
-          ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp
+          <>
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">
+              Review package · Evidence · Trace:
+            </span>{" "}
+            {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
+          </>
         ) : (
           <>
             <span className="font-medium text-neutral-800 dark:text-neutral-200">Review · Manifest · Trace:</span>{" "}

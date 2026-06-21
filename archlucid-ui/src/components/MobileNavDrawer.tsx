@@ -47,6 +47,8 @@ export function MobileNavDrawer() {
   const navAdvanced = true;
   const effectiveOperateUnlockPhase = 2 as const;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
+  // Mirror SidebarNav: buyer-polished shell shows the full grouped catalog (collapsed) before the first commit.
+  const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -55,7 +57,7 @@ export function MobileNavDrawer() {
     callerAuthorityRank,
     false,
     "review-workflow",
-    hasCommittedArchitectureReview,
+    effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
   );
 
@@ -69,7 +71,7 @@ export function MobileNavDrawer() {
           callerAuthorityRank,
           false,
           "platform-admin",
-          hasCommittedArchitectureReview,
+          effectiveHasCommittedArchitectureReview,
           effectiveOperateUnlockPhase,
         );
 
@@ -112,7 +114,7 @@ export function MobileNavDrawer() {
                   pathname={pathname}
                   demoUi={demoUi}
                   buyerPolishedShell={buyerPolishedShell}
-                  hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+                  hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
                   effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
                   isCollapsible={collapsible}
                   isExpanded={isExpanded}

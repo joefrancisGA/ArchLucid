@@ -80,8 +80,8 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/graph")) {
     return {
-      label: "Evidence trail",
-      line: "Decision traceability graph — reviewed context, policy basis, architecture analysis, prioritized findings, decisions, signed review record, and deliverables.",
+      label: "Evidence graph",
+      line: "Visual trace from architecture inputs to findings, decisions, and the finalized review package.",
     };
   }
 

@@ -88,6 +88,14 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
               <dd className="inline font-mono">{failure.problem.errorCode}</dd>
             </div>
           ) : null}
+          <div>
+            <dt className="inline font-semibold">Troubleshooting: </dt>
+            <dd className="inline">
+              <Link className="underline" href={troubleshootingHref}>
+                Troubleshooting runbook
+              </Link>
+            </dd>
+          </div>
         </dl>
       </details>
     </OperatorErrorCallout>

@@ -446,7 +446,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     }
   });
 
-  it("hides alerts, audit, and admin health while keeping Security & trust when NEXT_PUBLIC_DEMO_MODE is true", () => {
+  it("keeps governance destinations visible in buyer-polished demo builds (NEXT_PUBLIC_DEMO_MODE)", () => {
     expect(enterprise).toBeDefined();
     process.env.NEXT_PUBLIC_DEMO_MODE = "true";
 
@@ -459,13 +459,12 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
-    expect(visible.some((l) => l.href === "/audit")).toBe(false);
-    expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
+    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/audit")).toBe(true);
     expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
-  it("hides alerts and audit when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true without DEMO_MODE", () => {
+  it("keeps governance destinations visible when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true", () => {
     expect(enterprise).toBeDefined();
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = "true";
@@ -479,12 +478,12 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
-    expect(visible.some((l) => l.href === "/audit")).toBe(false);
+    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/audit")).toBe(true);
     expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
-  it("hides operator-admin links including system health when NEXT_PUBLIC_DEMO_MODE is true", () => {
+  it("keeps operator-admin links visible in buyer-polished demo builds", () => {
     const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
 
     expect(admin).toBeDefined();
@@ -499,8 +498,8 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
-    expect(visible.some((l) => l.href === "/admin/users")).toBe(false);
+    expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
+    expect(visible.some((l) => l.href === "/admin/users")).toBe(true);
   });
 });
 
@@ -577,13 +576,31 @@ describe("buyer-polished shell nav narrowing", () => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
   });
 
-  it("drops compare from operate-analysis in buyer-polished shell", () => {
+  it("keeps compare reachable in operate-analysis for buyer-polished shell", () => {
     const op = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
     expect(op).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
 
-    expect(visible.map((l) => l.href)).not.toContain("/compare");
+    expect(visible.map((l) => l.href)).toContain("/compare");
+  });
+
+  it("keeps operate-analysis links in buyer-polished shell when public demo thinning would hide them", () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "1");
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+
+    const op = NAV_GROUPS.find((g) => g.id === "operate-analysis");
+
+    expect(op).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
+
+    expect(visible.map((l) => l.href)).toEqual(
+      expect.arrayContaining(["/ask", "/search", "/advisory"]),
+    );
+
+    vi.unstubAllEnvs();
+    process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
   });
 });

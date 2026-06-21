@@ -10,7 +10,7 @@ export type GraphEvidenceTrailGuidanceDisclosureProps = {
   className?: string;
 };
 
-/** Collapses pilot-layer guidance so the evidence trail page leads with action, not doctrine. */
+/** Collapses pilot-layer guidance so the evidence graph page leads with action, not doctrine. */
 export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGuidanceDisclosureProps) {
   const surface = useNavSurface("graph");
   const block = mergeLayerGuidanceForBuyerDemoShell("graph", surface.layerGuidance, true);
@@ -33,6 +33,7 @@ export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGu
         <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">{block.headline}</p>
         <p className="m-0">{block.useWhen}</p>
         <p className="m-0 text-neutral-500 dark:text-neutral-500">
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">Review package · Evidence · Trace:</span>{" "}
           {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
         </p>
       </div>

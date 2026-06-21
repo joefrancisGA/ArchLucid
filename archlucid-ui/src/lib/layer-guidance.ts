@@ -247,9 +247,10 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     enterpriseFootnote: "Configuration tabs appear when your role allows.",
   },
   graph: {
-    layerBadge: "Evidence trail",
-    headline: "Trace findings to source evidence and the signed review package.",
-    useWhen: "Pick a review, inspect provenance links, and open related findings.",
+    layerBadge: "How this graph helps",
+    headline:
+      "Use the evidence graph when stakeholders need a visual trace from architecture inputs to findings, decisions, and the finalized review package.",
+    useWhen: "Pick a committed review package, explore provenance links, and open related findings when you need to show the trust story.",
     firstPilotNote: null,
   },
   compare: {
