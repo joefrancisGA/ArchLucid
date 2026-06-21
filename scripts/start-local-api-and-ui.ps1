@@ -13,10 +13,6 @@
 #   .\scripts\start-local-api-and-ui.ps1
 #   .\scripts\start-local-api-and-ui.ps1 -SkipPreflight -NoBrowser
 #   .\scripts\start-local-api-and-ui.ps1 -ApiPort 5128 -UiPort 3000
-#
-# API compile loop (Debug, Api project only — not full ArchLucid.sln):
-#   dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Debug --no-restore  # incremental after first restore
-#   dotnet watch run --project ArchLucid.Api/ArchLucid.Api.csproj -c Debug
 
 [CmdletBinding()]
 param(
@@ -27,8 +23,7 @@ param(
     [int] $UiReadyTimeoutSec = 360,
     [switch] $SkipPreflight,
     [switch] $EnsureSql,
-    [switch] $NoBrowser,
-    [switch] $NoWatch
+    [switch] $NoBrowser
 )
 
 $ErrorActionPreference = "Stop"
@@ -143,30 +138,6 @@ function Test-PortServingUiRoot {
     return Test-HttpStatus -Uri "http://127.0.0.1:$Port/"
 }
 
-function Invoke-ApiDebugBuild {
-    param(
-        [Parameter(Mandatory = $true)][string] $ProjectPath
-    )
-
-    Write-Host "Building API (Debug, project only)..." -ForegroundColor Cyan
-    Push-Location $RepoRoot
-
-    try {
-        & dotnet build $ProjectPath -c Debug --no-restore --nologo -v minimal
-
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Incremental build missed restore - retrying with restore..." -ForegroundColor Yellow
-            & dotnet build $ProjectPath -c Debug --nologo -v minimal
-        }
-
-        if ($LASTEXITCODE -ne 0) {
-            Write-StageError -Stage "api-build" -Message "Debug build of ArchLucid.Api failed with exit code $LASTEXITCODE"
-        }
-    } finally {
-        Pop-Location
-    }
-}
-
 if (-not (Test-Path $ApiProject)) {
     Write-StageError -Stage "preflight" -Message "API project not found: $ApiProject"
 }
@@ -242,17 +213,8 @@ $uiRootUrl = "http://127.0.0.1:$UiPort/"
 $proxyLiveUrl = "http://127.0.0.1:$UiPort/api/proxy/health/live"
 
 if (-not $script:SkipApiSpawn) {
-    Invoke-ApiDebugBuild -ProjectPath $ApiProject
-
-    if ($NoWatch) {
-        Write-Host "Starting API in a new window (dotnet run -c Debug)..." -ForegroundColor Cyan
-        $apiCmd = "Set-Location -LiteralPath '$RepoRoot'; dotnet run --project .\ArchLucid.Api\ArchLucid.Api.csproj -c Debug --no-build"
-    }
-    else {
-        Write-Host "Starting API in a new window (dotnet watch run -c Debug)..." -ForegroundColor Cyan
-        $apiCmd = "Set-Location -LiteralPath '$RepoRoot'; dotnet watch run --project .\ArchLucid.Api\ArchLucid.Api.csproj -c Debug"
-    }
-
+    Write-Host "Starting API in a new window (dotnet run)..." -ForegroundColor Cyan
+    $apiCmd = "Set-Location -LiteralPath '$RepoRoot'; dotnet run --project .\ArchLucid.Api\ArchLucid.Api.csproj"
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $apiCmd) | Out-Null
 }
 
