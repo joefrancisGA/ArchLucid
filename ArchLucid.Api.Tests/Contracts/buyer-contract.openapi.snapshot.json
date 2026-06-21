@@ -1788,6 +1788,12 @@
               "string"
             ]
           },
+          "checklistCoverage": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureFinding"
+            },
+            "type": "array"
+          },
           "citations": {
             "items": {
               "$ref": "#/components/schemas/Citation"
@@ -1834,6 +1840,16 @@
               "$ref": "#/components/schemas/ArchitectureFinding"
             },
             "type": "array"
+          },
+          "insightDensityCuration": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InsightDensityCurationSummary"
+              }
+            ]
           },
           "proposedChanges": {
             "oneOf": [
@@ -10559,6 +10575,12 @@
       },
       "FindingsSnapshot": {
         "properties": {
+          "checklistCoverage": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
           "contextSnapshotId": {
             "format": "uuid",
             "type": "string"
@@ -10592,6 +10614,16 @@
           "graphSnapshotId": {
             "format": "uuid",
             "type": "string"
+          },
+          "insightDensityCuration": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InsightDensityCurationSummary"
+              }
+            ]
           },
           "runId": {
             "format": "uuid",
@@ -12134,6 +12166,19 @@
           },
           "name": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InsightDensityCurationSummary": {
+        "properties": {
+          "demotedToChecklistCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "retainedFindingCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"

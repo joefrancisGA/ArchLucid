@@ -3,6 +3,8 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+
 test.describe("marketing-demo-preview", () => {
   test("/demo/preview loads manifest narrative, outcome strip, and signup CTA without auth", async ({ page }) => {
     await page.goto("/demo/preview", { waitUntil: "load" });
@@ -18,9 +20,7 @@ test.describe("marketing-demo-preview", () => {
     const outcomeStrip = page.getByRole("region", { name: "Open completed output" });
     await expect(outcomeStrip).toBeVisible();
     await expect(outcomeStrip.getByText(/1 · Executive summary/)).toBeVisible();
-    await expect(
-      outcomeStrip.getByText(/2 · (Signed manifest|Manifest|Finalized manifest)/i),
-    ).toBeVisible();
+    await expect(outcomeStrip.getByText(`2 · ${SIGNED_MANIFEST_LABEL}`)).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 
