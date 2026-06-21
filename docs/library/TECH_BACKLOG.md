@@ -2867,6 +2867,8 @@ Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts ? (
 
 ## TB-044 ? `AgentExecutionTraces` ? unique index on `(RunId, TaskId, AgentType)` + upsert semantics
 
+**Status:** **Done (2026-06-21 batch tb044-trace-upsert)** ? unique index `(RunId, TaskId, AgentType, AttemptIndex)` via migration **250** (coordinates with **TB-035**); `AgentExecutionTraceRepository.CreateAsync` delete-then-insert upsert; attempt **0** re-execute clears later rows; contract tests + `test_traceability_batch_tb044.py` drift guard.
+
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AgentExecutionTraceRepository.CreateAsync` is plain INSERT; each execute retry generates new `TraceId`.
 
 **Problem:**

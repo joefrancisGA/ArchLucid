@@ -14,6 +14,8 @@ namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 ///     Dapper-backed persistence for <see cref="AgentExecutionTrace" /> entities.
+///     <see cref="CreateAsync" /> delete-then-insert upserts on (RunId, TaskId, AgentType, AttemptIndex) — TB-044;
+///     attempt 0 re-execute clears later attempt rows (TB-035).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectionFactory)
@@ -44,6 +46,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                RunId,
                                TaskId,
                                AgentType,
+                               AttemptIndex,
                                ParseSucceeded,
                                ErrorMessage,
                                TraceJson,
@@ -61,6 +64,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                @RunId,
                                @TaskId,
                                @AgentType,
+                               @AttemptIndex,
                                @ParseSucceeded,
                                @ErrorMessage,
                                @TraceJson,
@@ -107,6 +111,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
                 trace.TaskId,
                 AgentType = trace.AgentType.ToString(),
+                trace.AttemptIndex,
                 trace.ParseSucceeded,
                 trace.ErrorMessage,
                 TraceJson = json,

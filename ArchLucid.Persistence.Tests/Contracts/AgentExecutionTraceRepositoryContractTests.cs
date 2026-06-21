@@ -110,6 +110,39 @@ public abstract class AgentExecutionTraceRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task CreateAsync_at_attempt_zero_clears_prior_attempt_rows_on_reexecute()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-reexec-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-reexec");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-0-a", TimeProvider.System.UtcNowDateTime().AddMinutes(-3), attemptIndex: 0, parseSucceeded: false),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-1", TimeProvider.System.UtcNowDateTime().AddMinutes(-2), attemptIndex: 1, parseSucceeded: false),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-2", TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 2, parseSucceeded: true),
+            CancellationToken.None);
+
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-0-b", TimeProvider.System.UtcNowDateTime(), attemptIndex: 0, parseSucceeded: true),
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> forTask = await repo.GetByTaskIdAsync(task.TaskId, CancellationToken.None);
+
+        forTask.Should().ContainSingle();
+        forTask[0].TraceId.Should().Be("attempt-0-b");
+        forTask[0].AttemptIndex.Should().Be(0);
+        forTask[0].ParseSucceeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task GetPagedByRunIdAsync_returns_slice_and_total()
     {
         SkipIfSqlServerUnavailable();
