@@ -737,6 +737,10 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5by.py"
 
+      - name: Insight-density batch drift guards (TB-382-385)
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_insight_density_batch_tb382_385.py"
+
       - name: Traceability batch 5CD drift guards (TB-037, TB-055)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5cd.py"

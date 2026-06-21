@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-16 (operator home first-run UX ? **TB-345?353**, external product review; all **P0**). Prior: 2026-06-15 product-drift / onboarding narrative realignment ? **TB-337?344**. **~47 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-21 (insight-density cluster **TB-382?385** Done, batch **insight-density-tb382-385**; **TB-034** degraded-handler traces). Prior: 2026-06-16 operator home **TB-345?353** (all Done). **~43 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -10,13 +10,13 @@
 | Testability | 4 |
 | Reliability | 3 |
 | Deployability | 5 |
-| AI/Agent readiness | 5 |
+| AI/Agent readiness | 3 |
 | Architectural integrity | 6 |
-| Adoption friction | 19 |
+| Adoption friction | 18 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
-| Explainability | 3 |
+| Explainability | 2 |
 | Proof-of-ROI / executive value | 3 |
 | Trustworthiness | 0 |
 | Maintainability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~47** |
+| **Total (unique)** | **~43** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Next recommended batch:** **TB-165** (assessment score consistency guard) or **TB-138** (owner-gated Azure OpenAI golden-cohort secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **Next recommended batch:** **TB-035** (schema-remediation attempt traces) or **TB-040** (LLM metering on cancellation). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -11007,7 +11007,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-382 — Architecture: Insight Density Gate pipeline design and scoring (P0)
 
-**Status:** **Backlog**
+**Status:** **Done (2026-06-20, Prompts A–C)** — `IInsightDensityGate`, `DeterministicInsightDensityGate`, rubric scoring + genericness/duplication penalties; insight-density columns on findings (migration **255**); wired via `FindingInsightDensityGateApplicator` in `FindingsOrchestrator`; `DeterministicInsightDensityGateTests`, `FindingsOrchestratorTests`.
 
 **Problem:** The AI generation pipeline risks producing generic, high-volume architecture advice (`ensure scalability`, `add monitoring`) that principal architects will dismiss immediately. We need fewer, denser, evidence-bound insights.
 
@@ -11026,7 +11026,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-383 — Architecture: "So What" Loop and Adversarial Critic Pass (P1)
 
-**Status:** **Backlog**
+**Status:** **Done (2026-06-20, Prompt D + Critic)** — `PremiumInsightDensityLlmJudge`, `InsightDensityJudgeSystemPromptTemplate` (mandatory So What loop); `CriticSystemPromptTemplate` rule 19; `PremiumInsightDensityLlmJudgeTests`, `InsightDensityLlmJudgmentParserTests`.
 
 **Problem:** Initial LLM outputs often lack business consequence or actionable decision impact.
 
@@ -11045,7 +11045,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-384 — UI/Domain: Separate Findings from Checklist Coverage (P1)
 
-**Status:** **Backlog**
+**Status:** **Done (2026-06-20, Prompt E)** — `FindingChecklistCoverageRouter`, `ArchitectureFindingChecklistCoverageRouter`; `checklistCoverage` on `FindingsSnapshot` / `AgentResult` (migration **256**); `CoverageChecklistPanel` on review package; hygiene routed off decision-grade findings list.
 
 **Problem:** Basic hygiene checks (`encryption mentioned/not mentioned`) clutter the findings list, hiding actual decision-changing risks.
 
@@ -11063,7 +11063,7 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-385 — UI: Insight Density Framing and Evidence Snippets (P2)
 
-**Status:** **Backlog**
+**Status:** **Done (2026-06-20, Prompt F)** — `InsightDensityCurationBanner`, `FindingEvidenceRefSnippets`, `FindingInsightDensityDisclosure`; `findings-snapshot-insight-density.ts`; Vitest in `InsightDensityCurationBanner.test.tsx`, `findings-snapshot-insight-density.test.ts`; OpenAPI `insightDensityCuration` on findings snapshot.
 
 **Problem:** The product does not currently signal to the user that it has curated its output, nor does it aggressively tie findings to specific input evidence.
 
