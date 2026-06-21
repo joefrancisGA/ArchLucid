@@ -385,7 +385,7 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentHandler, ComplianceAgentHandler>();
             services.AddScoped<IAgentHandler, CriticAgentHandler>();
             services.RemoveAll<IInsightDensityLlmJudge>();
-            services.AddSingleton<IInsightDensityLlmJudge, PremiumInsightDensityLlmJudge>();
+            services.AddScoped<IInsightDensityLlmJudge, PremiumInsightDensityLlmJudge>();
             services.AddScoped<IAgentResultParser, AgentResultParser>();
 
             if (useEchoClient)
