@@ -10,7 +10,7 @@ import {
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 describe("operator-nav-labels", () => {
-  it("returns New review in buyer-polished shell", () => {
+  it("returns Start review in buyer-polished shell", () => {
     expect(resolveNewReviewNavLinkLabel(true)).toBe(BUYER_NEW_REVIEW_NAV_LABEL);
     expect(resolveNewReviewNavLinkLabel(false)).toBe(OPERATOR_START_REVIEW_QUICK_ACTION_LABEL);
   });

@@ -105,7 +105,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
             View
           </p>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Evidence trail view">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Evidence graph view">
             <Button
               type="button"
               size="sm"

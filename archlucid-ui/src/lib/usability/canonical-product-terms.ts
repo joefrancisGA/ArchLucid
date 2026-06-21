@@ -15,4 +15,4 @@ export const REVIEW_PACKAGE_LABEL = "Review package";
 export const ARCHITECTURE_REVIEW_LABEL = "Architecture review";
 
 /** Evidence lineage graph surface label. */
-export const EVIDENCE_TRAIL_LABEL = "Evidence trail";
+export const EVIDENCE_TRAIL_LABEL = "Evidence graph";

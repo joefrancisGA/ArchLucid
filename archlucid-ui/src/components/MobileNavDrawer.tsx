@@ -46,7 +46,7 @@ export function MobileNavDrawer() {
   const navExpanded = true;
   const navAdvanced = true;
   const effectiveOperateUnlockPhase = 2 as const;
-  const omitAdminClusters = demoUi || buyerPolishedShell;
+  const omitAdminClusters = demoUi && !buyerPolishedShell;
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,

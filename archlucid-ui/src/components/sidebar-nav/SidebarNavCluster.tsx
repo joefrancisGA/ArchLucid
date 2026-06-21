@@ -40,7 +40,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     effectiveOperateUnlockPhase: props.effectiveOperateUnlockPhase,
   });
 
-  const groupHeadingLabel = group.id === "pilot" && props.buyerPolishedShell ? "Reviews" : group.label;
+  const groupHeadingLabel = group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
   const contentId = `sidebar-group-${group.id}-content`;
   const headingId = `sidebar-group-heading-${group.id}`;

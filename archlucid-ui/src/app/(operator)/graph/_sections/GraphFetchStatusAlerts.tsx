@@ -31,7 +31,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
     <>
       {loading && (
         <OperatorLoadingNotice>
-          <strong>{buyerPolishedShell ? "Loading evidence trail" : "Loading graph"}</strong>
+          <strong>{buyerPolishedShell ? "Loading evidence graph" : "Loading graph"}</strong>
           <p className="mt-2 text-sm">
             {buyerPolishedShell
               ? "Collecting provenance links for this review package — rich evidence may take a few extra seconds."
@@ -63,7 +63,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
       {malformedMessage && (
         <>
           <OperatorMalformedCallout>
-            <strong>{buyerPolishedShell ? "Evidence trail unavailable" : "Unexpected graph response shape."}</strong>
+            <strong>{buyerPolishedShell ? "Evidence graph unavailable" : "Unexpected graph response shape."}</strong>
             <p className="mt-2">{buyerPolishedShell ? BUYER_GRAPH_LOAD_ERROR : malformedMessage}</p>
             {buyerPolishedShell ? null : (
               <p className="mt-2 text-sm">

@@ -53,7 +53,7 @@ describe("PilotNavGroupBuilder", () => {
     expect(group.links.map((link) => link.label)).toEqual([
       "Home",
       "Start review",
-      "Evidence trail",
+      "Evidence graph",
       "Review packages",
       "Portfolio overview",
       "Onboarding",

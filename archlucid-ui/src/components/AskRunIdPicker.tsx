@@ -13,12 +13,13 @@ import {
 } from "@/components/ui/select";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
-import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 function operatorAllowsSyntheticAskRunPick(): boolean {
   return (
+    isBuyerPolishedOperatorShellEnv() ||
     process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
     process.env.NEXT_PUBLIC_DEMO_MODE === "1" ||
     shouldMergeOperatorDemoAlertSample()
@@ -267,7 +268,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             </SelectContent>
           </Select>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            No reviews returned from the API — selecting the Claims Intake sample review for this workspace.
+            No reviews returned from the API — selecting the Claims Intake sample review package for this workspace.
           </p>
         </div>
       );
@@ -280,18 +281,22 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="No reviews in this workspace yet" />
+            <SelectValue placeholder="No review packages yet" />
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          No review packages yet.{" "}
           <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
-            Create a request
+            Start a review
           </Link>{" "}
-          to add a review, open an existing conversation from the left, or{" "}
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseManifestHref()}>
-            open the Claims Intake manifest summary
-          </Link>{" "}
-          (read-only sample).
+          or{" "}
+          <Link
+            className="font-medium text-teal-800 underline dark:text-teal-300"
+            href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+          >
+            load the sample workspace
+          </Link>
+          .
         </p>
       </div>
     );

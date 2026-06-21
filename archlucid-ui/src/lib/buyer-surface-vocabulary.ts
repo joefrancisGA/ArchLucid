@@ -4,9 +4,9 @@
  */
 export const BUYER_SURFACE_VOCABULARY = {
   /** Graph surface / citations — matches graph page title in buyer shell. */
-  evidenceGraph: "Decision traceability graph",
+  evidenceGraph: "Evidence graph",
   /** Sidebar / compact nav — buyer-facing entry label before opening the graph view. */
-  evidenceGraphNav: "Evidence trail",
+  evidenceGraphNav: "Evidence graph",
   auditTrail: "Audit trail",
   approvalPath: "Approval path",
   /** Surface term for persisted findings in buyer copy. */

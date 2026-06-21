@@ -155,14 +155,32 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     localStorage.clear();
   });
 
-  it("keeps label-based review nav visible without collapsing Review work", () => {
+  it("keeps Review work expanded with advanced groups collapsed and reachable", async () => {
     render(<SidebarNav />);
 
     expect(screen.queryByRole("button", { name: /Review work/i })).toBeNull();
-    expect(screen.getByText("Reviews")).toBeInTheDocument();
+    expect(screen.getByText("Review work")).toBeInTheDocument();
 
-    const nav = screen.getByRole("navigation", { name: "Reviews" });
+    const nav = screen.getByRole("navigation", { name: "Review work" });
     expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+    expect(within(nav).getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
+
+    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("sidebar-group-toggle-operate-operations")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
+
+    fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-governance"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
+    });
+
+    expect(within(screen.getByRole("navigation", { name: "Governance" })).getByRole("link", { name: "Risk register" })).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
   });
 });

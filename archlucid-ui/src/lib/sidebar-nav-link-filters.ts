@@ -24,10 +24,11 @@ export type SidebarNavClusterLinksInput = {
 
 /** Demo, buyer-polished, and operate-unlock filters applied before rendering a nav cluster. */
 export function filterSidebarNavClusterLinks(input: SidebarNavClusterLinksInput): NavLinkItem[] {
-  const linksAfterDemoFilter =
-    input.demoUi || input.buyerPolishedShell
-      ? input.visibleLinks.filter((link) => !shouldHideOperatorNavLinkInDemo(link.href, true))
-      : [...input.visibleLinks];
+  // Buyer-polished shell keeps advanced destinations reachable (collapsed groups); demo-only builds may thin nav.
+  const applyDemoNavHide = input.demoUi && !input.buyerPolishedShell;
+  const linksAfterDemoFilter = applyDemoNavHide
+    ? input.visibleLinks.filter((link) => !shouldHideOperatorNavLinkInDemo(link.href, true))
+    : [...input.visibleLinks];
 
   return filterNavLinksByOperateUnlockPhase(
     linksAfterDemoFilter,

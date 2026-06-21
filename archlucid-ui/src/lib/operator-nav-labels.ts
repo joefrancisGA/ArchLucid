@@ -1,8 +1,8 @@
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-/** Buyer-polished shell label for `/reviews/new` — avoids conflating review start with artifact upload. */
-export const BUYER_NEW_REVIEW_NAV_LABEL = "New review";
+/** Buyer-polished shell label for `/reviews/new` — same verb as default shell for calm first-run nav. */
+export const BUYER_NEW_REVIEW_NAV_LABEL = "Start review";
 
 /** Operator quick-action label for `/reviews/new` — keep the outcome verb in default shell chrome. */
 export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = "Start review";
@@ -17,7 +17,7 @@ export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): strin
 
 export function resolveNewReviewNavLinkTitle(buyerPolishedShell: boolean): string {
   if (buyerPolishedShell) {
-    return "New review — start an architecture review (Quick review, Guided intake, or full wizard) (Alt+N)";
+    return "Start review — Quick review, Guided intake, or full wizard (Alt+N)";
   }
 
   return "Start review — Quick review, Guided intake, or full wizard (Alt+N)";

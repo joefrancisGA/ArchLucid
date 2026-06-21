@@ -21,7 +21,7 @@ export type GraphBuyerEvidenceTrailErrorProps = {
   graphEndpointHint?: string;
 };
 
-/** Buyer-facing load failure — recovery actions up front; HTTP details behind troubleshooting. */
+/** Buyer-facing load failure — recovery actions up front; HTTP details behind Technical details. */
 export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailErrorProps) {
   const { failure, runId, onRetry, loading, graphEndpointHint } = props;
   const correlationId = ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId);
@@ -39,18 +39,18 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
       <p className="mt-2">{BUYER_EVIDENCE_TRAIL_ERROR_BODY}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" disabled={loading} onClick={onRetry}>
-          Retry
+          Try again
         </Button>
         <Button type="button" variant="outline" size="sm" asChild>
-          <Link href="/reviews?projectId=default">Open review packages</Link>
+          <Link href={reviewPackageHref}>Open review package</Link>
         </Button>
         <Button type="button" variant="ghost" size="sm" asChild>
-          <Link href={troubleshootingHref}>Troubleshooting</Link>
+          <Link href={troubleshootingHref}>Open troubleshooting</Link>
         </Button>
       </div>
       <details className="mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/50">
         <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
-          Troubleshooting details
+          Technical details
         </summary>
         <dl className="m-0 mt-2 space-y-1.5 text-neutral-600 dark:text-neutral-400">
           {httpStatus !== null ? (
@@ -60,7 +60,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
             </div>
           ) : null}
           <div>
-            <dt className="inline font-semibold">Provider request ID: </dt>
+            <dt className="inline font-semibold">Request ID: </dt>
             <dd className="inline break-all font-mono">{correlationId}</dd>
             <CopyIdButton value={correlationId} aria-label="Copy request ID" />
           </div>
@@ -78,7 +78,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
                 <Link className="underline" href={reviewPackageHref}>
                   review package
                 </Link>{" "}
-                exists, then retry.
+                exists, then retry. If the problem persists, check the browser network tab for the failing graph call.
               </dd>
             </div>
           ) : null}

@@ -647,33 +647,33 @@ export const BUYER_MANIFEST_DOWNLOAD_PREPARING = "Download is being prepared whe
 
 export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review package (ZIP)";
 
-export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence trail";
+export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence graph";
 
 export const BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE =
-  "Trace findings back to architecture inputs, review steps, evidence, and the signed review package.";
+  "Trace how evidence supports findings, decisions, and the review package.";
 
 export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "How evidence traceability works";
 
-export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence trail";
+export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence graph";
 
-export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample trail";
+export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample review package";
 
 export const BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE = "Open review package";
 
 export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review selected";
 
 export const BUYER_EVIDENCE_TRAIL_EMPTY_BODY =
-  "Start a review or open the Claims Intake sample package to inspect its evidence trail.";
+  "Start a review or open the Claims Intake sample review package to explore its evidence graph.";
 
-export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No reviews yet";
+export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No review packages yet";
 
 export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY =
-  "Start a review or open the sample package to inspect how findings link to evidence.";
+  "Start a review or load the sample workspace to explore how findings link to evidence.";
 
-export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Evidence trail unavailable";
+export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Evidence graph unavailable";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_BODY =
-  "We could not load the graph for this review. Confirm the review package exists, then retry.";
+  "The selected review package could not be loaded in this demo workspace. Try again, open the review package, or view troubleshooting.";
 
 export const BUYER_EVIDENCE_TRAIL_VIEW_TRACE = "Trace table";
 

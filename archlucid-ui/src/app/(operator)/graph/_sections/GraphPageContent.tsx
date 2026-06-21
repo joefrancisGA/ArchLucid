@@ -426,7 +426,7 @@ export function GraphPageContent() {
   const loadButtonLabel = buyerPolishedShell
     ? loading
       ? "Loading…"
-      : "Load evidence trail"
+      : "Load evidence graph"
     : loading
       ? "Loading…"
       : "Load graph";
@@ -520,7 +520,7 @@ export function GraphPageContent() {
         title={pageTitle}
         subtitle={
           buyerPolishedShell
-            ? `${BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE} This graph links your architecture inputs, pipeline steps, findings, and the signed review record.`
+            ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE
             : "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh."
         }
       />

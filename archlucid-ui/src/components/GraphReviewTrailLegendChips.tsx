@@ -41,7 +41,7 @@ const REVIEW_TRAIL_KINDS_BUYER: ReadonlyArray<{ k: string; role: string; c: stri
   },
   {
     k: "Finding",
-    role: "Anchors manifest decisions",
+    role: "Anchors review package decisions",
     c: "bg-amber-100 text-amber-950 dark:bg-amber-950/40 dark:text-amber-100",
   },
   {

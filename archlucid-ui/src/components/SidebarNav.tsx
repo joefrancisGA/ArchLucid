@@ -77,7 +77,7 @@ export function SidebarNav() {
     };
   }, [demoUiEnv]);
 
-  const omitAdminClusters = demoUi || buyerPolishedShell;
+  const omitAdminClusters = demoUi && !buyerPolishedShell;
   const navExpanded = true;
   const navAdvanced = true;
   const effectiveOperateUnlockPhase = 2 as const;
