@@ -17,10 +17,13 @@ import {
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_HOME_AHA_MOMENT, showcasePrimaryFindingHref } from "@/lib/showcase-home-aha-moment";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
 import { cn } from "@/lib/utils";
 
-const fullExampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+const fullExampleReviewHref = showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId);
 
 /**
  * First-run sample review preview — primary aha moment plus compact secondary findings (TB-353).
@@ -38,7 +41,7 @@ export function OperatorHomeSampleReviewPreview(): React.JSX.Element | null {
     <div className={cn(OPERATOR_LAYOUT.sectionStack, OPERATOR_CARD.nested)} data-testid="operator-home-sample-review-preview">
       <SampleReviewAhaMomentPanel
         moment={SHOWCASE_HOME_AHA_MOMENT}
-        findingHref={showcasePrimaryFindingHref(SHOWCASE_STATIC_DEMO_RUN_ID)}
+        findingHref={showcasePrimaryFindingHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId)}
         ctaLabel={BUYER_HOME_PRIMARY_CTA}
         ctaTestId="operator-home-sample-review-open"
         heading={OPERATOR_HOME_SAMPLE_FINDINGS_HEADING}

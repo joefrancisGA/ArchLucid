@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   isStaticDemoPayloadFallbackActiveForManifest,
   isStaticDemoPayloadFallbackActiveForRun,
+  isShowcaseSpineStaticPayloadActiveForRun,
+  tryStaticDemoFindingInspect,
   tryStaticDemoGoldenManifestComparison,
   tryStaticDemoRunComparison,
   tryStaticDemoRunDetail,
@@ -13,6 +15,7 @@ import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
@@ -184,6 +187,35 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
 
     if (originalStatic !== undefined) {
       process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+  });
+
+  it("isShowcaseSpineStaticPayloadActiveForRun is true for showcase ids in buyer-polished shell without demo env", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    const originalOperatorExperience = process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
+
+    expect(isShowcaseSpineStaticPayloadActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
+
+    const inspect = tryStaticDemoFindingInspect(SHOWCASE_STATIC_DEMO_RUN_ID, "phi-minimization-risk");
+
+    expect(inspect).not.toBeNull();
+    expect(inspect?.typedPayload.title).toBe(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE);
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    }
+
+    if (originalStatic !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+
+    if (originalOperatorExperience !== undefined) {
+      process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = originalOperatorExperience;
     }
   });
 });

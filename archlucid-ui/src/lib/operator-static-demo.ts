@@ -1,5 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
@@ -9,6 +10,7 @@ import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
   SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
@@ -93,6 +95,19 @@ export function isStaticDemoPayloadFallbackEnabled(): boolean {
 
 export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {
   return DEMO_RUN_IDS_FOR_STATIC_FALLBACK.has(runId.trim());
+}
+
+/**
+ * Showcase spine static payloads (Claims Intake demo) — active in packaged demo builds and buyer-polished first-run shell.
+ */
+export function isShowcaseSpineStaticPayloadActiveForRun(runId: string): boolean {
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return false;
+  }
+
+  return isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv();
 }
 
 /** True when demo env is on and the run id is a known showcase token (TB-274 / BE-059). */
@@ -527,14 +542,10 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
   return {
     findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     typedPayload: {
-      title: "Residual PHI minimization risk (monitored)",
-      description:
-        "Unstructured intake attachments can bypass minimization controls during peak load — monitor exceptions, reinforce " +
-        "ingress classification, and keep privacy-office review on a weekly cadence for this modernization path.",
-      whyThisMatters:
-        "If PHI volume or retention slips outside the minimization boundary, breach impact, audit scope, and downstream " +
-        "processing obligations expand materially — this risk observation is recorded with monitoring in the finalized package.",
-      severity: "High",
+      title: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
+      description: SHOWCASE_HOME_AHA_MOMENT.finding,
+      whyThisMatters: SHOWCASE_HOME_AHA_MOMENT.whyItMatters,
+      severity: "Warning",
       category: "Compliance",
       status: "Accepted with monitoring",
       impactedArea: "Intake PHI boundary, adapters, OCR exception paths, and downstream adjudication handoff",
@@ -576,7 +587,7 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
 }
 
 export function tryStaticDemoFindingInspect(runId: string, findingId: string): FindingInspectPayload | null {
-  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+  if (!isShowcaseSpineStaticPayloadActiveForRun(runId)) {
     return null;
   }
 

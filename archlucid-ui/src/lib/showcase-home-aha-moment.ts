@@ -2,6 +2,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE,
 } from "@/lib/showcase-static-demo";
+import { showcasePrimaryFindingDetailHref } from "@/lib/showcase-sample-review-registry";
 
 /** Four-part first-value moment for sample / demo review surfaces (assessment #2). */
 export type ShowcaseHomeAhaMoment = {
@@ -30,5 +31,5 @@ export const SHOWCASE_HOME_AHA_MOMENT: ShowcaseHomeAhaMoment = {
 };
 
 export function showcasePrimaryFindingHref(runId: string): string {
-  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(SHOWCASE_HOME_AHA_MOMENT.id)}`;
+  return showcasePrimaryFindingDetailHref(runId, SHOWCASE_HOME_AHA_MOMENT.id);
 }
