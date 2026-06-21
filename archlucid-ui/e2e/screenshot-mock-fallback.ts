@@ -3,6 +3,13 @@
  * so operator pages render empty states instead of transport errors.
  */
 
+import {
+  getExecutiveRoiExportMockJson,
+  getExecutiveRoiHistoryMockJson,
+  getExecutiveRoiSummaryMockJson,
+  getGovernanceDecisionsNeededSummaryMockJson,
+  getTenantPilotValueReportMockJson,
+} from "./fixtures/executive-roi-dashboard-mock";
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 
 const emptyPaged = { items: [], totalCount: 0, page: 1, pageSize: 20, hasMore: false };
@@ -59,6 +66,26 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
 
   if (pathname === "/v1/governance/dashboard") {
     return { pendingApprovals: [], recentDecisions: [], recentChanges: [], pendingCount: 0 };
+  }
+
+  if (pathname === "/v1/governance/decisions-needed-summary") {
+    return getGovernanceDecisionsNeededSummaryMockJson();
+  }
+
+  if (pathname === "/v1/roi/executive-summary") {
+    return getExecutiveRoiSummaryMockJson();
+  }
+
+  if (pathname === "/v1/roi/executive-summary/export") {
+    return getExecutiveRoiExportMockJson();
+  }
+
+  if (pathname === "/v1/roi/executive-summary/history") {
+    return getExecutiveRoiHistoryMockJson();
+  }
+
+  if (pathname === "/v1/tenant/pilot-value-report") {
+    return getTenantPilotValueReportMockJson();
   }
 
   if (pathname === "/v1/governance/compliance-drift-trend") {

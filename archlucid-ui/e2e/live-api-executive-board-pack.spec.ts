@@ -49,4 +49,24 @@ test.describe("live-api-executive-board-pack", () => {
     expect(body.toLowerCase()).not.toContain("demo run");
     expect(body).not.toContain("Simulator-only");
   });
+
+  test("portfolio-summary analytics deduplicates findings across mocked runs", async ({ request }) => {
+    const portfolioRes = await request.get(`${liveApiBase}/v1/analytics/roi/portfolio-summary`, {
+      headers: liveAcceptHeaders(),
+      timeout: 60_000,
+    });
+
+    expect(portfolioRes.ok(), `portfolio-summary expected 2xx, got ${portfolioRes.status()}`).toBe(true);
+
+    const portfolio = (await portfolioRes.json()) as {
+      rawFindingCount?: number;
+      uniqueFindingCount?: number;
+      deduplicatedTotals?: { timeSavedHours?: number };
+      rawRunTotals?: { timeSavedHours?: number };
+    };
+
+    expect(portfolio.rawFindingCount).toBe(5);
+    expect(portfolio.uniqueFindingCount).toBe(3);
+    expect(portfolio.deduplicatedTotals?.timeSavedHours).toBeLessThan(portfolio.rawRunTotals?.timeSavedHours ?? 0);
+  });
 });
