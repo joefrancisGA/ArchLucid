@@ -18,7 +18,9 @@ param(
 
     [int]$FilterChunkSize = 40,
 
-    [string]$BlameHangTimeout = '75min'
+    [string]$BlameHangTimeout = '75min',
+
+    [string]$ChunkTimeout = '20min'
 )
 
 Set-StrictMode -Version Latest
@@ -26,9 +28,12 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'ApiIntegrationTestShardSupport.ps1')
 . (Join-Path $PSScriptRoot 'CiSqlServerDiagnostics.ps1')
+. (Join-Path $PSScriptRoot 'ApiIntegrationTestChunkWatchdog.ps1')
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 Set-Location -LiteralPath $repoRoot
+
+$chunkTimeoutSpan = ConvertTo-ChunkTimeoutSpan -ChunkTimeout $ChunkTimeout
 
 New-Item -ItemType Directory -Force -Path $ResultsDirectory | Out-Null
 
@@ -114,21 +119,19 @@ foreach ($filter in $filterChunks) {
         (Get-Date -Format 'HH:mm:ss'))
 
     try {
-        & dotnet test $ProjectPath `
-            --no-build `
-            -c $Configuration `
-            --settings $RunSettingsPath `
-            --filter $filter `
-            --collect:'XPlat Code Coverage' `
-            --results-directory $ResultsDirectory `
-            --logger 'console;verbosity=minimal' `
-            --logger "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$chunkNumber-" `
-            --diag $diagLogPath `
-            --blame-hang `
-            --blame-hang-timeout $BlameHangTimeout `
-            --blame-hang-dump-type mini
+        $exitCode = Invoke-DotNetTestChunkWithWatchdog `
+            -ProjectPath $ProjectPath `
+            -Configuration $Configuration `
+            -Filter $filter `
+            -RunSettingsPath $RunSettingsPath `
+            -ResultsDirectory $ResultsDirectory `
+            -ShardIndex $ShardIndex `
+            -ChunkNumber $chunkNumber `
+            -DiagLogPath $diagLogPath `
+            -BlameHangTimeout $BlameHangTimeout `
+            -ChunkTimeout $chunkTimeoutSpan
 
-        if ($LASTEXITCODE -ne 0) {
+        if ($exitCode -ne 0) {
             $failed = $true
         }
     }

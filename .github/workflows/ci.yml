@@ -2013,24 +2013,37 @@ jobs:
           - shard: 0
             shard_label: "1/6"
             blame_timeout: "75min"
+            chunk_timeout: "20min"
+            step_timeout_minutes: 30
           - shard: 1
             shard_label: "2/6"
             # CI #2268: RetrievalQuerySmokeIntegrationTests hangs inside GetAsync; 130s fires before the
             # 150s RunAsync wrapper returns so vstest captures an in-process mini-dump that includes
             # server-side thread stacks. Revert to 75min once the root cause is identified and fixed.
             blame_timeout: "130s"
+            chunk_timeout: "20min"
+            # Tighter step backstop for the known-hanging shard (healthy shards finish in ~12 min incl. build).
+            step_timeout_minutes: 25
           - shard: 2
             shard_label: "3/6"
             blame_timeout: "75min"
+            chunk_timeout: "20min"
+            step_timeout_minutes: 30
           - shard: 3
             shard_label: "4/6"
             blame_timeout: "75min"
+            chunk_timeout: "20min"
+            step_timeout_minutes: 30
           - shard: 4
             shard_label: "5/6"
             blame_timeout: "75min"
+            chunk_timeout: "20min"
+            step_timeout_minutes: 30
           - shard: 5
             shard_label: "6/6"
             blame_timeout: "75min"
+            chunk_timeout: "20min"
+            step_timeout_minutes: 30
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -2064,7 +2077,11 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
+      # Parent-process chunk watchdog (Invoke-ApiIntegrationTestShard.ps1) is the primary hang defense:
+      # it captures an out-of-process dotnet-dump before killing the test host. Step timeout-minutes is
+      # the Actions backstop so failure/cancelled upload steps still run if the watchdog is bypassed.
       - name: Test â€” ArchLucid.Api.Tests (Integration shard, exclude Category=Slow)
+        timeout-minutes: ${{ matrix.step_timeout_minutes }}
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: >
@@ -2072,6 +2089,7 @@ jobs:
           -ShardIndex ${{ matrix.shard }}
           -ShardCount 6
           -BlameHangTimeout ${{ matrix.blame_timeout }}
+          -ChunkTimeout ${{ matrix.chunk_timeout }}
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
       - name: SQL Server hang diagnostics (on failure or timeout)
@@ -2104,7 +2122,7 @@ jobs:
         with:
           name: dotnet-hang-dump-api-integration-shard-${{ matrix.shard }}
           path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/**/*.dmp
-          if-no-files-found: ignore
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         if: always()
