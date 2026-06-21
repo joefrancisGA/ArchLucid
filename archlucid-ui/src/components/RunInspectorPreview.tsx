@@ -7,7 +7,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
-import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL, BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {

@@ -13,10 +13,6 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
-import {
-  ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
-  readBuyerCtoDemoTourActive,
-} from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
@@ -49,7 +45,6 @@ export function SidebarNav() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
-  const [runtimeCtoDemoTourActive, setRuntimeCtoDemoTourActive] = useState(false);
   const demoUi = runtimeDemoUi;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showSidebarCustomizationChrome =
@@ -62,17 +57,14 @@ export function SidebarNav() {
   useEffect(() => {
     function refreshRuntimeDemoState(): void {
       setRuntimeDemoUi(demoUiEnv || readOperatorDemoPanicOffline());
-      setRuntimeCtoDemoTourActive(readBuyerCtoDemoTourActive());
     }
 
     refreshRuntimeDemoState();
     window.addEventListener(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, refreshRuntimeDemoState);
-    window.addEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, refreshRuntimeDemoState);
     window.addEventListener("storage", refreshRuntimeDemoState);
 
     return () => {
       window.removeEventListener(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, refreshRuntimeDemoState);
-      window.removeEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, refreshRuntimeDemoState);
       window.removeEventListener("storage", refreshRuntimeDemoState);
     };
   }, [demoUiEnv]);
@@ -81,6 +73,9 @@ export function SidebarNav() {
   const navExpanded = true;
   const navAdvanced = true;
   const effectiveOperateUnlockPhase = 2 as const;
+  // Buyer-polished shell exposes the full grouped catalog (collapsed) even before the first committed review,
+  // so the first-commit funnel gate does not strip Analysis / Governance / Operations for new buyers.
+  const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -89,7 +84,7 @@ export function SidebarNav() {
     callerAuthorityRank,
     false,
     "review-workflow",
-    hasCommittedArchitectureReview,
+    effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
   );
 
@@ -103,7 +98,7 @@ export function SidebarNav() {
           callerAuthorityRank,
           false,
           "platform-admin",
-          hasCommittedArchitectureReview,
+          effectiveHasCommittedArchitectureReview,
           effectiveOperateUnlockPhase,
         );
 
@@ -126,7 +121,7 @@ export function SidebarNav() {
             pathname={pathname}
             demoUi={demoUi}
             buyerPolishedShell={buyerPolishedShell}
-            hasCommittedArchitectureReview={hasCommittedArchitectureReview}
+            hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
             effectiveOperateUnlockPhase={effectiveOperateUnlockPhase}
             isCollapsible={collapsible}
             isExpanded={isExpanded}

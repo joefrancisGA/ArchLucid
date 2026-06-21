@@ -126,7 +126,7 @@ export function WhyArchLucidPage() {
       <WhyArchLucidFirstValueReportSection state={state} />
       <WhyArchLucidRunExplanationSection state={state} />
 
-      <WhyArchLucidPageFooter demoRunId={state.snapshot?.demoRunId} />
+      <WhyArchLucidPageFooter />
     </div>
   );
 }

@@ -9,7 +9,7 @@ const patchDraftRequest = vi.fn();
 const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
-const searchParamsGet = vi.hoisted(() => vi.fn((_key: string) => null as string | null));
+const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: routerPush }),
@@ -95,7 +95,7 @@ const sampleQuestion = {
 
 describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
-    searchParamsGet.mockImplementation((_key: string) => null);
+    searchParamsGet.mockImplementation(() => null);
   });
 
   it("prefills guided intake from template=claims-intake-modernization without auto-submitting", () => {
