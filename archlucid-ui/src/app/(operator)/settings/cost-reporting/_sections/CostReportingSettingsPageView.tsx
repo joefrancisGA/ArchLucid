@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
 import { LlmCostCommandCenterSummaryCard } from "@/components/LlmCostCommandCenterSummaryCard";
@@ -21,10 +22,10 @@ export function CostReportingSettingsPageView(props: Props) {
 
   if (m.surface === "demo") {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Cost reporting not available in demo mode.</p>
-        <p className="m-0 mt-1">Open this page in your production workspace to see estimated LLM costs.</p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Cost reporting"
+        description="In a connected tenant, tenant administrators review estimated LLM costs and budget utilization here."
+      />
     );
   }
 

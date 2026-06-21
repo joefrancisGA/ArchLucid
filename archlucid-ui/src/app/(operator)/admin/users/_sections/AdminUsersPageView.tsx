@@ -21,7 +21,7 @@ export function AdminUsersPageView(props: Props) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="User management"
-        description="Manage users and access through your identity provider in a connected tenant."
+        description="In a connected tenant, administrators manage users and access through the identity provider."
       />
     );
   }

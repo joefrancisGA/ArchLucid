@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer-polish-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
@@ -162,7 +163,12 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
           <CardTitle className="text-base">Cost settings</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm text-neutral-500">Not available in demo mode.</p>
+          <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            {BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE}
+          </p>
+          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            In a connected tenant, tenant administrators configure architect rates and ROI inputs here.
+          </p>
         </CardContent>
       </Card>
     );

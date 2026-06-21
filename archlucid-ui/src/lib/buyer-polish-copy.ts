@@ -625,11 +625,19 @@ export const BUYER_SEE_COMPLETED_OUTPUT_CTA = "See completed output";
 export const BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE =
   "Blocking issues: 0 · Evidence basis: signed review record, evidence trail, audit trail";
 
-export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY =
-  "In a connected tenant, administrators configure users, support settings, digest delivery, and workspace health here.";
+export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE =
+  "This capability is not enabled in the Claims Intake Demo workspace.";
 
-export function buyerDemoCapabilityUnavailableTitle(capability: string): string {
-  return `${capability} is not enabled in the demo workspace.`;
+export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY =
+  "In a connected tenant, administrators configure users, support routing, digest subscriptions, and system health here.";
+
+export const BUYER_DEMO_CAPABILITY_RETURN_HOME_CTA = "Return to home";
+
+export const BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA = "Open troubleshooting";
+
+/** @deprecated Prefer {@link BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE} — title is workspace-scoped, not capability-scoped. */
+export function buyerDemoCapabilityUnavailableTitle(_capability: string): string {
+  return BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE;
 }
 
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";

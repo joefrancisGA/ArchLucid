@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -33,11 +34,10 @@ export function PricingQuoteAgingPageView(props: Props) {
 
   if (m.surface === "demo") {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">
-          Pricing quote aging is not available in demo mode.
-        </p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Pricing quote aging"
+        description="In a connected tenant, administrators track aging procurement quotes and follow-up actions here."
+      />
     );
   }
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -24,9 +25,11 @@ export function RoiSummaryPageView(props: Props) {
       <OperatorPageContainer variant="dashboard" className="space-y-4">
         <LayerHeader pageKey="value-report-roi" />
         <ValueReportOutcomesNav />
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">ROI summary not available in demo mode.</p>
-        </div>
+        <DemoWorkspaceCapabilityUnavailablePanel
+          layout="embedded"
+          capability="ROI summary"
+          description="In a connected tenant, sponsors review review-cycle reduction, estimated effort saved, and governance-ready artifacts produced by committed reviews."
+        />
       </OperatorPageContainer>
     );
   }

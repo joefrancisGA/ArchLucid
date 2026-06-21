@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -47,12 +48,11 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           subtitle={semanticSearchPageSubtitleOperator}
         />
 
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">
-            Semantic search not available in demo mode.
-          </p>
-          <p className="m-0 mt-1">Full-text search across reviews requires a live API connection.</p>
-        </div>
+        <DemoWorkspaceCapabilityUnavailablePanel
+          layout="embedded"
+          capability="Semantic search"
+          description="In a connected tenant, operators search across review evidence and audit records with full-text semantic search."
+        />
       </div>
     );
   }

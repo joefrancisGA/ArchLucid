@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { SimulationRunDiffCard } from "@/components/evolution/SimulationRunDiffCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -22,10 +23,10 @@ export function EvolutionReviewPageView(props: Props) {
 
   if (m.isDemo) {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Evolution review not available in demo mode.</p>
-        <p className="m-0 mt-1">60R simulation review requires a live API connection with baseline data.</p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Simulation review"
+        description="In a connected tenant, operators compare architecture evolution candidates and before/after simulation diffs."
+      />
     );
   }
 

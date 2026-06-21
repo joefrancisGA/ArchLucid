@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,10 +26,10 @@ export function AdminConfigurationPageView(props: Props) {
 
   if (m.isDemo) {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Configuration summary not available in demo mode.</p>
-        <p className="m-0 mt-1">Catalog-aligned settings require a live API session with admin access.</p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Configuration summary"
+        description="In a connected tenant, administrators review catalog-aligned settings and deployment configuration here."
+      />
     );
   }
 

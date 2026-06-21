@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -21,10 +22,10 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
 
   if (m.isDemo) {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Teams integration not available in demo mode.</p>
-        <p className="m-0 mt-1">Microsoft Teams notifications can be configured with a live API connection.</p>
-      </div>
+      <DemoWorkspaceCapabilityUnavailablePanel
+        capability="Microsoft Teams integration"
+        description="In a connected tenant, administrators configure Microsoft Teams notification routing for governance events."
+      />
     );
   }
 

@@ -16,7 +16,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Support tools"
-        description="Support bundle downloads and ticket attachments are available to operators with a live API connection."
+        description="In a connected tenant, operators download redacted support bundles and attach them to tickets."
       />
     );
   }
