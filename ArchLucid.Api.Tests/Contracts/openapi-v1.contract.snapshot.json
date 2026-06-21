@@ -10559,6 +10559,12 @@
       },
       "FindingsSnapshot": {
         "properties": {
+          "checklistCoverage": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "type": "array"
+          },
           "contextSnapshotId": {
             "format": "uuid",
             "type": "string"
@@ -10581,6 +10587,16 @@
               "$ref": "#/components/schemas/Finding"
             },
             "type": "array"
+          },
+          "insightDensityCuration": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InsightDensityCurationSummary"
+              }
+            ]
           },
           "findingsSnapshotId": {
             "format": "uuid",
@@ -10614,6 +10630,19 @@
       },
       "FindingsSnapshotGenerationStatus": {
         "type": "integer"
+      },
+      "InsightDensityCurationSummary": {
+        "properties": {
+          "demotedToChecklistCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "retainedFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
       },
       "FirstTenantFunnelEventRequest": {
         "properties": {

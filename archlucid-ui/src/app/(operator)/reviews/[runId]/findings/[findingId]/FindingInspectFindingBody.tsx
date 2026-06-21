@@ -10,6 +10,8 @@ import { findingInspectPrimaryLabels, findingWhyThisMattersText, phiMinimization
 
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
+import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
+import { typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
 import { FindingInspectReasoningPayloadDetails } from "./FindingInspectReasoningPayloadDetails";
 import { FindingInspectReasoningSummarySection } from "./FindingInspectReasoningSummarySection";
 import { FindingInspectRecommendedActionSection } from "./FindingInspectRecommendedActionSection";
@@ -53,6 +55,24 @@ export function FindingInspectFindingBody({
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
+  let insightDensityScore: number | null = null;
+
+  if (payload.typedPayload !== null && typeof payload.typedPayload === "object") {
+    const scoreRaw = (payload.typedPayload as Record<string, unknown>).insightDensityScore;
+
+    if (typeof scoreRaw === "number" && Number.isFinite(scoreRaw)) {
+      insightDensityScore = Math.trunc(scoreRaw);
+    } else if (typeof scoreRaw === "string") {
+      const parsed = Number.parseInt(scoreRaw, 10);
+
+      if (!Number.isNaN(parsed)) {
+        insightDensityScore = parsed;
+      }
+    }
+  }
+
+  const whyThisIsNotGeneric = typedPayloadLookupString(payload, "whyThisIsNotGeneric");
+
   const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
   const recommendedActionParagraph =
     labels.recommendedAction ??
@@ -81,6 +101,16 @@ export function FindingInspectFindingBody({
       reviewContextHref={reviewContextHref}
       reviewContextLabel={reviewContextLabel}
       evidence={payload.evidence}
+    />
+  );
+
+  const insightDensityBlock = (
+    <FindingInsightDensityDisclosure
+      insightDensityScore={
+        insightDensityScore !== null && Number.isFinite(insightDensityScore) ? insightDensityScore : null
+      }
+      whyThisIsNotGeneric={whyThisIsNotGeneric}
+      className="mt-4"
     />
   );
 
@@ -121,6 +151,7 @@ export function FindingInspectFindingBody({
         <CollapsibleSection title="View evidence" defaultOpen={false} sectionTestId="finding-evidence-collapsible">
           {evidenceBlock}
         </CollapsibleSection>
+        {insightDensityBlock}
         {recommendedBlock("detail")}
         {feedbackBlock}
         {auditBlock}
@@ -133,6 +164,7 @@ export function FindingInspectFindingBody({
       {whyBlock}
       {reasoningSummaryBlock}
       {evidenceBlock}
+      {insightDensityBlock}
       {recommendedBlock("inspect")}
       <FindingInspectReasoningPayloadDetails
         reasoningTrace={payload.reasoningTrace}

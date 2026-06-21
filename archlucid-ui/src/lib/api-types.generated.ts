@@ -33414,6 +33414,7 @@ export interface components {
         };
         FindingTreatment: number;
         FindingsSnapshot: {
+            checklistCoverage?: components["schemas"]["Finding"][];
             /** Format: uuid */
             contextSnapshotId?: string;
             /** Format: date-time */
@@ -33421,6 +33422,7 @@ export interface components {
             engineFailures?: components["schemas"]["FindingEngineFailure"][];
             evaluationConfidenceEnrichmentSkipped?: boolean;
             findings?: components["schemas"]["Finding"][];
+            insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
             /** Format: uuid */
             findingsSnapshotId?: string;
             generationStatus?: components["schemas"]["FindingsSnapshotGenerationStatus"];
@@ -33434,6 +33436,12 @@ export interface components {
             totalEstimatedSavings?: number | string;
         };
         FindingsSnapshotGenerationStatus: number;
+        InsightDensityCurationSummary: {
+            /** Format: int32 */
+            demotedToChecklistCount?: number;
+            /** Format: int32 */
+            retainedFindingCount?: number;
+        };
         FirstTenantFunnelEventRequest: {
             event?: null | string;
         };

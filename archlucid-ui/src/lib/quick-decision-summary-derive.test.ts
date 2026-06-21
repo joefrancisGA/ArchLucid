@@ -97,6 +97,31 @@ describe("quick-decision-summary-derive", () => {
     expect(extracted[0]?.confidenceLevel).toBe("Low");
     expect(extracted[0]?.evaluationConfidenceScore).toBe(33);
     expect(extracted[0]?.evidenceRefCount).toBe(2);
+    expect(extracted[0]?.evidenceRefSnippets).toEqual(["r1", "r2"]);
+  });
+
+  it("extractQuickDecisionFindingsFromRunDetail maps insight-density fields", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [
+        {
+          findings: [
+            {
+              findingId: "dense-1",
+              message: "Subnet isolation gap",
+              severity: 2,
+              insightDensityScore: 81,
+              whyThisIsNotGeneric: "Names a specific peering rule.",
+            },
+          ],
+        },
+      ],
+    } as unknown as RunDetail;
+
+    const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(extracted[0]?.insightDensityScore).toBe(81);
+    expect(extracted[0]?.whyThisIsNotGeneric).toBe("Names a specific peering rule.");
   });
 
   it("resolveQuickDecisionFindingsForRunDetail merges explainability trace rows onto extracted findings", () => {

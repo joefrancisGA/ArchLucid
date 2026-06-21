@@ -2,6 +2,7 @@ import type { RunDetail } from "@/types/authority";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/finding-enforcement-tier";
+import { collectEvidenceRefSnippets } from "@/lib/finding-evidence-ref-snippet";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -39,6 +40,12 @@ export type QuickDecisionFinding = {
   iacStub?: string | null;
   /** Governance tier: blocking violations vs opt-in baseline guidance. */
   enforcementTier: FindingEnforcementTierKind;
+  /** Normalized evidence ref excerpts for TB-385 inline display. */
+  evidenceRefSnippets?: readonly string[];
+  /** Persisted insight-density score when present on the wire. */
+  insightDensityScore?: number | null;
+  /** LLM or deterministic rationale for non-generic insight (nullable until Phase 2). */
+  whyThisIsNotGeneric?: string | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -308,6 +315,16 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
 
       const enforcementTier: FindingEnforcementTierKind = normalizeFindingEnforcementTier(fr.enforcementTier);
 
+      const insightDensityRaw = fr.insightDensityScore;
+      const insightDensityScore =
+        typeof insightDensityRaw === "number" && Number.isFinite(insightDensityRaw)
+          ? Math.trunc(insightDensityRaw)
+          : null;
+
+      const whyRaw = fr.whyThisIsNotGeneric;
+      const whyThisIsNotGeneric =
+        typeof whyRaw === "string" && whyRaw.trim().length > 0 ? whyRaw.trim() : null;
+
       out.push({
         findingId,
         title,
@@ -321,8 +338,11 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         evaluationConfidenceScore,
         traceConfidenceLabel: null,
         evidenceRefCount,
+        evidenceRefSnippets: collectEvidenceRefSnippets(evidenceRefsRaw),
         iacStub,
         enforcementTier,
+        insightDensityScore,
+        whyThisIsNotGeneric,
       });
     }
   }

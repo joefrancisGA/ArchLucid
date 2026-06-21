@@ -38,6 +38,7 @@ import {
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
+import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { getScopeHeaders } from "@/lib/scope";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
@@ -287,6 +288,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     explanationSummary,
   );
   const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
+  const insightDensityView = resolveFindingsSnapshotInsightDensityView(resolvedDetail);
 
   const adrGeneratorInput = buildAdrGeneratorRunInput({
     runId: resolvedDetail.run.runId,
@@ -340,6 +342,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     quickDecisionFindings,
     quickDecisionFromExplanationFallback,
     findingWireSnapshots,
+    insightDensityView,
     adrGeneratorInput,
   };
 

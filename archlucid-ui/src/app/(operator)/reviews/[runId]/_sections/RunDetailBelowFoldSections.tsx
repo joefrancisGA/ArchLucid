@@ -192,6 +192,7 @@ export async function RunDetailBelowFoldSections(
           baselineAnnualCostUsd={baselineAnnualCostUsd}
           isIllustrativePricing={isIllustrativePricing}
           decisionExplainability={decisionExplainability}
+          insightDensityView={m.insightDensityView}
         />
       ) : null}
 

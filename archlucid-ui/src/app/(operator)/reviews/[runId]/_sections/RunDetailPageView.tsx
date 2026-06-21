@@ -387,6 +387,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           baselineAnnualCostUsd={baselineAnnualCostUsd}
           isIllustrativePricing={isIllustrativePricing}
           decisionExplainability={decisionExplainability}
+          insightDensityView={m.insightDensityView}
         />
       ) : null}
 

@@ -11,6 +11,8 @@ import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
+import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
+import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
 import { MessageCircle } from "lucide-react";
 
@@ -245,6 +247,17 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         ) : null}
         {snippet.length > 0 ? (
           <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
+        ) : null}
+        {f.evidenceRefSnippets !== undefined && f.evidenceRefSnippets.length > 0 ? (
+          <FindingEvidenceRefSnippets snippets={f.evidenceRefSnippets} />
+        ) : null}
+        {(f.insightDensityScore !== null && f.insightDensityScore !== undefined) ||
+        (f.whyThisIsNotGeneric !== null && f.whyThisIsNotGeneric !== undefined && f.whyThisIsNotGeneric.length > 0) ? (
+          <FindingInsightDensityDisclosure
+            insightDensityScore={f.insightDensityScore ?? null}
+            whyThisIsNotGeneric={f.whyThisIsNotGeneric ?? null}
+            className="mt-2"
+          />
         ) : null}
         <div
           className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"

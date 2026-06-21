@@ -3,6 +3,7 @@ import type { AdrGeneratorRunInput } from "@/lib/adr-from-run";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
 import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -44,6 +45,7 @@ export type RunDetailPageModel = {
   /** When true, quick-decision rows were synthesized from explanation traces (not agent results). */
   readonly quickDecisionFromExplanationFallback: boolean;
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
+  readonly insightDensityView: FindingsSnapshotInsightDensityView;
   readonly adrGeneratorInput: AdrGeneratorRunInput;
 };
 

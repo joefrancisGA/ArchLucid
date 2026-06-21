@@ -8,6 +8,9 @@ import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
+import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
+import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
@@ -28,6 +31,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly baselineAnnualCostUsd: number | null;
   readonly isIllustrativePricing?: boolean;
   readonly decisionExplainability: RunDecisionExplainabilityModel | null;
+  readonly insightDensityView: FindingsSnapshotInsightDensityView;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -46,6 +50,7 @@ export function RunDetailRunExplanationCollapsible(
     baselineAnnualCostUsd,
     isIllustrativePricing,
     decisionExplainability,
+    insightDensityView,
   } = props;
 
   return (
@@ -54,6 +59,7 @@ export function RunDetailRunExplanationCollapsible(
         title={buyerPolishedArtifactTable ? "Findings & assessment" : "Architecture review summary"}
         defaultOpen={buyerPolishedArtifactTable}
       >
+        <InsightDensityCurationBanner curation={insightDensityView.curation} />
         <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} isIllustrativePricing={isIllustrativePricing} />
         <RunDetailSponsorModeExplanationCard
           explanationSummary={explanationSummary}
@@ -68,6 +74,7 @@ export function RunDetailRunExplanationCollapsible(
           headlineWarningCount={warningCountDisplay}
           usingExplanationFallback={quickDecisionFromExplanationFallback}
         />
+        <CoverageChecklistPanel items={insightDensityView.checklistCoverage} className="mt-4" />
         {explanationFailure ? (
           <>
             <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
