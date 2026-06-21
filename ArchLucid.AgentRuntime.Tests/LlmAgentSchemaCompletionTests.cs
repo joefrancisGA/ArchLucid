@@ -1,13 +1,19 @@
+using System.Net;
+
 using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using Polly;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -220,5 +226,87 @@ public sealed class LlmAgentSchemaCompletionTests
         traceRecorder.Calls[2].ParseSucceeded.Should().BeTrue();
         traceRecorder.Calls[2].AttemptIndex.Should().Be(2);
         traceRecorder.Calls[2].FailureReasonCode.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CompleteAsync_applies_polly_retries_only_on_first_schema_attempt()
+    {
+        int primaryInnerCalls = 0;
+        int remediationInnerCalls = 0;
+
+        Mock<IAgentCompletionClient> primaryInner = new();
+        primaryInner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("primary", "primary"));
+        primaryInner
+            .Setup(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                int call = Interlocked.Increment(ref primaryInnerCalls);
+
+                if (call <= 2)
+                {
+                    return Task.FromException<string>(
+                        new HttpRequestException("rate limited", null, HttpStatusCode.TooManyRequests));
+                }
+
+                return Task.FromResult("{ not valid json");
+            });
+
+        Mock<IAgentCompletionClient> remediationInner = new();
+        remediationInner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("remediation", "remediation"));
+        remediationInner
+            .Setup(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                Interlocked.Increment(ref remediationInnerCalls);
+
+                return Task.FromResult(ValidTopologyJson);
+            });
+
+        using CircuitBreakingAgentCompletionClient primaryWithRetry =
+            CreatePrimaryWithPollyRetry(primaryInner.Object, maxRetryAttempts: 2);
+
+        AgentResultParser parser = new();
+
+        IOptionsMonitor<AgentSchemaRemediationOptions> remediationOptions =
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(maxCompletionAttempts: 3);
+
+        (string _, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
+            primaryWithRetry,
+            parser,
+            remediationOptions,
+            AgentType.Topology,
+            "run1",
+            "task1",
+            "sys",
+            "user base",
+            remediationCompletionClient: remediationInner.Object,
+            cancellationToken: CancellationToken.None);
+
+        parsed.ResultId.Should().Be("res1");
+        primaryInnerCalls.Should().Be(3);
+        remediationInnerCalls.Should().Be(1);
+    }
+
+    private static CircuitBreakingAgentCompletionClient CreatePrimaryWithPollyRetry(
+        IAgentCompletionClient inner,
+        int maxRetryAttempts)
+    {
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 10,
+            DurationOfBreakSeconds = 60
+        };
+        CircuitBreakerGate gate = new("schema-primary-gate", options);
+        ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            logger: NullLogger.Instance,
+            maxRetryAttempts: maxRetryAttempts,
+            baseDelay: TimeSpan.FromMilliseconds(1),
+            maxDelay: TimeSpan.FromMilliseconds(50));
+
+        return new CircuitBreakingAgentCompletionClient(
+            inner,
+            gate,
+            retry,
+            NullLogger<CircuitBreakingAgentCompletionClient>.Instance);
     }
 }

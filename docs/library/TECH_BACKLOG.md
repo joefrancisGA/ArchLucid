@@ -2834,6 +2834,8 @@ If `SaveAsync` succeeds but `UpdateRunAsync` fails (transient SQL), retry builds
 
 ## TB-043 ? Schema remediation ? non-retried completion client (decouple from Polly stack)
 
+**Status:** **Done (2026-06-21 batch tb043-schema-remediation-no-polly)** ? `ISchemaRemediationAgentCompletionClient` registered without Polly retry; handlers pass dedicated remediation client; max-billed-calls formula documented; Polly-bounded test + `test_traceability_batch_tb043.py` drift guard.
+
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `LlmAgentSchemaCompletion.CompleteAsync` calls `activeClient.CompleteJsonAsync`, which is typically `CircuitBreakingAgentCompletionClient` with an inner Polly retry pipeline.
 
 **Problem:**

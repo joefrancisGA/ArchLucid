@@ -56,6 +56,16 @@ Used by `ResilientSqlConnectionFactory` via `SqlOpenResilienceDefaults.BuildSqlO
 
 Already bound via `IOptions<AgentExecutionResilienceOptions>` from `AgentExecution:Resilience` (`MaxConcurrentHandlers`, `PerHandlerTimeoutSeconds`). See `AgentExecutionResilienceOptions` in code for section name.
 
+### Schema remediation LLM path (TB-043)
+
+| Setting | Config path | Effect |
+|--------|-------------|--------|
+| Max schema attempts | `AgentSchemaRemediation:MaxCompletionAttempts` | Clamped 1–5; each attempt may bill one completion when usage is returned. |
+| Polly retries (primary only) | `AgentExecution:Resilience:LlmCallMaxRetryAttempts` (or `AzureOpenAI:MaxRetries` when &gt; 0) | Applies to the **first** schema attempt only via **`CircuitBreakingAgentCompletionClient`**. |
+| Remediation client | DI: **`ISchemaRemediationAgentCompletionClient`** | Same economy deployment and accounting stack; **no** Polly retry wrapper (`BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry`). |
+
+**Max billed completions per agent task (worst case):** `(1 + LlmCallMaxRetryAttempts) + (MaxCompletionAttempts − 1)` when retry is enabled. See **`docs/LLM_RETRY_AND_CIRCUIT_BREAKER.md`** § Schema remediation completions (TB-043).
+
 ### CLI HTTP retries
 
 | Setting | Source | Default | Notes |

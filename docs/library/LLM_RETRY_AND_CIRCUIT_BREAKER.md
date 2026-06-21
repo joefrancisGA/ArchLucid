@@ -179,6 +179,25 @@ To add a scenario: follow `LlmCallRetrySimmyTests`, `LlmCallChaosEndToEndTests`,
 | **Partial findings and decisioning** | **`AuthorityPipeline:HaltOnPartialFindings`** (default **`true`**) stops the pipeline before **`IDecisionEngine.DecideAsync`** when the findings snapshot is **`PartiallyComplete`** or **`Failed`**. Set to **`false`** only when product accepts manifests built from partial engine output ( **`FindingsSnapshot.EngineFailures`** remains on the snapshot). | Configure explicitly per environment; monitor **`GenerationStatus`** and engine failure lists. |
 | **Execute-run baseline audit** | On coordinator **`ExecuteRun`**, baseline mutation audit **`RunFailed`** details use **`ExceptionTypeName`** or, when the root failure is **`CircuitBreakerOpenException`**, **`CircuitBreakerOpenException:CircuitBreakerRejected`** so log-based alerts can key off **`CircuitBreakerRejected`**. | Pair with **`AgentExecutionTrace.FailureReasonCode`** (`**CircuitBreakerRejected**`) on persisted trace rows. |
 
+## Schema remediation completions (TB-043)
+
+Agent handlers (topology, compliance, cost, critic) call **`LlmAgentSchemaCompletion.CompleteAsync`**, which may retry when JSON schema validation fails. **Only the first attempt** uses the primary **`IAgentCompletionClient`** stack (including **`CircuitBreakingAgentCompletionClient`** and Polly retry). **Remediation attempts** (attempt index ≥ 1) use **`ISchemaRemediationAgentCompletionClient`**, registered via **`BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry`** — same Azure deployment, accounting, safety, and cache envelopes, but **no Polly retry pipeline**.
+
+### Max billed LLM calls per handler task
+
+Let **`A`** = `AgentSchemaRemediation:MaxCompletionAttempts` (clamped 1–5) and **`R`** = effective Polly retries per primary call (`1 + LlmCallMaxRetryAttempts` when retry is enabled, else `1`).
+
+| Path | Worst-case billed completions |
+|------|----------------------------------|
+| **Before TB-043** | `A × R` (every remediation attempt could exhaust Polly retries) |
+| **After TB-043** | `R + (A − 1)` (Polly only on the first schema attempt) |
+
+Example: `A = 3`, `LlmCallMaxRetryAttempts = 3` → **`R = 4`**, max billed **`4 + 2 = 6`** instead of **`12`**.
+
+Remediation prompts append validation errors, so completion cache does not dedupe across attempts by design. **TB-035** persists each attempt trace with **`AttemptIndex`**; billing and trace rows align per attempt.
+
+Host registration: **`RegisterSchemaRemediationAgentCompletionClient`** in **`ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`**. Handler wiring: **`AgentHandlerLlmResolution.ResolveCompletionClients`**.
+
 ## References
 
 - `docs/RESILIENCE_CONFIGURATION.md` — broader resilience and circuit breaker options.
