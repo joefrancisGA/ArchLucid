@@ -73,7 +73,7 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/governance/dashboard")).toEqual([
       { label: "Home", href: "/" },
       { label: "Governance", href: "/governance" },
-      { label: "Dashboard" },
+      { label: "Governance dashboard" },
     ]);
   });
 

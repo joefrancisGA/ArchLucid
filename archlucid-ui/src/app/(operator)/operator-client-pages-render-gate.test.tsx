@@ -231,7 +231,7 @@ describe("operator client pages — render gate", () => {
   it("ProductLearningPage renders primary heading", async () => {
     const page = await ProductLearningPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Pilot feedback" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Evaluation feedback" })).toBeInTheDocument();
   });
 
   it("PlanningPage renders primary heading", async () => {

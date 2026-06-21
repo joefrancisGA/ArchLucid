@@ -13,6 +13,7 @@ import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
 import { PLANNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 
@@ -36,9 +37,9 @@ export function PlanningPageView(props: Props) {
     <div className="max-w-5xl">
       <OperatorPageHeader title="Planning" />
       <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
-        Improvement themes and prioritized plans derived from pilot feedback (59R). This is a <strong>read-only</strong> browse view — use{" "}
+        Improvement themes and prioritized plans derived from evaluation feedback (59R). This is a <strong>read-only</strong> browse view — use{" "}
         <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
-          Pilot feedback
+          {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
         </Link>{" "}
         for rollups and triage export.
       </p>
@@ -79,7 +80,7 @@ export function PlanningPageView(props: Props) {
           <OperatorTryNext>
             Confirm learning/planning API routes are enabled for this environment, then click <strong>Refresh</strong>. For data entry and triage, use{" "}
             <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
-              Pilot feedback
+              {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
             </Link>
             —this page is read-only aggregation.
           </OperatorTryNext>
@@ -90,9 +91,9 @@ export function PlanningPageView(props: Props) {
         <>
           <EnterpriseCompactEmptyState {...PLANNING_EMPTY_COMPACT} />
           <OperatorTryNext>
-            Capture or import pilot feedback on{" "}
+            Capture or import evaluation feedback on{" "}
             <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
-              Pilot feedback
+              {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
             </Link>
             , then return here after processing jobs have run.
           </OperatorTryNext>

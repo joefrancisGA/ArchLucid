@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -31,7 +32,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/scorecard",
           label: OPERATOR_NAV_LINK_LABELS.scorecard,
-          title: "Pilot scorecard — finalized-review metrics and ROI baselines",
+          title: `${BUYER_TERMINOLOGY.reviewScorecard} — finalized-review metrics and ROI baselines`,
           icon: BarChart3,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
@@ -55,7 +56,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/product-learning",
           label: OPERATOR_NAV_LINK_LABELS.pilotFeedback,
-          title: "Pilot feedback — rollups and triage (58R)",
+          title: `${BUYER_TERMINOLOGY.evaluationFeedback} — rollups and triage (58R)`,
           icon: ClipboardList,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",
@@ -104,7 +105,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/first-30-days",
           label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
-          title: "First 30 days — minimal governance operating preset after pilot",
+          title: "First 30 days — minimal governance operating preset after evaluation",
           icon: ShieldCheck,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
@@ -136,7 +137,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/value-report/pilot",
           label: OPERATOR_NAV_LINK_LABELS.pilotValueReport,
-          title: "Pilot value report — finalized-review metrics, governance signals, Markdown export",
+          title: `${BUYER_TERMINOLOGY.evaluationValueReport} — finalized-review metrics, governance signals, Markdown export`,
           icon: FileText,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
