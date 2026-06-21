@@ -17,13 +17,13 @@ cd "$ROOT"
 export ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1
 bash scripts/ci/check_openapi_contract_snapshot.sh
 
-echo "Regenerating buyer-tier OpenAPI contract snapshot from v1 baseline..."
-python3 scripts/ci/generate_buyer_openapi_snapshot.py
-
+echo "Regenerating buyer-tier OpenAPI contract snapshot from live /openapi/v1.json..."
+export ARCHLUCID_UPDATE_BUYER_OPENAPI_SNAPSHOT=1
 dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj \
   --no-build \
   -c Release \
   --filter "FullyQualifiedName~OpenApiBuyerContractSnapshotTests"
+unset ARCHLUCID_UPDATE_BUYER_OPENAPI_SNAPSHOT
 
 echo "Regenerating ArchLucid.Api.Client (NSwag) from v1 baseline..."
 dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
