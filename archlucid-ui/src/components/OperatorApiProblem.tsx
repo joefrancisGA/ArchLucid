@@ -7,8 +7,10 @@ import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { classifyOperatorConnectivityFailure } from "@/lib/operator-connectivity-error-present";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
+import { OperatorLayeredConnectivityError } from "@/components/OperatorLayeredConnectivityError";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
@@ -59,6 +61,24 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
     correlationId = props.correlationId ?? problem?.correlationId ?? null;
     httpStatus = props.httpStatus ?? null;
     retryAfterSeconds = props.retryAfterSeconds ?? null;
+  }
+
+  const connectivityKind = classifyOperatorConnectivityFailure({
+    message: fallbackMessage,
+    httpStatus,
+    problem,
+    correlationId,
+  });
+
+  if (connectivityKind !== null) {
+    return (
+      <OperatorLayeredConnectivityError
+        message={fallbackMessage}
+        httpStatus={httpStatus}
+        problem={problem}
+        correlationId={correlationId}
+      />
+    );
   }
 
   const { heading, body, hint, endpointLine, validationFields, isValidationFailure } = operatorCopyForProblem(
@@ -122,7 +142,7 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
           href={troubleshootingHref}
           {...(buyerPolished ? {} : { rel: "noopener noreferrer", target: "_blank" })}
         >
-          Troubleshooting runbook
+          Troubleshooting guide
         </a>
         {" · "}
         <a
@@ -130,7 +150,7 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
           href={triageHref}
           {...(buyerPolished ? {} : { rel: "noopener noreferrer", target: "_blank" })}
         >
-          First-pilot triage cards
+          Support diagnostics
         </a>
       </p>
     </Callout>

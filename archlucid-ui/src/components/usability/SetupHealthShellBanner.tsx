@@ -36,7 +36,7 @@ export function SetupHealthShellBanner(props: SetupHealthShellBannerProps): Reac
       <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{presentation.label}</p>
       <p className="m-0 mt-1 leading-snug">
         {presentation.tone === "unknown"
-          ? "Open troubleshooting or review system health."
+          ? "Some workspace services are unavailable."
           : "Workspace setup is not fully ready."}{" "}
         <Link
           href="/help/troubleshooting"

@@ -22,23 +22,24 @@ export function WorkspaceSetupHealthCallout(props: WorkspaceSetupHealthCalloutPr
       <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{props.presentation.label}</p>
       <p className="m-0 mt-1 text-sm leading-snug">
         {props.presentation.tone === "unknown"
-          ? "Open troubleshooting or review system health."
+          ? "Some workspace services are unavailable."
           : "Resolve readiness checks before starting reviews."}{" "}
         <Link
           href="/help/troubleshooting"
           className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100"
         >
-          Troubleshooting guide
+          Open troubleshooting
         </Link>
         {props.presentation.tone === "unknown" ? (
           <>
             {" "}
-            or{" "}
+            or review{" "}
             <Link href="/health" className="font-medium text-amber-950 underline underline-offset-2 dark:text-amber-100">
               system health
             </Link>
           </>
         ) : null}
+        .
       </p>
     </section>
   );

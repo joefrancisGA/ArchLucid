@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OperatorApiProblem } from "./OperatorApiProblem";
@@ -55,10 +55,10 @@ describe("OperatorApiProblem", () => {
   });
 
   it("treats omitted problem details like null (no throw)", () => {
-    render(<OperatorApiProblem problem={undefined} fallbackMessage="Network error" />);
+    render(<OperatorApiProblem problem={undefined} fallbackMessage="Something went wrong." />);
 
     expect(screen.getByRole("alert")).toHaveTextContent("Request failed");
-    expect(screen.getByRole("alert")).toHaveTextContent("Network error");
+    expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong.");
   });
 
   it("does not surface ERR reference text to the user (logged to console only)", () => {
@@ -132,5 +132,37 @@ describe("OperatorApiProblem", () => {
     expect(screen.getByText("description")).toBeInTheDocument();
     expect(screen.getByText("Description must not exceed 4000 characters.")).toBeInTheDocument();
     expect(screen.queryByText(/at ArchLucid\./)).not.toBeInTheDocument();
+  });
+
+  it("uses layered connectivity copy for upstream API unreachable failures", () => {
+    render(
+      <OperatorApiProblem
+        failure={{
+          message: "Upstream API unreachable: fetch failed",
+          problem: {
+            title: "Upstream API unreachable",
+            detail: "fetch failed",
+            supportHint: "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local.",
+          },
+          correlationId: "req-layered-502",
+          httpStatus: 502,
+          retryAfterSeconds: null,
+        }}
+      />,
+    );
+
+    const primary = within(screen.getByTestId("operator-connectivity-primary"));
+
+    expect(primary.getByText("Workspace data unavailable")).toBeInTheDocument();
+    expect(primary.queryByText("fetch failed")).toBeNull();
+    expect(primary.queryByText(/ARCHLUCID_API_BASE_URL/i)).toBeNull();
+    expect(primary.queryByText("req-layered-502")).toBeNull();
+    expect(primary.queryByText(/First-pilot triage cards/i)).toBeNull();
+    expect(primary.getByRole("link", { name: "System health" })).toHaveAttribute("href", "/health");
+
+    const detailsEl = screen.getByTestId("operator-connectivity-technical-details");
+    expect(detailsEl).not.toHaveAttribute("open");
+    expect(detailsEl.textContent ?? "").toContain("fetch failed");
+    expect(detailsEl.textContent ?? "").toContain("req-layered-502");
   });
 });

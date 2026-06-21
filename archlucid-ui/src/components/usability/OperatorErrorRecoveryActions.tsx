@@ -6,6 +6,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 
 type OperatorErrorRecoveryActionsProps = {
   readonly helpSlug?: string;
+  readonly showSystemHealth?: boolean;
 };
 
 /** Standard retry / help actions below operator error callouts (request ID is shown by the parent callout). */
@@ -25,9 +26,14 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
         <InAppHelpLink helpSlug={props.helpSlug} label="Open troubleshooting" variant="text" />
       ) : (
         <Link href="/help/troubleshooting" className="text-teal-800 underline dark:text-teal-300">
-          Troubleshooting
+          Open troubleshooting
         </Link>
       )}
+      {props.showSystemHealth === true ? (
+        <Link href="/health" className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
+          System health
+        </Link>
+      ) : null}
     </div>
   );
 }
