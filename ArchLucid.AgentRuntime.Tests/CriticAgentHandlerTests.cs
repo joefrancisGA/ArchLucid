@@ -370,13 +370,15 @@ public sealed class CriticAgentHandlerTests
 
         AgentResult result = await handler.ExecuteAsync(runId, request, evidence, task);
 
-        result.Findings.Should().HaveCount(2);
         result.Findings.Should().ContainSingle(f => f.FindingId == "FIND-SPECIFIC" && f.Severity == FindingSeverity.Warning);
 
-        ArchitectureFinding genericFinding = result.Findings.Single(f => f.FindingId == "FIND-GENERIC-MFA");
+        ArchitectureFinding genericFinding = result.ChecklistCoverage.Should().ContainSingle(f => f.FindingId == "FIND-GENERIC-MFA").Subject;
 
         genericFinding.Severity.Should().Be(FindingSeverity.Info);
         genericFinding.ConfidenceLevel.Should().Be(FindingConfidenceLevel.Low);
+        genericFinding.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        result.InsightDensityCuration!.DemotedToChecklistCount.Should().Be(1);
+        result.InsightDensityCuration.RetainedFindingCount.Should().Be(1);
     }
 
     [SkippableFact]
