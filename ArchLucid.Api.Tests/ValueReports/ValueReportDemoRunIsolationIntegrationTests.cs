@@ -1,12 +1,8 @@
-using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.Security;
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.Application.Bootstrap;
-using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -20,40 +16,38 @@ namespace ArchLucid.Api.Tests.ValueReports;
 [Collection("ArchLucidEnvMutation")]
 public sealed class ValueReportDemoRunIsolationIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
-
     [SkippableFact]
     public async Task First_value_report_for_real_run_does_not_reference_showcase_demo_run_ids_sql_tb294()
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
+        GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
+        string testTag = "it-val-rpt-" + Guid.NewGuid().ToString("N");
+
         await using IdorGreenfieldSqlApiFactory factory = new();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(factory.SqlConnectionString, scope);
+
         using (HttpClient primer = factory.CreateClient())
         {
-            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            GreenfieldIntegrationTenantScope.WireScope(primer, scope);
             await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         using HttpClient client = factory.CreateClient();
-        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+        GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
-        string requestId = "REQ-VAL-RPT-" + Guid.NewGuid().ToString("N")[..12];
+        string requestId = testTag[..Math.Min(testTag.Length, 32)];
         HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
         await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
         string realRunId = created!.Run.RunId;
 
         await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
         await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
 
-        HttpResponseMessage report = await client.GetAsync($"/v1/pilots/runs/{realRunId}/first-value-report");
-        report.StatusCode.Should().Be(HttpStatusCode.OK);
-        string markdown = await report.Content.ReadAsStringAsync();
+        string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
 
+        markdown.Should().Contain(realRunId, because: "report must anchor on the committed integration run");
         markdown.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
         markdown.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
         markdown.Should().NotContain(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("D"));
@@ -67,15 +61,5 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             client,
             body,
             idempotencyKey);
-    }
-
-    private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)
-    {
-        client.DefaultRequestHeaders.Remove("x-tenant-id");
-        client.DefaultRequestHeaders.Remove("x-workspace-id");
-        client.DefaultRequestHeaders.Remove("x-project-id");
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-tenant-id", tenantId.ToString("D"));
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-workspace-id", workspaceId.ToString("D"));
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-project-id", projectId.ToString("D"));
     }
 }

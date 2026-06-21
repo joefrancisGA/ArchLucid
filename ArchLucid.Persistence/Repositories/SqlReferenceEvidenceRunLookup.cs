@@ -39,7 +39,7 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
                            WHERE r.TenantId = @TenantId
                              AND r.ArchivedUtc IS NULL
                              AND r.GoldenManifestId IS NOT NULL
-                           ORDER BY r.CreatedUtc DESC;
+                           ORDER BY r.CreatedUtc DESC, r.RunId ASC;
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

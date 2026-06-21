@@ -558,7 +558,14 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                     attemptBudget.Token);
 
                 if (response.IsSuccessStatusCode)
+                {
+                    await GreenfieldCommittedRunReadinessPoll.WaitUntilCommittedRunDetailReadableAsync(
+                        client,
+                        runId,
+                        cancellationToken);
+
                     return;
+                }
 
                 if (response.StatusCode is not (HttpStatusCode.Conflict or HttpStatusCode.ServiceUnavailable))
                     await response.EnsureSuccessForTestAsync();

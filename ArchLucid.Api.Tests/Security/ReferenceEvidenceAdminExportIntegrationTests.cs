@@ -1,12 +1,9 @@
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -20,43 +17,46 @@ namespace ArchLucid.Api.Tests.Security;
 [Collection("ArchLucidEnvMutation")]
 public sealed class ReferenceEvidenceAdminExportIntegrationTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) },
-    };
-
     [SkippableFact]
     public async Task Reference_evidence_zip_uses_public_api_base_url_and_excludes_demo_when_includeDemo_false_sql_tb291()
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
+        GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
+        string testTag = "it-ref-evid-" + Guid.NewGuid().ToString("N");
+
         await using IdorGreenfieldSqlApiFactory factory = new();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(factory.SqlConnectionString, scope);
+
         using (HttpClient primer = factory.CreateClient())
         {
-            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            GreenfieldIntegrationTenantScope.WireScope(primer, scope);
 
             await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         using HttpClient client = factory.CreateClient();
-        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+        GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
-        string requestId = "REQ-REF-EVID-" + Guid.NewGuid().ToString("N")[..12];
+        string requestId = testTag[..Math.Min(testTag.Length, 32)];
         HttpResponseMessage create = await PostArchitectureRequestAsync(client, TestRequestFactory.CreateArchitectureRequest(requestId));
         await create.EnsureSuccessForTestAsync();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
         string realRunId = created!.Run.RunId;
 
         await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
         await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
 
-        HttpResponseMessage export = await client.GetAsync(
-            "/v1/admin/reference-evidence?includeDemo=false");
-        export.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound);
+        string readmeText = await GreenfieldCommittedRunReadinessPoll.WaitUntilReferenceEvidenceReadmeAnchorsRunAsync(
+            client,
+            realRunId);
 
-        if (export.StatusCode == HttpStatusCode.NotFound)
-            return;
+        readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
+        readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
+        readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
+
+        HttpResponseMessage export = await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false");
+        export.StatusCode.Should().Be(HttpStatusCode.OK);
 
         byte[] zipBytes = await export.Content.ReadAsByteArrayAsync();
         zipBytes.Length.Should().BePositive();
@@ -64,14 +64,6 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         using MemoryStream ms = new(zipBytes);
         using ZipArchive zip = new(ms, ZipArchiveMode.Read, false);
         zip.Entries.Should().Contain(e => e.FullName == "pilot-run-deltas.json");
-
-        ZipArchiveEntry? readme = zip.GetEntry("README.txt");
-        readme.Should().NotBeNull();
-        using StreamReader reader = new(readme!.Open());
-        string readmeText = await reader.ReadToEndAsync();
-        readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
-        readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunBaseline);
-        readmeText.Should().NotContain(ContosoRetailDemoIdentifiers.RunHardened);
     }
 
     private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
@@ -81,16 +73,6 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
             client,
             body,
             idempotencyKey);
-    }
-
-    private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)
-    {
-        client.DefaultRequestHeaders.Remove("x-tenant-id");
-        client.DefaultRequestHeaders.Remove("x-workspace-id");
-        client.DefaultRequestHeaders.Remove("x-project-id");
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-tenant-id", tenantId.ToString("D"));
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-workspace-id", workspaceId.ToString("D"));
-        _ = client.DefaultRequestHeaders.TryAddWithoutValidation("x-project-id", projectId.ToString("D"));
     }
 }
 
