@@ -118,11 +118,17 @@ foreach ($filter in $filterChunks) {
         $filterChunks.Count,
         (Get-Date -Format 'HH:mm:ss'))
 
+    $filterText = [string]$filter
+
+    if ([string]::IsNullOrWhiteSpace($filterText)) {
+        throw "Generated empty filter for shard $ShardIndex chunk $chunkNumber."
+    }
+
     try {
         $exitCode = Invoke-DotNetTestChunkWithWatchdog `
             -ProjectPath $ProjectPath `
             -Configuration $Configuration `
-            -Filter $filter `
+            -Filter $filterText `
             -RunSettingsPath $RunSettingsPath `
             -ResultsDirectory $ResultsDirectory `
             -ShardIndex $ShardIndex `
