@@ -26,6 +26,30 @@ internal static class GreenfieldIntegrationTenantScope
         return new Scope(tenantId, workspaceId, projectId);
     }
 
+    /// <summary>
+    ///     Boots the greenfield host (DbUp + readiness) with default bootstrap scope, then seeds ephemeral tenant rows.
+    ///     Callers must not invoke <see cref="EnsureScopeAsync" /> before host startup — empty catalogs have no
+    ///     <c>dbo.Tenants</c> until the API migrates on first boot.
+    /// </summary>
+    internal static async Task EnsureScopeAfterGreenfieldHostReadyAsync(
+        GreenfieldSqlApiFactory factory,
+        Scope scope,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                primer,
+                cancellationToken: cancellationToken);
+        }
+
+        await EnsureScopeAsync(factory.SqlConnectionString, scope, cancellationToken);
+    }
+
     internal static async Task EnsureScopeAsync(string connectionString, Scope scope, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);

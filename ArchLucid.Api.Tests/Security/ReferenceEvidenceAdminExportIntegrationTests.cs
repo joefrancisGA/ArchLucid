@@ -26,14 +26,7 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         string testTag = "it-ref-evid-" + Guid.NewGuid().ToString("N");
 
         await using IdorGreenfieldSqlApiFactory factory = new();
-        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(factory.SqlConnectionString, scope);
-
-        using (HttpClient primer = factory.CreateClient())
-        {
-            GreenfieldIntegrationTenantScope.WireScope(primer, scope);
-
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
-        }
+        await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
 
         using HttpClient client = factory.CreateClient();
         GreenfieldIntegrationTenantScope.WireScope(client, scope);
