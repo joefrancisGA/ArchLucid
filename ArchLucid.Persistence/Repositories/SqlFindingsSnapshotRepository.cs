@@ -81,7 +81,8 @@ public sealed class SqlFindingsSnapshotRepository(
         string sql = """
                      SELECT
                          FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                         SchemaVersion, GenerationStatus, FindingsJson
+                         SchemaVersion, GenerationStatus, FindingsJson,
+                         ChecklistCoverageJson, InsightDensityDemotedCount, InsightDensityRetainedCount
                      FROM dbo.FindingsSnapshots
                      WHERE FindingsSnapshotId = @FindingsSnapshotId
                      """ + RepositoryScopePredicate.AndProjectIdTripleWhere(scope) + ";";
@@ -375,13 +376,15 @@ public sealed class SqlFindingsSnapshotRepository(
                                  (
                                      FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
                                      TenantId, WorkspaceId, ProjectId,
-                                     CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson
+                                     CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson,
+                                     ChecklistCoverageJson, InsightDensityDemotedCount, InsightDensityRetainedCount
                                  )
                                  VALUES
                                  (
                                      @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
                                      @TenantId, @WorkspaceId, @ProjectId,
-                                     @CreatedUtc, @SchemaVersion, @GenerationStatus, @FindingsJson
+                                     @CreatedUtc, @SchemaVersion, @GenerationStatus, @FindingsJson,
+                                     @ChecklistCoverageJson, @InsightDensityDemotedCount, @InsightDensityRetainedCount
                                  );
                                  """;
 
@@ -397,7 +400,10 @@ public sealed class SqlFindingsSnapshotRepository(
             snapshot.CreatedUtc,
             snapshot.SchemaVersion,
             GenerationStatus = snapshot.GenerationStatus.ToString(),
-            FindingsJson = JsonEntitySerializer.Serialize(snapshot)
+            FindingsJson = JsonEntitySerializer.Serialize(snapshot),
+            ChecklistCoverageJson = ChecklistCoverageJsonCodec.Serialize(snapshot.ChecklistCoverage),
+            InsightDensityDemotedCount = snapshot.InsightDensityCuration?.DemotedToChecklistCount,
+            InsightDensityRetainedCount = snapshot.InsightDensityCuration?.RetainedFindingCount,
         };
 
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))

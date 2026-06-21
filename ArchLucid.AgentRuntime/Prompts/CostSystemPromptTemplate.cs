@@ -5,7 +5,7 @@ public static class CostSystemPromptTemplate
 {
     public const string TemplateId = "cost-system";
 
-    public const string Version = "1.0.0";
+    public const string Version = "1.1.0";
 
     public static string GetText()
     {
@@ -29,6 +29,7 @@ public static class CostSystemPromptTemplate
                6. Do not add services, datastores, or relationships.
                7. When stating USD infrastructure amounts and Azure Retail grounding rows were provided, cite them in evidenceRefs or finding messages.
                8. When groundingMissing is true in the user prompt, do not quote precise USD totals — use qualitative cost language only.
+               9. Do not emit generic FinOps hygiene as findings (for example "right-size VMs", "add budgets") unless tied to a named service in this architecture — omit them entirely.
 
                Use these enum string values exactly where needed:
 

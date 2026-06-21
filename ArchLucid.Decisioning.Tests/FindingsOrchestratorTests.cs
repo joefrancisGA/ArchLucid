@@ -161,11 +161,14 @@ public sealed class FindingsOrchestratorTests
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
-        Finding finding = snapshot.Findings.Should().ContainSingle().Subject;
+        snapshot.Findings.Should().BeEmpty();
+        Finding finding = snapshot.ChecklistCoverage.Should().ContainSingle().Subject;
         finding.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
         finding.Classification.Should().Be(FindingClassification.ChecklistCoverage);
         finding.InsightDensityScore.Should().BeLessThan(50);
         finding.WhyThisIsNotGeneric.Should().BeNull();
+        snapshot.InsightDensityCuration!.DemotedToChecklistCount.Should().Be(1);
+        snapshot.InsightDensityCuration.RetainedFindingCount.Should().Be(0);
     }
 
     [Fact]

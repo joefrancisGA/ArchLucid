@@ -96,6 +96,20 @@ public sealed class AgentResult
         set;
     } = [];
 
+    /// <summary>Hygiene observations routed to checklist coverage instead of decision-grade findings (TB-384).</summary>
+    public List<ArchitectureFinding> ChecklistCoverage
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Insight-density demotion vs retention counts when populated by the agent runtime gate (TB-385).</summary>
+    public InsightDensityCurationSummary? InsightDensityCuration
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Proposed additions and removals to the golden manifest.
     ///     <see langword="null" /> when the agent has no structural proposals (e.g. evaluation-only agents).

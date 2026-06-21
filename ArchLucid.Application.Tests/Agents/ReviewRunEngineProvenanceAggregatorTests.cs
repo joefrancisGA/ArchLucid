@@ -29,14 +29,14 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
             traces,
             evidence,
             run,
-            new FindingsSnapshot { SchemaVersion = 2 },
+            new FindingsSnapshot { SchemaVersion = FindingsSchema.CurrentSnapshotVersion },
             CreateCostEstimator());
 
         provenance.ProviderKind.Should().Be("deterministic");
         provenance.DeploymentOrModelId.Should().Be(AgentExecutionTraceModelMetadata.SimulatorDeploymentName);
         provenance.PromptPackVersion.Should().Be("architecture-review-v0.4");
         provenance.PolicyPackVersion.Should().Be("Healthcare Claims");
-        provenance.OutputSchemaVersion.Should().Be("FindingsSnapshot v2");
+        provenance.OutputSchemaVersion.Should().Be("FindingsSnapshot v3");
         provenance.EngineProfileId.Should().Be("deterministic-simulator");
     }
 

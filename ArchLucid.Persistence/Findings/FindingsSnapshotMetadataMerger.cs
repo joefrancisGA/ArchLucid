@@ -17,5 +17,7 @@ internal static class FindingsSnapshotMetadataMerger
         snapshot.EngineFailures = header.EngineFailures;
         snapshot.EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped;
         snapshot.GenerationStatus = header.GenerationStatus;
+        snapshot.ChecklistCoverage = header.ChecklistCoverage;
+        snapshot.InsightDensityCuration = header.InsightDensityCuration;
     }
 }

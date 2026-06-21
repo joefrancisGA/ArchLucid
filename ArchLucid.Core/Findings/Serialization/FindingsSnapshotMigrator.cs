@@ -13,6 +13,11 @@ public static class FindingsSnapshotMigrator
         foreach (Finding finding in snapshot.Findings)
             MigrateFinding(finding);
 
+        foreach (Finding finding in snapshot.ChecklistCoverage)
+            MigrateFinding(finding);
+
+        FindingChecklistCoverageRouter.Apply(snapshot);
+
         if (!Enum.IsDefined(typeof(FindingsSnapshotGenerationStatus), snapshot.GenerationStatus))
             snapshot.GenerationStatus = FindingsSnapshotGenerationStatus.Complete;
 

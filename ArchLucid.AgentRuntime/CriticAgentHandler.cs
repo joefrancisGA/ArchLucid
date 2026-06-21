@@ -129,6 +129,7 @@ public sealed class CriticAgentHandler(
             await _insightDensityLlmJudge
                 .ApplyToArchitectureFindingsAsync(parsed.Findings, evidence, request, cancellationToken)
                 .ConfigureAwait(false);
+            ArchitectureFindingChecklistCoverageRouter.Apply(parsed);
 
             return parsed;
         }

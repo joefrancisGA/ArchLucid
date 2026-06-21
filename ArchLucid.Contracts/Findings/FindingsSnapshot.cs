@@ -68,6 +68,20 @@ public class FindingsSnapshot
         set;
     } = [];
 
+    /// <summary>Basic hygiene observations demoted from the decision-grade findings list (TB-384).</summary>
+    public List<Finding> ChecklistCoverage
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Insight-density demotion vs retention counts for operator UI framing (TB-385).</summary>
+    public InsightDensityCurationSummary? InsightDensityCuration
+    {
+        get;
+        set;
+    }
+
     /// <summary>Sum of projected impact for all accepted Cost-related findings in the run.</summary>
     public decimal TotalEstimatedSavings
     {

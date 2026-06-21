@@ -51,7 +51,7 @@ internal static class FindingsSnapshotRelationalRead
         {
             List<Finding> legacyFindings = FindingsSnapshotLegacyJsonReader.DeserializeFindings(row.FindingsJson);
 
-            return new FindingsSnapshot
+            return ApplyChecklistHeaderFields(new FindingsSnapshot
             {
                 FindingsSnapshotId = row.FindingsSnapshotId,
                 RunId = row.RunId,
@@ -61,7 +61,7 @@ internal static class FindingsSnapshotRelationalRead
                 SchemaVersion = row.SchemaVersion,
                 GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
                 Findings = legacyFindings
-            };
+            }, row);
         }
 
         List<Guid> recordIds = records.Select(r => r.FindingRecordId).ToList();
@@ -143,7 +143,7 @@ internal static class FindingsSnapshotRelationalRead
             findings.Add(finding);
         }
 
-        return new FindingsSnapshot
+        return ApplyChecklistHeaderFields(new FindingsSnapshot
         {
             FindingsSnapshotId = row.FindingsSnapshotId,
             RunId = row.RunId,
@@ -153,7 +153,23 @@ internal static class FindingsSnapshotRelationalRead
             SchemaVersion = row.SchemaVersion,
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
             Findings = findings
-        };
+        }, row);
+    }
+
+    private static FindingsSnapshot ApplyChecklistHeaderFields(FindingsSnapshot snapshot, FindingsSnapshotStorageRow row)
+    {
+        snapshot.ChecklistCoverage = ChecklistCoverageJsonCodec.Deserialize(row.ChecklistCoverageJson);
+
+        if (row.InsightDensityDemotedCount.HasValue || row.InsightDensityRetainedCount.HasValue)
+        {
+            snapshot.InsightDensityCuration = new InsightDensityCurationSummary
+            {
+                DemotedToChecklistCount = row.InsightDensityDemotedCount ?? snapshot.ChecklistCoverage.Count,
+                RetainedFindingCount = row.InsightDensityRetainedCount ?? snapshot.Findings.Count,
+            };
+        }
+
+        return snapshot;
     }
 
     private static FindingConfidenceLevel? ParseEvaluationConfidenceLevel(string? raw)

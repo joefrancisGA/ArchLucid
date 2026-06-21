@@ -54,4 +54,22 @@ internal sealed class FindingsSnapshotStorageRow
         get;
         init;
     }
+
+    public string? ChecklistCoverageJson
+    {
+        get;
+        init;
+    }
+
+    public int? InsightDensityDemotedCount
+    {
+        get;
+        init;
+    }
+
+    public int? InsightDensityRetainedCount
+    {
+        get;
+        init;
+    }
 }

@@ -5,7 +5,7 @@ public static class ComplianceSystemPromptTemplate
 {
     public const string TemplateId = "compliance-system";
 
-    public const string Version = "1.0.0";
+    public const string Version = "1.1.0";
 
     public static string GetText()
     {
@@ -32,6 +32,7 @@ public static class ComplianceSystemPromptTemplate
                7. Do not produce cost estimates.
                8. Prefer standard enterprise controls when clearly implied by constraints and required capabilities.
                9. Keep the result conservative and governance-focused.
+               10. Do not emit generic hygiene checklist items as findings (for example "enable MFA", "use Key Vault") unless tied to a named resource in this architecture — omit them entirely.
 
                Use these enum string values exactly where needed:
 

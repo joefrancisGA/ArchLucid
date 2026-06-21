@@ -1420,6 +1420,15 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Findi
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'DecisionConsequence') IS NULL
     ALTER TABLE dbo.FindingRecords ADD DecisionConsequence NVARCHAR(MAX) NULL;
 
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingsSnapshots', N'ChecklistCoverageJson') IS NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD ChecklistCoverageJson NVARCHAR(MAX) NULL;
+
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingsSnapshots', N'InsightDensityDemotedCount') IS NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD InsightDensityDemotedCount INT NULL;
+
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingsSnapshots', N'InsightDensityRetainedCount') IS NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD InsightDensityRetainedCount INT NULL;
+
 GO
 
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteExpiresAtUtc') IS NULL
