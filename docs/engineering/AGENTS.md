@@ -22,6 +22,8 @@ pwsh scripts/install-git-hooks.ps1
 
 The **`pre-commit`** hook runs a **scoped** mutating-controller audit only when staged files include **`ArchLucid.Api/Controllers/*Controller.cs`** (full-repo scan is ~20s+ on Windows — use **`ARCHLUCID_PRE_COMMIT_FULL_AUDIT=1`** only when needed). It syncs the route/tier/policy/nav registry for the same controller changes (see **`docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md`**). Skip once: **`ARCHLUCID_SKIP_PRE_COMMIT=1 git commit`**. If the hook reports **`python: command not found`**, set **`git config --local archlucid.python "C:/Python313/python.exe"`** (or your install path) or **`ARCHLUCID_PYTHON`** for the session.
 
+The **`pre-push`** hook runs the same OpenAPI v1 + buyer snapshot check as CI **`openapi-contract-snapshot`** when outgoing commits touch API-contract paths (aligned with **Refresh OpenAPI v1 snapshot** path filters). Skip once: **`ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1 git push`**. Repeat runs reuse a repo-local NuGet cache under **`.cache/nuget-packages`** and MSBuild incremental **`obj/`/`bin/`** outputs — see **`docs/library/OPENAPI_CONTRACT_DRIFT.md`**.
+
 ## Reduce context before deep reads
 
 - **Assessments / readiness passes:** **`docs/library/REPO_DIGEST.md`** (skim; regenerate with **`python scripts/repo_digest/build_repo_digest.py`**), **`docs/library/ASSESSMENT_INPUTS.md`** (workflow + rolling pass under **`docs/assessments/`**), `.cursor/rules/Assessment-Read-First.mdc`, and attach **`.cursor/rules/Assessment-Scope-V1_1.mdc`** (**`@Assessment-Scope-V1_1`**) for scoring rules (not always injected).

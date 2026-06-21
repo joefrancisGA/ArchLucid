@@ -1,53 +1,36 @@
-# Installs the shared pre-commit hook from scripts/hooks/ into .git/hooks/.
+# Installs shared git hooks via core.hooksPath (pre-commit + OpenAPI pre-push).
 # Run once after cloning: pwsh scripts/install-git-hooks.ps1
 #Requires -Version 5.1
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$ScriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
-$HooksSrc   = Join-Path $ScriptDir 'hooks'
-$RepoRoot   = (& git -C $ScriptDir rev-parse --show-toplevel).Trim()
-$GitDirName = (& git -C $ScriptDir rev-parse --git-dir).Trim()
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$RepoRoot = (& git -C $ScriptDir rev-parse --show-toplevel).Trim()
+$GitHooksDir = Join-Path $RepoRoot 'scripts/git-hooks'
 
-if ([System.IO.Path]::IsPathRooted($GitDirName)) {
-    $GitDir = $GitDirName
-}
-else {
-    $GitDir = Join-Path $RepoRoot $GitDirName
-}
+function Set-HookFileLineEndings {
+    param([string]$Path)
 
-$GitHooksDir = Join-Path $GitDir 'hooks'
-
-function Install-Hook {
-    param([string]$Name)
-    $src  = Join-Path $HooksSrc $Name
-    $dest = Join-Path $GitHooksDir $Name
-
-    if (-not (Test-Path $src)) {
-        Write-Host "  skip: $Name (no source file)"
+    if (-not (Test-Path -LiteralPath $Path)) {
+        Write-Host "  skip: $Path (missing)"
         return
     }
 
-    # Bash hooks must be LF; Copy-Item preserves CRLF on Windows and breaks pre-commit.
-    $content = [System.IO.File]::ReadAllText($src) -replace "`r`n", "`n" -replace "`r", "`n"
+    $content = [System.IO.File]::ReadAllText($Path) -replace "`r`n", "`n" -replace "`r", "`n"
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($dest, $content, $utf8NoBom)
-    Write-Host "  installed: $Name"
+    [System.IO.File]::WriteAllText($Path, $content, $utf8NoBom)
+    Write-Host "  normalized LF: $Path"
 }
 
-Write-Host "Installing git hooks from $HooksSrc -> $GitHooksDir"
-Install-Hook 'pre-commit'
+Set-Location $RepoRoot
+& git config core.hooksPath scripts/git-hooks
 
-# Hook helpers are sourced from the repo; keep LF so bash does not hang on CRLF.
-$utf8NoBom = New-Object System.Text.UTF8Encoding $false
-foreach ($helper in @('resolve-python.sh')) {
-    $helperSrc = Join-Path $HooksSrc $helper
-    if (Test-Path -LiteralPath $helperSrc) {
-        $content = [System.IO.File]::ReadAllText($helperSrc) -replace "`r`n", "`n" -replace "`r", "`n"
-        [System.IO.File]::WriteAllText($helperSrc, $content, $utf8NoBom)
-        Write-Host "  normalized LF: hooks/$helper"
-    }
-}
+Write-Host "Installing git hooks from $GitHooksDir (core.hooksPath)"
+Set-HookFileLineEndings (Join-Path $GitHooksDir 'pre-commit')
+Set-HookFileLineEndings (Join-Path $GitHooksDir 'pre-push')
+
+$helper = Join-Path $RepoRoot 'scripts/hooks/resolve-python.sh'
+Set-HookFileLineEndings $helper
 
 $pythonCandidates = @(
     'C:\Python313\python.exe',
@@ -63,4 +46,11 @@ foreach ($py in $pythonCandidates) {
     }
 }
 
-Write-Host 'Done. Run ''git commit --no-verify'' to bypass in emergencies.'
+Write-Host 'Hooks enabled:'
+Write-Host '  pre-commit  — controller audit + route registry sync (when staged paths match)'
+Write-Host '  pre-push    — OpenAPI v1 + buyer snapshot check (when outgoing commits touch API paths)'
+Write-Host ''
+Write-Host 'Skip pre-commit once: ARCHLUCID_SKIP_PRE_COMMIT=1 git commit'
+Write-Host 'Skip pre-push once:   ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1 git push'
+Write-Host 'OpenAPI build cache:  .cache/nuget-packages + incremental Release build under each project obj/bin'
+Write-Host 'Emergency bypass:     git commit --no-verify / git push --no-verify'

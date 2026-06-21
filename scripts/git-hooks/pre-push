@@ -19,11 +19,7 @@ if [ "${ARCHLUCID_OPENAPI_PRE_PUSH:-}" != "all" ]; then
 
     openapi_relevant_path() (
         case "$1" in
-            ArchLucid.Persistence.Integration/*|ArchLucid.Persistence.Runtime/*|ArchLucid.Persistence/*)
-                return 0 ;;
-            ArchLucid.Host.Composition/*|ArchLucid.Host.Core/*)
-                return 0 ;;
-            ArchLucid.Api.Tests/*|ArchLucid.Api/*|ArchLucid.Application/*|ArchLucid.ArtifactSynthesis/*|ArchLucid.ContextIngestion/*|ArchLucid.Contracts/*|ArchLucid.Core/*|ArchLucid.Decisioning/*|ArchLucid.KnowledgeGraph/*|ArchLucid.Mcp/*|ArchLucid.Provenance/*|ArchLucid.Retrieval/*)
+            ArchLucid.Api/*|ArchLucid.Api.Tests/*|ArchLucid.Application/*|ArchLucid.ArtifactSynthesis/*|ArchLucid.ContextIngestion/*|ArchLucid.Contracts/*|ArchLucid.Core/*|ArchLucid.Decisioning/*|ArchLucid.KnowledgeGraph/*|ArchLucid.Mcp/*|ArchLucid.Provenance/*|ArchLucid.Retrieval/*|ArchLucid.AgentRuntime/*|ArchLucid.Persistence/*|ArchLucid.Persistence.Integration/*|ArchLucid.Persistence.Runtime/*|ArchLucid.Host.Composition/*|ArchLucid.Host.Core/*|ArchLucid.Capabilities.Cost/*)
                 return 0 ;;
             Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json)
                 return 0 ;;
