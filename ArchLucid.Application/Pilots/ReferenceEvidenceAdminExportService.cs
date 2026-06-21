@@ -2,7 +2,6 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -43,12 +42,9 @@ public sealed class ReferenceEvidenceAdminExportService(
     public async Task<Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
-        IReadOnlyList<ReferenceEvidenceRunCandidate> candidates = await _runLookup.ListRecentCommittedRunsAsync(tenantId, 200, cancellationToken);
-        ReferenceEvidenceRunCandidate? selected = (
-            from row in candidates
-            let runKey = row.RunId.ToString("N")
-            where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId))
-            select row).FirstOrDefault();
+        IReadOnlyList<ReferenceEvidenceRunCandidate> candidates =
+            await _runLookup.ListRecentCommittedRunsAsync(tenantId, 1, includeDemo, cancellationToken);
+        ReferenceEvidenceRunCandidate? selected = candidates.FirstOrDefault();
         if (selected is null)
             return null;
         ScopeContext scope = new()

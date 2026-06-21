@@ -36,6 +36,8 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         await create.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
         string realRunId = created!.Run.RunId;
+        realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunBaseline);
+        realRunId.Should().NotBe(ContosoRetailDemoIdentifiers.RunHardened);
 
         await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
         await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);

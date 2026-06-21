@@ -9,10 +9,13 @@ namespace ArchLucid.Persistence.Interfaces;
 public interface IReferenceEvidenceRunLookup
 {
     /// <summary>
-    ///     Returns up to <paramref name="take" /> committed runs for <paramref name="tenantId" />, newest first.
+    ///     Returns up to <paramref name="take" /> committed runs for <paramref name="tenantId" />, newest first
+    ///     (<c>CreatedUtc DESC, RunId ASC</c>). When <paramref name="includeDemo" /> is <see langword="false" />, demo,
+    ///     sample, and showcase seed runs are excluded at the data layer.
     /// </summary>
     Task<IReadOnlyList<ReferenceEvidenceRunCandidate>> ListRecentCommittedRunsAsync(
         Guid tenantId,
         int take,
+        bool includeDemo,
         CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -8,6 +9,77 @@ namespace ArchLucid.Persistence.Value;
 
 public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory connectionFactory) : IValueReportMetricsReader
 {
+    private static readonly string NonDemoRunsFilterRuns =
+        " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("dbo.Runs");
+
+    private static readonly string NonDemoRunsFilterRunsAliasR =
+        " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("r");
+
+    private static readonly string RunsByStatusSql =
+        """
+        SELECT COALESCE(LegacyRunStatus, '(unknown)') AS LegacyRunStatusLabel, COUNT_BIG(*) AS Cnt
+        FROM dbo.Runs WITH (NOLOCK)
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ScopeProjectId = @ProjectId
+          AND CreatedUtc >= @FromUtc
+          AND CreatedUtc < @ToUtc
+          AND ArchivedUtc IS NULL
+        """
+        + NonDemoRunsFilterRuns
+        + """
+        GROUP BY LegacyRunStatus
+        """;
+
+    private static readonly string RunsCompletedSql =
+        """
+        SELECT COUNT_BIG(*)
+        FROM dbo.Runs WITH (NOLOCK)
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ScopeProjectId = @ProjectId
+          AND CreatedUtc >= @FromUtc
+          AND CreatedUtc < @ToUtc
+          AND ArchivedUtc IS NULL
+          AND CompletedUtc IS NOT NULL
+        """
+        + NonDemoRunsFilterRuns
+        + ";";
+
+    private static readonly string ManifestsSql =
+        """
+        SELECT COUNT_BIG(*)
+        FROM dbo.GoldenManifests gm WITH (NOLOCK)
+        INNER JOIN dbo.Runs r WITH (NOLOCK) ON r.RunId = gm.RunId
+        WHERE gm.TenantId = @TenantId
+          AND gm.WorkspaceId = @WorkspaceId
+          AND gm.ProjectId = @ProjectId
+          AND gm.CreatedUtc >= @FromUtc
+          AND gm.CreatedUtc < @ToUtc
+          AND (gm.ArchivedUtc IS NULL)
+          AND (r.ArchivedUtc IS NULL)
+        """
+        + NonDemoRunsFilterRunsAliasR
+        + ";";
+
+    private static readonly string ReviewCycleSql =
+        """
+        SELECT
+            AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
+            COUNT_BIG(*) AS Cnt
+        FROM dbo.GoldenManifests m WITH (NOLOCK)
+        INNER JOIN dbo.Runs r ON m.RunId = r.RunId
+        WHERE m.TenantId = @TenantId
+          AND m.WorkspaceId = @WorkspaceId
+          AND m.ProjectId = @ProjectId
+          AND m.CreatedUtc >= @FromUtc
+          AND m.CreatedUtc < @ToUtc
+          AND (m.ArchivedUtc IS NULL)
+          AND (r.ArchivedUtc IS NULL)
+        """
+        + NonDemoRunsFilterRunsAliasR
+        + ";";
+
     private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -20,41 +92,6 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        const string runsByStatusSql = """
-                                       SELECT COALESCE(LegacyRunStatus, '(unknown)') AS LegacyRunStatusLabel, COUNT_BIG(*) AS Cnt
-                                       FROM dbo.Runs WITH (NOLOCK)
-                                       WHERE TenantId = @TenantId
-                                         AND WorkspaceId = @WorkspaceId
-                                         AND ScopeProjectId = @ProjectId
-                                         AND CreatedUtc >= @FromUtc
-                                         AND CreatedUtc < @ToUtc
-                                         AND ArchivedUtc IS NULL
-                                       GROUP BY LegacyRunStatus
-                                       """;
-
-        const string runsCompletedSql = """
-                                        SELECT COUNT_BIG(*)
-                                        FROM dbo.Runs WITH (NOLOCK) WITH (NOLOCK)
-                                        WHERE TenantId = @TenantId
-                                          AND WorkspaceId = @WorkspaceId
-                                          AND ScopeProjectId = @ProjectId
-                                          AND CreatedUtc >= @FromUtc
-                                          AND CreatedUtc < @ToUtc
-                                          AND ArchivedUtc IS NULL
-                                          AND CompletedUtc IS NOT NULL
-                                        """;
-
-        const string manifestsSql = """
-                                    SELECT COUNT_BIG(*)
-                                    FROM dbo.GoldenManifests WITH (NOLOCK)
-                                    WHERE TenantId = @TenantId
-                                      AND WorkspaceId = @WorkspaceId
-                                      AND ProjectId = @ProjectId
-                                      AND CreatedUtc >= @FromUtc
-                                      AND CreatedUtc < @ToUtc
-                                      AND (ArchivedUtc IS NULL)
-                                    """;
 
         const string governanceSql = """
                                      SELECT COUNT_BIG(*)
@@ -86,11 +123,13 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
             FromUtc = fromUtcInclusive.UtcDateTime,
             ToUtc = toUtcExclusive.UtcDateTime,
             GovTypes = ValueReportMetricEventTypes.GovernanceEventTypes,
-            DriftTypes = ValueReportMetricEventTypes.DriftAlertEventTypes
+            DriftTypes = ValueReportMetricEventTypes.DriftAlertEventTypes,
+            CanonicalShowcaseRunBaselineId = DemoRunSqlPredicates.CanonicalShowcaseRunBaselineId,
+            CanonicalShowcaseRunHardenedId = DemoRunSqlPredicates.CanonicalShowcaseRunHardenedId,
         };
 
         IEnumerable<RunStatusSqlRow> rows = await connection.QueryAsync<RunStatusSqlRow>(
-            new CommandDefinition(runsByStatusSql, parameters, cancellationToken: cancellationToken));
+            new CommandDefinition(RunsByStatusSql, parameters, cancellationToken: cancellationToken));
 
         List<ValueReportRunStatusCount> statusCounts = rows
             .Select(static r =>
@@ -98,10 +137,10 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
             .ToList();
 
         long runsCompleted = await connection.QuerySingleAsync<long>(
-            new CommandDefinition(runsCompletedSql, parameters, cancellationToken: cancellationToken));
+            new CommandDefinition(RunsCompletedSql, parameters, cancellationToken: cancellationToken));
 
         long manifests = await connection.QuerySingleAsync<long>(
-            new CommandDefinition(manifestsSql, parameters, cancellationToken: cancellationToken));
+            new CommandDefinition(ManifestsSql, parameters, cancellationToken: cancellationToken));
 
         long governance = await connection.QuerySingleAsync<long>(
             new CommandDefinition(governanceSql, parameters, cancellationToken: cancellationToken));
@@ -139,23 +178,8 @@ public sealed class DapperValueReportMetricsReader(IReadOnlyDbConnectionFactory 
                 new { TenantId = tenantId },
                 cancellationToken: cancellationToken));
 
-        const string reviewCycleSql = """
-                                      SELECT
-                                          AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
-                                          COUNT_BIG(*) AS Cnt
-                                      FROM dbo.GoldenManifests m WITH (NOLOCK)
-                                      INNER JOIN dbo.Runs r ON m.RunId = r.RunId
-                                      WHERE m.TenantId = @TenantId
-                                        AND m.WorkspaceId = @WorkspaceId
-                                        AND m.ProjectId = @ProjectId
-                                        AND m.CreatedUtc >= @FromUtc
-                                        AND m.CreatedUtc < @ToUtc
-                                        AND (m.ArchivedUtc IS NULL)
-                                        AND (r.ArchivedUtc IS NULL);
-                                      """;
-
         ReviewCycleMeasureRow measure = await connection.QuerySingleAsync<ReviewCycleMeasureRow>(
-            new CommandDefinition(reviewCycleSql, parameters, cancellationToken: cancellationToken));
+            new CommandDefinition(ReviewCycleSql, parameters, cancellationToken: cancellationToken));
 
         decimal? measuredAvg = measure.Cnt == 0 ? null : measure.AvgHours;
         int sampleSize = measure.Cnt > int.MaxValue ? int.MaxValue : (int)measure.Cnt;

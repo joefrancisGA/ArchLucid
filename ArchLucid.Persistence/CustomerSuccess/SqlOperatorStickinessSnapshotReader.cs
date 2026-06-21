@@ -47,7 +47,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                                   AND r.WorkspaceId = @WorkspaceId
                                   AND r.ScopeProjectId = @ProjectId
                                   AND r.ArchivedUtc IS NULL
-                                ORDER BY r.CreatedUtc DESC) AS LatestRunId,
+                                ORDER BY r.CreatedUtc DESC, r.RunId ASC) AS LatestRunId,
                                (SELECT COUNT_BIG(1)
                                 FROM dbo.AuditEvents ae
                                 WHERE ae.TenantId = @TenantId

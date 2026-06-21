@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -32,31 +33,31 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
     private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    private const string CommittedRunsScopeFilterRuns = """
+    private static readonly string CommittedRunsScopeFilterRuns =
+        """
+        r.TenantId = @TenantId
+            AND r.WorkspaceId = @WorkspaceId
+            AND r.ScopeProjectId = @ScopeProjectId
+            AND r.ArchivedUtc IS NULL
+            AND (
+                (NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL)
+                OR (r.GoldenManifestId IS NOT NULL)
+            )
+        """
+        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("r");
 
-                                                          r.TenantId = @TenantId
-                                                              AND r.WorkspaceId = @WorkspaceId
-                                                              AND r.ScopeProjectId = @ScopeProjectId
-                                                              AND r.ArchivedUtc IS NULL
-                                                              AND (
-                                                                  (NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL)
-                                                                  OR (r.GoldenManifestId IS NOT NULL)
-                                                              )
-
-                                                          """;
-
-    private const string CommittedRunsScopeFilterRunsInner = """
-
-                                                               rInner.TenantId = @TenantId
-                                                                   AND rInner.WorkspaceId = @WorkspaceId
-                                                                   AND rInner.ScopeProjectId = @ScopeProjectId
-                                                                   AND rInner.ArchivedUtc IS NULL
-                                                                   AND (
-                                                                       (NULLIF(LTRIM(RTRIM(rInner.CurrentManifestVersion)), N'') IS NOT NULL)
-                                                                       OR (rInner.GoldenManifestId IS NOT NULL)
-                                                                   )
-
-                                                               """;
+    private static readonly string CommittedRunsScopeFilterRunsInner =
+        """
+        rInner.TenantId = @TenantId
+            AND rInner.WorkspaceId = @WorkspaceId
+            AND rInner.ScopeProjectId = @ScopeProjectId
+            AND rInner.ArchivedUtc IS NULL
+            AND (
+                (NULLIF(LTRIM(RTRIM(rInner.CurrentManifestVersion)), N'') IS NOT NULL)
+                OR (rInner.GoldenManifestId IS NOT NULL)
+            )
+        """
+        + " AND " + DemoRunSqlPredicates.ExcludeShowcaseDemoRuns("rInner");
 
     /// <inheritdoc/>
     public async Task<PilotReportCardScopeMetrics> ReadAsync(Guid tenantId, Guid workspaceId, Guid scopeProjectId,
@@ -75,7 +76,9 @@ public sealed class DapperPilotReportCardMetricsReader(IReadOnlyDbConnectionFact
                         GovernanceApprovalStatus.Activated
                     },
                 RejectedStatus = GovernanceApprovalStatus.Rejected,
-                ExportKinds = ExportGeneratingAuditEvents
+                ExportKinds = ExportGeneratingAuditEvents,
+                CanonicalShowcaseRunBaselineId = DemoRunSqlPredicates.CanonicalShowcaseRunBaselineId,
+                CanonicalShowcaseRunHardenedId = DemoRunSqlPredicates.CanonicalShowcaseRunHardenedId,
             };
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);

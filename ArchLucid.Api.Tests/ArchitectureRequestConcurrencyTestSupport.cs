@@ -543,6 +543,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
 
         int delayMs = 250;
+        HttpStatusCode? lastStatusCode = null;
+        string? lastBody = null;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
@@ -567,8 +569,15 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                     return;
                 }
 
+                lastStatusCode = response.StatusCode;
+                lastBody = await response.Content.ReadAsStringAsync(attemptBudget.Token);
+
                 if (response.StatusCode is not (HttpStatusCode.Conflict or HttpStatusCode.ServiceUnavailable))
-                    await response.EnsureSuccessForTestAsync();
+                {
+                    throw new Xunit.Sdk.XunitException(
+                        $"POST /v1/architecture/run/{runId}/commit failed after {attempt + 1} attempt(s). "
+                        + $"Status={(int)response.StatusCode}. Body={lastBody}");
+                }
             }
             catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested
                                                   && IndicatesClientAbortedResponseBuffering(ex))
@@ -589,10 +598,13 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             delayMs = Math.Min(delayMs * 2, 4000);
         }
 
-        throw new InvalidOperationException(
+        throw new Xunit.Sdk.XunitException(
             "POST /v1/architecture/run/{runId}/commit did not succeed after "
             + maxAttempts
-            + " greenfield transient retries.");
+            + " greenfield transient retries."
+            + (lastStatusCode is null
+                ? string.Empty
+                : $" Last status={(int)lastStatusCode} ({lastStatusCode}). Body={lastBody}"));
     }
 
     internal static void DisposeAll(HttpResponseMessage[] responses)
