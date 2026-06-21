@@ -93,6 +93,15 @@ const sampleQuestion = {
   ruleKeys: [],
 };
 
+const secondQuestion = {
+  questionKey: "l0.pillar.reliability",
+  prompt: "How is availability ensured?",
+  tier: "Must" as const,
+  answerKind: "FreeText" as const,
+  source: "L0Universal" as const,
+  ruleKeys: [],
+};
+
 describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
@@ -220,19 +229,112 @@ describe("SocraticIntakeWizard", () => {
     });
 
     expect(screen.getAllByTestId("socratic-question")).toHaveLength(1);
-    expect(screen.getByTestId("socratic-submit-hint")).toHaveTextContent(
-      /answer or skip all required clarifications, then review your answers/i,
+    expect(screen.getByTestId("socratic-clarification-helper")).toHaveTextContent(
+      /answer or skip each clarification\. you can review everything before starting the architecture review/i,
+    );
+    expect(screen.getByTestId("socratic-review-answers-hint")).toHaveTextContent(
+      /handle all required clarifications first/i,
     );
     expect(screen.getByText(/your answers will be included when you review and submit/i)).toBeInTheDocument();
     expect(screen.getByTestId("socratic-questions-done")).toHaveTextContent(/review answers/i);
+    expect(screen.getByTestId("socratic-questions-done")).toBeDisabled();
 
-    const hint = screen.getByTestId("socratic-submit-hint");
+    const helper = screen.getByTestId("socratic-clarification-helper");
     const reviewButton = screen.getByTestId("socratic-questions-done");
 
-    expect(hint.compareDocumentPosition(reviewButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(helper.compareDocumentPosition(reviewButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("persists draft clarification answers when Review answers is clicked", async () => {
+  it("advances from clarification 1 to clarification 2 after Save and continue", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion, secondQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion, secondQuestion],
+        requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+        pendingMustQuestions: [sampleQuestion, secondQuestion],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Modernize the claims intake workflow for analysts." },
+    });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-question-progress")).toHaveTextContent(
+        /required clarification 1 of 2/i,
+      );
+    });
+
+    fireEvent.change(screen.getByLabelText(sampleQuestion.prompt), {
+      target: { value: "Encrypt data at rest and in transit." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-save-and-continue"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-question-progress")).toHaveTextContent(
+        /required clarification 2 of 2/i,
+      );
+      expect(screen.getByText(secondQuestion.prompt)).toBeInTheDocument();
+    });
+
+    expect(answerDraftQuestion).not.toHaveBeenCalled();
+    expect(screen.getByTestId("socratic-questions-done")).toBeDisabled();
+  });
+
+  it("shows dynamic show-all clarifications copy", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion, secondQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion, secondQuestion],
+        requiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+        pendingMustQuestions: [sampleQuestion, secondQuestion],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Modernize the claims intake workflow for analysts." },
+    });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-view-all-clarifications")).toHaveTextContent(
+        "Show all 2 clarifications",
+      );
+    });
+  });
+
+  it("saves locally with Save and continue then persists on Review answers", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
     admitDraftRequest.mockResolvedValue({
@@ -281,6 +383,12 @@ describe("SocraticIntakeWizard", () => {
       target: { value: "Encrypt data at rest and in transit." },
     });
 
+    fireEvent.click(screen.getByTestId("socratic-save-and-continue"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
+    });
+
     fireEvent.click(screen.getByTestId("socratic-questions-done"));
 
     await waitFor(() => {
@@ -289,6 +397,67 @@ describe("SocraticIntakeWizard", () => {
         "l0.pillar.security",
         "Encrypt data at rest and in transit.",
       );
+      expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
+    });
+  });
+
+  it("skips a clarification and enables review when all are handled", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security"],
+          pendingMustQuestions: [sampleQuestion],
+        },
+      })
+      .mockResolvedValueOnce({
+        draftId: "draft-1",
+        status: "Admitted",
+        selection: {
+          allQuestions: [sampleQuestion],
+          requiredMustQuestionKeys: ["l0.pillar.security"],
+          pendingMustQuestions: [],
+        },
+      });
+    skipDraftQuestion.mockResolvedValue({ draftId: "draft-1", status: "Admitted" });
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Modernize the claims intake workflow for analysts." },
+    });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-question")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Skip this clarification" }));
+
+    await waitFor(() => {
+      expect(skipDraftQuestion).toHaveBeenCalledWith("draft-1", "l0.pillar.security");
+      expect(screen.getByTestId("socratic-questions-done")).toBeEnabled();
+      expect(screen.queryByTestId("socratic-review-answers-hint")).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-questions-done"));
+
+    await waitFor(() => {
+      expect(answerDraftQuestion).not.toHaveBeenCalled();
       expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
     });
   });

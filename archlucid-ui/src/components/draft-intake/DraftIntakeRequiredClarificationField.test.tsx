@@ -16,7 +16,7 @@ const sampleQuestion = {
 };
 
 describe("DraftIntakeRequiredClarificationField", () => {
-  it("shows baseline label and skip-only actions", () => {
+  it("shows baseline label, save-and-continue primary action, and skip link", () => {
     render(
       <DraftIntakeRequiredClarificationField
         question={sampleQuestion}
@@ -25,6 +25,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
         clarificationIndex={1}
         clarificationTotal={3}
         onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
         onSkip={vi.fn()}
       />,
     );
@@ -35,8 +36,26 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.getByTestId("socratic-question-baseline-label")).toHaveTextContent(
       REQUIRED_CLARIFICATION_BASELINE_LABEL,
     );
-    expect(screen.queryByRole("button", { name: "Save and continue" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Skip for now" })).toHaveClass("hover:bg-neutral-100");
+    expect(screen.getByRole("button", { name: "Save and continue" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Skip this clarification" })).toBeEnabled();
+  });
+
+  it("enables save and continue when an answer is present", () => {
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={sampleQuestion}
+        answer="Encrypted at rest"
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={3}
+        canSaveAndContinue
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Save and continue" })).toBeEnabled();
   });
 
   it("marks non-primary questions for secondary styling", () => {
@@ -50,11 +69,34 @@ describe("DraftIntakeRequiredClarificationField", () => {
         isPrimary={false}
         compactActions
         onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
         onSkip={vi.fn()}
       />,
     );
 
     expect(screen.getByTestId("socratic-question")).toHaveAttribute("data-question-primary", "false");
+  });
+
+  it("invokes save and continue handler", () => {
+    const onSaveAndContinue = vi.fn();
+
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={sampleQuestion}
+        answer="Encrypted at rest"
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={1}
+        canSaveAndContinue
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={onSaveAndContinue}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Save and continue" }));
+
+    expect(onSaveAndContinue).toHaveBeenCalledWith("l0.pillar.security");
   });
 
   it("invokes skip handler", () => {
@@ -68,11 +110,12 @@ describe("DraftIntakeRequiredClarificationField", () => {
         clarificationIndex={1}
         clarificationTotal={1}
         onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
         onSkip={onSkip}
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Skip for now" }));
+    fireEvent.click(screen.getByRole("button", { name: "Skip this clarification" }));
 
     expect(onSkip).toHaveBeenCalledWith("l0.pillar.security");
   });

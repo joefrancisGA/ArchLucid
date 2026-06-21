@@ -15,7 +15,9 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly clarificationTotal: number;
   readonly isPrimary?: boolean;
   readonly compactActions?: boolean;
+  readonly canSaveAndContinue?: boolean;
   readonly onAnswerChange: (questionKey: string, value: string) => void;
+  readonly onSaveAndContinue: (questionKey: string) => void;
   readonly onSkip: (questionKey: string) => void;
 };
 
@@ -62,17 +64,30 @@ export function DraftIntakeRequiredClarificationField(
         disabled={props.busy}
         aria-label={props.question.prompt}
       />
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col items-start gap-2" data-testid="socratic-question-actions">
         <Button
           type="button"
           size={actionSize}
-          variant="ghost"
+          variant="primary"
+          disabled={props.busy || props.canSaveAndContinue !== true}
+          onClick={() => {
+            props.onSaveAndContinue(props.question.questionKey);
+          }}
+          data-testid="socratic-save-and-continue"
+        >
+          Save and continue
+        </Button>
+        <Button
+          type="button"
+          size={actionSize}
+          variant="link"
           disabled={props.busy}
           onClick={() => {
             props.onSkip(props.question.questionKey);
           }}
+          data-testid="socratic-skip-clarification"
         >
-          Skip for now
+          Skip this clarification
         </Button>
       </div>
     </div>

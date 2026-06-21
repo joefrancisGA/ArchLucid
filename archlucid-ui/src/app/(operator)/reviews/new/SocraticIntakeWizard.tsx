@@ -92,13 +92,18 @@ export function SocraticIntakeWizard() {
   const [requiredMustQuestionKeys, setRequiredMustQuestionKeys] = useState<string[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
 
   const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
-  const resolvedClarificationCount = Math.max(0, totalRequiredClarifications - pendingQuestions.length);
-  const primaryPendingQuestion = pendingQuestions[0] ?? null;
+  const activePendingQuestions = useMemo(
+    () => pendingQuestions.filter((question) => !savedLocallyQuestionKeys.has(question.questionKey)),
+    [pendingQuestions, savedLocallyQuestionKeys],
+  );
+  const resolvedClarificationCount = Math.max(0, totalRequiredClarifications - activePendingQuestions.length);
+  const primaryPendingQuestion = activePendingQuestions[0] ?? null;
   const otherPendingQuestions =
-    viewAllClarifications && pendingQuestions.length > 1 ? pendingQuestions.slice(1) : [];
+    viewAllClarifications && activePendingQuestions.length > 1 ? activePendingQuestions.slice(1) : [];
 
   const canAdvanceIntent =
     freeTextIntent.trim().length >= MIN_INTENT_CHARS &&
@@ -106,11 +111,11 @@ export function SocraticIntakeWizard() {
     actorSet.actors.length > 0 &&
     !busy;
 
-  const allMustAnswered = pendingQuestions.length === 0;
-  const canReviewAnswers =
-    pendingQuestions.length > 0 &&
-    pendingQuestions.every((question) => (answers[question.questionKey]?.trim() ?? "").length > 0);
-  const canSubmit = draftId !== null && allMustAnswered && !busy && !blocksLlmExecution;
+  const allClarificationsHandled =
+    pendingQuestions.length === 0 ||
+    pendingQuestions.every((question) => savedLocallyQuestionKeys.has(question.questionKey));
+  const canReviewAnswers = allClarificationsHandled && !busy;
+  const canSubmit = draftId !== null && allClarificationsHandled && !busy && !blocksLlmExecution;
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
 
@@ -148,6 +153,7 @@ export function SocraticIntakeWizard() {
           : buildSuggestedActorSet(branch.document.freeTextIntent),
       );
       setAnswers({});
+      setSavedLocallyQuestionKeys(new Set());
       await refreshQuestions(branch.draftId);
       showSuccess("What-if branch created — you are now editing the branch draft.");
     },
@@ -183,6 +189,7 @@ export function SocraticIntakeWizard() {
 
       setPendingQuestions(admission.pendingMustQuestions);
       setRequiredMustQuestionKeys(admission.requiredMustQuestionKeys);
+      setSavedLocallyQuestionKeys(new Set());
       await refreshQuestions(id);
       setViewAllClarifications(false);
       setStep(1);
@@ -202,12 +209,12 @@ export function SocraticIntakeWizard() {
       return;
     }
 
-    const unansweredQuestions = pendingQuestions.filter(
-      (question) => (answers[question.questionKey]?.trim() ?? "").length === 0,
+    const unresolvedQuestions = pendingQuestions.filter(
+      (question) => !savedLocallyQuestionKeys.has(question.questionKey),
     );
 
-    if (unansweredQuestions.length > 0) {
-      showError("Guided intake", "Enter an answer for each clarification or skip it explicitly.");
+    if (unresolvedQuestions.length > 0) {
+      showError("Guided intake", "Answer or skip each required clarification before reviewing.");
       return;
     }
 
@@ -221,6 +228,7 @@ export function SocraticIntakeWizard() {
       }
 
       await refreshQuestions(draftId);
+      setSavedLocallyQuestionKeys(new Set());
       setStep(2);
     } catch (error) {
       setSubmitError(error);
@@ -230,7 +238,22 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [answers, draftId, pendingQuestions, refreshQuestions]);
+  }, [answers, draftId, pendingQuestions, refreshQuestions, savedLocallyQuestionKeys]);
+
+  const saveAndContinue = useCallback((questionKey: string) => {
+    const answer = answers[questionKey]?.trim() ?? "";
+
+    if (answer.length === 0) {
+      showError("Guided intake", "Enter an answer or skip this clarification.");
+      return;
+    }
+
+    setSavedLocallyQuestionKeys((current) => {
+      const next = new Set(current);
+      next.add(questionKey);
+      return next;
+    });
+  }, [answers]);
 
   const skipQuestion = useCallback(
     async (questionKey: string) => {
@@ -413,9 +436,9 @@ export function SocraticIntakeWizard() {
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].label}</CardTitle>
             <CardDescription>
-              {pendingQuestions.length === 0
+              {activePendingQuestions.length === 0
                 ? "All required clarifications are answered or skipped. You can continue."
-                : `${pendingQuestions.length} required clarification${pendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
+                : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
               Your answers will be included when you review and submit.
             </CardDescription>
           </CardHeader>
@@ -430,11 +453,15 @@ export function SocraticIntakeWizard() {
                 clarificationTotal={totalRequiredClarifications}
                 isPrimary
                 compactActions={viewAllClarifications}
+                canSaveAndContinue={(answers[primaryPendingQuestion.questionKey]?.trim() ?? "").length > 0}
                 onAnswerChange={(questionKey, value) => {
                   setAnswers((current) => ({
                     ...current,
                     [questionKey]: value,
                   }));
+                }}
+                onSaveAndContinue={(questionKey) => {
+                  saveAndContinue(questionKey);
                 }}
                 onSkip={(questionKey) => {
                   void skipQuestion(questionKey);
@@ -453,7 +480,9 @@ export function SocraticIntakeWizard() {
                   setViewAllClarifications((current) => !current);
                 }}
               >
-                {viewAllClarifications ? "Show one at a time" : "View all clarifications"}
+                {viewAllClarifications
+                  ? "Show one at a time"
+                  : `Show all ${totalRequiredClarifications} clarifications`}
               </Button>
             ) : null}
 
@@ -472,11 +501,15 @@ export function SocraticIntakeWizard() {
                     clarificationTotal={totalRequiredClarifications}
                     isPrimary={false}
                     compactActions
+                    canSaveAndContinue={(answers[question.questionKey]?.trim() ?? "").length > 0}
                     onAnswerChange={(questionKey, value) => {
                       setAnswers((current) => ({
                         ...current,
                         [questionKey]: value,
                       }));
+                    }}
+                    onSaveAndContinue={(questionKey) => {
+                      saveAndContinue(questionKey);
                     }}
                     onSkip={(questionKey) => {
                       void skipQuestion(questionKey);
@@ -486,18 +519,22 @@ export function SocraticIntakeWizard() {
               </div>
             ) : null}
 
+            <p className="m-0 text-sm text-neutral-500" data-testid="socratic-clarification-helper">
+              Answer or skip each clarification. You can review everything before starting the architecture review.
+            </p>
+
             <div className="space-y-2">
-              {!allMustAnswered ? (
-                <p className="m-0 text-sm text-neutral-500" data-testid="socratic-submit-hint">
-                  Answer or skip all required clarifications, then review your answers before starting the review.
+              {!allClarificationsHandled ? (
+                <p className="m-0 text-sm text-neutral-500" data-testid="socratic-review-answers-hint">
+                  Handle all required clarifications first.
                 </p>
               ) : null}
               <Button
                 type="button"
-                variant="primary"
-                disabled={(!allMustAnswered && !canReviewAnswers) || busy}
+                variant={allClarificationsHandled ? "primary" : "outline"}
+                disabled={!canReviewAnswers}
                 onClick={() => {
-                  if (allMustAnswered) {
+                  if (pendingQuestions.length === 0) {
                     setStep(2);
                     return;
                   }
