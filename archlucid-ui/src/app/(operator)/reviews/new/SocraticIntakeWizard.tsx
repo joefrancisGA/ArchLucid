@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
+import { GuidedIntakeStepHeader } from "@/components/draft-intake/GuidedIntakeStepHeader";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -39,8 +40,7 @@ import {
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CONTINUE_TO_STEP_2,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
-  GUIDED_INTAKE_STEP0_CARD_TITLE,
-  GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+  GUIDED_INTAKE_STEP0_TITLE,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
@@ -56,18 +56,15 @@ const MIN_OUTCOME_CHARS = 10;
 
 const INTAKE_STEPS = [
   {
-    progressLabel: GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
-    cardTitle: GUIDED_INTAKE_STEP0_CARD_TITLE,
+    title: GUIDED_INTAKE_STEP0_TITLE,
     description: GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   },
   {
-    progressLabel: "Required clarifications",
-    cardTitle: "Required clarifications",
+    title: "Required clarifications",
     description: "Answer a few clarifying questions so ArchLucid can produce a precise review package.",
   },
   {
-    progressLabel: "Start review",
-    cardTitle: "Start review",
+    title: "Start review",
     description: "Submit the admitted draft to the authority pipeline.",
   },
 ] as const;
@@ -324,11 +321,6 @@ export function SocraticIntakeWizard() {
 
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">
-      <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="socratic-intake-progress">
-        {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
-      </p>
-      <DraftIntakeClaimLabel surface="structural-admission" />
-
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
@@ -379,9 +371,13 @@ export function SocraticIntakeWizard() {
 
       {step === 0 ? (
         <Card>
-          <CardHeader>
-            <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
-            <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
+          <CardHeader className="space-y-3">
+            <GuidedIntakeStepHeader
+              stepLabel={stepLabel}
+              title={INTAKE_STEPS[0].title}
+              description={INTAKE_STEPS[0].description}
+            />
+            <DraftIntakeClaimLabel surface="structural-admission" />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -444,13 +440,18 @@ export function SocraticIntakeWizard() {
       {step === 1 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
-            <CardDescription>
-              {activePendingQuestions.length === 0
-                ? "All required clarifications are answered or skipped. You can continue."
-                : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
-              Your answers will be included when you review and submit.
-            </CardDescription>
+            <GuidedIntakeStepHeader
+              stepLabel={stepLabel}
+              title={INTAKE_STEPS[1].title}
+              description={
+                <>
+                  {activePendingQuestions.length === 0
+                    ? "All required clarifications are answered or skipped. You can continue."
+                    : `${activePendingQuestions.length} required clarification${activePendingQuestions.length === 1 ? "" : "s"} remaining before review.`}{" "}
+                  Your answers will be included when you review and submit.
+                </>
+              }
+            />
           </CardHeader>
           <CardContent className="space-y-6">
             {primaryPendingQuestion !== null ? (
@@ -579,10 +580,11 @@ export function SocraticIntakeWizard() {
       {step === 2 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>
-            <CardDescription>
-              Submit launches the canonical review-create path — same authority pipeline as other review entry points.
-            </CardDescription>
+            <GuidedIntakeStepHeader
+              stepLabel={stepLabel}
+              title={INTAKE_STEPS[2].title}
+              description="Submit launches the canonical review-create path — same authority pipeline as other review entry points."
+            />
           </CardHeader>
           <CardContent className="space-y-4">
             <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">

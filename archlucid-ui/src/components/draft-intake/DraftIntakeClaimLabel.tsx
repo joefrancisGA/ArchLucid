@@ -7,10 +7,10 @@ export type DraftIntakeClaimSurface =
   | "admitted-draft"
   | "spawned-review";
 
-import { GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT } from "@/lib/guided-intake-copy";
+import { GUIDED_INTAKE_DRAFT_EVIDENCE_CALLOUT } from "@/lib/guided-intake-copy";
 
 const SURFACE_COPY: Record<DraftIntakeClaimSurface, string> = {
-  "structural-admission": GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT,
+  "structural-admission": GUIDED_INTAKE_DRAFT_EVIDENCE_CALLOUT,
   "llm-intake-reasoning": "Intake assistant notes — not part of the review evidence trail.",
   "redirected-draft": "Intake decision receipt — not an architecture finding",
   "admitted-draft": "Admitted draft — confirm execution mode on review detail before sponsor export",

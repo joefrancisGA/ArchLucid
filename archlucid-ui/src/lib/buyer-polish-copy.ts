@@ -107,9 +107,9 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
+export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Just exploring?";
 
-export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished package";
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Open a finished sample package";
 
 export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
 

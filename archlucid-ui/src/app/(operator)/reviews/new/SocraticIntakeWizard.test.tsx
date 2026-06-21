@@ -138,6 +138,9 @@ describe("SocraticIntakeWizard", () => {
       GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
     );
     expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(/step 1 of 3/i);
+    expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(/describe the system/i);
+    expect(screen.getByTestId("draft-intake-claim-label-structural-admission")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_STEP_2 })).toBeInTheDocument();
   });
 

@@ -5,7 +5,7 @@ test.describe("first-run wizard", () => {
     await page.goto("/reviews/new");
 
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
-    await expect(page.getByText(/Start with guided intake, or use quick review/i)).toBeVisible();
+    await expect(page.getByText(/Just exploring\?/i)).toBeVisible();
     await expect(page.getByTestId("reviews-new-path-toggle")).toBeVisible();
   });
 });
