@@ -4,6 +4,7 @@ import {
   shouldInjectDemoAuditSample,
   shouldPreferCuratedAuditTrailForBuyerShell,
 } from "@/lib/demo-audit-sample-events";
+import { isDemoStrictNavigationRedirectsBypassedForE2E } from "@/lib/demo-ui-env";
 import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 
 import type { AuditFilterFields } from "./audit-page-helpers";
@@ -14,15 +15,19 @@ export type AuditSearchUiSlice = {
   readonly auditNextCursor: string | null;
 };
 
+function shouldApplyAuditDemoSamplePolicy(): boolean {
+  return shouldMergeOperatorDemoAlertSample() || isDemoStrictNavigationRedirectsBypassedForE2E();
+}
+
 /** Maps API paging + demo merge policy into the event list / cursor state shown in the audit UI. */
 export function resolveAuditSearchPageForUi(
   page: CursorPagedResponse<AuditEvent>,
   filters: AuditFilterFields,
 ): AuditSearchUiSlice {
   const curatedBuyer =
-    shouldMergeOperatorDemoAlertSample() && shouldPreferCuratedAuditTrailForBuyerShell(filters);
+    shouldApplyAuditDemoSamplePolicy() && shouldPreferCuratedAuditTrailForBuyerShell(filters);
   const injectEmptyOnly =
-    shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
+    shouldApplyAuditDemoSamplePolicy() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
   const useDemoRows = curatedBuyer || injectEmptyOnly;
 
   if (useDemoRows) {
@@ -42,5 +47,5 @@ export function resolveAuditSearchPageForUi(
 
 /** When a search fails, operator demo shells may still show curated sample rows. */
 export function shouldInjectAuditDemoOnSearchError(filters: AuditFilterFields): boolean {
-  return shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters);
+  return shouldApplyAuditDemoSamplePolicy() && shouldInjectDemoAuditSample(filters);
 }

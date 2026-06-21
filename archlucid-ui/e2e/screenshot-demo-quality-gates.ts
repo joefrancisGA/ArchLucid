@@ -36,8 +36,8 @@ async function waitForGraphScreenshotSettled(page: Page, href: string): Promise<
 }
 
 /**
- * Audit page briefly renders “Showing 0 events” until the client `useEffect` search resolves (initial state is an empty list).
- * Mock API returns demo rows — wait so the screenshot gate does not observe that transient summary line.
+ * Audit page briefly renders “Showing 0 events” until the client search resolves (initial state is an empty list).
+ * Buyer-polished shells tuck Search inside a collapsed panel — expand and trigger search when auto-prime races.
  */
 async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Promise<void> {
   const pathOnly = href.split("?", 1)[0];
@@ -47,8 +47,38 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
   }
 
   const summary = page.locator('section[aria-labelledby="audit-results-heading"] p[role="status"]');
+  let primedSearch = false;
 
-  await expect(summary).toContainText(/Showing [1-9]/, { timeout: 120_000 });
+  await expect
+    .poll(
+      async () => {
+        const text = await summary.innerText();
+
+        if (/Showing [1-9]/.test(text)) {
+          return true;
+        }
+
+        if (!primedSearch) {
+          primedSearch = true;
+
+          const optionalFilters = page.getByRole("button", { name: /Optional filters/i });
+
+          if (await optionalFilters.isVisible()) {
+            await optionalFilters.click();
+          }
+
+          const searchButton = page.getByRole("button", { name: /^(Search audit log|Search)$/i }).first();
+
+          if ((await searchButton.count()) > 0) {
+            await searchButton.click({ force: true });
+          }
+        }
+
+        return false;
+      },
+      { timeout: 120_000 },
+    )
+    .toBe(true);
 }
 
 export async function assertPageFreeOfScreenshotDemoFailures(page: Page, href: string): Promise<void> {

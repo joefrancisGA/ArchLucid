@@ -26,7 +26,7 @@ import {
   auditSearchNoResultsReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import {
@@ -289,7 +289,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   }, [actorUserId, applySearchPageToState, correlationId, eventType, executeSearch, runId]);
 
   useEffect(() => {
-    if (!shouldMergeOperatorDemoAlertSample() || demoAuditPrimedRef.current) {
+    if (demoAuditPrimedRef.current) {
       return;
     }
 

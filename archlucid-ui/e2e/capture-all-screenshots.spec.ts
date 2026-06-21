@@ -143,9 +143,9 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
 
 
       if (href === "/advisory-scheduling")
-        await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
+        await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 30_000, waitUntil: "commit" });
       else if (href === "/settings/exec-digest")
-        await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
+        await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 30_000, waitUntil: "commit" });
 
       /** Wait for hydrated shell ({@link AppShellClient} / {@link ShellReadySurface}); `networkidle` is unreliable on Next.js. */
       try {

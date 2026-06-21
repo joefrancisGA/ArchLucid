@@ -205,6 +205,37 @@ export async function registerOperatorJourneyApiRoutes(
         }
       }
 
+      if (method === "GET" && backendApiPath(url) === "/v1/audit/event-types") {
+        await fulfillJson(route, 200, [
+          "RunStarted",
+          "context.snapshot.created",
+          "graph.snapshot.created",
+          "findings.snapshot.created",
+          "ManifestGenerated",
+          "GovernanceApprovalApproved",
+          "RunExported",
+        ]);
+
+        return true;
+      }
+
+      if (method === "GET" && backendApiPath(url) === "/v1/audit/search") {
+        const requestedTake = Math.min(
+          200,
+          Math.max(1, Number.parseInt(url.searchParams.get("take") ?? "200", 10) || 200),
+        );
+        const items = getDemoSampleAuditTrailEvents();
+
+        await fulfillJson(route, 200, {
+          items: items.slice(0, requestedTake),
+          nextCursor: null,
+          hasMore: false,
+          requestedTake,
+        });
+
+        return true;
+      }
+
       return false;
     };
 
@@ -389,9 +420,23 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
       return;
     }
 
+    if (apiPath === "/v1/audit/event-types") {
+      await fulfillJson(route, 200, [
+        "RunStarted",
+        "context.snapshot.created",
+        "graph.snapshot.created",
+        "findings.snapshot.created",
+        "ManifestGenerated",
+        "GovernanceApprovalApproved",
+        "RunExported",
+      ]);
+
+      return;
+    }
+
     /**
-     * Audit log: mock HTTP returns an empty page; demo sample injection is build-flagged. Full-route screenshots must
-     * always show the Claims Intake trail (see `screenshot-demo-quality-gates` — forbid "Showing 0 events").
+     * Audit log: Playwright stubs return the Claims Intake trail so screenshots never depend on build-time demo merge
+     * (see `screenshot-demo-quality-gates` — forbid "Showing 0 events").
      */
     if (apiPath === "/v1/audit/search") {
       const requestedTake = Math.min(200, Math.max(1, Number.parseInt(url.searchParams.get("take") ?? "200", 10) || 200));
