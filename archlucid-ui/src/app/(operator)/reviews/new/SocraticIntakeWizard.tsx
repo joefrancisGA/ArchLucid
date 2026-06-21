@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,7 @@ import {
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import {
@@ -62,7 +64,15 @@ const INTAKE_STEPS = [
 
 export function SocraticIntakeWizard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const exampleTemplatePrefillAppliedRef = useRef(false);
+
+  const exampleTemplate = useMemo(
+    () =>
+      resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).template,
+    [searchParams],
+  );
 
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -103,6 +113,18 @@ export function SocraticIntakeWizard() {
   const canSubmit = draftId !== null && allMustAnswered && !busy && !blocksLlmExecution;
 
   const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
+
+  useEffect(() => {
+    if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
+      return;
+    }
+
+    exampleTemplatePrefillAppliedRef.current = true;
+    setFreeTextIntent(exampleTemplate.briefText);
+    setBusinessOutcome(exampleTemplate.businessOutcome);
+    setSystemName(exampleTemplate.systemName);
+    setActorSet(buildSuggestedActorSet(exampleTemplate.briefText));
+  }, [exampleTemplate]);
 
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
@@ -273,6 +295,8 @@ export function SocraticIntakeWizard() {
         {stepLabel} — {INTAKE_STEPS[step]?.label}
       </p>
       <DraftIntakeClaimLabel surface="structural-admission" />
+
+      {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
 

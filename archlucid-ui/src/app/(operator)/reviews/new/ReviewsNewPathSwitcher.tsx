@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
@@ -11,6 +11,8 @@ import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
+import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import {
   persistActivePath,
   readStoredActivePath,
@@ -40,6 +42,11 @@ export function ReviewsNewPathSwitcher() {
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
+  const invalidExampleTemplateId = useMemo(
+    () =>
+      resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).invalidTemplateId,
+    [searchParams],
+  );
   const [activePath, setActivePath] = useState<ReviewsNewActivePath>("guided-intake");
   const [ready, setReady] = useState(false);
 
@@ -76,6 +83,9 @@ export function ReviewsNewPathSwitcher() {
       <Suspense fallback={null}>
         <ReviewsNewDeferredIntentCallout />
       </Suspense>
+      {invalidExampleTemplateId !== null ? (
+        <ReviewIntakeInvalidTemplateCallout templateId={invalidExampleTemplateId} />
+      ) : null}
       {ready ? (
         <div
           className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"

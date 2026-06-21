@@ -1,15 +1,97 @@
-/** Query value for `?example=` on `/reviews/new` — pairs with the home-page Example request panel. */
-export const OPERATOR_HOME_EXAMPLE_QUERY_VALUE = "healthcare-claims-intake";
+/** Canonical review-intake example templates — shared by home card copy and `/reviews/new` prefill. */
+export type ReviewIntakeExampleTemplate = {
+  readonly id: string;
+  /** Legacy `?example=` query alias (optional). */
+  readonly legacyExampleQueryValue?: string;
+  readonly title: string;
+  readonly briefText: string;
+  readonly businessOutcome: string;
+  readonly systemName: string;
+  /** Quick review vertical sample id when sample-brief mode should be highlighted. */
+  readonly quickReviewSampleBriefId?: string;
+};
 
-/** Long-form brief shown on home and pre-filled into the new-review wizard when `example` matches the value above. */
-export const OPERATOR_HOME_EXAMPLE_DESCRIPTION =
-  "Review the architecture for a healthcare claims intake modernization — REST ingestion tier, FHIR-aligned validation pipeline, and HIPAA-boundary data residency.";
+export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTemplate[] = [
+  {
+    id: "claims-intake-modernization",
+    legacyExampleQueryValue: "healthcare-claims-intake",
+    title: "Claims Intake Modernization",
+    briefText:
+      "Review the architecture for a healthcare claims intake modernization — REST ingestion tier, FHIR-aligned validation pipeline, and HIPAA-boundary data residency.",
+    businessOutcome:
+      "Modernize claims intake with compliant REST ingestion, FHIR-aligned validation, and HIPAA-boundary data residency controls.",
+    systemName: "Claims Intake Modernization",
+    quickReviewSampleBriefId: "healthcare",
+  },
+] as const;
 
-/** System name prefilled on the wizard identity step when `example` matches `OPERATOR_HOME_EXAMPLE_QUERY_VALUE`. */
-export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = "HealthcareClaimsIntakeModernization";
+const CLAIMS_INTAKE_MODERNIZATION_TEMPLATE = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+
+/** Primary template id for the operator home Example request panel. */
+export const OPERATOR_HOME_EXAMPLE_TEMPLATE_ID = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.id;
+
+/** @deprecated Prefer `OPERATOR_HOME_EXAMPLE_TEMPLATE_ID` with `?template=`. Legacy `?example=` alias. */
+export const OPERATOR_HOME_EXAMPLE_QUERY_VALUE =
+  CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.legacyExampleQueryValue ?? CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.id;
+
+/** Long-form brief shown on home and prefilled into review intake when the template matches. */
+export const OPERATOR_HOME_EXAMPLE_DESCRIPTION = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.briefText;
+
+/** Title / system name prefilled on review intake when the template matches. */
+export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = CLAIMS_INTAKE_MODERNIZATION_TEMPLATE.systemName;
+
+/** Home card CTA — promise matches prefill behavior on `/reviews/new`. */
+export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
 
 /**
  * Matched case-insensitively on run descriptions (with the static demo run id) so the home ribbon can find the
  * showcase story when the reviews API returns real rows instead of the static fallback.
  */
 export const OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN = "claims intake";
+
+export function reviewIntakeExampleTemplateHref(templateId: string): string {
+  return `/reviews/new?template=${encodeURIComponent(templateId)}`;
+}
+
+export function resolveReviewIntakeExampleTemplate(input: {
+  templateParam?: string | null;
+  exampleParam?: string | null;
+}): ReviewIntakeExampleTemplate | null {
+  const templateKey = input.templateParam?.trim().toLowerCase() ?? "";
+
+  if (templateKey.length > 0) {
+    const match = REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id.toLowerCase() === templateKey);
+
+    return match ?? null;
+  }
+
+  const exampleKey = input.exampleParam?.trim().toLowerCase() ?? "";
+
+  if (exampleKey.length === 0) {
+    return null;
+  }
+
+  return (
+    REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.legacyExampleQueryValue?.toLowerCase() === exampleKey) ?? null
+  );
+}
+
+export function resolveReviewIntakeExampleTemplateFromSearchParams(
+  readParam: (key: string) => string | null,
+): { template: ReviewIntakeExampleTemplate | null; invalidTemplateId: string | null } {
+  const templateParam = readParam("template");
+
+  if (templateParam !== null && templateParam.trim().length > 0) {
+    const template = resolveReviewIntakeExampleTemplate({ templateParam });
+
+    if (template === null) {
+      return { template: null, invalidTemplateId: templateParam.trim() };
+    }
+
+    return { template, invalidTemplateId: null };
+  }
+
+  const template = resolveReviewIntakeExampleTemplate({ exampleParam: readParam("example") });
+
+  return { template, invalidTemplateId: null };
+}

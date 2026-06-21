@@ -10,7 +10,9 @@ import {
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+  OPERATOR_HOME_EXAMPLE_START_CTA,
+  OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
+  reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
@@ -44,10 +46,10 @@ export function OperatorHomeExampleRequestPanel(): React.JSX.Element | null {
       <CardContent className={cn(OPERATOR_CARD.content, "flex flex-wrap", OPERATOR_LAYOUT.inlineGap)}>
         <Button asChild variant="outline" size="sm" className="h-8">
           <Link
-            href={`/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
+            href={reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID)}
             data-testid="operator-home-example-request-use"
           >
-            Use this example
+            {OPERATOR_HOME_EXAMPLE_START_CTA}
           </Link>
         </Button>
         <Button asChild variant="primary" size="sm" className="h-8">

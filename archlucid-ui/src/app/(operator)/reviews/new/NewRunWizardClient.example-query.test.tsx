@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
-    get: (key: string) => (key === "example" ? "healthcare-claims-intake" : null),
+    get: (key: string) => (key === "template" ? "claims-intake-modernization" : null),
   }),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn(), back: vi.fn(), forward: vi.fn() }),
   usePathname: () => "",
@@ -84,7 +84,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
     );
   });
 
-  it("prefills description and system name when example=healthcare-claims-intake", async () => {
+  it("prefills description and system name when template=claims-intake-modernization", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {

@@ -21,6 +21,7 @@ import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
+import type { ReviewIntakeExampleTemplate } from "@/lib/operator-home-example-request";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
 import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
@@ -37,6 +38,8 @@ export type QuickStartWizardProps = {
   blocksLlmExecution: boolean;
   /** Optional preset id from `?preset=` deep link (see `wizard-preset-deeplink.ts`). */
   initialPresetId?: string;
+  /** Example template from `?template=` / legacy `?example=` — overrides preset brief and system name once. */
+  exampleTemplate?: ReviewIntakeExampleTemplate | null;
   /** Invoked after a run id is returned so the parent can show pipeline tracking. */
   onRunCreated: (runId: string) => void;
 };
@@ -73,8 +76,14 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     }
 
     const merged = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+
+    if (props.exampleTemplate !== null && props.exampleTemplate !== undefined) {
+      merged.description = props.exampleTemplate.briefText;
+      merged.systemName = props.exampleTemplate.systemName;
+    }
+
     reset(merged);
-  }, [presetId, reset]);
+  }, [presetId, props.exampleTemplate, reset]);
 
   useEffect(() => {
     trackWizardStepViewed(quickStep, QUICK_STEPS[quickStep]?.label ?? "Unknown", "QuickStart");

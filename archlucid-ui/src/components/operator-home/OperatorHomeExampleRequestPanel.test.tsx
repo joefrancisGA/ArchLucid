@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import { OperatorHomeExampleRequestPanel } from "@/components/operator-home/OperatorHomeExampleRequestPanel";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+  OPERATOR_HOME_EXAMPLE_START_CTA,
+  OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
+  reviewIntakeExampleTemplateHref,
 } from "@/lib/operator-home-example-request";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -25,8 +27,9 @@ describe("OperatorHomeExampleRequestPanel (TB-348)", () => {
     expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-use")).toHaveAttribute(
       "href",
-      `/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`,
+      reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID),
     );
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_EXAMPLE_START_CTA })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-completed")).toHaveAttribute(
       "href",
       `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,

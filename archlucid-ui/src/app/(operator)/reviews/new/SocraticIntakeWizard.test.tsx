@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const admitDraftRequest = vi.fn();
 const answerDraftQuestion = vi.fn();
@@ -9,9 +9,11 @@ const patchDraftRequest = vi.fn();
 const skipDraftQuestion = vi.fn();
 const submitDraftRequest = vi.fn();
 const routerPush = vi.fn();
+const searchParamsGet = vi.hoisted(() => vi.fn((_key: string) => null as string | null));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: routerPush }),
+  useSearchParams: () => ({ get: (key: string) => searchParamsGet(key) }),
 }));
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
@@ -75,6 +77,10 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
 } from "@/lib/guided-intake-copy";
+import {
+  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+  OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
+} from "@/lib/operator-home-example-request";
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 
@@ -88,6 +94,28 @@ const sampleQuestion = {
 };
 
 describe("SocraticIntakeWizard", () => {
+  beforeEach(() => {
+    searchParamsGet.mockImplementation((_key: string) => null);
+  });
+
+  it("prefills guided intake from template=claims-intake-modernization without auto-submitting", () => {
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "template" ? "claims-intake-modernization" : null,
+    );
+
+    render(<SocraticIntakeWizard />);
+
+    expect(screen.getByTestId("review-intake-example-template-callout")).toBeInTheDocument();
+    expect((screen.getByTestId("socratic-intent") as HTMLTextAreaElement).value).toBe(
+      OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+    );
+    expect((screen.getByTestId("socratic-system-name") as HTMLInputElement).value).toBe(
+      OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
+    );
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(createDraftRequest).not.toHaveBeenCalled();
+  });
+
   it("shows guided placeholders and Continue on step 1", () => {
     render(<SocraticIntakeWizard />);
 

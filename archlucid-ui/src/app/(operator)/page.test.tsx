@@ -198,7 +198,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(runsLinks.length).toBeGreaterThan(0);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Use this example" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Start from this example" })).toBeInTheDocument();
     });
   });
 

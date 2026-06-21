@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
@@ -45,9 +46,8 @@ import {
 } from "@/lib/wizard-pending-evidence-upload";
 import { useWizardBaselineMetricsActions } from "@/lib/use-wizard-baseline-metrics-actions";
 import {
-  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
-  OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
+  resolveReviewIntakeExampleTemplateFromSearchParams,
+  type ReviewIntakeExampleTemplate,
 } from "@/lib/operator-home-example-request";
 import {
   buildDefaultWizardValues,
@@ -203,7 +203,13 @@ export function NewRunWizardClient() {
     () => resolveZeroConfigDemoScenarioId(searchParams),
     [searchParams],
   );
+  const exampleTemplateResolution = useMemo(
+    () => resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null),
+    [searchParams],
+  );
+  const exampleTemplate: ReviewIntakeExampleTemplate | null = exampleTemplateResolution.template;
   const zeroConfigAppliedRef = useRef(false);
+  const exampleTemplatePrefillAppliedRef = useRef(false);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
   const reviewStepIndex: number = 7;
@@ -289,16 +295,6 @@ export function NewRunWizardClient() {
     Array.isArray(recapConstraintsList) && recapConstraintsList.length > 0
       ? recapConstraintsList.map((c) => String(c).trim()).filter((c) => c.length > 0).join(", ")
       : "";
-
-  const operatorHomeExampleKey = useMemo(() => {
-    const raw = searchParams?.get("example")?.trim().toLowerCase() ?? "";
-
-    if (raw === OPERATOR_HOME_EXAMPLE_QUERY_VALUE) {
-      return OPERATOR_HOME_EXAMPLE_QUERY_VALUE;
-    }
-
-    return null;
-  }, [searchParams]);
 
   const presetDeeplinkToken = useMemo(
     () => parseWizardPresetDeeplinkToken(searchParams?.get("preset")),
@@ -410,15 +406,18 @@ export function NewRunWizardClient() {
   }, [baselineFirst]);
 
   useEffect(() => {
-    if (operatorHomeExampleKey !== OPERATOR_HOME_EXAMPLE_QUERY_VALUE) {
+    if (exampleTemplate === null || wizardMode !== "full" || stepIndex !== 2) {
       return;
     }
 
-    if (stepIndex >= 2) {
-      setValue("systemName", OPERATOR_HOME_EXAMPLE_SYSTEM_NAME, { shouldValidate: true, shouldDirty: true });
-      setValue("description", OPERATOR_HOME_EXAMPLE_DESCRIPTION, { shouldValidate: true, shouldDirty: true });
+    if (exampleTemplatePrefillAppliedRef.current) {
+      return;
     }
-  }, [operatorHomeExampleKey, setValue, stepIndex]);
+
+    exampleTemplatePrefillAppliedRef.current = true;
+    setValue("systemName", exampleTemplate.systemName, { shouldValidate: true, shouldDirty: true });
+    setValue("description", exampleTemplate.briefText, { shouldValidate: true, shouldDirty: true });
+  }, [exampleTemplate, setValue, stepIndex, wizardMode]);
 
   useEffect(() => {
     if (stepIndex !== reviewStepIndex) {
@@ -700,6 +699,7 @@ export function NewRunWizardClient() {
               future wizard prefill.
             </p>
           ) : null}
+          {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
           {wizardModeReady ? (
             <div
               className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -762,6 +762,7 @@ export function NewRunWizardClient() {
               blocksLlmExecution={blocksLlmExecution}
               llmBudgetStatus={llmBudgetStatus}
               initialPresetId={presetDeeplinkPresetId ?? undefined}
+              exampleTemplate={exampleTemplate}
               onRunCreated={(id) => {
                 setRunId(id);
               }}

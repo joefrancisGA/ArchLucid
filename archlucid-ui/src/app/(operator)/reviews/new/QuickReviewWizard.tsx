@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
@@ -19,6 +19,7 @@ import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-
 import { showError, showSuccess } from "@/lib/toast";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { showApiRequestErrorToast } from "@/lib/api-error-toast";
+import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
@@ -33,6 +34,7 @@ import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
 import {
   persistQuickReviewWizardPreferences,
@@ -122,6 +124,15 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const initialWizardState = readInitialWizardState();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const exampleTemplatePrefillAppliedRef = useRef(false);
+
+  const exampleTemplate = useMemo(
+    () =>
+      resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).template,
+    [searchParams],
+  );
+
   const [step, setStep] = useState(0);
   const [briefText, setBriefText] = useState("");
   const [activeSampleBriefId, setActiveSampleBriefId] = useState<string | null>(null);
@@ -161,6 +172,19 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const defaultBriefAppliedRef = useRef(false);
 
   useEffect(() => {
+    if (exampleTemplatePrefillAppliedRef.current) {
+      return;
+    }
+
+    if (exampleTemplate !== null) {
+      exampleTemplatePrefillAppliedRef.current = true;
+      setBriefText(exampleTemplate.briefText);
+      setRunTitle(exampleTemplate.title);
+      setActiveSampleBriefId(exampleTemplate.quickReviewSampleBriefId ?? null);
+
+      return;
+    }
+
     if (defaultBriefAppliedRef.current) {
       return;
     }
@@ -177,7 +201,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
     setBriefText(sample.brief);
     setActiveSampleBriefId(sample.id);
-  }, []);
+  }, [exampleTemplate]);
 
   useEffect(() => {
     if (!submitting) {
@@ -322,6 +346,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       <div className="space-y-4">
       {isCtoDemoPackEnv() ? <CtoDemoFastCreatePanel /> : null}
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
+      {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
       <div className="space-y-1" data-testid="quick-review-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick review — step {step + 1} of {QUICK_REVIEW_STEPS.length}: {QUICK_REVIEW_STEPS[step].label}
