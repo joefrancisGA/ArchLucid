@@ -192,6 +192,9 @@ public sealed class AuthorityRunOrchestrator(
                     {
                         EventType = AuditEventTypes.RunStarted,
                         RunId = run.RunId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
                         DataJson = JsonSerializer.Serialize(
                             new
                             {
@@ -233,6 +236,9 @@ public sealed class AuthorityRunOrchestrator(
                 {
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
                     DataJson = JsonSerializer.Serialize(
                         new
                         {
@@ -412,6 +418,9 @@ public sealed class AuthorityRunOrchestrator(
                 {
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
                     DataJson = JsonSerializer.Serialize(
                         new
                         {

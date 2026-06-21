@@ -144,6 +144,9 @@ public sealed class AuthorityCommittedPipelineFinalizer(
                 EventType = AuditEventTypes.RunCompleted,
                 RunId = run.RunId,
                 ManifestId = run.GoldenManifestId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
                 DataJson = JsonSerializer.Serialize(
                     new
                     {
