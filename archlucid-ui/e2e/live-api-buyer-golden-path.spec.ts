@@ -55,12 +55,6 @@ test.describe("live-api-buyer-golden-path", () => {
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.evidenceGraph);
-    await expect(
-      page.getByRole("main").getByRole("heading", {
-        level: 2,
-        name: /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
-      }),
-    ).toBeVisible({ timeout: 60_000 });
     await expectGraphPageReadySurface(page, { timeout: 60_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);

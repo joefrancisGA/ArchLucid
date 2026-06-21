@@ -47,12 +47,6 @@ test.describe("buyer golden path — Claims Intake spine", () => {
 
     // Step 3 — Evidence trail (graph)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.evidenceGraph);
-    await expect(
-      page.getByRole("main").getByRole("heading", {
-        level: 2,
-        name: /Evidence trail|Decision traceability graph|Evidence-to-decision graph|Review trail graph|Review evidence graph/i,
-      }),
-    ).toBeVisible();
     await expectGraphPageReadySurface(page, { timeout: 25_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);

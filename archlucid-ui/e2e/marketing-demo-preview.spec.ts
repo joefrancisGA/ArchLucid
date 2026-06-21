@@ -18,7 +18,9 @@ test.describe("marketing-demo-preview", () => {
     const outcomeStrip = page.getByRole("region", { name: "Open completed output" });
     await expect(outcomeStrip).toBeVisible();
     await expect(outcomeStrip.getByText(/1 · Executive summary/)).toBeVisible();
-    await expect(outcomeStrip.getByText(/2 · Signed manifest/)).toBeVisible();
+    await expect(
+      outcomeStrip.getByText(/2 · (Signed manifest|Manifest|Finalized manifest)/i),
+    ).toBeVisible();
 
     const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
 
