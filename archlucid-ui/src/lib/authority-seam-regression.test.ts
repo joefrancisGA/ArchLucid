@@ -46,9 +46,10 @@ describe("authority seam regression", () => {
   /**
    * Drift guard: every `ExecuteAuthority` row in `nav-config` must stay invisible to Read callers and visible at Execute+.
    * Uses hrefs from config (not copy) so new links inherit the same contract automatically.
+   * **`operate-analysis`** is Read-only after taxonomy realignment; Execute-class rhythm links live under **`operate-operations`**.
    */
   it("hides every ExecuteAuthority-marked Operate nav link from Read callers", () => {
-    const groupIds = ["operate-analysis", "operate-governance"] as const;
+    const groupIds = ["operate-operations", "operate-governance"] as const;
 
     for (const groupId of groupIds) {
       const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;
