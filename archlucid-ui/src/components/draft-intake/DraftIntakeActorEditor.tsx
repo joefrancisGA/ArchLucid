@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,22 +15,36 @@ import {
 import {
   ACTOR_KIND_OPTIONS,
   formatActorCardHeading,
-  INTERACTION_CONTRACT_OPTIONS,
+  formatSuggestedActorLabel,
+  getInteractionContractOptions,
   TRUST_ORIGIN_OPTIONS,
 } from "@/lib/draft-intake-actor-labels";
 import {
+  actorIdentityKey,
+  buildSuggestedActorsFromIntent,
+  createEmptyActorDescriptor,
+  filterNewActorSuggestions,
+  MIN_INTENT_CHARS_FOR_ACTOR_SUGGESTIONS,
+} from "@/lib/draft-intake-actor-suggestions";
+import {
+  GUIDED_INTAKE_ACTORS_EMPTY_STATE,
   GUIDED_INTAKE_ACTORS_SECTION_HEADING,
+  GUIDED_INTAKE_ADD_ACTOR_BUTTON,
+  GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON,
+  GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
+  GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING,
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
+  GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
   GUIDED_INTAKE_TRUST_BOUNDARY_HINT,
 } from "@/lib/guided-intake-copy";
-import { createEmptyActorDescriptor } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
 export type DraftIntakeActorEditorProps = {
   readonly actorSet: ActorSet;
+  readonly intentText: string;
+  readonly minIntentChars?: number;
   readonly disabled?: boolean;
   readonly onChange: (actorSet: ActorSet) => void;
-  readonly onResuggest?: () => void;
 };
 
 function updateActorAtIndex(
@@ -52,11 +68,43 @@ function updateActorAtIndex(
   return { actors };
 }
 
+function confirmActorAtIndex(actorSet: ActorSet, index: number): ActorSet {
+  const actors = actorSet.actors.map((actor, actorIndex): ActorDescriptor => {
+    if (actorIndex !== index) {
+      return actor;
+    }
+
+    return {
+      ...actor,
+      origin: "Asserted",
+      confidence: 100,
+    };
+  });
+
+  return { actors };
+}
+
 /**
  * Inferred-then-confirmed actor set editor (ADR 0049) for guided intake step 0.
  */
 export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
   const panelDisabled = props.disabled === true;
+  const minIntentChars = props.minIntentChars ?? MIN_INTENT_CHARS_FOR_ACTOR_SUGGESTIONS;
+  const canSuggestFromIntent = props.intentText.trim().length >= minIntentChars;
+
+  const [suggestionPanelOpen, setSuggestionPanelOpen] = useState(false);
+  const [selectedSuggestionKeys, setSelectedSuggestionKeys] = useState<ReadonlySet<string>>(() => new Set());
+
+  const pendingSuggestions = useMemo(() => {
+    if (!suggestionPanelOpen) {
+      return [];
+    }
+
+    return filterNewActorSuggestions(
+      props.actorSet.actors,
+      buildSuggestedActorsFromIntent(props.intentText),
+    );
+  }, [props.actorSet.actors, props.intentText, suggestionPanelOpen]);
 
   function addActor(): void {
     props.onChange({
@@ -65,14 +113,55 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
   }
 
   function removeActor(index: number): void {
-    if (props.actorSet.actors.length <= 1) {
-      return;
-    }
-
     props.onChange({
       actors: props.actorSet.actors.filter((_, actorIndex) => actorIndex !== index),
     });
   }
+
+  function openSuggestionPanel(): void {
+    const freshSuggestions = filterNewActorSuggestions(
+      props.actorSet.actors,
+      buildSuggestedActorsFromIntent(props.intentText),
+    );
+
+    setSelectedSuggestionKeys(new Set(freshSuggestions.map((actor) => actorIdentityKey(actor))));
+    setSuggestionPanelOpen(true);
+  }
+
+  function toggleSuggestionSelection(key: string, checked: boolean): void {
+    setSelectedSuggestionKeys((current) => {
+      const next = new Set(current);
+
+      if (checked) {
+        next.add(key);
+      } else {
+        next.delete(key);
+      }
+
+      return next;
+    });
+  }
+
+  function addSelectedSuggestions(): void {
+    const selectedActors = pendingSuggestions.filter((actor) =>
+      selectedSuggestionKeys.has(actorIdentityKey(actor)),
+    );
+
+    if (selectedActors.length === 0) {
+      return;
+    }
+
+    props.onChange({
+      actors: [...props.actorSet.actors, ...selectedActors],
+    });
+    setSuggestionPanelOpen(false);
+    setSelectedSuggestionKeys(new Set());
+  }
+
+  const addActorButtonLabel =
+    props.actorSet.actors.length === 0
+      ? GUIDED_INTAKE_ADD_ACTOR_BUTTON
+      : "Add another actor";
 
   return (
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
@@ -81,29 +170,108 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
             {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
           </p>
-          {props.onResuggest !== undefined ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              disabled={panelDisabled}
-              data-testid="draft-intake-actor-resuggest"
-              onClick={() => {
-                props.onResuggest?.();
-              }}
-            >
-              {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={panelDisabled || !canSuggestFromIntent}
+            data-testid="draft-intake-actor-suggest"
+            onClick={() => {
+              openSuggestionPanel();
+            }}
+          >
+            {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
+          </Button>
         </div>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
           {GUIDED_INTAKE_TRUST_BOUNDARY_HINT}
         </p>
+        {!canSuggestFromIntent ? (
+          <p className="m-0 text-xs text-neutral-500" data-testid="draft-intake-actor-suggest-hint">
+            {GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT}
+          </p>
+        ) : null}
       </div>
+
+      {props.actorSet.actors.length === 0 ? (
+        <p
+          className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
+          data-testid="draft-intake-actor-empty"
+        >
+          {GUIDED_INTAKE_ACTORS_EMPTY_STATE}
+        </p>
+      ) : null}
+
+      {suggestionPanelOpen ? (
+        <div
+          className="space-y-3 rounded-md border border-dashed border-neutral-300 p-3 dark:border-neutral-700"
+          data-testid="draft-intake-actor-suggestions-panel"
+        >
+          <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            {GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING}
+          </p>
+          {pendingSuggestions.length === 0 ? (
+            <p className="m-0 text-xs text-neutral-500">
+              No new suggestions — add actors manually or edit intent and try again.
+            </p>
+          ) : (
+            <ul className="m-0 list-none space-y-2 p-0">
+              {pendingSuggestions.map((actor) => {
+                const key = actorIdentityKey(actor);
+
+                return (
+                  <li key={key}>
+                    <label className="flex cursor-pointer items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={selectedSuggestionKeys.has(key)}
+                        disabled={panelDisabled}
+                        data-testid={`draft-intake-actor-suggestion-${key}`}
+                        onChange={(event) => {
+                          toggleSuggestionSelection(key, event.target.checked);
+                        }}
+                      />
+                      <span>{formatSuggestedActorLabel(actor)}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="primary"
+              disabled={panelDisabled || selectedSuggestionKeys.size === 0}
+              data-testid="draft-intake-actor-add-selected"
+              onClick={() => {
+                addSelectedSuggestions();
+              }}
+            >
+              {GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              disabled={panelDisabled}
+              data-testid="draft-intake-actor-dismiss-suggestions"
+              onClick={() => {
+                setSuggestionPanelOpen(false);
+                setSelectedSuggestionKeys(new Set());
+              }}
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       {props.actorSet.actors.map((actor, index) => (
         <div
-          key={`actor-${index}-${actor.kind}-${actor.trustOrigin}`}
+          key={`actor-${index}-${actor.kind}-${actor.trustOrigin}-${actor.contract}`}
           className="space-y-3 rounded-md border p-3"
           data-testid="draft-intake-actor-row"
         >
@@ -111,7 +279,21 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
               {formatActorCardHeading(actor, index)}
             </p>
-            {props.actorSet.actors.length > 1 ? (
+            <div className="flex flex-wrap gap-2">
+              {actor.origin === "Inferred" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={panelDisabled}
+                  data-testid={`draft-intake-actor-confirm-${index}`}
+                  onClick={() => {
+                    props.onChange(confirmActorAtIndex(props.actorSet, index));
+                  }}
+                >
+                  {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 size="sm"
@@ -124,7 +306,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               >
                 Remove
               </Button>
-            ) : null}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -133,6 +315,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               id={`draft-intake-actor-label-${index}`}
               value={actor.label ?? ""}
               disabled={panelDisabled}
+              placeholder="Example: Claims adjuster, tenant admin, billing service"
               data-testid={`draft-intake-actor-label-${index}`}
               onChange={(event) => {
                 props.onChange(
@@ -212,7 +395,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {INTERACTION_CONTRACT_OPTIONS.map((option) => (
+                  {getInteractionContractOptions(actor.kind).map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -235,7 +418,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             addActor();
           }}
         >
-          Add another actor
+          {addActorButtonLabel}
         </Button>
       </div>
     </div>

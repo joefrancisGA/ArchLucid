@@ -1,12 +1,27 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  assertActorSetForAdmission,
   buildSuggestedActorSet,
+  buildSuggestedActorsFromIntent,
+  filterNewActorSuggestions,
+  isIntentSufficientForActorSuggestions,
+  normalizeActorSetForAdmission,
 } from "./draft-intake-actor-suggestions";
 
-describe("buildSuggestedActorSet", () => {
-  it("seeds one inferred internal human by default", () => {
+describe("isIntentSufficientForActorSuggestions", () => {
+  it("requires minimum intent length", () => {
+    expect(isIntentSufficientForActorSuggestions("short")).toBe(false);
+    expect(isIntentSufficientForActorSuggestions("long enough intent")).toBe(true);
+  });
+});
+
+describe("buildSuggestedActorsFromIntent", () => {
+  it("returns no suggestions when intent is too short", () => {
+    expect(buildSuggestedActorsFromIntent("too short")).toEqual([]);
+    expect(buildSuggestedActorSet("too short").actors).toEqual([]);
+  });
+
+  it("seeds one inferred internal human when intent is sufficient", () => {
     const actorSet = buildSuggestedActorSet("Build a workflow platform.");
 
     expect(actorSet.actors).toHaveLength(1);
@@ -28,11 +43,41 @@ describe("buildSuggestedActorSet", () => {
   });
 });
 
-describe("assertActorSetForAdmission", () => {
-  it("marks all actors asserted before admission", () => {
-    const asserted = assertActorSetForAdmission(buildSuggestedActorSet("intent"));
+describe("filterNewActorSuggestions", () => {
+  it("excludes suggestions already present in the actor set", () => {
+    const existing = buildSuggestedActorsFromIntent("Claims intake with partner API integration.");
+    const suggestions = buildSuggestedActorsFromIntent("Claims intake with partner API integration.");
 
-    expect(asserted.actors.every((actor) => actor.origin === "Asserted")).toBe(true);
-    expect(asserted.actors.every((actor) => actor.confidence === 100)).toBe(true);
+    expect(filterNewActorSuggestions(existing, suggestions)).toEqual([]);
+  });
+});
+
+describe("normalizeActorSetForAdmission", () => {
+  it("preserves inferred provenance for admission", () => {
+    const normalized = normalizeActorSetForAdmission(buildSuggestedActorSet("intent long enough"));
+
+    expect(normalized.actors.some((actor) => actor.origin === "Inferred")).toBe(true);
+    expect(normalized.actors.every((actor) => actor.confidence <= 99)).toBe(true);
+  });
+
+  it("keeps asserted actors at full confidence", () => {
+    const normalized = normalizeActorSetForAdmission({
+      actors: [
+        {
+          label: "Ops admin",
+          kind: "Human",
+          trustOrigin: "Internal",
+          contract: "Sync",
+          origin: "Asserted",
+          confidence: 100,
+        },
+      ],
+    });
+
+    expect(normalized.actors[0]).toMatchObject({
+      origin: "Asserted",
+      confidence: 100,
+      label: "Ops admin",
+    });
   });
 });

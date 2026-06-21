@@ -1,5 +1,8 @@
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
+/** Minimum intent length before deterministic actor suggestions are offered. */
+export const MIN_INTENT_CHARS_FOR_ACTOR_SUGGESTIONS = 10;
+
 /** Creates a blank actor row for the intake editor. */
 export function createEmptyActorDescriptor(): ActorDescriptor {
   return {
@@ -22,11 +25,29 @@ function hasActorMatching(
   );
 }
 
+/** Stable key for deduplicating actor rows in the intake editor. */
+export function actorIdentityKey(actor: ActorDescriptor): string {
+  const label = actor.label?.trim().toLowerCase() ?? "";
+
+  return `${actor.kind}|${actor.trustOrigin}|${actor.contract}|${label}`;
+}
+
+export function isIntentSufficientForActorSuggestions(
+  freeTextIntent: string,
+  minChars: number = MIN_INTENT_CHARS_FOR_ACTOR_SUGGESTIONS,
+): boolean {
+  return freeTextIntent.trim().length >= minChars;
+}
+
 /**
- * Deterministic inferred-then-confirmed seed (ADR 0049) — not LLM-backed.
- * ArchLucid presents a pre-filled guess; the operator confirms or corrects in the editor.
+ * Deterministic actor suggestions (ADR 0049) — not LLM-backed.
+ * Returns an empty list until intent meets the minimum length.
  */
-export function buildSuggestedActorSet(freeTextIntent: string): ActorSet {
+export function buildSuggestedActorsFromIntent(freeTextIntent: string): ActorDescriptor[] {
+  if (!isIntentSufficientForActorSuggestions(freeTextIntent)) {
+    return [];
+  }
+
   const actors: ActorDescriptor[] = [
     {
       label: "Primary internal user",
@@ -68,16 +89,31 @@ export function buildSuggestedActorSet(freeTextIntent: string): ActorSet {
     });
   }
 
-  return { actors };
+  return actors;
 }
 
-/** Marks every actor as operator-confirmed before admission patch (R4 transparency trail). */
-export function assertActorSetForAdmission(actorSet: ActorSet): ActorSet {
+/** @deprecated Prefer buildSuggestedActorsFromIntent — kept for callers that expect ActorSet. */
+export function buildSuggestedActorSet(freeTextIntent: string): ActorSet {
+  return { actors: buildSuggestedActorsFromIntent(freeTextIntent) };
+}
+
+/** Filters suggestions that are not already present in the confirmed actor set. */
+export function filterNewActorSuggestions(
+  existingActors: ActorDescriptor[],
+  suggestions: ActorDescriptor[],
+): ActorDescriptor[] {
+  const existingKeys = new Set(existingActors.map((actor) => actorIdentityKey(actor)));
+
+  return suggestions.filter((suggestion) => !existingKeys.has(actorIdentityKey(suggestion)));
+}
+
+/** Preserves asserted vs inferred provenance for admission patch (ADR 0050). */
+export function normalizeActorSetForAdmission(actorSet: ActorSet): ActorSet {
   return {
     actors: actorSet.actors.map((actor) => ({
       ...actor,
-      origin: "Asserted",
-      confidence: 100,
+      label: actor.label?.trim() || undefined,
+      confidence: actor.origin === "Asserted" ? 100 : Math.min(99, Math.max(1, actor.confidence)),
     })),
   };
 }

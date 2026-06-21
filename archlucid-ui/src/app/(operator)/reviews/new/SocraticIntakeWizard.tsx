@@ -31,13 +31,12 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import {
-  assertActorSetForAdmission,
-  buildSuggestedActorSet,
+  normalizeActorSetForAdmission,
 } from "@/lib/draft-intake-actor-suggestions";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-  GUIDED_INTAKE_CONTINUE_TO_STEP_2,
+  GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
@@ -91,7 +90,7 @@ export function SocraticIntakeWizard() {
   const [freeTextIntent, setFreeTextIntent] = useState("");
   const [businessOutcome, setBusinessOutcome] = useState("");
   const [systemName, setSystemName] = useState("");
-  const [actorSet, setActorSet] = useState<ActorSet>(() => buildSuggestedActorSet(""));
+  const [actorSet, setActorSet] = useState<ActorSet>(() => ({ actors: [] }));
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
@@ -138,7 +137,6 @@ export function SocraticIntakeWizard() {
     setFreeTextIntent(exampleTemplate.briefText);
     setBusinessOutcome(exampleTemplate.businessOutcome);
     setSystemName(exampleTemplate.systemName);
-    setActorSet(buildSuggestedActorSet(exampleTemplate.briefText));
   }, [exampleTemplate]);
 
   const refreshQuestions = useCallback(async (id: string) => {
@@ -160,7 +158,7 @@ export function SocraticIntakeWizard() {
       setActorSet(
         branch.document.actorSet.actors.length > 0
           ? branch.document.actorSet
-          : buildSuggestedActorSet(branch.document.freeTextIntent),
+          : { actors: [] },
       );
       setAnswers({});
       setSavedLocallyQuestionKeys(new Set());
@@ -185,7 +183,7 @@ export function SocraticIntakeWizard() {
         freeTextIntent: freeTextIntent.trim(),
         businessOutcome: businessOutcome.trim(),
         systemName: systemName.trim() || undefined,
-        actorSet: assertActorSetForAdmission(actorSet),
+        actorSet: normalizeActorSetForAdmission(actorSet),
       });
 
       const admission = await admitDraftRequest(id);
@@ -421,11 +419,9 @@ export function SocraticIntakeWizard() {
             </div>
             <DraftIntakeActorEditor
               actorSet={actorSet}
+              intentText={freeTextIntent}
               disabled={busy}
               onChange={setActorSet}
-              onResuggest={() => {
-                setActorSet(buildSuggestedActorSet(freeTextIntent));
-              }}
             />
             <Button
               type="button"
@@ -435,7 +431,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-admit"
             >
-              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_STEP_2}
+              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
             </Button>
           </CardContent>
         </Card>
