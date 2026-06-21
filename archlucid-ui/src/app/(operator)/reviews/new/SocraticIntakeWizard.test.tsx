@@ -76,6 +76,7 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+  GUIDED_INTAKE_CONTINUE_TO_STEP_2,
 } from "@/lib/guided-intake-copy";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
@@ -121,11 +122,11 @@ describe("SocraticIntakeWizard", () => {
     expect((screen.getByTestId("socratic-system-name") as HTMLInputElement).value).toBe(
       OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
     );
-    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_STEP_2 })).toBeEnabled();
     expect(createDraftRequest).not.toHaveBeenCalled();
   });
 
-  it("shows guided placeholders and Continue on step 1", () => {
+  it("shows guided placeholders and Continue to step 2 on step 1", () => {
     render(<SocraticIntakeWizard />);
 
     expect(screen.getByTestId("socratic-intent")).toHaveAttribute(
@@ -137,7 +138,7 @@ describe("SocraticIntakeWizard", () => {
       GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
     );
     expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_STEP_2 })).toBeInTheDocument();
   });
 
   it("creates, patches, and admits a draft when intent and outcome are provided", async () => {

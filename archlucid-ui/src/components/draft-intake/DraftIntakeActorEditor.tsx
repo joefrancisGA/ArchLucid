@@ -16,7 +16,11 @@ import {
   INTERACTION_CONTRACT_OPTIONS,
   TRUST_ORIGIN_OPTIONS,
 } from "@/lib/draft-intake-actor-labels";
-import { GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON, GUIDED_INTAKE_TRUST_BOUNDARY_HINT } from "@/lib/guided-intake-copy";
+import {
+  GUIDED_INTAKE_ACTORS_SECTION_HEADING,
+  GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
+  GUIDED_INTAKE_TRUST_BOUNDARY_HINT,
+} from "@/lib/guided-intake-copy";
 import { createEmptyActorDescriptor } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
@@ -73,7 +77,25 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
   return (
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
       <div className="space-y-1">
-        <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Who uses this system?</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
+          </p>
+          {props.onResuggest !== undefined ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={panelDisabled}
+              data-testid="draft-intake-actor-resuggest"
+              onClick={() => {
+                props.onResuggest?.();
+              }}
+            >
+              {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
+            </Button>
+          ) : null}
+        </div>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
           {GUIDED_INTAKE_TRUST_BOUNDARY_HINT}
         </p>
@@ -215,20 +237,6 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
         >
           Add another actor
         </Button>
-        {props.onResuggest !== undefined ? (
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            disabled={panelDisabled}
-            data-testid="draft-intake-actor-resuggest"
-            onClick={() => {
-              props.onResuggest?.();
-            }}
-          >
-            {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
-          </Button>
-        ) : null}
       </div>
     </div>
   );

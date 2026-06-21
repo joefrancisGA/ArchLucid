@@ -37,6 +37,10 @@ import {
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+  GUIDED_INTAKE_CONTINUE_TO_STEP_2,
+  GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
+  GUIDED_INTAKE_STEP0_CARD_TITLE,
+  GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
 } from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
@@ -52,14 +56,20 @@ const MIN_OUTCOME_CHARS = 10;
 
 const INTAKE_STEPS = [
   {
-    label: "Intent, outcome & actors",
-    description: "Describe what you are building, the business result, and who uses the system.",
+    progressLabel: GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
+    cardTitle: GUIDED_INTAKE_STEP0_CARD_TITLE,
+    description: GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   },
   {
-    label: "Required clarifications",
+    progressLabel: "Required clarifications",
+    cardTitle: "Required clarifications",
     description: "Answer a few clarifying questions so ArchLucid can produce a precise review package.",
   },
-  { label: "Start review", description: "Submit the admitted draft to the authority pipeline." },
+  {
+    progressLabel: "Start review",
+    cardTitle: "Start review",
+    description: "Submit the admitted draft to the authority pipeline.",
+  },
 ] as const;
 
 export function SocraticIntakeWizard() {
@@ -315,7 +325,7 @@ export function SocraticIntakeWizard() {
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">
       <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="socratic-intake-progress">
-        {stepLabel} — {INTAKE_STEPS[step]?.label}
+        {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
       </p>
       <DraftIntakeClaimLabel surface="structural-admission" />
 
@@ -370,7 +380,7 @@ export function SocraticIntakeWizard() {
       {step === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{INTAKE_STEPS[0].label}</CardTitle>
+            <CardTitle>{INTAKE_STEPS[0].cardTitle}</CardTitle>
             <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -388,6 +398,16 @@ export function SocraticIntakeWizard() {
               <p className="text-xs text-neutral-500">Minimum {MIN_INTENT_CHARS} characters.</p>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="socratic-system-name">System name (optional)</Label>
+              <Input
+                id="socratic-system-name"
+                value={systemName}
+                onChange={(event) => setSystemName(event.target.value)}
+                disabled={busy}
+                data-testid="socratic-system-name"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="socratic-outcome">Business outcome (required)</Label>
               <Textarea
                 id="socratic-outcome"
@@ -397,16 +417,6 @@ export function SocraticIntakeWizard() {
                 disabled={busy}
                 placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
                 data-testid="socratic-outcome"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="socratic-system-name">System name (optional)</Label>
-              <Input
-                id="socratic-system-name"
-                value={systemName}
-                onChange={(event) => setSystemName(event.target.value)}
-                disabled={busy}
-                data-testid="socratic-system-name"
               />
             </div>
             <DraftIntakeActorEditor
@@ -425,7 +435,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-admit"
             >
-              {busy ? "Checking admission…" : "Continue"}
+              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_STEP_2}
             </Button>
           </CardContent>
         </Card>
@@ -434,7 +444,7 @@ export function SocraticIntakeWizard() {
       {step === 1 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{INTAKE_STEPS[1].label}</CardTitle>
+            <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
               {activePendingQuestions.length === 0
                 ? "All required clarifications are answered or skipped. You can continue."
@@ -569,7 +579,7 @@ export function SocraticIntakeWizard() {
       {step === 2 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{INTAKE_STEPS[2].label}</CardTitle>
+            <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>
             <CardDescription>
               Submit launches the canonical review-create path — same authority pipeline as other review entry points.
             </CardDescription>
