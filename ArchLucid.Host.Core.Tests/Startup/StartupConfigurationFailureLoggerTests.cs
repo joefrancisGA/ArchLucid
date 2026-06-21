@@ -12,6 +12,27 @@ namespace ArchLucid.Host.Core.Tests.Startup;
 public sealed class StartupConfigurationFailureLoggerTests
 {
     [Fact]
+    public void LogErrors_emits_critical_for_billing_errors_without_throwing()
+    {
+        List<string> errors =
+        [
+            BillingProductionSafetyRules.ErrorPrefix + "Billing:Stripe:SecretKey uses Stripe test prefix sk_test_.",
+            "ConnectionStrings:ArchLucid is missing.",
+        ];
+
+        TestLogger logger = new();
+
+        StartupConfigurationFailureLogger.LogErrors(errors, logger);
+
+        logger.CriticalMessages.Should().ContainSingle(message =>
+            message.Contains("Billing production safety validation failed", StringComparison.Ordinal)
+            && message.Contains("PRODUCTION_DEPLOYMENT.md", StringComparison.Ordinal));
+
+        logger.ErrorMessages.Should().ContainSingle(message =>
+            message.Contains("ConnectionStrings:ArchLucid", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void LogCriticalAndThrow_emits_critical_for_billing_errors_and_throws()
     {
         List<string> errors =
