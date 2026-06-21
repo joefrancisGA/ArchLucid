@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -12,7 +13,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, BUYER_GRAPH_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, BUYER_GRAPH_PAGE_LEAD, BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE, BUYER_GRAPH_WHAT_THIS_PROVES } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
@@ -58,6 +59,7 @@ import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { GraphSavedViewFilters } from "@/lib/operator-saved-view-types";
+import { cn } from "@/lib/utils";
 
 export function GraphPageContent() {
   const searchParams = useSearchParams();
@@ -554,11 +556,26 @@ export function GraphPageContent() {
             : "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh."
         }
       />
+      {buyerPolishedShell ? (
+        <div className={cn("space-y-3", graphMainColumnMaxClass)}>
+          <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
+          {effectiveGraph === null ? (
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
+              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                What this proves
+              </p>
+              <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                {BUYER_GRAPH_WHAT_THIS_PROVES}
+              </p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       {effectiveGraph === null && !buyerPolishedShell ? (
         <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
       ) : null}
 
-      {buyerPolishedShell || effectiveGraph === null ? (
+      {!buyerPolishedShell && effectiveGraph === null ? (
         <>
           {savedViewsBar}
           {controls}
@@ -607,7 +624,7 @@ export function GraphPageContent() {
 
       {effectiveGraph ? (
         <>
-          {savedViewsBar}
+          {!buyerPolishedShell ? savedViewsBar : null}
           <GraphLoadedExperience
           buyerPolishedShell={buyerPolishedShell}
           graphMainColumnMaxClass={graphMainColumnMaxClass}
@@ -629,6 +646,19 @@ export function GraphPageContent() {
           onPresentationViewChange={setPresentationView}
         />
         </>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <CollapsibleSection
+          title={BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE}
+          defaultOpen={effectiveGraph === null}
+          sectionTestId="graph-buyer-technical-controls"
+        >
+          <div className="space-y-4">
+            {savedViewsBar}
+            {controls}
+          </div>
+        </CollapsibleSection>
       ) : null}
     </OperatorPageContainer>
   );

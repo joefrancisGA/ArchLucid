@@ -151,6 +151,30 @@ export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | n
   return "No disposition recorded for this finding.";
 }
 
+/** Top-of-page decision impact line for buyer-polished finding detail. */
+export function buyerFindingDecisionImpactCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
+    return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
+  }
+
+  if (isPhiMinimizationFindingId(findingId)) {
+    return "Non-blocking for package approval — residual PHI minimization risk accepted with ingress classification, bounded adapters, and active exception monitoring.";
+  }
+
+  const status = fallbackStatus(payload, findingId);
+
+  if (status === "Requires review") {
+    return "Resolve cited evidence gaps before governance sign-off on the review package.";
+  }
+
+  return buyerFindingDecisionPanelCopy(payload, findingId);
+}
+
+/** Top-of-page next step for buyer-polished finding detail. */
+export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  return mitigationPosture(payload, findingId);
+}
+
 export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
   if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
     return phiMinimizationApprovalNarrative();

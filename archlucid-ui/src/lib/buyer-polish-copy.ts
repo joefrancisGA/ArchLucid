@@ -547,6 +547,20 @@ export const BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION =
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
   "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed review record, and audit record.";
 
+export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
+  "Shows review-cycle reduction, estimated effort saved, and governance-ready artifacts produced by committed reviews.";
+
+export const BUYER_VALUE_REPORT_OUTCOME_DETAILS =
+  "Use this report for sponsor updates and procurement diligence — configure the UTC window and export formats below when your tenant is connected.";
+
+export const BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL = "Decision impact";
+
+export const BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL = "What to do next";
+
+export const BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE = "Graph options and filters";
+
+export const BUYER_VALUE_REPORT_EXPORT_DISCLOSURE = "Report window and export";
+
 export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: committed reviews in this workspace.";
 
 export const BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR =

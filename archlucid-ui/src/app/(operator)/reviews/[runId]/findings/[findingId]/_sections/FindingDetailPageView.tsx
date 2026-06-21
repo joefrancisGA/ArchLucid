@@ -19,7 +19,7 @@ import {
   phiMinimizationBuyerConsequenceNarrative,
 } from "@/lib/finding-display-from-inspect";
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
-import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION } from "@/lib/buyer-polish-copy";
+import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION, BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL, BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
@@ -33,6 +33,8 @@ import {
   fallbackStatus,
   findingDetailLeadFallback,
   buyerFindingDecisionPanelCopy,
+  buyerFindingDecisionImpactCopy,
+  buyerFindingNextStepCopy,
   mitigationPosture,
   summarizeEvidenceBasis,
   validationRequirement,
@@ -128,9 +130,11 @@ export function FindingDetailPageView(props: Props) {
                 ) : null}
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Status</p>
+                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  {BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL}
+                </p>
                 <p className="m-0 mt-1 text-sm font-semibold text-neutral-950 dark:text-neutral-100">
-                  {fallbackStatus(inspectPayload, decodedFindingId)}
+                  {buyerFindingDecisionImpactCopy(inspectPayload, decodedFindingId)}
                 </p>
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
@@ -140,18 +144,17 @@ export function FindingDetailPageView(props: Props) {
                 </p>
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Impacted scope</p>
+                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  {BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL}
+                </p>
                 <p className="m-0 mt-1 text-sm font-semibold text-neutral-950 dark:text-neutral-100">
-                  {fallbackImpactedScope(inspectPayload, decodedFindingId)}
+                  {buyerFindingNextStepCopy(inspectPayload, decodedFindingId)}
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-start justify-between gap-4 border-t border-teal-100/80 pt-4 dark:border-teal-950/60">
-              <div className="min-w-[12rem] flex-1 space-y-2">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                  Finding evaluation confidence
-                </p>
+            <CollapsibleSection title="Finding evaluation confidence" defaultOpen={false}>
+              <div className="space-y-2">
                 {confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
                   <>
                     <FindingConfidenceBadge level={confidenceLevel} />
@@ -159,21 +162,15 @@ export function FindingDetailPageView(props: Props) {
                       {BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION}
                     </p>
                   </>
-                ) : buyerPolishedShell ? (
+                ) : (
                   <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                     Confidence not available for this finding.
                   </p>
-                ) : (
-                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                    Confidence assessment not available for this finding.
-                  </p>
                 )}
-                {evaluationScore !== null && Number.isFinite(evaluationScore) && !buyerPolishedShell ? (
-                  <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-                    Numerical score: {evaluationScore.toFixed(2)} (evaluation payload)
-                  </p>
-                ) : null}
               </div>
+            </CollapsibleSection>
+
+            <div className="mt-4 flex flex-wrap items-center justify-end gap-3 border-t border-teal-100/80 pt-4 dark:border-teal-950/60">
               {graphEvidenceHref !== null ? (
                 <Button type="button" asChild variant="default" size="sm" className="shrink-0">
                   <Link href={graphEvidenceHref}>{BUYER_SURFACE_VOCABULARY.evidenceGraphNav}</Link>
@@ -182,9 +179,9 @@ export function FindingDetailPageView(props: Props) {
             </div>
           </div>
 
-          <div className="space-y-4 p-6">
+          <CollapsibleSection title="Evidence trace details" defaultOpen={false}>
             <FindingProvenancePanel runId={runId} findingId={decodedFindingId} />
-          </div>
+          </CollapsibleSection>
 
           <div className="grid gap-4 p-6 lg:grid-cols-3">
             <div className={cn("p-4", operatorSemanticSurface("warn"))}>
