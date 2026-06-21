@@ -1,10 +1,8 @@
 import type { ReactNode } from "react";
 
-export {
-  dynamic,
-  fetchCache,
-  revalidate,
-} from "@/lib/next/operator-data-route-policy";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store" as const;
 
 export default function OperateLayout({ children }: { children: ReactNode }) {
   return children;

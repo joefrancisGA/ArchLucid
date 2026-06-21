@@ -4,11 +4,9 @@ import { notFound } from "next/navigation";
 
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
-export {
-  dynamic,
-  fetchCache,
-  revalidate,
-} from "@/lib/next/operator-data-route-policy";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store" as const;
 
 export const metadata: Metadata = {
   title: "Plan detail",
