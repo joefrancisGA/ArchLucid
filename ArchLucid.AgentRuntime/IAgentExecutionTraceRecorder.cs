@@ -47,6 +47,9 @@ public interface IAgentExecutionTraceRecorder
     /// <param name="completionTemperature">Temperature sent to the provider for this call (TB-033).</param>
     /// <param name="maxCompletionTokens">Max output tokens sent to the provider (TB-033).</param>
     /// <param name="completionTopP">Top-p sent to the provider when configured (TB-033).</param>
+    /// <param name="attemptIndex">
+    ///     Zero-based schema-remediation attempt index for this task (TB-035). Defaults to <c>0</c> for non-remediation traces.
+    /// </param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -70,5 +73,6 @@ public interface IAgentExecutionTraceRecorder
         float? completionTemperature = null,
         int? maxCompletionTokens = null,
         float? completionTopP = null,
+        int attemptIndex = 0,
         CancellationToken cancellationToken = default);
 }

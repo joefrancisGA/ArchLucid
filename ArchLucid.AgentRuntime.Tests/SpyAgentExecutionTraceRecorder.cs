@@ -36,6 +36,7 @@ public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorde
         float? completionTemperature = null,
         int? maxCompletionTokens = null,
         float? completionTopP = null,
+        int attemptIndex = 0,
         CancellationToken cancellationToken = default)
     {
         Calls.Add(

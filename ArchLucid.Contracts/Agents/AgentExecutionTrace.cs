@@ -334,4 +334,15 @@ public sealed class AgentExecutionTrace
         get;
         set;
     }
+
+    /// <summary>
+    ///     Zero-based schema-remediation attempt index for this <see cref="RunId" /> + <see cref="TaskId" /> +
+    ///     <see cref="AgentType" /> tuple (TB-035). Attempt <c>0</c> is the first completion; intermediate failures and the
+    ///     final success each persist as distinct rows keyed by this index.
+    /// </summary>
+    public int AttemptIndex
+    {
+        get;
+        set;
+    }
 }

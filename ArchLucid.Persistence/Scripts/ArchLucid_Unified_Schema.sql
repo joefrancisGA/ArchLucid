@@ -226,6 +226,11 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ProvenanceCorrelationId') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD ProvenanceCorrelationId NVARCHAR(260) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'AttemptIndex') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD AttemptIndex INT NOT NULL
+            CONSTRAINT DF_AgentExecutionTraces_AttemptIndex DEFAULT (0);
+END;
 END
 
 GO
@@ -2365,28 +2370,23 @@ END;
 
 GO
 
-/* TB-044: canonical AgentExecutionTrace per (RunId, TaskId, AgentType). */
+/* TB-035: schema-remediation attempt traces keyed by AttemptIndex (supersedes TB-044 single-row index). */
 IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
 BEGIN
-    ;WITH ranked AS (
-        SELECT TraceId,
-               ROW_NUMBER() OVER (
-                   PARTITION BY RunId, TaskId, AgentType
-                   ORDER BY CreatedUtc DESC, TraceId DESC) AS rn
-        FROM dbo.AgentExecutionTraces
-    )
-    DELETE t
-    FROM dbo.AgentExecutionTraces AS t
-    INNER JOIN ranked AS r ON r.TraceId = t.TraceId
-    WHERE r.rn > 1;
-
-    IF NOT EXISTS (
+    IF EXISTS (
         SELECT 1
         FROM sys.indexes
         WHERE name = N'UX_AgentExecutionTraces_RunId_TaskId_AgentType'
           AND object_id = OBJECT_ID(N'dbo.AgentExecutionTraces'))
-        CREATE UNIQUE INDEX UX_AgentExecutionTraces_RunId_TaskId_AgentType
-            ON dbo.AgentExecutionTraces (RunId, TaskId, AgentType);
+        DROP INDEX UX_AgentExecutionTraces_RunId_TaskId_AgentType ON dbo.AgentExecutionTraces;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'UX_AgentExecutionTraces_RunId_TaskId_AgentType_AttemptIndex'
+          AND object_id = OBJECT_ID(N'dbo.AgentExecutionTraces'))
+        CREATE UNIQUE INDEX UX_AgentExecutionTraces_RunId_TaskId_AgentType_AttemptIndex
+            ON dbo.AgentExecutionTraces (RunId, TaskId, AgentType, AttemptIndex);
 END;
 
 GO

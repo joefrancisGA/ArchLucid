@@ -1,35 +1,13 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime.Tests.Support;
 
-/// <summary>Captures the most recent <see cref="IAgentExecutionTraceRecorder.RecordAsync" /> invocation for assertions.</summary>
-public sealed class CapturingAgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
+/// <summary>Captures every <see cref="IAgentExecutionTraceRecorder.RecordAsync" /> invocation in order.</summary>
+public sealed class ListCapturingAgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
 {
-    public sealed record CapturedTraceCall(
-        string RunId,
-        string TaskId,
-        AgentType AgentType,
-        string SystemPrompt,
-        string UserPrompt,
-        string RawResponse,
-        string? ParsedResultJson,
-        bool ParseSucceeded,
-        string? ErrorMessage,
-        AgentPromptReproMetadata? PromptRepro,
-        int? InputTokenCount,
-        int? OutputTokenCount,
-        int? ReasoningTokenCount,
-        string? ModelDeploymentName,
-        string? ModelVersion,
-        bool IsSimulatorExecution,
-        string? FailureReasonCode,
-        int AttemptIndex);
-
-    public CapturedTraceCall? LastCall { get; private set; }
-
-    public int CallCount { get; private set; }
+    public List<CapturingAgentExecutionTraceRecorder.CapturedTraceCall> Calls { get; } = [];
 
     public Task RecordAsync(
         string runId,
@@ -55,8 +33,7 @@ public sealed class CapturingAgentExecutionTraceRecorder : IAgentExecutionTraceR
         int attemptIndex = 0,
         CancellationToken cancellationToken = default)
     {
-        CallCount++;
-        LastCall = new CapturedTraceCall(
+        Calls.Add(new CapturingAgentExecutionTraceRecorder.CapturedTraceCall(
             runId,
             taskId,
             agentType,
@@ -74,7 +51,7 @@ public sealed class CapturingAgentExecutionTraceRecorder : IAgentExecutionTraceR
             modelVersion,
             isSimulatorExecution,
             failureReasonCode,
-            attemptIndex);
+            attemptIndex));
 
         return Task.CompletedTask;
     }

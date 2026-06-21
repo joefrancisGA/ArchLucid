@@ -27,6 +27,7 @@ public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
         float? completionTemperature = null,
         int? maxCompletionTokens = null,
         float? completionTopP = null,
+        int attemptIndex = 0,
         CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;

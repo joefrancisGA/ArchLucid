@@ -109,6 +109,7 @@ public sealed class AgentHandlerDegradedTraceRecorderTests
             float? completionTemperature = null,
             int? maxCompletionTokens = null,
             float? completionTopP = null,
+            int attemptIndex = 0,
             CancellationToken cancellationToken = default)
         {
             throw new InvalidOperationException("trace insert failed");

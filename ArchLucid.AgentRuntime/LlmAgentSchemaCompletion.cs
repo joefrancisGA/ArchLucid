@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -16,6 +17,11 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public static class LlmAgentSchemaCompletion
 {
+    private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true
+    };
+
     /// <summary>
     ///     Calls <paramref name="completionClient" />; on schema violations, JSON parse failures, or post-parse validation
     ///     errors retries with remediation text until attempts are exhausted or output validates.
@@ -32,6 +38,8 @@ public static class LlmAgentSchemaCompletion
         int? maxTokensOverride = null,
         IAgentCompletionClient? remediationCompletionClient = null,
         ILogger? logger = null,
+        IAgentExecutionTraceRecorder? traceRecorder = null,
+        AgentPromptReproMetadata? promptRepro = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(completionClient);
@@ -84,10 +92,43 @@ public static class LlmAgentSchemaCompletion
                         schemaRetryCount);
                 }
 
+                string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
+
+                await AgentSchemaRemediationTraceSupport
+                    .RecordAttemptAsync(
+                        traceRecorder,
+                        attemptIndex,
+                        runId,
+                        taskId,
+                        agentType,
+                        systemPrompt,
+                        userPrompt,
+                        rawJson,
+                        parseSucceeded: true,
+                        errorMessage: null,
+                        promptRepro,
+                        parsedJson,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
                 return (rawJson, parsed);
             }
             catch (AgentResultSchemaViolationException ex)
             {
+                await PersistFailedAttemptAsync(
+                    traceRecorder,
+                    attemptIndex,
+                    runId,
+                    taskId,
+                    agentType,
+                    systemPrompt,
+                    userPrompt,
+                    rawJson,
+                    ex.Message,
+                    promptRepro,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+
                 if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
@@ -98,6 +139,20 @@ public static class LlmAgentSchemaCompletion
             }
             catch (AgentResultValidationException ex)
             {
+                await PersistFailedAttemptAsync(
+                    traceRecorder,
+                    attemptIndex,
+                    runId,
+                    taskId,
+                    agentType,
+                    systemPrompt,
+                    userPrompt,
+                    rawJson,
+                    ex.Message,
+                    promptRepro,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+
                 if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
@@ -106,15 +161,31 @@ public static class LlmAgentSchemaCompletion
 
                 lastRemediation = RemediationState.FromPlainDetail(ex.Message);
             }
-            catch (InvalidOperationException ex) when (IsRetryableAgentResultParseFailure(ex))
+            catch (InvalidOperationException ex) when (AgentSchemaRemediationTraceSupport.IsRetryableAgentResultParseFailure(ex))
             {
+                string detail = AgentSchemaRemediationTraceSupport.BuildParseFailureDetail(ex);
+
+                await PersistFailedAttemptAsync(
+                    traceRecorder,
+                    attemptIndex,
+                    runId,
+                    taskId,
+                    agentType,
+                    systemPrompt,
+                    userPrompt,
+                    rawJson,
+                    detail,
+                    promptRepro,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+
                 if (!MoreAttemptsRemain(attemptIndex, maxAttempts))
                     throw;
 
                 schemaRetryCount++;
                 ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentTypeLabel);
 
-                lastRemediation = RemediationState.FromPlainDetail(BuildParseFailureDetail(ex));
+                lastRemediation = RemediationState.FromPlainDetail(detail);
             }
         }
 
@@ -122,39 +193,40 @@ public static class LlmAgentSchemaCompletion
             $"Unexpected exit from agent schema completion loop ({agentType}, maxAttempts={maxAttempts}).");
     }
 
+    private static async Task PersistFailedAttemptAsync(
+        IAgentExecutionTraceRecorder? traceRecorder,
+        int attemptIndex,
+        string runId,
+        string taskId,
+        AgentType agentType,
+        string systemPrompt,
+        string userPrompt,
+        string rawJson,
+        string errorMessage,
+        AgentPromptReproMetadata? promptRepro,
+        CancellationToken cancellationToken)
+    {
+        await AgentSchemaRemediationTraceSupport
+            .RecordAttemptAsync(
+                traceRecorder,
+                attemptIndex,
+                runId,
+                taskId,
+                agentType,
+                systemPrompt,
+                userPrompt,
+                rawJson,
+                parseSucceeded: false,
+                errorMessage,
+                promptRepro,
+                parsedResultJson: null,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     private static bool MoreAttemptsRemain(int attemptIndex, int maxAttempts)
     {
         return attemptIndex < maxAttempts - 1;
-    }
-
-    private static bool IsRetryableAgentResultParseFailure(InvalidOperationException ex)
-    {
-        if (ex.InnerException is System.Text.Json.JsonException)
-            return true;
-
-        string msg = ex.Message;
-
-        if (msg.Contains("empty JSON", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (msg.Contains("null AgentResult", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (msg.Contains("deserialize AgentResult", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (msg.Contains("unsupported type mapping", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
-    }
-
-    private static string BuildParseFailureDetail(InvalidOperationException ex)
-    {
-        if (ex.InnerException is System.Text.Json.JsonException jx)
-            return "JSON parse error: " + jx.Message.Trim();
-
-        return ex.Message.Trim();
     }
 
     private static string BuildUserPrompt(string baseUserPrompt, RemediationState? remediation)

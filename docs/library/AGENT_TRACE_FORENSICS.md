@@ -123,7 +123,7 @@ Replay completeness audit (2026-05-26) — decision lineage lives in **`ArchLuci
 |-----|---------|
 | Sampling params + reasoning token count not on trace row | **TB-033** |
 | Degraded handler writes no trace | **TB-034** |
-| Schema-remediation intermediate attempts not persisted | **TB-035** |
+| Schema-remediation intermediate attempts not persisted | **TB-035** — **Done (2026-06-21):** `AttemptIndex` on `AgentExecutionTraces`; `LlmAgentSchemaCompletion` persists each failed/success attempt via `AgentSchemaRemediationTraceSupport`; unique index `(RunId, TaskId, AgentType, AttemptIndex)`. |
 | Provenance graph not linked to trace IDs | **TB-036** |
 | `DecisionProvenanceSnapshot` not written in production | **TB-037** |
 | Retrieval grounding: query/scores/document IDs; non-Compliance agents | **TB-038** / **RAG-V1-006** — **partial (2026-05-27 Batch A):** enriched `dbo.RetrievalGroundingTrace` columns, Compliance writer + fail-open empty trace, finding evidence-chain forensic pointers |

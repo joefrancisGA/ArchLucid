@@ -44,6 +44,7 @@ internal sealed class GoldenCohortDriftTokenRecorder : IAgentExecutionTraceRecor
         float? completionTemperature = null,
         int? maxCompletionTokens = null,
         float? completionTopP = null,
+        int attemptIndex = 0,
         CancellationToken cancellationToken = default)
     {
         _ = runId;

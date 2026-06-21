@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -178,5 +179,46 @@ public sealed class LlmAgentSchemaCompletionTests
                 It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()),
             Times.AtLeastOnce());
+    }
+
+    [Fact]
+    public async Task CompleteAsync_two_failures_then_success_persists_three_attempt_traces()
+    {
+        Mock<IAgentCompletionClient> completion = new();
+        ListCapturingAgentExecutionTraceRecorder traceRecorder = new();
+
+        completion
+            .SetupSequence(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{ not valid json")
+            .ReturnsAsync("{ still bad")
+            .ReturnsAsync(ValidTopologyJson);
+
+        AgentResultParser parser = new();
+
+        IOptionsMonitor<AgentSchemaRemediationOptions> remediation =
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(maxCompletionAttempts: 3);
+
+        (string _, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
+            completion.Object,
+            parser,
+            remediation,
+            AgentType.Topology,
+            "run1",
+            "task1",
+            "sys",
+            "user base",
+            traceRecorder: traceRecorder,
+            cancellationToken: CancellationToken.None);
+
+        parsed.ResultId.Should().Be("res1");
+        traceRecorder.Calls.Should().HaveCount(3);
+        traceRecorder.Calls[0].ParseSucceeded.Should().BeFalse();
+        traceRecorder.Calls[0].AttemptIndex.Should().Be(0);
+        traceRecorder.Calls[0].FailureReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.SchemaRemediationParseFailed);
+        traceRecorder.Calls[1].ParseSucceeded.Should().BeFalse();
+        traceRecorder.Calls[1].AttemptIndex.Should().Be(1);
+        traceRecorder.Calls[2].ParseSucceeded.Should().BeTrue();
+        traceRecorder.Calls[2].AttemptIndex.Should().Be(2);
+        traceRecorder.Calls[2].FailureReasonCode.Should().BeNull();
     }
 }

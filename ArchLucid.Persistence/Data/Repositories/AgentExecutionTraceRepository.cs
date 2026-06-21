@@ -25,10 +25,17 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentNullException.ThrowIfNull(trace);
 
-        const string deleteSql = """
-                                 DELETE FROM AgentExecutionTraces
-                                 WHERE RunId = @RunId AND TaskId = @TaskId AND AgentType = @AgentType;
-                                 """;
+        const string deleteSameAttemptSql = """
+                                            DELETE FROM AgentExecutionTraces
+                                            WHERE RunId = @RunId AND TaskId = @TaskId AND AgentType = @AgentType
+                                              AND AttemptIndex = @AttemptIndex;
+                                            """;
+
+        const string deleteLaterAttemptsSql = """
+                                              DELETE FROM AgentExecutionTraces
+                                              WHERE RunId = @RunId AND TaskId = @TaskId AND AgentType = @AgentType
+                                                AND AttemptIndex > @AttemptIndex;
+                                              """;
 
         const string sql = """
                            INSERT INTO AgentExecutionTraces
@@ -71,14 +78,25 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        object scopeArgs = new
+        {
+            RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
+            trace.TaskId,
+            AgentType = trace.AgentType.ToString(),
+            trace.AttemptIndex
+        };
+
+        if (trace.AttemptIndex == 0)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(
+                deleteLaterAttemptsSql,
+                scopeArgs,
+                cancellationToken: cancellationToken));
+        }
+
         await connection.ExecuteAsync(new CommandDefinition(
-            deleteSql,
-            new
-            {
-                RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
-                trace.TaskId,
-                AgentType = trace.AgentType.ToString()
-            },
+            deleteSameAttemptSql,
+            scopeArgs,
             cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(

@@ -23,4 +23,10 @@ public static class AgentExecutionTraceFailureReasonCodes
 
     /// <summary>Request content failed the deterministic prompt-injection precheck before execute (TB-325).</summary>
     public const string PromptInjectionDetected = nameof(PromptInjectionDetected);
+
+    /// <summary>
+    ///     Structured-output parse or schema validation failed on a schema-remediation attempt (TB-035); a later attempt may
+    ///     succeed.
+    /// </summary>
+    public const string SchemaRemediationParseFailed = nameof(SchemaRemediationParseFailed);
 }

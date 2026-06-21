@@ -23,10 +23,21 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
 
         lock (_gate)
         {
-            _items.RemoveAll(t =>
-                string.Equals(t.RunId, trace.RunId, StringComparison.Ordinal)
-                && string.Equals(t.TaskId, trace.TaskId, StringComparison.Ordinal)
-                && t.AgentType == trace.AgentType);
+            if (trace.AttemptIndex == 0)
+            {
+                _items.RemoveAll(t =>
+                    string.Equals(t.RunId, trace.RunId, StringComparison.Ordinal)
+                    && string.Equals(t.TaskId, trace.TaskId, StringComparison.Ordinal)
+                    && t.AgentType == trace.AgentType);
+            }
+            else
+            {
+                _items.RemoveAll(t =>
+                    string.Equals(t.RunId, trace.RunId, StringComparison.Ordinal)
+                    && string.Equals(t.TaskId, trace.TaskId, StringComparison.Ordinal)
+                    && t.AgentType == trace.AgentType
+                    && t.AttemptIndex == trace.AttemptIndex);
+            }
 
             _items.Add(Clone(trace));
         }

@@ -107,6 +107,7 @@ public sealed class AgentExecutionTraceRecorder(
         float? completionTemperature = null,
         int? maxCompletionTokens = null,
         float? completionTopP = null,
+        int attemptIndex = 0,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -176,6 +177,7 @@ public sealed class AgentExecutionTraceRecorder(
             TaskId = taskId,
             AgentType = agentType,
             ProvenanceCorrelationId = AgentProvenanceCorrelationId.Format(runId, taskId, agentType),
+            AttemptIndex = attemptIndex,
             SystemPrompt = Truncate(storeSystem, MaxContentLength),
             UserPrompt = Truncate(storeUser, MaxContentLength),
             RawResponse = Truncate(storeRaw, MaxContentLength),

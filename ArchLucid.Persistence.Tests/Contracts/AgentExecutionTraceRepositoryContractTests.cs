@@ -82,6 +82,34 @@ public abstract class AgentExecutionTraceRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task CreateAsync_persists_multiple_attempt_indexes_for_same_task()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-attempt-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-attempt");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-0", TimeProvider.System.UtcNowDateTime().AddMinutes(-2), attemptIndex: 0, parseSucceeded: false),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-1", TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 1, parseSucceeded: false),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "attempt-2", TimeProvider.System.UtcNowDateTime(), attemptIndex: 2, parseSucceeded: true),
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> forTask = await repo.GetByTaskIdAsync(task.TaskId, CancellationToken.None);
+
+        forTask.Should().HaveCount(3);
+        forTask.Select(static t => t.AttemptIndex).Should().Equal(0, 1, 2);
+        forTask.Single(static t => t.AttemptIndex == 2).ParseSucceeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
     public async Task GetPagedByRunIdAsync_returns_slice_and_total()
     {
         SkipIfSqlServerUnavailable();
@@ -421,7 +449,9 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         string traceId,
         DateTime createdUtc,
         AgentType agentType = AgentType.Topology,
-        string? modelDeploymentName = null)
+        string? modelDeploymentName = null,
+        int attemptIndex = 0,
+        bool parseSucceeded = true)
     {
         return new AgentExecutionTrace
         {
@@ -429,7 +459,8 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             RunId = runId,
             TaskId = taskId,
             AgentType = agentType,
-            ParseSucceeded = true,
+            AttemptIndex = attemptIndex,
+            ParseSucceeded = parseSucceeded,
             CreatedUtc = createdUtc,
             ModelDeploymentName = modelDeploymentName
         };

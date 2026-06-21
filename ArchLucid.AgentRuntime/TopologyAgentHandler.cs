@@ -102,32 +102,11 @@ public sealed class TopologyAgentHandler(
                 request.MaxTokensOverride,
                 remediationClient,
                 _logger,
+                traceRecorder,
+                promptRepro,
                 cancellationToken);
 
             lastCompletionJson = rawJson;
-
-            string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
-
-            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
-            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
-
-            await traceRecorder.RecordAsync(
-                runId,
-                task.TaskId,
-                AgentType.Topology,
-                systemPrompt,
-                baseUserPrompt,
-                rawJson,
-                parsedJson,
-                true,
-                null,
-                promptRepro,
-                inTok,
-                outTok,
-                reasoningTok,
-                modelDeploy,
-                modelVer,
-                cancellationToken: cancellationToken);
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
             AgentResultFindingEnforcementTierApplier.Apply(parsed);
@@ -150,24 +129,27 @@ public sealed class TopologyAgentHandler(
                     modelDeploy,
                     modelVer);
 
-            await traceRecorder.RecordAsync(
-                runId,
-                task.TaskId,
-                AgentType.Topology,
-                systemPrompt,
-                baseUserPrompt,
-                lastCompletionJson,
-                null,
-                false,
-                ex.Message,
-                promptRepro,
-                inTok,
-                outTok,
-                reasoningTok,
-                modelDeploy,
-                modelVer,
-                failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
-                cancellationToken: cancellationToken);
+            if (!AgentSchemaRemediationTraceSupport.ShouldSkipHandlerFailureTrace(ex))
+            {
+                await traceRecorder.RecordAsync(
+                    runId,
+                    task.TaskId,
+                    AgentType.Topology,
+                    systemPrompt,
+                    baseUserPrompt,
+                    lastCompletionJson,
+                    null,
+                    false,
+                    ex.Message,
+                    promptRepro,
+                    inTok,
+                    outTok,
+                    reasoningTok,
+                    modelDeploy,
+                    modelVer,
+                    failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
+                    cancellationToken: cancellationToken);
+            }
 
             throw;
         }

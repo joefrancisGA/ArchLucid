@@ -525,6 +525,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             float? completionTemperature = null,
             int? maxCompletionTokens = null,
             float? completionTopP = null,
+            int attemptIndex = 0,
             CancellationToken cancellationToken = default)
         {
             RawResponses.Add(rawResponse);

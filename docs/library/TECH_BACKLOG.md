@@ -2595,6 +2595,8 @@ Degraded paths emit **`archlucid_agent_handler_degradations_total`** and activit
 
 ## TB-035 ? Persist intermediate LLM attempts on schema-remediation retries
 
+**Status:** **Done (2026-06-21 batch tb035-schema-remediation-traces)** ? Option A child rows with `AttemptIndex`; `LlmAgentSchemaCompletion` + `AgentSchemaRemediationTraceSupport`; migration **250**; `test_traceability_batch_tb035.py` drift guard.
+
 **Source:** Replay / provenance completeness audit (2026-05-26). `LlmAgentSchemaCompletion` retries JSON parse / schema validation failures before surfacing error to the handler.
 
 **Problem:**
