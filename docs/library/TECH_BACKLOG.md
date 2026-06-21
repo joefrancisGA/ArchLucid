@@ -2706,6 +2706,8 @@ See **RAG-V1-006** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL
 
 ## TB-039 ? Agent execute retry ? per-`(RunId, TaskId)` skip before handler dispatch
 
+**Status:** **Done (2026-06-21 batch tb039-execute-idempotent-skip)** ? `AgentExecuteIdempotentResultPolicy` in Contracts; `RealAgentExecutor` per-task skip + OTel counter; orchestrator completeness aligned with policy; `test_traceability_batch_tb039.py` drift guard.
+
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `ArchitectureRunExecuteOrchestrator.TryReturnExistingExecuteResultsAsync` skips idempotent early return when stored results are incomplete vs scheduled tasks.
 
 **Problem:**

@@ -709,18 +709,23 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(tasks);
         ArgumentNullException.ThrowIfNull(existingResults);
 
-        if (tasks.Count == 0 || existingResults.Count != tasks.Count)
+        if (tasks.Count == 0)
             return false;
 
-        HashSet<string> outstanding = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AgentResult> latestByTaskId = existingResults
+            .GroupBy(static result => result.TaskId, StringComparer.Ordinal)
+            .ToDictionary(static group => group.Key, static group => group.Last(), StringComparer.Ordinal);
 
-        if (outstanding.Count != tasks.Count)
-            return false;
+        foreach (AgentTask task in tasks)
+        {
+            if (!latestByTaskId.TryGetValue(task.TaskId, out AgentResult? persisted)
+                || !AgentExecuteIdempotentResultPolicy.ShouldSkipRetry(persisted, out _))
+            {
+                return false;
+            }
+        }
 
-        if (existingResults.Any(result => !outstanding.Remove(result.TaskId)))
-            return false;
-
-        return outstanding.Count == 0;
+        return true;
     }
 
     private async Task PersistPartialExecutePhaseAsync(

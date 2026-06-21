@@ -1,10 +1,8 @@
-using ArchLucid.Contracts.Agents;
-
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 ///     Decides whether an execute retry should skip handler dispatch for a task that already has a persisted
-///     <see cref="AgentResult" /> (Improvement #1 / TB-039).
+///     <see cref="AgentResult" /> (TB-039).
 /// </summary>
 public static class AgentExecuteIdempotentResultPolicy
 {

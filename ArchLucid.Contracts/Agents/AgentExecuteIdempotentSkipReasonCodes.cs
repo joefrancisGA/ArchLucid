@@ -1,4 +1,4 @@
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>Metric label values for <see cref="AgentExecuteIdempotentResultPolicy" /> skip decisions.</summary>
 public static class AgentExecuteIdempotentSkipReasonCodes
