@@ -2,7 +2,7 @@
  * Central dictionary for operator-facing domain terms and reusable UI labels.
  * @see docs/assessments/LATEST.md — simplify abstract nomenclature without hunting literals in components.
  */
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 
 export const DOMAIN_TERMS = {
   goldenManifest: "Signed review record",
@@ -125,7 +125,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   pilotBaselines: "ROI baselines",
-  scorecard: "Scorecard",
+  scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
   policyPacks: "Policy packs",
   governanceResolution: "Governance resolution",
@@ -141,10 +141,10 @@ export const OPERATOR_NAV_LINK_LABELS = {
   searchEvidence: "Search review evidence",
   architectureAdvisory: "Architecture advisory",
   recommendationTuning: "Recommendation tuning",
-  pilotFeedback: "Pilot feedback",
+  pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,
   planning: "Planning",
   evolutionCandidates: "Evolution candidates",
-  pilotValueReport: "Pilot value report",
+  pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
   connectorOperations: "Connector operations",
   systemHealth: "System health",

@@ -1,5 +1,6 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -51,7 +52,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   search: "Search",
   advisory: "Advisory",
   "recommendation-learning": "Learning",
-  "product-learning": "Pilot feedback",
+  "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Planning",
   "evolution-review": "Simulation review",
   "advisory-scheduling": "Schedules",
@@ -72,7 +73,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   manifests: "Manifests",
   provenance: "Evidence provenance",
   "value-report": "Value report",
-  pilot: "Pilot report",
+  pilot: BUYER_TERMINOLOGY.evaluationValueReport,
   roi: "ROI summary",
   "approval-requests": "Approval requests",
   lineage: "Lineage",
@@ -358,6 +359,10 @@ function labelForSegment(
 ): string {
   const prev = index > 0 ? allSegments[index - 1] : "";
   const buyer = options?.buyerPolishedShell === true;
+
+  if (segment === "dashboard" && prev === "governance") {
+    return BUYER_TERMINOLOGY.governanceDashboard;
+  }
 
   if (buyer && segment === "inspect") {
     return "Evidence trace";

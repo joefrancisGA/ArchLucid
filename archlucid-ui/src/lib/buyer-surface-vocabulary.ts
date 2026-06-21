@@ -17,6 +17,15 @@ export const BUYER_SURFACE_VOCABULARY = {
   finalizedSignedManifestRecord: "Signed review record",
 } as const;
 
+/** Buyer-facing replacements for legacy pilot/internal product language. */
+export const BUYER_TERMINOLOGY = {
+  evaluationFeedback: "Evaluation feedback",
+  evaluationValueReport: "Evaluation value report",
+  reviewScorecard: "Review scorecard",
+  governanceDashboard: "Governance dashboard",
+  portfolioOverview: "Portfolio overview",
+} as const;
+
 /**
  * Canonical `/dashboard` executive summary copy — import here instead of repeating literals so breadcrumbs,
  * metadata, Ask grounding, and KPI cards stay aligned.
