@@ -27,7 +27,7 @@ export function MarketingProofChainStrip(): ReactElement {
         {PROOF_CHAIN_STEPS.map((step, index) => (
           <li key={step} className="flex items-center gap-2">
             <span className="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
-              {index + 1}. {step}
+              {`${index + 1}. ${step}`}
             </span>
             {index < PROOF_CHAIN_STEPS.length - 1 ? (
               <span className="text-xs font-medium text-neutral-400 dark:text-neutral-500" aria-hidden>

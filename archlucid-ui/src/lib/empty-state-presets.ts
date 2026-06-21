@@ -52,13 +52,12 @@ export const GRAPH_IDLE: EmptyStateProps = {
 /** Buyer-polished graph idle: no runId/query jargon or signed-manifest shortcut. */
 export const GRAPH_IDLE_BUYER: EmptyStateProps = {
   icon: Network,
-  title: "No review selected",
-  description:
-    "Start a review or open the Claims Intake sample package to inspect its evidence trail.",
+  title: "No review package selected",
+  description: "Start a review or load the sample workspace to view an evidence graph.",
   actions: [
     { label: "Start review", href: "/reviews/new" },
     {
-      label: "Open sample trail",
+      label: "Load sample workspace",
       href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
       variant: "outline" as const,
     },

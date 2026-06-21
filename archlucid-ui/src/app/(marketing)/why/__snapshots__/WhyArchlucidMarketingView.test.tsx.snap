@@ -42,9 +42,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           <span
             class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
           >
-            1
-            . 
-            Evidence
+            1. Evidence
           </span>
           <span
             aria-hidden="true"
@@ -59,9 +57,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           <span
             class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
           >
-            2
-            . 
-            Finding
+            2. Finding
           </span>
           <span
             aria-hidden="true"
@@ -76,9 +72,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           <span
             class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
           >
-            3
-            . 
-             Review record
+            3. Review record
           </span>
           <span
             aria-hidden="true"
@@ -93,9 +87,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           <span
             class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
           >
-            4
-            . 
-            Artifact
+            4. Artifact
           </span>
           <span
             aria-hidden="true"
@@ -110,9 +102,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           <span
             class="inline-flex rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
           >
-            5
-            . 
-            Audit
+            5. Audit
           </span>
         </li>
       </ol>
@@ -179,7 +169,6 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           
            Committed signed review record in SQL with review record id and audit trail
         </p>
         <p
@@ -190,7 +179,6 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           
            Chat transcript — no durable review record tied to your tenant
         </p>
       </li>
@@ -210,7 +198,6 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           
            Optional pre-commit gate blocks policy violations before the review record is canonical
         </p>
         <p
@@ -221,8 +208,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           
-          No commit boundary — advice is not gated against your policy packs
+           No commit boundary — advice is not gated against your policy packs
         </p>
       </li>
       <li
@@ -241,8 +227,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           
-          Evidence refs and explainability traces on structured findings
+           Evidence refs and explainability traces on structured findings
         </p>
         <p
           class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
@@ -252,8 +237,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           
-          Hallucination risk without persisted evidence linkage
+           Hallucination risk without persisted evidence linkage
         </p>
       </li>
       <li
@@ -272,8 +256,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           
-          Repeatable sponsor packet and labeled ROI basis (buyer-provided / demo / not collected)
+           Repeatable sponsor packet and labeled ROI basis (buyer-provided / demo / not collected)
         </p>
         <p
           class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
@@ -283,8 +266,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           
-          Copy-paste from a session — not a bounded export package
+           Copy-paste from a session — not a bounded export package
         </p>
       </li>
       <li
@@ -303,8 +285,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           
-          Typed AuditEvents with correlation ids for mutating API work
+           Typed AuditEvents with correlation ids for mutating API work
         </p>
         <p
           class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
@@ -314,8 +295,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             Typical chat:
           </span>
-           
-          No enterprise audit ledger for architecture review decisions
+           No enterprise audit ledger for architecture review decisions
         </p>
       </li>
     </ul>
@@ -464,7 +444,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-               Committed review records, segregation-of-duty gates, typed audit envelopes, and replay/export paths aligned to architecture review packs.
+              Committed review records, segregation-of-duty gates, typed audit envelopes, and replay/export paths aligned to architecture review packs.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -474,7 +454,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
-               Typical fit: interactive Q&A — not a governed package with finalized signed review record lineage by default.
+              Typical fit: interactive Q&A — not a governed package with finalized signed review record lineage by default.
             </td>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -639,7 +619,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-               Every commit produces a versioned, immutable review record
+              Every commit produces a versioned, immutable review record
             </th>
             <td
               class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"

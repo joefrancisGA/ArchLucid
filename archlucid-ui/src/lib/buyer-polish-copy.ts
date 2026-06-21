@@ -660,10 +660,10 @@ export const BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON = "Open sample review package";
 
 export const BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE = "Open review package";
 
-export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review selected";
+export const BUYER_EVIDENCE_TRAIL_EMPTY_TITLE = "No review package selected";
 
 export const BUYER_EVIDENCE_TRAIL_EMPTY_BODY =
-  "Start a review or open the Claims Intake sample review package to explore its evidence graph.";
+  "Start a review or load the sample workspace to view an evidence graph.";
 
 export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No review packages yet";
 

@@ -24,7 +24,7 @@ describe("resolveGraphIdleEmptyPreset", () => {
     });
 
     expect(preset.title).toBe(GRAPH_IDLE_BUYER.title);
-    expect(preset.title).toBe("No review selected");
+    expect(preset.title).toBe("No review package selected");
     expect(preset.description).toBe(GRAPH_IDLE_BUYER.description);
     expect(preset.actions).toEqual(GRAPH_IDLE_BUYER.actions);
   });
@@ -36,8 +36,8 @@ describe("resolveGraphIdleEmptyPreset", () => {
       showIdleCard: true,
     });
 
-    expect(preset.title).toBe("No reviews yet");
+    expect(preset.title).toBe("No review packages yet");
     expect(preset.actions?.[0]?.label).toBe("Start review");
-    expect(preset.actions?.[1]?.label).toBe("Open sample trail");
+    expect(preset.actions?.[1]?.label).toBe("Open sample review package");
   });
 });

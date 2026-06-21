@@ -109,10 +109,12 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
             >
               <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">{point.label}</p>
               <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">
-                <span className="font-medium text-teal-800 dark:text-teal-300">ArchLucid:</span> {point.archlucid}
+                <span className="font-medium text-teal-800 dark:text-teal-300">ArchLucid:</span>
+                {` ${point.archlucid}`}
               </p>
               <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
-                <span className="font-medium">Typical chat:</span> {point.genericAi}
+                <span className="font-medium">Typical chat:</span>
+                {` ${point.genericAi}`}
               </p>
             </li>
           ))}
