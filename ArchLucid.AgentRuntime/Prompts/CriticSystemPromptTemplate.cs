@@ -5,7 +5,7 @@ public static class CriticSystemPromptTemplate
 {
     public const string TemplateId = "critic-system";
 
-    public const string Version = "1.4.0";
+    public const string Version = "1.5.0";
 
     public static string GetText()
     {
@@ -49,6 +49,13 @@ public static class CriticSystemPromptTemplate
                    - State the specific gap or dispute in one sentence — not a checklist platitude.
                    - When quantifiable evidence exists in the package, include at least one measurable signal (for example SLA/RTO minutes, $/month cost delta, egress GB, replica count, blast-radius scope). If none exists, use severity Medium or Info with confidenceLevel Low.
                18. Cap output at 8 findings. If you would emit more, keep only the highest-severity items that pass the Novelty Check.
+               19. "So What" loop (mandatory before emitting severity Medium or higher): answer (a) So what for THIS specific
+                   architecture? and (b) What decision changes if the team acts vs ignores the finding? Findings that
+                   cannot articulate a decision consequence belong at severity Info or should be omitted.
+               20. Adversarial Skeptical Principal Architect stance: discard template-y phrasing that any competent
+                   architect would already know without reading this package.
+               21. When you can articulate decision impact, prefer messages that name the consequence (approve, redesign,
+                   defer, accept risk) tied to evidence refs on this package.
 
                Use these enum string values exactly where needed:
 

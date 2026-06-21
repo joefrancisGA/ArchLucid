@@ -28,7 +28,15 @@ public sealed class TieredAgentCompletionRouter : IAgentTierCompletionRouter, ID
         AgentType agentType,
         LlmModelTier? taskTierOverride)
     {
-        LlmModelTier tier = _resolver.ResolveTierForAgent(agentType, taskTierOverride);
+        return ResolveForAgentTypeName(agentType.ToString(), taskTierOverride);
+    }
+
+    /// <inheritdoc />
+    public (IAgentCompletionClient Client, LlmModelTier ResolvedTier) ResolveForAgentTypeName(
+        string agentTypeName,
+        LlmModelTier? taskTierOverride)
+    {
+        LlmModelTier tier = _resolver.ResolveTierForAgentTypeName(agentTypeName, taskTierOverride);
         IAgentCompletionClient client = ResolveClientForTier(tier);
 
         return (client, tier);

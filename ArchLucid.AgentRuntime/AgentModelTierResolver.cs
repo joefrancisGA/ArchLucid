@@ -19,15 +19,26 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
     /// <inheritdoc />
     public LlmModelTier ResolveTierForAgent(AgentType agentType, LlmModelTier? taskTierOverride)
     {
-        if (taskTierOverride is { } o)
-            return o;
+        return ResolveTierForAgentTypeName(agentType.ToString(), taskTierOverride);
+    }
+
+    /// <inheritdoc />
+    public LlmModelTier ResolveTierForAgentTypeName(string agentTypeName, LlmModelTier? taskTierOverride)
+    {
+        if (taskTierOverride is { } overrideTier)
+        {
+            return overrideTier;
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(agentTypeName);
 
         AgentModelTierOptions opts = _tierOptions.CurrentValue;
 
-        if (opts.AgentTypeTiers.TryGetValue(agentType.ToString(), out string? mapped)
+        if (opts.AgentTypeTiers.TryGetValue(agentTypeName, out string? mapped)
             && TryParseTier(mapped, out LlmModelTier fromAgent))
+        {
             return fromAgent;
-
+        }
 
         return ResolveDefaultTenantTier();
     }

@@ -15,6 +15,11 @@ public interface IAgentTierCompletionRouter
         AgentType agentType,
         LlmModelTier? taskTierOverride);
 
+    /// <summary>Resolves tier for a named agent key (for example insight-density judge).</summary>
+    (IAgentCompletionClient Client, LlmModelTier ResolvedTier) ResolveForAgentTypeName(
+        string agentTypeName,
+        LlmModelTier? taskTierOverride);
+
     /// <summary>Client for Ask, explanations, and telemetry default (default tenant tier).</summary>
     IAgentCompletionClient DefaultCompletionClient
     {

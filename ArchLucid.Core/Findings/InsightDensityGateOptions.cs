@@ -28,4 +28,14 @@ public sealed class InsightDensityGateOptions
         get;
         set;
     } = 0.70;
+
+    /// <summary>
+    ///     When true and a Premium (Reasoning) deployment is configured, promoted candidates receive a TB-382 Phase 2
+    ///     LLM judgment pass. Default false preserves deterministic-only Phase 1 behavior.
+    /// </summary>
+    public bool EnableLlmJudge
+    {
+        get;
+        set;
+    }
 }

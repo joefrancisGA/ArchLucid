@@ -59,6 +59,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
         services.Configure<InsightDensityGateOptions>(configuration.GetSection(InsightDensityGateOptions.SectionPath));
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
+        services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
 
         RegisterPluginFindingEngines(services, configuration);
 

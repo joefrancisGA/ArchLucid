@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -13,7 +14,8 @@ public static class AgentModelTierDefaults
             ["Topology"] = nameof(LlmModelTier.Economy),
             ["Cost"] = nameof(LlmModelTier.Economy),
             ["Compliance"] = nameof(LlmModelTier.Premium),
-            ["Critic"] = nameof(LlmModelTier.Premium)
+            ["Critic"] = nameof(LlmModelTier.Premium),
+            [InsightDensityJudgeAgentTypeNames.Judge] = nameof(LlmModelTier.Premium)
         };
 
     /// <summary>Applies built-in defaults without overwriting explicit configuration.</summary>

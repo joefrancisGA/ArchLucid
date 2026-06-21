@@ -99,7 +99,8 @@ public sealed class CriticAgentHandlerTests
             audit.Object,
             scopeProvider.Object,
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
-            DeterministicInsightDensityGate.CreateDefault());
+            DeterministicInsightDensityGate.CreateDefault(),
+            NoOpInsightDensityLlmJudge.Instance);
 
         ArchitectureRequest request = new()
         {
@@ -216,7 +217,8 @@ public sealed class CriticAgentHandlerTests
             audit.Object,
             scopeProvider.Object,
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
-            DeterministicInsightDensityGate.CreateDefault());
+            DeterministicInsightDensityGate.CreateDefault(),
+            NoOpInsightDensityLlmJudge.Instance);
 
         ArchitectureRequest request = new()
         {
@@ -333,7 +335,8 @@ public sealed class CriticAgentHandlerTests
             audit.Object,
             scopeProvider.Object,
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
-            DeterministicInsightDensityGate.CreateDefault());
+            DeterministicInsightDensityGate.CreateDefault(),
+            NoOpInsightDensityLlmJudge.Instance);
 
         ArchitectureRequest request = new()
         {

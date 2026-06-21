@@ -36,10 +36,13 @@ public sealed class TieredAgentCompletionRouterTests
     internal sealed class FixedAgentModelTierResolver : IAgentModelTierResolver
     {
         public LlmModelTier ResolveTierForAgent(AgentType agentType, LlmModelTier? taskTierOverride) =>
-            taskTierOverride ?? agentType switch
+            ResolveTierForAgentTypeName(agentType.ToString(), taskTierOverride);
+
+        public LlmModelTier ResolveTierForAgentTypeName(string agentTypeName, LlmModelTier? taskTierOverride) =>
+            taskTierOverride ?? agentTypeName switch
             {
-                AgentType.Topology => LlmModelTier.Premium,
-                AgentType.Critic => LlmModelTier.Premium,
+                nameof(AgentType.Topology) => LlmModelTier.Premium,
+                nameof(AgentType.Critic) => LlmModelTier.Premium,
                 _ => LlmModelTier.Standard
             };
 

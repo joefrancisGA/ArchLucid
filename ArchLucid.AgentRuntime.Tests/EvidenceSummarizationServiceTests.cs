@@ -119,7 +119,18 @@ public sealed class EvidenceSummarizationServiceTests
             AgentType agentType,
             LlmModelTier? taskTierOverride)
         {
-            LastAgentType = agentType;
+            return ResolveForAgentTypeName(agentType.ToString(), taskTierOverride);
+        }
+
+        public (IAgentCompletionClient Client, LlmModelTier ResolvedTier) ResolveForAgentTypeName(
+            string agentTypeName,
+            LlmModelTier? taskTierOverride)
+        {
+            if (Enum.TryParse(agentTypeName, ignoreCase: true, out AgentType agentType))
+            {
+                LastAgentType = agentType;
+            }
+
             LastTierOverride = taskTierOverride;
 
             return (inner, taskTierOverride ?? LlmModelTier.Standard);
@@ -133,6 +144,11 @@ public sealed class EvidenceSummarizationServiceTests
 
         public (IAgentCompletionClient Client, LlmModelTier ResolvedTier) ResolveForAgent(
             AgentType agentType,
+            LlmModelTier? taskTierOverride) =>
+            ResolveForAgentTypeName(agentType.ToString(), taskTierOverride);
+
+        public (IAgentCompletionClient Client, LlmModelTier ResolvedTier) ResolveForAgentTypeName(
+            string agentTypeName,
             LlmModelTier? taskTierOverride) =>
             (DefaultCompletionClient, LlmModelTier.Economy);
     }

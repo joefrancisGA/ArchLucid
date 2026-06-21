@@ -131,7 +131,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             audit.Object,
             scopeProvider.Object,
             schemaRemediation,
-            DeterministicInsightDensityGate.CreateDefault());
+            DeterministicInsightDensityGate.CreateDefault(),
+            NoOpInsightDensityLlmJudge.Instance);
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });

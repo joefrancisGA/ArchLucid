@@ -8,6 +8,9 @@ public interface IAgentModelTierResolver
     /// <summary>Effective tier: task override, then per-agent mapping, then tenant default.</summary>
     LlmModelTier ResolveTierForAgent(AgentType agentType, LlmModelTier? taskTierOverride);
 
+    /// <summary>Effective tier for named agent keys (for example <see cref="Findings.InsightDensityJudgeAgentTypeNames.Judge" />).</summary>
+    LlmModelTier ResolveTierForAgentTypeName(string agentTypeName, LlmModelTier? taskTierOverride);
+
     /// <summary>Configured default tier for non-agent completion paths (Ask, explanations).</summary>
     LlmModelTier ResolveDefaultTenantTier();
 

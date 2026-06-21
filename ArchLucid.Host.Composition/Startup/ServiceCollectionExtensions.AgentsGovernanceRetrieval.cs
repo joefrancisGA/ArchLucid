@@ -9,6 +9,7 @@ using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Prompts.Variants;
 using ArchLucid.AgentRuntime.Tokens;
 using ArchLucid.Contracts.Persistence.Agents.PromptVariants;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
@@ -61,6 +62,7 @@ using ArchLucid.Retrieval.Pricing;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.Summarization;
 
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -382,6 +384,8 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentHandler, CostAgentHandler>();
             services.AddScoped<IAgentHandler, ComplianceAgentHandler>();
             services.AddScoped<IAgentHandler, CriticAgentHandler>();
+            services.RemoveAll<IInsightDensityLlmJudge>();
+            services.AddSingleton<IInsightDensityLlmJudge, PremiumInsightDensityLlmJudge>();
             services.AddScoped<IAgentResultParser, AgentResultParser>();
 
             if (useEchoClient)

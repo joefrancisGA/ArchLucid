@@ -29,11 +29,15 @@ public sealed class CriticAgentHandler(
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
-    IInsightDensityGate insightDensityGate)
+    IInsightDensityGate insightDensityGate,
+    IInsightDensityLlmJudge insightDensityLlmJudge)
     : IAgentHandler
 {
     private readonly IInsightDensityGate _insightDensityGate =
         insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
+
+    private readonly IInsightDensityLlmJudge _insightDensityLlmJudge =
+        insightDensityLlmJudge ?? throw new ArgumentNullException(nameof(insightDensityLlmJudge));
 
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -122,6 +126,9 @@ public sealed class CriticAgentHandler(
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
             CriticFindingConfidenceNormalizer.Apply(parsed);
             CriticFindingObviousnessPruner.Apply(parsed, _insightDensityGate);
+            await _insightDensityLlmJudge
+                .ApplyToArchitectureFindingsAsync(parsed.Findings, evidence, request, cancellationToken)
+                .ConfigureAwait(false);
 
             return parsed;
         }
