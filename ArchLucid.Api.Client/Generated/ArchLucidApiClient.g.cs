@@ -59424,6 +59424,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? CalibratedConfidence { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("checklistCoverage")]
+        public System.Collections.Generic.ICollection<ArchitectureFinding>? ChecklistCoverage { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("citations")]
         public System.Collections.Generic.ICollection<Citation>? Citations { get; set; } = default!;
 
@@ -59448,6 +59451,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("findings")]
         public System.Collections.Generic.ICollection<ArchitectureFinding>? Findings { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("insightDensityCuration")]
+        public InsightDensityCurationSummary? InsightDensityCuration { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("proposedChanges")]
         public AgentTopologyProposal? ProposedChanges { get; set; } = default!;
@@ -68089,6 +68095,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class FindingsSnapshot
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("checklistCoverage")]
+        public System.Collections.Generic.ICollection<Finding>? ChecklistCoverage { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
         public System.Guid? ContextSnapshotId { get; set; } = default!;
 
@@ -68112,6 +68121,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
         public System.Guid? GraphSnapshotId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("insightDensityCuration")]
+        public InsightDensityCurationSummary? InsightDensityCuration { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
@@ -69767,6 +69779,27 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string? Name { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class InsightDensityCurationSummary
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("demotedToChecklistCount")]
+        public int? DemotedToChecklistCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("retainedFindingCount")]
+        public int? RetainedFindingCount { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
