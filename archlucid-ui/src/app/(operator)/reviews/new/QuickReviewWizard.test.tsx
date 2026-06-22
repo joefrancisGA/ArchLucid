@@ -30,6 +30,8 @@ vi.mock("./SocraticIntakeWizard", () => ({
   SocraticIntakeWizard: () => <div data-testid="guided-intake-stub">Guided intake stub</div>,
 }));
 
+import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   QuickReviewWizard,
@@ -70,7 +72,7 @@ describe("QuickReviewWizard", () => {
     const body = createRun.mock.calls[0][0] as { description: string; systemName: string };
     expect(body.description.length).toBeGreaterThanOrEqual(100);
     expect(body.systemName).toBe("Contoso migration slice");
-    expect(push).toHaveBeenCalledWith("/reviews/quick-review-run-1");
+    expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("quick-review-run-1", "quick-review"));
   });
 
   it("blocks Next when brief is under 100 characters", () => {

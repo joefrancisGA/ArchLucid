@@ -4799,6 +4799,19 @@
         },
         "type": "object"
       },
+      "ChatIntakeRequest": {
+        "properties": {
+          "rawText": {
+            "maxLength": 50000,
+            "minLength": 20,
+            "type": "string"
+          }
+        },
+        "required": [
+          "rawText"
+        ],
+        "type": "object"
+      },
       "Citation": {
         "properties": {
           "description": {
@@ -5491,6 +5504,60 @@
         "required": [
           "pageId",
           "pageUrl"
+        ],
+        "type": "object"
+      },
+      "ConnectorIntakeRequest": {
+        "properties": {
+          "description": {
+            "maxLength": 10000,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gitBranch": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gitRepositoryUrl": {
+            "maxLength": 500,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gitTerraformPath": {
+            "maxLength": 500,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "source": {
+            "maxLength": 40,
+            "type": "string"
+          },
+          "systemName": {
+            "maxLength": 200,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "terraformShowJson": {
+            "maxLength": 5000000,
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "source"
         ],
         "type": "object"
       },
@@ -7526,55 +7593,6 @@
         ],
         "type": "object"
       },
-      "ChatIntakeRequest": {
-        "properties": {
-          "rawText": {
-            "maxLength": 50000,
-            "minLength": 20,
-            "type": "string"
-          }
-        },
-        "required": [
-          "rawText"
-        ],
-        "type": "object"
-      },
-      "ConnectorIntakeRequest": {
-        "properties": {
-          "description": {
-            "maxLength": 5000,
-            "type": "string"
-          },
-          "gitBranch": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "gitRepositoryUrl": {
-            "maxLength": 500,
-            "type": "string"
-          },
-          "gitTerraformPath": {
-            "maxLength": 500,
-            "type": "string"
-          },
-          "source": {
-            "maxLength": 40,
-            "type": "string"
-          },
-          "systemName": {
-            "maxLength": 200,
-            "type": "string"
-          },
-          "terraformShowJson": {
-            "maxLength": 5000000,
-            "type": "string"
-          }
-        },
-        "required": [
-          "source"
-        ],
-        "type": "object"
-      },
       "DraftArchitectureRequestResponse": {
         "properties": {
           "securityBaselineHints": {
@@ -7726,50 +7744,6 @@
         },
         "type": "object"
       },
-      "GeneratePolicyPackRequest": {
-        "properties": {
-          "prompt": {
-            "maxLength": 8000,
-            "minLength": 20,
-            "type": "string"
-          }
-        },
-        "required": [
-          "prompt"
-        ],
-        "type": "object"
-      },
-      "GeneratePolicyPackResponse": {
-        "properties": {
-          "curatedRulesDocumentJson": {
-            "type": "string"
-          },
-          "disclaimer": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "HolisticCriticRequest": {
-        "properties": {
-          "focus": {
-            "maxLength": 500,
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "HolisticCriticResponse": {
-        "properties": {
-          "critiqueMarkdown": {
-            "type": "string"
-          },
-          "disclaimer": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "DraftQuestionsResponse": {
         "properties": {
           "draftId": {
@@ -7803,14 +7777,14 @@
               "string"
             ]
           },
-          "freeTextIntent": {
-            "type": "string"
-          },
           "focusedPilotModeEnabled": {
             "type": [
               "null",
               "boolean"
             ]
+          },
+          "freeTextIntent": {
+            "type": "string"
           },
           "parentDraftId": {
             "format": "uuid",
@@ -10364,6 +10338,12 @@
               "integer"
             ]
           },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/FindingInspectEvidenceItem"
+            },
+            "type": "array"
+          },
           "externalKey": {
             "type": [
               "null",
@@ -10375,12 +10355,6 @@
               "null",
               "string"
             ]
-          },
-          "evidence": {
-            "items": {
-              "$ref": "#/components/schemas/FindingInspectEvidenceItem"
-            },
-            "type": "array"
           },
           "findingId": {
             "type": "string"
@@ -10788,6 +10762,30 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "GeneratePolicyPackRequest": {
+        "properties": {
+          "prompt": {
+            "maxLength": 8000,
+            "minLength": 20,
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "type": "object"
+      },
+      "GeneratePolicyPackResponse": {
+        "properties": {
+          "curatedRulesDocumentJson": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -11865,6 +11863,29 @@
         },
         "type": "object"
       },
+      "HolisticCriticRequest": {
+        "properties": {
+          "focus": {
+            "maxLength": 500,
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "HolisticCriticResponse": {
+        "properties": {
+          "critiqueMarkdown": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "HostLeaderLeaseSnapshot": {
         "properties": {
           "holderInstanceId": {
@@ -12639,11 +12660,11 @@
           "jira": {
             "$ref": "#/components/schemas/ItsmIntegrationHealthProbeVm"
           },
-          "serviceNow": {
-            "$ref": "#/components/schemas/ItsmIntegrationHealthProbeVm"
-          },
           "nativeEnabled": {
             "type": "boolean"
+          },
+          "serviceNow": {
+            "$ref": "#/components/schemas/ItsmIntegrationHealthProbeVm"
           },
           "status": {
             "type": "string"
@@ -14679,16 +14700,16 @@
               "string"
             ]
           },
-          "freeTextIntent": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
           "focusedPilotModeEnabled": {
             "type": [
               "null",
               "boolean"
+            ]
+          },
+          "freeTextIntent": {
+            "type": [
+              "null",
+              "string"
             ]
           },
           "systemName": {
@@ -30291,6 +30312,156 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/architecture/chat-intake": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ChatIntakeRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ChatIntakeRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ChatIntakeRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRequest"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRequest"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "Runs"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/architecture/comparisons": {
       "get": {
         "parameters": [
@@ -31829,6 +32000,156 @@
         },
         "tags": [
           "Comparisons"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/connector-intake": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ConnectorIntakeRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ConnectorIntakeRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ConnectorIntakeRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRequest"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRequest"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "tags": [
+          "Runs"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -34970,306 +35291,6 @@
               }
             },
             "description": "Forbidden"
-          }
-        },
-        "tags": [
-          "Runs"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
-    "/v1/architecture/chat-intake": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/*\u002Bjson": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/ChatIntakeRequest"
-                  }
-                ]
-              }
-            },
-            "application/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/ChatIntakeRequest"
-                  }
-                ]
-              }
-            },
-            "text/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/ChatIntakeRequest"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ArchitectureRequest"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ArchitectureRequest"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ArchitectureRequest"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
-          }
-        },
-        "tags": [
-          "Runs"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
-    "/v1/architecture/connector-intake": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/*\u002Bjson": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/ConnectorIntakeRequest"
-                  }
-                ]
-              }
-            },
-            "application/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/ConnectorIntakeRequest"
-                  }
-                ]
-              }
-            },
-            "text/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/ConnectorIntakeRequest"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ArchitectureRequest"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ArchitectureRequest"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ArchitectureRequest"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Forbidden"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unprocessable Entity"
           }
         },
         "tags": [
@@ -49033,63 +49054,6 @@
         "x-archlucid-audience": "buyer"
       }
     },
-    "/v1/explain/runs/{runId}/holistic-critic": {
-      "post": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "runId",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/HolisticCriticRequest"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HolisticCriticResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          }
-        },
-        "tags": [
-          "Explanation"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
     "/v1/explain/runs/{runId}/explain": {
       "get": {
         "parameters": [
@@ -49369,6 +49333,107 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/FindingLlmAuditResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Explanation"
+        ],
+        "x-archlucid-audience": "buyer"
+      }
+    },
+    "/v1/explain/runs/{runId}/holistic-critic": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/HolisticCriticRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/HolisticCriticRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/HolisticCriticRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HolisticCriticResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HolisticCriticResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HolisticCriticResponse"
                 }
               }
             },
@@ -52013,7 +52078,7 @@
       "post": {
         "requestBody": {
           "content": {
-            "application/*+json": {
+            "application/*\u002Bjson": {
               "schema": {
                 "oneOf": [
                   {
@@ -52078,9 +52143,99 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
           }
         },
         "tags": [
@@ -54232,6 +54387,53 @@
       }
     },
     "/v1/integrations/itsm/correlations": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "findingId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "provider",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ItsmCorrelation"
+        ],
+        "x-archlucid-audience": "operator"
+      },
       "get": {
         "parameters": [
           {
@@ -54289,61 +54491,10 @@
         ],
         "x-archlucid-audience": "operator"
       },
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/*\u002Bjson": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "ItsmCorrelation"
-        ],
-        "x-archlucid-audience": "operator"
-      },
       "patch": {
         "requestBody": {
           "content": {
-            "application/*+json": {
+            "application/*\u002Bjson": {
               "schema": {
                 "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
               }
@@ -54431,23 +54582,27 @@
         ],
         "x-archlucid-audience": "operator"
       },
-      "delete": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "findingId",
-            "schema": {
-              "type": "string"
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterItsmCorrelationRequest"
+              }
             }
           },
-          {
-            "in": "query",
-            "name": "provider",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "204": {
             "description": "No Content"
