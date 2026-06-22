@@ -62,6 +62,7 @@ public sealed partial class RunsController(
     IArchitectureApplicationService architectureApplicationService,
     IArchitectureRequestDraftService architectureRequestDraftService,
     IChatIntakeParserService chatIntakeParserService,
+    IConnectorIntakeParserService connectorIntakeParserService,
     IValidator<ArchitectureRequest> architectureRequestValidator,
     IReplayRunService replayRunService,
     IScopeContextProvider scopeContextProvider,
@@ -213,6 +214,51 @@ public sealed partial class RunsController(
         try
         {
             parsed = await chatIntakeParserService.ParseAsync(input, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        FluentValidation.Results.ValidationResult validationResult =
+            await architectureRequestValidator.ValidateAsync(parsed, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            string detail = string.Join("; ", validationResult.Errors.Select(static error => error.ErrorMessage));
+            return this.UnprocessableEntityProblem(detail, ProblemTypes.ValidationFailed);
+        }
+
+        return Ok(parsed);
+    }
+
+    /// <summary>Maps Terraform state JSON or a public Git Terraform file into a wizard-ready architecture request.</summary>
+    // idempotency-posture: dry-run-no-persist
+    [HttpPost("connector-intake")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Connector intake is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> ConnectorIntake(
+        [FromBody] ConnectorIntakeRequest? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.Source))
+            return this.BadRequestProblem("Source is required.", ProblemTypes.ValidationFailed);
+
+        ArchitectureRequest parsed;
+
+        try
+        {
+            parsed = await connectorIntakeParserService.ParseAsync(input, cancellationToken);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (InvalidOperationException ex)
         {

@@ -341,6 +341,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
+        services.AddHttpClient(GitTerraformContentFetcher.HttpClientName);
+        services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
+        services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();
         services.AddScoped<IHolisticCriticService, HolisticCriticService>();

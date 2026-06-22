@@ -11,6 +11,7 @@ import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { ChatIntakePanel } from "@/components/wizard/ChatIntakePanel";
+import { ConnectorIntakePanel } from "@/components/wizard/ConnectorIntakePanel";
 import { draftArchitectureRequest } from "@/lib/api";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -141,6 +142,7 @@ export function WizardStepDescription() {
     >
       <div className="space-y-6">
         <ChatIntakePanel />
+        <ConnectorIntakePanel />
         <div>
           <WizardFieldHint
             htmlFor="wizard-description"

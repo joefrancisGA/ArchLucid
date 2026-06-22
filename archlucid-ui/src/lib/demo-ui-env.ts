@@ -6,6 +6,7 @@
  * `docs/library/OPERATOR_UI_EXPERIENCE_MODES.md`). Demos (`NEXT_PUBLIC_DEMO_MODE` / `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`)
  * stay buyer-polished regardless.
  */
+import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 export function isOperatorExperienceFullShellEnv(): boolean {
   const raw = (process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE ?? "").trim().toLowerCase();
 
@@ -41,6 +42,10 @@ export function isBuyerPolishedOperatorShellEnv(): boolean {
   }
 
   if (process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" || process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1") {
+    return true;
+  }
+
+  if (typeof window !== "undefined" && readFrictionlessTrialSessionEnabled()) {
     return true;
   }
 

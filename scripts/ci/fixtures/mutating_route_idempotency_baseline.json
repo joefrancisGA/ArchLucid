@@ -67,6 +67,8 @@
     "POST /v1/architecture/request": "explicit-idempotency-key",
     "POST /v1/architecture/request/batch": "explicit-idempotency-key",
     "POST /v1/architecture/request/draft": "explicit-idempotency-key",
+    "POST /v1/architecture/connector-intake": "dry-run-no-persist",
+    "POST /v1/architecture/chat-intake": "dry-run-no-persist",
     "POST /v1/architecture/request/import": "operator-documented-safe-retry",
     "POST /v1/architecture/request/{requestId}/clone": "explicit-idempotency-key",
     "POST /v1/architecture/request/{requestId}/restore": "explicit-idempotency-key",

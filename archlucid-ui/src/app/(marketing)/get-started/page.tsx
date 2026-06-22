@@ -86,14 +86,14 @@ export default function GetStartedPage(): ReactNode {
       </p>
       <p className={`mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
         Want proof without signing in first?{" "}
-        <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-          See the evidence trail walkthrough
+        <Link className={MARKETING_SURFACES.inlineLink} href="/try" data-testid="get-started-frictionless-try-link">
+          Try ArchLucid now
         </Link>{" "}
-        (same seeded demo surface as{" "}
+        (frictionless trial — opens the sample review package instantly), or{" "}
         <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
-          the demo preview page
+          see the evidence trail walkthrough
         </Link>
-        , interactive explainability view).{" "}
+        .{" "}
         <span className="font-medium text-al-text-primary">Verify:</span>{" "}
         <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
           See it in 30 seconds

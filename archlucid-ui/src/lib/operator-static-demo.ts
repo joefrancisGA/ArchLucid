@@ -1,4 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_HOME_AHA_MOMENT } from "@/lib/showcase-home-aha-moment";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
@@ -83,6 +84,10 @@ export function writeOperatorDemoPanicOffline(on: boolean): void {
 /** Curated static payloads only when demo/static-operator env flags are set (TB-274 / BE-059). */
 export function isStaticDemoPayloadFallbackEnabled(): boolean {
   if (isOperatorDemoStaticMode() || isPublicDemoModeEnv()) {
+    return true;
+  }
+
+  if (typeof window !== "undefined" && readFrictionlessTrialSessionEnabled()) {
     return true;
   }
 
