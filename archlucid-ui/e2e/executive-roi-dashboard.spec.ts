@@ -15,6 +15,9 @@ import {
   waitForExecutiveRoiExportResponse,
 } from "./helpers/executive-roi-dashboard";
 
+/** Mock dashboard waits on export fetch (60s) plus panel hydration on cold CI agents. */
+test.describe.configure({ timeout: 90_000 });
+
 test.describe("executive ROI dashboard — operator /dashboard", () => {
   test("renders portfolio summary, KPI tiles, and trend chart without error boundary @smoke @executive-roi-dashboard", async ({
     page,
