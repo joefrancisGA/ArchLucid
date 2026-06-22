@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage } from "./operator-scope-storage";
+import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "./operator-scope-storage";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "./scope";
 
 describe("operator-scope-storage", () => {
@@ -28,5 +28,21 @@ describe("operator-scope-storage", () => {
     expect(h["x-tenant-id"]).toBe(DEV_SCOPE_TENANT_ID);
     expect(h["x-workspace-id"]).toBe(DEV_SCOPE_WORKSPACE_ID);
     expect(h["x-project-id"]).toBe(DEV_SCOPE_PROJECT_ID);
+  });
+
+  it("writeOperatorScopeToStorage_dispatchesScopeChangedEvent", () => {
+    const listener = vi.fn();
+    window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, listener);
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, listener);
   });
 });

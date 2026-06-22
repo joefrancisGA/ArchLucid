@@ -4,6 +4,9 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getS
 
 const STORAGE_KEY = "archlucid_operator_scope_v1";
 
+/** Fired when {@link writeOperatorScopeToStorage} or {@link clearOperatorScopeStorage} mutates scope. */
+export const ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT = "archlucid:operator-scope-changed";
+
 /**
  * Browser-persisted scope selection (IDs + optional display labels for the header switcher).
  * The proxy forwards `x-tenant-id` / `x-workspace-id` / `x-project-id` on every `/api/proxy` request;
@@ -70,6 +73,7 @@ export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {
         projectLabel: record.projectLabel,
       }),
     );
+    window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
   } catch {
     /* quota / private mode */
   }
@@ -81,6 +85,7 @@ export function clearOperatorScopeStorage(): void {
   }
   try {
     window.localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
   } catch {
     /* */
   }

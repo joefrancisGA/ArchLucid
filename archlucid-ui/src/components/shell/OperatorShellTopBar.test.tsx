@@ -77,6 +77,7 @@ describe("OperatorShellTopBar", () => {
 
     expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
+    expect(screen.getByTestId("active-tenant-context-badge")).toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
       "ArchLucid — go to operator home",

@@ -14,6 +14,7 @@ import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
+import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
@@ -51,6 +52,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                 <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
               </Button>
             </h1>
+            <TenantWorkspaceBoundaryBadge variant="header" />
           </div>
 
           <div className="min-w-0 flex-1 basis-full sm:order-none sm:basis-auto sm:max-w-md lg:max-w-sm xl:max-w-md">
