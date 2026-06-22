@@ -101,6 +101,17 @@ Read the file top-down; major comment banners include:
 - **Always** when you add or change objects that Persistence bootstrap must create on a **fresh** database.
 - **Always** add or extend a **DbUp migration** for SQL Server deployments that already exist.
 
+### 3.8 `ArchLucid.System.sql` (system / control-plane catalog)
+
+Used when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`**. The system catalog holds tenant directory rows, database bindings, provisioning jobs, and warm-catalog standby — not product review data.
+
+| Aspect | Detail |
+|--------|--------|
+| **Execution** | After **`DatabaseMigrator.RunSystem`**, **`ArchLucidPersistenceStartup`** runs **`SqlSchemaBootstrapper`** against **`Scripts/ArchLucid.System.sql`** (same **`GO`** batch splitter as tenant bootstrap). |
+| **Idempotency** | Same patterns as §3.3: `IF OBJECT_ID … IS NULL` + inline indexes; check constraints added with `IF NOT EXISTS` on `sys.check_constraints`. |
+| **Brownfield** | Forward changes ship under **`Migrations/System/NNN_*.sql`**; keep consolidated DDL aligned (CI: **`assert_forward_migration_touches_archlucid_system_sql.py`**). |
+| **Tables** | `dbo.Tenants`, `dbo.TenantDatabaseBindings`, `dbo.TenantDatabaseProvisioningJobs`, `dbo.WarmTenantCatalogStandby` (see §4.4). |
+
 ---
 
 ## 4. DbUp migrations (`ArchLucid.Persistence/Migrations/`)
@@ -188,6 +199,23 @@ sequenceDiagram
 3. Run tests; optionally extend **`DatabaseMigrationScriptTests`** if you add new ordering rules.
 4. Update §4.2 in this file.
 
+### 4.4 System-plane migrations (`Migrations/System/`)
+
+Applied only to the **control catalog** via **`DatabaseMigrator.RunSystem`**. Keep **`ArchLucid.System.sql`** in parity when editing these scripts.
+
+| Script | Purpose |
+|--------|---------|
+| **001_SystemTenantDirectory.sql** | **`dbo.Tenants`** directory + commercial/trial metadata and baseline check constraints. |
+| **002_TenantDatabaseBindings.sql** | **`dbo.TenantDatabaseBindings`** + **`dbo.TenantDatabaseProvisioningJobs`**. |
+| **003_WarmTenantCatalogStandby.sql** | Warm catalog pool for signup latency (**TB-018**). |
+
+### 4.5 Adding a new system-plane migration `System/0NN_…`
+
+1. Create `ArchLucid.Persistence/Migrations/System/0NN_YourChange.sql` (idempotent patterns preferred).
+2. Update **`ArchLucid.System.sql`** with the same objects/columns/indexes for greenfield parity.
+3. Extend **`SystemSchemaSentinelManifest`** when new sentinels are required for drift checks.
+4. Update §4.4 in this file.
+
 ---
 
 ## 5. Change checklist (schema work)
@@ -199,6 +227,13 @@ Treat this checklist as a **definition of done** for every schema change. Do not
 - [ ] **DbUp migration:** new `ArchLucid.Persistence/Migrations/0NN_*.sql` for SQL Server incremental change. Use `IF NOT EXISTS` / `IF OBJECT_ID IS NULL` patterns; migrations must be idempotent.
 - [ ] **`ArchLucid.Persistence/Scripts/ArchLucid.sql`:** same objects, columns, and indexes as the migration — keeps greenfield provisioning in parity.
 - [ ] **Migration catalog:** update §4.2 of this file with the new migration number and description.
+
+### Required for every **system-plane** SQL change
+
+- [ ] **System DbUp migration:** new `ArchLucid.Persistence/Migrations/System/0NN_*.sql` for control-catalog changes.
+- [ ] **`ArchLucid.Persistence/Scripts/ArchLucid.System.sql`:** same objects, columns, and indexes as the system migration.
+- [ ] **System migration catalog:** update §4.4 of this file.
+- [ ] **`SystemSchemaSentinelManifest`:** extend when drift verification must cover new tables/columns/indexes.
 
 ### Required when schema changes affect data access
 
@@ -213,7 +248,12 @@ Treat this checklist as a **definition of done** for every schema change. Do not
 
 ### CI gate
 
-Merge-blocking on PRs and pushes: `scripts/ci/assert_forward_migration_touches_archlucid_sql.py` fails when a forward `Migrations/NNN_*.sql` file changes in the diff but `ArchLucid.Persistence/Scripts/ArchLucid.sql` does not (greenfield parity). Rollback-only and Baseline folder edits do not trigger this rule.
+Merge-blocking on PRs and pushes:
+
+- `scripts/ci/assert_forward_migration_touches_archlucid_sql.py` — forward tenant `Migrations/NNN_*.sql` must co-touch `ArchLucid.sql`.
+- `scripts/ci/assert_forward_migration_touches_archlucid_system_sql.py` — forward `Migrations/System/NNN_*.sql` must co-touch `ArchLucid.System.sql` (**TB-064**).
+
+Rollback-only and Baseline folder edits do not trigger these rules.
 
 Before opening a PR with SQL changes, run the full local pre-push loop from `docs/CI_MIGRATION_CHECKLIST.md`.
 

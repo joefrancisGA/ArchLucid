@@ -40,6 +40,9 @@ dotnet test ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj `
 # 3b. Forward migration + consolidated DDL co-touch (merge-blocking in CI; needs full git history)
 python scripts/ci/assert_forward_migration_touches_archlucid_sql.py --diff-range "origin/main...HEAD"
 
+# 3c. System-plane migration + ArchLucid.System.sql co-touch (TB-064)
+python scripts/ci/assert_forward_migration_touches_archlucid_system_sql.py --diff-range "origin/main...HEAD"
+
 # 4. Run all unit-category tests (fast, no API stack)
 dotnet test ArchLucid.sln --filter "Category=Unit" --no-build
 

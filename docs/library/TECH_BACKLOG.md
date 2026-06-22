@@ -3489,6 +3489,8 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 
 ## TB-064 ? System catalog consolidated DDL (`ArchLucid.System.sql`)
 
+**Status:** **Done (2026-06-22)** ? full idempotent `ArchLucid.Persistence/Scripts/ArchLucid.System.sql` (Tenants, bindings, provisioning jobs, warm standby); `RunSystemSchemaBootstrapIfAvailable` after `DatabaseMigrator.RunSystem` in `ArchLucidPersistenceStartup`; `SystemSchemaSentinelManifest` + `TenantSchemaBootstrapParityIntegrationTests.System_DbUp_and_system_bootstrap_pass_system_sentinel_manifest`; `ConsolidatedSystemDdlTests` + `DatabaseMigrationScriptTests.Consolidated_system_ddl_file_lists_control_plane_tables`; CI guards **`assert_forward_migration_touches_archlucid_system_sql.py`** and **`test_consolidated_system_ddl_tb064.py`**; docs in **`SQL_SCRIPTS.md`** §3.8 / §4.4 / §5.
+
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). Tenant catalog has a proper consolidated file (`ArchLucid.Persistence/Scripts/ArchLucid.sql`); system catalog does not.
 
 **Problem:**
