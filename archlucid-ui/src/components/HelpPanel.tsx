@@ -3,7 +3,7 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import {
@@ -24,12 +24,14 @@ import { cn } from "@/lib/utils";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
 
+export type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
+
 export type HelpPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When the panel opens, select this tab (defaults to Guides). */
+  initialTab?: HelpTabId;
 };
-
-type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
 
 const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin_dismissed_session";
 
@@ -57,12 +59,18 @@ function allShortcutRowsForSearch(): { key: string; description: string }[] {
 /**
  * Contextual help: guides first, doc topics, keyboard shortcuts in a separate tab. Light, app-aligned styling.
  */
-export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
+export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPanelProps) {
   const pathname = usePathname() ?? "/";
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<HelpTabId>("guides");
+  const [tab, setTab] = useState<HelpTabId>(initialTab);
   const [corePilotPinDismissedThisSession, setCorePilotPinDismissedThisSession] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setTab(initialTab);
+    }
+  }, [open, initialTab]);
 
   useLayoutEffect(() => {
     try {
@@ -244,7 +252,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
             {(
               [
                 { id: "guides" as const, label: "Guides" },
-                { id: "shortcuts" as const, label: "Shortcuts" },
+                { id: "shortcuts" as const, label: "Keyboard shortcuts" },
                 { id: "troubleshooting" as const, label: "Troubleshooting" },
               ] as const
             ).map(({ id, label }) => (

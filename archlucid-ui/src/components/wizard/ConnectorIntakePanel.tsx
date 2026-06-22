@@ -64,7 +64,6 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
       const merged = mergeConnectorIntakeIntoWizardValues(getValues(), parsed);
       clearErrors();
       reset(merged, { keepDefaultValues: false });
-      markAiSuggested("infrastructureDeclarations", []);
       markAiSuggested("topologyHints", merged.topologyHints ?? []);
       markAiSuggested("constraints", merged.constraints ?? []);
       setSuccess("Imported infrastructure into the wizard — review fields before submitting.");

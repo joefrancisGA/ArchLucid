@@ -4,6 +4,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Integrations;
 
