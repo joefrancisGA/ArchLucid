@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FindingInspectContextDebugPanel } from "@/components/findings/FindingInspectContextDebugPanel";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
@@ -304,6 +305,14 @@ export function FindingDetailPageView(props: Props) {
           decodedFindingId={decodedFindingId}
           payload={inspectPayload}
           variant="detail"
+        />
+      ) : null}
+
+      {inspectPayload !== null && !buyerPolishedShell ? (
+        <FindingInspectContextDebugPanel
+          runId={runId}
+          findingId={decodedFindingId}
+          inspectPayload={inspectPayload}
         />
       ) : null}
 
