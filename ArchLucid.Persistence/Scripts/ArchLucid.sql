@@ -7839,11 +7839,37 @@ BEGIN
         CreatedUtc       DATETIME2(7)     NOT NULL
             CONSTRAINT DF_ItsmFindingCorrelations_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT FK_ItsmFindingCorrelations_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
-        CONSTRAINT UQ_ItsmFindingCorrelations_Provider_ExternalKey UNIQUE (Provider, ExternalKey)
+        CONSTRAINT UQ_ItsmFindingCorrelations_Tenant_Provider_ExternalKey UNIQUE (TenantId, Provider, ExternalKey)
     );
 
     CREATE NONCLUSTERED INDEX IX_ItsmFindingCorrelations_Tenant_Finding
         ON dbo.ItsmFindingCorrelations (TenantId, FindingId);
+END;
+GO
+
+/* ---- DbUp 257 parity: tenant-scoped ITSM correlation unique key (see Migrations/257_ItsmFindingCorrelations_TenantScopedUnique.sql) ---- */
+IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sys.key_constraints
+        WHERE name = N'UQ_ItsmFindingCorrelations_Provider_ExternalKey'
+          AND parent_object_id = OBJECT_ID(N'dbo.ItsmFindingCorrelations'))
+    BEGIN
+        ALTER TABLE dbo.ItsmFindingCorrelations
+            DROP CONSTRAINT UQ_ItsmFindingCorrelations_Provider_ExternalKey;
+    END;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.key_constraints
+        WHERE name = N'UQ_ItsmFindingCorrelations_Tenant_Provider_ExternalKey'
+          AND parent_object_id = OBJECT_ID(N'dbo.ItsmFindingCorrelations'))
+    BEGIN
+        ALTER TABLE dbo.ItsmFindingCorrelations
+            ADD CONSTRAINT UQ_ItsmFindingCorrelations_Tenant_Provider_ExternalKey
+                UNIQUE (TenantId, Provider, ExternalKey);
+    END;
 END;
 GO
 

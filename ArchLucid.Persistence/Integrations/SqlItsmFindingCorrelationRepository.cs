@@ -117,7 +117,14 @@ public sealed class SqlItsmFindingCorrelationRepository(
             new { Provider = provider.Trim(), ExternalKey = externalKey.Trim() },
             cancellationToken: ct);
 
-        return await connection.QuerySingleOrDefaultAsync<ItsmFindingCorrelationRecord>(cmd);
+        List<ItsmFindingCorrelationRecord> matches =
+            (await connection.QueryAsync<ItsmFindingCorrelationRecord>(cmd)).ToList();
+
+        // Anonymous inbound webhooks have no tenant context; resolve only when unambiguous.
+        if (matches.Count != 1)
+            return null;
+
+        return matches[0];
     }
 
     private async Task RegisterCoreAsync(
@@ -138,7 +145,9 @@ public sealed class SqlItsmFindingCorrelationRepository(
         const string sql = """
                            IF NOT EXISTS (
                                SELECT 1 FROM dbo.ItsmFindingCorrelations
-                               WHERE Provider = @Provider AND ExternalKey = @ExternalKey)
+                               WHERE TenantId = @TenantId
+                                 AND Provider = @Provider
+                                 AND ExternalKey = @ExternalKey)
                            BEGIN
                                INSERT INTO dbo.ItsmFindingCorrelations
                                    (TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey, ExternalSysId)

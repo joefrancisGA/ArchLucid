@@ -19,9 +19,12 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         if (string.IsNullOrWhiteSpace(externalKey))
             throw new ArgumentException("externalKey is required.", nameof(externalKey));
 
-        string k = Key(provider, externalKey);
+        List<ItsmFindingCorrelationRecord> matches = MatchByProviderAndExternalKey(provider, externalKey);
 
-        return Task.FromResult(_byKey.GetValueOrDefault(k));
+        if (matches.Count != 1)
+            return Task.FromResult<ItsmFindingCorrelationRecord?>(null);
+
+        return Task.FromResult<ItsmFindingCorrelationRecord?>(matches[0]);
     }
 
     /// <inheritdoc />
@@ -101,7 +104,7 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         if (string.IsNullOrWhiteSpace(externalKey))
             throw new ArgumentException("externalKey is required.", nameof(externalKey));
 
-        string k = Key(provider, externalKey);
+        string k = Key(tenantId, provider, externalKey);
 
         _ = _byKey.TryAdd(
             k,
@@ -158,6 +161,18 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         return Task.FromResult(any);
     }
 
-    private static string Key(string provider, string externalKey) =>
-        $"{provider.Trim()}\u001f{externalKey.Trim()}";
+    private static string Key(Guid tenantId, string provider, string externalKey) =>
+        $"{tenantId:D}\u001f{provider.Trim()}\u001f{externalKey.Trim()}";
+
+    private List<ItsmFindingCorrelationRecord> MatchByProviderAndExternalKey(string provider, string externalKey)
+    {
+        string trimmedProvider = provider.Trim();
+        string trimmedExternalKey = externalKey.Trim();
+
+        return _byKey.Values
+            .Where(r =>
+                string.Equals(r.Provider, trimmedProvider, StringComparison.Ordinal) &&
+                string.Equals(r.ExternalKey, trimmedExternalKey, StringComparison.Ordinal))
+            .ToList();
+    }
 }
