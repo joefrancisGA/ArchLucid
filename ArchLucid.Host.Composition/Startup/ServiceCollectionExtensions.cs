@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
@@ -173,6 +174,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmExternalTicketUrlBuilder>();
         services.AddScoped<ItsmFindingCorrelationQueryService>();
+        services.AddScoped<RunFindingExternalTrackingEnrichmentService>();
         services.Configure<EvidenceBulkUploadOptions>(
             configuration.GetSection(EvidenceBulkUploadOptions.SectionName));
         services.Configure<ZipEvidenceExpanderOptions>(

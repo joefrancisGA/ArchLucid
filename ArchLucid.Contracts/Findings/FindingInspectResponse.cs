@@ -183,4 +183,35 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    public DateTimeOffset? RevisitDueUtc
+    {
+        get;
+        init;
+    }
+
+    public string? Provider
+    {
+        get;
+        init;
+    }
+
+    public string? ExternalKey
+    {
+        get;
+        init;
+    }
+
+    public string? ExternalUrl
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Semicolon-separated <c>Provider:ExternalKey</c> pairs when multiple correlations exist.</summary>
+    public string? ItsmLinkedTicketsSummary
+    {
+        get;
+        init;
+    }
 }

@@ -77,7 +77,8 @@ public sealed class RunQueryController(
     IAuditService auditService,
     ExportFormatterService exportFormatter,
     IFindingsSnapshotRepository findingsSnapshotRepository,
-    IRunStageOutcomesRepository runStageOutcomesRepository) : ControllerBase
+    IRunStageOutcomesRepository runStageOutcomesRepository,
+    RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService) : ControllerBase
 {
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
@@ -216,17 +217,47 @@ public sealed class RunQueryController(
             orderByPriority,
             cancellationToken);
 
+        string[] findingIds = page.Items
+            .Select(static row => row.FindingId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
+            await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
+                scope.TenantId,
+                snapshotId,
+                findingIds,
+                cancellationToken);
+
         RunFindingListItem[] items = page.Items
-            .Select(static row => new RunFindingListItem
+            .Select(row =>
             {
-                FindingRecordId = row.FindingRecordId,
-                FindingId = row.FindingId,
-                Severity = row.Severity,
-                Category = row.Category,
-                FindingType = row.FindingType,
-                Title = row.Title,
-                SortOrder = row.SortOrder,
-                PriorityRank = row.PriorityRank
+                RunFindingListItem item = new()
+                {
+                    FindingRecordId = row.FindingRecordId,
+                    FindingId = row.FindingId,
+                    Severity = row.Severity,
+                    Category = row.Category,
+                    FindingType = row.FindingType,
+                    Title = row.Title,
+                    SortOrder = row.SortOrder,
+                    PriorityRank = row.PriorityRank
+                };
+
+                if (trackingByFindingId.TryGetValue(row.FindingId.Trim(), out RunFindingExternalTrackingProjection? tracking))
+                {
+                    item.HumanReviewStatus = tracking.HumanReviewStatus;
+                    item.LatestDisposition = tracking.LatestDisposition;
+                    item.RevisitDueUtc = tracking.RevisitDueUtc;
+                    item.Provider = tracking.Provider;
+                    item.ExternalKey = tracking.ExternalKey;
+                    item.ExternalUrl = tracking.ExternalUrl;
+                    item.ItsmLinkedTicketsSummary = tracking.ItsmLinkedTicketsSummary;
+                }
+
+                return item;
             })
             .ToArray();
 
@@ -271,7 +302,27 @@ public sealed class RunQueryController(
                 $"Manifest referenced by run '{runId}' could not be found.",
                 ProblemTypes.ResourceNotFound);
 
-        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? findingsSnapshotId = null;
+
+        if (TryParseRunId(runId, out Guid runGuidForSnapshot))
+        {
+            Persistence.Models.RunRecord? runRecord =
+                await authorityRunRepository.GetByIdAsync(scope, runGuidForSnapshot, cancellationToken);
+
+            findingsSnapshotId = runRecord?.FindingsSnapshotId;
+        }
+
+        IReadOnlyList<string> findingIds = ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail);
+
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
+            await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
+                scope.TenantId,
+                findingsSnapshotId,
+                findingIds,
+                cancellationToken);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, trackingByFindingId);
         int findingCount = ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail);
 
         Guid? auditRunId = TryParseRunId(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;

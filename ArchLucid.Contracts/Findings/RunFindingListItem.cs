@@ -51,4 +51,47 @@ public sealed class RunFindingListItem
         get;
         set;
     }
+
+    public FindingHumanReviewStatus HumanReviewStatus
+    {
+        get;
+        set;
+    }
+
+    public FindingDisposition? LatestDisposition
+    {
+        get;
+        set;
+    }
+
+    public DateTimeOffset? RevisitDueUtc
+    {
+        get;
+        set;
+    }
+
+    public string? Provider
+    {
+        get;
+        set;
+    }
+
+    public string? ExternalKey
+    {
+        get;
+        set;
+    }
+
+    public string? ExternalUrl
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Semicolon-separated <c>Provider:ExternalKey</c> pairs when multiple correlations exist.</summary>
+    public string? ItsmLinkedTicketsSummary
+    {
+        get;
+        set;
+    }
 }

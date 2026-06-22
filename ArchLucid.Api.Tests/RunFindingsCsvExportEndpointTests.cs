@@ -1,5 +1,8 @@
 using System.Net;
 
+using ArchLucid.Application.Reporting;
+using ArchLucid.TestSupport.Demo;
+
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -20,5 +23,18 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
             await Client.GetAsync($"/v1/architecture/run/{runId:D}/findings/export/csv");
 
         res.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task ExportRunFindingsCsv_includes_external_tracking_header_columns()
+    {
+        Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
+
+        using HttpResponseMessage res =
+            await Client.GetAsync($"/v1/architecture/run/{runId:D}/findings/export/csv");
+
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        string csv = await res.Content.ReadAsStringAsync();
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.HeaderLine);
     }
 }
