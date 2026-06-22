@@ -3,7 +3,6 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Contracts.Common;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;

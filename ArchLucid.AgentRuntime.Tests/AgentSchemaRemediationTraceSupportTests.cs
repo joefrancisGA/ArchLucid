@@ -43,4 +43,72 @@ public sealed class AgentSchemaRemediationTraceSupportTests
             .Should()
             .BeFalse();
     }
+
+    [Fact]
+    public async Task RecordAttemptAsync_forwards_ambient_token_counts_to_trace_recorder()
+    {
+        AzureOpenAiCompletionClient.SeedLastCompletionTokenUsageForTests(11, 22);
+        CapturingTraceRecorder recorder = new();
+
+        await AgentSchemaRemediationTraceSupport.RecordAttemptAsync(
+            recorder,
+            attemptIndex: 0,
+            runId: "run-1",
+            taskId: "task-1",
+            agentType: AgentType.Topology,
+            systemPrompt: "sys",
+            userPrompt: "user",
+            rawResponse: "{}",
+            parseSucceeded: true,
+            errorMessage: null,
+            promptRepro: null);
+
+        recorder.LastInputTokenCount.Should().Be(11);
+        recorder.LastOutputTokenCount.Should().Be(22);
+    }
+
+    private sealed class CapturingTraceRecorder : IAgentExecutionTraceRecorder
+    {
+        public int? LastInputTokenCount
+        {
+            get;
+            private set;
+        }
+
+        public int? LastOutputTokenCount
+        {
+            get;
+            private set;
+        }
+
+        public Task RecordAsync(
+            string runId,
+            string taskId,
+            AgentType agentType,
+            string systemPrompt,
+            string userPrompt,
+            string rawResponse,
+            string? parsedResultJson,
+            bool parseSucceeded,
+            string? errorMessage,
+            AgentPromptReproMetadata? promptRepro = null,
+            int? inputTokenCount = null,
+            int? outputTokenCount = null,
+            int? reasoningTokenCount = null,
+            string? modelDeploymentName = null,
+            string? modelVersion = null,
+            bool isSimulatorExecution = false,
+            string? failureReasonCode = null,
+            float? completionTemperature = null,
+            int? maxCompletionTokens = null,
+            float? completionTopP = null,
+            int attemptIndex = 0,
+            CancellationToken cancellationToken = default)
+        {
+            LastInputTokenCount = inputTokenCount;
+            LastOutputTokenCount = outputTokenCount;
+
+            return Task.CompletedTask;
+        }
+    }
 }

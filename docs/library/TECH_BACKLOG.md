@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-22 (Jira/ServiceNow integration-seam cluster **TB-386?398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382?385** Done; 2026-06-16 operator home **TB-345?353** (all Done). **~56 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386?398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382?385** Done; 2026-06-16 operator home **TB-345?353** (all Done). **~55 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -27,7 +27,7 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~56** |
+| **Total (unique)** | **~55** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -1019,19 +1019,19 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 ---
 
-## TB-139 ? Real-LLM evidence: capture token usage and cost in gate metrics
+## TB-139 — Real-LLM evidence: capture token usage and cost in gate metrics — **Done (2026-06-22)**
 
-**Status:** Partial (2026-05-30). `TryWriteRealLlmRunMetricsJson` now computes `estimatedCostUsd` when token totals are &gt; 0 (env-rate override or GPT-4o defaults). **`inputTokensTotal` / `outputTokensTotal`** still depend on Azure `Usage` reaching `LiveAoaiTraceSpy` and on fixing production double-consume in `LlmCompletionAccountingClient`.
+**Status:** **Done (2026-06-22).** `LlmCompletionAccountingClient` now **peeks** (does not consume) ambient token usage in its `finally` block so `AgentSchemaRemediationTraceSupport.RecordAttemptAsync` and `CostGuardrailInterceptor` can read the same counts. `TryWriteRealLlmRunMetricsJson` already emits `inputTokensTotal`, `outputTokensTotal`, and `estimatedCostUsd` when trace totals are &gt; 0; gate row **Token/cost estimate** passes when `inTok + outTok &gt; 0`.
 
-**Pick up when:**
+**Shipped:**
 
-1. Trace token counts from `AzureOpenAiCompletionClient` into `IAgentExecutionTraceRecorder` for live runs.
-2. Optionally surface `estimatedCostUsd` via existing `AgentExecution:LlmCostEstimation` options in gate metrics JSON.
-3. Gate row **Token/cost estimate** should flip from **Not captured** to **Passed** on live runs.
+1. Production double-consume fix: `TryPeekLastCompletionTokenUsage` in `LlmCompletionAccountingClient` (`CompleteJsonAsync` + `StreamJsonAsync`).
+2. Unit test: `AgentSchemaRemediationTraceSupportTests.RecordAttemptAsync_forwards_ambient_token_counts_to_trace_recorder`.
+3. Gate metrics JSON unchanged — `RealAzureOpenAIEndToEndTests.TryWriteRealLlmRunMetricsJson` + `scripts/Invoke-RealLlmEvidenceGate.ps1`.
 
-**Refs:** `RealAzureOpenAIEndToEndTests.TryWriteRealLlmRunMetricsJson`, `scripts/Invoke-RealLlmEvidenceGate.ps1`.
+**Refs:** `LlmCompletionAccountingClient`, `AgentCompletionTokenUsage`, `RealAzureOpenAIEndToEndTests.TryWriteRealLlmRunMetricsJson`, `scripts/Invoke-RealLlmEvidenceGate.ps1`.
 
-**Size estimate:** S (~2?4 h).
+**Size estimate:** S (~2–4 h).
 
 ---
 

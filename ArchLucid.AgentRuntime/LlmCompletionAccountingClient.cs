@@ -202,11 +202,13 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         }
         finally
         {
-            bool consumed = AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
+            // Peek (do not consume): schema remediation trace recording and CostGuardrailInterceptor
+            // read the same ambient usage after this decorator returns.
+            bool usageAvailable = AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int promptTok,
                 out int completionTok,
                 out int reasoningTok);
 
-            if (!consumed)
+            if (!usageAvailable)
             {
                 if (_useJudgeDailyCapOnly)
                 {
@@ -374,11 +376,13 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         }
         finally
         {
-            bool consumed = AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
+            // Peek (do not consume): schema remediation trace recording and CostGuardrailInterceptor
+            // read the same ambient usage after this decorator returns.
+            bool usageAvailable = AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int promptTok,
                 out int completionTok,
                 out int reasoningTok);
 
-            if (!consumed)
+            if (!usageAvailable)
             {
                 await _dailyTenantBudgetTracker
                     .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
