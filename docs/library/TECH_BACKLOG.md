@@ -2198,7 +2198,7 @@ The `LlmCostTuningRequestValidator` correctly rejects negative values on the adm
 
 ## TB-024 ? `LlmCostEstimator` ? reasoning-token test coverage
 
-**Status:** **Done** (Improvement **#20**, 2026-05-25) ? explicit reasoning rate, output-rate fallback, per-deployment reasoning override, persisted override + reasoning fallback, and OTel `archlucid_llm_cost_usd_total` alignment covered in **`LlmCostEstimatorTests`**.
+**Status:** **Done** (Improvement **#20**, 2026-05-25; CI drift guard **2026-06-22**) ? explicit reasoning rate, output-rate fallback, per-deployment reasoning override, persisted override + reasoning fallback, and OTel `archlucid_llm_cost_usd_total` alignment covered in **`LlmCostEstimatorTests`**; merge guard **`scripts/ci/tests/test_llm_cost_estimator_tb024.py`**.
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 
