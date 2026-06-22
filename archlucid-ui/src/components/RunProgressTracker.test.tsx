@@ -8,9 +8,15 @@ vi.mock("@/lib/api", () => ({
   getRunSummary: vi.fn(),
 }));
 
+vi.mock("@/lib/api/architecture-runs", () => ({
+  getRunStageTimeline: vi.fn(),
+}));
+
 import { getRunSummary } from "@/lib/api";
+import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
+const mockGetRunStageTimeline = vi.mocked(getRunStageTimeline);
 
 const baseSummary: RunSummary = {
   runId: "run-progress-1",
@@ -32,6 +38,7 @@ function committedSummary(runId: string): RunSummary {
 describe("RunProgressTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetRunStageTimeline.mockResolvedValue([]);
 
     // jsdom EventSource is unreliable; force the hook onto HTTP polling so `getRunSummary` timing is deterministic.
     vi.stubGlobal(
@@ -110,6 +117,7 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunSummary).toHaveBeenCalled();
     expect(screen.getAllByText("Complete").length).toBe(1);
+    expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(/Currently: graph/i);
 
     allowFullSummary = true;
 
@@ -198,5 +206,47 @@ describe("RunProgressTracker", () => {
 
     expect(screen.getByText(/Pipeline may still be running server-side/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /retry polling/i })).toBeInTheDocument();
+  });
+
+  it("shows granular stage label from stage timeline when available", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    mockGetRunSummary.mockResolvedValue({
+      ...baseSummary,
+      runId: "stage-live-1",
+      hasContextSnapshot: true,
+    });
+    mockGetRunStageTimeline.mockResolvedValue([
+      {
+        stageName: "findings",
+        startedUtc: "2026-01-01T00:00:03.000Z",
+        completedUtc: null,
+        outcomeStatus: "Running",
+      },
+    ]);
+
+    render(
+      <RunProgressTracker
+        runId="stage-live-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "stage-live-1",
+          hasContextSnapshot: true,
+        }}
+      />,
+    );
+
+    await act(async () => {
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockGetRunStageTimeline).toHaveBeenCalled();
+    expect(screen.getByTestId("run-progress-current-stage")).toHaveTextContent(
+      /Currently: findings/i,
+    );
   });
 });

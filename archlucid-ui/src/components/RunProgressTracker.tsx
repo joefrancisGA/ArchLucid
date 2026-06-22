@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
+import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import type { RunSummary } from "@/types/authority";
+import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 export type RunProgressTrackerProps = {
   runId: string;
@@ -33,6 +36,7 @@ function allStagesReady(s: RunSummary | null): boolean {
 }
 
 const POLL_MAX_MS = 180_000;
+const STAGE_TIMELINE_POLL_MS = 3000;
 
 export function RunProgressTracker({ runId, initialSummary }: RunProgressTrackerProps) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
@@ -42,6 +46,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
     allStagesReady(initialSummary) ? "complete" : "polling",
   );
+  const [stageTimeline, setStageTimeline] = useState<StageTimelineSummary[]>([]);
 
   const { summary, streamPhase, sseConnected } = useRunSummaryStream(runId, {
     enabled: pollEnabled && clientPhase === "polling",
@@ -69,6 +74,36 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     }
   }, [summary, streamPhase]);
 
+  useEffect(() => {
+    if (!pollEnabled || clientPhase !== "polling") {
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchTimeline = async (): Promise<void> => {
+      try {
+        const timeline = await getRunStageTimeline(runId);
+
+        if (!cancelled) {
+          setStageTimeline(timeline);
+        }
+      } catch {
+        /* keep polling summary stream */
+      }
+    };
+
+    void fetchTimeline();
+    const intervalId = window.setInterval(() => {
+      void fetchTimeline();
+    }, STAGE_TIMELINE_POLL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [clientPhase, pollEnabled, pollSession, runId]);
+
   const ctx = stageDone(summary?.hasContextSnapshot);
   const graph = stageDone(summary?.hasGraphSnapshot);
   const findings = stageDone(summary?.hasFindingsSnapshot);
@@ -76,6 +111,11 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
 
   const completedStages = [ctx, graph, findings, manifest].filter(Boolean).length;
   const progressValue = (completedStages / 4) * 100;
+
+  const currentStageLabel = useMemo(
+    () => resolveCurrentPipelineStageLabel(stageTimeline, summary, buyerPolished),
+    [buyerPolished, stageTimeline, summary],
+  );
 
   const liveStatus = useMemo(() => {
     if (clientPhase === "complete") {
@@ -113,6 +153,15 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
           <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
         </p>
       )}
+
+      {clientPhase === "polling" ? (
+        <p
+          className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100"
+          data-testid="run-progress-current-stage"
+        >
+          Currently: {currentStageLabel}
+        </p>
+      ) : null}
 
       <div aria-live="polite" aria-atomic="true" className="mt-3 text-sm text-neutral-800 dark:text-neutral-200">
         {liveStatus}

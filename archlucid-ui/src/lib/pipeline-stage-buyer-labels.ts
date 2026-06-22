@@ -1,5 +1,9 @@
 const PIPELINE_STAGE_BUYER_LABELS: Readonly<Record<string, string>> = {
   context_ingestion: "Reading your evidence",
+  graph: "Mapping the architecture",
+  findings: "Analyzing security and cost",
+  decisioning: "Checking policy compliance",
+  artifacts: "Finalizing signed package",
   topology_analysis: "Mapping the architecture",
   cost_analysis: "Estimating cost impact",
   compliance_analysis: "Checking policy compliance",
