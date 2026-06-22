@@ -12,6 +12,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
+import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
 import { MessageCircle } from "lucide-react";
@@ -40,6 +41,7 @@ import {
   sortQuickDecisionFindings,
 } from "@/lib/quick-decision-summary-derive";
 import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
+import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
 
 const badgeBase =
   "inline-flex shrink-0 rounded-md border px-2 py-0.5 text-xs font-semibold tabular-nums";
@@ -138,6 +140,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       evidenceRefCount > 0 || graphFocusId !== null
         ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
         : null;
+    const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
 
     return (
       <li key={f.findingId} className="pl-1">
@@ -248,6 +251,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         {snippet.length > 0 ? (
           <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
         ) : null}
+        <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
         {f.evidenceRefSnippets !== undefined && f.evidenceRefSnippets.length > 0 ? (
           <FindingEvidenceRefSnippets snippets={f.evidenceRefSnippets} />
         ) : null}

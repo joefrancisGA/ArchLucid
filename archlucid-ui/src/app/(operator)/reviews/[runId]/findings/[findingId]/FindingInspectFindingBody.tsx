@@ -7,7 +7,9 @@ import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { findingInspectPrimaryLabels, findingWhyThisMattersText, phiMinimizationRecommendedActionFallback } from "@/lib/finding-display-from-inspect";
+import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/finding-policy-evidence-citations";
 
+import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
@@ -53,6 +55,10 @@ export function FindingInspectFindingBody({
         ? "Open cited evidence"
         : "Open review detail (artifacts & graph)";
   const labels = findingInspectPrimaryLabels(payload);
+  const citationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
+  const citationLinksBlock = (
+    <FindingPolicyEvidenceCitationLinks model={citationModel} className="mt-4" />
+  );
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
   let insightDensityScore: number | null = null;
@@ -148,6 +154,7 @@ export function FindingInspectFindingBody({
     return (
       <>
         {whyBlock}
+        {citationLinksBlock}
         <CollapsibleSection title="View evidence" defaultOpen={false} sectionTestId="finding-evidence-collapsible">
           {evidenceBlock}
         </CollapsibleSection>
@@ -162,6 +169,7 @@ export function FindingInspectFindingBody({
   return (
     <>
       {whyBlock}
+      {citationLinksBlock}
       {reasoningSummaryBlock}
       {evidenceBlock}
       {insightDensityBlock}

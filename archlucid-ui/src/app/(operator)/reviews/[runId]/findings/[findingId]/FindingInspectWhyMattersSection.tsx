@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -5,6 +7,8 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
+import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/finding-policy-evidence-citations";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingInspectWhyMattersSectionProps = {
@@ -24,6 +28,8 @@ export function FindingInspectWhyMattersSection({
   whyThisMattersNarrative,
 }: FindingInspectWhyMattersSectionProps): ReactElement {
   const findingTitle = findingDetailHeadingTitle(payload);
+  const policyRuleId = resolvePolicyRuleIdFromInspect(payload);
+  const policyRuleLabel = resolvePolicyRuleLabelFromInspect(payload, policyRuleId);
   const whyHeading =
     findingTitle.trim().length > 0 && findingTitle !== "Finding detail"
       ? `Why ${findingTitle} matters`
@@ -47,10 +53,21 @@ export function FindingInspectWhyMattersSection({
         </p>
       )}
       <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
-        {(payload.decisionRuleName ?? payload.decisionRuleId) ? (
+        {(policyRuleLabel ?? policyRuleId) ? (
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
-            <dd className="m-0 mt-1">{payload.decisionRuleName ?? payload.decisionRuleId}</dd>
+            <dd className="m-0 mt-1">
+              {policyRuleId !== null ? (
+                <Link
+                  href={policyPacksRuleHref(policyRuleId)}
+                  className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+                >
+                  {policyRuleLabel ?? policyRuleId}
+                </Link>
+              ) : (
+                policyRuleLabel
+              )}
+            </dd>
           </div>
         ) : isBuyerPolishedOperatorShellEnv() ? (
           <div>
