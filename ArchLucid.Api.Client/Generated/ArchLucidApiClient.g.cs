@@ -68634,6 +68634,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("externalKey")]
         public string? ExternalKey { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("externalTrackingSummary")]
+        public string? ExternalTrackingSummary { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("externalUrl")]
         public string? ExternalUrl { get; set; } = default!;
 
@@ -68693,6 +68696,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
         public int? Severity { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trackedExternally")]
+        public bool? TrackedExternally { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("typedPayload")]
         public JsonElement? TypedPayload { get; set; } = default!;
@@ -78119,6 +78125,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("externalKey")]
         public string? ExternalKey { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("externalTrackingSummary")]
+        public string? ExternalTrackingSummary { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("externalUrl")]
         public string? ExternalUrl { get; set; } = default!;
 
@@ -78157,6 +78166,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
         public string? Title { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trackedExternally")]
+        public bool? TrackedExternally { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
