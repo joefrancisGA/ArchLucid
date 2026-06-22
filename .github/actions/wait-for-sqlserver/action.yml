@@ -1,0 +1,62 @@
+name: "Wait for SQL Server"
+description: "Poll SQL Server from the runner until SELECT 1 succeeds (service container warm-up beyond Docker healthcheck)."
+inputs:
+  sa-password:
+    description: "SA password for the CI SQL Server service container."
+    required: false
+    default: "LocalTesting123!"
+  server:
+    description: "SQL Server host:port for sqlcmd."
+    required: false
+    default: "127.0.0.1,1433"
+  max-attempts:
+    description: "Maximum poll attempts before failing the step."
+    required: false
+    default: "30"
+  sleep-seconds:
+    description: "Seconds to wait between poll attempts."
+    required: false
+    default: "5"
+runs:
+  using: "composite"
+  steps:
+    - name: Wait for SQL Server to accept connections
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        sa_password='${{ inputs.sa-password }}'
+        server='${{ inputs.server }}'
+        max_attempts='${{ inputs.max-attempts }}'
+        sleep_seconds='${{ inputs.sleep-seconds }}'
+
+        run_sqlcmd() {
+          if [ -x "/opt/mssql-tools18/bin/sqlcmd" ]; then
+            /opt/mssql-tools18/bin/sqlcmd -S "${server}" -U sa -P "${sa_password}" -C -Q "SELECT 1" >/dev/null 2>&1
+            return $?
+          fi
+
+          if command -v sqlcmd >/dev/null 2>&1; then
+            sqlcmd -S "${server}" -U sa -P "${sa_password}" -C -Q "SELECT 1" >/dev/null 2>&1
+            return $?
+          fi
+
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S "${server}" -U sa -P "${sa_password}" -C -Q "SELECT 1" >/dev/null 2>&1
+        }
+
+        attempt=1
+        while [ "${attempt}" -le "${max_attempts}" ]; do
+          if run_sqlcmd; then
+            echo "SQL Server ready on ${server} (attempt ${attempt}/${max_attempts})."
+            exit 0
+          fi
+
+          echo "Waiting for SQL Server on ${server}... (${attempt}/${max_attempts})"
+          attempt=$((attempt + 1))
+          sleep "${sleep_seconds}"
+        done
+
+        echo "::error::SQL Server on ${server} did not become ready after ${max_attempts} attempts."
+        exit 1

@@ -1851,7 +1851,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -1869,13 +1869,26 @@ jobs:
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
       - name: Create empty SQL catalog for DbUp
         run: |
-          set -e
+          set -euo pipefail
           docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
             mcr.microsoft.com/mssql/server:2022-latest \
             -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
             -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidCiDbUp') CREATE DATABASE ArchLucidCiDbUp;"
+          RAW=$(docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "SET NOCOUNT ON; SELECT name FROM sys.databases WHERE name = N'ArchLucidCiDbUp';" \
+            -h -1 -W)
+          if ! printf '%s\n' "$RAW" | grep -q 'ArchLucidCiDbUp'; then
+            echo "::error::ArchLucidCiDbUp catalog was not created"
+            printf '%s\n' "$RAW"
+            exit 1
+          fi
 
       - name: Apply DbUp scripts (embedded)
         env:
@@ -1921,7 +1934,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -1938,6 +1951,9 @@ jobs:
         run: |
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create empty SQL catalog for greenfield boot
         run: |
@@ -2065,7 +2081,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -2083,7 +2099,10 @@ jobs:
         run: dotnet restore ArchLucid.sln
 
       - name: Build (Release)
-        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+        run:           dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       # Parent-process chunk watchdog (Invoke-ApiIntegrationTestShard.ps1) is the primary hang defense:
       # it captures an out-of-process dotnet-dump before killing the test host. Step timeout-minutes is
@@ -2168,7 +2187,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -2186,7 +2205,10 @@ jobs:
         run: dotnet restore ArchLucid.sln
 
       - name: Build (Release)
-        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+        run:           dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Test â€” ArchLucid.Api.Tests (non-Integration, exclude Category=Slow)
         env:
@@ -2264,7 +2286,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -2282,7 +2304,10 @@ jobs:
         run: dotnet restore ArchLucid.sln
 
       - name: Build (Release)
-        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+        run:           dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       # Resolves test projects from ArchLucid.sln (excluding Api.Tests â†’ dotnet-full-regression-core-api-* shards).
       - name: Test â€” non-Api test assemblies (exclude Category=Slow)
@@ -2360,7 +2385,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -2379,6 +2404,9 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Test â€” ArchLucid.Api.Tests (Category=Slow only)
         env:
@@ -2456,7 +2484,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -2475,6 +2503,9 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       # Same as dotnet-full-regression-core-libs: SDK 10+ MSBuild rejects multiple projects in one dotnet test (MSB1008).
       - name: Test â€” domain test projects (Category=Slow only)
@@ -3365,7 +3396,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -3398,6 +3429,9 @@ jobs:
         run: |
           npm ci
           npm run build
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       # API connects with Initial Catalog set; schema bootstrap does not CREATE DATABASE (unlike dotnet test + SqlServerTestCatalogCommands).
       - name: Create SQL catalog for live API e2e
@@ -3518,7 +3552,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -3550,6 +3584,9 @@ jobs:
         run: |
           npm ci
           npm run build
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create SQL catalog for live API e2e (ApiKey)
         run: |
@@ -3664,7 +3701,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -3707,6 +3744,9 @@ jobs:
           pip install --quiet PyJWT cryptography
           openssl genrsa -out "${RUNNER_TEMP}/ci-jwt-priv.pem" 2048
           openssl rsa -in "${RUNNER_TEMP}/ci-jwt-priv.pem" -pubout -out "${RUNNER_TEMP}/ci-jwt-pub.pem"
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create SQL catalog for live API e2e (JwtBearer)
         run: |
@@ -3831,7 +3871,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -3852,6 +3892,9 @@ jobs:
       - name: Install k6
         shell: bash
         run: bash scripts/ci/install_k6_apt.sh
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create catalog + start API (shared script)
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6Smoke "${RUNNER_TEMP}/k6-api.log" "${RUNNER_TEMP}/k6-api.pid"
@@ -3941,7 +3984,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
-          --health-start-period 20s
+          --health-start-period 40s
     steps:
       - uses: actions/checkout@v5
 
@@ -3962,6 +4005,9 @@ jobs:
       - name: Install k6
         shell: bash
         run: bash scripts/ci/install_k6_apt.sh
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create catalog + start API (shared script)
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6CiSmoke "${RUNNER_TEMP}/k6-ci-api.log" "${RUNNER_TEMP}/k6-ci-api.pid"
