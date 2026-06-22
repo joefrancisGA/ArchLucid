@@ -162,7 +162,13 @@ public static class FindingFactory
         }
 
         List<string> notes = finding.EvidenceRefs.ConvertAll(static r => $"evidence:{r}");
+        List<string> citations = finding.EvidenceRefs
+            .Where(static r => !string.IsNullOrWhiteSpace(r))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
         (string? reasoningTrace, string? reasoningDigest) = ReasoningTraceBounds.Normalize(agentResult.ReasoningTrace);
+        string agentRuleId = $"agent-{agentResult.AgentType}";
+        string decisionSummary = $"Recorded architecture finding from {agentResult.AgentType} agent.";
 
         return new Finding
         {
@@ -188,7 +194,10 @@ public static class FindingFactory
             Trace = new ExplainabilityTrace
             {
                 SourceAgentExecutionTraceId = traceKey,
+                RulesApplied = [agentRuleId],
+                DecisionsTaken = [decisionSummary],
                 Notes = notes,
+                Citations = citations,
                 AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
                 ReasoningTrace = reasoningTrace,
                 ReasoningTraceDigestSha256 = reasoningDigest,
