@@ -107,7 +107,7 @@ export default function GetStartedPage(): ReactNode {
 
       {liveDemoUrl ? (
         <div className={`${MARKETING_SURFACES.mutedPanel} mt-6`} data-testid="get-started-live-demo-cta">
-          <p className={`${MARKETING_TYPOGRAPHY.section} m-0`}>Try the live demo</p>
+          <p className={`${MARKETING_TYPOGRAPHY.sectionTitle} m-0`}>Try the live demo</p>
           <p className={`mt-1 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
             Open the shared sandbox (ArchLucid in simulator mode — no install). You can review pre-seeded sample runs
             and start your own.
