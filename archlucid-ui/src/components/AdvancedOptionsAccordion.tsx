@@ -12,20 +12,41 @@ type AdvancedOptionsAccordionProps = {
   className?: string;
   /** Defaults to "Advanced Options" — use for buyer-safe disclosure of IDs and technical fields. */
   triggerLabel?: string;
+  /** When true, accordion starts expanded (e.g. after generator handoff). */
+  defaultOpen?: boolean;
+  /** Controlled open state; pair with {@link onOpenChange}. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 /**
  * Enterprise-heavy controls grouped behind progressive disclosure. Defaults closed so Core Pilot
  * surfaces stay lightweight until expanded.
  */
-export function AdvancedOptionsAccordion({ children, className, triggerLabel }: AdvancedOptionsAccordionProps) {
-  const [open, setOpen] = useState(false);
+export function AdvancedOptionsAccordion({
+  children,
+  className,
+  triggerLabel,
+  defaultOpen = false,
+  open: controlledOpen,
+  onOpenChange,
+}: AdvancedOptionsAccordionProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const open = controlledOpen ?? uncontrolledOpen;
   const panelId = useId();
+
+  function handleOpenChange(next: boolean) {
+    if (controlledOpen === undefined) {
+      setUncontrolledOpen(next);
+    }
+
+    onOpenChange?.(next);
+  }
 
   return (
     <Collapsible
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={handleOpenChange}
       className={cn(
         "rounded-lg border border-neutral-200 bg-neutral-50/70 dark:border-neutral-700 dark:bg-neutral-900/40",
         className,

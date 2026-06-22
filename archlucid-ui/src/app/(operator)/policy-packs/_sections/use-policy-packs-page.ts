@@ -31,17 +31,32 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 
-import { POLICY_PACK_ID_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy-packs-deep-link";
+import { POLICY_PACK_ID_QUERY_PARAM, POLICY_PACKS_TAB_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM } from "@/lib/policy-packs-deep-link";
+import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
+import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import { isBundledPlatformDefaultPackType } from "@/lib/policy-pack-type-label";
 
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
 import type { PolicyPacksPageServerLoad } from "./load-policy-packs-page-data";
 import type { PolicyPacksPageTab, PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
+function pageTabFromQuery(raw: string | null): PolicyPacksPageTab {
+  if (raw === "catalog") {
+    return "catalog";
+  }
+
+  if (raw === "generator") {
+    return "generator";
+  }
+
+  return "my-packs";
+}
+
 export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): PolicyPacksPageViewModel {
   const searchParams = useSearchParams();
   const packIdFromUrl = searchParams.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const ruleIdFromUrl = searchParams.get(POLICY_RULE_ID_QUERY_PARAM)?.trim() ?? "";
+  const pageTabFromUrl = pageTabFromQuery(searchParams.get(POLICY_PACKS_TAB_QUERY_PARAM));
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [packs, setPacks] = useState<PolicyPack[]>(serverLoad.packs);
@@ -52,7 +67,11 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
 
-  const [pageTab, setPageTab] = useState<PolicyPacksPageTab>("my-packs");
+  const [pageTab, setPageTab] = useState<PolicyPacksPageTab>(pageTabFromUrl);
+  const [generatedRuleCount, setGeneratedRuleCount] = useState(0);
+  const [generatedValidationErrors, setGeneratedValidationErrors] = useState<readonly string[]>([]);
+  const [authoringWizardInputMode, setAuthoringWizardInputMode] = useState<"guided" | "visual" | "json" | "ai">("guided");
+  const [authoringAdvancedOpen, setAuthoringAdvancedOpen] = useState(false);
   const [catalogItems, setCatalogItems] = useState<PolicyPackCatalogListItem[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogFailure, setCatalogFailure] = useState<ApiLoadFailureState | null>(null);
@@ -394,6 +413,55 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     setPublishJson(json);
   }, []);
 
+  useEffect(() => {
+    setPageTab(pageTabFromUrl);
+  }, [pageTabFromUrl]);
+
+  const applyGeneratedPolicyPack = useCallback(
+    (document: CuratedRulesDocument) => {
+      const result = applyGeneratedCuratedPolicyPack({
+        document,
+        existingName: name,
+        existingDescription: description,
+        publishVersion,
+        packType,
+      });
+
+      setGeneratedRuleCount(result.ruleCount);
+      setGeneratedValidationErrors(result.validationErrors);
+
+      if (result.validationErrors.length > 0) {
+        return;
+      }
+
+      setName(result.name);
+      setDescription(result.description);
+      setPackType(result.packType);
+      setPublishVersion(result.publishVersion);
+      syncPolicyContentJson(result.contentJson);
+    },
+    [description, name, packType, publishVersion, syncPolicyContentJson],
+  );
+
+  const openAuthoringWizardFromGenerator = useCallback(() => {
+    setAuthoringWizardInputMode("visual");
+    setAuthoringAdvancedOpen(true);
+    setPageTab("my-packs");
+
+    window.setTimeout(() => {
+      const wizard = globalThis.document.querySelector("[data-testid='policy-rule-authoring-wizard']");
+
+      if (wizard !== null) {
+        wizard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  }, []);
+
+  const onCreateFromGenerator = useCallback(async () => {
+    setPageTab("my-packs");
+    await onCreate();
+  }, [onCreate]);
+
   return {
     canMutatePacks,
     buyerPolishedShell,
@@ -450,5 +518,13 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     selectedPackSummary,
     syncPolicyContentJson,
     ruleIdFromUrl,
+    generatedRuleCount,
+    generatedValidationErrors,
+    applyGeneratedPolicyPack,
+    openAuthoringWizardFromGenerator,
+    authoringWizardInputMode,
+    authoringAdvancedOpen,
+    setAuthoringAdvancedOpen,
+    onCreateFromGenerator,
   };
 }

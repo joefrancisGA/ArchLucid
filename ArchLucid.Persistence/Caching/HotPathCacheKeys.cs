@@ -44,4 +44,16 @@ public static class HotPathCacheKeys
     {
         return $"{Prefix}pp:{policyPackId:N}";
     }
+
+    /// <summary>Tenant revision stamp for <see cref="EffectivePolicyPackSet" /> cache keys.</summary>
+    public static string PolicyPackResolverTenantRevision(Guid tenantId)
+    {
+        return $"{Prefix}epps-rev:{tenantId:N}";
+    }
+
+    /// <summary>Cached effective policy pack set for one scope at a tenant revision.</summary>
+    public static string EffectivePolicyPackSet(Guid tenantId, Guid workspaceId, Guid projectId, long revision)
+    {
+        return $"{Prefix}epps:{tenantId:N}:{workspaceId:N}:{projectId:N}:r{revision}";
+    }
 }

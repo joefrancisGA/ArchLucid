@@ -22,6 +22,10 @@ import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
+import {
+  readGroupByResourcePreference,
+  writeGroupByResourcePreference,
+} from "@/lib/governance-findings-group-by-resource-storage";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
@@ -198,6 +202,9 @@ function demoPhiRow(): GovernanceFindingQueueRow {
       "Review PHI handling posture with intake and security owners before production rollout; weekly exception-volume review while monitored.",
     recordKind: "finding",
     traceConfidenceLevel: "Medium",
+    systemName: "Claims Intake Platform",
+    resourceId:
+      "/subscriptions/demo/resourceGroups/ClaimsIntakeRg/providers/Microsoft.KeyVault/vaults/claims-kv-1",
   };
 }
 
@@ -224,14 +231,18 @@ function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
 function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceFindingQueueRow[] {
   return entries.map((entry) => {
     const runId = (entry.runId ?? "").trim();
+    const systemName = (entry.systemName ?? "").trim();
+    const resourceId = (entry.resourceId ?? "").trim();
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
         : "Open the finding inspector to record disposition or a time-bounded waiver.";
+    const runLabel =
+      systemName.length > 0 ? systemName : runId.length > 0 ? runId : "—";
 
     return {
       runId: runId.length > 0 ? runId : "—",
-      runLabel: runId.length > 0 ? runId : "—",
+      runLabel,
       manifestId: entry.manifestId ?? "—",
       findingId: entry.findingId,
       title: entry.title,
@@ -252,6 +263,8 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
         (entry.itsmLinkedTicketsSummary ?? "").trim().length > 0
           ? (entry.itsmLinkedTicketsSummary ?? "").trim()
           : null,
+      systemName: systemName.length > 0 ? systemName : null,
+      resourceId: resourceId.length > 0 ? resourceId : null,
     };
   });
 }
@@ -267,10 +280,17 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         : "—";
 
       const ruleHint = (t.ruleId ?? "").trim();
+      const systemName = (run.systemName ?? "").trim();
+      const runLabel =
+        (run.description ?? "").trim().length > 0
+          ? (run.description ?? "").trim()
+          : systemName.length > 0
+            ? systemName
+            : run.runId;
 
       return {
         runId: run.runId,
-        runLabel: ((run.description ?? "").trim().length > 0 ? run.description : run.runId) ?? run.runId,
+        runLabel,
         manifestId: manifestRaw.length > 0 ? manifestRaw : "—",
         findingId,
         title: titleRaw.length > 0 ? titleRaw : findingId,
@@ -287,6 +307,7 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
           typeof t.evidenceRefCount === "number" && Number.isFinite(t.evidenceRefCount)
             ? Math.trunc(t.evidenceRefCount)
             : null,
+        systemName: systemName.length > 0 ? systemName : null,
       };
     });
 }
@@ -482,6 +503,11 @@ export default function GovernanceFindingsQueueClient() {
   );
   const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
   const [savedPresets, setSavedPresets] = useState<FilterPreset[]>(() => loadSavedPresets());
+  const [groupByResource, setGroupByResource] = useState(false);
+
+  useEffect(() => {
+    setGroupByResource(readGroupByResourcePreference());
+  }, []);
 
   const saveCurrentFilterAsPreset = (): void => {
     if (registerFilter === "all") {
@@ -698,6 +724,20 @@ export default function GovernanceFindingsQueueClient() {
               >
                 Export CSV
               </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={groupByResource ? "default" : "outline"}
+                aria-pressed={groupByResource}
+                onClick={() => {
+                  const next = !groupByResource;
+
+                  setGroupByResource(next);
+                  writeGroupByResourcePreference(next);
+                }}
+              >
+                Group by resource
+              </Button>
             </div>
 
             {savedPresets.length > 0 ? (
@@ -801,6 +841,7 @@ export default function GovernanceFindingsQueueClient() {
             <GovernanceFindingsQueueDesktopTable
               rows={displayedRows}
               buyerPolishedShell={buyerPolishedShell}
+              groupByResource={groupByResource}
               selectedFindingIds={selectedFindingIds}
               onSelectionChange={setSelectedFindingIds}
             />

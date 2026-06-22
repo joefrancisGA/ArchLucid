@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>
-///     Optional USD cost estimation for LLM calls from reported token counts (Azure-style input/output split).
+///     Optional pre-tax USD cost estimation for LLM calls from reported token counts (Azure-style input/output split).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class LlmCostEstimationOptions

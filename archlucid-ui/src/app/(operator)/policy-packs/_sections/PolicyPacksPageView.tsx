@@ -15,6 +15,7 @@ import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksRefreshToolbar } from "./PolicyPacksRefreshToolbar";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
+import { PolicyPackGeneratorSection } from "./PolicyPackGeneratorSection";
 import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
@@ -84,8 +85,47 @@ export function PolicyPacksPageView(props: Props) {
           >
             Catalog
           </button>
+          {!m.buyerPolishedShell && m.canMutatePacks && !isStaticDemoPayloadFallbackEnabled() ? (
+            <button
+              type="button"
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium",
+                m.pageTab === "generator"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent/60",
+              )}
+              onClick={() => {
+                m.setPageTab("generator");
+              }}
+              aria-label={
+                m.pageTab === "generator" ? "Policy pack generator, current section" : "Policy pack generator"
+              }
+              data-testid="policy-packs-tab-generator"
+            >
+              Generate
+            </button>
+          ) : null}
         </div>
       </nav>
+
+      {m.pageTab === "generator" && !m.buyerPolishedShell && m.canMutatePacks ? (
+        <PolicyPackGeneratorSection
+          canMutatePacks={m.canMutatePacks}
+          loading={m.loading}
+          name={m.name}
+          description={m.description}
+          packType={m.packType}
+          publishVersion={m.publishVersion}
+          generatedRuleCount={m.generatedRuleCount}
+          validationErrors={m.generatedValidationErrors}
+          onNameChange={m.setName}
+          onDescriptionChange={m.setDescription}
+          onPackTypeChange={m.setPackType}
+          onGenerated={m.applyGeneratedPolicyPack}
+          onCreatePack={m.onCreateFromGenerator}
+          onOpenAuthoringWizard={m.openAuthoringWizardFromGenerator}
+        />
+      ) : null}
 
       {m.pageTab === "catalog" ? (
         <PolicyPacksCatalogSection
@@ -122,7 +162,12 @@ export function PolicyPacksPageView(props: Props) {
           />
 
           {!m.buyerPolishedShell ? (
-            <AdvancedOptionsAccordion className="mb-8">
+            <AdvancedOptionsAccordion
+              className="mb-8"
+              open={m.authoringAdvancedOpen}
+              onOpenChange={m.setAuthoringAdvancedOpen}
+              triggerLabel="Authoring wizard and inspect tools"
+            >
               {isStaticDemoPayloadFallbackEnabled() ? null : (
                 <PolicyRuleAuthoringWizard
                   canMutatePacks={m.canMutatePacks}
@@ -142,6 +187,7 @@ export function PolicyPacksPageView(props: Props) {
                   onCreate={m.onCreate}
                   onPublish={m.onPublish}
                   highlightRuleId={m.ruleIdFromUrl}
+                  initialInputMode={m.authoringWizardInputMode}
                 />
               )}
               <PolicyPacksInspectSection

@@ -46,9 +46,23 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                              ld.OccurredAtUtc AS LastReviewedUtc,
                              ld.ReviewerUserId AS OwnerUserId,
                              re.ExpiresAtUtc AS WaiverExpiresAtUtc,
-                             itsmAgg.LinkedTickets AS ItsmLinkedTicketsSummary
+                             itsmAgg.LinkedTickets AS ItsmLinkedTicketsSummary,
+                             NULLIF(LTRIM(RTRIM(ar.SystemName)), N'') AS SystemName,
+                             COALESCE(
+                                 NULLIF(LTRIM(RTRIM(resourceProp.PropertyValue)), N''),
+                                 NULLIF(LTRIM(RTRIM(JSON_VALUE(fr.PayloadJson, '$.resourceId'))), N''),
+                                 NULLIF(LTRIM(RTRIM(JSON_VALUE(fr.PayloadJson, '$.affectedResourceId'))), N'')) AS ResourceId
                       FROM dbo.FindingRecords AS fr
                       INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                      LEFT JOIN dbo.Runs AS runs ON runs.RunId = TRY_CONVERT(uniqueidentifier, fr.RunIdRef)
+                      LEFT JOIN dbo.ArchitectureRequests AS ar ON ar.RequestId = runs.ArchitectureRequestId
+                      OUTER APPLY (
+                          SELECT TOP (1) fp.PropertyValue
+                          FROM dbo.FindingProperties AS fp
+                          WHERE fp.FindingRecordId = fr.FindingRecordId
+                            AND fp.PropertyKey IN (N'resourceId', N'affectedResourceId', N'ResourceId', N'AffectedResourceId')
+                          ORDER BY fp.PropertySortOrder
+                      ) AS resourceProp
                       LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
                       LEFT JOIN dbo.RiskExceptions AS re
                           ON re.TenantId = fr.TenantId AND re.FindingId = fr.FindingId AND re.Status = N'Active'
@@ -117,6 +131,10 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                     WaiverExpiresAtUtc = waiverExpires,
                     IsStale = isStale,
                     EvidenceHref = evidenceHref,
+                    HumanReviewStatus = ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault(row.HumanReviewStatus),
+                    ItsmLinkedTicketsSummary = row.ItsmLinkedTicketsSummary,
+                    SystemName = row.SystemName,
+                    ResourceId = row.ResourceId,
                 });
         }
 
@@ -229,6 +247,18 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         }
 
         public string? ItsmLinkedTicketsSummary
+        {
+            get;
+            init;
+        }
+
+        public string? SystemName
+        {
+            get;
+            init;
+        }
+
+        public string? ResourceId
         {
             get;
             init;

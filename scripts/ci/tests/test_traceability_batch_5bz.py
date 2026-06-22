@@ -21,7 +21,7 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
         self.assertIn("Decision explainability", text)
 
     def test_tb_054_run_detail_wiring(self) -> None:
-        path = (
+        page_view_path = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -32,8 +32,21 @@ class TestTraceabilityBatch5BZ(unittest.TestCase):
             / "_sections"
             / "RunDetailPageView.tsx"
         )
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("resolveRunDecisionExplainabilityFromDetail", text)
+        deferred_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "reviews"
+            / "[runId]"
+            / "_sections"
+            / "RunDetailExplanationDeferred.tsx"
+        )
+        page_view_text = page_view_path.read_text(encoding="utf-8")
+        deferred_text = deferred_path.read_text(encoding="utf-8")
+        self.assertIn("RunDetailExplanationDeferred", page_view_text)
+        self.assertIn("resolveRunDecisionExplainabilityFromDetail", deferred_text)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ class TestAiReadinessBatch5BV(unittest.TestCase):
         self.assertIn("PolicyPackDraftService", text)
 
     def test_tb_189_authoring_wizard_panel(self) -> None:
-        path = (
+        wizard_path = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -26,8 +26,21 @@ class TestAiReadinessBatch5BV(unittest.TestCase):
             / "_sections"
             / "PolicyRuleAuthoringWizard.tsx"
         )
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("Draft a rule from plain English", text)
+        builder_path = (
+            REPO_ROOT
+            / "archlucid-ui"
+            / "src"
+            / "app"
+            / "(operator)"
+            / "policy-packs"
+            / "_sections"
+            / "PolicyPackNaturalLanguageBuilder.tsx"
+        )
+        wizard_text = wizard_path.read_text(encoding="utf-8")
+        builder_text = builder_path.read_text(encoding="utf-8")
+        self.assertIn("policy-rule-authoring-wizard", wizard_text)
+        self.assertIn("PolicyPackNaturalLanguageBuilder", wizard_text)
+        self.assertIn("generatePolicyPackFromPrompt", builder_text)
 
 
 if __name__ == "__main__":

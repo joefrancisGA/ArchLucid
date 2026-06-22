@@ -1,5 +1,7 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Governance;
+using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Integrations;
@@ -38,6 +40,7 @@ using ArchLucid.Persistence.Alerts.Simulation;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Coordination.Projection;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Orchestration;
 
@@ -413,8 +416,13 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ArchLucid.Core.Alerts.Tuning.IThresholdRecommendationService, ThresholdRecommendationService>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
 
-        services.AddScoped<ArchLucid.Core.Governance.PolicyPacks.IPolicyPackResolver, PolicyPackResolver>();
-        services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();
+        services.AddScoped<PolicyPackResolver>();
+        services.AddScoped<CachingPolicyPackResolver>();
+        services.AddScoped<ArchLucid.Core.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>
+            sp.GetRequiredService<CachingPolicyPackResolver>());
+        services.AddScoped<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>
+            new CorePolicyPackResolverAdapter(sp.GetRequiredService<CachingPolicyPackResolver>()));
+        services.AddScoped<IPolicyPackResolverCacheInvalidator, PolicyPackResolverCacheInvalidator>();
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
         services.AddScoped<ArchLucid.Core.Governance.Resolution.IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
         services.AddScoped<IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();

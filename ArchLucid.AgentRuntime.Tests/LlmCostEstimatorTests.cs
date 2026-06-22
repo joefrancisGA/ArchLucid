@@ -15,6 +15,8 @@ namespace ArchLucid.AgentRuntime.Tests;
 /// <summary>
 ///     TB-023: <see cref="ILlmCostEstimator.EstimateUsd" /> uses live rates; run-level recomputation may diverge from
 ///     persisted <c>AgentExecutionTrace.EstimatedCostUsd</c> after admin rate changes.
+///     TB-024: reasoning-token billing paths (explicit rate, output-rate fallback, per-deployment override, persisted
+///     override fallback, OTel <c>archlucid_llm_cost_usd_total</c> alignment).
 /// </summary>
 public sealed class LlmCostEstimatorTests
 {

@@ -11,6 +11,7 @@ import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { applyGeneratedCuratedPolicyPack } from "@/lib/apply-generated-curated-policy-pack";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
   guidedFieldsFromContentDocument,
@@ -54,6 +55,7 @@ export type PolicyRuleAuthoringWizardProps = {
   readonly onCreate: () => void | Promise<void>;
   readonly onPublish: () => void | Promise<void>;
   readonly highlightRuleId?: string;
+  readonly initialInputMode?: "guided" | "visual" | "json" | "ai";
 };
 
 type WizardStepId = 1 | 2 | 3;
@@ -91,10 +93,11 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     onCreate,
     onPublish,
     highlightRuleId,
+    initialInputMode = "guided",
   } = props;
 
   const [step, setStep] = useState<WizardStepId>(1);
-  const [inputMode, setInputMode] = useState<"guided" | "visual" | "json" | "ai">("guided");
+  const [inputMode, setInputMode] = useState<"guided" | "visual" | "json" | "ai">(initialInputMode);
   const [guidedFields, setGuidedFields] = useState<GuidedPolicyFields>(() => ({
     complianceRuleKeysText: "",
     alertRuleIdsText: "",
@@ -103,6 +106,10 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   }));
   const [curatedDoc, setCuratedDoc] = useState<CuratedRulesDocument>(() => createEmptyCuratedRulesDocument({}));
   const [authoringErrors, setAuthoringErrors] = useState<string[]>([]);
+
+  useEffect(() => {
+    setInputMode(initialInputMode);
+  }, [initialInputMode]);
 
   useEffect(() => {
     const doc: PolicyPackContentDocument | null = tryParseContentDocument(policyContentJson);
@@ -180,42 +187,35 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
   const applyGeneratedCuratedDocument = useCallback(
     (document: CuratedRulesDocument) => {
+      const result = applyGeneratedCuratedPolicyPack({
+        document,
+        existingName: name,
+        existingDescription: description,
+        publishVersion,
+        packType,
+      });
+
       setCuratedDoc(document);
-      setAuthoringErrors([]);
+      setAuthoringErrors([...result.validationErrors]);
 
-      if (document.pack.name.trim().length > 0 && name.trim().length === 0) {
-        onNameChange(document.pack.name);
+      if (result.validationErrors.length > 0) {
+        return;
       }
 
-      if (document.pack.description.trim().length > 0 && description.trim().length === 0) {
-        onDescriptionChange(document.pack.description);
+      if (result.name.trim().length > 0) {
+        onNameChange(result.name);
       }
 
-      const validationErrors: string[] = validateCuratedRulesDocument(document);
-
-      if (validationErrors.length === 0) {
-        const doc: PolicyPackContentDocument = composePolicyPackContentForPublish({
-          guided: guidedFields,
-          curated: document,
-          packContext: {
-            name: name.trim().length > 0 ? name : document.pack.name,
-            description: description.trim().length > 0 ? description : document.pack.description,
-            version: publishVersion,
-            packType,
-          },
-        });
-
-        onPolicyContentJsonSync(JSON.stringify(doc, null, 2));
-      } else {
-        setAuthoringErrors(validationErrors);
+      if (result.description.trim().length > 0) {
+        onDescriptionChange(result.description);
       }
 
+      onPolicyContentJsonSync(result.contentJson);
       setInputMode("visual");
       showSuccess("Generated pack loaded in the visual builder — review rules before publish.");
     },
     [
       description,
-      guidedFields,
       name,
       onDescriptionChange,
       onNameChange,
@@ -324,7 +324,11 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     (!canPublishAfterTest && !allowPublishWithoutTest);
 
   return (
-    <section className="mb-8" aria-labelledby="policy-rule-authoring-wizard-heading">
+    <section
+      className="mb-8"
+      aria-labelledby="policy-rule-authoring-wizard-heading"
+      data-testid="policy-rule-authoring-wizard"
+    >
       <h3 id="policy-rule-authoring-wizard-heading" className="mt-0">
         Rule authoring wizard
       </h3>

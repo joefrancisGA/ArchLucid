@@ -7,3 +7,6 @@ Set-Location $Root
 
 python (Join-Path $PSScriptRoot 'build_archlucid_unified_schema_sql.py')
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+python (Join-Path $PSScriptRoot 'check_archlucid_unified_schema_snapshot.py')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
