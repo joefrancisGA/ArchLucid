@@ -340,6 +340,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
         services.Configure<GenerateRunSummaryOptions>(
             configuration.GetSection(GenerateRunSummaryOptions.SectionPath));

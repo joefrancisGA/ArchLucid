@@ -28,6 +28,8 @@ using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
+using FluentValidation;
+
 using System.Security.Cryptography;
 
 using Microsoft.AspNetCore.Authorization;
@@ -59,6 +61,8 @@ public sealed partial class RunsController(
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IArchitectureApplicationService architectureApplicationService,
     IArchitectureRequestDraftService architectureRequestDraftService,
+    IChatIntakeParserService chatIntakeParserService,
+    IValidator<ArchitectureRequest> architectureRequestValidator,
     IReplayRunService replayRunService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
@@ -180,6 +184,51 @@ public sealed partial class RunsController(
 
         DraftArchitectureRequestResponse response = await architectureRequestDraftService.DraftAsync(input, cancellationToken);
         return Ok(response);
+    }
+
+    [HttpPost("chat-intake")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Chat intake is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> ChatIntake(
+        [FromBody] ChatIntakeRequest? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.RawText))
+            return this.BadRequestProblem("RawText is required.", ProblemTypes.ValidationFailed);
+
+        if (input.RawText.Trim().Length < 20)
+            return this.BadRequestProblem("RawText must be at least 20 characters.", ProblemTypes.ValidationFailed);
+
+        if (input.RawText.Trim().Length > 50_000)
+            return this.BadRequestProblem("RawText must not exceed 50000 characters.", ProblemTypes.ValidationFailed);
+
+        ArchitectureRequest parsed;
+
+        try
+        {
+            parsed = await chatIntakeParserService.ParseAsync(input, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+
+        FluentValidation.Results.ValidationResult validationResult =
+            await architectureRequestValidator.ValidateAsync(parsed, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            string detail = string.Join("; ", validationResult.Errors.Select(static error => error.ErrorMessage));
+            return this.UnprocessableEntityProblem(detail, ProblemTypes.ValidationFailed);
+        }
+
+        return Ok(parsed);
     }
 
     /// <summary>

@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { ChatIntakePanel } from "@/components/wizard/ChatIntakePanel";
 import { draftArchitectureRequest } from "@/lib/api";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -139,6 +140,7 @@ export function WizardStepDescription() {
       description="The main narrative agents use, plus optional structured requirement lines."
     >
       <div className="space-y-6">
+        <ChatIntakePanel />
         <div>
           <WizardFieldHint
             htmlFor="wizard-description"
