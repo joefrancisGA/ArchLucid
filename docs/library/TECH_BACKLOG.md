@@ -29,7 +29,7 @@
 | Supportability | 7 |
 | **Total (unique)** | **~56** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **Next recommended batch:** **TB-389** + **TB-386?387** (tenant-scoped correlation uniqueness + ITSM-aware export + native feature flag) or **TB-035** (schema-remediation attempt traces). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?389 Done (2026-06-22).** **Next recommended batch:** **TB-390** + **TB-391** (inbound webhook snapshot scoping + ServiceNow copy-as-task). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -148,10 +148,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
-| TB-389 | Tenant-scope `ItsmFindingCorrelations` unique constraint ? replace global `UNIQUE (Provider, ExternalKey)` with `UNIQUE (TenantId, Provider, ExternalKey)`; migration in unified DDL + DbUp; integration test for cross-tenant same-key coexistence | Data consistency P0 ? multi-tenant SaaS collision risk on shared Jira keys | XS |
-| TB-386 | ITSM-aware findings export ? extend `ArchitectureRunFindingsCsvFormatter` and findings list/inspect JSON with `Provider`, `ExternalKey`, `ExternalUrl`, `HumanReviewStatus`, latest `Disposition`, `RevisitDueUtc` via join to `ItsmFindingCorrelations` + disposition projection | Interoperability P1 ? V1 integration seam; buyers reconcile findings with external tickets without extra API calls | S |
-| TB-387 | Native ITSM feature flag for V1 GA ? `Integrations:Itsm:NativeEnabled` (default false for V1 GA posture); gate `ItsmOutboundQuickActions`, `FindingInspectItsmWorkflowPanel`, and outbound create API; keep manual copy-as-work-item + correlation register always on | Adoption friction P1 ? align shipped TB-063 UI with V1.1 scope docs without removing seams | XS |
-| TB-388 | ITSM correlation lifecycle audit events — **Done (2026-06-22)** — `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 — evidence trail for external tracking metadata changes | XS |
+| TB-389 | Tenant-scope `ItsmFindingCorrelations` unique constraint — **Done (2026-06-22)** — `UNIQUE (TenantId, Provider, ExternalKey)`; migration + integration test | Data consistency P0 | XS |
+| TB-386 | ITSM-aware findings export — **Done (2026-06-22)** — CSV + list/inspect JSON external tracking fields via enrichment service | Interoperability P1 | S |
+| TB-387 | Native ITSM feature flag — **Done (2026-06-22)** — `Integrations:Itsm:NativeEnabled` (default false); gates outbound create API + one-click UI; copy-as-work-item + correlations always on | Adoption friction P1 | XS |
+| TB-388 | ITSM correlation lifecycle audit events — **Done (2026-06-22)** — `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 | XS |
 | TB-390 | ITSM inbound webhook snapshot scoping ? scope inbound `HumanReviewStatus` UPDATE to the intended snapshot/`FindingRecordId` row instead of all tenant rows sharing a `FindingId` | Correctness P1 ? prevents unintended cross-snapshot status mirror | S |
 | TB-391 | ServiceNow copy-as-task + `trackedExternally` projection ? add `serviceNowText` to `WorkItemClipboardFormat`; computed `TrackedExternally` boolean on finding inspect/list read models (derived from correlations, not a persisted flag) | Interoperability P2 ? V1 nice-to-have manual bridge parity | S |
 | TB-392 | Per-tenant Jira/ServiceNow credentials ? mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | Trustworthiness P1 ? **V1.1**; blocks true per-tenant connector setup | M |
@@ -11107,6 +11107,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-386 — ITSM-aware findings export (CSV + JSON) — **V1 integration seam**
 
+**Status:** **Done (2026-06-22)** — `RunFindingExternalTrackingEnrichmentService`; CSV columns + list/inspect JSON fields; OpenAPI snapshot updated.
+
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
 **Problem:**
@@ -11143,6 +11145,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-387 — Native ITSM feature flag for V1 GA — **V1 integration seam**
 
+**Status:** **Done (2026-06-22)** — `Integrations:Itsm:NativeEnabled` (default false); `ItsmNativeIntegrationGate`; outbound create 404 when disabled; UI create actions gated via health `nativeEnabled`; copy-as-work-item + correlations unchanged.
+
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22). Scope/docs drift: **TB-063** shipped native UI while [`V1_DEFERRED.md`](V1_DEFERRED.md) §6 keeps first-party ITSM in V1.1.
 
 **Problem:**
@@ -11176,6 +11180,8 @@ One-click Jira/ServiceNow actions are visible whenever deployment ITSM config ex
 
 ## TB-388 — ITSM correlation lifecycle audit events — **V1 integration seam**
 
+**Status:** **Done (2026-06-22)** — audit types + PATCH/DELETE on `ItsmCorrelationController`; catalog/matrix updated.
+
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
 **Problem:**
@@ -11205,6 +11211,8 @@ One-click Jira/ServiceNow actions are visible whenever deployment ITSM config ex
 ---
 
 ## TB-389 — Tenant-scope `ItsmFindingCorrelations` unique constraint — **V1 architecture hardening**
+
+**Status:** **Done (2026-06-22)** — `UNIQUE (TenantId, Provider, ExternalKey)` migration; cross-tenant same-key integration test.
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 

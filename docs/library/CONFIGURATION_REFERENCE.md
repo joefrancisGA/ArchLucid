@@ -21,6 +21,14 @@ These keys are **not** in `ConfigurationKeyCatalog` (Next.js `NEXT_PUBLIC_*` onl
 
 Signup first-touch uses a first-party cookie (`marketing-first-touch.ts`) propagated as **`x-archlucid-first-touch`** on provisioning — not an env var.
 
+## ITSM integration posture (TB-387)
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `Integrations:Itsm:NativeEnabled` | `false` | When `false` (V1 GA default), `POST /v1/integrations/itsm/outbound/issues` returns **404** and the operator UI hides one-click Jira/ServiceNow create. **Copy-as-work-item**, correlation register (`GET`/`POST` `/v1/integrations/itsm/correlations`), and ITSM export columns remain enabled. Set `true` to restore TB-063 native create behaviour. `GET /v1/integrations/itsm/health` exposes `nativeEnabled` for UI gating. |
+
+Outbound vendor credentials remain under **`Integrations:ItsmOutbound:*`** and **`Integrations:ItsmInbound:*`** (unchanged).
+
 ## Tooling
 
 - Validate locally: `archlucid config check` (add `--no-api` to skip the API snapshot; use global `--json` for machine-readable output; exit `0` when all *required* keys for the current mode are set, exit `4` when not).

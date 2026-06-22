@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Integrations;
 

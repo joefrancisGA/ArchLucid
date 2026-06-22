@@ -71,6 +71,10 @@ Also:
 | **Procurement ZIP** | Reproducible `dist/procurement-pack.zip` via `scripts/build_procurement_pack.sh` / `.ps1`. See [TRUST_CENTER.md](TRUST_CENTER.md). |
 | **AsyncAPI** | Async contract for webhook and Service Bus consumers (see matrix + [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)). |
 
+### V1 GA — integration seams (manual bridge; native create gated)
+
+V1 ships **correlation register**, **copy-as-work-item**, **ITSM-aware findings export**, and **inbound webhook sync** without requiring first-party connector productization. One-click outbound Jira/ServiceNow create is **off by default** via **`Integrations:Itsm:NativeEnabled=false`** ([`../library/CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md)); enable the flag to restore TB-063 native create in environments where V1.1 connector posture is intended.
+
 ### V1.1 committed — first-party ITSM connectors
 
 Ship tracks **V1.1** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13); marketplace/store listings may trail usable connectors.
