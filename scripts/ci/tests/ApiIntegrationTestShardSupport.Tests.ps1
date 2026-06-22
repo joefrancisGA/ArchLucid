@@ -46,4 +46,19 @@ Describe 'ApiIntegrationTestShardSupport' {
 
         $filter | Should Be 'Category!=Slow&Category=Integration&(FullyQualifiedName~ArchLucid.Api.Tests.FooTests)'
     }
+
+    It 'returns flat string filter chunks when wrapped with @()' {
+        $classNames = 1..45 | ForEach-Object { "ArchLucid.Api.Tests.Class$_" }
+
+        $filterChunks = @(Split-ApiIntegrationTestClassFilterChunks `
+            -ClassNames $classNames `
+            -BaseFilter 'Category!=Slow&Category=Integration' `
+            -ChunkSize 40)
+
+        $filterChunks.Count | Should Be 2
+
+        foreach ($filterChunk in $filterChunks) {
+            $filterChunk -is [string] | Should Be $true
+        }
+    }
 }
