@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 export type OperatorPageHeaderProps = {
   title: string;
   subtitle?: string;
+  /** Stable Playwright anchor for the primary page title. */
+  titleTestId?: string;
   /**
    * @deprecated Heading-level contextual help icons are not rendered. Use `subtitle` or in-page guidance links.
    */
@@ -31,6 +33,7 @@ export type OperatorPageHeaderProps = {
 export function OperatorPageHeader({
   title,
   subtitle,
+  titleTestId,
   metadata,
   actions,
   children,
@@ -38,7 +41,12 @@ export function OperatorPageHeader({
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">{title}</h2>
+        <h2
+          className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50"
+          {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
+        >
+          {title}
+        </h2>
         {actions != null && (
           <div className="ml-auto flex flex-wrap items-center gap-2">{actions}</div>
         )}

@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+import { expectAnyLocatorVisible } from "./locator-readiness";
+
 import {
   ASK_PAGE_PRIMARY_HEADING_PATTERN,
   FIXTURE_LEFT_RUN_ID,
@@ -61,21 +63,28 @@ export function governancePageMainHeading(page: Page): Locator {
  * `/graph` readiness: interactive canvas, explicit load affordance, or buyer-polished trace-table default.
  * Buyer-polished demo builds default to the trace table before graph view — older specs only matched canvas / Load graph.
  */
-export function graphPageReadySurface(page: Page): Locator {
+export function graphPageReadySurfaceCandidates(page: Page): Locator[] {
   const main = page.getByRole("main");
 
-  return main
-    .getByTestId("graph-canvas-ready")
-    .first()
-    .or(main.getByTestId("evidence-trail-trace-table").first())
-    .or(main.getByTestId("evidence-trail-trace-empty").first())
-    .or(main.getByTestId("graph-viewer-chunk-loading").first())
-    .or(main.getByRole("button", { name: /^Load graph$/i }).first())
-    .or(main.getByRole("button", { name: /^Load evidence trail$/i }).first());
+  return [
+    main.getByTestId("graph-canvas-ready"),
+    main.getByTestId("evidence-trail-trace-table"),
+    main.getByTestId("evidence-trail-trace-empty"),
+    main.getByTestId("graph-viewer-chunk-loading"),
+    main.getByRole("button", { name: /^Load graph$/i }),
+    main.getByRole("button", { name: /^Load evidence trail$/i }),
+  ];
+}
+
+/** @deprecated Prefer {@link expectGraphPageReadySurface}; retained for specs that compose locators manually. */
+export function graphPageReadySurface(page: Page): Locator {
+  const [first, ...rest] = graphPageReadySurfaceCandidates(page);
+
+  return rest.reduce((combined, candidate) => combined.or(candidate.first()), first.first());
 }
 
 export async function expectGraphPageReadySurface(page: Page, options?: { timeout?: number }): Promise<void> {
-  await expect(graphPageReadySurface(page)).toBeVisible(options);
+  await expectAnyLocatorVisible(graphPageReadySurfaceCandidates(page), options?.timeout ?? 15_000);
 }
 
 /**

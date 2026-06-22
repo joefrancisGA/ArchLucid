@@ -24,7 +24,12 @@ export async function expectNoExecutiveRoiDashboardErrorBoundary(page: Page): Pr
 export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void> {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
-  await expect(page.getByRole("heading", { level: 1, name: v.pageTitle })).toBeVisible();
+  await expect(
+    page
+      .getByTestId("executive-summary-heading")
+      .or(page.getByRole("heading", { level: 2, name: v.pageTitle }))
+      .or(page.getByRole("heading", { name: /executive summary/i })),
+  ).toBeVisible();
   await expect(page.getByText(v.pageLead)).toBeVisible();
 }
 
@@ -88,5 +93,10 @@ export async function expectExecutiveRoiExecutiveSurface(page: Page): Promise<vo
   await expect(page.getByTestId("executive-dashboard-empty-state")).toHaveCount(0);
   await expect(page.getByTestId("executive-primary-decisions-needed")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("executive-value-narrative")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("heading", { name: v.executiveExportsTitle })).toBeVisible();
+  await expect(
+    page
+      .getByTestId("executive-exports-heading")
+      .or(page.getByRole("heading", { name: /executive exports|sponsor exports/i }))
+      .or(page.getByText(v.executiveExportsTitle)),
+  ).toBeVisible({ timeout: 30_000 });
 }

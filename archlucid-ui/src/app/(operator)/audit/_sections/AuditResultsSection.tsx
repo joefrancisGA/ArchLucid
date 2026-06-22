@@ -104,7 +104,13 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
           </>
         )}
       </p>
-      <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
+      <p
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="audit-search-summary"
+        className="text-neutral-600 dark:text-neutral-400 text-sm mt-0"
+      >
         {formatAuditSummaryHeading(events.length, hasMoreResults)}.
         {buyerPolishedShell ? null : " Newest first; use Load more for older entries."}
       </p>
