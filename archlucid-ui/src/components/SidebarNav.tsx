@@ -1,10 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 
 import { GovernanceModeToggle } from "@/components/GovernanceModeToggle";
+import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { SidebarNavLayoutSettingsPanel } from "@/components/sidebar-nav/SidebarNavLayoutSettingsPanel";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
@@ -22,11 +22,6 @@ import {
   sidebarNavGroupIsExpanded,
   type SidebarCollapsibleNavGroupId,
 } from "@/lib/sidebar-nav-group-expansion-storage";
-
-const SidebarRecentActivityCard = dynamic(
-  () => import("@/components/SidebarRecentActivityCard").then((module) => module.SidebarRecentActivityCard),
-  { loading: () => null },
-);
 
 /**
  * Grouped sidebar navigation (desktop). Review work stays open; deeper groups collapse by default
