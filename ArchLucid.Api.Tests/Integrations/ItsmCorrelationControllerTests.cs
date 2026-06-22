@@ -33,6 +33,13 @@ public sealed class ItsmCorrelationControllerTests
         ItsmFindingCorrelationRecord current = CreateRecord("finding-1", "Jira", "PROJ-2", "sys-2");
 
         correlations
+            .Setup(repo => repo.TryResolveLatestCommittedFindingRecordIdAsync(
+                TenantId,
+                "finding-1",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)null);
+
+        correlations
             .Setup(repo => repo.RegisterAsync(
                 TenantId,
                 It.IsAny<Guid>(),
@@ -41,6 +48,7 @@ public sealed class ItsmCorrelationControllerTests
                 "Jira",
                 "PROJ-1",
                 "sys-1",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

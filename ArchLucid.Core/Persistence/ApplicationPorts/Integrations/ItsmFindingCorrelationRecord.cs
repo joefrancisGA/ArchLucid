@@ -50,4 +50,14 @@ public sealed class ItsmFindingCorrelationRecord
         get;
         init;
     }
+
+    /// <summary>
+    ///     Relational <c>dbo.FindingRecords</c> row correlated at outbound create / operator register time (TB-390).
+    ///     When null, inbound sync falls back to the latest committed snapshot row for <see cref="FindingId" />.
+    /// </summary>
+    public Guid? FindingRecordId
+    {
+        get;
+        init;
+    }
 }

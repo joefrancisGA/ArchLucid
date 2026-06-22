@@ -50,6 +50,7 @@ public sealed class SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlInte
             "Jira",
             externalKey,
             null,
+            null,
             CancellationToken.None);
 
         await sut.RegisterAsync(
@@ -59,6 +60,7 @@ public sealed class SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlInte
             "finding-b",
             "Jira",
             externalKey,
+            null,
             null,
             CancellationToken.None);
 
@@ -97,6 +99,7 @@ public sealed class SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlInte
             "finding-1",
             "Jira",
             externalKey,
+            null,
             null,
             CancellationToken.None);
 
@@ -153,8 +156,8 @@ public sealed class SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlInte
         await SeedTenantAsync(connectionFactory, tenants, tenantA, workspaceA, projectA);
         await SeedTenantAsync(connectionFactory, tenants, tenantB, workspaceB, projectB);
 
-        await sut.RegisterAsync(tenantA, workspaceA, projectA, "finding-a", "Jira", externalKey, null, CancellationToken.None);
-        await sut.RegisterAsync(tenantB, workspaceB, projectB, "finding-b", "Jira", externalKey, null, CancellationToken.None);
+        await sut.RegisterAsync(tenantA, workspaceA, projectA, "finding-a", "Jira", externalKey, null, null, CancellationToken.None);
+        await sut.RegisterAsync(tenantB, workspaceB, projectB, "finding-b", "Jira", externalKey, null, null, CancellationToken.None);
 
         ItsmFindingCorrelationRecord? ambiguous =
             await sut.TryGetByExternalKeyAsync("Jira", externalKey, CancellationToken.None);

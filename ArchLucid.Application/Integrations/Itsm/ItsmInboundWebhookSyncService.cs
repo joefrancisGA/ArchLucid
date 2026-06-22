@@ -134,7 +134,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
             return findingIdReject;
 
-        if (!await _correlations.FindingRecordExistsAsync(row.TenantId, row.FindingId, ct).ConfigureAwait(false))
+        if (!await _correlations.FindingRecordExistsAsync(row.TenantId, row.FindingId, row.FindingRecordId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
                 false,
@@ -154,7 +154,7 @@ public sealed class ItsmInboundWebhookSyncService(
         }
 
         int updated = await _correlations
-            .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, ct)
+            .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
             .ConfigureAwait(false);
 
         if (updated == 0)
@@ -266,7 +266,7 @@ public sealed class ItsmInboundWebhookSyncService(
 
             return findingIdReject;
 
-        if (!await _correlations.FindingRecordExistsAsync(row.TenantId, row.FindingId, ct).ConfigureAwait(false))
+        if (!await _correlations.FindingRecordExistsAsync(row.TenantId, row.FindingId, row.FindingRecordId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
                 false,
@@ -286,7 +286,7 @@ public sealed class ItsmInboundWebhookSyncService(
         }
 
         int updated = await _correlations
-            .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, ct)
+            .UpdateHumanReviewStatusForFindingAsync(row.TenantId, row.FindingId, humanReview, row.FindingRecordId, ct)
             .ConfigureAwait(false);
 
         if (updated == 0)

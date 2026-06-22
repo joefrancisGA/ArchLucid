@@ -91,6 +91,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
                     "Jira",
                     "WM-777",
                     "501",
+                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -143,6 +144,7 @@ public sealed class ItsmOutboundJiraWireMockHttpIntegrationTests
                         "Jira",
                         "WM-777",
                         "501",
+                        It.IsAny<Guid?>(),
                         It.IsAny<CancellationToken>()),
                 Times.Once);
     }

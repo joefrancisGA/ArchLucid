@@ -25,6 +25,7 @@ public sealed class InMemoryItsmFindingCorrelationRepositoryLifecycleTests
             "Jira",
             "PROJ-1",
             "sys-1",
+            null,
             CancellationToken.None);
 
         await sut.RegisterAsync(
@@ -34,6 +35,7 @@ public sealed class InMemoryItsmFindingCorrelationRepositoryLifecycleTests
             "finding-b",
             "Jira",
             "PROJ-OTHER",
+            null,
             null,
             CancellationToken.None);
 
@@ -78,6 +80,7 @@ public sealed class InMemoryItsmFindingCorrelationRepositoryLifecycleTests
             "finding-a",
             "ServiceNow",
             "INC001",
+            null,
             null,
             CancellationToken.None);
 

@@ -79,6 +79,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
                 "Jira",
                 "DP-9",
                 "1",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

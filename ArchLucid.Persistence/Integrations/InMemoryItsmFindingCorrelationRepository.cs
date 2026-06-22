@@ -90,6 +90,7 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         string provider,
         string externalKey,
         string? externalSysId,
+        Guid? findingRecordId,
         CancellationToken ct)
     {
         if (tenantId == Guid.Empty)
@@ -106,6 +107,28 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
 
         string k = Key(tenantId, provider, externalKey);
 
+        if (_byKey.TryGetValue(k, out ItsmFindingCorrelationRecord? existing) &&
+            existing.FindingRecordId is null &&
+            findingRecordId is not null)
+        {
+            ItsmFindingCorrelationRecord updated = new()
+            {
+                TenantId = existing.TenantId,
+                WorkspaceId = existing.WorkspaceId,
+                ProjectId = existing.ProjectId,
+                FindingId = existing.FindingId,
+                Provider = existing.Provider,
+                ExternalKey = existing.ExternalKey,
+                ExternalSysId = existing.ExternalSysId,
+                CreatedUtc = existing.CreatedUtc,
+                FindingRecordId = findingRecordId
+            };
+
+            _byKey[k] = updated;
+
+            return Task.CompletedTask;
+        }
+
         _ = _byKey.TryAdd(
             k,
             new ItsmFindingCorrelationRecord
@@ -117,11 +140,27 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
                 Provider = provider.Trim(),
                 ExternalKey = externalKey.Trim(),
                 ExternalSysId = string.IsNullOrWhiteSpace(externalSysId) ? null : externalSysId.Trim(),
-                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                FindingRecordId = findingRecordId
             });
 
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task<Guid?> TryResolveFindingRecordIdForRunFindingAsync(
+        Guid tenantId,
+        Guid runId,
+        string findingId,
+        CancellationToken ct) =>
+        Task.FromResult<Guid?>(null);
+
+    /// <inheritdoc />
+    public Task<Guid?> TryResolveLatestCommittedFindingRecordIdAsync(
+        Guid tenantId,
+        string findingId,
+        CancellationToken ct) =>
+        Task.FromResult<Guid?>(null);
 
     /// <inheritdoc />
     public Task<ItsmFindingCorrelationUpdateResult> UpdateExternalTrackingAsync(
@@ -199,6 +238,7 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
             Provider = trimmedProvider,
             ExternalKey = trimmedExternalKey,
             ExternalSysId = trimmedExternalSysId,
+            FindingRecordId = prior.FindingRecordId,
             CreatedUtc = prior.CreatedUtc
         };
 
@@ -254,6 +294,7 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         Guid tenantId,
         string findingId,
         string humanReviewStatus,
+        Guid? findingRecordId,
         CancellationToken ct)
     {
         if (tenantId == Guid.Empty)
@@ -270,7 +311,11 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
     }
 
     /// <inheritdoc />
-    public Task<bool> FindingRecordExistsAsync(Guid tenantId, string findingId, CancellationToken ct)
+    public Task<bool> FindingRecordExistsAsync(
+        Guid tenantId,
+        string findingId,
+        Guid? findingRecordId,
+        CancellationToken ct)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));

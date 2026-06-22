@@ -78,6 +78,10 @@ public sealed class ItsmCorrelationController(
 
         ScopeContext ctx = _scope.GetCurrentScope();
 
+        Guid? findingRecordId =
+            await _correlations.TryResolveLatestCommittedFindingRecordIdAsync(ctx.TenantId, body.FindingId, ct)
+                .ConfigureAwait(false);
+
         await _correlations.RegisterAsync(
                 ctx.TenantId,
                 ctx.WorkspaceId,
@@ -86,6 +90,7 @@ public sealed class ItsmCorrelationController(
                 provider,
                 body.ExternalKey,
                 body.ExternalSysId,
+                findingRecordId,
                 ct)
             .ConfigureAwait(false);
 
