@@ -27,6 +27,7 @@ internal static class SqlConnectionCredentialRules
         ArgumentNullException.ThrowIfNull(errors);
 
         // Staging may use SQL auth during early setup; LogStagingWarningsIfPresent logs instead of failing startup.
+
         if (environment.IsStaging())
             return;
 
