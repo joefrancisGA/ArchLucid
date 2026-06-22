@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Governance;
@@ -7,6 +8,8 @@ using ArchLucid.TestSupport;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 
 namespace ArchLucid.Application.Tests.Governance;
 
@@ -27,6 +30,7 @@ public sealed class DefaultPolicyPackSeederTests
             assignments,
             changeLog,
             uowFactory,
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
             NullLogger<PolicyPackManagementService>.Instance);
 
         DefaultPolicyPackSeeder sut = new(management, packs, NullLogger<DefaultPolicyPackSeeder>.Instance);
@@ -68,6 +72,7 @@ public sealed class DefaultPolicyPackSeederTests
             assignments,
             changeLog,
             uowFactory,
+            new Mock<IPolicyPackResolverCacheInvalidator>().Object,
             NullLogger<PolicyPackManagementService>.Instance);
 
         DefaultPolicyPackSeeder sut = new(management, packs, NullLogger<DefaultPolicyPackSeeder>.Instance);
