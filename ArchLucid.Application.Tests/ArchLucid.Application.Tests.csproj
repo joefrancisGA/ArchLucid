@@ -54,6 +54,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\ArchLucid.Decisioning\Compliance\RulePacks\default-compliance.rules.json" Link="Compliance\RulePacks\default-compliance.rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\ArchLucid.Decisioning\Compliance\RulePacks\ga-starter-compliance.rules.json" Link="Compliance\RulePacks\ga-starter-compliance.rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Exports\ArchitectureReviewBoard\Golden\architecture-review-board-section-headings-order.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Exports\Golden\executive-review-packet-demo-run.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
