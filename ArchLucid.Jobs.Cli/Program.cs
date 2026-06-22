@@ -7,7 +7,6 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Host.Core.Startup;
-using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
