@@ -230,11 +230,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   /**
-   * Pack content / lifecycle sits inside {@link AdvancedOptionsAccordion}; Radix keeps closed panel content out of the
-   * accessibility tree, so gates on Create pack etc. must open the accordion first (same pattern as governance tests).
+   * Pack content / lifecycle sits inside {@link AdvancedOptionsAccordion} (label: Authoring wizard and inspect tools);
+   * Radix keeps closed panel content out of the accessibility tree, so gates on Create pack etc. must open the accordion
+   * first (same pattern as governance tests).
    */
   async function expandPolicyPacksAdvancedOptions(): Promise<void> {
-    const toggle = screen.getByRole("button", { name: /^Advanced Options$/ });
+    const toggle = screen.getByRole("button", { name: /^Authoring wizard and inspect tools$/ });
 
     fireEvent.click(toggle);
 
