@@ -41,7 +41,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-114 ? TB-120** were added 2026-05-30 from the owner-ratified UI design standard (decision date 2026-05-27). They close the gap between the current Tailwind/shadcn default aesthetics and the **IBM Carbon?inspired enterprise visual language** mandated for V1 GA. Canonical standard: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **TB-114** (design tokens) and **TB-115** (surface/card pass) are foundational and should be done first; **TB-116** (status tags) and **TB-117** (data tables) unlock governance credibility; **TB-118** (spacing) and **TB-119** (typography) are polish; **TB-120** (agent rule) ensures future AI-written code stays conformant.
 
-**Recently shipped (IDs kept for grep, ADRs, and code comments ? spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-024** (reasoning-token test coverage), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
+**Recently shipped (IDs kept for grep, ADRs, and code comments ? spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-024** (reasoning-token test coverage), **TB-025** (LLM cost OTel pretax / double-cast annotations), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
 
 **TB-022 ? TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
 
@@ -2265,6 +2265,8 @@ EstimateUsd_per_deployment_reasoning_overrides_global()
 ---
 
 ## TB-025 ? `LlmCostEstimator` ? annotate OTel `double` cast and pretax nature
+
+**Status:** **Done (2026-06-22)** ? `LlmCostUsdTotal` instrument description documents pre-tax monitoring-grade semantics, IEEE 754 `decimal`-to-`double` rounding, and VAT/GST exclusion; `RecordLlmCostUsd` inline comment; `LlmCostEstimationOptions` pre-tax section header; CI drift guard **`scripts/ci/tests/test_llm_cost_estimator_tb025.py`**. `ILlmCostEstimator` / `EstimateUsd` pre-tax remarks shipped with TB-023.
 
 **Source:** Cost estimator audit-grade correctness review (2026-05-24).
 

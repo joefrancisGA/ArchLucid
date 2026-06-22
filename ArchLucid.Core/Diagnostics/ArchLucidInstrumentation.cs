@@ -1125,14 +1125,14 @@ public static class ArchLucidInstrumentation
             "Wall time for GenAI client operations (complements HTTP client spans; no prompt or completion text).");
 
     /// <summary>
-    ///     Estimated LLM spend (USD) from configured per-million token rates on recorded traces (label <c>tenant</c>).
-    ///     This is a pre-tax estimate subject to IEEE 754 rounding.
+    ///     Pre-tax estimated LLM spend counter (label <c>tenant</c>). Monitoring-grade only — not invoice-reconciliation-grade.
+    ///     See instrument description for IEEE 754 <c>decimal</c>-to-<c>double</c> rounding caveats (TB-025).
     /// </summary>
     public static readonly Counter<double> LlmCostUsdTotal =
         AppMeter.CreateCounter<double>(
             "archlucid_llm_cost_usd_total",
             "USD",
-            "Estimated LLM USD from token counts × AgentExecution:LlmCostEstimation rates (label tenant).");
+            "Pre-tax estimated LLM spend in USD from token counts × configured per-million rates (label tenant). Monitoring-grade only — not invoice-reconciliation-grade; the decimal-to-double cast introduces sub-microdollar IEEE 754 rounding. Does not include VAT/GST.");
 
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered" />.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges
@@ -2262,7 +2262,10 @@ public static class ArchLucidInstrumentation
         BillingCheckoutsTotal.Add(1, tags);
     }
 
-    /// <summary>Adds <paramref name="estimatedCostUsd" /> to <see cref="LlmCostUsdTotal" /> when positive.</summary>
+    /// <summary>
+    ///     Adds pre-tax <paramref name="estimatedCostUsd" /> to <see cref="LlmCostUsdTotal" /> when positive.
+    ///     Values are cast to <see cref="double" /> for the OTel counter (monitoring-grade IEEE 754 rounding only).
+    /// </summary>
     public static void RecordLlmCostUsd(decimal estimatedCostUsd, string? tenantLabel)
     {
         if (estimatedCostUsd <= 0m)
@@ -2271,7 +2274,8 @@ public static class ArchLucidInstrumentation
         string tenant = string.IsNullOrWhiteSpace(tenantLabel) ? "unknown" : tenantLabel.Trim();
         TagList tags = new() { { "tenant", tenant } };
 
-        // Cast to double for OTel counter; this is a pre-tax estimate subject to IEEE 754 rounding.
+        // OTel Counter<double> requires double; sub-microdollar decimal values are not always exactly representable
+        // in IEEE 754. Acceptable for dashboards/alerts — use persisted decimal EstimatedCostUsd for audit reconciliation.
         LlmCostUsdTotal.Add((double)estimatedCostUsd, tags);
     }
 
