@@ -128,6 +128,7 @@
     "POST /v1/governance/approval-requests/{approvalRequestId}/reject": "operator-documented-safe-retry",
     "POST /v1/governance/findings/{findingId}/dispositions": "operator-documented-safe-retry",
     "POST /v1/governance/policy-pack/draft": "dry-run-no-persist",
+    "POST /v1/governance/policy-pack/generate": "dry-run-no-persist",
     "POST /v1/governance/policy-packs/dry-run": "explicit-idempotency-key",
     "POST /v1/governance/policy-packs/{id}/dry-run": "explicit-idempotency-key",
     "POST /v1/governance/pre-commit/simulate": "dry-run-no-persist",

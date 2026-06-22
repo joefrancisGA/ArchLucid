@@ -61,6 +61,7 @@ public sealed class GovernanceControllerDashboardTests
             Mock.Of<IPolicyPackSchemaKeysService>(),
             Mock.Of<Core.Audit.IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
             NullLogger<GovernanceController>.Instance);
 
         IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);

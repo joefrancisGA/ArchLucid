@@ -342,6 +342,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
+        services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();
         services.Configure<GenerateRunSummaryOptions>(
             configuration.GetSection(GenerateRunSummaryOptions.SectionPath));
         services.AddScoped<IRunSummaryOnePagerExportService, RunSummaryOnePagerExportService>();

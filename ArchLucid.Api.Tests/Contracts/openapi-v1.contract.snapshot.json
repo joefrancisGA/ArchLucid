@@ -7690,6 +7690,30 @@
         },
         "type": "object"
       },
+      "GeneratePolicyPackRequest": {
+        "properties": {
+          "prompt": {
+            "maxLength": 8000,
+            "minLength": 20,
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "type": "object"
+      },
+      "GeneratePolicyPackResponse": {
+        "properties": {
+          "curatedRulesDocumentJson": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "DraftQuestionsResponse": {
         "properties": {
           "draftId": {
@@ -51624,6 +51648,86 @@
               }
             },
             "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "Governance"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/policy-pack/generate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*+json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GeneratePolicyPackRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GeneratePolicyPackRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GeneratePolicyPackRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratePolicyPackResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratePolicyPackResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratePolicyPackResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
           }
         },
         "tags": [
