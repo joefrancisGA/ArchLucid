@@ -1386,6 +1386,14 @@ jobs:
       - name: Assert ArchLucid.Api.Client NSwag output in sync
         run: bash scripts/ci/assert_api_client_in_sync.sh
 
+      - name: Setup Node (for openapi-typescript TypeScript drift check)
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Assert TypeScript api-types.generated.ts in sync with OpenAPI snapshot
+        run: bash scripts/ci/assert_api_types_in_sync.sh
+
       - name: Upload generated OpenAPI contract artifact
         if: always()
         uses: actions/upload-artifact@v6

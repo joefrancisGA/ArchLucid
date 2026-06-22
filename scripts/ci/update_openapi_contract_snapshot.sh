@@ -31,9 +31,11 @@ dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj -c Release
 if [ "${ARCHLUCID_REGENERATE_UI_API_TYPES:-0}" = "1" ]; then
   echo "Regenerating archlucid-ui TypeScript API types..."
   cd "${ROOT}/archlucid-ui"
-  npx openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json \
+  npx --yes openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json \
     -o src/lib/api-types.generated.ts
   cd "$ROOT"
+  echo "Verifying api-types.generated.ts is now in sync..."
+  bash scripts/ci/assert_api_types_in_sync.sh
 fi
 
 echo "Verifying snapshots match generated /openapi/v1.json..."

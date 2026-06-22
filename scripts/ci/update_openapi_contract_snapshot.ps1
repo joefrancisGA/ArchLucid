@@ -30,13 +30,16 @@ if ($env:ARCHLUCID_REGENERATE_UI_API_TYPES -eq '1') {
     $npx = if (Get-Command npx.cmd -ErrorAction SilentlyContinue) { 'npx.cmd' } else { 'npx' }
     Push-Location (Join-Path $Root 'archlucid-ui')
     try {
-        & $npx openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json `
+        & $npx --yes openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json `
             -o src/lib/api-types.generated.ts
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
     finally {
         Pop-Location
     }
+    Write-Host 'Verifying api-types.generated.ts is now in sync...'
+    & (Join-Path $Root 'scripts\ci\assert_api_types_in_sync.ps1')
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
 Write-Host 'Verifying snapshots match generated /openapi/v1.json...'
