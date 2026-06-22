@@ -18,8 +18,8 @@ describe("New Architecture Review page", () => {
     expect(screen.getByRole("heading", { level: 2, name: "New Architecture Review" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
     expect(screen.getByRole("link", { name: "Full pilot guidance" })).toBeInTheDocument();
-    expect(
-      screen.getByText(/Start with guided intake, or use quick review if you already have a complete architecture brief/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/guided path below/i)).toBeInTheDocument();
+    expect(screen.getByText(/quick review/i)).toBeInTheDocument();
+    expect(screen.getByText(/complete architecture brief/i)).toBeInTheDocument();
   });
 });

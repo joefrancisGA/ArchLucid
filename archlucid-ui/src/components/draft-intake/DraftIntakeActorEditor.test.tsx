@@ -76,25 +76,44 @@ describe("DraftIntakeActorEditor", () => {
     fireEvent.click(screen.getByTestId("draft-intake-actor-suggest"));
     expect(screen.getByTestId("draft-intake-actor-suggestions-panel")).toBeInTheDocument();
 
-    const machineSuggestion = screen.getByText("Machine integration");
-    const machineCheckbox = machineSuggestion.closest("label")?.querySelector("input");
+    // Opening the panel pre-selects every suggestion — keep only the machine row under test.
+    const primaryCheckbox = screen.getByTestId(
+      "draft-intake-actor-suggestion-Human|Internal|Sync|primary internal user",
+    );
 
-    if (machineCheckbox === null || machineCheckbox === undefined) {
-      throw new Error("Expected machine suggestion checkbox");
+    if ((primaryCheckbox as HTMLInputElement).checked) {
+      fireEvent.click(primaryCheckbox);
     }
 
-    fireEvent.click(machineCheckbox);
+    const machineCheckbox = screen.getByTestId(
+      "draft-intake-actor-suggestion-Machine|External|AsyncBatch|machine integration",
+    );
+
+    if (!(machineCheckbox as HTMLInputElement).checked) {
+      fireEvent.click(machineCheckbox);
+    }
+
     fireEvent.click(screen.getByRole("button", { name: GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON }));
 
-    expect(onChange).toHaveBeenCalledWith({
-      actors: [
+    expect(onChange).toHaveBeenCalledTimes(1);
+
+    const firstArg = onChange.mock.calls[0]?.[0];
+
+    expect(firstArg).toEqual(
+      expect.objectContaining({
+        actors: expect.any(Array),
+      }),
+    );
+    expect(firstArg?.actors).toHaveLength(1);
+    expect(firstArg?.actors).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
           label: "Machine integration",
           kind: "Machine",
           origin: "Inferred",
         }),
-      ],
-    });
+      ]),
+    );
   });
 
   it("updates label and asserts the actor", () => {
