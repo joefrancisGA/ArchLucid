@@ -33,7 +33,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
       data-testid="policy-pack-nl-builder"
     >
       <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-        Describe your governance pack in plain English
+        Policy pack generator
       </p>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
         ArchLucid drafts a curated rules document you can refine in the visual builder before publish. Human review is
@@ -86,7 +86,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
             })();
           }}
         >
-          {busy ? "Generating…" : "Generate pack from description"}
+          {busy ? "Generating…" : "Generate policy pack"}
         </Button>
       </div>
       {failure !== null ? (

@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -10,7 +11,7 @@ import type {
 } from "@/types/policy-packs";
 
 /** Primary sections on the policy packs page. */
-export type PolicyPacksPageTab = "my-packs" | "catalog";
+export type PolicyPacksPageTab = "my-packs" | "catalog" | "generator";
 
 /** Client view-model for {@link PolicyPacksPageView}; produced by {@link usePolicyPacksPage} after server hydration. */
 export type PolicyPacksPageViewModel = {
@@ -69,4 +70,12 @@ export type PolicyPacksPageViewModel = {
   readonly selectedPackSummary: PolicyPack | undefined;
   readonly syncPolicyContentJson: (json: string) => void;
   readonly ruleIdFromUrl: string;
+  readonly generatedRuleCount: number;
+  readonly generatedValidationErrors: readonly string[];
+  readonly applyGeneratedPolicyPack: (document: CuratedRulesDocument) => void;
+  readonly openAuthoringWizardFromGenerator: () => void;
+  readonly authoringWizardInputMode: "guided" | "visual" | "json" | "ai";
+  readonly authoringAdvancedOpen: boolean;
+  readonly setAuthoringAdvancedOpen: Dispatch<SetStateAction<boolean>>;
+  readonly onCreateFromGenerator: () => Promise<void>;
 };
