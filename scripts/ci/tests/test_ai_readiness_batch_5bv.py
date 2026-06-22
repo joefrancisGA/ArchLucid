@@ -16,7 +16,7 @@ class TestAiReadinessBatch5BV(unittest.TestCase):
         self.assertIn("PolicyPackDraftService", text)
 
     def test_tb_189_authoring_wizard_panel(self) -> None:
-        generator_path = (
+        wizard_path = (
             REPO_ROOT
             / "archlucid-ui"
             / "src"
@@ -24,7 +24,7 @@ class TestAiReadinessBatch5BV(unittest.TestCase):
             / "(operator)"
             / "policy-packs"
             / "_sections"
-            / "PolicyPackGeneratorSection.tsx"
+            / "PolicyRuleAuthoringWizard.tsx"
         )
         builder_path = (
             REPO_ROOT
@@ -36,22 +36,11 @@ class TestAiReadinessBatch5BV(unittest.TestCase):
             / "_sections"
             / "PolicyPackNaturalLanguageBuilder.tsx"
         )
-        wizard_path = (
-            REPO_ROOT
-            / "archlucid-ui"
-            / "src"
-            / "app"
-            / "(operator)"
-            / "policy-packs"
-            / "_sections"
-            / "PolicyRuleAuthoringWizard.tsx"
-        )
-        generator_text = generator_path.read_text(encoding="utf-8")
-        builder_text = builder_path.read_text(encoding="utf-8")
         wizard_text = wizard_path.read_text(encoding="utf-8")
-        self.assertIn("Describe governance intent in plain language", generator_text)
-        self.assertIn("generatePolicyPackFromPrompt", builder_text)
+        builder_text = builder_path.read_text(encoding="utf-8")
         self.assertIn("policy-rule-authoring-wizard", wizard_text)
+        self.assertIn("PolicyPackNaturalLanguageBuilder", wizard_text)
+        self.assertIn("generatePolicyPackFromPrompt", builder_text)
 
 
 if __name__ == "__main__":

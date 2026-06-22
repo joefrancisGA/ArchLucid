@@ -43,6 +43,9 @@ python scripts/ci/assert_forward_migration_touches_archlucid_sql.py --diff-range
 # 3c. System-plane migration + ArchLucid.System.sql co-touch (TB-064)
 python scripts/ci/assert_forward_migration_touches_archlucid_system_sql.py --diff-range "origin/main...HEAD"
 
+# 3d. Unified schema snapshot matches generator (TB-066)
+python scripts/ci/check_archlucid_unified_schema_snapshot.py
+
 # 4. Run all unit-category tests (fast, no API stack)
 dotnet test ArchLucid.sln --filter "Category=Unit" --no-build
 

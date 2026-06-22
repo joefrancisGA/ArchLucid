@@ -47,6 +47,7 @@ python -m unittest discover -s scripts/ci/tests -p "test_csharp_style_guards.py"
 python3 scripts/ci/check_migration_numbering.py || true
 python3 scripts/ci/check_test_configure_await.py
 python3 scripts/ci/check_single_ddl_file.py
+python3 scripts/ci/check_archlucid_unified_schema_snapshot.py
 python3 scripts/ci/smoke_m49_harness_validate_only.py
 
 python3 scripts/ci/assert_legacy_config_sunset_not_passed.py

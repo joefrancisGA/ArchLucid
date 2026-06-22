@@ -35,7 +35,7 @@ ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 |------|------|
 | `ArchLucid.Persistence/Scripts/ArchLucid.sql` | SQL Server **consolidated** schema (tenant / product plane). Source of truth for **greenfield** / manual runs / Persistence bootstrap copy. |
 | `ArchLucid.Persistence/Scripts/ArchLucid.System.sql` | SQL Server **consolidated** schema (**system / control-plane** catalog only). Runs after `DatabaseMigrator.RunSystem` via `SqlSchemaBootstrapper`; keep aligned with `Migrations/System/*.sql`. |
-| `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql` | IaC reference subset generated from `ArchLucid.sql` (`python scripts/ci/build_archlucid_unified_schema_sql.py`). CI: `scripts/ci/check_archlucid_unified_schema_snapshot.ps1`. |
+| `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql` | IaC reference subset generated from `ArchLucid.sql`. Regenerate: `python scripts/ci/build_archlucid_unified_schema_sql.py` or `bash scripts/ci/update_archlucid_unified_schema_snapshot.sh`. CI: `scripts/ci/check_archlucid_unified_schema_snapshot.sh` (**TB-066**). |
 | `ArchLucid.Persistence/Scripts/README.md` | Short pointer to this doc for repo browsers. |
 | `ArchLucid.Persistence/Migrations/001_*.sql` … `022_*.sql` | Incremental **DbUp** scripts (SQL Server); see §4 catalog. |
 | `ArchLucid.Persistence/Migrations/README.md` | Short pointer + naming rule for DbUp ordering. |
@@ -226,6 +226,7 @@ Treat this checklist as a **definition of done** for every schema change. Do not
 
 - [ ] **DbUp migration:** new `ArchLucid.Persistence/Migrations/0NN_*.sql` for SQL Server incremental change. Use `IF NOT EXISTS` / `IF OBJECT_ID IS NULL` patterns; migrations must be idempotent.
 - [ ] **`ArchLucid.Persistence/Scripts/ArchLucid.sql`:** same objects, columns, and indexes as the migration — keeps greenfield provisioning in parity.
+- [ ] **`ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`:** regenerate when `ArchLucid.sql` changes — `python scripts/ci/build_archlucid_unified_schema_sql.py` or `bash scripts/ci/update_archlucid_unified_schema_snapshot.sh` (**TB-066**).
 - [ ] **Migration catalog:** update §4.2 of this file with the new migration number and description.
 
 ### Required for every **system-plane** SQL change
@@ -252,6 +253,7 @@ Merge-blocking on PRs and pushes:
 
 - `scripts/ci/assert_forward_migration_touches_archlucid_sql.py` — forward tenant `Migrations/NNN_*.sql` must co-touch `ArchLucid.sql`.
 - `scripts/ci/assert_forward_migration_touches_archlucid_system_sql.py` — forward `Migrations/System/NNN_*.sql` must co-touch `ArchLucid.System.sql` (**TB-064**).
+- `scripts/ci/check_archlucid_unified_schema_snapshot.py` — checked-in `ArchLucid_Unified_Schema.sql` must match generator output from `ArchLucid.sql` (**TB-066**).
 
 Rollback-only and Baseline folder edits do not trigger these rules.
 
