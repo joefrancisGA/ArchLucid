@@ -1847,11 +1847,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -1930,11 +1930,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -2077,13 +2077,16 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
+
+      - name: Wait for SQL Server to be ready (service warm-up)
+        uses: ./.github/actions/wait-for-sqlserver
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5.2.0
@@ -2101,7 +2104,7 @@ jobs:
       - name: Build (Release)
         run:           dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Wait for SQL Server to be ready
+      - name: Wait for SQL Server to be ready (pre-shard)
         uses: ./.github/actions/wait-for-sqlserver
 
       # Parent-process chunk watchdog (Invoke-ApiIntegrationTestShard.ps1) is the primary hang defense:
@@ -2183,11 +2186,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -2282,11 +2285,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -2381,11 +2384,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -2480,11 +2483,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -3392,11 +3395,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -3548,11 +3551,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -3697,11 +3700,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -3867,11 +3870,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
@@ -3980,11 +3983,11 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 20
-          --health-start-period 40s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v5
 
