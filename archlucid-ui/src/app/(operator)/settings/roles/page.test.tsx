@@ -1,6 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/settings/roles",
+  useRouter: (): { push: () => void; replace: () => void; refresh: () => void } => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  redirect: vi.fn(),
+}));
+
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
   showSuccess: vi.fn(),
