@@ -49,4 +49,17 @@ public sealed class HotPathCacheKeysTests
 
         HotPathCacheKeys.PolicyPack(id).Should().Be("al:hot:pp:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
+
+    [SkippableFact]
+    public void EffectivePolicyPackSet_includes_revision()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        string key = HotPathCacheKeys.EffectivePolicyPackSet(tenantId, workspaceId, projectId, 42);
+
+        key.Should().StartWith("al:hot:epps:");
+        key.Should().EndWith(":r42");
+    }
 }

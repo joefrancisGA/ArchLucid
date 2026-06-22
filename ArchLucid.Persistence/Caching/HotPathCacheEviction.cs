@@ -1,3 +1,4 @@
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Caching;
@@ -31,5 +32,15 @@ public static class HotPathCacheEviction
         ArgumentNullException.ThrowIfNull(cache);
 
         await cache.RemoveAsync(HotPathCacheKeys.PolicyPack(policyPackId), ct);
+    }
+
+    public static Task InvalidatePolicyPackResolverTenantAsync(
+        IPolicyPackResolverCacheInvalidator invalidator,
+        Guid tenantId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(invalidator);
+
+        return invalidator.InvalidateTenantAsync(tenantId, ct);
     }
 }

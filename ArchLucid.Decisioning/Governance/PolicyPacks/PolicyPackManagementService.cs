@@ -2,6 +2,7 @@ using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.Resolution;
 
@@ -33,6 +34,7 @@ public sealed class PolicyPackManagementService(
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackChangeLogRepository changeLogRepository,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IPolicyPackResolverCacheInvalidator policyPackResolverCacheInvalidator,
     ILogger<PolicyPackManagementService> logger) : IPolicyPackManagementService
 {
     private const string InitialVersion = "1.0.0";
@@ -158,6 +160,8 @@ public sealed class PolicyPackManagementService(
         pack.ActivatedUtc = TimeProvider.System.UtcNowDateTime();
         await packRepository.UpdateAsync(pack, ct);
 
+        await policyPackResolverCacheInvalidator.InvalidateTenantAsync(pack.TenantId, ct);
+
         await AppendChangeLogAsync(
             policyPackId,
             pack.TenantId,
@@ -220,6 +224,8 @@ public sealed class PolicyPackManagementService(
 
         await assignmentRepository.CreateAsync(assignment, ct);
 
+        await policyPackResolverCacheInvalidator.InvalidateTenantAsync(tenantId, ct);
+
         string assignJson = JsonSerializer.Serialize(
             new { scopeLevel = normalized, version, isPinned },
             ChangeLogJsonOptions);
@@ -252,6 +258,8 @@ public sealed class PolicyPackManagementService(
 
         if (row is null)
             return true;
+
+        await policyPackResolverCacheInvalidator.InvalidateTenantAsync(row.TenantId, ct);
 
         await AppendChangeLogAsync(
             row.PolicyPackId,
