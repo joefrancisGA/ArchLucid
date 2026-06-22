@@ -4,10 +4,10 @@ import { useEffect, useRef } from "react";
 
 import { useRouter } from "next/navigation";
 
-const IDLE_MS = 15 * 60 * 1000;
+const IDLE_MS = 30 * 60 * 1000;
 const SESSION_STORAGE_KEY = "archlucid.session.clearedAt";
 
-/** Clears operator session after 15 minutes of inactivity (enterprise idle timeout). */
+/** Clears operator session after 30 minutes of inactivity (enterprise idle timeout). */
 export function SessionIdleTimeoutGuard() {
   const router = useRouter();
   const timerRef = useRef<number | null>(null);
