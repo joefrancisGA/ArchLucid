@@ -29,7 +29,7 @@
 | Supportability | 7 |
 | **Total (unique)** | **~56** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?390 Done (2026-06-22).** **Next recommended batch:** **TB-391** (ServiceNow copy-as-task + `trackedExternally` projection). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -153,7 +153,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-387 | Native ITSM feature flag — **Done (2026-06-22)** — `Integrations:Itsm:NativeEnabled` (default false); gates outbound create API + one-click UI; copy-as-work-item + correlations always on | Adoption friction P1 | XS |
 | TB-388 | ITSM correlation lifecycle audit events — **Done (2026-06-22)** — `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 | XS |
 | TB-390 | ~~ITSM inbound webhook snapshot scoping~~ **Done (2026-06-22)** — scope inbound `HumanReviewStatus` UPDATE to correlated `FindingRecordId` / latest committed snapshot fallback | Correctness P1 | S |
-| TB-391 | ServiceNow copy-as-task + `trackedExternally` projection ? add `serviceNowText` to `WorkItemClipboardFormat`; computed `TrackedExternally` boolean on finding inspect/list read models (derived from correlations, not a persisted flag) | Interoperability P2 ? V1 nice-to-have manual bridge parity | S |
+| TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** — `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 | S |
 | TB-392 | Per-tenant Jira/ServiceNow credentials ? mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | Trustworthiness P1 ? **V1.1**; blocks true per-tenant connector setup | M |
 | TB-393 | Tenant ITSM outbound settings write API + admin UI ? upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `/integrations/itsm` settings page; `AdminAuthority` or `ExecuteAuthority` gate | Adoption friction P1 ? **V1.1**; today repository is read-only | M |
 | TB-394 | Durable async ITSM outbound ticket creation ? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1**; today synchronous in request path | M |
@@ -11273,7 +11273,7 @@ Inbound Jira/ServiceNow webhook sync updates `FindingRecords.HumanReviewStatus` 
 
 ---
 
-## TB-391 — ServiceNow copy-as-task + `trackedExternally` projection — **V1 nice-to-have**
+## TB-391 — ServiceNow copy-as-task + `trackedExternally` projection — **Done (2026-06-22)**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 

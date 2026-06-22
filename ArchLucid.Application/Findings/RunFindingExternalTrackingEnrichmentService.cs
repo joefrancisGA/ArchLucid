@@ -51,7 +51,9 @@ public sealed class RunFindingExternalTrackingEnrichmentService(
                     row.Provider ?? string.Empty,
                     row.ExternalKey ?? string.Empty,
                     row.ExternalSysId),
-                ItsmLinkedTicketsSummary = row.ItsmLinkedTicketsSummary
+                ItsmLinkedTicketsSummary = row.ItsmLinkedTicketsSummary,
+                TrackedExternally = RunFindingExternalTrackingDerivedFields.IsTrackedExternally(row),
+                ExternalTrackingSummary = RunFindingExternalTrackingDerivedFields.ResolveExternalTrackingSummary(row)
             };
         }
 

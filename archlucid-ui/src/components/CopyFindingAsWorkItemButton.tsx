@@ -32,6 +32,7 @@ const FORMAT_ITEMS: readonly { readonly value: WorkItemClipboardFormat; readonly
   { value: "githubMarkdown", label: "GitHub Issues" },
   { value: "azureDevOpsMarkdown", label: "Azure Boards" },
   { value: "jiraWiki", label: "Jira (wiki)" },
+  { value: "serviceNowText", label: "ServiceNow (plain text)" },
 ] as const;
 
 function evidenceLinesFromInspectPayload(payload: FindingInspectPayload): string[] {
@@ -83,7 +84,7 @@ export type CopyFindingAsWorkItemButtonProps = {
 };
 
 /**
- * Copies a structured work-item body for Jira, GitHub, or Azure Boards from the finding inspect payload.
+ * Copies a structured work-item body for Jira, GitHub, Azure Boards, or ServiceNow from the finding inspect payload.
  */
 export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyFindingAsWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("markdown");
@@ -139,6 +140,89 @@ export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyF
       >
         {copied ? <Check className="size-3.5 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3.5" aria-hidden />}
         {copied ? "Copied" : "Create remediation ticket"}
+      </Button>
+    </div>
+  );
+}
+
+export type CopyGovernanceQueueWorkItemButtonProps = {
+  runId: string;
+  findingId: string;
+  findingTitle: string;
+  /** Compact layout for queue table cells. */
+  compact?: boolean;
+};
+
+/**
+ * Minimal copy affordance for governance findings queue rows (no inspect payload on the client).
+ */
+export function CopyGovernanceQueueWorkItemButton({
+  runId,
+  findingId,
+  findingTitle,
+  compact = false,
+}: CopyGovernanceQueueWorkItemButtonProps) {
+  const [format, setFormat] = useState<WorkItemClipboardFormat>("serviceNowText");
+  const [copied, setCopied] = useState(false);
+
+  const onCopy = useCallback(async () => {
+    const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
+    const text = buildTraceRowWorkItemBody(format, {
+      runId,
+      findingId,
+      findingTitle,
+      ruleId: null,
+      siteOrigin,
+    });
+    const ok = await writeWorkItemBodyToClipboard(text);
+
+    if (!ok) {
+      showError("Could not copy to clipboard");
+
+      return;
+    }
+
+    showSuccess("Copied work item stub to clipboard");
+    setCopied(true);
+    window.setTimeout(() => {
+      setCopied(false);
+    }, 2_000);
+  }, [findingId, findingTitle, format, runId]);
+
+  return (
+    <div className={compact ? "flex min-w-0 flex-col gap-1" : "flex flex-wrap items-center gap-2"}>
+      <Select
+        value={format}
+        onValueChange={(v) => {
+          setFormat(v as WorkItemClipboardFormat);
+        }}
+      >
+        <SelectTrigger
+          className={compact ? "h-7 w-full text-[0.65rem]" : "h-8 w-[11.5rem] text-xs"}
+          aria-label="Work item format for governance queue row"
+        >
+          <SelectValue placeholder="Format" />
+        </SelectTrigger>
+        <SelectContent>
+          {FORMAT_ITEMS.map((item) => (
+            <SelectItem key={item.value} value={item.value} className="text-xs">
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button
+        type="button"
+        variant={compact ? "outline" : "secondary"}
+        size="sm"
+        className={compact ? "h-7 gap-1 px-2 text-[0.65rem]" : "h-8 gap-1.5 text-xs"}
+        aria-label="Copy finding as work item to clipboard"
+        onClick={() => {
+          void onCopy();
+        }}
+      >
+        {copied ? <Check className="size-3 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3" aria-hidden />}
+        {copied ? "Copied" : compact ? "Copy item" : "Copy work item"}
       </Button>
     </div>
   );

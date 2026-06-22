@@ -19,6 +19,7 @@ import {
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
+import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
@@ -918,7 +919,15 @@ export default function GovernanceFindingsQueueClient() {
                   </div>
                   <div className="flex flex-col gap-2 sm:col-span-2">
                     {!buyerPolishedShell && row.recordKind === "finding" ? (
-                      <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                      <>
+                        <CopyGovernanceQueueWorkItemButton
+                          runId={row.runId}
+                          findingId={row.findingId}
+                          findingTitle={row.title}
+                          compact
+                        />
+                        <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                      </>
                     ) : null}
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
                       <Link href={inspectHref(row.runId, row.findingId)}>

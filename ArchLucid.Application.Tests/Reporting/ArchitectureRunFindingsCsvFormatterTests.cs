@@ -198,6 +198,8 @@ public sealed class RunFindingExternalTrackingEnrichmentServiceTests
         projection.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
         projection.LatestDisposition.Should().Be(FindingDisposition.Deferred);
         projection.ExternalUrl.Should().Be("https://example.atlassian.net/browse/ABC-1");
+        projection.TrackedExternally.Should().BeTrue();
+        projection.ExternalTrackingSummary.Should().Be("Jira:ABC-1");
     }
 }
 

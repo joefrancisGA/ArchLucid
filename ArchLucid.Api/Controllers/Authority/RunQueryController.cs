@@ -255,6 +255,8 @@ public sealed class RunQueryController(
                     item.ExternalKey = tracking.ExternalKey;
                     item.ExternalUrl = tracking.ExternalUrl;
                     item.ItsmLinkedTicketsSummary = tracking.ItsmLinkedTicketsSummary;
+                    item.TrackedExternally = tracking.TrackedExternally;
+                    item.ExternalTrackingSummary = tracking.ExternalTrackingSummary;
                 }
 
                 return item;

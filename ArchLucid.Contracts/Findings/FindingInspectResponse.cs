@@ -214,4 +214,18 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary><see langword="true" /> when at least one ITSM correlation exists for the tenant + finding.</summary>
+    public bool TrackedExternally
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable external ticket summary for filters and badges without client-side correlation joins.</summary>
+    public string? ExternalTrackingSummary
+    {
+        get;
+        init;
+    }
 }

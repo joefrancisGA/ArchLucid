@@ -35,6 +35,17 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("|ArchLucid finding — explain page)");
   });
 
+  it("produces ServiceNow plain text with short description, steps, and footer ids", () => {
+    const text = buildInspectFindingWorkItemBody("serviceNowText", inspectInput);
+
+    expect(text).toContain("Short description: Compliance — Exposed egress (f1)");
+    expect(text).toContain("Steps to resolve:");
+    expect(text).toContain("ArchLucid inspector link: https://demo.example.org/reviews/r1/findings/f1/inspect");
+    expect(text).toContain("Finding ID: f1");
+    expect(text).toContain("Run ID: r1");
+    expect(text).toContain("Add firewall rules.");
+  });
+
   it("shows Not available sections when sparse", () => {
     const sparse = {
       runId: "r",
@@ -71,5 +82,19 @@ describe("buildTraceRowWorkItemBody", () => {
     expect(text).toContain("`find-z`");
     expect(text).toContain(`/reviews/run-z/findings/find-z`);
     expect(text).toContain("aggregate explanation table");
+  });
+
+  it("supports ServiceNow plain text for trace rows", () => {
+    const text = buildTraceRowWorkItemBody("serviceNowText", {
+      runId: "run-z",
+      findingId: "find-z",
+      findingTitle: "Title z",
+      ruleId: "R1",
+      siteOrigin: "https://demo.example.org",
+    });
+
+    expect(text).toContain("Short description: ArchLucid finding — Title z (find-z)");
+    expect(text).toContain("ArchLucid inspector link:");
+    expect(text).toContain("Finding ID: find-z");
   });
 });

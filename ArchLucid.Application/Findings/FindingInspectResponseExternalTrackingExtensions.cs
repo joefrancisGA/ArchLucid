@@ -44,7 +44,9 @@ public static class FindingInspectResponseExternalTrackingExtensions
             Provider = tracking.Provider,
             ExternalKey = tracking.ExternalKey,
             ExternalUrl = tracking.ExternalUrl,
-            ItsmLinkedTicketsSummary = tracking.ItsmLinkedTicketsSummary
+            ItsmLinkedTicketsSummary = tracking.ItsmLinkedTicketsSummary,
+            TrackedExternally = tracking.TrackedExternally,
+            ExternalTrackingSummary = tracking.ExternalTrackingSummary
         };
     }
 }

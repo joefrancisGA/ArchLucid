@@ -47,4 +47,18 @@ public sealed class RunFindingExternalTrackingProjection
         get;
         init;
     }
+
+    /// <summary><see langword="true" /> when at least one ITSM correlation exists for the tenant + finding.</summary>
+    public bool TrackedExternally
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable external ticket summary; mirrors <see cref="ItsmLinkedTicketsSummary" /> when tracked.</summary>
+    public string? ExternalTrackingSummary
+    {
+        get;
+        init;
+    }
 }

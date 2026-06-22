@@ -1,5 +1,10 @@
-/** Clipboard targets for pasted work items (Markdown / wiki). */
-export type WorkItemClipboardFormat = "markdown" | "jiraWiki" | "githubMarkdown" | "azureDevOpsMarkdown";
+/** Clipboard targets for pasted work items (Markdown / wiki / ServiceNow plain text). */
+export type WorkItemClipboardFormat =
+  | "markdown"
+  | "jiraWiki"
+  | "githubMarkdown"
+  | "azureDevOpsMarkdown"
+  | "serviceNowText";
 
 /** Fields assembled from inspect payload + UI labels for a full finding work item. */
 export type FindingWorkItemBuildInput = {
@@ -91,6 +96,25 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     return lines.join("\n");
   }
 
+  if (format === "serviceNowText") {
+    const inspectUrl = `${origin || "(origin)"}${inspectPath}`;
+
+    return [
+      `Short description: ArchLucid finding — ${title} (${input.findingId})`,
+      "",
+      "Description:",
+      "Review this finding in ArchLucid and create remediation work as needed.",
+      "",
+      "Steps to resolve:",
+      "1. Open the structured inspector link below.",
+      `2. Record disposition in ArchLucid (${rule}).`,
+      "",
+      `ArchLucid inspector link: ${inspectUrl}`,
+      `Finding ID: ${input.findingId}`,
+      `Run ID: ${input.runId}`,
+    ].join("\n");
+  }
+
   return [
     "## Finding: architecture — " + title,
     "",
@@ -159,6 +183,42 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     ];
 
     return lines.join("\n");
+  }
+
+  if (format === "serviceNowText") {
+    const evidenceLines =
+      input.evidenceExcerpts.length > 0
+        ? input.evidenceExcerpts.map((e, index) => `${index + 1}. ${na(e)}`)
+        : ["1. Not available"];
+
+    const remediationStep = reco !== "Not available" ? reco : "Apply remediation per team standards.";
+
+    return [
+      `Short description: ${heading} (${input.findingId})`,
+      "",
+      "Description:",
+      `Severity: ${severity}`,
+      "",
+      "What was flagged:",
+      whatFlagged,
+      "",
+      "Why it matters:",
+      whyItMatters,
+      "",
+      "Recommended action:",
+      reco,
+      "",
+      "Evidence:",
+      ...evidenceLines,
+      "",
+      "Steps to resolve:",
+      "1. Review the finding in ArchLucid using the inspector link below.",
+      `2. ${remediationStep}`,
+      "",
+      `ArchLucid inspector link: ${inspectUrl}`,
+      `Finding ID: ${input.findingId}`,
+      `Run ID: ${input.runId}`,
+    ].join("\n");
   }
 
   return [
