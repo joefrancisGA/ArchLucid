@@ -12549,6 +12549,9 @@
           "serviceNow": {
             "$ref": "#/components/schemas/ItsmIntegrationHealthProbeVm"
           },
+          "nativeEnabled": {
+            "type": "boolean"
+          },
           "status": {
             "type": "string"
           }

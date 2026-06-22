@@ -177,7 +177,7 @@ describe("HomePage (55R smoke — landing)", () => {
       "href",
       "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
     );
-    expect(screen.getByRole("link", { name: "Open sample finding" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review sample findings" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open full example review" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",

@@ -2,34 +2,34 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-21 (insight-density cluster **TB-382?385** Done, batch **insight-density-tb382-385**; **TB-034** degraded-handler traces). Prior: 2026-06-16 operator home **TB-345?353** (all Done). **~43 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-22 (Jira/ServiceNow integration-seam cluster **TB-386?398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382?385** Done; 2026-06-16 operator home **TB-345?353** (all Done). **~56 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Correctness | 9 |
+| Correctness | 10 |
 | Testability | 4 |
-| Reliability | 3 |
+| Reliability | 4 |
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
-| Architectural integrity | 6 |
-| Adoption friction | 18 |
+| Architectural integrity | 8 |
+| Adoption friction | 20 |
 | Commercial / marketability | 3 |
-| Data consistency | 3 |
+| Data consistency | 4 |
 | Cutting-edge AI | 3 |
 | Explainability | 2 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 0 |
+| Trustworthiness | 1 |
 | Maintainability | 2 |
-| Traceability | 2 |
-| Interoperability | 2 |
+| Traceability | 3 |
+| Interoperability | 6 |
 | Compliance readiness | 2 |
 | Performance | 1 |
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~43** |
+| **Total (unique)** | **~56** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **Next recommended batch:** **TB-035** (schema-remediation attempt traces) or **TB-040** (LLM metering on cancellation). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **Next recommended batch:** **TB-389** + **TB-386?387** (tenant-scoped correlation uniqueness + ITSM-aware export + native feature flag) or **TB-035** (schema-remediation attempt traces). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -136,6 +136,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-345 ? TB-353** were added 2026-06-16 from an external **operator home first-run UX** review (voluntary usage, executive purchase probability, first-time architect adoption). All nine items are **P0** for fast pickup. They tighten the buyer-polished home narrative already improved in recent sessions: remove sidebar **First-hour path** duplication (**TB-345**), compress the **Start your first review** hero (**TB-346**), strengthen the reviews list section (**TB-347**, **TB-352**), promote the **example request** above the fold (**TB-348**), hide **ROI estimate pending** until a committed review exists (**TB-349**), deprioritize **monthly analysis allowance** in shell chrome (**TB-350**), replace **What you'll get** artifact copy with **What ArchLucid discovers** value claims (**TB-351**), and add a substantive **show me value** sample review surface (**TB-353**). **Excluded:** context-aware **Guided review recap** button relabel (reviewer item #7 ? different audience/moment; not backlog-tracked). Does not duplicate **TB-337?339** (evidence-first empty state / Core Pilot), **TB-169** (Operate progressive disclosure), **TB-218** (demo viewer CTA), or **TB-270** (wizard entry-point disambiguation). Cross-ref `PilotCommandCenterCard`, `SidebarNav`, `RunsDashboardPanel`, `PilotRoiBaselineReadinessCard`, `buyer-polish-copy.ts`, [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
+**TB-386 ? TB-398** were added 2026-06-22 from a **Jira / ServiceNow integration-readiness** codebase assessment. **TB-063** already shipped one-click outbound + correlation storage + inbound webhook sync (marked Done 2026-06-01), but owner scope keeps first-party ITSM productization in **V1.1** per [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6. This cluster closes **integration seams** for V1 GA without building full native connectors: **TB-386?388** (P1) extend exports, gate native UI behind a feature flag, and audit correlation lifecycle changes; **TB-389?390** (P0/P1) harden multi-tenant correlation uniqueness and inbound snapshot scoping; **TB-391** (P2) adds ServiceNow copy-as-task and a `trackedExternally` projection; **TB-392?396** (V1.1) cover per-tenant credentials, settings write API/UI, durable async outbound, finding assignee/due-date fields, and disposition-aware inbound sync; **TB-397?398** (V2) introduce a plugin boundary and full enterprise connector scope (OAuth, field mapping UI, bidirectional workflow). Does not duplicate **TB-063** (one-click UI/API ? Done), **TB-016** (operator sandbox provisioning), or **Teams** connector work. Cross-ref [`API_CONTRACTS.md`](API_CONTRACTS.md) ITSM section, [`ITSM_BRIDGE_V1_RECIPES.md`](ITSM_BRIDGE_V1_RECIPES.md), `ItsmFindingCorrelations`, `copy-finding-as-work-item.ts`.
+
 **TB-337 ? TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model ? the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition ? without weakening the Azure onboarding experience. **TB-337?339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** ? that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure ? different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards ? same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) ?7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
 
 **TB-250 ? TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 ? authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 ? `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard ? partial-failure surfacing and sentinel exclusion were already shipped).
@@ -146,6 +148,19 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-389 | Tenant-scope `ItsmFindingCorrelations` unique constraint ? replace global `UNIQUE (Provider, ExternalKey)` with `UNIQUE (TenantId, Provider, ExternalKey)`; migration in unified DDL + DbUp; integration test for cross-tenant same-key coexistence | Data consistency P0 ? multi-tenant SaaS collision risk on shared Jira keys | XS |
+| TB-386 | ITSM-aware findings export ? extend `ArchitectureRunFindingsCsvFormatter` and findings list/inspect JSON with `Provider`, `ExternalKey`, `ExternalUrl`, `HumanReviewStatus`, latest `Disposition`, `RevisitDueUtc` via join to `ItsmFindingCorrelations` + disposition projection | Interoperability P1 ? V1 integration seam; buyers reconcile findings with external tickets without extra API calls | S |
+| TB-387 | Native ITSM feature flag for V1 GA ? `Integrations:Itsm:NativeEnabled` (default false for V1 GA posture); gate `ItsmOutboundQuickActions`, `FindingInspectItsmWorkflowPanel`, and outbound create API; keep manual copy-as-work-item + correlation register always on | Adoption friction P1 ? align shipped TB-063 UI with V1.1 scope docs without removing seams | XS |
+| TB-388 | ITSM correlation lifecycle audit events — **Done (2026-06-22)** — `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 — evidence trail for external tracking metadata changes | XS |
+| TB-390 | ITSM inbound webhook snapshot scoping ? scope inbound `HumanReviewStatus` UPDATE to the intended snapshot/`FindingRecordId` row instead of all tenant rows sharing a `FindingId` | Correctness P1 ? prevents unintended cross-snapshot status mirror | S |
+| TB-391 | ServiceNow copy-as-task + `trackedExternally` projection ? add `serviceNowText` to `WorkItemClipboardFormat`; computed `TrackedExternally` boolean on finding inspect/list read models (derived from correlations, not a persisted flag) | Interoperability P2 ? V1 nice-to-have manual bridge parity | S |
+| TB-392 | Per-tenant Jira/ServiceNow credentials ? mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | Trustworthiness P1 ? **V1.1**; blocks true per-tenant connector setup | M |
+| TB-393 | Tenant ITSM outbound settings write API + admin UI ? upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `/integrations/itsm` settings page; `AdminAuthority` or `ExecuteAuthority` gate | Adoption friction P1 ? **V1.1**; today repository is read-only | M |
+| TB-394 | Durable async ITSM outbound ticket creation ? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1**; today synchronous in request path | M |
+| TB-395 | Finding assignee + general remediation due date ? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1**; required for Jira assignee / ServiceNow `assigned_to` sync | M |
+| TB-396 | Inbound ITSM disposition sync ? extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status?disposition map in inbound options | Interoperability P2 ? **V1.1**; one-way human-review mirror is insufficient for governance workflows | M |
+| TB-397 | `IExternalTicketConnector` plugin boundary ? shared port + provider registry; refactor `JiraOutboundIssueClient` / `ServiceNowOutboundIncidentClient` behind it without changing Authority event payloads | Architectural integrity P2 ? **V2** prerequisite before vendor #3 | M |
+| TB-398 | Full enterprise ITSM connector ? OAuth flows, field-mapping UI, custom workflow mapping, bidirectional status sync, tenant connector onboarding wizard | Interoperability P3 ? **V2**; explicitly out of V1/V1.1 scope unless owner promotes | L |
 | TB-196 | Reasoning token cost underreporting fix ? update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path | **Done (2026-06-02 batch 5R)** ? aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | XS |
 | TB-197 | `GovernanceWorkflowService.PromoteAsync` ? wrap `approvalRepo.UpdateAsync` + `promotionRepo.CreateAsync` in single `IArchLucidUnitOfWork`; add atomicity test | **Done (2026-06-02 batch 5J)** ? single UoW commit/rollback; `IGovernanceApprovalRequestRepository.UpdateAsync` accepts external connection/transaction | S |
 | TB-198 | `CostConstraintFindingEngine` unit tests ? add 7 scenarios covering severity, budget parsing, null properties, empty graph, multi-node | **Done (2026-06-02 batch 5K)** ? `CostConstraintFindingEngineTests` (7 scenarios) | S |
@@ -3465,6 +3480,8 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 - `docs/library/V1_SCOPE.md` ?2.13 if scope changes
 
 **Size estimate:** **M** ? UI productization over existing backend, plus sync-state display and tests.
+
+**Follow-on (integration seams, 2026-06-22):** V1 GA seam hardening and multi-tenant fixes ? **TB-386?391**; V1.1 native connector completion ? **TB-392?396**; V2 enterprise connector ? **TB-397?398**. Native UI remains release-windowed V1.1 per [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6 even though TB-063 backend/UI shipped early.
 
 ---
 
@@ -11085,3 +11102,410 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 - The UI visibly communicates its curation restraint and binds every major finding to source evidence.
 
 **Size estimate:** S
+
+---
+
+## TB-386 — ITSM-aware findings export (CSV + JSON) — **V1 integration seam**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+`ArchitectureRunFindingsCsvFormatter` exports agent-centric columns only (`FindingId`, severity, category, mute status). External ticket linkage (`ItsmFindingCorrelations`), governance disposition, human-review status, and deferral due dates are omitted. Buyers exporting findings for GRC spreadsheets or manual Jira/ServiceNow reconciliation must issue separate API calls per finding.
+
+**Scope:**
+
+1. Join `dbo.ItsmFindingCorrelations` (and latest disposition projection) when building run findings CSV and the findings list JSON read model.
+2. Add columns/fields: `Provider`, `ExternalKey`, `ExternalUrl`, `HumanReviewStatus`, `LatestDisposition`, `RevisitDueUtc` (and `ItsmLinkedTicketsSummary` when multiple correlations exist).
+3. Preserve existing CSV header compatibility where practical (append new columns at end); document breaking change if any consumer depends on fixed column count.
+4. Add unit tests on formatter + integration test on `GET .../findings/export/csv`.
+5. Regenerate OpenAPI/types if list DTO shape changes.
+
+**Acceptance criteria:**
+
+- A run findings CSV includes external ticket metadata when correlations exist.
+- Findings list/inspect responses expose the same linkage fields without a second correlations-only round trip.
+- Export remains gated by existing authority policies; audit event unchanged or upgraded to a distinct export type if product prefers.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Reporting/ArchitectureRunFindingsCsvFormatter.cs`
+- `ArchLucid.Api/Controllers/Authority/RunQueryController.cs`
+- `ArchLucid.Contracts/Findings/RunFindingListItem.cs` (or dedicated export DTO)
+- `ArchLucid.Persistence/Integrations/SqlItsmFindingCorrelationRepository.cs`
+- `archlucid-ui/` run detail export surfaces (if column labels shown)
+
+**Size estimate:** **S**
+
+**Cross-ref:** **TB-063** (correlation store — Done), **TB-387** (native flag — separate).
+
+---
+
+## TB-387 — Native ITSM feature flag for V1 GA — **V1 integration seam**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22). Scope/docs drift: **TB-063** shipped native UI while [`V1_DEFERRED.md`](V1_DEFERRED.md) §6 keeps first-party ITSM in V1.1.
+
+**Problem:**
+
+One-click Jira/ServiceNow actions are visible whenever deployment ITSM config exists, which can confuse V1 GA buyers/demo when native integration is not a committed V1 objective. Manual seams (copy-as-work-item, manual correlation register) should remain available regardless.
+
+**Scope:**
+
+1. Add `Integrations:Itsm:NativeEnabled` (or equivalent) to `IntegrationsItsmOutboundOptions` / host config; default **false** for V1 GA posture profiles.
+2. When disabled: hide `ItsmOutboundQuickActions` and `FindingInspectItsmWorkflowPanel` create actions; return **404** or **403** with buyer-safe copy from `POST /v1/integrations/itsm/outbound/issues`.
+3. When disabled: keep `GET/POST /v1/integrations/itsm/correlations`, copy-as-work-item UI, and ITSM columns in export (**TB-386**) enabled.
+4. Wire demo/buyer registries (`cto-demo-blocked-route-registry`, buyer demo copy) to match flag semantics.
+5. Document flag in `CONFIGURATION_REFERENCE.md` and integration catalog.
+
+**Acceptance criteria:**
+
+- V1 GA config can present "integration seams ready, native create off" without removing correlation or clipboard paths.
+- Enabling the flag restores current TB-063 behaviour unchanged.
+
+**Affected files / projects:**
+
+- `ArchLucid.Core/Configuration/IntegrationsItsmOutboundOptions.cs`
+- `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`
+- `archlucid-ui/src/components/ItsmOutboundQuickActions.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectItsmWorkflowPanel.tsx`
+- `docs/go-to-market/INTEGRATION_CATALOG.md`
+
+**Size estimate:** **XS**
+
+---
+
+## TB-388 — ITSM correlation lifecycle audit events — **V1 integration seam**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+`Integration.ItsmFindingCorrelationRegistered` is emitted on manual register and successful outbound create, but there is no audit type for **update** or **unlink** of external tracking metadata. Governance/audit buyers expect a complete evidence trail when operators change ticket linkage.
+
+**Scope:**
+
+1. Add `AuditEventTypes.IntegrationItsmCorrelationUpdated` and `IntegrationItsmCorrelationRemoved` (or equivalent names).
+2. If update/unlink API paths do not exist, add `DELETE` or `PATCH` on `ItsmCorrelationController` with `ExecuteAuthority` gate and idempotent semantics.
+3. Append audit rows with `FindingId`, `Provider`, prior/new `ExternalKey`, actor, scope.
+4. Update `audit_event_catalog.v1.json` and mutating-route audit matrix.
+5. Unit/integration tests for register → update → remove audit sequence.
+
+**Acceptance criteria:**
+
+- Every mutation of `ItsmFindingCorrelations` produces a durable audit event retrievable via `GET /v1/audit` export.
+
+**Affected files / projects:**
+
+- `ArchLucid.Core/Audit/AuditEventTypes.cs`
+- `ArchLucid.Api/Controllers/Integrations/ItsmCorrelationController.cs`
+- `docs/library/audit_event_catalog.v1.json`
+
+**Size estimate:** **XS**
+
+---
+
+## TB-389 — Tenant-scope `ItsmFindingCorrelations` unique constraint — **V1 architecture hardening**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+`UQ_ItsmFindingCorrelations_Provider_ExternalKey` is **global** (not scoped to `TenantId`). Two SaaS tenants linking the same Jira issue key (`PROJ-123`) will collide on insert.
+
+**Scope:**
+
+1. DbUp migration: drop global unique constraint; add `UNIQUE (TenantId, Provider, ExternalKey)`.
+2. Update `ArchLucid_Unified_Schema.sql` consolidated DDL parity.
+3. Integration test: two tenants can register the same `(Provider, ExternalKey)` pair; same tenant cannot duplicate.
+4. Verify inbound webhook lookup still resolves within tenant scope.
+
+**Acceptance criteria:**
+
+- Cross-tenant external-key collision is impossible at the database layer.
+- Existing single-tenant pilot data migrates without manual cleanup (unless duplicates already exist within one tenant).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`
+- `ArchLucid.Persistence/Migrations/*_ItsmFindingCorrelations_TenantScopedUnique.sql` (new)
+- `ArchLucid.Persistence/Integrations/SqlItsmFindingCorrelationRepository.cs`
+
+**Size estimate:** **XS**
+
+**Cross-ref:** **TB-071–078** (multi-tenancy audit cluster).
+
+---
+
+## TB-390 — ITSM inbound webhook snapshot scoping — **V1 architecture hardening**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+Inbound Jira/ServiceNow webhook sync updates `FindingRecords.HumanReviewStatus` with `WHERE TenantId AND FindingId`, which can touch **all snapshot rows** sharing a tenant-wide `FindingId` instead of the correlated snapshot context.
+
+**Scope:**
+
+1. Trace correlation insert path to determine intended snapshot/`FindingRecordId` at outbound create time; persist if missing.
+2. Scope inbound UPDATE to the correlated snapshot row (or latest committed snapshot for that finding).
+3. Add integration test: two snapshots with same logical finding id (if reproducible) — inbound updates only the correlated row.
+4. Document behaviour in `API_CONTRACTS.md` ITSM inbound section.
+
+**Acceptance criteria:**
+
+- Inbound status sync cannot silently mirror human-review state across unrelated snapshot rows.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Integrations/Itsm/ItsmInboundWebhookSyncService.cs`
+- `ArchLucid.Persistence/Integrations/SqlItsmFindingCorrelationRepository.cs`
+- `ArchLucid.Application.Tests/Integrations/Itsm/`
+
+**Size estimate:** **S**
+
+---
+
+## TB-391 — ServiceNow copy-as-task + `trackedExternally` projection — **V1 nice-to-have**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+`copy-finding-as-work-item.ts` supports Jira wiki, GitHub, Azure DevOps markdown, and generic markdown, but not a ServiceNow-oriented plain-text template. Finding read models infer external tracking only by joining correlations client-side; filters like "untracked high severity" require extra logic.
+
+**Scope:**
+
+1. Add `serviceNowText` (or `serviceNowPlainText`) to `WorkItemClipboardFormat` with short description + steps + ArchLucid deep link + finding id footer.
+2. Add `CopyFindingAsWorkItemButton` format option where appropriate (finding inspect + governance queue).
+3. Add computed `TrackedExternally: bool` (and optional `ExternalTrackingSummary`) on `FindingInspectResponse` / `RunFindingListItem` — true when ≥1 correlation exists for tenant+finding.
+4. Vitest for template output; API unit test for projection.
+
+**Acceptance criteria:**
+
+- Operators can paste a ServiceNow-ready task body without native connector config.
+- List/inspect APIs expose `TrackedExternally` without client-side correlation fan-out.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/lib/copy-finding-as-work-item.ts`
+- `archlucid-ui/src/components/CopyFindingAsWorkItemButton.tsx`
+- `ArchLucid.Contracts/Findings/FindingInspectResponse.cs`
+- `ArchLucid.Application/Findings/` (inspect query projection)
+
+**Size estimate:** **S**
+
+---
+
+## TB-392 — Per-tenant Jira/ServiceNow credentials — **V1.1**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+Jira/ServiceNow outbound and inbound webhook secrets live in deployment-wide `Integrations:ItsmOutbound:*` / `IntegrationsItsmInboundOptions`. Multi-tenant SaaS cannot give each customer their own connector credentials. Teams connector already stores Key Vault **secret names** per tenant in SQL.
+
+**Scope:**
+
+1. Add `TenantItsmConnectorConnections` (or extend tenant settings) with provider, KV secret name references, instance/base URL (non-secret), enabled flag.
+2. Mirror `TeamsIncomingWebhookConnectionsController` patterns: `GET/POST/DELETE` under `/v1/integrations/itsm/connections` with `ExecuteAuthority`.
+3. Resolve credentials via `ISecretProvider` at outbound/inbound execution time using tenant-scoped rows.
+4. Deprecate deployment-wide creds for hosted SaaS profiles; keep for single-tenant pilot deployments behind config flag.
+5. Terraform/IaC: document KV secret naming convention per tenant.
+
+**Acceptance criteria:**
+
+- Two tenants on the same host can use different Jira projects/instances without shared API tokens.
+- No raw secrets in SQL rows (secret names only).
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Integrations/` (new connections controller)
+- `ArchLucid.Persistence/Integrations/`
+- `ArchLucid.Application/Integrations/Itsm/Outbound/`
+- `docs/runbooks/ITSM_LIVE_SMOKE_SCAFFOLD.md`
+
+**Size estimate:** **M**
+
+**Cross-ref:** **TB-016** (sandbox provisioning — operator-owned), **TB-393** (behavioral settings UI).
+
+---
+
+## TB-393 — Tenant ITSM outbound settings write API + admin UI — **V1.1**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+`TenantItsmOutboundSettings` exists in SQL (`JiraProjectKeyOverride`, severity filters, issue-type map JSON) but `ITenantItsmOutboundSettingsRepository` is **read-only** with no HTTP API or UI. Operators cannot configure project overrides without DB/migration.
+
+**Scope:**
+
+1. Add upsert repository method + `PUT /v1/integrations/itsm/settings` (tenant-scoped, `AdminAuthority` or `ExecuteAuthority`).
+2. Admin UI under `/integrations/itsm` (mirror `/integrations/teams` layout): project key override, info-severity send toggle, ServiceNow CMDB auto-create toggle.
+3. Wire settings into `ItsmOutboundIssueCreationService` and health probe.
+4. Integration tests for read/write round trip.
+
+**Acceptance criteria:**
+
+- Tenant admin can configure ITSM behavioral overrides without SQL access.
+- Outbound create respects per-tenant project key override.
+
+**Affected files / projects:**
+
+- `ArchLucid.Core/Persistence/ApplicationPorts/Integrations/TenantItsmOutboundSettings.cs`
+- `ArchLucid.Persistence/Integrations/SqlTenantItsmOutboundSettingsRepository.cs`
+- `archlucid-ui/src/app/(operator)/integrations/`
+
+**Size estimate:** **M**
+
+---
+
+## TB-394 — Durable async ITSM outbound ticket creation — **V1.1**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+`ItsmOutboundIssueCreationService.TryCreateForFindingAsync` runs **synchronously** in the HTTP request. Vendor outage after Polly retries exhaust fails the operator inline; there is no durable retry/DLQ for ticket creation despite mature outbox/queue infrastructure elsewhere.
+
+**Scope:**
+
+1. Enqueue outbound create on `IntegrationEventOutbox` or `BackgroundJobQueue` after operator action; return **202 Accepted** with job/correlation id.
+2. Worker executes create + correlation persist + audit; surface pending/failed state on finding inspect ITSM panel.
+3. Reuse `AddOutboundExternalHttpResilience()` in worker scope; cap retries; DLQ with admin replay hook (pattern from `IntegrationEventDlqRetryHostedService`).
+4. Keep synchronous path behind config flag for local dev/smoke tests.
+
+**Acceptance criteria:**
+
+- Transient vendor failures retry without blocking the operator UI thread.
+- Failed creates are visible and replayable; duplicate guard still applies.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs`
+- `ArchLucid.Host.Core/Jobs/` or `Hosted/IntegrationEventOutboxHostedService.cs`
+- `archlucid-ui/src/lib/api/itsm-outbound-api.ts`
+
+**Size estimate:** **M**
+
+**Cross-ref:** **TB-251** (outbox pattern precedent).
+
+---
+
+## TB-395 — Finding assignee + general remediation due date — **V1.1**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+Core `Finding` has no `AssignedToUserId` or general remediation due date. Risk-register `OwnerUserId` maps to last disposition reviewer; `RevisitDueUtc` applies only on defer disposition. Jira assignee and ServiceNow `assigned_to` / SLA fields cannot map cleanly.
+
+**Scope:**
+
+1. Add nullable `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL (migration).
+2. Expose on inspect, risk register, and outbound payload mapper (`ItsmFindingAuthorityPayloadMapper`).
+3. Optional UI edit on finding inspect (governance section) with audit trail.
+4. Do **not** conflate with waiver owner or disposition reviewer fields.
+
+**Acceptance criteria:**
+
+- Operators can assign a finding owner and target remediation date independent of disposition deferral.
+- Outbound ticket create includes assignee/due when configured.
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts/Findings/Finding.cs`
+- `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`
+- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmFindingAuthorityPayloadMapper.cs`
+
+**Size estimate:** **M**
+
+---
+
+## TB-396 — Inbound ITSM disposition sync — **V1.1**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+Inbound webhooks map external ticket state → `FindingHumanReviewStatus` only. Governance `FindingDisposition` (Accepted/Deferred/Remediated/…) is not updated from Jira/ServiceNow, so risk register and governance queue stay stale relative to ticket state.
+
+**Scope:**
+
+1. Extend `IntegrationsItsmInboundOptions` with optional disposition map (external status → `FindingDisposition`).
+2. On inbound webhook, when map hits, call `FindingDispositionService.RecordAsync` with system actor + audit (or dedicated integration actor).
+3. Guard against loops (outbound create → inbound echo).
+4. Document one-way vs bidirectional boundaries in `API_CONTRACTS.md`; full bidirectional workflow mapping remains **TB-398**.
+
+**Acceptance criteria:**
+
+- Configured Jira "Done" (or ServiceNow "Resolved") can mark finding disposition Remediated when mapping enabled.
+- Unmapped statuses continue to update human-review only (current behaviour).
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Integrations/Itsm/ItsmInboundWebhookSyncService.cs`
+- `ArchLucid.Core/Configuration/IntegrationsItsmInboundOptions.cs`
+- `ArchLucid.Application/Governance/FindingDisposition/`
+
+**Size estimate:** **M**
+
+---
+
+## TB-397 — `IExternalTicketConnector` plugin boundary — **V2**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+Jira and ServiceNow are concrete HTTP clients selected by `ItsmOutboundIssueProvider` enum inside `ItsmOutboundIssueCreationService`. Adding Azure DevOps Work Items, Linear, or other targets requires new switch arms and duplicate orchestration. `IConnector*` under `ContextIngestion` is the wrong domain (inbound context ingestion).
+
+**Scope:**
+
+1. Define `IExternalTicketConnector` (create ticket, build browse URL, validate config, provider id).
+2. Register Jira + ServiceNow implementations in DI; refactor creation service to resolve by provider id.
+3. Keep Authority-shaped outbound payloads unchanged per [`V1_DEFERRED.md`](V1_DEFERRED.md) §6 connector rules.
+4. Architecture test: Application must not reference vendor HTTP types from API controllers directly.
+
+**Acceptance criteria:**
+
+- Adding a third provider requires a new connector class + registration, not edits across controller/service switch statements.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Integrations/Itsm/Outbound/`
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.cs`
+
+**Size estimate:** **M**
+
+---
+
+## TB-398 — Full enterprise ITSM connector — **V2**
+
+**Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
+
+**Problem:**
+
+Enterprise buyers eventually expect OAuth consent flows, per-field mapping UI, custom workflow/status mapping, webhook subscriptions managed from ArchLucid, and connector health dashboards beyond today's MVP (basic auth + deployment config + manual register).
+
+**Scope (explicit V2 — do not start unless owner promotes):**
+
+1. OAuth 2.0 / OIDC flows for Jira Cloud and ServiceNow (authorization code + refresh).
+2. Tenant admin field-mapping UI (severity → priority, disposition → status, custom fields).
+3. Bidirectional workflow sync with conflict resolution and loop prevention.
+4. Managed webhook registration where vendor APIs support it.
+5. Connector onboarding wizard + health SLA dashboard.
+
+**Out of scope for V1/V1.1:** This item is tracking-only until owner reorders [`V1_DEFERRED.md`](V1_DEFERRED.md) §6 or promotes Azure DevOps Work Items separately.
+
+**Acceptance criteria:**
+
+- Defined when owner promotes; not a V1 GA or default V1.1 gate.
+
+**Affected files / projects:**
+
+- TBD at promotion time; builds on **TB-392–397**.
+
+**Size estimate:** **L**
+
+**Cross-ref:** [`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15, [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md).

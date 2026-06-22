@@ -24,16 +24,13 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Start with one sample finding";
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Preview sample findings";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "See how ArchLucid connects a finding to evidence and a decision before opening a full sample package.";
+  "Review three representative findings before opening the full package.";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_WORKFLOW =
-  "Open sample finding → Review evidence → See decision impact";
+export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Review sample findings";
 
-export const OPERATOR_HOME_SAMPLE_REVIEW_DISCOVERED_SUMMARY =
-  "Representative discoveries from the example review — severity, evidence basis, and governance posture before you open the full package.";
 
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open full example review";
 

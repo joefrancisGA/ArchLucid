@@ -262,4 +262,24 @@ public sealed class ItsmOutboundIssuesEndpointIntegrationTests
             .Should()
             .Contain(AuditEventTypes.IntegrationServiceNowIncidentCreateSucceeded);
     }
+
+    [SkippableFact]
+    public async Task Post_when_native_itsm_disabled_returns_404_with_buyer_safe_copy()
+    {
+        await using ItsmOutboundIssuesIntegrationApiFactory factory = new() { NativeItsmCreateEnabled = false };
+
+        using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        await SeedDemoBaselineAsync(factory.Services);
+
+        using HttpResponseMessage response = await client.PostAsync(
+            "/v1/integrations/itsm/outbound/issues",
+            OutboundIssueBody("Jira", DemoPrimaryFindingId));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        string raw = await response.Content.ReadAsStringAsync();
+        raw.Should().Contain(ItsmNativeIntegrationGate.NativeCreateDisabledMessage);
+    }
 }

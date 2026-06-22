@@ -10,15 +10,18 @@ import {
 } from "@/lib/api/itsm-outbound-api";
 import { BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
 
 export type ItsmOutboundQuickActionsProps = {
   readonly findingId: string;
   readonly compact?: boolean;
 };
 
-/** TB-063: reusable Jira / ServiceNow outbound actions for finding surfaces. */
+/** TB-063: reusable Jira / ServiceNow outbound actions for finding surfaces. TB-387: create gated by native flag. */
 export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOutboundQuickActionsProps) {
+  const nativeCreateEnabled = useItsmNativeCreateEnabled();
   const [correlations, setCorrelations] = useState<ItsmFindingCorrelationListItem[]>([]);
+  const [correlationsLoaded, setCorrelationsLoaded] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -26,6 +29,7 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
   const reload = useCallback(async (): Promise<void> => {
     const body = await listItsmFindingCorrelations(findingId);
     setCorrelations(body.correlations ?? []);
+    setCorrelationsLoaded(true);
   }, [findingId]);
 
   useEffect(() => {
@@ -36,6 +40,7 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
         await reload();
       } catch {
         if (!cancelled) {
+          setCorrelationsLoaded(true);
           setErrorMessage(
             isBuyerPolishedOperatorShellEnv()
               ? BUYER_DEMO_ITSM_LINKAGE_UNAVAILABLE
@@ -70,34 +75,40 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
     }
   }
 
+  if (correlationsLoaded && !nativeCreateEnabled && correlations.length === 0) {
+    return null;
+  }
+
   return (
     <div className={compact ? "space-y-1" : "space-y-2"}>
-      <div className="flex flex-wrap gap-1">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs"
-          disabled={busy || jiraLinked}
-          onClick={() => void onCreate("Jira")}
-          data-testid="itsm-sync-jira"
-          aria-label={jiraLinked ? "Jira issue already linked" : "Create linked Jira issue"}
-        >
-          {jiraLinked ? "Jira linked" : compact ? "Sync Jira" : "Create Jira issue"}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs"
-          disabled={busy || serviceNowLinked}
-          onClick={() => void onCreate("ServiceNow")}
-          data-testid="itsm-sync-servicenow"
-          aria-label={serviceNowLinked ? "ServiceNow incident already linked" : "Create linked ServiceNow incident"}
-        >
-          {serviceNowLinked ? "ServiceNow linked" : compact ? "Sync ServiceNow" : "Create ServiceNow incident"}
-        </Button>
-      </div>
+      {nativeCreateEnabled ? (
+        <div className="flex flex-wrap gap-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            disabled={busy || jiraLinked}
+            onClick={() => void onCreate("Jira")}
+            data-testid="itsm-sync-jira"
+            aria-label={jiraLinked ? "Jira issue already linked" : "Create linked Jira issue"}
+          >
+            {jiraLinked ? "Jira linked" : compact ? "Sync Jira" : "Create Jira issue"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            disabled={busy || serviceNowLinked}
+            onClick={() => void onCreate("ServiceNow")}
+            data-testid="itsm-sync-servicenow"
+            aria-label={serviceNowLinked ? "ServiceNow incident already linked" : "Create linked ServiceNow incident"}
+          >
+            {serviceNowLinked ? "ServiceNow linked" : compact ? "Sync ServiceNow" : "Create ServiceNow incident"}
+          </Button>
+        </div>
+      ) : null}
 
       {!compact && correlations.length > 0 ? (
         <ul className="space-y-1 text-xs">

@@ -157,8 +157,11 @@ public static partial class ServiceCollectionExtensions
         services.AddFirstTenantFunnelTelemetry(configuration);
         services.Configure<IntegrationsItsmInboundOptions>(
             configuration.GetSection(IntegrationsItsmInboundOptions.SectionName));
+        services.Configure<IntegrationsItsmOptions>(
+            configuration.GetSection(IntegrationsItsmOptions.SectionName));
         services.Configure<IntegrationsItsmOutboundOptions>(
             configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
+        services.AddSingleton<ItsmNativeIntegrationGate>();
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
         services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))

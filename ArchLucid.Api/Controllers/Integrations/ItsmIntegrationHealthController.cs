@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Integrations;
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -22,13 +23,17 @@ namespace ArchLucid.Api.Controllers.Integrations;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ItsmIntegrationHealthController(
     IScopeContextProvider scopeProvider,
-    IItsmOutboundIntegrationHealthService healthService) : ControllerBase
+    IItsmOutboundIntegrationHealthService healthService,
+    ItsmNativeIntegrationGate nativeIntegrationGate) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly IItsmOutboundIntegrationHealthService _healthService =
         healthService ?? throw new ArgumentNullException(nameof(healthService));
+
+    private readonly ItsmNativeIntegrationGate _nativeIntegrationGate =
+        nativeIntegrationGate ?? throw new ArgumentNullException(nameof(nativeIntegrationGate));
 
     /// <summary>Issues lightweight read-only pings to configured Jira Cloud / ServiceNow Table API endpoints.</summary>
     [HttpGet]
@@ -42,7 +47,7 @@ public sealed class ItsmIntegrationHealthController(
         ItsmOutboundIntegrationHealthReport report =
             await _healthService.GetHealthAsync(scope, cancellationToken).ConfigureAwait(false);
 
-        ItsmIntegrationHealthResponse body = Map(report);
+        ItsmIntegrationHealthResponse body = MapReport(report);
 
         if (report.Return503)
             return StatusCode(StatusCodes.Status503ServiceUnavailable, body);
@@ -50,13 +55,14 @@ public sealed class ItsmIntegrationHealthController(
         return Ok(body);
     }
 
-    private static ItsmIntegrationHealthResponse Map(ItsmOutboundIntegrationHealthReport report)
+    private ItsmIntegrationHealthResponse MapReport(ItsmOutboundIntegrationHealthReport report)
     {
         ArgumentNullException.ThrowIfNull(report);
 
         return new ItsmIntegrationHealthResponse
         {
             Status = report.Status,
+            NativeEnabled = _nativeIntegrationGate.IsNativeCreateEnabled(),
             Jira = MapProbe(report.Jira),
             ServiceNow = MapProbe(report.ServiceNow),
         };

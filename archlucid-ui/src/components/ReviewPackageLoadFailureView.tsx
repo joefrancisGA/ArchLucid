@@ -109,7 +109,6 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
     }
 
     let cancelled = false;
-    let intervalId: number | undefined;
 
     const tick = async () => {
       if (cancelled) {
@@ -137,14 +136,11 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
     };
 
     void tick();
-    intervalId = window.setInterval(() => void tick(), PENDING_POLL_MS);
+    const intervalId = window.setInterval(() => void tick(), PENDING_POLL_MS);
 
     return () => {
       cancelled = true;
-
-      if (intervalId !== undefined) {
-        window.clearInterval(intervalId);
-      }
+      window.clearInterval(intervalId);
     };
   }, [phase, pendingStartedAt, router, tryLoadRun]);
 
