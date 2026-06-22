@@ -47,14 +47,14 @@ describe("FindingInspectView", () => {
     const view = within(container);
 
     expect(view.getByRole("heading", { name: "Rule A — evidence & trace" })).toBeTruthy();
-    expect(view.getByText("AI Audit Inspection")).toBeTruthy();
+    expect(view.getByText("Technical evidence trace")).toBeTruthy();
     expect(view.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Evidence citations" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Reasoning summary" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Recommended action" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Audit record" })).toBeTruthy();
-    expect(view.getByText("rule-a")).toBeTruthy();
-    expect(view.getByText("node-x")).toBeTruthy();
+    expect(view.getAllByText("rule-a").length).toBeGreaterThan(0);
+    expect(view.getAllByText("node-x").length).toBeGreaterThan(0);
   });
 
   it("has no serious axe violations when reasoning summary is present", async () => {

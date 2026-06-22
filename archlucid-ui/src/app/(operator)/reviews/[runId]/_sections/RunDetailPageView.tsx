@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -27,8 +28,6 @@ import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSumm
 import {
   buyerHeaderStatusTwinPillCaption,
 } from "@/lib/review-buyer-disposition-line";
-import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
-import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/run-decision-explainability-from-detail";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -45,16 +44,22 @@ import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySecti
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
-import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
+import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
+import { RunDetailHolisticCriticPanel } from "./RunDetailHolisticCriticPanel";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
-import { RunDetailBelowFoldDeferredSkeleton, RunDetailMidDeferredSkeleton } from "./RunDetailDeferredSkeleton";
+import {
+  RunDetailBelowFoldDeferredSkeleton,
+  RunDetailExplanationSkeleton,
+  RunDetailMidDeferredSkeleton,
+} from "./RunDetailDeferredSkeleton";
+import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
 function toDeferredSectionContext(model: RunDetailPageModel): RunDetailDeferredSectionContext {
@@ -72,11 +77,6 @@ function toDeferredSectionContext(model: RunDetailPageModel): RunDetailDeferredS
 export function RunDetailPageView(props: { readonly model: RunDetailPageModel }): React.JSX.Element {
   const m = props.model;
   const deferredContext = toDeferredSectionContext(m);
-  const { baselineAnnualCostUsd, isIllustrativePricing } = deriveRunDetailBaselineAnnualCostUsd({
-    savingsSummaryAnnualizedUsd: undefined,
-    goldenManifestJson: m.goldenManifestJsonForExport,
-  });
-  const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(m.resolvedDetail);
   const runSummaryForBadge = m.progressForPipelineUi;
 
   const sampleReviewPackageSummaryEl =
@@ -111,13 +111,15 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       : null;
 
   const governanceAlertsEl = (
-    <>
-      <RunDetailGovernanceAlerts
-        run={m.resolvedDetail.run}
-        hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-      />
-      <RunDetailDeferredScopeNoticeClient />
-    </>
+    <GovernanceModePresentationGate>
+      <>
+        <RunDetailGovernanceAlerts
+          run={m.resolvedDetail.run}
+          hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+        />
+        <RunDetailDeferredScopeNoticeClient />
+      </>
+    </GovernanceModePresentationGate>
   );
 
   const outcomeCardsEl = (
@@ -280,7 +282,15 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       </Suspense>
 
       {!m.buyerPolishedArtifactTable ? (
-        <Suspense fallback={null}>
+        <Suspense
+          fallback={
+            <div
+              className="h-12 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+              role="status"
+              aria-label="Loading comparison banner"
+            />
+          }
+        >
           <WhatIfBranchCompareBanner
             currentRunId={m.resolvedDetail.run.runId}
             hasCurrentManifest={Boolean(m.manifestId)}
@@ -289,6 +299,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {governanceAlertsEl}
+      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
+      <RunDetailHolisticCriticPanel
+        runId={m.resolvedDetail.run.runId}
+        hasGoldenManifest={Boolean(m.manifestId)}
+      />
       {buyerFinalizedPackage ? null : outcomeCardsEl}
 
       {!m.buyerPolishedArtifactTable ? (
@@ -374,21 +389,18 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailRunExplanationCollapsible
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          quickDecisionFindings={m.quickDecisionFindings}
-          quickDecisionFromExplanationFallback={m.quickDecisionFromExplanationFallback}
-          findingWireSnapshots={m.findingWireSnapshots}
-          findingCountDisplay={m.findingCountDisplay}
-          warningCountDisplay={m.warningCountDisplay}
-          explanationSummary={m.explanationSummary}
-          explanationFailure={m.explanationFailure}
-          baselineAnnualCostUsd={baselineAnnualCostUsd}
-          isIllustrativePricing={isIllustrativePricing}
-          decisionExplainability={decisionExplainability}
-          insightDensityView={m.insightDensityView}
-        />
+        <Suspense fallback={<RunDetailExplanationSkeleton />}>
+          <RunDetailExplanationDeferred
+            runId={m.routeRunId}
+            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+            resolvedDetail={m.resolvedDetail}
+            explanationSummary={m.explanationSummary}
+            explanationFailure={m.explanationFailure}
+            findingCountDisplay={m.findingCountDisplay}
+            warningCountDisplay={m.warningCountDisplay}
+            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+          />
+        </Suspense>
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (

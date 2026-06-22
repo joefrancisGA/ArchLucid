@@ -31,6 +31,9 @@ public sealed class ItsmOutboundIssuesIntegrationApiFactory(TimeSpan? jiraHttpTi
         get; init;
     }
 
+    /// <summary>When true, sets <c>Integrations:Itsm:NativeEnabled</c> for outbound create tests (default true).</summary>
+    public bool NativeItsmCreateEnabled { get; init; } = true;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
@@ -54,6 +57,8 @@ public sealed class ItsmOutboundIssuesIntegrationApiFactory(TimeSpan? jiraHttpTi
                     extra["Integrations:ItsmOutbound:ServiceNow:Username"] = "svc";
                     extra["Integrations:ItsmOutbound:ServiceNow:Password"] = "pwd";
                 }
+
+                extra["Integrations:Itsm:NativeEnabled"] = NativeItsmCreateEnabled ? "true" : "false";
 
                 config.AddInMemoryCollection(extra);
             });

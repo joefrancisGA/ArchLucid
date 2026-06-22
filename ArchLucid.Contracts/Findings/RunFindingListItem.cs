@@ -51,4 +51,61 @@ public sealed class RunFindingListItem
         get;
         set;
     }
+
+    public FindingHumanReviewStatus HumanReviewStatus
+    {
+        get;
+        set;
+    }
+
+    public FindingDisposition? LatestDisposition
+    {
+        get;
+        set;
+    }
+
+    public DateTimeOffset? RevisitDueUtc
+    {
+        get;
+        set;
+    }
+
+    public string? Provider
+    {
+        get;
+        set;
+    }
+
+    public string? ExternalKey
+    {
+        get;
+        set;
+    }
+
+    public string? ExternalUrl
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Semicolon-separated <c>Provider:ExternalKey</c> pairs when multiple correlations exist.</summary>
+    public string? ItsmLinkedTicketsSummary
+    {
+        get;
+        set;
+    }
+
+    /// <summary><see langword="true" /> when at least one ITSM correlation exists for the tenant + finding.</summary>
+    public bool TrackedExternally
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Human-readable external ticket summary for filters and badges without client-side correlation joins.</summary>
+    public string? ExternalTrackingSummary
+    {
+        get;
+        set;
+    }
 }

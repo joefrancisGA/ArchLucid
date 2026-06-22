@@ -124,5 +124,5 @@ function Split-ApiIntegrationTestClassFilterChunks {
         }
     }
 
-    return ,@($chunks.ToArray())
+    return $chunks.ToArray()
 }

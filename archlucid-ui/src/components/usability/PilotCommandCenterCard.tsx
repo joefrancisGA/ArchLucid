@@ -90,7 +90,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
           ·
         </span>
         <Link
-          href="/settings/roles"
+          href="/settings/roles?tab=users"
           className={optionalSetupLinkClass}
           data-testid="pilot-command-center-invite-reviewer"
         >

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Governance.Resolution;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Persistence.Governance;
@@ -851,5 +853,126 @@ public sealed class EffectiveGovernanceResolverTests
             d.ItemType == GovernanceConstants.ItemTypes.ElicitationQuestion
             && d.ItemKey == "logging"
             && d.WinningPolicyPackId == projectPackId);
+    }
+
+    [Fact]
+    public async Task Focused_pilot_mode_limits_assignments_to_security_and_cost_packs()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        Guid securityPackId = Guid.NewGuid();
+        Guid costPackId = Guid.NewGuid();
+        Guid wafPackId = Guid.NewGuid();
+
+        await CreateEnabledPackAsync(
+            packRepo,
+            versionRepo,
+            assignmentRepo,
+            tenantId,
+            workspaceId,
+            projectId,
+            securityPackId,
+            FocusedPilotModePolicyPacks.SecurityBaselineDisplayName,
+            """{"complianceRuleIds":["11111111-1111-1111-1111-111111111111"],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""");
+
+        await CreateEnabledPackAsync(
+            packRepo,
+            versionRepo,
+            assignmentRepo,
+            tenantId,
+            workspaceId,
+            projectId,
+            costPackId,
+            FocusedPilotModePolicyPacks.FinOpsCostOptimizationDisplayName,
+            """{"complianceRuleIds":["22222222-2222-2222-2222-222222222222"],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""");
+
+        await CreateEnabledPackAsync(
+            packRepo,
+            versionRepo,
+            assignmentRepo,
+            tenantId,
+            workspaceId,
+            projectId,
+            wafPackId,
+            "Azure Well-Architected Framework",
+            """{"complianceRuleIds":["33333333-3333-3333-3333-333333333333"],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""");
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+
+        using (PilotModeGovernanceScope.Begin())
+        {
+            EffectiveGovernanceResolutionResult result =
+                await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+            result.EffectiveContent.ComplianceRuleIds.Should().BeEquivalentTo(
+            [
+                Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ]);
+
+            result.Notes.Should().Contain(GovernanceConstants.Notes.FocusedPilotModeActive);
+            result.Notes.Should().Contain(n =>
+                n.Contains("Azure Well-Architected Framework", StringComparison.Ordinal)
+                && n.Contains("focused pilot mode", StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    private static async Task CreateEnabledPackAsync(
+        InMemoryPolicyPackRepository packRepo,
+        InMemoryPolicyPackVersionRepository versionRepo,
+        InMemoryPolicyPackAssignmentRepository assignmentRepo,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid packId,
+        string displayName,
+        string contentJson)
+    {
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = packId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = displayName,
+                Description = "",
+                PackType = PolicyPackType.TenantCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = contentJson,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = packId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                IsEnabled = true,
+                AssignedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
     }
 }

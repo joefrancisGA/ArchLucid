@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppInsightsTelemetryInit } from "@/components/AppInsightsTelemetryInit";
+import { FrictionlessTrialBanner } from "@/components/FrictionlessTrialBanner";
 import { AppToaster } from "@/components/AppToaster";
 import { OperatorQueryProvider } from "@/components/OperatorQueryProvider";
 import { AuthPanel } from "@/components/AuthPanel";
@@ -29,7 +30,6 @@ import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
-import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
@@ -42,6 +42,7 @@ import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HEL
 import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
+import type { HelpTabId } from "@/components/HelpPanel";
 
 const OnboardingTour = dynamic(
   () => import("@/components/OnboardingTour").then((module) => module.OnboardingTour),
@@ -142,16 +143,20 @@ const CtoDemoPanicModeBanner = dynamic(
 type AppShellHelpOverlaysProps = {
   helpDocSearchOpen: boolean;
   helpGuidesOpen: boolean;
+  helpGuidesInitialTab: HelpTabId;
   onHelpDocSearchOpenChange: (open: boolean) => void;
   onHelpGuidesOpenChange: (open: boolean) => void;
+  onOpenGuidesPanel: (initialTab?: HelpTabId) => void;
 };
 
 /** Defers help panel chunks until the operator first opens search or guides. */
 function AppShellHelpOverlays({
   helpDocSearchOpen,
   helpGuidesOpen,
+  helpGuidesInitialTab,
   onHelpDocSearchOpenChange,
   onHelpGuidesOpenChange,
+  onOpenGuidesPanel,
 }: AppShellHelpOverlaysProps) {
   const [searchMounted, setSearchMounted] = useState(false);
   const [guidesMounted, setGuidesMounted] = useState(false);
@@ -168,20 +173,29 @@ function AppShellHelpOverlays({
     }
   }, [helpGuidesOpen]);
 
+  const handleOpenGuidesPanel = useCallback(
+    (initialTab?: HelpTabId) => {
+      setGuidesMounted(true);
+      onOpenGuidesPanel(initialTab);
+    },
+    [onOpenGuidesPanel],
+  );
+
   return (
     <>
       {searchMounted ? (
         <HelpSearchPanel
           open={helpDocSearchOpen}
           onOpenChange={onHelpDocSearchOpenChange}
-          onOpenGuidesPanel={() => {
-            setGuidesMounted(true);
-            onHelpGuidesOpenChange(true);
-          }}
+          onOpenGuidesPanel={handleOpenGuidesPanel}
         />
       ) : null}
       {guidesMounted ? (
-        <HelpPanel open={helpGuidesOpen} onOpenChange={onHelpGuidesOpenChange} />
+        <HelpPanel
+          open={helpGuidesOpen}
+          onOpenChange={onHelpGuidesOpenChange}
+          initialTab={helpGuidesInitialTab}
+        />
       ) : null}
     </>
   );
@@ -210,9 +224,14 @@ function AppShellInner({ children }: AppShellClientProps) {
   const pathname = usePathname();
   const chromeMode = useOperatorChromeMode();
   const [helpGuidesOpen, setHelpGuidesOpen] = useState(false);
+  const [helpGuidesInitialTab, setHelpGuidesInitialTab] = useState<HelpTabId>("guides");
   const [helpDocSearchOpen, setHelpDocSearchOpen] = useState(false);
   const openHelpSearch = useCallback(() => {
     setHelpDocSearchOpen(true);
+  }, []);
+  const openHelpGuidesPanel = useCallback((initialTab: HelpTabId = "guides") => {
+    setHelpGuidesInitialTab(initialTab);
+    setHelpGuidesOpen(true);
   }, []);
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
@@ -356,8 +375,10 @@ function AppShellInner({ children }: AppShellClientProps) {
             <AppShellHelpOverlays
               helpDocSearchOpen={helpDocSearchOpen}
               helpGuidesOpen={helpGuidesOpen}
+              helpGuidesInitialTab={helpGuidesInitialTab}
               onHelpDocSearchOpenChange={setHelpDocSearchOpen}
               onHelpGuidesOpenChange={setHelpGuidesOpen}
+              onOpenGuidesPanel={openHelpGuidesPanel}
             />
           </TooltipProvider>
         </WorkspaceActiveRunProvider>
@@ -377,6 +398,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         </a>
         <div ref={shellRootRef} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
           <div className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
+            <FrictionlessTrialBanner />
             <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
             <LayerContextFromRoute />
             <CtoDemoJourneyCaptionBar />
@@ -420,9 +442,8 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"
             >
-              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center justify-between gap-3 px-4 lg:px-6")}>
+              <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex items-center px-4 lg:px-6")}>
                 <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
-                <KeyboardShortcutsFooterHint />
               </div>
             </footer>
           ) : null}
@@ -433,8 +454,10 @@ function AppShellInner({ children }: AppShellClientProps) {
         <AppShellHelpOverlays
           helpDocSearchOpen={helpDocSearchOpen}
           helpGuidesOpen={helpGuidesOpen}
+          helpGuidesInitialTab={helpGuidesInitialTab}
           onHelpDocSearchOpenChange={setHelpDocSearchOpen}
           onHelpGuidesOpenChange={setHelpGuidesOpen}
+          onOpenGuidesPanel={openHelpGuidesPanel}
         />
         <CorePilotWizardLauncher />
         <PilotBaselineWizardLauncher />

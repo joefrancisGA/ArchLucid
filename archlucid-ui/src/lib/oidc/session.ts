@@ -12,6 +12,7 @@ import {
   OIDC_ID_TOKEN_KEY,
   OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
+  OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
 } from "@/lib/oidc/storage-keys";
 import { decodeJwtPayload, pickDisplayNameFromPayload } from "@/lib/oidc/jwt-payload";
@@ -97,6 +98,28 @@ export function consumePkceState(): { state: string; codeVerifier: string; nonce
   removeOidcKeys([OIDC_OAUTH_STATE_KEY, OIDC_CODE_VERIFIER_KEY, OIDC_NONCE_KEY]);
 
   return pair;
+}
+
+/**
+ * Persists a post-sign-in return URL so the callback can restore the user's position
+ * after a session-expiry sign-in. Only relative paths are accepted.
+ */
+export function storePostSignInReturnUrl(url: string): void {
+  if (url.startsWith("/")) {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, url);
+  }
+}
+
+/**
+ * Reads and clears the stored post-sign-in return URL (single-use).
+ * Returns null when absent or never written.
+ */
+export function consumePostSignInReturnUrl(): string | null {
+  const url = readSessionKey(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
+
+  return url;
 }
 
 function getExpiresAtMs(): number {

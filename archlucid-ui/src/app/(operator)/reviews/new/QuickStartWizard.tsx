@@ -6,6 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
@@ -51,6 +52,7 @@ export type QuickStartWizardProps = {
 export function QuickStartWizard(props: QuickStartWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution } = props;
   const [quickStep, setQuickStep] = useState(0);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [presetId, setPresetId] = useState<string>(() => {
@@ -165,6 +167,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       const body = wizardValuesToCreateRunPayload(getValues(), {
         requestSource: "wizard",
         wizardPresetUsed: presetToken ?? undefined,
+        focusedPilotModeEnabled,
       });
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
@@ -238,6 +241,10 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
               Using preset: <strong>{selectedPreset.label}</strong>
             </p>
           ) : null}
+          <PilotModePolicyPackToggle
+            enabled={focusedPilotModeEnabled}
+            onEnabledChange={setFocusedPilotModeEnabled}
+          />
           <WizardStepIdentity />
         </div>
       ) : null}

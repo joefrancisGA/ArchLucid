@@ -1,0 +1,96 @@
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+const refreshMock = vi.fn();
+const getRunDetailMock = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: refreshMock,
+  }),
+}));
+
+vi.mock("@/lib/api", () => ({
+  getRunDetail: (...args: unknown[]) => getRunDetailMock(...args),
+}));
+
+import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
+import { recordReviewGenerationHandoff } from "@/lib/review-generation-handoff";
+
+const RUN_ID = "22222222-2222-2222-2222-222222222222";
+
+describe("ReviewPackageLoadFailureView", () => {
+  beforeEach(() => {
+    refreshMock.mockReset();
+    getRunDetailMock.mockReset();
+    getRunDetailMock.mockRejectedValue(new Error("not found"));
+  });
+
+  it("shows post-generation failure copy and retry affordance", () => {
+    recordReviewGenerationHandoff(RUN_ID, "quick-review");
+
+    render(
+      <ReviewPackageLoadFailureView
+        runId={RUN_ID}
+        fromGeneration
+        notFoundReason="workspace-mismatch"
+        attemptedRoute={`/reviews/${RUN_ID}`}
+      />,
+    );
+
+    expect(screen.getByText("We could not open the review that was just generated")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry loading review" })).toBeInTheDocument();
+    expect(screen.getByTestId("copy-diagnostics")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open sample review" })).not.toBeInTheDocument();
+  });
+
+  it("shows pending state for fresh generation handoff before package exists", () => {
+    render(
+      <ReviewPackageLoadFailureView
+        runId={RUN_ID}
+        fromGeneration
+        notFoundReason="missing"
+        attemptedRoute={`/reviews/${RUN_ID}?fromGeneration=1`}
+      />,
+    );
+
+    expect(screen.getByText("Opening your generated review…")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-pending")).toBeInTheDocument();
+  });
+
+  it("refreshes route when retry succeeds", async () => {
+    getRunDetailMock.mockResolvedValue({ run: { runId: RUN_ID } });
+
+    render(
+      <ReviewPackageLoadFailureView
+        runId={RUN_ID}
+        fromGeneration
+        notFoundReason="workspace-mismatch"
+        attemptedRoute={`/reviews/${RUN_ID}`}
+      />,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Retry loading review" }));
+    });
+
+    await waitFor(() => {
+      expect(refreshMock).toHaveBeenCalled();
+    });
+  });
+});

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Contracts.Drafts;
@@ -24,6 +26,13 @@ public sealed class PatchDraftRequest
     }
 
     public ActorSet? ActorSet
+    {
+        get;
+        set;
+    }
+
+    [JsonPropertyName("focusedPilotModeEnabled")]
+    public bool? FocusedPilotModeEnabled
     {
         get;
         set;

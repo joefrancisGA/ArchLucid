@@ -1,6 +1,7 @@
 "use client";
 
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 
 import { ScorecardMetricCard } from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";
@@ -28,7 +29,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8">
       <ValueReportOutcomesNav />
       <header>
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Pilot scorecard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.reviewScorecard}</h1>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">
           Cumulative tenant metrics from committed reviews, durable baselines for ROI modeling (
           <span className="font-mono">docs/go-to-market/ROI_MODEL.md</span>), and estimated review-time savings when

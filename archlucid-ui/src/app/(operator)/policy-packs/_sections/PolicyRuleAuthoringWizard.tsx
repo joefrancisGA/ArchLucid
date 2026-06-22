@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { PolicySimulator } from "@/components/governance/PolicySimulator";
 import { listRunsByProjectPaged, simulatePolicyPackAgainstRun } from "@/lib/api";
-import { draftPolicyPackRule } from "@/lib/api/policy-pack-draft-api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
@@ -33,6 +32,7 @@ import type { RunSummary } from "@/types/authority";
 import { PACK_TYPES } from "./policy-packs-page-constants";
 import { CuratedRulesAuthoringSection } from "./CuratedRulesAuthoringSection";
 import { PolicyPackVisualBuilder } from "./PolicyPackVisualBuilder";
+import { PolicyPackNaturalLanguageBuilder } from "./PolicyPackNaturalLanguageBuilder";
 
 const AUTH_WIZARD_PROJECT_ID = "default";
 
@@ -94,7 +94,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   } = props;
 
   const [step, setStep] = useState<WizardStepId>(1);
-  const [inputMode, setInputMode] = useState<"guided" | "visual" | "json">("guided");
+  const [inputMode, setInputMode] = useState<"guided" | "visual" | "json" | "ai">("guided");
   const [guidedFields, setGuidedFields] = useState<GuidedPolicyFields>(() => ({
     complianceRuleKeysText: "",
     alertRuleIdsText: "",
@@ -151,10 +151,6 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(null);
   const [blockOnCritical, setBlockOnCritical] = useState(true);
   const [allowPublishWithoutTest, setAllowPublishWithoutTest] = useState(false);
-  const [draftIntent, setDraftIntent] = useState("");
-  const [draftBusy, setDraftBusy] = useState(false);
-  const [draftFailure, setDraftFailure] = useState<ApiLoadFailureState | null>(null);
-  const [draftResponse, setDraftResponse] = useState<{ disclaimer: string; draftRuleJson: string } | null>(null);
 
   const jsonEditorValue = policyContentJson;
 
@@ -181,6 +177,53 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
     onPolicyContentJsonSync(JSON.stringify(doc, null, 2));
   }, [curatedDoc, guidedFields, name, description, onPolicyContentJsonSync, packType, publishVersion]);
+
+  const applyGeneratedCuratedDocument = useCallback(
+    (document: CuratedRulesDocument) => {
+      setCuratedDoc(document);
+      setAuthoringErrors([]);
+
+      if (document.pack.name.trim().length > 0 && name.trim().length === 0) {
+        onNameChange(document.pack.name);
+      }
+
+      if (document.pack.description.trim().length > 0 && description.trim().length === 0) {
+        onDescriptionChange(document.pack.description);
+      }
+
+      const validationErrors: string[] = validateCuratedRulesDocument(document);
+
+      if (validationErrors.length === 0) {
+        const doc: PolicyPackContentDocument = composePolicyPackContentForPublish({
+          guided: guidedFields,
+          curated: document,
+          packContext: {
+            name: name.trim().length > 0 ? name : document.pack.name,
+            description: description.trim().length > 0 ? description : document.pack.description,
+            version: publishVersion,
+            packType,
+          },
+        });
+
+        onPolicyContentJsonSync(JSON.stringify(doc, null, 2));
+      } else {
+        setAuthoringErrors(validationErrors);
+      }
+
+      setInputMode("visual");
+      showSuccess("Generated pack loaded in the visual builder — review rules before publish.");
+    },
+    [
+      description,
+      guidedFields,
+      name,
+      onDescriptionChange,
+      onNameChange,
+      onPolicyContentJsonSync,
+      packType,
+      publishVersion,
+    ],
+  );
 
   const syncGuidedFromCurrentJson = useCallback(() => {
     const doc: PolicyPackContentDocument | null = tryParseContentDocument(policyContentJson);
@@ -337,6 +380,15 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             <Button
               type="button"
               size="sm"
+              variant={inputMode === "ai" ? "default" : "secondary"}
+              onClick={() => setInputMode("ai")}
+              data-testid="policy-rule-wizard-ai-tab"
+            >
+              AI builder
+            </Button>
+            <Button
+              type="button"
+              size="sm"
               variant={inputMode === "visual" ? "default" : "secondary"}
               onClick={() => setInputMode("visual")}
               data-testid="policy-rule-wizard-visual-tab"
@@ -353,86 +405,12 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             </Button>
           </div>
 
-          <div
-            className="rounded-md border border-dashed border-neutral-300 bg-al-surface-raised p-4 dark:border-neutral-700"
-            data-testid="policy-pack-ai-draft-panel"
-          >
-            <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-              Draft a rule from plain English
-            </p>
-            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-              Describe governance intent in natural language; review the AI draft beside the curated rule schema before
-              merging into your pack.
-            </p>
-            <Textarea
-              className="mt-3 font-sans text-sm"
-              rows={4}
-              value={draftIntent}
-              onChange={(e) => setDraftIntent(e.target.value)}
-              disabled={!canMutatePacks || draftBusy}
-              placeholder="Example: Encrypt all PHI at rest with customer-managed keys and require audit logging on every override."
+          {inputMode === "ai" ? (
+            <PolicyPackNaturalLanguageBuilder
+              canMutatePacks={canMutatePacks}
+              onGenerated={applyGeneratedCuratedDocument}
             />
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                disabled={!canMutatePacks || draftBusy || draftIntent.trim().length < 20}
-                onClick={() => {
-                  void (async () => {
-                    setDraftBusy(true);
-                    setDraftFailure(null);
-
-                    try {
-                      const response = await draftPolicyPackRule({ freeTextIntent: draftIntent.trim() });
-                      setDraftResponse(response);
-                    } catch (e: unknown) {
-                      setDraftResponse(null);
-                      setDraftFailure(toApiLoadFailure(e));
-                    } finally {
-                      setDraftBusy(false);
-                    }
-                  })();
-                }}
-              >
-                {draftBusy ? "Drafting…" : "✨ Draft a rule from plain English"}
-              </Button>
-            </div>
-            {draftFailure !== null ? (
-              <div className="mt-3" role="alert">
-                <OperatorApiProblem failure={draftFailure} />
-              </div>
-            ) : null}
-            {draftResponse !== null ? (
-              <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div>
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                    Schema reference
-                  </p>
-                  <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-neutral-200 bg-white p-3 text-xs dark:border-neutral-700 dark:bg-neutral-950">
-                    {`{
-  "id": "kebab-case-id",
-  "title": "string",
-  "description": "string",
-  "severity": "Critical|High|Medium|Low",
-  "remediationGuidance": "string",
-  "evidenceHints": ["manifest paths"],
-  "frameworkMappings": [{ "framework": "", "requirement": "" }],
-  "priority": "P0|P1|P2"
-}`}
-                  </pre>
-                </div>
-                <div>
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">
-                    AI draft (review required)
-                  </p>
-                  <p className="mt-1 text-xs text-amber-900 dark:text-amber-100">{draftResponse.disclaimer}</p>
-                  <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-xs">
-                    {draftResponse.draftRuleJson}
-                  </pre>
-                </div>
-              </div>
-            ) : null}
-          </div>
+          ) : null}
 
           {inputMode === "visual" ? (
             <PolicyPackVisualBuilder

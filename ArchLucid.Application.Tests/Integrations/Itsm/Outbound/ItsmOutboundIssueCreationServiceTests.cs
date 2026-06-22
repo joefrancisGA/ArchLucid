@@ -103,7 +103,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         r.UserMessage.Should().Contain("project key");
         correlations.Verify(
             c => c.RegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -156,7 +156,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         r.UserMessage.Should().Contain("already linked");
         correlations.Verify(
             c => c.RegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -191,7 +191,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         r.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Skipped);
         correlations.Verify(
             c => c.RegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -229,6 +229,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 "Jira",
                 "DP-42",
                 "9",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -280,6 +281,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 "Jira",
                 "DP-42",
                 "9",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -356,6 +358,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 "Jira",
                 "DP-99",
                 "9",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         handler.LastBody.Should().Contain("\"name\":\"Blocker\"");
@@ -454,6 +457,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("sql down"));
 
@@ -551,6 +555,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 "ServiceNow",
                 "sys-1",
                 "INC9",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

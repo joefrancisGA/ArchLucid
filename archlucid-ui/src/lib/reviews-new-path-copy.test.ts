@@ -6,9 +6,10 @@ import {
 } from "@/lib/reviews-new-path-copy";
 
 describe("reviews-new-path-copy buyer-facing copy", () => {
-  it("guided-intake hint mentions guided intake and duration", () => {
-    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/guided intake/i);
-    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/5.{1,4}12 minutes/i);
+  it("guided-intake hint mentions duration and system context without repeating the mode name", () => {
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).not.toMatch(/guided intake/i);
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/about 10 minutes/i);
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/system context/i);
   });
 
   it("quick-review hint is clearly for users with a ready brief", () => {

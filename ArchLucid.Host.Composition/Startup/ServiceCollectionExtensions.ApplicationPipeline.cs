@@ -340,7 +340,13 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
+        services.AddHttpClient(GitTerraformContentFetcher.HttpClientName);
+        services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
+        services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
+        services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();
+        services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(
             configuration.GetSection(GenerateRunSummaryOptions.SectionPath));
         services.AddScoped<IRunSummaryOnePagerExportService, RunSummaryOnePagerExportService>();

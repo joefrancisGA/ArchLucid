@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
@@ -156,8 +157,11 @@ public static partial class ServiceCollectionExtensions
         services.AddFirstTenantFunnelTelemetry(configuration);
         services.Configure<IntegrationsItsmInboundOptions>(
             configuration.GetSection(IntegrationsItsmInboundOptions.SectionName));
+        services.Configure<IntegrationsItsmOptions>(
+            configuration.GetSection(IntegrationsItsmOptions.SectionName));
         services.Configure<IntegrationsItsmOutboundOptions>(
             configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
+        services.AddSingleton<ItsmNativeIntegrationGate>();
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
         services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
@@ -173,6 +177,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmExternalTicketUrlBuilder>();
         services.AddScoped<ItsmFindingCorrelationQueryService>();
+        services.AddScoped<RunFindingExternalTrackingEnrichmentService>();
         services.Configure<EvidenceBulkUploadOptions>(
             configuration.GetSection(EvidenceBulkUploadOptions.SectionName));
         services.Configure<ZipEvidenceExpanderOptions>(

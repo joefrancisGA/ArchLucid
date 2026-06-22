@@ -69,7 +69,7 @@ public sealed class DraftRequestService(
         if (intent.Length < 10)
             throw new InvalidOperationException("FreeTextIntent must be at least 10 characters after trim.");
 
-        DraftRequestDocument document = new() { FreeTextIntent = intent };
+        DraftRequestDocument document = new() { FreeTextIntent = intent, FocusedPilotModeEnabled = true };
 
         return await _draftRepository.CreateAsync(
             scope.TenantId,
@@ -603,6 +603,9 @@ public sealed class DraftRequestService(
 
         if (patch.ActorSet is not null)
             document.ActorSet = patch.ActorSet;
+
+        if (patch.FocusedPilotModeEnabled.HasValue)
+            document.FocusedPilotModeEnabled = patch.FocusedPilotModeEnabled.Value;
     }
 
     private static void SyncTransparencyFromDocument(DraftRequestDocument document)

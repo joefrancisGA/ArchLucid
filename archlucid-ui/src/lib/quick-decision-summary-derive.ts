@@ -3,6 +3,7 @@ import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationS
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { normalizeFindingEnforcementTier, type FindingEnforcementTierKind } from "@/lib/finding-enforcement-tier";
 import { collectEvidenceRefSnippets } from "@/lib/finding-evidence-ref-snippet";
+import { coercePolicyRuleIdFromFindingWire } from "@/lib/finding-policy-evidence-citations";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -46,6 +47,8 @@ export type QuickDecisionFinding = {
   insightDensityScore?: number | null;
   /** LLM or deterministic rationale for non-generic insight (nullable until Phase 2). */
   whyThisIsNotGeneric?: string | null;
+  /** Optional policy-pack rule identifier when the finding maps to a curated pack rule. */
+  policyRuleId?: string | null;
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
@@ -325,6 +328,8 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
       const whyThisIsNotGeneric =
         typeof whyRaw === "string" && whyRaw.trim().length > 0 ? whyRaw.trim() : null;
 
+      const policyRuleId = coercePolicyRuleIdFromFindingWire(fr);
+
       out.push({
         findingId,
         title,
@@ -343,6 +348,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
         enforcementTier,
         insightDensityScore,
         whyThisIsNotGeneric,
+        policyRuleId,
       });
     }
   }

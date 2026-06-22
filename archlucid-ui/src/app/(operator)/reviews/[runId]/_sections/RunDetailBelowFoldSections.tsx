@@ -1,5 +1,8 @@
+import { Suspense } from "react";
+
 import dynamic from "next/dynamic";
 
+import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
@@ -9,8 +12,6 @@ import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReprodu
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarningsSection";
 import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
-import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
-import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/run-decision-explainability-from-detail";
 
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
@@ -24,8 +25,9 @@ import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptySta
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
 import { RunDetailRetrievalGroundingSection } from "./RunDetailRetrievalGroundingSection";
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
-import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
+import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
+import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
 import { loadRunDetailBelowFoldDeferredModel } from "./load-run-detail-deferred-model";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
@@ -63,11 +65,6 @@ export async function RunDetailBelowFoldSections(
 ): Promise<React.JSX.Element> {
   const m = props.model;
   const deferred = await loadRunDetailBelowFoldDeferredModel(props.context);
-  const { baselineAnnualCostUsd, isIllustrativePricing } = deriveRunDetailBaselineAnnualCostUsd({
-    savingsSummaryAnnualizedUsd: undefined,
-    goldenManifestJson: m.goldenManifestJsonForExport,
-  });
-  const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(m.resolvedDetail);
   const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
 
   return (
@@ -94,19 +91,21 @@ export async function RunDetailBelowFoldSections(
         />
       ) : null}
 
-      {!m.buyerPolishedArtifactTable ? (
+      <GovernanceModePresentationGate>
         <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
-      ) : null}
+      </GovernanceModePresentationGate>
 
-      {!m.buyerPolishedArtifactTable && m.resolvedDetail.run.operatorGovernanceDecision ? (
-        <GovernanceApprovalAttestationBlock
-          decision={m.resolvedDetail.run.operatorGovernanceDecision}
-          approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
-          decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
-          rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
-          runId={m.resolvedDetail.run.runId}
-        />
-      ) : null}
+      <GovernanceModePresentationGate>
+        {m.resolvedDetail.run.operatorGovernanceDecision ? (
+          <GovernanceApprovalAttestationBlock
+            decision={m.resolvedDetail.run.operatorGovernanceDecision}
+            approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
+            decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
+            rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
+            runId={m.resolvedDetail.run.runId}
+          />
+        ) : null}
+      </GovernanceModePresentationGate>
 
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailProvenanceSummaryCard
@@ -179,21 +178,18 @@ export async function RunDetailBelowFoldSections(
       ) : null}
 
       {!m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailRunExplanationCollapsible
-          runId={m.routeRunId}
-          buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
-          quickDecisionFindings={m.quickDecisionFindings}
-          quickDecisionFromExplanationFallback={m.quickDecisionFromExplanationFallback}
-          findingWireSnapshots={m.findingWireSnapshots}
-          findingCountDisplay={m.findingCountDisplay}
-          warningCountDisplay={m.warningCountDisplay}
-          explanationSummary={m.explanationSummary}
-          explanationFailure={m.explanationFailure}
-          baselineAnnualCostUsd={baselineAnnualCostUsd}
-          isIllustrativePricing={isIllustrativePricing}
-          decisionExplainability={decisionExplainability}
-          insightDensityView={m.insightDensityView}
-        />
+        <Suspense fallback={<RunDetailExplanationSkeleton />}>
+          <RunDetailExplanationDeferred
+            runId={m.routeRunId}
+            buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+            resolvedDetail={m.resolvedDetail}
+            explanationSummary={m.explanationSummary}
+            explanationFailure={m.explanationFailure}
+            findingCountDisplay={m.findingCountDisplay}
+            warningCountDisplay={m.warningCountDisplay}
+            goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+          />
+        </Suspense>
       ) : null}
 
       {!m.buyerPolishedArtifactTable && m.manifestId ? (

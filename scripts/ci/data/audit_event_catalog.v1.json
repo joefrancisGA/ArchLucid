@@ -82,6 +82,33 @@
       "buyerSafeSummary": "Review run completed",
       "sensitivity": "tenant-scoped",
       "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "Integration.ItsmFindingCorrelationRegistered",
+      "owner": "Integrations / ITSM",
+      "purpose": "Operator registered finding ↔ external ticket correlation",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "External ticket linked to finding",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "Integration.ItsmFindingCorrelationUpdated",
+      "owner": "Integrations / ITSM",
+      "purpose": "Operator updated external ticket metadata on a finding correlation",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "External ticket linkage updated",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "Integration.ItsmFindingCorrelationRemoved",
+      "owner": "Integrations / ITSM",
+      "purpose": "Operator removed finding ↔ external ticket correlation",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "External ticket unlinked from finding",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
     }
   ]
 }

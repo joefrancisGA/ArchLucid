@@ -135,6 +135,134 @@ function New-ArchLucidCollectedArmResourceRecord([object] $AzResource)
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.PolicyCompliance.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.CostManagement.helpers.ps1')
 . (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ResourceGraph.helpers.ps1')
+. (Join-Path (Split-Path -Parent $PSCommandPath) 'ArchLucid.ExtractorTelemetry.helpers.ps1')
+
+function Get-ArchLucidExtractorInventoryResources
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        $Telemetry,
+
+        [string] $SubscriptionId,
+
+        [string] $ManagementGroupId,
+
+        [string] $ResourceGroupScope
+    )
+
+    [System.Diagnostics.Stopwatch]$stepWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    try
+    {
+        [object[]]$collected = @()
+
+        if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
+        {
+            if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
+            {
+                throw "Az.ResourceGraph module is required for -ManagementGroupId. Install: Install-Module Az -Scope CurrentUser"
+            }
+
+            $collected = @(Get-ArchLucidAzureResourcesViaResourceGraphManagementGroup `
+                -ManagementGroupId $ManagementGroupId `
+                -ResourceGroupScope $ResourceGroupScope)
+        }
+        elseif (Get-Module -ListAvailable -Name Az.ResourceGraph)
+        {
+            $collected = @(Get-ArchLucidAzureResourcesViaResourceGraph `
+                -SubscriptionId $SubscriptionId `
+                -ResourceGroupScope $ResourceGroupScope)
+        }
+        elseif ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
+        {
+            $collected = @(Get-AzResource -Verbose:$false | ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ })
+        }
+        else
+        {
+            $collected = @(
+                Get-AzResource -ResourceGroupName $ResourceGroupScope -Verbose:$false |
+                    ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
+            )
+        }
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $Telemetry `
+            -Step Inventory `
+            -Outcome Succeeded `
+            -Stopwatch $stepWatch `
+            -Context @{ resourceCount = $collected.Count }
+
+        return @($collected)
+    }
+    catch
+    {
+        [string]$primaryFailure = "$( $_.Exception.Message )".Trim()
+
+        [bool]$canFallbackToArm =
+            ([string]::IsNullOrWhiteSpace($ManagementGroupId)) -and
+            (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+
+        if (-not ($canFallbackToArm))
+        {
+            Write-ArchLucidExtractorFatal `
+                -Telemetry $Telemetry `
+                -Step Inventory `
+                -Stopwatch $stepWatch `
+                -Message ("Inventory collection failed for scope '{0}'. {1}" -f $scopeDescriptor, $primaryFailure) `
+                -Context @{ scope = $scopeDescriptor }
+
+            throw
+        }
+
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $Telemetry `
+            -Step Inventory `
+            -Message ("Primary inventory path failed; retrying with Get-AzResource. {0}" -f $primaryFailure) `
+            -Context @{ subscriptionId = $SubscriptionId; resourceGroup = $ResourceGroupScope }
+
+        [System.Diagnostics.Stopwatch]$fallbackWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+        try
+        {
+            [object[]]$fallbackCollected = @()
+
+            if ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
+            {
+                $fallbackCollected = @(Get-AzResource -Verbose:$false | ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ })
+            }
+            else
+            {
+                $fallbackCollected = @(
+                    Get-AzResource -ResourceGroupName $ResourceGroupScope -Verbose:$false |
+                        ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
+                )
+            }
+
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $Telemetry `
+                -Step Inventory `
+                -Outcome SucceededWithFallback `
+                -Stopwatch $fallbackWatch `
+                -Detail "Resource Graph or paginated inventory failed; used Get-AzResource fallback." `
+                -Context @{ resourceCount = $fallbackCollected.Count }
+
+            return @($fallbackCollected)
+        }
+        catch
+        {
+            [string]$fallbackFailure = "$( $_.Exception.Message )".Trim()
+
+            Write-ArchLucidExtractorFatal `
+                -Telemetry $Telemetry `
+                -Step Inventory `
+                -Stopwatch $fallbackWatch `
+                -Message ("Inventory collection failed after Get-AzResource fallback. Ensure Reader at subscription scope and retry Connect-AzAccount. {0}" -f $fallbackFailure) `
+                -Context @{ subscriptionId = $SubscriptionId; resourceGroup = $ResourceGroupScope }
+
+            throw
+        }
+    }
+}
 
 if ([string]::IsNullOrWhiteSpace($SubscriptionId) -and [string]::IsNullOrWhiteSpace($ManagementGroupId))
 {
@@ -253,23 +381,7 @@ if ($DryRun)
 }
 
 $extractionStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-
-if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
-{
-    $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
-    Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
-}
-
-$scriptVersion = "0.3.2"
-$schemaVersion = 1
-$collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
-$azProfile = Get-Module Az.Resources
-$azModuleVersion = if ($azProfile) { $azProfile.Version.ToString() } else { "unknown" }
-
-$switchesUsed = @()
-if ($IncludeCost) { $switchesUsed += "IncludeCost" }
-if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
-if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
+$telemetry = New-ArchLucidExtractorTelemetryContext
 
 $scopeDescriptor = if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
 {
@@ -291,6 +403,48 @@ else
     "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupScope"
 }
 
+if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
+{
+    [System.Diagnostics.Stopwatch]$contextWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    try
+    {
+        $null = Get-AzSubscription -SubscriptionId $SubscriptionId -ErrorAction Stop
+        Set-AzContext -SubscriptionId $SubscriptionId | Out-Null
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step SubscriptionContext `
+            -Outcome Succeeded `
+            -Stopwatch $contextWatch `
+            -Context @{ subscriptionId = $SubscriptionId }
+    }
+    catch
+    {
+        [string]$authFailure = "$( $_.Exception.Message )".Trim()
+
+        Write-ArchLucidExtractorFatal `
+            -Telemetry $telemetry `
+            -Step SubscriptionContext `
+            -Stopwatch $contextWatch `
+            -Message ("Unable to access subscription '{0}'. Run Connect-AzAccount and ensure Reader (or equivalent) RBAC at subscription scope. {1}" -f $SubscriptionId, $authFailure) `
+            -Context @{ subscriptionId = $SubscriptionId }
+
+        exit 1
+    }
+}
+
+$scriptVersion = "0.3.3"
+$schemaVersion = 1
+$collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
+$azProfile = Get-Module Az.Resources
+$azModuleVersion = if ($azProfile) { $azProfile.Version.ToString() } else { "unknown" }
+
+$switchesUsed = @()
+if ($IncludeCost) { $switchesUsed += "IncludeCost" }
+if ($IncludeAdvisor) { $switchesUsed += "IncludeAdvisor" }
+if ($IncludeRetailPrices) { $switchesUsed += "IncludeRetailPrices" }
+
 $outputDir = Split-Path -Parent $OutputPath
 if (-not (Test-Path -LiteralPath $outputDir))
 {
@@ -302,33 +456,11 @@ New-Item -ItemType Directory -Path $staging | Out-Null
 
 try
 {
-    if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
-    {
-        if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
-        {
-            throw "Az.ResourceGraph module is required for -ManagementGroupId. Install: Install-Module Az -Scope CurrentUser"
-        }
-
-        $resources = Get-ArchLucidAzureResourcesViaResourceGraphManagementGroup `
-            -ManagementGroupId $ManagementGroupId `
-            -ResourceGroupScope $ResourceGroupScope
-    }
-    elseif (Get-Module -ListAvailable -Name Az.ResourceGraph)
-    {
-        $resources = Get-ArchLucidAzureResourcesViaResourceGraph `
-            -SubscriptionId $SubscriptionId `
-            -ResourceGroupScope $ResourceGroupScope
-    }
-    elseif ([string]::IsNullOrWhiteSpace($ResourceGroupScope))
-    {
-        $resources = Get-AzResource -Verbose:$false | ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
-    }
-    else
-    {
-        $resources =
-            Get-AzResource -ResourceGroupName $ResourceGroupScope -Verbose:$false |
-                ForEach-Object { New-ArchLucidCollectedArmResourceRecord $_ }
-    }
+    $resources = Get-ArchLucidExtractorInventoryResources `
+        -Telemetry $telemetry `
+        -SubscriptionId $SubscriptionId `
+        -ManagementGroupId $ManagementGroupId `
+        -ResourceGroupScope $ResourceGroupScope
 
     # SECURITY BOUNDARY: Explicitly filter out Key Vault secrets to ensure we strictly grab structural ARM metadata and NEVER request data plane or secret contents.
     $resources = @($resources) | Where-Object { $_.resourceType -ne "Microsoft.KeyVault/vaults/secrets" }
@@ -346,9 +478,38 @@ try
 
     if ($IncludeCost)
     {
+        [System.Diagnostics.Stopwatch]$costWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-        $manifest["actualCostSummary"] =
-            $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
+        try
+        {
+            $manifest["actualCostSummary"] =
+                $(Get-ArchLucidActualCostSummary -SubscriptionId $SubscriptionId)
+
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $telemetry `
+                -Step ActualCostSummary `
+                -Outcome $(if ($null -eq $manifest["actualCostSummary"]) { 'Skipped' } else { 'Succeeded' }) `
+                -Stopwatch $costWatch `
+                -Context @{ subscriptionId = $SubscriptionId }
+        }
+        catch
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step ActualCostSummary `
+                -Message ("Cost summary collection failed; manifest.actualCostSummary will be null. {0}" -f $_.Exception.Message) `
+                -Context @{ subscriptionId = $SubscriptionId }
+
+            $manifest["actualCostSummary"] = $null
+
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $telemetry `
+                -Step ActualCostSummary `
+                -Outcome Skipped `
+                -Stopwatch $costWatch `
+                -Detail $_.Exception.Message `
+                -Context @{ subscriptionId = $SubscriptionId }
+        }
     }
 
     $extractionStopwatch.Stop()
@@ -356,7 +517,6 @@ try
 
     $manifestPath = Join-Path $staging "manifest.json"
     $resourcesPath = Join-Path $staging "resources.json"
-    Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 10)
     Write-ArchLucidResourcesJsonStream -Path $resourcesPath -Resources $resources
 
     $policyCompliancePath = Join-Path $staging "policy-compliance.json"
@@ -376,13 +536,48 @@ try
     }
     else
     {
-        $policyCompliance = New-ArchLucidPolicyComplianceDocument `
-            -SubscriptionId $SubscriptionId `
-            -ScopeDescriptor $scopeDescriptor `
-            -CollectionTimestampUtc $collectionTimestamp `
-            -ResourceGroupScope $ResourceGroupScope `
-            -PolicyComplianceSchemaVersion 1 `
-            -PageSize 450
+        [System.Diagnostics.Stopwatch]$policyComplianceWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+        try
+        {
+            $policyCompliance = New-ArchLucidPolicyComplianceDocument `
+                -SubscriptionId $SubscriptionId `
+                -ScopeDescriptor $scopeDescriptor `
+                -CollectionTimestampUtc $collectionTimestamp `
+                -ResourceGroupScope $ResourceGroupScope `
+                -PolicyComplianceSchemaVersion 1 `
+                -PageSize 450
+
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $telemetry `
+                -Step PolicyCompliance `
+                -Outcome Succeeded `
+                -Stopwatch $policyComplianceWatch `
+                -Context @{ recordCount = $policyCompliance.recordCount }
+        }
+        catch
+        {
+            [string]$policyFailure = "$( $_.Exception.Message )".Trim()
+
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step PolicyCompliance `
+                -Message ("Policy compliance query failed; emitting empty policy-compliance.json. Assign Reader at subscription or resource-group scope. {0}" -f $policyFailure) `
+                -Context @{ scope = $scopeDescriptor }
+
+            $policyCompliance = New-ArchLucidEmptyPolicyComplianceDocument `
+                -ScopeDescriptor $scopeDescriptor `
+                -CollectionTimestampUtc $collectionTimestamp `
+                -ReaderNote ("Policy compliance collection failed for this run. Empty records emitted so the ZIP remains uploadable. Details: {0}" -f $policyFailure)
+
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $telemetry `
+                -Step PolicyCompliance `
+                -Outcome Skipped `
+                -Stopwatch $policyComplianceWatch `
+                -Detail $policyFailure `
+                -Context @{ scope = $scopeDescriptor }
+        }
     }
 
     Write-Utf8NoBom $policyCompliancePath ($policyCompliance | ConvertTo-Json -Depth 12)
@@ -410,8 +605,28 @@ try
                 $policyData.policyAssignments = @(Get-AzPolicyAssignment)
             }
         }
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step PolicyDefinitions `
+            -Outcome Succeeded `
+            -Context @{
+                definitionCount = $policyData.policyDefinitions.Count
+                assignmentCount = $policyData.policyAssignments.Count
+            }
     } catch {
-        Write-Warning "Failed to collect policy definitions or assignments: $_"
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $telemetry `
+            -Step PolicyDefinitions `
+            -Message ("Failed to collect policy definitions or assignments; policy.json will contain empty arrays. {0}" -f $_.Exception.Message) `
+            -Context @{ scope = $scopeDescriptor }
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step PolicyDefinitions `
+            -Outcome Skipped `
+            -Detail $_.Exception.Message `
+            -Context @{ scope = $scopeDescriptor }
     }
 
     $policyPath = Join-Path $staging "policy.json"
@@ -421,23 +636,46 @@ try
 
     if ($IncludeRetailPrices)
     {
+        [System.Diagnostics.Stopwatch]$retailWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-        $retailUtc = (Get-Date).ToUniversalTime().ToString("o")
+        try
+        {
+            $retailUtc = (Get-Date).ToUniversalTime().ToString("o")
 
-        $retailDoc = New-ArchLucidRetailPricesDocument `
-            -Inventory @($resources) `
-            -QueryTimestampUtc $retailUtc `
-            -RetailApiVersion "2023-01-01-preview"
+            $retailDoc = New-ArchLucidRetailPricesDocument `
+                -Inventory @($resources) `
+                -QueryTimestampUtc $retailUtc `
+                -RetailApiVersion "2023-01-01-preview"
 
-        $retailPayload = $retailDoc | ConvertTo-Json -Depth 12 -Compress:$false
+            $retailPayload = $retailDoc | ConvertTo-Json -Depth 12 -Compress:$false
 
-        Write-Utf8NoBom (Join-Path $staging "retail-prices.json") $retailPayload
+            Write-Utf8NoBom (Join-Path $staging "retail-prices.json") $retailPayload
 
-        $retailReadmeTail = @"
+            $retailReadmeTail = @"
 
 Retail pack: `retail-prices.json` was added for this run (USD consumption rows from https://prices.azure.com for App Service plans, SQL databases, Virtual Machines, and Storage Accounts appearing in `resources.json`; HTTPS GET only; no Azure RBAC beyond ARM Reader / typical Policy read surfaces used elsewhere in this package).
 "@
 
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $telemetry `
+                -Step RetailPrices `
+                -Outcome Succeeded `
+                -Stopwatch $retailWatch
+        }
+        catch
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step RetailPrices `
+                -Message ("Retail price catalog collection failed; retail-prices.json omitted. {0}" -f $_.Exception.Message)
+
+            Complete-ArchLucidExtractorStep `
+                -Telemetry $telemetry `
+                -Step RetailPrices `
+                -Outcome Skipped `
+                -Stopwatch $retailWatch `
+                -Detail $_.Exception.Message
+        }
     }
 
     $costReadmeTail = ""
@@ -479,13 +717,73 @@ Upload via POST /v1/azure-extractor/upload (ExecuteAuthority). Trust stance: doc
 
     if ($IncludeAdvisor)
     {
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $telemetry `
+            -Step Advisor `
+            -Message "IncludeAdvisor is not yet implemented — extend when the Advisor exporter is wired."
 
-        Write-Warning "IncludeAdvisor is not yet implemented — extend when the Advisor exporter is wired."
-
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step Advisor `
+            -Outcome Skipped `
+            -Detail "IncludeAdvisor switch is reserved for a future exporter release."
     }
 
-    if (Test-Path -LiteralPath $OutputPath) { Remove-Item -LiteralPath $OutputPath -Force }
-    Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $OutputPath -CompressionLevel Optimal
+    $manifest["extractionTelemetry"] = Get-ArchLucidExtractorTelemetryForManifest -Telemetry $telemetry
+    Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 12)
+
+    [System.Diagnostics.Stopwatch]$zipWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    try
+    {
+        if (Test-Path -LiteralPath $OutputPath) { Remove-Item -LiteralPath $OutputPath -Force }
+        Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $OutputPath -CompressionLevel Optimal
+
+        Complete-ArchLucidExtractorStep `
+            -Telemetry $telemetry `
+            -Step PackageWrite `
+            -Outcome Succeeded `
+            -Stopwatch $zipWatch `
+            -Context @{ outputPath = $OutputPath; warningCount = $telemetry.warnings.Count }
+
+        Write-ArchLucidExtractorEvent `
+            -Step PackageWrite `
+            -Level Info `
+            -Message ("Extraction complete. ZIP written to {0}." -f $OutputPath) `
+            -Context @{ warningCount = $telemetry.warnings.Count }
+    }
+    catch
+    {
+        Write-ArchLucidExtractorFatal `
+            -Telemetry $telemetry `
+            -Step PackageWrite `
+            -Stopwatch $zipWatch `
+            -Message ("Failed to write extractor ZIP to '{0}'. {1}" -f $OutputPath, $_.Exception.Message) `
+            -Context @{ outputPath = $OutputPath }
+
+        exit 1
+    }
+}
+catch
+{
+    [string]$unexpectedFailure = "$( $_.Exception.Message )".Trim()
+
+    if ($null -ne $telemetry)
+    {
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $telemetry `
+            -Step Extraction `
+            -Message ("Unexpected extractor failure: {0}" -f $unexpectedFailure) `
+            -Context @{ scope = $scopeDescriptor }
+    }
+
+    Write-ArchLucidExtractorEvent `
+        -Step Extraction `
+        -Level Error `
+        -Message $unexpectedFailure `
+        -Context @{ scope = $scopeDescriptor }
+
+    exit 1
 }
 finally
 {

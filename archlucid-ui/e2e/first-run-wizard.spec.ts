@@ -5,7 +5,10 @@ test.describe("first-run wizard", () => {
     await page.goto("/reviews/new");
 
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
-    await expect(page.getByText(/Start with guided intake, or use quick review/i)).toBeVisible();
+    await expect(
+      page.getByText(/Capture intent, business outcome, actors, and clarifying questions/i),
+    ).toBeVisible();
     await expect(page.getByTestId("reviews-new-path-toggle")).toBeVisible();
+    await expect(page.getByTestId("reviews-new-path-guided-intake")).toBeVisible();
   });
 });

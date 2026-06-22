@@ -93,4 +93,15 @@ public sealed class DraftRequestDocument
         get;
         set;
     }
+
+    /// <summary>
+    ///     When true (default), submit projects <see cref="FocusedPilotModePolicyPacks.ReferenceToken" /> into
+    ///     <c>ArchitectureRequest.PolicyReferences</c>.
+    /// </summary>
+    [JsonPropertyName("focusedPilotModeEnabled")]
+    public bool? FocusedPilotModeEnabled
+    {
+        get;
+        set;
+    }
 }

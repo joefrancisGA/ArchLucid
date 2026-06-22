@@ -208,7 +208,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 <GraphNodeKindLegendChips />
               )}
             </div>
-          ) : buyerGraphView ? (
+          ) : buyerGraphView && graphInteractiveReady && !loading ? (
             <div className={cn("mb-3 space-y-2", graphMainColumnMaxClass)}>
               {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
                 <GraphReviewTrailLegendChips buyerPolished />

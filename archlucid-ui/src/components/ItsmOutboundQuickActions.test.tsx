@@ -5,16 +5,23 @@ import { ItsmOutboundQuickActions } from "./ItsmOutboundQuickActions";
 
 const listItsmFindingCorrelations = vi.fn();
 const createItsmOutboundIssue = vi.fn();
+const useItsmNativeCreateEnabled = vi.fn(() => true);
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
   listItsmFindingCorrelations: (...args: unknown[]) => listItsmFindingCorrelations(...args),
   createItsmOutboundIssue: (...args: unknown[]) => createItsmOutboundIssue(...args),
 }));
 
+vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
+  useItsmNativeCreateEnabled: () => useItsmNativeCreateEnabled(),
+}));
+
 describe("ItsmOutboundQuickActions", () => {
   beforeEach(() => {
     listItsmFindingCorrelations.mockReset();
     createItsmOutboundIssue.mockReset();
+    useItsmNativeCreateEnabled.mockReset();
+    useItsmNativeCreateEnabled.mockReturnValue(true);
     listItsmFindingCorrelations.mockResolvedValue({ correlations: [] });
   });
 
@@ -41,5 +48,18 @@ describe("ItsmOutboundQuickActions", () => {
     });
 
     expect(await screen.findByText("Jira: ARCH-42")).toBeInTheDocument();
+  });
+
+  it("hides create actions when native ITSM create is disabled and no correlations exist", async () => {
+    useItsmNativeCreateEnabled.mockReturnValue(false);
+
+    const { container } = render(<ItsmOutboundQuickActions findingId="finding-001" />);
+
+    await waitFor(() => {
+      expect(listItsmFindingCorrelations).toHaveBeenCalled();
+    });
+
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByTestId("itsm-sync-jira")).not.toBeInTheDocument();
   });
 });

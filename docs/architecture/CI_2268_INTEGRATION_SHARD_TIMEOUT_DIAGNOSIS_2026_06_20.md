@@ -51,11 +51,36 @@ cancellation token fires.
 A secondary candidate is a synchronisation primitive (`SemaphoreSlim`, `Channel`, `AsyncLocal`
 captured incorrectly) inside a component not yet examined.
 
-## Next step — read the mini-dump
+## CI #2277 — capture failure (2026-06-21)
 
-Once the blame-hang dump fires on CI:
+Shard 2/6 (matrix index 1) ran **3001 s (~50 min)** and failed with **no job log** (`BlobNotFound`)
+and **no artifacts** — not even `integration-shard-manifest-1`, which is written before tests run.
+Siblings 1/6 and 3/6 failed on real assertion regressions but uploaded trx/diag normally; shards
+4/6–6/6 succeeded in ~510–713 s.
 
-1. Download artifact **`dotnet-hang-dump-api-integration-shard-1`** from the failed run.
+**Capture-path root cause:** in-process `--blame-hang` mini-dumps and the 150 s
+`IntegrationTestDeadline.RunAsync` wrapper both live inside the wedged test host. When the host
+blocks non-cancellably, the collectors die with it and the runner can be lost before `if: always()`
+upload steps execute.
+
+## Out-of-process dump + step timeout (2026-06-21)
+
+Track A (CI harness only — product hang still unfixed):
+
+| Component | Change |
+|-----------|--------|
+| `scripts/ci/ApiIntegrationTestChunkWatchdog.ps1` | Parent-process watchdog per chunk; on timeout runs `dotnet-dump collect --type Full` on testhost/dotnet PIDs **before** killing the tree |
+| `scripts/ci/Invoke-ApiIntegrationTestShard.ps1` | Launches each `dotnet test` chunk as an owned child process; `-ChunkTimeout` (default 20 min) |
+| `.github/workflows/ci.yml` | Matrix `step_timeout_minutes` (25 for shard 2/6, 30 others) as Actions backstop; `-ChunkTimeout` passed from matrix; hang-dump artifact `if-no-files-found: warn` |
+
+Expected artifact on the next hang: **`dotnet-hang-dump-api-integration-shard-1`** containing
+`hangdump-shard-1-chunk*-*.dmp` (Full dump from parent, not in-process mini).
+
+## Next step — read the out-of-process dump
+
+Once **`dotnet-hang-dump-api-integration-shard-1`** lands on CI:
+
+1. Download `hangdump-shard-1-chunk*-*.dmp` from the failed run.
 2. Open with `dotnet-dump analyze <file>.dmp` or Visual Studio (Windows) / `lldb` (Linux).
 3. Run `threads` / `clrthreads` to list all managed threads.
 4. Run `clrstack` on each thread to find the server-side request processing task.
@@ -67,6 +92,9 @@ Key threads to look for:
 - Any thread holding a lock that a server request thread is waiting for.
 - The thread pool worker threads — if all are blocked (`Task.WhenAll`, sync-over-async), that
   explains why cancellation is not honored.
+
+Also evaluate whether `IntegrationTestDeadline.RunAsync` abandoning wedged `runTask` instances
+(four tests in `RetrievalQuerySmokeIntegrationTests`) amplifies thread-pool starvation.
 
 ## Middleware pipeline order (for reference)
 
@@ -99,5 +127,6 @@ MapControllers  →  RetrievalController.SearchAsync
 ## Revert checklist (after root cause fixed)
 
 - [ ] Change `blame_timeout: "130s"` back to `"75min"` for shard 1 in `.github/workflows/ci.yml`.
+- [ ] (Optional) Remove or relax shard-2/6-specific `step_timeout_minutes: 25` once hangs stop.
 - [ ] (Optional) Remove `dotnet-hang-dump-api-integration-shard-*` artifact upload, or keep as
-  permanent diagnostic.
+  permanent diagnostic (out-of-process Full dumps via `ApiIntegrationTestChunkWatchdog.ps1`).

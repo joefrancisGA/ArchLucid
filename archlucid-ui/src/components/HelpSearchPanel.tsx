@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import type { HelpTabId } from "@/components/HelpPanel";
 import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
 import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
 import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
@@ -33,8 +34,8 @@ import { cn } from "@/lib/utils";
 export type HelpSearchPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Opens the guides / shortcuts Help dialog (parent-owned). */
-  onOpenGuidesPanel?: () => void;
+  /** Opens the guides panel (parent-owned); optional tab lands on Keyboard shortcuts or Troubleshooting. */
+  onOpenGuidesPanel?: (initialTab?: HelpTabId) => void;
 };
 
 type ArticleState =
@@ -97,6 +98,32 @@ const CURATED_START_HERE = [
 
 /** Former operator shell Resources menu entries — surfaced in Help instead of the top bar. */
 const CURATED_SHELL_RESOURCES = [
+  {
+    id: "keyboard-shortcuts",
+    label: "Keyboard shortcuts",
+    description: "Navigation keys, search, and review actions — press Shift+? anytime.",
+    action: "guides-panel" as const,
+    guidesTab: "shortcuts" as const,
+    href: null,
+    helpSlug: null,
+  },
+  {
+    id: "contact-support",
+    label: "Contact support",
+    description: "Email support or download a redacted diagnostics bundle.",
+    action: "guides-panel" as const,
+    guidesTab: "troubleshooting" as const,
+    href: null,
+    helpSlug: null,
+  },
+  {
+    id: "system-health",
+    label: "System health",
+    description: "Platform readiness and dependency status.",
+    action: "route" as const,
+    href: "/health",
+    helpSlug: null,
+  },
   {
     id: "security-trust",
     label: "Security & trust",
@@ -232,6 +259,12 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
   }, []);
 
   function openShellResource(entry: (typeof CURATED_SHELL_RESOURCES)[number]): void {
+    if (entry.action === "guides-panel") {
+      onOpenChange(false);
+      onOpenGuidesPanel?.(entry.guidesTab);
+      return;
+    }
+
     if (entry.action === "concepts-dialog") {
       setConceptsDialogOpen(true);
       return;
@@ -461,7 +494,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                   }}
                 >
                   <BookOpen className="h-4 w-4 shrink-0" aria-hidden />
-                  Guides, shortcuts &amp; troubleshooting
+                  Guides &amp; troubleshooting
                 </Button>
               ) : null}
               <p className="m-0 text-xs text-neutral-400 dark:text-neutral-500">

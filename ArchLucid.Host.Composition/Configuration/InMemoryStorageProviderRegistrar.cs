@@ -26,6 +26,7 @@ using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Search;
 using ArchLucid.Persistence.Authorization;
@@ -259,6 +260,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IFirstTenantFunnelEventStore, NoopFirstTenantFunnelEventStore>();
         services.AddSingleton<IFirstTenantFunnelArchivalBatchStore, NoOpFirstTenantFunnelArchivalBatchStore>();
         services.AddSingleton<IItsmFindingCorrelationRepository, InMemoryItsmFindingCorrelationRepository>();
+        services.AddSingleton<IRunFindingExternalTrackingReadRepository, InMemoryRunFindingExternalTrackingReadRepository>();
         services.AddSingleton<ITenantItsmOutboundSettingsRepository, InMemoryTenantItsmOutboundSettingsRepository>();
         services.AddSingleton<ITenantSettingsRepository, InMemoryTenantSettingsRepository>();
         services.AddSingleton<ITenantIdentityProviderConfigurationRepository, InMemoryTenantIdentityProviderConfigurationRepository>();

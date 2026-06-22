@@ -71,6 +71,12 @@ public static class GovernanceConstants
         public const string SkippedNullContent =
             "Skipped policy pack '{0}' ({1}) version '{2}': content deserialized to null.";
 
+        public const string SkippedFocusedPilotPack =
+            "Skipped policy pack '{0}' ({1}): excluded by focused pilot mode.";
+
+        public const string FocusedPilotModeActive =
+            "Focused pilot mode: effective governance limited to Security Architecture Baseline and FinOps & Cloud Cost Optimization.";
+
         public const string ResolvedAssignmentCount = "Resolved {0} applicable policy pack assignment(s).";
         public const string ProducedDecisionCount = "Produced {0} resolution decision(s).";
         public const string DetectedConflictCount = "Detected {0} conflict(s).";

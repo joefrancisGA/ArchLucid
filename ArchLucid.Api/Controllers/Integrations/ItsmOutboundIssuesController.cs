@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models.Integrations;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -22,6 +23,7 @@ namespace ArchLucid.Api.Controllers.Integrations;
 public sealed class ItsmOutboundIssuesController(
     IScopeContextProvider scopeProvider,
     ItsmOutboundIssueCreationService issueCreation,
+    ItsmNativeIntegrationGate nativeIntegrationGate,
     IAuditService auditService) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeProvider =
@@ -29,6 +31,9 @@ public sealed class ItsmOutboundIssuesController(
 
     private readonly ItsmOutboundIssueCreationService _issueCreation =
         issueCreation ?? throw new ArgumentNullException(nameof(issueCreation));
+
+    private readonly ItsmNativeIntegrationGate _nativeIntegrationGate =
+        nativeIntegrationGate ?? throw new ArgumentNullException(nameof(nativeIntegrationGate));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -42,6 +47,13 @@ public sealed class ItsmOutboundIssuesController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> CreateAsync([FromBody] CreateItsmOutboundIssueRequest? body, CancellationToken ct)
     {
+        if (!_nativeIntegrationGate.IsNativeCreateEnabled())
+        {
+            return this.NotFoundProblem(
+                ItsmNativeIntegrationGate.NativeCreateDisabledMessage,
+                ProblemTypes.ResourceNotFound);
+        }
+
         if (body is null)
             return this.BadRequestProblem("body is required.", ProblemTypes.RequestBodyRequired);
 

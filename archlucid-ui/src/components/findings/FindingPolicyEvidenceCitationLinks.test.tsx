@@ -1,0 +1,50 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
+
+describe("FindingPolicyEvidenceCitationLinks", () => {
+  it("renders policy and evidence links when model is populated", () => {
+    render(
+      <FindingPolicyEvidenceCitationLinks
+        model={{
+          policy: {
+            ruleId: "sec-base-001",
+            ruleLabel: "Security baseline ingress rule",
+            href: "/policy-packs?ruleId=sec-base-001",
+          },
+          evidence: [
+            {
+              label: "Network security group rule",
+              detail: "Lines 12-14",
+              href: "/reviews/run-1/findings/f-1/inspect",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-policy-evidence-citations")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Security baseline ingress rule" })).toHaveAttribute(
+      "href",
+      "/policy-packs?ruleId=sec-base-001",
+    );
+    expect(screen.getByRole("link", { name: "Network security group rule" })).toHaveAttribute(
+      "href",
+      "/reviews/run-1/findings/f-1/inspect",
+    );
+  });
+
+  it("returns null when no citations are available", () => {
+    const { container } = render(
+      <FindingPolicyEvidenceCitationLinks
+        model={{
+          policy: null,
+          evidence: [],
+        }}
+      />,
+    );
+
+    expect(container.firstChild).toBeNull();
+  });
+});

@@ -62,10 +62,7 @@ public static class Program
 
         if (configurationErrors.Count > 0)
         {
-            foreach (string error in configurationErrors)
-            {
-                app.Logger.LogError("Startup configuration error: {Error}", error); // lgtm[cs/cleartext-storage-of-sensitive-information] validation text only.
-            }
+            StartupConfigurationFailureLogger.LogErrors(configurationErrors, app.Logger);
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }

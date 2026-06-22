@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
@@ -17,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 type WelcomeVerifyLink = {
@@ -41,7 +43,7 @@ function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerif
           {index > 0 ? " · " : null}
           {link.href.startsWith("http") ? (
             <a
-              className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+              className={MARKETING_SURFACES.inlineLink}
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
@@ -49,11 +51,11 @@ function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerif
               {link.label}
             </a>
           ) : link.href.endsWith(".zip") ? (
-            <a className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href={link.href} download>
+            <a className={MARKETING_SURFACES.inlineLink} href={link.href} download>
               {link.label}
             </a>
           ) : (
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href={link.href}>
+            <Link className={MARKETING_SURFACES.inlineLink} href={link.href}>
               {link.label}
             </Link>
           )}
@@ -97,19 +99,19 @@ const PILLARS: readonly WelcomePillar[] = [
 /** Public marketing landing: hero, problem/solution, workflow, use cases, proof, pillars, pricing. */
 export function WelcomeMarketingPage() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <MarketingPageShell>
       <section aria-labelledby="hero-heading" className="mb-12 text-center">
         <p
-          className="text-sm font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
+          className={MARKETING_TYPOGRAPHY.eyebrow}
           data-testid="welcome-brand-category-eyebrow"
         >
           {BRAND_CATEGORY}
         </p>
-        <h1 id="hero-heading" className="mt-2 text-xl font-semibold tracking-tight text-al-text-primary sm:text-4xl">
+        <h1 id="hero-heading" className={`mt-2 ${MARKETING_TYPOGRAPHY.heroTitle} text-center`}>
           Defensible architecture, on demand.
         </h1>
         <p
-          className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center"
+          className={`mx-auto mt-4 max-w-3xl text-left ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary sm:text-center`}
           data-testid="welcome-hero-pitch"
         >
           {WELCOME_HERO_PITCH}
@@ -137,13 +139,13 @@ export function WelcomeMarketingPage() {
             <p className="mt-2 max-w-lg text-center text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
               <span className="font-medium text-neutral-700 dark:text-neutral-300">FAQ:</span>{" "}
               <Link
-                className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                className={MARKETING_SURFACES.inlineLink}
                 href="/faq#bulk-upload-30-files"
               >
                 Bulk upload limit (30 files)
               </Link>
               {" · "}
-              <Link className="text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq#demo-workspaces">
+              <Link className={MARKETING_SURFACES.inlineLink} href="/faq#demo-workspaces">
                 Demo workspaces
               </Link>
               .
@@ -166,32 +168,32 @@ export function WelcomeMarketingPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Same finalized demo as{" "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
               the demo preview page
             </Link>{" "}
             — full page, no signup.{" "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
               See the evidence trail walkthrough
             </Link>
             .
           </p>
           <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/WORKED_EXAMPLE_ROI.pdf">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/WORKED_EXAMPLE_ROI.pdf">
               See worked example (PDF)
             </Link>{" "}
             — Contoso sample ROI (fictional tenant). Ask your account team for the written walkthrough companion.
           </p>
           <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
             <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/why">
               Why ArchLucid
             </Link>
             {" · "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
               Trust center
             </Link>
             {" · "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
               Evidence trail demo
             </Link>
           </p>
@@ -209,42 +211,42 @@ export function WelcomeMarketingPage() {
         className="mb-12"
         data-testid="welcome-proof-at-a-glance"
       >
-        <h2 id="welcome-proof-heading" className="mb-4 text-xl font-semibold tracking-tight text-al-text-primary">
+        <h2 id="welcome-proof-heading" className={`mb-4 ${MARKETING_TYPOGRAPHY.sectionTitle}`}>
           Proof at a glance
         </h2>
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-3">
-          <li className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision-grade outputs</p>
-            <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+          <li className={MARKETING_SURFACES.card}>
+            <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Decision-grade outputs</p>
+            <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
               Structured findings with a versioned manifest you can hand to ARB and audit partners.
             </p>
             <p className="m-0 mt-3 text-xs font-medium">
-              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
+              <Link className={MARKETING_SURFACES.inlineLink} href="/why">
                 Why teams standardize on ArchLucid
               </Link>
             </p>
           </li>
-          <li className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Evidence you can follow</p>
-            <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+          <li className={MARKETING_SURFACES.card}>
+            <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Evidence you can follow</p>
+            <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
               Trace graph tie-outs and audit milestones—not an ephemeral chat transcript.
             </p>
             <p className="m-0 mt-3 text-xs font-medium">
-              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
+              <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
                 See it in 30 seconds
               </Link>
             </p>
           </li>
-          <li className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Procurement-ready posture</p>
-            <p className="m-0 mt-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+          <li className={MARKETING_SURFACES.card}>
+            <p className={`m-0 ${MARKETING_TYPOGRAPHY.cardTitle}`}>Procurement-ready posture</p>
+            <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
               Published Trust Center materials and downloadable diligence anchors—know what to verify.
             </p>
             <p className="m-0 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium">
-              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+              <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
                 Open Trust Center
               </Link>
-              <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/security-trust">
+              <Link className={MARKETING_SURFACES.inlineLink} href="/security-trust">
                 Security and trust detail
               </Link>
             </p>
@@ -252,33 +254,33 @@ export function WelcomeMarketingPage() {
         </ul>
       </section>
 
-      <section aria-labelledby="walkthrough-heading" className="mb-14 rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
-        <h2 id="walkthrough-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <section aria-labelledby="walkthrough-heading" className={`mb-14 ${MARKETING_SURFACES.sectionPanel}`}>
+        <h2 id="walkthrough-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
           First-time visitor path
         </h2>
-        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          Hosted SaaS Core Pilot: create an architecture review request, let the pipeline finish, finalize when ready,
+        <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
+          Hosted SaaS evaluation workspace: create an architecture review request, let the pipeline finish, finalize when ready,
           then open your review package — no local Docker required for the buyer story.
         </p>
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+        <ol className={`mt-4 list-decimal space-y-2 pl-5 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
           <li>
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
               See it (30s)
             </Link>{" "}
             — fastest visual proof; then{" "}
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/why">
               Why ArchLucid
             </Link>{" "}
             for positioning depth.
           </li>
           <li>
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/compliance-journey">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/compliance-journey">
               Compliance journey
             </Link>{" "}
             — how reviewers map controls to shipped mechanisms.
           </li>
           <li>
-            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+            <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
               Trust Center
             </Link>
             , privacy, and procurement-linked evidence.
@@ -287,17 +289,14 @@ export function WelcomeMarketingPage() {
       </section>
 
       <section aria-labelledby="pillars-heading" className="mb-14">
-        <h2 id="pillars-heading" className="mb-6 text-xl font-semibold tracking-tight text-al-text-primary">
+        <h2 id="pillars-heading" className={`mb-6 ${MARKETING_TYPOGRAPHY.sectionTitle}`}>
           Three pillars
         </h2>
         <ul className="grid gap-6 md:grid-cols-3">
           {PILLARS.map((pillar) => (
-            <li
-              key={pillar.title}
-              className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-            >
-              <h3 className="text-sm font-semibold text-al-text-primary">{pillar.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{pillar.body}</p>
+            <li key={pillar.title} className={MARKETING_SURFACES.cardComfort}>
+              <h3 className={MARKETING_TYPOGRAPHY.cardTitle}>{pillar.title}</h3>
+              <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>{pillar.body}</p>
               <WelcomePillarVerifyLinks links={pillar.verify} />
             </li>
           ))}
@@ -311,6 +310,6 @@ export function WelcomeMarketingPage() {
         signupHref="/signup"
         showSignupCallToAction={false}
       />
-    </main>
+    </MarketingPageShell>
   );
 }

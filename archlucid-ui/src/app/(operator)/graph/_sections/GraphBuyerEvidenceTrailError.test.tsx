@@ -19,10 +19,10 @@ describe("GraphBuyerEvidenceTrailError", () => {
       />,
     );
 
-    expect(screen.getByText("Evidence graph unavailable")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open review package" })).toBeInTheDocument();
+    expect(screen.getByText("Workspace data unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open troubleshooting" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "System health" })).toBeInTheDocument();
     expect(screen.queryByText(/Request failed/i)).toBeNull();
 
     const detailsEl = screen.getByText("Technical details").closest("details");

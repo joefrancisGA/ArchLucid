@@ -9,6 +9,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { tryParseApiProblemDetails } from "@/lib/api-problem";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
 import { AlertCircle, Info } from "lucide-react";
 
@@ -159,7 +160,7 @@ export function PortfolioPageView() {
   if (state.status === "loading") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card>
           <CardContent className="pt-6">
             <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading portfolio data...</p>
@@ -172,7 +173,7 @@ export function PortfolioPageView() {
   if (state.status === "configuration-required") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card
           className="border-teal-200 bg-teal-50/60 dark:border-teal-900 dark:bg-teal-950/30"
           data-testid="portfolio-directory-key-not-configured"
@@ -207,7 +208,7 @@ export function PortfolioPageView() {
   if (state.status === "error") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
@@ -228,7 +229,7 @@ export function PortfolioPageView() {
   if (!data.isKAnonymitySatisfied) {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card>
           <CardHeader>
             <CardTitle>Insufficient Data</CardTitle>
@@ -245,7 +246,7 @@ export function PortfolioPageView() {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <p className="text-neutral-500 dark:text-neutral-400">
           Aggregated ROI and risk metrics across all your accessible tenants.
         </p>

@@ -3,6 +3,14 @@
  * so operator pages render empty states instead of transport errors.
  */
 
+import {
+  getExecutiveRoiExportMockJson,
+  getExecutiveRoiHistoryMockJson,
+  getExecutiveRoiSummaryMockJson,
+  getGovernanceDecisionsNeededSummaryMockJson,
+  getTenantPilotValueReportMockJson,
+} from "./fixtures/executive-roi-dashboard-mock";
+import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 
 const emptyPaged = { items: [], totalCount: 0, page: 1, pageSize: 20, hasMore: false };
@@ -59,6 +67,53 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
 
   if (pathname === "/v1/governance/dashboard") {
     return { pendingApprovals: [], recentDecisions: [], recentChanges: [], pendingCount: 0 };
+  }
+
+  if (pathname === "/v1/governance/decisions-needed-summary") {
+    return getGovernanceDecisionsNeededSummaryMockJson();
+  }
+
+  if (pathname === "/v1/audit/event-types") {
+    return [
+      "RunStarted",
+      "context.snapshot.created",
+      "graph.snapshot.created",
+      "findings.snapshot.created",
+      "ManifestGenerated",
+      "GovernanceApprovalApproved",
+      "RunExported",
+    ];
+  }
+
+  if (pathname === "/v1/audit/search") {
+    const requestedTake = Math.min(
+      200,
+      Math.max(1, Number.parseInt(u.searchParams.get("take") ?? "200", 10) || 200),
+    );
+    const items = getDemoSampleAuditTrailEvents();
+
+    return {
+      items: items.slice(0, requestedTake),
+      nextCursor: null,
+      hasMore: false,
+      requestedTake,
+    };
+  }
+
+  if (pathname === "/v1/roi/executive-summary") {
+    return getExecutiveRoiSummaryMockJson();
+  }
+
+  if (pathname === "/v1/roi/executive-summary/export") {
+    return getExecutiveRoiExportMockJson();
+  }
+
+  if (pathname === "/v1/roi/executive-summary/history") {
+    return getExecutiveRoiHistoryMockJson();
+  }
+
+  if (pathname === "/v1/tenant/pilot-value-report") {
+    return getTenantPilotValueReportMockJson();
   }
 
   if (pathname === "/v1/governance/compliance-drift-trend") {

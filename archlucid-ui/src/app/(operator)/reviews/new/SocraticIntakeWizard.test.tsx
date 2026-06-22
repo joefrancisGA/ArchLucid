@@ -35,7 +35,44 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 }));
 
 vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
-  DraftIntakeActorEditor: () => <div data-testid="draft-intake-actor-editor-stub">Actor editor stub</div>,
+  DraftIntakeActorEditor: ({
+    onChange,
+  }: {
+    onChange: (actorSet: {
+      actors: Array<{
+        label: string;
+        kind: "Human";
+        trustOrigin: "Internal";
+        contract: "Sync";
+        origin: "Asserted";
+        confidence: 100;
+      }>;
+    }) => void;
+  }) => (
+    <div>
+      <div data-testid="draft-intake-actor-editor-stub">Actor editor stub</div>
+      <button
+        type="button"
+        data-testid="draft-intake-actor-stub-add"
+        onClick={() => {
+          onChange({
+            actors: [
+              {
+                label: "Ops user",
+                kind: "Human",
+                trustOrigin: "Internal",
+                contract: "Sync",
+                origin: "Asserted",
+                confidence: 100,
+              },
+            ],
+          });
+        }}
+      >
+        Stub add actor
+      </button>
+    </div>
+  ),
 }));
 
 vi.mock("@/components/draft-intake/DraftIntakeDecisionReceiptCard", () => ({
@@ -76,7 +113,7 @@ vi.mock("./SocraticIntakeWizardDeferredPanels", async () => {
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-  GUIDED_INTAKE_CONTINUE_TO_STEP_2,
+  GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
 } from "@/lib/guided-intake-copy";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
@@ -103,6 +140,16 @@ const secondQuestion = {
   ruleKeys: [],
 };
 
+function fillStep0ForAdmission(): void {
+  fireEvent.change(screen.getByTestId("socratic-intent"), {
+    target: { value: "Modernize the claims intake workflow for analysts." },
+  });
+  fireEvent.change(screen.getByTestId("socratic-outcome"), {
+    target: { value: "Reduce manual triage time by thirty percent." },
+  });
+  fireEvent.click(screen.getByTestId("draft-intake-actor-stub-add"));
+}
+
 describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
@@ -122,11 +169,11 @@ describe("SocraticIntakeWizard", () => {
     expect((screen.getByTestId("socratic-system-name") as HTMLInputElement).value).toBe(
       OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
     );
-    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_STEP_2 })).toBeEnabled();
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeDisabled();
     expect(createDraftRequest).not.toHaveBeenCalled();
   });
 
-  it("shows guided placeholders and Continue to step 2 on step 1", () => {
+  it("shows guided placeholders and Continue to clarifications on step 1", () => {
     render(<SocraticIntakeWizard />);
 
     expect(screen.getByTestId("socratic-intent")).toHaveAttribute(
@@ -138,7 +185,10 @@ describe("SocraticIntakeWizard", () => {
       GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
     );
     expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_STEP_2 })).toBeInTheDocument();
+    expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(
+      /step 1 of 3 — describe the system/i,
+    );
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeInTheDocument();
   });
 
   it("creates, patches, and admits a draft when intent and outcome are provided", async () => {
@@ -163,12 +213,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     expect(screen.getByTestId("draft-intake-actor-editor-stub")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
@@ -215,12 +260,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {
@@ -268,12 +308,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {
@@ -320,12 +355,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {
@@ -368,12 +398,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {
@@ -435,12 +460,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {
@@ -488,12 +508,7 @@ describe("SocraticIntakeWizard", () => {
 
     render(<SocraticIntakeWizard />);
 
-    fireEvent.change(screen.getByTestId("socratic-intent"), {
-      target: { value: "Modernize the claims intake workflow for analysts." },
-    });
-    fireEvent.change(screen.getByTestId("socratic-outcome"), {
-      target: { value: "Reduce manual triage time by thirty percent." },
-    });
+    fillStep0ForAdmission();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {

@@ -92,6 +92,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
                     "ServiceNow",
                     "sn-wire-42",
                     "INC8001",
+                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -138,6 +139,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
 
         correlations.Verify(c =>
                     c.RegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, WiredFindingId, "ServiceNow", "sn-wire-42", "INC8001",
+                        It.IsAny<Guid?>(),
                         It.IsAny<CancellationToken>()),
                 Times.Once);
     }

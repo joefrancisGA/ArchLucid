@@ -7,6 +7,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Core.Evidence;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -237,6 +238,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
             if (!safety.IsAllowed)
                 throw new RequestContentSafetyRejectedException(safety.Reasons);
+
+            using (PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences))
+            {
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
             if (tasks.Count == 0)
@@ -386,6 +390,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 logger.LogInformation("Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}", LogSanitizer.Sanitize(runId),
                     results.Count);
             return new ExecuteRunResult { RunId = runId, Results = results.ToList() };
+            }
         }
         catch (RunCostBudgetExceededPartialPersistRecordedException)
         {

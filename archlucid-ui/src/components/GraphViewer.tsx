@@ -172,16 +172,17 @@ export function GraphViewer({
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
 
   const buyerTrailPanel = flowPresentation === "buyerTrail";
+  const [interactiveSurfaceReady, setInteractiveSurfaceReady] = useState(false);
 
   const fitPadding = buyerTrailPanel ? 0.005 : 0.08;
   const fitMaxZoom = buyerTrailPanel ? 6.2 : 1.52;
 
   useEffect(() => {
-    if (filtered.nodes.length === 0) {
-      return;
-    }
+    setInteractiveSurfaceReady(false);
+  }, [filtered.nodes.length, filtered.edges.length, flowPresentation]);
 
-    if (onInteractiveSurfaceReady === undefined) {
+  useEffect(() => {
+    if (filtered.nodes.length === 0) {
       return;
     }
 
@@ -190,7 +191,8 @@ export function GraphViewer({
     const outer = window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         if (!cancelled) {
-          onInteractiveSurfaceReady();
+          setInteractiveSurfaceReady(true);
+          onInteractiveSurfaceReady?.();
         }
       });
     });
@@ -317,7 +319,7 @@ export function GraphViewer({
               : "max-h-[70vh] flex flex-col gap-4 overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
         }
       >
-        {buyerTrailPanel ? (
+        {buyerTrailPanel && interactiveSurfaceReady ? (
           <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
             <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">

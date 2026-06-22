@@ -8,6 +8,7 @@ import {
   buildProductLearningReportFileUrl,
   buildProductLearningReportJsonUrl,
 } from "@/lib/product-learning-report-urls";
+import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 
 import {
   formatUtc,
@@ -26,7 +27,7 @@ type Props = {
 };
 
 /**
- * Pilot / product learning dashboard (58R): outcome trends, opportunities, triage — distinct from advisory recommendation learning.
+ * Evaluation feedback / product learning dashboard (58R): outcome trends, opportunities, triage — distinct from advisory recommendation learning.
  */
 export function ProductLearningPageView(props: Props) {
   const m = props.model;
@@ -34,9 +35,9 @@ export function ProductLearningPageView(props: Props) {
 
   return (
     <div className="max-w-5xl">
-      <h2 className="mt-0">Pilot feedback</h2>
+      <h2 className="mt-0">{BUYER_TERMINOLOGY.evaluationFeedback}</h2>
       <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
-        Scoped rollups from pilot signals: how outputs are trusted, rejected, or revised; recurring artifact patterns; ranked
+        Scoped rollups from evaluation signals: how outputs are trusted, rejected, or revised; recurring artifact patterns; ranked
         improvement ideas; and a merged triage queue. This view is separate from{" "}
         <Link href="/recommendation-learning" className="text-blue-700 dark:text-blue-400">
           Recommendation tuning

@@ -2,15 +2,17 @@
 
 exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + proof pack download) 1`] = `
 <main
-  class="mx-auto max-w-5xl px-4 py-10"
+  class="mx-auto w-full max-w-5xl px-4 py-10"
+  id="main-content"
+  tabindex="-1"
 >
   <h1
-    class="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+    class="text-xl font-semibold leading-snug tracking-tight text-al-text-primary"
   >
     Why ArchLucid
   </h1>
   <p
-    class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+    class="mt-3 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
     data-testid="why-brand-category-paragraph"
   >
     ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.
@@ -109,27 +111,27 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </section>
   </div>
   <section
-    class="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950"
+    class="mt-10 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
   >
     <p
-      class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300"
+      class="text-xs font-normal leading-snug text-al-text-secondary font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
     >
       First-principles outcome
     </p>
     <h2
-      class="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+      class="mt-2 text-sm font-semibold leading-snug text-al-text-primary"
       id="why-hero-outcome-heading"
     >
       One buyer problem, one proof package
     </h2>
     <p
-      class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+      class="mt-3 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
       data-testid="why-outcome-led-value-proposition"
     >
       Cut architecture review cycle time with an evidence-backed proof package — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
     </p>
     <p
-      class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+      class="mt-3 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
     >
       Multi-agent execution sits behind those outcomes so teams move faster without losing the governed record CFOs and regulators expect.
     </p>
@@ -140,13 +142,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     data-testid="why-vs-chat-assistant"
   >
     <h2
-      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      class="text-sm font-semibold leading-snug text-al-text-primary"
       id="why-vs-chat-assistant-heading"
     >
       vs a chat assistant (ChatGPT, Copilot, Claude)
     </h2>
     <p
-      class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
+      class="mt-2 max-w-3xl text-xs font-normal leading-snug text-al-text-secondary"
     >
       Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it persists a committed review package, governance gate, and audit trail a session cannot replace.
     </p>
@@ -154,7 +156,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-4 grid gap-3 sm:grid-cols-2"
     >
       <li
-        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+        class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
           class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
@@ -183,7 +185,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </p>
       </li>
       <li
-        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+        class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
           class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
@@ -212,7 +214,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </p>
       </li>
       <li
-        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+        class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
           class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
@@ -241,7 +243,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </p>
       </li>
       <li
-        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+        class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
           class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
@@ -270,7 +272,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </p>
       </li>
       <li
-        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+        class="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <p
           class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
@@ -305,7 +307,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       More detail:
        
       <a
-        class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+        class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/faq"
       >
         FAQ — vs ChatGPT/Copilot
@@ -318,7 +320,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12"
   >
     <h2
-      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      class="text-sm font-semibold leading-snug text-al-text-primary"
       id="why-market-landscape-heading"
     >
       Where ArchLucid fits (adjacent tooling)
@@ -467,20 +469,20 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </div>
   </section>
   <section
-    class="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
+    class="rounded-md border border-neutral-200 bg-neutral-100/80 dark:border-neutral-800 dark:bg-neutral-900/50 p-4"
   >
     <h2
-      class="text-base font-semibold text-neutral-900 dark:text-neutral-50"
+      class="text-sm font-semibold leading-snug text-al-text-primary"
     >
       Side-by-side audit evidence package
     </h2>
     <p
-      class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+      class="mt-2 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
     >
       Download a single PDF that bundles the same read-only sample output as the
        
       <a
-        class="font-medium text-sky-800 underline underline-offset-2 dark:text-sky-300"
+        class="font-medium font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/demo/preview"
       >
         public demo preview
@@ -492,7 +494,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-3"
     >
       <a
-        class="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-medium text-white hover:bg-sky-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[var(--al-primary-action-bg)] text-[var(--al-primary-action-fg)] hover:bg-[var(--al-primary-action-bg-hover)] focus-visible:ring-[var(--al-primary-action-ring)] h-9 px-4 py-2"
         data-testid="why-proof-pack-download"
         download="why-archlucid-pack.pdf"
         href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
@@ -506,13 +508,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-10"
   >
     <h2
-      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      class="text-sm font-semibold leading-snug text-al-text-primary"
       id="why-demo-heading"
     >
       See a finalized sample review page
     </h2>
     <p
-      class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
+      class="mt-2 max-w-3xl text-xs font-normal leading-snug text-al-text-secondary"
     >
       Anonymous read-only preview of an illustrative sample review record — same layout as the product workspace, not a live customer outcome; no sign-in required.
     </p>
@@ -523,7 +525,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       Demo embed omitted (test build). In production this area shows an iframe of
        
       <a
-        class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+        class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/demo/preview"
       >
         the demo preview page
@@ -534,7 +536,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-3 text-sm text-neutral-600 dark:text-neutral-400"
     >
       <a
-        class="text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+        class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/demo/preview"
       >
         Open demo preview
@@ -547,7 +549,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12"
   >
     <h2
-      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      class="text-sm font-semibold leading-snug text-al-text-primary"
       id="why-hard-compare-heading"
     >
       Governance capability comparison
@@ -628,7 +630,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/demo/preview"
                 >
                   Demo preview
@@ -672,14 +674,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   download=""
                   href="/v1/marketing/trust-center/evidence-pack.zip"
                 >
                   Assurance evidence package (ZIP)
                 </a>
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/audit-trail"
                 >
                   Durable audit coverage matrix
@@ -723,7 +725,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/audit-trail"
                 >
                   Tenant isolation control summary
@@ -767,7 +769,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/getting-started"
                 >
                   Authentication scope (published scope doc)
@@ -811,7 +813,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/comparison-replay"
                 >
                   Comparison replay summary
@@ -855,7 +857,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/demo/preview"
                 >
                   Evidence trail demo
@@ -899,7 +901,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
               >
                 <a
-                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  class="break-words font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                   href="/help/governance-approval"
                 >
                   Governance gate control description
@@ -940,7 +942,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       For sponsor-ready language and procurement context, see the
        
       <a
-        class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+        class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
         href="/get-started"
       >
         getting started guide

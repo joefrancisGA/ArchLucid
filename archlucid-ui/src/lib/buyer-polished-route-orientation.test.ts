@@ -25,4 +25,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Executive summary");
     expect(o?.line).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
+
+  it("orients the evidence graph route with trace-focused copy", () => {
+    const o = buyerPolishedRouteOrientation("/graph");
+
+    expect(o?.label).toBe("Evidence graph");
+    expect(o?.line).toContain("Trace provenance, findings, decisions, and audit trail.");
+  });
 });

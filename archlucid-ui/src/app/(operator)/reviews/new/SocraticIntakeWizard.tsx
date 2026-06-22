@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
@@ -27,17 +28,17 @@ import {
 } from "@/lib/api/draft-intake-api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
+import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import {
-  assertActorSetForAdmission,
-  buildSuggestedActorSet,
+  normalizeActorSetForAdmission,
 } from "@/lib/draft-intake-actor-suggestions";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-  GUIDED_INTAKE_CONTINUE_TO_STEP_2,
+  GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS,
   GUIDED_INTAKE_STEP0_CARD_DESCRIPTION,
   GUIDED_INTAKE_STEP0_CARD_TITLE,
   GUIDED_INTAKE_STEP0_PROGRESS_LABEL,
@@ -91,7 +92,7 @@ export function SocraticIntakeWizard() {
   const [freeTextIntent, setFreeTextIntent] = useState("");
   const [businessOutcome, setBusinessOutcome] = useState("");
   const [systemName, setSystemName] = useState("");
-  const [actorSet, setActorSet] = useState<ActorSet>(() => buildSuggestedActorSet(""));
+  const [actorSet, setActorSet] = useState<ActorSet>(() => ({ actors: [] }));
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
@@ -104,6 +105,7 @@ export function SocraticIntakeWizard() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
 
   const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
   const activePendingQuestions = useMemo(
@@ -138,7 +140,6 @@ export function SocraticIntakeWizard() {
     setFreeTextIntent(exampleTemplate.briefText);
     setBusinessOutcome(exampleTemplate.businessOutcome);
     setSystemName(exampleTemplate.systemName);
-    setActorSet(buildSuggestedActorSet(exampleTemplate.briefText));
   }, [exampleTemplate]);
 
   const refreshQuestions = useCallback(async (id: string) => {
@@ -160,7 +161,7 @@ export function SocraticIntakeWizard() {
       setActorSet(
         branch.document.actorSet.actors.length > 0
           ? branch.document.actorSet
-          : buildSuggestedActorSet(branch.document.freeTextIntent),
+          : { actors: [] },
       );
       setAnswers({});
       setSavedLocallyQuestionKeys(new Set());
@@ -185,7 +186,8 @@ export function SocraticIntakeWizard() {
         freeTextIntent: freeTextIntent.trim(),
         businessOutcome: businessOutcome.trim(),
         systemName: systemName.trim() || undefined,
-        actorSet: assertActorSetForAdmission(actorSet),
+        actorSet: normalizeActorSetForAdmission(actorSet),
+        focusedPilotModeEnabled,
       });
 
       const admission = await admitDraftRequest(id);
@@ -212,7 +214,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet, businessOutcome, freeTextIntent, refreshQuestions, systemName]);
+  }, [actorSet, businessOutcome, focusedPilotModeEnabled, freeTextIntent, refreshQuestions, systemName]);
 
   const reviewAnswers = useCallback(async () => {
     if (draftId === null) {
@@ -311,7 +313,7 @@ export function SocraticIntakeWizard() {
       }
 
       showSuccess("Architecture review started from guided intake.");
-      router.push(`/reviews/${result.runId}`);
+      router.push(buildReviewGenerationRedirect(result.runId, "socratic-intake"));
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
@@ -421,11 +423,13 @@ export function SocraticIntakeWizard() {
             </div>
             <DraftIntakeActorEditor
               actorSet={actorSet}
+              intentText={freeTextIntent}
               disabled={busy}
               onChange={setActorSet}
-              onResuggest={() => {
-                setActorSet(buildSuggestedActorSet(freeTextIntent));
-              }}
+            />
+            <PilotModePolicyPackToggle
+              enabled={focusedPilotModeEnabled}
+              onEnabledChange={setFocusedPilotModeEnabled}
             />
             <Button
               type="button"
@@ -435,7 +439,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-admit"
             >
-              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_STEP_2}
+              {busy ? "Checking admission…" : GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS}
             </Button>
           </CardContent>
         </Card>

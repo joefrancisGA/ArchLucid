@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Explanation;
@@ -46,6 +47,7 @@ public sealed class ExplanationController(
     IFindingLlmAuditService findingLlmAudit,
     IProvenanceSnapshotRepository provenanceRepo,
     IScopeContextProvider scopeProvider,
+    IHolisticCriticService holisticCriticService,
     ILogger<ExplanationController> logger)
     : ControllerBase
 {
@@ -205,5 +207,30 @@ public sealed class ExplanationController(
         ComparisonResult comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         ComparisonExplanationResult result = await explanation.ExplainComparisonAsync(comparison1, ct);
         return Ok(result);
+    }
+
+    /// <summary>Unstructured holistic architecture critique (advisory; not persisted as findings).</summary>
+    // idempotency-posture: dry-run-no-persist
+    [HttpPost("runs/{runId:guid}/holistic-critic")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Holistic critic is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(HolisticCriticResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> HolisticCritic(
+        Guid runId,
+        [FromBody] HolisticCriticRequest? request,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            HolisticCriticResponse response = await holisticCriticService.GenerateAsync(scope, runId, request, ct);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 }

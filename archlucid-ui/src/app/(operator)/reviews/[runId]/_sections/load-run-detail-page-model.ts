@@ -33,12 +33,11 @@ import {
 } from "@/lib/operator-static-demo";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
-  buildFindingWireSnapshotsForRunDetail,
-  isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
-import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
+// NOTE: quickDecisionFindings is computed only for the ADR generator input; it is not part of the
+// critical-path RunDetailPageModel so the heavy finding scan doesn't block first-screen rendering.
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { getScopeHeaders } from "@/lib/scope";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
@@ -57,8 +56,10 @@ import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
 import { pipelineCompleteOnSummary } from "./pipeline-complete-on-summary";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
+export type RunDetailNotFoundReason = "missing" | "workspace-mismatch";
+
 export type LoadRunDetailPageModelResult =
-  | { kind: "not-found" }
+  | { kind: "not-found"; reason: RunDetailNotFoundReason }
   | { kind: "fetch-error"; loadFailure: ApiLoadFailureState | null; fallbackMessage: string }
   | { kind: "malformed-response"; message: string }
   | { kind: "success"; model: RunDetailPageModel };
@@ -84,7 +85,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       loadFailure = toApiLoadFailure(e);
 
       if (isApiNotFoundFailure(loadFailure)) {
-        return { kind: "not-found" };
+        return { kind: "not-found", reason: "missing" };
       }
     }
   }
@@ -123,7 +124,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
   if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {
-    return { kind: "not-found" };
+    return { kind: "not-found", reason: "workspace-mismatch" };
   }
 
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
@@ -282,13 +283,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       ? buyerGovernanceApprovalDisplayLabel(governanceGateLabelRaw)
       : governanceGateLabelRaw;
 
-  const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
-  const quickDecisionFromExplanationFallback = isQuickDecisionDerivedFromExplanationTraces(
-    resolvedDetail,
-    explanationSummary,
-  );
-  const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
-  const insightDensityView = resolveFindingsSnapshotInsightDensityView(resolvedDetail);
+  const quickDecisionFindingsForAdr = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
 
   const adrGeneratorInput = buildAdrGeneratorRunInput({
     runId: resolvedDetail.run.runId,
@@ -309,7 +304,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
           }
         : null,
     explanationSummary,
-    quickDecisionFindings,
+    quickDecisionFindings: quickDecisionFindingsForAdr,
     severityLabelForFinding: severityBadgeLabel,
   });
 
@@ -339,10 +334,6 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     warningCountDisplay,
     showPilotScorecardPackageCta,
     governanceGateLabel,
-    quickDecisionFindings,
-    quickDecisionFromExplanationFallback,
-    findingWireSnapshots,
-    insightDensityView,
     adrGeneratorInput,
   };
 

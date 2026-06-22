@@ -27,6 +27,7 @@ namespace ArchLucid.Api.Controllers.Findings;
 public sealed class FindingInspectController(
     IFindingInspectReadRepository findingInspectReadRepository,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
+    RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
@@ -34,6 +35,10 @@ public sealed class FindingInspectController(
 
     private readonly IReasoningSummaryBuilder _reasoningSummaryBuilder =
         reasoningSummaryBuilder ?? throw new ArgumentNullException(nameof(reasoningSummaryBuilder));
+
+    private readonly RunFindingExternalTrackingEnrichmentService _runFindingExternalTrackingEnrichmentService =
+        runFindingExternalTrackingEnrichmentService
+        ?? throw new ArgumentNullException(nameof(runFindingExternalTrackingEnrichmentService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -58,6 +63,19 @@ public sealed class FindingInspectController(
                 $"Finding '{findingId.Trim()}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
-        return Ok(body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder));
+        string trimmedFindingId = findingId.Trim();
+
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
+            await _runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
+                scope.TenantId,
+                findingsSnapshotId: null,
+                [trimmedFindingId],
+                ct);
+
+        trackingByFindingId.TryGetValue(trimmedFindingId, out RunFindingExternalTrackingProjection? tracking);
+
+        return Ok(
+            body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder)
+                .WithExternalTracking(tracking));
     }
 }

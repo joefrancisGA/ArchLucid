@@ -54,6 +54,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
                 "Jira",
                 "MOCK-7",
                 "10042",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -91,6 +92,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
                 "Jira",
                 "MOCK-7",
                 "10042",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -185,6 +187,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
                 "Jira",
                 "MOCK-RL-2",
                 "20001",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

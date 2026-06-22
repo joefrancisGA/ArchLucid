@@ -24,16 +24,13 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Start with one sample finding";
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Preview sample findings";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "See how ArchLucid connects a finding to evidence and a decision before opening a full sample package.";
+  "Review three representative findings before opening the full package.";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_WORKFLOW =
-  "Open sample finding → Review evidence → See decision impact";
+export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Review sample findings";
 
-export const OPERATOR_HOME_SAMPLE_REVIEW_DISCOVERED_SUMMARY =
-  "Representative discoveries from the example review — severity, evidence basis, and governance posture before you open the full package.";
 
 export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open full example review";
 
@@ -672,9 +669,17 @@ export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review packa
 export const BUYER_EVIDENCE_TRAIL_PAGE_TITLE = "Evidence graph";
 
 export const BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE =
-  "Trace how evidence supports findings, decisions, and the review package.";
+  "Visualize provenance for a finalized architecture review: inputs, pipeline steps, findings, decisions, and audit trail.";
 
-export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "How evidence traceability works";
+export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE = "What is the evidence graph?";
+
+export const BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD =
+  "Use this page to trace review evidence — see how architecture inputs, pipeline steps, findings, decisions, and audit events connect for a finalized review.";
+
+export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER = "Reviews could not be loaded";
+
+export const BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT =
+  "Reviews could not be loaded because the API service is unavailable. Check workspace setup or retry.";
 
 export const BUYER_EVIDENCE_TRAIL_LOAD_BUTTON = "Load evidence graph";
 
@@ -692,10 +697,13 @@ export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_TITLE = "No review packages yet";
 export const BUYER_EVIDENCE_TRAIL_NO_REVIEWS_BODY =
   "Start a review or load the sample workspace to explore how findings link to evidence.";
 
-export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Evidence graph unavailable";
+export const BUYER_EVIDENCE_TRAIL_ERROR_HEADING = "Workspace data unavailable";
 
 export const BUYER_EVIDENCE_TRAIL_ERROR_BODY =
-  "The selected review package could not be loaded in this demo workspace. Try again, open the review package, or view troubleshooting.";
+  "ArchLucid could not reach the API service for this workspace.";
+
+export const BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT =
+  "Try retrying first. If this continues, open troubleshooting or check system health.";
 
 export const BUYER_EVIDENCE_TRAIL_VIEW_TRACE = "Trace table";
 

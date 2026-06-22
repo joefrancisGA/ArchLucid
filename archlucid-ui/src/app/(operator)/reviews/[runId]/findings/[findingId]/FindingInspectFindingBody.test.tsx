@@ -41,6 +41,8 @@ describe("FindingInspectFindingBody", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
+    expect(screen.getByTestId("finding-policy-evidence-citations")).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "Rule A" }).length).toBeGreaterThan(0);
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();
     expect(screen.getByRole("heading", { name: "Audit record" })).toBeTruthy();

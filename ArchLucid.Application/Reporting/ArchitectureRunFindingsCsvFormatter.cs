@@ -13,11 +13,18 @@ namespace ArchLucid.Application.Reporting;
 /// </summary>
 public static class ArchitectureRunFindingsCsvFormatter
 {
-    internal const string HeaderLine =
+    internal const string LegacyHeaderLine =
         "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
 
+    internal const string ExternalTrackingHeaderSuffix =
+        "Provider,ExternalKey,ExternalUrl,HumanReviewStatus,LatestDisposition,RevisitDueUtc,ItsmLinkedTicketsSummary";
+
+    internal const string HeaderLine = LegacyHeaderLine + "," + ExternalTrackingHeaderSuffix;
+
     /// <returns>CSV text including header; empty findings yield header only.</returns>
-    public static string BuildCsvContent(ArchitectureRunDetail detail)
+    public static string BuildCsvContent(
+        ArchitectureRunDetail detail,
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>? trackingByFindingId = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
 
@@ -30,10 +37,37 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         foreach (AgentResult result in detail.Results)
         {
-            AppendFindingsFromResult(sb, result);
+            AppendFindingsFromResult(sb, result, trackingByFindingId);
         }
 
         return sb.ToString();
+    }
+
+    /// <summary>Distinct logical finding ids across agent results (null-safe).</summary>
+    public static IReadOnlyList<string> CollectFindingIds(ArchitectureRunDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+
+        if (detail.Results is null || detail.Results.Count == 0)
+            return [];
+
+        HashSet<string> ids = new(StringComparer.Ordinal);
+
+        foreach (AgentResult result in detail.Results)
+        {
+            if (result?.Findings is null || result.Findings.Count == 0)
+                continue;
+
+            foreach (ArchitectureFinding finding in result.Findings)
+            {
+                if (finding is null || string.IsNullOrWhiteSpace(finding.FindingId))
+                    continue;
+
+                ids.Add(finding.FindingId.Trim());
+            }
+        }
+
+        return ids.ToArray();
     }
 
     /// <summary>Count of findings under <paramref name="detail" /> (<c>null</c>-safe).</summary>
@@ -68,7 +102,10 @@ public static class ArchitectureRunFindingsCsvFormatter
         return isMuted ? "muted" : "active";
     }
 
-    private static void AppendFindingsFromResult(StringBuilder sb, AgentResult? result)
+    private static void AppendFindingsFromResult(
+        StringBuilder sb,
+        AgentResult? result,
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>? trackingByFindingId)
     {
         if (result is null || result.Findings is null || result.Findings.Count == 0)
             return;
@@ -78,16 +115,29 @@ public static class ArchitectureRunFindingsCsvFormatter
             if (finding is null)
                 continue;
 
-            AppendFindingRow(sb, result, finding);
+            AppendFindingRow(sb, result, finding, trackingByFindingId);
         }
     }
 
-    private static void AppendFindingRow(StringBuilder sb, AgentResult result, ArchitectureFinding finding)
+    private static void AppendFindingRow(
+        StringBuilder sb,
+        AgentResult result,
+        ArchitectureFinding finding,
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>? trackingByFindingId)
     {
         string confidence =
             finding.ConfidenceScore.HasValue
                 ? finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture)
                 : string.Empty;
+
+        RunFindingExternalTrackingProjection? tracking = null;
+
+        if (trackingByFindingId is not null
+            && !string.IsNullOrWhiteSpace(finding.FindingId)
+            && trackingByFindingId.TryGetValue(finding.FindingId.Trim(), out RunFindingExternalTrackingProjection? mapped))
+        {
+            tracking = mapped;
+        }
 
         sb.AppendJoin(
                 ',',
@@ -101,7 +151,14 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
                 ExportFormatterService.EscapeCsvField(FormatFindingStatus(finding.IsMuted)),
                 ExportFormatterService.EscapeCsvField(finding.MuteReason),
-                ExportFormatterService.EscapeCsvField(confidence))
+                ExportFormatterService.EscapeCsvField(confidence),
+                ExportFormatterService.EscapeCsvField(tracking?.Provider),
+                ExportFormatterService.EscapeCsvField(tracking?.ExternalKey),
+                ExportFormatterService.EscapeCsvField(tracking?.ExternalUrl),
+                ExportFormatterService.EscapeCsvField(FormatHumanReviewStatus(tracking)),
+                ExportFormatterService.EscapeCsvField(FormatDisposition(tracking)),
+                ExportFormatterService.EscapeCsvField(FormatRevisitDueUtc(tracking)),
+                ExportFormatterService.EscapeCsvField(tracking?.ItsmLinkedTicketsSummary))
             .Append('\n');
     }
 
@@ -113,5 +170,29 @@ public static class ArchitectureRunFindingsCsvFormatter
         }
 
         return string.Empty;
+    }
+
+    private static string FormatHumanReviewStatus(RunFindingExternalTrackingProjection? tracking)
+    {
+        if (tracking is null)
+            return string.Empty;
+
+        return tracking.HumanReviewStatus.ToString();
+    }
+
+    private static string FormatDisposition(RunFindingExternalTrackingProjection? tracking)
+    {
+        if (tracking?.LatestDisposition is null)
+            return string.Empty;
+
+        return tracking.LatestDisposition.Value.ToString();
+    }
+
+    private static string FormatRevisitDueUtc(RunFindingExternalTrackingProjection? tracking)
+    {
+        if (tracking?.RevisitDueUtc is null)
+            return string.Empty;
+
+        return tracking.RevisitDueUtc.Value.ToString("O", CultureInfo.InvariantCulture);
     }
 }

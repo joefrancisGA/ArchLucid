@@ -26,6 +26,7 @@ using ArchLucid.Core.Identity;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Pilots;
 using ArchLucid.Persistence.Agents;
@@ -316,6 +317,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ICosmosGraphSnapshotOutboxRepository, DapperCosmosGraphSnapshotOutboxRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
         services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
+        services.AddScoped<IRunFindingExternalTrackingReadRepository, DapperRunFindingExternalTrackingReadRepository>();
         services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();
         services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
         ArchLucidStorageServiceCollectionExtensions.RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);

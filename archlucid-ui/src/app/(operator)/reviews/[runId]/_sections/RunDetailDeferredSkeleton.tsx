@@ -8,6 +8,17 @@ export function RunDetailMidDeferredSkeleton(): React.JSX.Element {
   );
 }
 
+/** Skeleton while the findings &amp; assessment explanation section streams in. */
+export function RunDetailExplanationSkeleton(): React.JSX.Element {
+  return (
+    <div className="space-y-3" role="status" aria-label="Loading findings and assessment">
+      <div className="h-10 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+      <div className="h-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+      <div className="h-16 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800" />
+    </div>
+  );
+}
+
 /** Skeleton for pipeline, graph, and lower technical sections. */
 export function RunDetailBelowFoldDeferredSkeleton(): React.JSX.Element {
   return (

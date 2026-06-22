@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -13,7 +12,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, BUYER_GRAPH_PAGE_LEAD, BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE, BUYER_GRAPH_WHAT_THIS_PROVES } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
@@ -59,7 +58,6 @@ import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { GraphSavedViewFilters } from "@/lib/operator-saved-view-types";
-import { cn } from "@/lib/utils";
 
 export function GraphPageContent() {
   const searchParams = useSearchParams();
@@ -77,7 +75,10 @@ export function GraphPageContent() {
   const [typeFilter, setTypeFilter] = useState("");
   const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
-  const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>("trace");
+  const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
+    isBuyerPolishedOperatorShellEnv() ? "graph" : "trace",
+  );
+  const [reviewsListLoadError, setReviewsListLoadError] = useState(false);
 
   const loadGenRef = useRef(0);
 
@@ -415,12 +416,13 @@ export function GraphPageContent() {
     buyerPolishedShell && (runId.trim().length === 0 || !graphLoadRequested);
 
   const showIdleCard =
-    buyerGraphAwaitingSelection ||
-    (effectiveGraph === null &&
-      !loading &&
-      loadFailure === null &&
-      malformedMessage === null &&
-      !buyerTraceWithoutGraph);
+    !reviewsListLoadError &&
+    (buyerGraphAwaitingSelection ||
+      (effectiveGraph === null &&
+        !loading &&
+        loadFailure === null &&
+        malformedMessage === null &&
+        !buyerTraceWithoutGraph));
 
   useEffect(() => {
     if (!demoUi && !buyerPolishedShell) {
@@ -441,11 +443,9 @@ export function GraphPageContent() {
   );
 
   const leadIntro =
-    buyerPolishedShell
-      ? BUYER_GRAPH_PAGE_LEAD
-      : demoUi
-        ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed review record outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
-        : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
+    demoUi
+      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed review record outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
+      : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
 
@@ -470,7 +470,10 @@ export function GraphPageContent() {
     effectiveGraph !== null;
 
   const showLoadFailureAlert =
-    loadFailure !== null && effectiveGraph === null && (!buyerPolishedShell || graphLoadRequested);
+    !reviewsListLoadError &&
+    loadFailure !== null &&
+    effectiveGraph === null &&
+    (!buyerPolishedShell || graphLoadRequested);
 
   const getGraphSavedViewPayload = useCallback(
     () =>
@@ -539,6 +542,9 @@ export function GraphPageContent() {
       nodeId={nodeId}
       presentationView={presentationView}
       onPresentationViewChange={setPresentationView}
+      onReviewsListAvailabilityChange={({ loadError }) => {
+        setReviewsListLoadError(loadError);
+      }}
     />
   );
 
@@ -546,7 +552,7 @@ export function GraphPageContent() {
 
   return (
     <OperatorPageContainer variant="dashboard">
-      {buyerPolishedShell ? <GraphEvidenceTrailGuidanceDisclosure /> : <LayerHeader pageKey="graph" />}
+      {buyerPolishedShell ? null : <LayerHeader pageKey="graph" />}
       <CtoDemoBuyerValueStrip stepIndex={2} />
       <OperatorPageHeader
         title={pageTitle}
@@ -556,21 +562,8 @@ export function GraphPageContent() {
             : "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh."
         }
       />
-      {buyerPolishedShell ? (
-        <div className={cn("space-y-3", graphMainColumnMaxClass)}>
-          <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
-          {effectiveGraph === null ? (
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                What this proves
-              </p>
-              <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                {BUYER_GRAPH_WHAT_THIS_PROVES}
-              </p>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+      {buyerPolishedShell ? <GraphEvidenceTrailGuidanceDisclosure /> : null}
+      {buyerPolishedShell ? controls : null}
       {effectiveGraph === null && !buyerPolishedShell ? (
         <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
       ) : null}
@@ -646,19 +639,6 @@ export function GraphPageContent() {
           onPresentationViewChange={setPresentationView}
         />
         </>
-      ) : null}
-
-      {buyerPolishedShell ? (
-        <CollapsibleSection
-          title={BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE}
-          defaultOpen={effectiveGraph === null}
-          sectionTestId="graph-buyer-technical-controls"
-        >
-          <div className="space-y-4">
-            {savedViewsBar}
-            {controls}
-          </div>
-        </CollapsibleSection>
       ) : null}
     </OperatorPageContainer>
   );

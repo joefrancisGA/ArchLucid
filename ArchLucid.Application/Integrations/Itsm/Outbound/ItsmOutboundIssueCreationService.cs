@@ -195,7 +195,19 @@ public sealed class ItsmOutboundIssueCreationService(
 
         try
         {
-            await _correlations.RegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, inspect.FindingId, "Jira", http.IssueKey, http.RemoteId, ct)
+            Guid? findingRecordId =
+                await ResolveFindingRecordIdForInspectAsync(scope, inspect, ct).ConfigureAwait(false);
+
+            await _correlations.RegisterAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    inspect.FindingId,
+                    "Jira",
+                    http.IssueKey,
+                    http.RemoteId,
+                    findingRecordId,
+                    ct)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -342,7 +354,19 @@ public sealed class ItsmOutboundIssueCreationService(
 
         try
         {
-            await _correlations.RegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, inspect.FindingId, "ServiceNow", http.SysId, http.Number, ct)
+            Guid? findingRecordId =
+                await ResolveFindingRecordIdForInspectAsync(scope, inspect, ct).ConfigureAwait(false);
+
+            await _correlations.RegisterAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    inspect.FindingId,
+                    "ServiceNow",
+                    http.SysId,
+                    http.Number,
+                    findingRecordId,
+                    ct)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -415,6 +439,19 @@ public sealed class ItsmOutboundIssueCreationService(
             UserMessage = "Owning run was not found for this finding.",
             AuditEvents = [ev]
         };
+    }
+
+    private async Task<Guid?> ResolveFindingRecordIdForInspectAsync(
+        ScopeContext scope,
+        FindingInspectResponse inspect,
+        CancellationToken ct)
+    {
+        if (inspect.RunId == Guid.Empty)
+            return null;
+
+        return await _correlations
+            .TryResolveFindingRecordIdForRunFindingAsync(scope.TenantId, inspect.RunId, inspect.FindingId, ct)
+            .ConfigureAwait(false);
     }
 
     private static AuditEvent SkippedAudit(string eventType, ScopeContext scope, FindingInspectResponse inspect, string reason)

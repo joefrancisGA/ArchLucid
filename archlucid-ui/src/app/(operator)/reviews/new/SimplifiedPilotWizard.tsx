@@ -7,6 +7,7 @@ import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion"
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
 import { WizardStepBaselineMetrics } from "@/components/wizard/steps/WizardStepBaselineMetrics";
 import { WizardStepBaselineZip } from "@/components/wizard/steps/WizardStepBaselineZip";
@@ -47,6 +48,7 @@ export type SimplifiedPilotWizardProps = {
 export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   const { onRunCreated, llmBudgetStatus, blocksLlmExecution } = props;
   const [pilotStep, setPilotStep] = useState(0);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const {
@@ -146,7 +148,10 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     setSubmitError(null);
 
     try {
-      const body = wizardValuesToCreateRunPayload(getValues(), { requestSource: "wizard" });
+      const body = wizardValuesToCreateRunPayload(getValues(), {
+        requestSource: "wizard",
+        focusedPilotModeEnabled,
+      });
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 
@@ -193,6 +198,10 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
       {pilotStep === 0 ? <WizardStepBaselineZip /> : null}
       {pilotStep === 1 ? (
         <div className="space-y-8">
+          <PilotModePolicyPackToggle
+            enabled={focusedPilotModeEnabled}
+            onEnabledChange={setFocusedPilotModeEnabled}
+          />
           <WizardStepIdentity />
           <WizardStepDescription />
           <AdvancedOptionsAccordion triggerLabel="Advanced configuration">

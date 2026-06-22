@@ -10,9 +10,9 @@ namespace ArchLucid.Host.Core.Startup;
 public static class StartupConfigurationFailureLogger
 {
     /// <summary>
-    ///     Logs billing safety violations at Critical and other configuration errors at Error, then throws.
+    ///     Logs billing safety violations at Critical and other configuration errors at Error.
     /// </summary>
-    public static void LogCriticalAndThrow(IReadOnlyList<string> errors, ILogger logger)
+    public static void LogErrors(IReadOnlyList<string> errors, ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(errors);
         ArgumentNullException.ThrowIfNull(logger);
@@ -29,9 +29,23 @@ public static class StartupConfigurationFailureLogger
 
             if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.LogError("Startup configuration error: {Error}", error); // lgtm[cs/cleartext-storage-of-sensitive-information] validation text only.
+                logger.LogError("Startup configuration error: {Error}", error);
             }
         }
+    }
+
+    /// <summary>
+    ///     Logs billing safety violations at Critical and other configuration errors at Error, then throws.
+    /// </summary>
+    public static void LogCriticalAndThrow(IReadOnlyList<string> errors, ILogger logger)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        if (errors.Count == 0)
+            return;
+
+        LogErrors(errors, logger);
 
         throw new InvalidOperationException(BuildInvalidOperationMessage(errors));
     }

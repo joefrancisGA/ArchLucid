@@ -7,7 +7,7 @@ export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "guided-intake":
-    "Guided intake takes about 5–12 minutes and asks for intent, business outcome, actors, and required review questions before analysis.",
+    "This takes about 10 minutes and captures the system context needed for analysis.",
   "quick-review":
     "Paste a complete architecture brief to start analysis in a few minutes. Best when you already have a full description ready.",
   detailed:

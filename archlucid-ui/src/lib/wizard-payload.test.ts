@@ -30,4 +30,19 @@ describe("wizard-payload", () => {
 
     expect(payload.cloudProvider).toBe("None");
   });
+
+  it("includes focused pilot policy reference by default", () => {
+    const payload = wizardValuesToCreateRunPayload(buildDefaultWizardValues(), { requestSource: "wizard" });
+
+    expect(payload.policyReferences).toContain("pilot-mode:security-baseline-cost-only");
+  });
+
+  it("omits focused pilot policy reference when disabled", () => {
+    const payload = wizardValuesToCreateRunPayload(buildDefaultWizardValues(), {
+      requestSource: "wizard",
+      focusedPilotModeEnabled: false,
+    });
+
+    expect(payload.policyReferences ?? []).not.toContain("pilot-mode:security-baseline-cost-only");
+  });
 });

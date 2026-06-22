@@ -77,6 +77,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                 "ServiceNow",
                 "sys-1",
                 "INC42",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -339,6 +340,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                 "ServiceNow",
                 "inc-1",
                 "INC77",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -378,6 +380,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                 "ServiceNow",
                 "inc-1",
                 "INC77",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -459,6 +462,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                 "ServiceNow",
                 "inc-2",
                 "INC88",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -554,6 +558,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                 "ServiceNow",
                 "inc-3",
                 "INC99",
+                It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

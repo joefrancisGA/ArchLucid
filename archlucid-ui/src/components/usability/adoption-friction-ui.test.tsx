@@ -34,7 +34,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-optional-setup")).toBeInTheDocument();
     expect(screen.getByText(PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL)).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/settings/cloud-connections");
-    expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", "/settings/roles");
+    expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", "/settings/roles?tab=users");
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_CONNECT_AZURE })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: PILOT_COMMAND_CENTER_INVITE_REVIEWER })).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-setup-disclosure")).toBeNull();

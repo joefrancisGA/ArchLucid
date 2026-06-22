@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Drafts;
 
@@ -30,7 +31,16 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             RequestSource = "draft-intake",
             InlineRequirements = BuildInlineRequirements(document),
             IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),
+            PolicyReferences = BuildPolicyReferences(document),
         };
+    }
+
+    private static List<string> BuildPolicyReferences(DraftRequestDocument document)
+    {
+        if (document.FocusedPilotModeEnabled is false)
+            return [];
+
+        return [FocusedPilotModePolicyPacks.ReferenceToken];
     }
 
     private static string ResolveSystemName(DraftRequestDocument document, Guid draftId)

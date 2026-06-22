@@ -14,6 +14,20 @@ const { mockPathname } = vi.hoisted(() => ({
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 
+vi.mock("@/hooks/use-governance-mode", async () => {
+  const { governanceModeVocabulary } = await import("@/lib/governance-mode-vocabulary");
+
+  return {
+    useGovernanceMode: () => ({
+      mounted: true,
+      isGovernanceModeEnabled: true,
+      setGovernanceModeEnabled: vi.fn(),
+      vocabulary: governanceModeVocabulary(true),
+    }),
+    GovernanceModeProvider: ({ children }: { children: React.ReactNode }) => children,
+  };
+});
+
 vi.mock("next/navigation", () => ({
   usePathname: (): string => mockPathname(),
 }));

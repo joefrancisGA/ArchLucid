@@ -9,6 +9,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
   BUYER_EVIDENCE_TRAIL_ERROR_BODY,
   BUYER_EVIDENCE_TRAIL_ERROR_HEADING,
+  BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT,
 } from "@/lib/buyer-polish-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
@@ -21,7 +22,7 @@ export type GraphBuyerEvidenceTrailErrorProps = {
   graphEndpointHint?: string;
 };
 
-/** Buyer-facing load failure — recovery actions up front; HTTP details behind Technical details. */
+/** Buyer-facing load failure — one primary surface with recovery actions; HTTP detail behind Technical details. */
 export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailErrorProps) {
   const { failure, runId, onRetry, loading, graphEndpointHint } = props;
   const correlationId = ensureCorrelationId(failure.correlationId ?? failure.problem?.correlationId);
@@ -37,15 +38,16 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
     <OperatorErrorCallout>
       <strong>{BUYER_EVIDENCE_TRAIL_ERROR_HEADING}</strong>
       <p className="mt-2">{BUYER_EVIDENCE_TRAIL_ERROR_BODY}</p>
+      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{BUYER_EVIDENCE_TRAIL_ERROR_TRY_NEXT}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" disabled={loading} onClick={onRetry}>
-          Try again
+          Retry
         </Button>
         <Button type="button" variant="outline" size="sm" asChild>
-          <Link href={reviewPackageHref}>Open review package</Link>
+          <Link href={troubleshootingHref}>Open troubleshooting</Link>
         </Button>
         <Button type="button" variant="ghost" size="sm" asChild>
-          <Link href={troubleshootingHref}>Open troubleshooting</Link>
+          <Link href="/health">System health</Link>
         </Button>
       </div>
       <details className="mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/50">
@@ -78,7 +80,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
                 <Link className="underline" href={reviewPackageHref}>
                   review package
                 </Link>{" "}
-                exists, then retry. If the problem persists, check the browser network tab for the failing graph call.
+                exists, then retry. Check the browser network tab for the failing graph endpoint.
               </dd>
             </div>
           ) : null}

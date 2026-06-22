@@ -46,15 +46,18 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
     return;
   }
 
-  const summary = page.locator('section[aria-labelledby="audit-results-heading"] p[role="status"]');
+  const summary = page.getByTestId("audit-search-summary");
+
+  await expect(summary).toBeVisible({ timeout: 30_000 });
+
   let primedSearch = false;
 
   await expect
     .poll(
       async () => {
-        const text = await summary.innerText();
+        const text = (await summary.innerText()).trim();
 
-        if (/Showing [1-9]/.test(text)) {
+        if (/Showing [1-9]\d*/.test(text)) {
           return true;
         }
 
@@ -76,7 +79,7 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 
         return false;
       },
-      { timeout: 120_000 },
+      { timeout: 30_000 },
     )
     .toBe(true);
 }

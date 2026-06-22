@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { recordReviewGenerationHandoff, reviewDetailHrefAfterGeneration } from "@/lib/review-generation-handoff";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { RunSummary } from "@/types/authority";
 
@@ -87,7 +88,13 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
           <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">{SIGNED_MANIFEST_LABEL} is available.</p>
           <nav className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-sm">
-            <Link className="text-teal-800 underline dark:text-teal-200" href={`/reviews/${runId}`}>
+            <Link
+              className="text-teal-800 underline dark:text-teal-200"
+              href={reviewDetailHrefAfterGeneration(runId)}
+              onClick={() => {
+                recordReviewGenerationHandoff(runId, "wizard-track");
+              }}
+            >
               Open review detail
             </Link>
             <Link

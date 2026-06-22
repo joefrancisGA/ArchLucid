@@ -8,6 +8,7 @@ import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -216,6 +217,7 @@ export function NewRunWizardClient() {
   const trackStepIndex: number = 8;
 
   const [stepIndex, setStepIndex] = useState(0);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
@@ -636,6 +638,7 @@ export function NewRunWizardClient() {
       const body = wizardValuesToCreateRunPayload(getValues(), {
         requestSource: "wizard",
         wizardPresetUsed: presetDeeplinkToken ?? undefined,
+        focusedPilotModeEnabled,
       });
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
@@ -870,6 +873,10 @@ export function NewRunWizardClient() {
           {stepIndex === 1 && baselineFirst ? <WizardStepBaselineZip /> : null}
           {stepIndex === 2 ? (
             <div className="space-y-8">
+              <PilotModePolicyPackToggle
+                enabled={focusedPilotModeEnabled}
+                onEnabledChange={setFocusedPilotModeEnabled}
+              />
               <WizardStepIdentity />
               <WizardStepDescription />
             </div>

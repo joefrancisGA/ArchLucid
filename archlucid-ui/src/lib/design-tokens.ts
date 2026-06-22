@@ -199,6 +199,40 @@ export const DESIGN_TOKENS = {
   },
 } as const;
 
+/** Public marketing chrome — shares operator al-* palette; compact enterprise density (TB-120 parity). */
+export const MARKETING_LAYOUT = {
+  page: OPERATOR_LAYOUT.page,
+  main: "mx-auto w-full max-w-5xl px-4 py-10",
+  mainReading: `${OPERATOR_PAGE_CONTAINER.variant.reading} px-4 py-10`,
+  sectionStack: OPERATOR_LAYOUT.majorSectionGap,
+  sectionGap: "mt-8",
+  majorSectionGap: "mt-10",
+} as const;
+
+export const MARKETING_TYPOGRAPHY = {
+  pageTitle: OPERATOR_TYPOGRAPHY.pageTitle,
+  /** Welcome hero only — still compact vs legacy marketing scale. */
+  heroTitle: `${OPERATOR_TYPOGRAPHY.pageTitle} sm:text-2xl`,
+  sectionTitle: OPERATOR_TYPE_SCALE.section,
+  cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
+  body: OPERATOR_TYPOGRAPHY.body,
+  meta: OPERATOR_TYPOGRAPHY.meta,
+  eyebrow: `${OPERATOR_TYPOGRAPHY.meta} font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300`,
+} as const;
+
+export const MARKETING_SURFACES = {
+  card: `${DESIGN_TOKENS.surface.card} p-4`,
+  cardComfort: `${DESIGN_TOKENS.surface.card} p-5`,
+  sectionPanel: `${DESIGN_TOKENS.surface.card} p-4 sm:p-5`,
+  highlightPanel: DESIGN_TOKENS.banner.page,
+  mutedPanel: `${DESIGN_TOKENS.surface.muted} p-4`,
+  link: DESIGN_TOKENS.accent.link,
+  inlineLink:
+    "font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
+  stepIndicator:
+    "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised text-sm font-semibold text-al-text-primary dark:border-neutral-800",
+} as const;
+
 /** Shared class strings for bulk migration off pastel Tailwind fills (TB-115). */
 export const OPERATOR_CALLOUT_WARN_CLASS = DESIGN_TOKENS.callout.warn;
 export const OPERATOR_CALLOUT_BLOCKED_CLASS = DESIGN_TOKENS.callout.blocked;

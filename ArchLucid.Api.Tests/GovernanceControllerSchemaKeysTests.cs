@@ -75,5 +75,6 @@ public sealed class GovernanceControllerSchemaKeysTests
             schemaKeysService,
             Mock.Of<Core.Audit.IAuditService>(),
             Mock.Of<IPolicyPackDraftService>(),
+            Mock.Of<IPolicyPackGeneratorService>(),
             NullLogger<GovernanceController>.Instance);
 }

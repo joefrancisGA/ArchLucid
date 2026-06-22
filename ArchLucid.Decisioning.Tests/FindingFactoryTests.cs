@@ -148,6 +148,10 @@ public sealed class FindingFactoryTests
         mapped.EvaluationConfidenceScore.Should().Be(88);
         mapped.AgentExecutionTraceId.Should().Be(finding.FindingId);
         mapped.Trace!.Notes.Should().Contain("evidence:e1").And.Contain("evidence:e2");
+        mapped.Trace.RulesApplied.Should().Contain("agent-Compliance");
+        mapped.Trace.DecisionsTaken.Should().ContainSingle()
+            .Which.Should().Contain("Compliance");
+        mapped.Trace.Citations.Should().Equal("e1", "e2");
     }
 
     [Fact]

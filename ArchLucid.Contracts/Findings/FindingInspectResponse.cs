@@ -183,4 +183,49 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    public DateTimeOffset? RevisitDueUtc
+    {
+        get;
+        init;
+    }
+
+    public string? Provider
+    {
+        get;
+        init;
+    }
+
+    public string? ExternalKey
+    {
+        get;
+        init;
+    }
+
+    public string? ExternalUrl
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Semicolon-separated <c>Provider:ExternalKey</c> pairs when multiple correlations exist.</summary>
+    public string? ItsmLinkedTicketsSummary
+    {
+        get;
+        init;
+    }
+
+    /// <summary><see langword="true" /> when at least one ITSM correlation exists for the tenant + finding.</summary>
+    public bool TrackedExternally
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable external ticket summary for filters and badges without client-side correlation joins.</summary>
+    public string? ExternalTrackingSummary
+    {
+        get;
+        init;
+    }
 }

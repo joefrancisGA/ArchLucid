@@ -63,7 +63,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
       {malformedMessage && (
         <>
           <OperatorMalformedCallout>
-            <strong>{buyerPolishedShell ? "Evidence graph unavailable" : "Unexpected graph response shape."}</strong>
+            <strong>{buyerPolishedShell ? "Workspace data unavailable" : "Unexpected graph response shape."}</strong>
             <p className="mt-2">{buyerPolishedShell ? BUYER_GRAPH_LOAD_ERROR : malformedMessage}</p>
             {buyerPolishedShell ? null : (
               <p className="mt-2 text-sm">

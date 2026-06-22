@@ -75,7 +75,7 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">
+        <CardTitle className="text-base" data-testid="executive-exports-heading">
           {executiveSurface
             ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsTitle
             : "Sponsor exports"}

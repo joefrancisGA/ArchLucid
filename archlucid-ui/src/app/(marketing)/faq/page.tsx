@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildFaqPageLd } from "@/lib/marketing-faq-json-ld";
 import { MARKETING_FAQ_ITEMS } from "@/lib/marketing-faq";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
@@ -17,25 +19,25 @@ export default function MarketingFaqPage(): ReactNode {
   const faqLd = buildFaqPageLd(getSiteMetadataBaseUrl().origin);
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    <MarketingPageShell variant="reading">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
-      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Product FAQ</h1>
-      <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <h1 className={MARKETING_TYPOGRAPHY.pageTitle}>Product FAQ</h1>
+      <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>
         Quick answers for visitors evaluating ArchLucid as an {BRAND_CATEGORY} platform.
       </p>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/welcome">
+      <p className={`mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
+        <Link className={MARKETING_SURFACES.inlineLink} href="/welcome">
           Back to welcome
         </Link>
       </p>
 
       {MARKETING_FAQ_ITEMS.map((item) => (
         <section key={item.id} id={item.id} className="mt-10 scroll-mt-20">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">{item.question}</h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{item.answer}</p>
+          <h2 className={MARKETING_TYPOGRAPHY.sectionTitle}>{item.question}</h2>
+          <p className={`mt-2 ${MARKETING_TYPOGRAPHY.body} text-al-text-secondary`}>{item.answer}</p>
         </section>
       ))}
-    </main>
+    </MarketingPageShell>
   );
 }

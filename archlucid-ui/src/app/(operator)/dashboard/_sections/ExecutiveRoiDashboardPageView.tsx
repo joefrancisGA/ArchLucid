@@ -62,7 +62,7 @@ function ExecutiveRoiDashboardOperatorSections({
       <ExecutiveDashboardBaselineWarningBanner />
       <OperatorWelcomeOnboarding />
       <OperatorPilotOrientationBanner />
-      <OperatorPageHeader title={v.pageTitle} subtitle={v.pageLead} />
+      <OperatorPageHeader title={v.pageTitle} subtitle={v.pageLead} titleTestId="executive-summary-heading" />
 
       <section aria-labelledby="exec-roi-heading">
         <h2 id="exec-roi-heading" className="sr-only">
@@ -123,7 +123,7 @@ function ExecutiveRoiDashboardExecutiveSections({
       <ExecutiveDashboardBaselineWarningBanner />
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 
-      <OperatorPageHeader title={v.pageTitle} subtitle={v.pageLead} />
+      <OperatorPageHeader title={v.pageTitle} subtitle={v.pageLead} titleTestId="executive-summary-heading" />
 
       {!dashboardEmpty ? (
         <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} roiSummary={summary} />

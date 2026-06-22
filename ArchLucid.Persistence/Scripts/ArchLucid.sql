@@ -7839,11 +7839,61 @@ BEGIN
         CreatedUtc       DATETIME2(7)     NOT NULL
             CONSTRAINT DF_ItsmFindingCorrelations_CreatedUtc DEFAULT SYSUTCDATETIME(),
         CONSTRAINT FK_ItsmFindingCorrelations_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
-        CONSTRAINT UQ_ItsmFindingCorrelations_Provider_ExternalKey UNIQUE (Provider, ExternalKey)
+        CONSTRAINT UQ_ItsmFindingCorrelations_Tenant_Provider_ExternalKey UNIQUE (TenantId, Provider, ExternalKey)
     );
 
     CREATE NONCLUSTERED INDEX IX_ItsmFindingCorrelations_Tenant_Finding
         ON dbo.ItsmFindingCorrelations (TenantId, FindingId);
+END;
+GO
+
+/* ---- DbUp 258 parity: ITSM correlation FindingRecordId snapshot scoping (see Migrations/258_ItsmFindingCorrelations_FindingRecordId.sql) ---- */
+IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ItsmFindingCorrelations', N'FindingRecordId') IS NULL
+BEGIN
+    ALTER TABLE dbo.ItsmFindingCorrelations
+        ADD FindingRecordId UNIQUEIDENTIFIER NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ItsmFindingCorrelations', N'FindingRecordId') IS NOT NULL
+   AND OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.foreign_keys
+        WHERE name = N'FK_ItsmFindingCorrelations_FindingRecords'
+          AND parent_object_id = OBJECT_ID(N'dbo.ItsmFindingCorrelations'))
+BEGIN
+    ALTER TABLE dbo.ItsmFindingCorrelations
+        ADD CONSTRAINT FK_ItsmFindingCorrelations_FindingRecords
+            FOREIGN KEY (FindingRecordId) REFERENCES dbo.FindingRecords (FindingRecordId)
+            ON DELETE SET NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ItsmFindingCorrelations', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sys.key_constraints
+        WHERE name = N'UQ_ItsmFindingCorrelations_Provider_ExternalKey'
+          AND parent_object_id = OBJECT_ID(N'dbo.ItsmFindingCorrelations'))
+    BEGIN
+        ALTER TABLE dbo.ItsmFindingCorrelations
+            DROP CONSTRAINT UQ_ItsmFindingCorrelations_Provider_ExternalKey;
+    END;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.key_constraints
+        WHERE name = N'UQ_ItsmFindingCorrelations_Tenant_Provider_ExternalKey'
+          AND parent_object_id = OBJECT_ID(N'dbo.ItsmFindingCorrelations'))
+    BEGIN
+        ALTER TABLE dbo.ItsmFindingCorrelations
+            ADD CONSTRAINT UQ_ItsmFindingCorrelations_Tenant_Provider_ExternalKey
+                UNIQUE (TenantId, Provider, ExternalKey);
+    END;
 END;
 GO
 

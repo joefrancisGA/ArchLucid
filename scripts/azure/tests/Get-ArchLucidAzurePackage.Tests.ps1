@@ -114,6 +114,9 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
                 $manifest.schemaVersion | Should -Be 1
                 $manifest.subscriptionId | Should -Be 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
                 [string]::IsNullOrWhiteSpace($( $manifest.scriptVersion )) | Should -Be $false
+                $manifest.extractionTelemetry | Should -Not -BeNullOrEmpty
+                $manifest.extractionTelemetry.steps | Should -Not -BeNullOrEmpty
+                ($manifest.extractionTelemetry.steps | Where-Object { $_.name -eq 'Inventory' }).Count | Should -Be 1
 
                 [object[]]$resources = @(Get-Content -LiteralPath $resourcesPath -Raw -Encoding Utf8 | ConvertFrom-Json)
 

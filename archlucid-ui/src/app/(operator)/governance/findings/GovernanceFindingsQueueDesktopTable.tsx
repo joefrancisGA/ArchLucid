@@ -24,6 +24,7 @@ import {
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
@@ -319,7 +320,15 @@ export function GovernanceFindingsQueueDesktopTable(
                       </Link>
                     </Button>
                     {!buyerPolishedShell && row.recordKind === "finding" ? (
-                      <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                      <>
+                        <CopyGovernanceQueueWorkItemButton
+                          runId={row.runId}
+                          findingId={row.findingId}
+                          findingTitle={row.title}
+                          compact
+                        />
+                        <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                      </>
                     ) : null}
                   </div>
                 </EnterpriseTableCell>

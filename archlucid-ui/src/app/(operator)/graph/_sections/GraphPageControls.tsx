@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import {
   BUYER_EVIDENCE_TRAIL_LOAD_BUTTON,
   BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
+  BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT,
+  BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER,
   BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
   BUYER_EVIDENCE_TRAIL_VIEW_GRAPH,
   BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
@@ -36,6 +38,7 @@ export type GraphPageControlsProps = {
   nodeId: string;
   presentationView?: EvidenceTrailPresentationView;
   onPresentationViewChange?: (view: EvidenceTrailPresentationView) => void;
+  onReviewsListAvailabilityChange?: (state: { loadError: boolean }) => void;
 };
 
 export function GraphPageControls(props: GraphPageControlsProps) {
@@ -55,6 +58,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
     nodeId,
     presentationView = "trace",
     onPresentationViewChange,
+    onReviewsListAvailabilityChange,
   } = props;
 
   const runTrim = runId.trim();
@@ -74,37 +78,46 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               fieldId="graph-run"
               label="Review"
               committedOnly
+              reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}
+              reviewsLoadErrorHint={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT}
+              onListAvailabilityChange={onReviewsListAvailabilityChange}
             />
           </div>
-          <div className="flex flex-wrap gap-2">
-            {showLoadButton ? (
-              <Button
-                type="button"
-                variant="primary"
-                disabled={
-                  loading ||
-                  runTrim.length === 0 ||
-                  (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
-                  (mode === "node-neighborhood" && nodeId.trim().length === 0)
-                }
-                onClick={() => void onLoadGraph()}
-              >
-                {loading ? "Loading…" : BUYER_EVIDENCE_TRAIL_LOAD_BUTTON}
-              </Button>
-            ) : null}
-            <Button type="button" variant="outline" asChild>
-              <Link href={sampleTrailHref}>{BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON}</Link>
+          {presentationView === "graph" ? (
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Graph mode">
+              {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
+                <Button
+                  key={option.mode}
+                  type="button"
+                  size="sm"
+                  variant={mode === option.mode ? "primary" : "outline"}
+                  aria-pressed={mode === option.mode}
+                  title={GRAPH_MODE_NATIVE_TITLES[option.mode]}
+                  onClick={() => onModeChange(option.mode)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+          {showLoadButton ? (
+            <Button
+              type="button"
+              variant="primary"
+              disabled={
+                loading ||
+                runTrim.length === 0 ||
+                (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
+                (mode === "node-neighborhood" && nodeId.trim().length === 0)
+              }
+              onClick={() => void onLoadGraph()}
+            >
+              {loading ? "Loading…" : BUYER_EVIDENCE_TRAIL_LOAD_BUTTON}
             </Button>
-            <Button type="button" variant="outline" asChild>
-              <Link href={reviewPackageHref}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
-            </Button>
-          </div>
+          ) : null}
         </div>
 
-        <div className="space-y-2">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-            View
-          </p>
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Evidence graph view">
             <Button
               type="button"
@@ -125,30 +138,13 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               {BUYER_EVIDENCE_TRAIL_VIEW_GRAPH}
             </Button>
           </div>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <Link href={sampleTrailHref}>{BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON}</Link>
+          </Button>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <Link href={reviewPackageHref}>{BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE}</Link>
+          </Button>
         </div>
-
-        {presentationView === "graph" ? (
-          <div className="space-y-2">
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              Graph mode
-            </p>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Graph mode">
-              {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
-                <Button
-                  key={option.mode}
-                  type="button"
-                  size="sm"
-                  variant={mode === option.mode ? "primary" : "outline"}
-                  aria-pressed={mode === option.mode}
-                  title={GRAPH_MODE_NATIVE_TITLES[option.mode]}
-                  onClick={() => onModeChange(option.mode)}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </div>
     );
   }
