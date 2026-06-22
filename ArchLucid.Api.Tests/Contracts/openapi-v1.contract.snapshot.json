@@ -10350,6 +10350,12 @@
               "string"
             ]
           },
+          "externalTrackingSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "externalUrl": {
             "type": [
               "null",
@@ -10458,6 +10464,9 @@
           },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "trackedExternally": {
+            "type": "boolean"
           },
           "typedPayload": {
             "oneOf": [
@@ -19877,6 +19886,12 @@
               "string"
             ]
           },
+          "externalTrackingSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "externalUrl": {
             "type": [
               "null",
@@ -19941,6 +19956,9 @@
           },
           "title": {
             "type": "string"
+          },
+          "trackedExternally": {
+            "type": "boolean"
           }
         },
         "type": "object"

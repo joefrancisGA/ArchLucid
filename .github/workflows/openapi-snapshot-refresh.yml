@@ -165,4 +165,5 @@ jobs:
           fi
 
           git commit -m "chore: refresh OpenAPI v1 contract snapshot"
+          git pull --rebase origin "${PUSH_REF}"
           git push origin "HEAD:${PUSH_REF}"
