@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { useGovernanceMode } from "@/hooks/use-governance-mode";
 
 type RunDetailBreadcrumbProps = {
   readonly headline: string;
@@ -6,6 +10,7 @@ type RunDetailBreadcrumbProps = {
 
 export function RunDetailBreadcrumb(props: RunDetailBreadcrumbProps) {
   const { headline } = props;
+  const { vocabulary } = useGovernanceMode();
 
   return (
     <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -14,12 +19,13 @@ export function RunDetailBreadcrumb(props: RunDetailBreadcrumbProps) {
       </Link>
       {" · "}
       <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
-        Reviews
+        {vocabulary.reviewPlural}
       </Link>
       {" · "}
       <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
         {headline}
       </span>
+      <span className="sr-only">{` — ${vocabulary.reviewDetailTitle}`}</span>
     </nav>
   );
 }

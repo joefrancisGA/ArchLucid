@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,32 @@ type RunDetailSectionNavProps = {
  * Sticky anchor navigation for long run detail pages; highlights the section in view via IntersectionObserver.
  */
 export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
-  const visible = useMemo(() => sections.filter((s) => s.available), [sections]);
+  const { isGovernanceModeEnabled, vocabulary } = useGovernanceMode();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const normalizedSections = useMemo(() => {
+    return sections
+      .filter((section) => {
+        if (section.id === "authority-chain" && !isGovernanceModeEnabled) {
+          return false;
+        }
+
+        return section.available;
+      })
+      .map((section) => {
+        if (section.id === "authority-chain") {
+          return { ...section, label: vocabulary.authorityChainLabel };
+        }
+
+        if (section.id === "manifest-summary" && !buyerPolishedShell) {
+          return { ...section, label: vocabulary.manifestSummaryHeading };
+        }
+
+        return section;
+      });
+  }, [sections, isGovernanceModeEnabled, vocabulary, buyerPolishedShell]);
+
+  const visible = normalizedSections;
   const [activeId, setActiveId] = useState<string | null>(visible[0]?.id ?? null);
 
   useEffect(() => {

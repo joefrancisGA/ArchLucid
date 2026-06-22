@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -5,6 +7,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
@@ -17,21 +20,23 @@ type RunDetailAuthorityChainSectionProps = {
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
+  const { vocabulary } = useGovernanceMode();
+  const manifestLabel = vocabulary.goldenManifestLabel;
 
   return (
     <section id="authority-chain" className="scroll-mt-24">
       <Card>
         <CardHeader>
-          <h3 className={runDetailSectionHeadingClass}>Review trail</h3>
+          <h3 className={runDetailSectionHeadingClass}>{vocabulary.authorityChainLabel}</h3>
           <CardDescription>
-            The signed review record anchors the authoritative decision. Recent pipeline milestones summarize how snapshots
-            converged toward finalization.
+            The {manifestLabel.toLowerCase()} anchors the authoritative decision. Recent pipeline milestones summarize how
+            snapshots converged toward finalization.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
             <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-              <GlossaryTooltip termKey="golden_manifest">Signed review record</GlossaryTooltip>
+              <GlossaryTooltip termKey="golden_manifest">{manifestLabel}</GlossaryTooltip>
             </p>
             <div className="mt-2 min-w-0">
               {manifestId ? (

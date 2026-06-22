@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import dynamic from "next/dynamic";
 
+import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
@@ -90,19 +91,21 @@ export async function RunDetailBelowFoldSections(
         />
       ) : null}
 
-      {!m.buyerPolishedArtifactTable ? (
+      <GovernanceModePresentationGate>
         <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
-      ) : null}
+      </GovernanceModePresentationGate>
 
-      {!m.buyerPolishedArtifactTable && m.resolvedDetail.run.operatorGovernanceDecision ? (
-        <GovernanceApprovalAttestationBlock
-          decision={m.resolvedDetail.run.operatorGovernanceDecision}
-          approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
-          decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
-          rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
-          runId={m.resolvedDetail.run.runId}
-        />
-      ) : null}
+      <GovernanceModePresentationGate>
+        {m.resolvedDetail.run.operatorGovernanceDecision ? (
+          <GovernanceApprovalAttestationBlock
+            decision={m.resolvedDetail.run.operatorGovernanceDecision}
+            approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
+            decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
+            rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
+            runId={m.resolvedDetail.run.runId}
+          />
+        ) : null}
+      </GovernanceModePresentationGate>
 
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailProvenanceSummaryCard

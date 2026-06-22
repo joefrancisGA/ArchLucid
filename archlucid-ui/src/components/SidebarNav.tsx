@@ -4,16 +4,13 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 
+import { GovernanceModeToggle } from "@/components/GovernanceModeToggle";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { SidebarNavLayoutSettingsPanel } from "@/components/sidebar-nav/SidebarNavLayoutSettingsPanel";
-import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
-import { NAV_GROUPS } from "@/lib/nav-config";
-import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
-import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
   isOperatorDemoStaticMode,
@@ -40,15 +37,16 @@ export function SidebarNav() {
   const [mounted, setMounted] = useState(false);
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const { expansion, toggleGroupExpanded } = useSidebarNavGroupExpansion();
-  const callerAuthorityRank = useNavCallerAuthorityRank();
-  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase } =
+    useOperatorShellNavRows();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
-  const demoUi = runtimeDemoUi;
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const resolvedDemoUi = runtimeDemoUi;
   const showSidebarCustomizationChrome =
-    !demoUi && !buyerPolishedShell && V1_SIDEBAR_CUSTOMIZATION_VISIBLE;
+    !resolvedDemoUi && !buyerPolishedShell && V1_SIDEBAR_CUSTOMIZATION_VISIBLE;
+  const navExpanded = true;
+  const navAdvanced = true;
 
   useLayoutEffect(() => {
     setMounted(true);
@@ -68,41 +66,6 @@ export function SidebarNav() {
       window.removeEventListener("storage", refreshRuntimeDemoState);
     };
   }, [demoUiEnv]);
-
-  const omitAdminClusters = demoUi && !buyerPolishedShell;
-  const navExpanded = true;
-  const navAdvanced = true;
-  const effectiveOperateUnlockPhase = 2 as const;
-  // Buyer-polished shell exposes the full grouped catalog (collapsed) even before the first committed review,
-  // so the first-commit funnel gate does not strip Analysis / Governance / Operations for new buyers.
-  const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
-
-  const reviewNavRows = listNavGroupsVisibleInOperatorShell(
-    NAV_GROUPS,
-    navExpanded,
-    navAdvanced,
-    callerAuthorityRank,
-    false,
-    "review-workflow",
-    effectiveHasCommittedArchitectureReview,
-    effectiveOperateUnlockPhase,
-  );
-
-  const adminNavRows: NavGroupWithVisibleLinks[] =
-    omitAdminClusters
-      ? []
-      : listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          navExpanded,
-          navAdvanced,
-          callerAuthorityRank,
-          false,
-          "platform-admin",
-          effectiveHasCommittedArchitectureReview,
-          effectiveOperateUnlockPhase,
-        );
-
-  const allRows = [...reviewNavRows, ...adminNavRows];
 
   return (
     <div className="flex min-h-0 flex-col gap-0 pb-2">
@@ -135,6 +98,10 @@ export function SidebarNav() {
           />
         );
       })}
+
+      <div className="mt-2 border-t border-neutral-200 px-2 pt-2 dark:border-neutral-700">
+        <GovernanceModeToggle />
+      </div>
 
       <SidebarNavLayoutSettingsPanel
         showSidebarCustomizationChrome={showSidebarCustomizationChrome}

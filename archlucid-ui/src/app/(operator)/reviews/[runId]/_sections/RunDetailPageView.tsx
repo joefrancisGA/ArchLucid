@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { GovernanceModePresentationGate } from "@/components/GovernanceModePresentationGate";
 import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -108,13 +109,15 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       : null;
 
   const governanceAlertsEl = (
-    <>
-      <RunDetailGovernanceAlerts
-        run={m.resolvedDetail.run}
-        hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-      />
-      <RunDetailDeferredScopeNoticeClient />
-    </>
+    <GovernanceModePresentationGate>
+      <>
+        <RunDetailGovernanceAlerts
+          run={m.resolvedDetail.run}
+          hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+        />
+        <RunDetailDeferredScopeNoticeClient />
+      </>
+    </GovernanceModePresentationGate>
   );
 
   const outcomeCardsEl = (

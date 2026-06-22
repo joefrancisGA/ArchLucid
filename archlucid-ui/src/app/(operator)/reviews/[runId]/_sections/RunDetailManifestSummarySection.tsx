@@ -6,7 +6,6 @@ import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -14,7 +13,7 @@ import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import type { ManifestSummary } from "@/types/authority";
 
 import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
-import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
+import { RunDetailManifestSummaryHeading } from "./RunDetailManifestSummaryHeading";
 
 type RunDetailManifestSummarySectionProps = {
   readonly manifestSummary: ManifestSummary;
@@ -31,15 +30,7 @@ export function RunDetailManifestSummarySection(
     <section id="manifest-summary" className="scroll-mt-24 space-y-4">
       <Card>
         <CardHeader>
-          <h3 className={runDetailSectionHeadingClass}>
-            {buyerPolishedShell ? (
-              <>Finalized decision record</>
-            ) : (
-              <>
-                Review package summary (<GlossaryTooltip termKey="architecture_manifest">review record</GlossaryTooltip>)
-              </>
-            )}
-          </h3>
+          <RunDetailManifestSummaryHeading buyerPolishedShell={buyerPolishedShell} />
         </CardHeader>
         <CardContent className="space-y-4">
           {manifestSummary.operatorSummary ? (
