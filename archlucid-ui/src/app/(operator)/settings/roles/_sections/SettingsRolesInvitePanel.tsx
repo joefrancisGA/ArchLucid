@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
@@ -85,7 +86,7 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry }: Prop
             <a href="/admin/health">System health</a>
           </Button>
           <Button type="button" variant="ghost" size="sm" asChild>
-            <a href="/help/troubleshooting">Open troubleshooting</a>
+            <Link href="/help/troubleshooting">Open troubleshooting</Link>
           </Button>
         </div>
       </div>
