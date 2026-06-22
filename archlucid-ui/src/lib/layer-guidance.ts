@@ -76,8 +76,8 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   graph: {
     layerBadge: "Advanced operations",
-    headline: "Answers: how does provenance or architecture look for this review?",
-    useWhen: "Use when tables and compare are not enough and you need a visual exploration.",
+    headline: "Trace review evidence from inputs to findings, decisions, and audit events.",
+    useWhen: "Select a finalized review, choose a graph mode, and load the graph to inspect provenance.",
     firstPilotNote:
       "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
@@ -247,10 +247,11 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     enterpriseFootnote: "Configuration tabs appear when your role allows.",
   },
   graph: {
-    layerBadge: "How this graph helps",
+    layerBadge: "Evidence graph",
     headline:
-      "Use the evidence graph when stakeholders need a visual trace from architecture inputs to findings, decisions, and the finalized review package.",
-    useWhen: "Pick a committed review package, explore provenance links, and open related findings when you need to show the trust story.",
+      "Use this page to trace review evidence — see how architecture inputs, pipeline steps, findings, decisions, and audit events connect for a finalized review.",
+    useWhen:
+      "Select a review, choose a graph mode, load the graph, then inspect provenance links and open related findings.",
     firstPilotNote: null,
   },
   compare: {

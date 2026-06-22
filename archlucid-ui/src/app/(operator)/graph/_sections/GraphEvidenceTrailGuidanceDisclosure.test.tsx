@@ -9,9 +9,8 @@ describe("GraphEvidenceTrailGuidanceDisclosure", () => {
 
     const disclosure = screen.getByTestId("evidence-trail-guidance-disclosure");
 
-    expect(disclosure.textContent ?? "").toContain("How this graph helps");
-    expect(disclosure.textContent ?? "").toContain("Review package · Evidence · Trace");
-    expect(disclosure.textContent ?? "").toContain("finalized review package");
+    expect(disclosure.textContent ?? "").toContain("What is the evidence graph?");
+    expect(disclosure.textContent ?? "").toContain("trace review evidence");
     expect(disclosure.textContent ?? "").not.toMatch(/\bmanifest\b/i);
     expect(disclosure.textContent ?? "").not.toContain("Advanced operations");
   });

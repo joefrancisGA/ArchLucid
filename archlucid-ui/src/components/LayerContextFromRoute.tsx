@@ -23,11 +23,11 @@ export function LayerContextFromRoute() {
   const searchRunIdFromUrl =
     pathname.startsWith("/search") ? (searchParams.get("runId")?.trim() ?? "") : "";
   const queryRunId = searchParams.get("runId")?.trim() ?? "";
-  const buyerRouteOrientation = buyerPolishedShell
-    ? buyerPolishedRouteOrientation(pathname, {
-        searchRunId: searchRunIdFromUrl.length > 0 ? searchRunIdFromUrl : undefined,
-      })
-    : null;
+  const resolvedRouteOrientation = buyerPolishedRouteOrientation(pathname, {
+    searchRunId: searchRunIdFromUrl.length > 0 ? searchRunIdFromUrl : undefined,
+  });
+  const buyerRouteOrientation =
+    buyerPolishedShell || pathname.startsWith("/graph") ? resolvedRouteOrientation : null;
   const buyerOperateBackLinkRaw = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
   const buyerOperateBackLink =
     buyerOperateBackLinkRaw !== null && isBuyerOperateBackLinkRedundantWithBreadcrumbs(queryRunId, buyerOperateBackLinkRaw)

@@ -1,7 +1,10 @@
 "use client";
 
-import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
-import { BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE,
+  BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD,
+  BUYER_GRAPH_WHAT_THIS_PROVES,
+} from "@/lib/buyer-polish-copy";
 import { mergeLayerGuidanceForBuyerDemoShell } from "@/lib/layer-guidance";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { cn } from "@/lib/utils";
@@ -10,7 +13,7 @@ export type GraphEvidenceTrailGuidanceDisclosureProps = {
   className?: string;
 };
 
-/** Collapses pilot-layer guidance so the evidence graph page leads with action, not doctrine. */
+/** Collapses long graph explanation so the page leads with selection and load actions. */
 export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGuidanceDisclosureProps) {
   const surface = useNavSurface("graph");
   const block = mergeLayerGuidanceForBuyerDemoShell("graph", surface.layerGuidance, true);
@@ -26,16 +29,10 @@ export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGu
       <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
         {BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE}
       </summary>
-      <div className="space-y-1.5 border-t border-neutral-200 px-3 py-2 text-xs leading-snug text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
-        <p className="m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
-          {block.layerBadge}
-        </p>
-        <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">{block.headline}</p>
+      <div className="space-y-2 border-t border-neutral-200 px-3 py-2 text-sm leading-relaxed text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+        <p className="m-0">{BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD}</p>
         <p className="m-0">{block.useWhen}</p>
-        <p className="m-0 text-neutral-500 dark:text-neutral-500">
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Review package · Evidence · Trace:</span>{" "}
-          {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
-        </p>
+        <p className="m-0 text-neutral-600 dark:text-neutral-400">{BUYER_GRAPH_WHAT_THIS_PROVES}</p>
       </div>
     </details>
   );

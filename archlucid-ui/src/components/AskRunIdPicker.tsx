@@ -45,6 +45,12 @@ export type AskRunIdPickerProps = {
   readonly disabled?: boolean;
   /** Stable DOM id suffix so multiple pickers avoid duplicate ids (defaults to primary run field). */
   readonly fieldId?: string;
+  /** Overrides the disabled-select placeholder when the reviews list cannot be loaded. */
+  readonly reviewsLoadErrorPlaceholder?: string;
+  /** Overrides the helper line shown under the picker when the reviews list cannot be loaded. */
+  readonly reviewsLoadErrorHint?: string;
+  /** Notifies parents when list availability changes — avoids duplicate downstream error surfaces. */
+  readonly onListAvailabilityChange?: (state: { loadError: boolean }) => void;
 };
 
 /**
@@ -61,6 +67,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     fieldId,
     disabled = false,
     committedOnly = false,
+    reviewsLoadErrorPlaceholder,
+    reviewsLoadErrorHint,
+    onListAvailabilityChange,
   } = props;
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +78,12 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const labelText = label ?? "Review";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
   const selectControlId = `${controlIdPrefix}-select`;
+  const reviewsUnavailablePlaceholder = reviewsLoadErrorPlaceholder ?? "Reviews could not be loaded";
+  const reviewsUnavailableHint = reviewsLoadErrorHint ?? "Check workspace setup or retry.";
+
+  useEffect(() => {
+    onListAvailabilityChange?.({ loadError });
+  }, [loadError, onListAvailabilityChange]);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,12 +238,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="Reviews list unavailable" />
+            <SelectValue placeholder={reviewsUnavailablePlaceholder} />
           </SelectTrigger>
         </Select>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          The review list could not be loaded — open an existing conversation from the left, or try again shortly.
-        </p>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{reviewsUnavailableHint}</p>
       </div>
     );
   }
