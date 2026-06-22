@@ -29,6 +29,22 @@ public interface IItsmFindingCorrelationRepository
         string? externalSysId,
         CancellationToken ct);
 
+    Task<ItsmFindingCorrelationUpdateResult> UpdateExternalTrackingAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        string provider,
+        string externalKey,
+        string? externalSysId,
+        CancellationToken ct);
+
+    Task<ItsmFindingCorrelationRecord?> RemoveByFindingAndProviderAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct);
+
     Task<int> UpdateHumanReviewStatusForFindingAsync(
         Guid tenantId,
         string findingId,

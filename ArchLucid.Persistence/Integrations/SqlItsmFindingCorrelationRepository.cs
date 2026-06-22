@@ -55,6 +55,38 @@ public sealed class SqlItsmFindingCorrelationRepository(
             ct);
 
     /// <inheritdoc />
+    public Task<ItsmFindingCorrelationUpdateResult> UpdateExternalTrackingAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        string provider,
+        string externalKey,
+        string? externalSysId,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => UpdateExternalTrackingCoreAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                findingId,
+                provider,
+                externalKey,
+                externalSysId,
+                cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task<ItsmFindingCorrelationRecord?> RemoveByFindingAndProviderAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => RemoveByFindingAndProviderCoreAsync(tenantId, findingId, provider, cancellationToken),
+            ct);
+
+    /// <inheritdoc />
     public Task<int> UpdateHumanReviewStatusForFindingAsync(
         Guid tenantId,
         string findingId,
@@ -173,6 +205,164 @@ public sealed class SqlItsmFindingCorrelationRepository(
             cancellationToken: ct);
 
         await connection.ExecuteAsync(cmd);
+    }
+
+    private async Task<ItsmFindingCorrelationUpdateResult> UpdateExternalTrackingCoreAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string findingId,
+        string provider,
+        string externalKey,
+        string? externalSysId,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentException("provider is required.", nameof(provider));
+        if (string.IsNullOrWhiteSpace(externalKey)) throw new ArgumentException("externalKey is required.", nameof(externalKey));
+
+        string trimmedFinding = findingId.Trim();
+        string trimmedProvider = provider.Trim();
+        string trimmedExternalKey = externalKey.Trim();
+        string? trimmedExternalSysId = string.IsNullOrWhiteSpace(externalSysId) ? null : externalSysId.Trim();
+
+        ItsmFindingCorrelationRecord? prior =
+            await TryGetByFindingAndProviderCoreAsync(tenantId, trimmedFinding, trimmedProvider, ct);
+
+        if (prior is null)
+            return ItsmFindingCorrelationUpdateResult.NotFound;
+
+        bool externalKeyChanged = !string.Equals(prior.ExternalKey, trimmedExternalKey, StringComparison.Ordinal);
+        bool externalSysIdChanged = !string.Equals(prior.ExternalSysId, trimmedExternalSysId, StringComparison.Ordinal);
+
+        if (!externalKeyChanged && !externalSysIdChanged)
+        {
+            return new ItsmFindingCorrelationUpdateResult
+            {
+                Status = ItsmFindingCorrelationUpdateStatus.Unchanged,
+                Prior = prior,
+                Current = prior
+            };
+        }
+
+        if (externalKeyChanged)
+        {
+            const string conflictSql = """
+                                       SELECT CASE WHEN EXISTS (
+                                           SELECT 1
+                                           FROM dbo.ItsmFindingCorrelations
+                                           WHERE TenantId = @TenantId
+                                             AND Provider = @Provider
+                                             AND ExternalKey = @ExternalKey
+                                             AND FindingId <> @FindingId
+                                       ) THEN 1 ELSE 0 END;
+                                       """;
+
+            await using SqlConnection conflictConnection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+            CommandDefinition conflictCmd = new(
+                conflictSql,
+                new
+                {
+                    TenantId = tenantId,
+                    Provider = trimmedProvider,
+                    ExternalKey = trimmedExternalKey,
+                    FindingId = trimmedFinding
+                },
+                cancellationToken: ct);
+
+            int conflict = await conflictConnection.ExecuteScalarAsync<int>(conflictCmd);
+
+            if (conflict != 0)
+                return ItsmFindingCorrelationUpdateResult.ExternalKeyConflict;
+        }
+
+        const string updateSql = """
+                                 UPDATE dbo.ItsmFindingCorrelations
+                                 SET WorkspaceId = @WorkspaceId,
+                                     ProjectId = @ProjectId,
+                                     ExternalKey = @ExternalKey,
+                                     ExternalSysId = @ExternalSysId
+                                 WHERE TenantId = @TenantId
+                                   AND FindingId = @FindingId
+                                   AND Provider = @Provider;
+                                 """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition updateCmd = new(
+            updateSql,
+            new
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                FindingId = trimmedFinding,
+                Provider = trimmedProvider,
+                ExternalKey = trimmedExternalKey,
+                ExternalSysId = trimmedExternalSysId
+            },
+            cancellationToken: ct);
+
+        await connection.ExecuteAsync(updateCmd);
+
+        ItsmFindingCorrelationRecord current = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            FindingId = trimmedFinding,
+            Provider = trimmedProvider,
+            ExternalKey = trimmedExternalKey,
+            ExternalSysId = trimmedExternalSysId,
+            CreatedUtc = prior.CreatedUtc
+        };
+
+        return new ItsmFindingCorrelationUpdateResult
+        {
+            Status = ItsmFindingCorrelationUpdateStatus.Updated,
+            Prior = prior,
+            Current = current
+        };
+    }
+
+    private async Task<ItsmFindingCorrelationRecord?> RemoveByFindingAndProviderCoreAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentException("provider is required.", nameof(provider));
+
+        string trimmedFinding = findingId.Trim();
+        string trimmedProvider = provider.Trim();
+
+        ItsmFindingCorrelationRecord? prior =
+            await TryGetByFindingAndProviderCoreAsync(tenantId, trimmedFinding, trimmedProvider, ct);
+
+        if (prior is null)
+            return null;
+
+        const string deleteSql = """
+                                 DELETE FROM dbo.ItsmFindingCorrelations
+                                 WHERE TenantId = @TenantId
+                                   AND FindingId = @FindingId
+                                   AND Provider = @Provider;
+                                 """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition deleteCmd = new(
+            deleteSql,
+            new { TenantId = tenantId, FindingId = trimmedFinding, Provider = trimmedProvider },
+            cancellationToken: ct);
+
+        await connection.ExecuteAsync(deleteCmd);
+
+        return prior;
     }
 
     private async Task<int> UpdateHumanReviewStatusForFindingCoreAsync(

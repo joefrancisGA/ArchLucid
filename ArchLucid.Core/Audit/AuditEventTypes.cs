@@ -803,6 +803,12 @@ public static class AuditEventTypes
     /// <summary>Operator registered a finding ↔ ITSM external key correlation for inbound webhooks.</summary>
     public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
 
+    /// <summary>Operator updated external tracking metadata on an existing finding ↔ ITSM correlation.</summary>
+    public const string IntegrationItsmFindingCorrelationUpdated = "Integration.ItsmFindingCorrelationUpdated";
+
+    /// <summary>Operator removed a finding ↔ ITSM external key correlation.</summary>
+    public const string IntegrationItsmFindingCorrelationRemoved = "Integration.ItsmFindingCorrelationRemoved";
+
     /// <summary>Operator recorded run-level approve / reject / request-remediation on <c>dbo.Runs</c> (TB-112).</summary>
     public const string RunOperatorGovernanceDispositionRecorded = "RunOperatorGovernanceDispositionRecorded";
 
