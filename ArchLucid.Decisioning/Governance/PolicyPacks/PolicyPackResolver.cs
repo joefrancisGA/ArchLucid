@@ -1,4 +1,6 @@
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -34,13 +36,24 @@ public sealed class PolicyPackResolver(
                 .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
             ;
 
+        bool focusedPilotMode = PilotModeGovernanceScope.IsActive;
+
         EffectivePolicyPackSet result = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
-        foreach (PolicyPackAssignment assignment in assignments.Where(x => x.IsEnabled))
+        foreach (PolicyPackAssignment assignment in assignments)
         {
+            if (!AppliesToScope(assignment, tenantId, workspaceId, projectId))
+                continue;
+
+            if (!focusedPilotMode && !assignment.IsEnabled)
+                continue;
+
             PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
 
             if (pack is null)
+                continue;
+
+            if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))
                 continue;
 
             PolicyPackVersion? version = await versionRepository
@@ -62,6 +75,24 @@ public sealed class PolicyPackResolver(
         }
 
         return result;
+    }
+
+    private static bool AppliesToScope(
+        PolicyPackAssignment assignment,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId)
+    {
+        if (assignment.TenantId != tenantId)
+            return false;
+
+        return assignment.ScopeLevel switch
+        {
+            GovernanceScopeLevel.Tenant => true,
+            GovernanceScopeLevel.Workspace => assignment.WorkspaceId == workspaceId,
+            GovernanceScopeLevel.Project => assignment.WorkspaceId == workspaceId && assignment.ProjectId == projectId,
+            _ => false,
+        };
     }
 }
 

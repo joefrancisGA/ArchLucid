@@ -7806,6 +7806,12 @@
           "freeTextIntent": {
             "type": "string"
           },
+          "focusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "parentDraftId": {
             "format": "uuid",
             "type": [
@@ -14643,6 +14649,12 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "focusedPilotModeEnabled": {
+            "type": [
+              "null",
+              "boolean"
             ]
           },
           "systemName": {

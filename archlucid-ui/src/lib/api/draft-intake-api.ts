@@ -45,6 +45,7 @@ export async function patchDraftRequest(
     systemName?: string;
     businessOutcome?: string;
     actorSet?: ActorSet;
+    focusedPilotModeEnabled?: boolean;
   },
 ): Promise<DraftRequestResponse> {
   return apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);

@@ -66032,6 +66032,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("freeTextIntent")]
         public string? FreeTextIntent { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("focusedPilotModeEnabled")]
+        public bool? FocusedPilotModeEnabled { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("parentDraftId")]
         public System.Guid? ParentDraftId { get; set; } = default!;
 
@@ -72879,6 +72882,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("freeTextIntent")]
         public string? FreeTextIntent { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("focusedPilotModeEnabled")]
+        public bool? FocusedPilotModeEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
         public string? SystemName { get; set; } = default!;

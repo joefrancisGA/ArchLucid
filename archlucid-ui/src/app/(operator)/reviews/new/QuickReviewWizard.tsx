@@ -10,8 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createArchitectureRun } from "@/lib/api";
-import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
+import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
@@ -33,6 +34,7 @@ import type { CtoDemoReviewExecutionMode } from "@/components/cto-demo/CtoDemoRe
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
@@ -72,6 +74,7 @@ function buildQuickReviewPayload(
   brief: string,
   titleTrimmed: string,
   requiredCapabilities: string[],
+  focusedPilotModeEnabled: boolean,
 ): CreateArchitectureRunRequestPayload {
   const systemName = titleTrimmed.trim().length >= 2 ? titleTrimmed.trim() : "Architecture review";
 
@@ -84,6 +87,7 @@ function buildQuickReviewPayload(
     constraints: [],
     requiredCapabilities,
     assumptions: [],
+    policyReferences: applyFocusedPilotModePolicyReferences([], focusedPilotModeEnabled),
   };
 }
 
@@ -134,6 +138,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   );
 
   const [step, setStep] = useState(0);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [briefText, setBriefText] = useState("");
   const [activeSampleBriefId, setActiveSampleBriefId] = useState<string | null>(null);
   const [runTitle, setRunTitle] = useState("");
@@ -302,6 +307,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
         briefText,
         runTitle.trim(),
         proofScopeToRequiredCapabilities(proofScope),
+        focusedPilotModeEnabled,
       );
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
@@ -321,7 +327,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
         return;
       }
 
-      router.push(`/reviews/${encodeURIComponent(id)}`);
+      router.push(buildReviewGenerationRedirect(id, "quick-review"));
     } catch (error: unknown) {
       setSubmitError(error);
 
@@ -446,6 +452,10 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 If empty, the review uses “{displaySystemName}” as the system name.
               </p>
             </div>
+            <PilotModePolicyPackToggle
+              enabled={focusedPilotModeEnabled}
+              onEnabledChange={setFocusedPilotModeEnabled}
+            />
             <QuickReviewAdvancedConfigAccordion
               open={advancedConfigExpanded}
               onOpenChange={setAdvancedConfigExpanded}

@@ -57,13 +57,18 @@ public sealed class EffectiveGovernanceResolver(
                     .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
                 ;
 
+            bool focusedPilotMode = Core.Governance.PolicyPacks.PilotModeGovernanceScope.IsActive;
+
             List<PolicyPackAssignment> applicable = assignments
-                .Where(x => x.IsEnabled)
                 .Where(x => AppliesToScope(x, tenantId, workspaceId, projectId))
+                .Where(x => focusedPilotMode || x.IsEnabled)
                 .ToList();
 
             List<ResolvedPackRow> resolvedPacks = [];
             List<string> skippedNotes = [];
+
+            if (focusedPilotMode)
+                skippedNotes.Add(GovernanceConstants.Notes.FocusedPilotModeActive);
 
             // Cache deserialized content per (packId, version) — the same version may appear
             // across multiple scope-level assignments and deserializing the same JSON repeatedly
@@ -79,6 +84,16 @@ public sealed class EffectiveGovernanceResolver(
                     skippedNotes.Add(
                         string.Format(
                             GovernanceConstants.Notes.SkippedPackNotFound,
+                            assignment.PolicyPackId));
+                    continue;
+                }
+
+                if (focusedPilotMode && !Core.Governance.PolicyPacks.FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))
+                {
+                    skippedNotes.Add(
+                        string.Format(
+                            GovernanceConstants.Notes.SkippedFocusedPilotPack,
+                            pack.Name,
                             assignment.PolicyPackId));
                     continue;
                 }

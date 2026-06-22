@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
@@ -27,6 +28,7 @@ import {
 } from "@/lib/api/draft-intake-api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
+import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
@@ -103,6 +105,7 @@ export function SocraticIntakeWizard() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [viewAllClarifications, setViewAllClarifications] = useState(false);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
 
   const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
   const activePendingQuestions = useMemo(
@@ -184,6 +187,7 @@ export function SocraticIntakeWizard() {
         businessOutcome: businessOutcome.trim(),
         systemName: systemName.trim() || undefined,
         actorSet: normalizeActorSetForAdmission(actorSet),
+        focusedPilotModeEnabled,
       });
 
       const admission = await admitDraftRequest(id);
@@ -210,7 +214,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [actorSet, businessOutcome, freeTextIntent, refreshQuestions, systemName]);
+  }, [actorSet, businessOutcome, focusedPilotModeEnabled, freeTextIntent, refreshQuestions, systemName]);
 
   const reviewAnswers = useCallback(async () => {
     if (draftId === null) {
@@ -309,7 +313,7 @@ export function SocraticIntakeWizard() {
       }
 
       showSuccess("Architecture review started from guided intake.");
-      router.push(`/reviews/${result.runId}`);
+      router.push(buildReviewGenerationRedirect(result.runId, "socratic-intake"));
     } catch (error) {
       setSubmitError(error);
       if (isApiRequestError(error)) {
@@ -422,6 +426,10 @@ export function SocraticIntakeWizard() {
               intentText={freeTextIntent}
               disabled={busy}
               onChange={setActorSet}
+            />
+            <PilotModePolicyPackToggle
+              enabled={focusedPilotModeEnabled}
+              onEnabledChange={setFocusedPilotModeEnabled}
             />
             <Button
               type="button"

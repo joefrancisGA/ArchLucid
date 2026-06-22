@@ -1,9 +1,11 @@
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type WizardCreateRunPayloadOptions = {
   requestSource?: "wizard";
   wizardPresetUsed?: string;
+  focusedPilotModeEnabled?: boolean;
 };
 
 /**
@@ -37,8 +39,14 @@ export function wizardValuesToCreateRunPayload(
     payload.inlineRequirements = inlineReq;
   }
 
-  if (values.policyReferences.length > 0) {
-    payload.policyReferences = values.policyReferences.map((s) => s.trim()).filter(Boolean);
+  const focusedPilotModeEnabled = options?.focusedPilotModeEnabled ?? true;
+  const policyReferences = applyFocusedPilotModePolicyReferences(
+    values.policyReferences,
+    focusedPilotModeEnabled,
+  );
+
+  if (policyReferences.length > 0) {
+    payload.policyReferences = policyReferences;
   }
 
   if (values.topologyHints.length > 0) {
