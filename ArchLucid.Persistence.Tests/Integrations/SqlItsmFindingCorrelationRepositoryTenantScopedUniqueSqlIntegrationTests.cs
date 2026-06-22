@@ -171,7 +171,9 @@ public sealed class SqlItsmFindingCorrelationRepositoryTenantScopedUniqueSqlInte
             maxRetryAttempts: 0,
             baseDelay: TimeSpan.FromMilliseconds(1));
 
-        BackgroundWorkerResilientSqlConnectionFactory workerFactory = new(connectionFactory, pipeline);
+        BackgroundWorkerResilientSqlConnectionFactory workerFactory = new(
+            new SqlConnectionFactory(connectionFactory.ConnectionString),
+            pipeline);
         SqlResilientOperationExecutor executor = new(pipeline);
 
         return new SqlItsmFindingCorrelationRepository(workerFactory, executor);

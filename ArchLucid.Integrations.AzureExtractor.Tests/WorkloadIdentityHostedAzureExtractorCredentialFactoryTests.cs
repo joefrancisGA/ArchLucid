@@ -7,6 +7,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using Xunit;
+
 namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 [Trait("Category", "Unit")]

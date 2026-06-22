@@ -28,9 +28,8 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
-    await expectExecutiveRoiPortfolioPanels(page);
-
     await exportReady;
+    await expectExecutiveRoiPortfolioPanels(page);
     await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "Business impact summary" })).toBeVisible();
   });
@@ -56,9 +55,9 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
     await expectExecutiveRoiExecutiveSurface(page);
+    await exportReady;
     await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 30_000 });
 
-    await exportReady;
     await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible();
   });
 

@@ -104,6 +104,8 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
     await scrollOperatorSidebarFooterIntoView(page);
+    await page.getByTestId("governance-mode-toggle").check();
+    await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
