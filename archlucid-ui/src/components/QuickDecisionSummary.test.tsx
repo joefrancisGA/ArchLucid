@@ -15,6 +15,10 @@ vi.mock("@/lib/api/itsm-outbound-api", () => ({
   createItsmOutboundIssue: vi.fn(),
 }));
 
+vi.mock("@/lib/use-itsm-native-create-enabled", () => ({
+  useItsmNativeCreateEnabled: () => true,
+}));
+
 expect.extend(toHaveNoViolations);
 
 describe("QuickDecisionSummary", () => {

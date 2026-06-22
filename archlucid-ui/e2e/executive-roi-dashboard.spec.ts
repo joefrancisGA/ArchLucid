@@ -38,10 +38,12 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
   test("export contract and UI reflect deduplicated findings across runs @executive-roi-dashboard", async ({
     page,
   }) => {
+    const exportReady = waitForExecutiveRoiExportResponse(page);
+
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
 
     await expectExecutiveRoiDashboardShell(page);
-    await expectExecutiveRoiFindingDeduplication(page);
+    await expectExecutiveRoiFindingDeduplication(page, await exportReady);
   });
 });
 
@@ -61,9 +63,11 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
   });
 
   test("systemic issue rollup matches deduplicated export rows @executive-roi-dashboard", async ({ page }) => {
+    const exportReady = waitForExecutiveRoiExportResponse(page);
+
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
 
     await expectExecutiveRoiExecutiveSurface(page);
-    await expectExecutiveRoiFindingDeduplication(page);
+    await expectExecutiveRoiFindingDeduplication(page, await exportReady);
   });
 });

@@ -48,15 +48,18 @@ export function expectedExecutiveRoiExportPayload(): ExecutiveRoiExportPayload {
 }
 
 /** Assert export contract and UI both reflect unique-identity dedupe across runs. */
-export async function expectExecutiveRoiFindingDeduplication(page: Page): Promise<void> {
-  const exportPayload = await waitForExecutiveRoiExportResponse(page);
+export async function expectExecutiveRoiFindingDeduplication(
+  page: Page,
+  exportPayload?: ExecutiveRoiExportPayload,
+): Promise<void> {
+  const resolvedExportPayload = exportPayload ?? (await waitForExecutiveRoiExportResponse(page));
   const expected = expectedExecutiveRoiExportPayload();
 
-  expect(exportPayload.rows?.length).toBe(expected.rows?.length);
-  expect(exportPayload.rows?.length).toBe(1);
-  expect(exportPayload.rows?.[0]?.findingId).toBe(EXECUTIVE_ROI_DEDUP_SCENARIO.sharedFindingId);
+  expect(resolvedExportPayload.rows?.length).toBe(expected.rows?.length);
+  expect(resolvedExportPayload.rows?.length).toBe(1);
+  expect(resolvedExportPayload.rows?.[0]?.findingId).toBe(EXECUTIVE_ROI_DEDUP_SCENARIO.sharedFindingId);
 
-  const productionSlice = exportPayload.savingsByEnvironment?.find(
+  const productionSlice = resolvedExportPayload.savingsByEnvironment?.find(
     (slice) => slice.environment === "production",
   );
 
