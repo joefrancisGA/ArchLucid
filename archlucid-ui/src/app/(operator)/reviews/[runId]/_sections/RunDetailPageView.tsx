@@ -49,6 +49,7 @@ import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSecti
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
+import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -297,6 +298,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {governanceAlertsEl}
+      <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
       {buyerFinalizedPackage ? null : outcomeCardsEl}
 
       {!m.buyerPolishedArtifactTable ? (
