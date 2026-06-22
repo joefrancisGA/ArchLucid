@@ -21,7 +21,7 @@ import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
 } from "@/lib/oidc/oauth-callback-messages";
-import { consumePkceState, persistTokenResponse } from "@/lib/oidc/session";
+import { consumePkceState, persistTokenResponse, consumePostSignInReturnUrl } from "@/lib/oidc/session";
 import { clearLastRegistrationPayload } from "@/lib/registration-session";
 
 /** Matches `SignInClient` — token exchange can be slow on cold IdP or corporate proxies. */
@@ -155,7 +155,10 @@ export function CallbackClient() {
 
         clearLastRegistrationPayload();
         persistTokenResponse(tokens);
-        window.location.replace("/");
+
+        const returnUrl = consumePostSignInReturnUrl();
+
+        window.location.replace(returnUrl ?? "/");
       } catch (e) {
         clearSlowHintTimer();
 

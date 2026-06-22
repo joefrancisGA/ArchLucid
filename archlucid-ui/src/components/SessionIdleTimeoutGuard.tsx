@@ -20,7 +20,10 @@ export function SessionIdleTimeoutGuard() {
 
       timerRef.current = window.setTimeout(() => {
         sessionStorage.setItem(SESSION_STORAGE_KEY, new Date().toISOString());
-        router.push("/login?reason=idle-timeout");
+
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+
+        router.push(`/auth/signin?reason=idle-timeout&returnUrl=${returnUrl}`);
         router.refresh();
       }, IDLE_MS);
     };
