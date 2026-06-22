@@ -280,13 +280,10 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         : "—";
 
       const ruleHint = (t.ruleId ?? "").trim();
-      const systemName = (run.systemName ?? "").trim();
       const runLabel =
         (run.description ?? "").trim().length > 0
           ? (run.description ?? "").trim()
-          : systemName.length > 0
-            ? systemName
-            : run.runId;
+          : run.runId;
 
       return {
         runId: run.runId,
@@ -307,7 +304,6 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
           typeof t.evidenceRefCount === "number" && Number.isFinite(t.evidenceRefCount)
             ? Math.trunc(t.evidenceRefCount)
             : null,
-        systemName: systemName.length > 0 ? systemName : null,
       };
     });
 }
