@@ -380,13 +380,13 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ## 6p. Azure extractor — ArchLucid-hosted automated Tier-2 continuous polling (**V1.x / post-V1 GA**) (architecture decision 2026-05-23)
 
-**V1 GA posture:** Tier 1 (customer-run PowerShell ZIP upload) is the V1 GA contract per [V1_SCOPE.md](V1_SCOPE.md) **§2.16**. **On-demand** Tier 2 hosted collection (`POST /v1/admin/azure-extractor/hosted/run`) may ship before automated polling. **Automated** background polling via `AzureExtractorAutoPullHostedService` is **scaffold-only** in V1 GA (`AzureExtractor:AutoPull:Enabled=false` default).
+**V1 GA posture:** Tier 1 (customer-run PowerShell ZIP upload) is the V1 GA contract per [V1_SCOPE.md](V1_SCOPE.md) **§2.16**. **On-demand** Tier 2 hosted collection (`POST /v1/admin/azure-extractor/hosted/run`) and **leader-elected auto-pull** (`AzureExtractorAutoPullHostedService` → ingest pipeline) **ship in V1 GA** when operators enable `HostedAzureExtractor:Enabled` and `AzureExtractor:AutoPull:Enabled` (default `false`).
 
-**Deferred:** Full productization of leader-elected continuous polling (ARM/cost ingest on cadence, review-run association, operational runbooks).
+**Deferred (V1.x):** ArchLucid-hosted Cost Management merge on the GET-only ARM path; operational runbooks for fleet-scale auto-pull cadence tuning.
 
 | Item | V1 GA posture | When promoted |
 |------|---------------|---------------|
-| **`AzureExtractorAutoPullHostedService` continuous pull** | **Scaffold only** — pacing loop + discovery logging; ingest not wired. | **V1.x** after hosted Tier 2 on-demand path is stable. |
+| **`AzureExtractorAutoPullHostedService` continuous pull** | **Shipped** — WIF collection + ingest via `HostedAzureExtractorRunService`; leader-elected loop; per-subscription lock. Default **off** (`AzureExtractor:AutoPull:Enabled=false`). | **V1.x** for hosted cost merge + ops hardening. |
 
 **Architecture pattern (resolved):**
 

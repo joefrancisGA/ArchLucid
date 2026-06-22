@@ -54,7 +54,7 @@ Audit: `Integration.HostedAzureExtractorConfigured` on configure.
 
 ### Automated continuous pull (V1.x — ArchLucid-hosted)
 
-**V1 GA** ships Tier 1 upload and optional **on-demand** hosted collection (`POST /v1/admin/azure-extractor/hosted/run`). **Leader-elected background polling** (`AzureExtractorAutoPullHostedService`) is a **scaffold** until ARM/cost ingest is wired — see [V1_DEFERRED.md §6p](V1_DEFERRED.md).
+**V1 GA** ships Tier 1 upload, **on-demand** hosted collection (`POST /v1/admin/azure-extractor/hosted/run`), and **leader-elected background polling** (`AzureExtractorAutoPullHostedService` → `AzureExtractorAutoPullOrchestrator` → `HostedAzureExtractorRunService` → ingest pipeline). Polling is **off by default** (`AzureExtractor:AutoPull:Enabled=false`); hosted collection also requires `HostedAzureExtractor:Enabled=true`. See [V1_DEFERRED.md §6p](V1_DEFERRED.md) for V1.x hardening notes.
 
 **Approved architecture pattern (resolved 2026-05-23):**
 
