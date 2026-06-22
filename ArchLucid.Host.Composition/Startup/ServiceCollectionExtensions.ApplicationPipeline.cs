@@ -343,6 +343,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();
+        services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(
             configuration.GetSection(GenerateRunSummaryOptions.SectionPath));
         services.AddScoped<IRunSummaryOnePagerExportService, RunSummaryOnePagerExportService>();

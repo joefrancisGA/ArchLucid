@@ -50,6 +50,7 @@ import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBa
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
 import { RunDetailExecutiveBottomLine } from "./RunDetailExecutiveBottomLine";
+import { RunDetailHolisticCriticPanel } from "./RunDetailHolisticCriticPanel";
 import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import { RunDetailBelowFoldSections } from "./RunDetailBelowFoldSections";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
@@ -299,6 +300,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {governanceAlertsEl}
       <RunDetailExecutiveBottomLine explanationSummary={m.explanationSummary} />
+      <RunDetailHolisticCriticPanel
+        runId={m.resolvedDetail.run.runId}
+        hasGoldenManifest={Boolean(m.manifestId)}
+      />
       {buyerFinalizedPackage ? null : outcomeCardsEl}
 
       {!m.buyerPolishedArtifactTable ? (

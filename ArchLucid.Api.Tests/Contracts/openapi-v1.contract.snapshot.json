@@ -7714,6 +7714,26 @@
         },
         "type": "object"
       },
+      "HolisticCriticRequest": {
+        "properties": {
+          "focus": {
+            "maxLength": 500,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "HolisticCriticResponse": {
+        "properties": {
+          "critiqueMarkdown": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "DraftQuestionsResponse": {
         "properties": {
           "draftId": {
@@ -48735,6 +48755,63 @@
           "Explanation"
         ],
         "x-archlucid-audience": "buyer"
+      }
+    },
+    "/v1/explain/runs/{runId}/holistic-critic": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/HolisticCriticRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HolisticCriticResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Explanation"
+        ],
+        "x-archlucid-audience": "operator"
       }
     },
     "/v1/explain/runs/{runId}/explain": {

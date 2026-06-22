@@ -8,7 +8,6 @@ import {
   useMemo,
   useState,
   type Dispatch,
-  type ReactNode,
   type SetStateAction,
 } from "react";
 
@@ -18,17 +17,16 @@ import {
 } from "@/lib/governance-mode-storage";
 import { governanceModeVocabulary, type GovernanceModeVocabulary } from "@/lib/governance-mode-vocabulary";
 
-type GovernanceModeContextValue = {
+export type GovernanceModeContextValue = {
   mounted: boolean;
   isGovernanceModeEnabled: boolean;
   setGovernanceModeEnabled: Dispatch<SetStateAction<boolean>>;
   vocabulary: GovernanceModeVocabulary;
 };
 
-const GovernanceModeContext = createContext<GovernanceModeContextValue | null>(null);
+export const GovernanceModeContext = createContext<GovernanceModeContextValue | null>(null);
 
-export function GovernanceModeProvider(props: { readonly children: ReactNode }) {
-  const { children } = props;
+export function useGovernanceModeState(): GovernanceModeContextValue {
   const [mounted, setMounted] = useState(false);
   const [isGovernanceModeEnabled, setGovernanceModeEnabledState] = useState(false);
 
@@ -52,7 +50,7 @@ export function GovernanceModeProvider(props: { readonly children: ReactNode }) 
     [isGovernanceModeEnabled],
   );
 
-  const value = useMemo(
+  return useMemo(
     () => ({
       mounted,
       isGovernanceModeEnabled,
@@ -61,8 +59,6 @@ export function GovernanceModeProvider(props: { readonly children: ReactNode }) 
     }),
     [mounted, isGovernanceModeEnabled, setGovernanceModeEnabled, vocabulary],
   );
-
-  return <GovernanceModeContext.Provider value={value}>{children}</GovernanceModeContext.Provider>;
 }
 
 export function useGovernanceMode(): GovernanceModeContextValue {
