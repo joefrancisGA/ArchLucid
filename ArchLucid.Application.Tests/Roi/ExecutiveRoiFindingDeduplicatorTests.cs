@@ -26,6 +26,23 @@ public sealed class ExecutiveRoiFindingDeduplicatorTests
     }
 
     [Fact]
+    public void DeduplicateByStableIdentity_prefers_highest_estimated_usd_savings()
+    {
+        IEnumerable<ArchitectureFinding> findings =
+        [
+            new ArchitectureFinding { FindingId = "cost-id", Message = "zero", EstimatedUsdSavings = 0m },
+            new ArchitectureFinding { FindingId = "cost-id", Message = "winner", EstimatedUsdSavings = 500m },
+            new ArchitectureFinding { FindingId = "cost-id", Message = "lower", EstimatedUsdSavings = 120m },
+        ];
+
+        List<ArchitectureFinding> deduped = ExecutiveRoiFindingDeduplicator.DeduplicateByStableIdentity(findings).ToList();
+
+        deduped.Should().ContainSingle();
+        deduped[0].Message.Should().Be("winner");
+        deduped[0].EstimatedUsdSavings.Should().Be(500m);
+    }
+
+    [Fact]
     public void DeduplicateByStableIdentity_preserves_findings_without_stable_ids()
     {
         IEnumerable<ArchitectureFinding> findings =
