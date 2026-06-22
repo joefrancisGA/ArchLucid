@@ -61766,6 +61766,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("ownerUserId")]
         public string? OwnerUserId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("resourceId")]
+        public string? ResourceId { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("revisitDueUtc")]
         public System.DateTimeOffset? RevisitDueUtc { get; set; } = default!;
 
@@ -61777,6 +61780,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("statusLabel")]
         public string? StatusLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("systemName")]
+        public string? SystemName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
         public string? Title { get; set; } = default!;

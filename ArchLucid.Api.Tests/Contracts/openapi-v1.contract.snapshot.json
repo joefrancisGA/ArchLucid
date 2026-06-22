@@ -3573,14 +3573,14 @@
               "string"
             ]
           },
-          "revisitDueUtc": {
-            "format": "date-time",
+          "resourceId": {
             "type": [
               "null",
               "string"
             ]
           },
-          "resourceId": {
+          "revisitDueUtc": {
+            "format": "date-time",
             "type": [
               "null",
               "string"
@@ -3596,14 +3596,14 @@
           "severity": {
             "type": "string"
           },
+          "statusLabel": {
+            "type": "string"
+          },
           "systemName": {
             "type": [
               "null",
               "string"
             ]
-          },
-          "statusLabel": {
-            "type": "string"
           },
           "title": {
             "type": "string"
