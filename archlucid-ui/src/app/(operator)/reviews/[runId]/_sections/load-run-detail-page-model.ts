@@ -56,8 +56,10 @@ import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
 import { pipelineCompleteOnSummary } from "./pipeline-complete-on-summary";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
+export type RunDetailNotFoundReason = "missing" | "workspace-mismatch";
+
 export type LoadRunDetailPageModelResult =
-  | { kind: "not-found" }
+  | { kind: "not-found"; reason: RunDetailNotFoundReason }
   | { kind: "fetch-error"; loadFailure: ApiLoadFailureState | null; fallbackMessage: string }
   | { kind: "malformed-response"; message: string }
   | { kind: "success"; model: RunDetailPageModel };
@@ -83,7 +85,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       loadFailure = toApiLoadFailure(e);
 
       if (isApiNotFoundFailure(loadFailure)) {
-        return { kind: "not-found" };
+        return { kind: "not-found", reason: "missing" };
       }
     }
   }
@@ -122,7 +124,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
 
   if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {
-    return { kind: "not-found" };
+    return { kind: "not-found", reason: "workspace-mismatch" };
   }
 
   const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();

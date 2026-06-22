@@ -1,7 +1,7 @@
 using System.Net;
 
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Reporting;
-using ArchLucid.TestSupport.Demo;
 
 using FluentAssertions;
 

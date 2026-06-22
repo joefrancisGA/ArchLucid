@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -14,6 +15,7 @@ export type OperatorSectionRetryButtonProps = {
  */
 export function OperatorSectionRetryButton({ label = "Retry loading" }: OperatorSectionRetryButtonProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   return (
     <Button
@@ -21,11 +23,14 @@ export function OperatorSectionRetryButton({ label = "Retry loading" }: Operator
       variant="outline"
       size="sm"
       className="mt-2"
+      disabled={isPending}
       onClick={() => {
-        router.refresh();
+        startTransition(() => {
+          router.refresh();
+        });
       }}
     >
-      {label}
+      {isPending ? "Retrying…" : label}
     </Button>
   );
 }
