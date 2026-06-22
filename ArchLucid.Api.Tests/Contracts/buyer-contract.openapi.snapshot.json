@@ -3580,6 +3580,12 @@
               "string"
             ]
           },
+          "resourceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "runId": {
             "format": "uuid",
             "type": [
@@ -3589,6 +3595,12 @@
           },
           "severity": {
             "type": "string"
+          },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "statusLabel": {
             "type": "string"

@@ -110,4 +110,18 @@ public sealed class ArchitectureRiskRegisterEntry
         get;
         init;
     }
+
+    /// <summary>Architecture request system name from the producing review run, when resolvable.</summary>
+    public string? SystemName
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Affected cloud resource identifier from finding properties or payload, when present.</summary>
+    public string? ResourceId
+    {
+        get;
+        init;
+    }
 }

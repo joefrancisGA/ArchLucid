@@ -26,6 +26,8 @@ export type ArchitectureRiskRegisterEntry = {
   evidenceHref: string;
   humanReviewStatus?: number | null;
   itsmLinkedTicketsSummary?: string | null;
+  systemName?: string | null;
+  resourceId?: string | null;
 };
 
 export type ArchitectureRiskRegisterResponse = {
