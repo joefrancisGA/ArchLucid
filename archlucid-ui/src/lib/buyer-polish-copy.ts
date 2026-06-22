@@ -647,7 +647,7 @@ export const BUYER_DEMO_CAPABILITY_RETURN_HOME_CTA = "Return to home";
 export const BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA = "Open troubleshooting";
 
 /** @deprecated Prefer {@link BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE} — title is workspace-scoped, not capability-scoped. */
-export function buyerDemoCapabilityUnavailableTitle(_capability: string): string {
+export function buyerDemoCapabilityUnavailableTitle(): string {
   return BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE;
 }
 

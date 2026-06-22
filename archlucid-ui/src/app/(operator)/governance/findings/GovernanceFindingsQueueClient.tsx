@@ -280,10 +280,8 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         : "—";
 
       const ruleHint = (t.ruleId ?? "").trim();
-      const runLabel =
-        (run.description ?? "").trim().length > 0
-          ? (run.description ?? "").trim()
-          : run.runId;
+      const runDescription = (run.description ?? "").trim();
+      const runLabel = runDescription.length > 0 ? runDescription : run.runId;
 
       return {
         runId: run.runId,
