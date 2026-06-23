@@ -5,14 +5,13 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import type { EmptyStateProps } from "@/components/EmptyState";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, OPERATOR_GRAPH_PAGE_SUBTITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
@@ -33,7 +32,6 @@ import {
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import {
-  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { GraphViewModel } from "@/types/graph";
@@ -52,7 +50,6 @@ import {
 import { GraphLoadedExperience } from "@/app/(operator)/graph/_sections/GraphLoadedExperience";
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/graph/_sections/GraphModeAuxiliaryFields";
 import { GraphPageControls } from "@/app/(operator)/graph/_sections/GraphPageControls";
-import { GraphPageIntroParagraph } from "@/app/(operator)/graph/_sections/GraphPageIntroParagraph";
 import { EvidenceTrailTracePanel } from "@/app/(operator)/graph/_sections/EvidenceTrailTracePanel";
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
@@ -88,11 +85,7 @@ export function GraphPageContent() {
       return urlRunId;
     }
 
-    if (buyerPolishedShell) {
-      return "";
-    }
-
-    return SHOWCASE_STATIC_DEMO_RUN_ID;
+    return "";
   });
   const [graphLoadRequested, setGraphLoadRequested] = useState(() => urlRunId.length > 0);
   const canMutateEnterpriseShell = useOperateCapability();
@@ -415,6 +408,11 @@ export function GraphPageContent() {
   const buyerGraphAwaitingSelection =
     buyerPolishedShell && (runId.trim().length === 0 || !graphLoadRequested);
 
+  const operatorAwaitingReviewSelection =
+    !buyerPolishedShell && !demoUi && runId.trim().length === 0;
+
+  const showOperatorControls = buyerPolishedShell || demoUi || runId.trim().length > 0;
+
   const showIdleCard =
     !reviewsListLoadError &&
     (buyerGraphAwaitingSelection ||
@@ -441,11 +439,6 @@ export function GraphPageContent() {
       }),
     [buyerPolishedShell, demoUi, showIdleCard],
   );
-
-  const leadIntro =
-    demoUi
-      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed review record outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
-      : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_TITLE : BUYER_SURFACE_VOCABULARY.evidenceGraph;
 
@@ -552,30 +545,29 @@ export function GraphPageContent() {
 
   return (
     <OperatorPageContainer variant="dashboard">
-      {buyerPolishedShell ? null : <LayerHeader pageKey="graph" />}
       <CtoDemoBuyerValueStrip stepIndex={2} />
       <OperatorPageHeader
         title={pageTitle}
         subtitle={
-          buyerPolishedShell
-            ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE
-            : "Evidence graph shows provenance or an architecture-oriented view for one review. Pick a review and mode, then load or refresh."
+          buyerPolishedShell ? BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE : OPERATOR_GRAPH_PAGE_SUBTITLE
         }
       />
-      {buyerPolishedShell ? <GraphEvidenceTrailGuidanceDisclosure /> : null}
-      {buyerPolishedShell ? controls : null}
-      {effectiveGraph === null && !buyerPolishedShell ? (
-        <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
+      <GraphEvidenceTrailGuidanceDisclosure />
+      {showOperatorControls ? (buyerPolishedShell ? controls : null) : null}
+      {operatorAwaitingReviewSelection && showIdleCard ? (
+        <p className="m-0 mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          {OPERATOR_GRAPH_WHAT_YOU_WILL_SEE}
+        </p>
       ) : null}
 
-      {!buyerPolishedShell && effectiveGraph === null ? (
+      {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (
         <>
           {savedViewsBar}
           {controls}
         </>
       ) : null}
 
-      {buyerPolishedShell ? null : (
+      {!buyerPolishedShell && runId.trim().length > 0 ? (
         <GraphModeAuxiliaryFields
           mode={mode}
           graphMainColumnMaxClass={graphMainColumnMaxClass}
@@ -586,7 +578,7 @@ export function GraphPageContent() {
           depth={depth}
           onDepthChange={setDepth}
         />
-      )}
+      ) : null}
 
       <GraphFetchStatusAlerts
         loading={loading}
@@ -633,7 +625,6 @@ export function GraphPageContent() {
           graphInteractiveReady={graphInteractiveReady}
           onGraphInteractiveSurfaceReady={handleGraphInteractiveSurfaceReady}
           controls={controls}
-          leadIntro={leadIntro}
           defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
           presentationView={presentationView}
           onPresentationViewChange={setPresentationView}

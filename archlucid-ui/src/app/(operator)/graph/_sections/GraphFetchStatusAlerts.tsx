@@ -1,7 +1,4 @@
-import Link from "next/link";
-
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorMalformedCallout } from "@/components/OperatorShellMessage";
 import { GraphBuyerEvidenceTrailError } from "@/app/(operator)/graph/_sections/GraphBuyerEvidenceTrailError";
 import { BUYER_GRAPH_LOAD_ERROR } from "@/lib/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -40,45 +37,28 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
         </OperatorLoadingNotice>
       )}
 
-      {loadFailure !== null &&
-        (buyerPolishedShell ? (
-          <GraphBuyerEvidenceTrailError
-            failure={loadFailure}
-            runId={runId}
-            loading={loading}
-            onRetry={() => onRetry?.()}
-            graphEndpointHint={graphEndpointHint}
-          />
-        ) : (
-          <>
-            <OperatorApiProblem failure={loadFailure} />
-            <OperatorTryNext>
-              This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body. Confirm the
-              review exists in <Link href="/reviews?projectId=default">Reviews</Link>, retry the graph action above, and
-              check the browser network tab for the failing <code>/v1/…/graph</code> call.
-            </OperatorTryNext>
-          </>
-        ))}
+      {loadFailure !== null ? (
+        <GraphBuyerEvidenceTrailError
+          failure={loadFailure}
+          runId={runId}
+          loading={loading}
+          onRetry={() => onRetry?.()}
+          graphEndpointHint={graphEndpointHint}
+          operatorShell={!buyerPolishedShell}
+        />
+      ) : null}
 
       {malformedMessage && (
-        <>
-          <OperatorMalformedCallout>
-            <strong>{buyerPolishedShell ? "Workspace data unavailable" : "Unexpected graph response shape."}</strong>
-            <p className="mt-2">{buyerPolishedShell ? BUYER_GRAPH_LOAD_ERROR : malformedMessage}</p>
-            {buyerPolishedShell ? null : (
-              <p className="mt-2 text-sm">
-                The call succeeded but the payload did not match the expected GraphViewModel (nodes and edges arrays).
-                Check API version alignment.
-              </p>
-            )}
-          </OperatorMalformedCallout>
+        <OperatorMalformedCallout>
+          <strong>{buyerPolishedShell ? "Workspace data unavailable" : "Unexpected graph response shape."}</strong>
+          <p className="mt-2">{buyerPolishedShell ? BUYER_GRAPH_LOAD_ERROR : malformedMessage}</p>
           {buyerPolishedShell ? null : (
-            <OperatorTryNext>
-              Compare <code>GET /version</code> on the API with your UI deployment. Try another review from{" "}
-              <Link href="/reviews?projectId=default">Reviews</Link> if this review has partial graph data.
-            </OperatorTryNext>
+            <p className="mt-2 text-sm">
+              The call succeeded but the payload did not match the expected GraphViewModel (nodes and edges arrays).
+              Check API version alignment.
+            </p>
           )}
-        </>
+        </OperatorMalformedCallout>
       )}
     </>
   );

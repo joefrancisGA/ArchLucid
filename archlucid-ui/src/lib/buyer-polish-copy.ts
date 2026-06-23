@@ -721,6 +721,30 @@ export const BUYER_GRAPH_LOAD_ERROR = BUYER_EVIDENCE_TRAIL_ERROR_BODY;
 
 export const BUYER_GRAPH_IDLE_DESCRIPTION = BUYER_EVIDENCE_TRAIL_EMPTY_BODY;
 
+/** Operator evidence graph page — IA pass (progressive disclosure, not buyer-polished shell). */
+export const OPERATOR_GRAPH_PAGE_SUBTITLE =
+  "Trace architecture inputs, findings, decisions, and audit records for a committed review package.";
+
+export const OPERATOR_GRAPH_SCOPE_LABEL = "Graph scope";
+
+export const OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT = "Select a review package first.";
+
+export const OPERATOR_GRAPH_LOAD_ERROR_HEADING = "Graph could not be loaded";
+
+export const OPERATOR_GRAPH_LOAD_ERROR_BODY =
+  "ArchLucid could not load the evidence graph for this review package.";
+
+export const OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT =
+  "Try retrying, or open the review package to confirm it is finalized.";
+
+export const OPERATOR_GRAPH_IDLE_TITLE = "No review package available";
+
+export const OPERATOR_GRAPH_IDLE_BODY =
+  "Create or load a review package before opening the evidence graph.";
+
+export const OPERATOR_GRAPH_WHAT_YOU_WILL_SEE =
+  "The graph connects review inputs, evidence, policy references, findings, decisions, and signed review records.";
+
 export const BUYER_GOVERNANCE_GOVERNED_USE_NOTES =
   "Governed-use record aligned with this architecture review package.";
 

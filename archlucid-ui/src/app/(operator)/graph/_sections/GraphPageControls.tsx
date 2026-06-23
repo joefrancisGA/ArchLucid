@@ -12,6 +12,8 @@ import {
   BUYER_EVIDENCE_TRAIL_SAMPLE_BUTTON,
   BUYER_EVIDENCE_TRAIL_VIEW_GRAPH,
   BUYER_EVIDENCE_TRAIL_VIEW_TRACE,
+  OPERATOR_GRAPH_SCOPE_LABEL,
+  OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT,
 } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -62,6 +64,12 @@ export function GraphPageControls(props: GraphPageControlsProps) {
   } = props;
 
   const runTrim = runId.trim();
+  const loadDisabled =
+    loading ||
+    runTrim.length === 0 ||
+    (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
+    (mode === "node-neighborhood" && nodeId.trim().length === 0);
+  const showSelectReviewHint = showLoadButton && runTrim.length === 0 && !loading;
   const sampleTrailHref = `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
   const reviewPackageHref =
     runTrim.length > 0 ? `/reviews/${encodeURIComponent(runTrim)}` : "/reviews?projectId=default";
@@ -78,13 +86,14 @@ export function GraphPageControls(props: GraphPageControlsProps) {
               fieldId="graph-run"
               label="Review"
               committedOnly
+              preferAutoPick={demoUi}
               reviewsLoadErrorPlaceholder={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_PLACEHOLDER}
               reviewsLoadErrorHint={BUYER_EVIDENCE_TRAIL_REVIEWS_LOAD_HINT}
               onListAvailabilityChange={onReviewsListAvailabilityChange}
             />
           </div>
           {presentationView === "graph" ? (
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Graph mode">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Graph scope">
               {BUYER_EVIDENCE_TRAIL_GRAPH_MODE_OPTIONS.map((option) => (
                 <Button
                   key={option.mode}
@@ -101,19 +110,21 @@ export function GraphPageControls(props: GraphPageControlsProps) {
             </div>
           ) : null}
           {showLoadButton ? (
-            <Button
-              type="button"
-              variant="primary"
-              disabled={
-                loading ||
-                runTrim.length === 0 ||
-                (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
-                (mode === "node-neighborhood" && nodeId.trim().length === 0)
-              }
-              onClick={() => void onLoadGraph()}
-            >
-              {loading ? "Loading…" : BUYER_EVIDENCE_TRAIL_LOAD_BUTTON}
-            </Button>
+            <div className="flex flex-col gap-1">
+              <Button
+                type="button"
+                variant="primary"
+                disabled={loadDisabled}
+                onClick={() => void onLoadGraph()}
+              >
+                {loading ? "Loading…" : BUYER_EVIDENCE_TRAIL_LOAD_BUTTON}
+              </Button>
+              {showSelectReviewHint ? (
+                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                  {OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT}
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </div>
 
@@ -164,13 +175,14 @@ export function GraphPageControls(props: GraphPageControlsProps) {
           fieldId="graph-run"
           label="Review"
           committedOnly
+          preferAutoPick={demoUi}
         />
       </div>
 
-      {!(demoUi || buyerPolishedShell) ? (
+      {!(demoUi || buyerPolishedShell) && runTrim.length > 0 ? (
         <div className="min-w-[10rem] lg:w-auto">
           <Label htmlFor="graph-mode-select" className="text-[13px] font-semibold">
-            Graph mode
+            {OPERATOR_GRAPH_SCOPE_LABEL}
           </Label>
           <select
             id="graph-mode-select"
@@ -198,20 +210,22 @@ export function GraphPageControls(props: GraphPageControlsProps) {
       ) : null}
 
       {showLoadButton ? (
-        <Button
-          type="button"
-          variant="primary"
-          className="w-full lg:w-auto"
-          onClick={() => void onLoadGraph()}
-          disabled={
-            loading ||
-            runTrim.length === 0 ||
-            (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
-            (mode === "node-neighborhood" && nodeId.trim().length === 0)
-          }
-        >
-          {loadButtonLabel}
-        </Button>
+        <div className="flex flex-col gap-1">
+          <Button
+            type="button"
+            variant="primary"
+            className="w-full lg:w-auto"
+            onClick={() => void onLoadGraph()}
+            disabled={loadDisabled}
+          >
+            {loadButtonLabel}
+          </Button>
+          {showSelectReviewHint ? (
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              {OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT}
+            </p>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

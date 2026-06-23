@@ -13,7 +13,10 @@ describe("resolveGraphIdleEmptyPreset", () => {
     });
 
     expect(preset.title).toBe(GRAPH_IDLE.title);
+    expect(preset.title).toBe("No review package available");
     expect(preset.description).toBe(GRAPH_IDLE.description);
+    expect(preset.actions?.[0]?.label).toBe("Start review");
+    expect(preset.actions?.[1]?.label).toBe("Load sample workspace");
   });
 
   it("returns GRAPH_IDLE_BUYER title in buyer-polished mode without demo idle override", () => {

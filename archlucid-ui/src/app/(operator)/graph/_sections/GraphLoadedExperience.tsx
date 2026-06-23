@@ -42,7 +42,6 @@ export type GraphLoadedExperienceProps = {
   graphInteractiveReady: boolean;
   onGraphInteractiveSurfaceReady: () => void;
   controls: ReactNode;
-  leadIntro: string;
   /** Deep-link: pre-select this graph node id in buyer-trail presentation when it exists on the loaded graph. */
   defaultSelectedGraphNodeId?: string;
   presentationView?: EvidenceTrailPresentationView;
@@ -65,7 +64,6 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
     graphInteractiveReady,
     onGraphInteractiveSurfaceReady,
     controls,
-    leadIntro,
     defaultSelectedGraphNodeId,
     presentationView = "trace",
     onPresentationViewChange,
@@ -242,12 +240,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
       )}
       {demoUi && !buyerPolishedShell ? (
         <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Use the controls above to switch reviews or exploration mode — the Claims Intake sample loads this graph
+          Use the controls above to switch reviews or exploration scope — the Claims Intake sample loads this graph
           automatically.
         </p>
-      ) : null}
-      {!demoUi ? (
-        <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
       ) : null}
     </>
   );

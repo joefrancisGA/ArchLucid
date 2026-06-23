@@ -21,6 +21,7 @@ describe("GraphBuyerEvidenceTrailError", () => {
 
     expect(screen.getByText("Workspace data unavailable")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open review package" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open troubleshooting" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "System health" })).toBeInTheDocument();
     expect(screen.queryByText(/Request failed/i)).toBeNull();
@@ -31,5 +32,27 @@ describe("GraphBuyerEvidenceTrailError", () => {
     expect(detailsEl).not.toHaveAttribute("open");
     expect(detailsEl?.textContent ?? "").toContain("404");
     expect(detailsEl?.textContent ?? "").toContain("req-abc-123");
+    expect(detailsEl?.textContent ?? "").toContain("network tab");
+  });
+
+  it("uses operator-shell copy when operatorShell is true", () => {
+    render(
+      <GraphBuyerEvidenceTrailError
+        failure={{
+          message: "Request failed (404 Not Found)",
+          httpStatus: 404,
+        }}
+        runId="demo-run"
+        loading={false}
+        onRetry={() => undefined}
+        operatorShell
+      />,
+    );
+
+    expect(screen.getByText("Graph could not be loaded")).toBeInTheDocument();
+    expect(
+      screen.getByText("ArchLucid could not load the evidence graph for this review package."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Workspace data unavailable")).toBeNull();
   });
 });

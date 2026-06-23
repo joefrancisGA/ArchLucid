@@ -75,9 +75,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote: "Typically after Pilot proof when you replay or validate chains.",
   },
   graph: {
-    layerBadge: "Advanced operations",
+    layerBadge: "Evidence graph",
     headline: "Trace review evidence from inputs to findings, decisions, and audit events.",
-    useWhen: "Select a finalized review, choose a graph mode, and load the graph to inspect provenance.",
+    useWhen: "Select a committed review package, choose a graph scope, load the graph, then inspect provenance.",
     firstPilotNote:
       "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
@@ -251,7 +251,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     headline:
       "Use this page to trace review evidence — see how architecture inputs, pipeline steps, findings, decisions, and audit events connect for a finalized review.",
     useWhen:
-      "Select a review, choose a graph mode, load the graph, then inspect provenance links and open related findings.",
+      "Select a review package, choose a graph scope, load the graph, then inspect provenance links and open related findings.",
     firstPilotNote: null,
   },
   compare: {
@@ -294,6 +294,17 @@ export function mergeLayerGuidanceForBuyerDemoShell(
   }
 
   const extra = LAYER_GUIDANCE_BUYER_POLISH_PARTIAL[pageKey];
+
+  if (extra === undefined || Object.keys(extra).length === 0) {
+    return base;
+  }
+
+  return { ...base, ...extra };
+}
+
+/** Graph page disclosure — softened copy for both operator and buyer shells. */
+export function mergeLayerGuidanceForGraphDisclosure(base: LayerGuidanceBlock): LayerGuidanceBlock {
+  const extra = LAYER_GUIDANCE_BUYER_POLISH_PARTIAL.graph;
 
   if (extra === undefined || Object.keys(extra).length === 0) {
     return base;

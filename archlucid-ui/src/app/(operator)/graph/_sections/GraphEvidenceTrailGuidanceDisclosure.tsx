@@ -5,7 +5,7 @@ import {
   BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD,
   BUYER_GRAPH_WHAT_THIS_PROVES,
 } from "@/lib/buyer-polish-copy";
-import { mergeLayerGuidanceForBuyerDemoShell } from "@/lib/layer-guidance";
+import { mergeLayerGuidanceForGraphDisclosure } from "@/lib/layer-guidance";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export type GraphEvidenceTrailGuidanceDisclosureProps = {
 /** Collapses long graph explanation so the page leads with selection and load actions. */
 export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGuidanceDisclosureProps) {
   const surface = useNavSurface("graph");
-  const block = mergeLayerGuidanceForBuyerDemoShell("graph", surface.layerGuidance, true);
+  const block = mergeLayerGuidanceForGraphDisclosure(surface.layerGuidance);
 
   return (
     <details

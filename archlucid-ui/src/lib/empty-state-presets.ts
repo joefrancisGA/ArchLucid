@@ -1,8 +1,7 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
-import { BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
   governanceWorkflowIdleGettingStartedReader,
@@ -36,15 +35,14 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
 
 export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
-  title: "No graph on screen yet",
-  description:
-    "Pick a committed review above, keep Review trail selected, then choose Load graph. If the list is empty, start from reviews or Core Pilot: create a request, finish the pipeline, then return here.",
+  title: "No review package available",
+  description: "Create or load a review package before opening the evidence graph.",
   actions: [
-    { label: "View reviews list", href: "/reviews?projectId=default" },
+    { label: "Start review", href: "/reviews/new" },
     {
-      label: BUYER_OPEN_SIGNED_RECORD_CTA,
-      href: `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`,
-      variant: "outline",
+      label: "Load sample workspace",
+      href: `/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+      variant: "outline" as const,
     },
   ],
 };
