@@ -416,6 +416,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             findingCountDisplay={m.findingCountDisplay}
             warningCountDisplay={m.warningCountDisplay}
             goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
           />
         </Suspense>
       ) : null}

@@ -3,6 +3,7 @@ import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } 
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
@@ -215,6 +216,16 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
         }
       : null;
 
+  const packName = inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId);
+  const pack =
+    packName !== null
+      ? {
+          packId: ruleId ?? packName,
+          packName,
+          href: policyPacksRuleHref(ruleId ?? ""),
+        }
+      : null;
+
   const evidenceFromSnippets = (finding.evidenceRefSnippets ?? [])
     .map((snippet) => ({
       label: snippet,
@@ -224,17 +235,17 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
     .filter((row) => row.label.trim().length > 0);
 
   if (evidenceFromSnippets.length > 0) {
-    return { pack: null, policy, evidence: evidenceFromSnippets };
+    return { pack, policy, evidence: evidenceFromSnippets };
   }
 
   const evidenceRefCount = finding.evidenceRefCount ?? 0;
 
   if (evidenceRefCount <= 0) {
-    return { pack: null, policy, evidence: [] };
+    return { pack, policy, evidence: [] };
   }
 
   return {
-    pack: null,
+    pack,
     policy,
     evidence: [
       {

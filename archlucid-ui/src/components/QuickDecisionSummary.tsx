@@ -14,6 +14,7 @@ import { FindingTrustChip } from "@/components/FindingTrustChip";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEvidenceRefSnippets";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
+import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/ReviewDetailPolicyPackFindingsBreakdown";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
 import { MessageCircle } from "lucide-react";
@@ -43,6 +44,10 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
+import {
+  groupQuickDecisionFindingsByPolicyPack,
+  summarizeQuickDecisionFindingsByPolicyPack,
+} from "@/lib/group-findings-by-policy-pack";
 import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
@@ -77,6 +82,8 @@ export type QuickDecisionSummaryProps = {
   readonly headlineWarningCount?: number | null;
   /** When true, rows were derived from explanation traces because agent results were empty on the authority payload. */
   readonly usingExplanationFallback?: boolean;
+  readonly manifestRuleSetId?: string | null;
+  readonly manifestRuleSetVersion?: string | null;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -96,7 +103,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     policyViolations: lowConfidencePolicyViolations,
     advisoryNotes: lowConfidenceAdvisoryNotes,
   } = partitionQuickDecisionFindings(lowConfidenceFindings);
-  const top = policyViolations.slice(0, 3);
+  const topGroups = groupQuickDecisionFindingsByPolicyPack(
+    policyViolations,
+    props.manifestRuleSetId,
+    props.manifestRuleSetVersion,
+  );
+  const policyPackSummary = summarizeQuickDecisionFindingsByPolicyPack(
+    afterMuteFilter,
+    props.manifestRuleSetId,
+    props.manifestRuleSetVersion,
+  );
   const hasSourceFindings = props.findings.length > 0;
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const headlineFindingCount = props.headlineFindingCount;
@@ -377,6 +393,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+          {hasSourceFindings && policyPackSummary.length > 0 ? (
+            <ReviewDetailPolicyPackFindingsBreakdown groups={policyPackSummary} />
+          ) : null}
           {props.usingExplanationFallback === true ? (
             <p
               className="m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
@@ -414,12 +433,21 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                     No governance-blocking findings on this review. Baseline guidance may still appear under advisory notes.
                   </p>
                 ) : (
-                  <ol
-                    className="m-0 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400"
-                    data-testid="quick-decision-policy-violations"
-                  >
-                    {top.map((f) => renderFindingRow(f, false))}
-                  </ol>
+                  <div className="space-y-4" data-testid="quick-decision-policy-violations">
+                    {topGroups.map((group) => (
+                      <div key={group.groupKey}>
+                        <h4 className="m-0 mb-2 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                          {group.packDisplayName}
+                          <span className="ml-1 font-normal text-neutral-500 dark:text-neutral-400">
+                            ({group.findingCount})
+                          </span>
+                        </h4>
+                        <ol className="m-0 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
+                          {group.findings.slice(0, 3).map((f) => renderFindingRow(f, false))}
+                        </ol>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 

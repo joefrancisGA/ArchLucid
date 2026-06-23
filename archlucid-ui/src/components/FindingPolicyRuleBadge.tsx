@@ -9,7 +9,7 @@ export type FindingPolicyRuleBadgeProps = {
   readonly className?: string;
 };
 
-/** Visible proof that a finding maps to a curated policy-pack rule. */
+/** Visible proof that a finding maps to a curated policy-pack compliance rule key. */
 export function FindingPolicyRuleBadge(props: FindingPolicyRuleBadgeProps): React.JSX.Element | null {
   const ruleId = props.policyRuleId.trim();
 
@@ -22,16 +22,19 @@ export function FindingPolicyRuleBadge(props: FindingPolicyRuleBadgeProps): Reac
     props.policyRuleLabel !== undefined &&
     props.policyRuleLabel.trim().length > 0
       ? props.policyRuleLabel.trim()
-      : ruleId;
+      : null;
 
-  const statusLabel = `Policy: ${labelSource}`;
+  const statusLabel =
+    labelSource !== null && labelSource !== ruleId
+      ? `Rule ${ruleId}: ${labelSource}`
+      : `Rule: ${ruleId}`;
 
   return (
     <Link
       href={policyPacksRuleHref(ruleId)}
       className={props.className}
       data-testid="finding-policy-rule-badge"
-      title={`Open policy rule ${ruleId}`}
+      title={`Compliance rule key ${ruleId}`}
     >
       <StatusTag kind="in-progress" label={statusLabel} />
     </Link>

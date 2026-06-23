@@ -29,6 +29,8 @@ export type GovernanceFindingQueueRow = {
   humanReviewStatusLabel?: string | null;
   /** TB-063: aggregated ITSM correlation summary (e.g. Jira:KEY-1). */
   itsmLinkedTicketsSummary?: string | null;
+  /** Compliance rule key when known from explainability or risk register category. */
+  policyRuleId?: string | null;
   /** Architecture request system name when returned by the risk register API. */
   systemName?: string | null;
   /** Affected cloud resource identifier when returned by the risk register API. */

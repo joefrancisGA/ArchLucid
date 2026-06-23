@@ -32,6 +32,8 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly isIllustrativePricing?: boolean;
   readonly decisionExplainability: RunDecisionExplainabilityModel | null;
   readonly insightDensityView: FindingsSnapshotInsightDensityView;
+  readonly manifestRuleSetId?: string | null;
+  readonly manifestRuleSetVersion?: string | null;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -51,6 +53,8 @@ export function RunDetailRunExplanationCollapsible(
     isIllustrativePricing,
     decisionExplainability,
     insightDensityView,
+    manifestRuleSetId,
+    manifestRuleSetVersion,
   } = props;
 
   return (
@@ -73,6 +77,8 @@ export function RunDetailRunExplanationCollapsible(
           headlineFindingCount={findingCountDisplay}
           headlineWarningCount={warningCountDisplay}
           usingExplanationFallback={quickDecisionFromExplanationFallback}
+          manifestRuleSetId={manifestRuleSetId}
+          manifestRuleSetVersion={manifestRuleSetVersion}
         />
         <CoverageChecklistPanel items={insightDensityView.checklistCoverage} className="mt-4" />
         {explanationFailure ? (

@@ -9,7 +9,7 @@ describe("FindingPolicyRuleBadge", () => {
 
     const link = screen.getByTestId("finding-policy-rule-badge");
     expect(link).toHaveAttribute("href", "/policy-packs?ruleId=sec-base-010");
-    expect(screen.getByText("Policy: Encrypt data at rest")).toBeInTheDocument();
+    expect(screen.getByText("Rule sec-base-010: Encrypt data at rest")).toBeInTheDocument();
   });
 
   it("returns null when rule id is blank", () => {

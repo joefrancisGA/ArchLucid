@@ -188,6 +188,8 @@ export async function RunDetailBelowFoldSections(
             findingCountDisplay={m.findingCountDisplay}
             warningCountDisplay={m.warningCountDisplay}
             goldenManifestJsonForExport={m.goldenManifestJsonForExport}
+            manifestRuleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+            manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
           />
         </Suspense>
       ) : null}

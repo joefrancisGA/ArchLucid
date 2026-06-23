@@ -108,6 +108,7 @@ describe("finding-policy-evidence-citations", () => {
     const model = buildFindingPolicyEvidenceCitationsFromQuickDecision("run-9", finding);
 
     expect(model.policy?.ruleId).toBe("sec-base-010");
+    expect(model.pack?.packName).toBe("Security Architecture Baseline");
     expect(model.evidence[0]?.label).toContain("terraform/network.bicep");
     expect(model.evidence[0]?.href).toContain("/graph?runId=run-9");
   });

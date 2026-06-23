@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } f
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
+import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ProductConceptsGlossary } from "@/components/ProductConceptsGlossary";
@@ -21,6 +22,7 @@ import {
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
+import { coerceComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
@@ -268,6 +270,7 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
           : null,
       systemName: systemName.length > 0 ? systemName : null,
       resourceId: resourceId.length > 0 ? resourceId : null,
+      policyRuleId: coerceComplianceRuleKey(entry.category),
     };
   });
 }
@@ -337,6 +340,7 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
           typeof t.evidenceRefCount === "number" && Number.isFinite(t.evidenceRefCount)
             ? Math.trunc(t.evidenceRefCount)
             : null,
+        policyRuleId: coerceComplianceRuleKey(ruleHint),
       };
     });
 }
@@ -445,6 +449,9 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
             {row.title}
           </Link>
         </CardTitle>
+        {row.recordKind === "finding" && row.policyRuleId ? (
+          <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} className="mt-1 inline-flex" />
+        ) : null}
       </CardHeader>
       <CardContent className="grid gap-3 pt-0 text-sm">
         <div>
@@ -989,7 +996,13 @@ export default function GovernanceFindingsQueueClient() {
                   {buyerPolishedShell ? null : (
                     <div>
                       <span className="font-medium text-neutral-700 dark:text-neutral-300">Category</span>
-                      <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.category}</p>
+                      {row.recordKind === "finding" && row.policyRuleId ? (
+                        <div className="mt-0.5">
+                          <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} />
+                        </div>
+                      ) : (
+                        <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.category}</p>
+                      )}
                     </div>
                   )}
                   <div>

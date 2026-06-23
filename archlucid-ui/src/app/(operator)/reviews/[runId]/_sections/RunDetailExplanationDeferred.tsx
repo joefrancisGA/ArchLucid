@@ -21,6 +21,8 @@ type RunDetailExplanationDeferredProps = {
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;
   readonly goldenManifestJsonForExport: unknown | null;
+  readonly manifestRuleSetId?: string | null;
+  readonly manifestRuleSetVersion?: string | null;
 };
 
 /**
@@ -42,6 +44,8 @@ export async function RunDetailExplanationDeferred(
     findingCountDisplay,
     warningCountDisplay,
     goldenManifestJsonForExport,
+    manifestRuleSetId,
+    manifestRuleSetVersion,
   } = props;
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
@@ -74,6 +78,8 @@ export async function RunDetailExplanationDeferred(
       isIllustrativePricing={isIllustrativePricing}
       decisionExplainability={decisionExplainability}
       insightDensityView={insightDensityView}
+      manifestRuleSetId={manifestRuleSetId}
+      manifestRuleSetVersion={manifestRuleSetVersion}
     />
   );
 }
