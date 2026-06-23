@@ -101,7 +101,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
               <div>Completed {formatInstantForBuyerGovernance(data.run.completedUtc)}</div>
             ) : null}
             {data.run.currentManifestVersion ? (
-              <div>Current manifest {data.run.currentManifestVersion}</div>
+              <div>Current review package version {data.run.currentManifestVersion}</div>
             ) : null}
           </CardContent>
         </Card>
@@ -110,7 +110,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.manifest ? (
         <Card>
           <CardHeader>
-            <CardTitle>Reviewed manifest</CardTitle>
+            <CardTitle>Signed review record</CardTitle>
             <CardDescription>Signed decision record associated with this approval</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">

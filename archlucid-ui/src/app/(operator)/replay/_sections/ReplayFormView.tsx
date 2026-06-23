@@ -149,13 +149,13 @@ export function ReplayFormView(props: Props) {
               <dd className="m-0">{new Date(m.result.replayedUtc).toLocaleString()}</dd>
               {m.result.rebuiltManifestId && (
                 <>
-                  <dt className="text-neutral-500 dark:text-neutral-400">Rebuilt manifest</dt>
+                  <dt className="text-neutral-500 dark:text-neutral-400">Rebuilt review record</dt>
                   <dd className="m-0 font-mono text-xs">{m.result.rebuiltManifestId}</dd>
                 </>
               )}
               {m.result.rebuiltManifestHash && (
                 <>
-                  <dt className="text-neutral-500 dark:text-neutral-400">Rebuilt manifest hash</dt>
+                  <dt className="text-neutral-500 dark:text-neutral-400">Rebuilt review record hash</dt>
                   <dd className="m-0 font-mono text-xs break-all">{m.result.rebuiltManifestHash}</dd>
                 </>
               )}
@@ -175,13 +175,13 @@ export function ReplayFormView(props: Props) {
               <dd className="m-0">{String(m.result.validation.graphPresent)}</dd>
               <dt className="text-neutral-500 dark:text-neutral-400">Findings present</dt>
               <dd className="m-0">{String(m.result.validation.findingsPresent)}</dd>
-              <dt className="text-neutral-500 dark:text-neutral-400">Manifest present</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Review record present</dt>
               <dd className="m-0">{String(m.result.validation.manifestPresent)}</dd>
               <dt className="text-neutral-500 dark:text-neutral-400">Trace present</dt>
               <dd className="m-0">{String(m.result.validation.tracePresent)}</dd>
               <dt className="text-neutral-500 dark:text-neutral-400">Artifacts present</dt>
               <dd className="m-0">{String(m.result.validation.artifactsPresent)}</dd>
-              <dt className="text-neutral-500 dark:text-neutral-400">Manifest hash matches</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Review record hash matches</dt>
               <dd className="m-0">{String(m.result.validation.manifestHashMatches)}</dd>
               <dt className="text-neutral-500 dark:text-neutral-400">Artifact bundle after replay</dt>
               <dd className="m-0">{String(m.result.validation.artifactBundlePresentAfterReplay)}</dd>

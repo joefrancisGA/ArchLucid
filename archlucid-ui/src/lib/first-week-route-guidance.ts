@@ -58,12 +58,12 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review package.",
     bridgeCopy:
-      "Each package gives you the review record, findings, evidence trail, manifest, and exports.",
+      "Each package gives you the review record, findings, evidence trail, signed review record, and exports.",
     operateDeferralNote: "",
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {
-    useWhen: "The manifest is committed and you need sponsor-ready exports or an executive summary.",
+    useWhen: "The review package is finalized and you need sponsor-ready exports or an executive summary.",
     bridgeCopy:
       "This review package is complete — downloads and executive summary live on this page before you explore Operate. Use 'Copy for AI assistant' in the exports section to paste findings into Claude, GPT, or Gemini.",
     primaryAction: { label: "Open exports section", href: "#artifacts-exports" },

@@ -99,7 +99,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-findings": {
     layerBadge: "Governance",
-    headline: "Architecture risk register — owned risks, dispositions, review cadence, and linked manifest decisions.",
+    headline: "Architecture risk register — owned risks, dispositions, review cadence, and linked review decisions.",
     useWhen: "Answer what risks the organization owns now without opening each review; filter stale risks and expiring waivers.",
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",

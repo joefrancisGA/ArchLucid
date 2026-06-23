@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { RunIdPicker } from "@/components/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -83,6 +84,9 @@ export function AdvisoryScansContent() {
     }
   }
 
+  const hasResults = planSummary !== null || recommendations.length > 0;
+  const reviewSelected = runId.trim().length > 0;
+
   return (
     <div className="w-full max-w-[1200px] px-4 py-6">
       <DocumentLayout>
@@ -90,62 +94,75 @@ export function AdvisoryScansContent() {
           <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Architecture advisory</h2>
         </div>
         <p className="doc-meta m-0">
-          Advisory scans evaluate your architecture against configurable advisory rules. Generate ranked recommendations
-          from a committed architecture review: changes, risks, tradeoffs, and follow-up actions. Output can be accepted,
-          rejected, deferred, or marked as implemented to feed the governance workflow. Optionally compare to a second
-          review for delta signals.
+          Generate prioritized recommendations from a finalized review package: changes, risks, tradeoffs, and follow-up
+          actions. Recommendations can be <strong>accepted</strong>, <strong>deferred</strong>,{" "}
+          <strong>rejected</strong>, or <strong>marked implemented</strong> to feed the governance workflow. Optionally
+          compare against an earlier review for delta signals.
         </p>
 
-        <section
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 p-4"
-          aria-label="Example recommendation shape"
-        >
-          <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
-            Example recommendation (illustrative)
-          </h3>
-          <div className="mt-3 rounded border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-950">
-            <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">High impact</p>
-            <p className="m-0 mt-1 font-semibold text-neutral-900 dark:text-neutral-100">
-              API tier lacks a circuit breaker around legacy claims service
-            </p>
-            <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">
-              Under load, repeated timeouts could cascade. Harden the integration and add a documented fallback path
-              before the next production promotion.
-            </p>
-            <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
-              <strong className="font-medium text-neutral-800 dark:text-neutral-200">Suggested action:</strong> Add
-              timeout + bulkhead; capture health metrics for the dependency.
-            </p>
-            <p className="m-0 mt-3 text-xs text-neutral-500">Accept · Reject · Defer · Mark implemented (when connected to the API)</p>
-          </div>
-        </section>
-
         <div className="mb-6 grid gap-3">
-          <input
+          <RunIdPicker
+            label="Review package"
+            placeholder="Choose a finalized review package"
             value={runId}
-            onChange={(e) => setRunId(e.target.value)}
-            placeholder="Architecture review ID (target / current review)"
-            className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+            onChange={setRunId}
+            inputId="advisory-run-id"
+            committedOnly
+            preferAutoPick={false}
           />
-          <input
+          <RunIdPicker
+            label="Compare against earlier review (optional)"
+            placeholder="Choose baseline review for delta signals"
             value={compareToRunId}
-            onChange={(e) => setCompareToRunId(e.target.value)}
-            placeholder="Optional compare-to architecture review ID (base review for delta signals)"
-            className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+            onChange={setCompareToRunId}
+            inputId="advisory-compare-run-id"
+            committedOnly
+            preferAutoPick={false}
           />
+
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
+            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+              Advanced: enter review ID manually
+            </summary>
+            <div className="mt-3 grid gap-2">
+              <input
+                value={runId}
+                onChange={(e) => setRunId(e.target.value)}
+                placeholder="Architecture review ID (target / current review)"
+                className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+              />
+              <input
+                value={compareToRunId}
+                onChange={(e) => setCompareToRunId(e.target.value)}
+                placeholder="Optional compare-to architecture review ID"
+                className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+              />
+            </div>
+          </details>
+
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               className="bg-teal-600 text-white hover:bg-teal-700"
               onClick={() => void loadAdvice()}
-              disabled={loading || !runId.trim()}
+              disabled={loading || !reviewSelected}
+              title={!reviewSelected ? "Select a finalized review package first." : undefined}
             >
               {loading ? "Working…" : "Generate recommendations"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => void refreshPersistedOnly()} disabled={loading || !runId.trim()}>
-              Refresh saved list
-            </Button>
+
+            {reviewSelected ? (
+              <Button type="button" variant="outline" onClick={() => void refreshPersistedOnly()} disabled={loading}>
+                Refresh saved list
+              </Button>
+            ) : null}
           </div>
+
+          {!reviewSelected ? (
+            <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+              Select a finalized review package first.
+            </p>
+          ) : null}
         </div>
 
         {failure !== null ? (
@@ -172,6 +189,41 @@ export function AdvisoryScansContent() {
           </section>
         ) : null}
 
+        {!hasResults ? (
+          <section
+            className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
+            aria-label="No advisory scan selected"
+          >
+            <p className="m-0 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              No advisory scan selected — choose a review package to generate recommendations.
+            </p>
+
+            <h3 className="mt-4 mb-2 text-sm font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+              Example recommendation
+            </h3>
+            <div className="rounded border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-950">
+              <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">High impact</p>
+              <p className="m-0 mt-1 font-semibold text-neutral-900 dark:text-neutral-100">
+                API tier lacks a circuit breaker around legacy claims service
+              </p>
+              <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">
+                Under load, repeated timeouts could cascade. Harden the integration and add a documented fallback path
+                before the next production promotion.
+              </p>
+              <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
+                <strong className="font-medium text-neutral-800 dark:text-neutral-200">Suggested action:</strong> Add
+                timeout + bulkhead; capture health metrics for the dependency.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Accept</span>
+                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Defer</span>
+                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Reject</span>
+                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Mark implemented</span>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {planSummary ? (
           <>
             <h3 className="m-0 text-sm font-semibold text-al-text-primary">Summary</h3>
@@ -185,10 +237,9 @@ export function AdvisoryScansContent() {
 
         {recommendations.length > 0 ? (
           <>
-            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Persisted recommendations</h3>
+            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Recommendations</h3>
             <p className="doc-meta m-0 text-sm">
-              Status and reviewer fields are loaded from storage. Use actions below (elevated permissions required on the
-              API).
+              Accept, defer, reject, or mark recommendations as implemented to record governance disposition.
             </p>
             <div className="grid gap-4">
               {recommendations.map((rec) => (
@@ -244,7 +295,7 @@ export function AdvisoryScansContent() {
                       Defer
                     </Button>
                     <Button type="button" size="sm" variant="outline" onClick={() => void takeAction(rec.recommendationId, "MarkImplemented")}>
-                      Implemented
+                      Mark implemented
                     </Button>
                   </div>
                 </div>

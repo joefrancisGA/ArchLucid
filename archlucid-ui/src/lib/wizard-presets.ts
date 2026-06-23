@@ -34,7 +34,7 @@ export const wizardPresets: WizardPreset[] = [
   {
     id: "modernize-legacy",
     label: "Modernize legacy system",
-    description: "Incremental migration with topology guidance and optional prior manifest baseline.",
+    description: "Incremental migration with topology guidance and optional prior review package baseline.",
     values: {
       systemName: "LegacyModernization",
       description:

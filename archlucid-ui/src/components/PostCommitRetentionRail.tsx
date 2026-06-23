@@ -45,7 +45,7 @@ export function PostCommitRetentionRail({
           {buyerPolishedShell
             ? showcaseSpine
               ? "After the sample review, continue Executive Summary → signed review record → evidence trail → governance approval → audit trail."
-              : "Finalized package — use Executive Summary, then manifest, evidence trail, governance, and audit trail in order."
+              : "Finalized package — use Executive Summary, then signed review record, evidence trail, governance, and audit trail in order."
             : "You have a committed review package. Pick the next loop that fits your team—navigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>

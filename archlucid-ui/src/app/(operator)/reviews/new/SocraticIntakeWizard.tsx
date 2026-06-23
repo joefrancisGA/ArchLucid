@@ -307,7 +307,7 @@ export function SocraticIntakeWizard() {
       const compareParentRunId = result.parentSpawnedRunId ?? parentSpawnedRunId;
 
       if (compareParentRunId !== null && compareParentRunId.trim().length > 0) {
-        showSuccess("What-if branch review started — open Compare when both manifests are ready.");
+        showSuccess("What-if branch review started — open Compare when both review packages are ready.");
         router.push(runDetailHrefWithParentRun(result.runId, compareParentRunId));
         return;
       }

@@ -56,7 +56,7 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Review AI findings",
     description:
-      "When the pipeline completes, open the architecture review to read findings, evidence, and narrative. Finalize when you are ready to lock the reviewed manifest and sponsor exports.",
+      "When the pipeline completes, open the architecture review to read findings, evidence, and narrative. Finalize when you are ready to lock the signed review record and sponsor exports.",
     Icon: CheckCircle2,
   },
 ];
@@ -71,7 +71,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Start from executive summary",
     description:
-      "Open the executive workspace first for sponsor-ready posture and citations; drill into manifest, evidence traceability, and deliverables when you need deeper proof.",
+      "Open the executive workspace first for sponsor-ready posture and citations; drill into signed review record, evidence traceability, and deliverables when you need deeper proof.",
     Icon: Users,
   },
   {

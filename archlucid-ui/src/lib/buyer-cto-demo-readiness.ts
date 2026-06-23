@@ -296,7 +296,7 @@ export function evaluateBuyerCtoDemoSpineOfflineCheck(): BuyerCtoDemoReadinessCh
       id: "spine-offline",
       label: "Offline spine payloads",
       status: "pass",
-      detail: "Graph, governance, audit, manifest, and compare static payloads are available for all five steps.",
+      detail: "Graph, governance, audit, signed review record, and compare static payloads are available for all five steps.",
     };
   }
 

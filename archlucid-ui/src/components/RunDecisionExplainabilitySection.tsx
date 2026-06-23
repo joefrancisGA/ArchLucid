@@ -45,7 +45,7 @@ export function RunDecisionExplainabilitySection(props: {
         Decision explainability
       </h3>
       <p className="m-0 mb-3 text-xs text-neutral-600 dark:text-neutral-400">
-        Trace manifest decisions from authority rule audit through coordinator merge nodes. Each row is labeled by
+        Trace review record decisions from authority rule audit through coordinator merge nodes. Each row is labeled by
         pipeline so operators know which engine produced it.
       </p>
 
@@ -101,7 +101,7 @@ export function RunDecisionExplainabilitySection(props: {
           <table className="min-w-full border-collapse text-left text-xs">
             <thead>
               <tr className="border-b border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
-                <th className="px-2 py-1 font-semibold">Manifest decision</th>
+                <th className="px-2 py-1 font-semibold">Review record decision</th>
                 <th className="px-2 py-1 font-semibold">Selected</th>
                 <th className="px-2 py-1 font-semibold">Confidence</th>
                 <th className="px-2 py-1 font-semibold">Pipeline</th>

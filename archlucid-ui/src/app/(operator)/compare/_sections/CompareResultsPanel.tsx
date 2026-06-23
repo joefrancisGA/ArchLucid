@@ -166,14 +166,14 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       {goldenFailure && (
         <>
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            Manifest comparison request failed.
+            Review comparison request failed.
           </p>
           <OperatorApiProblem failure={goldenFailure} variant="warning" />
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized reviewed manifests in scope. If only the supplementary diff is needed for
+            Verify both reviews have finalized signed review records in scope. If only the supplementary diff is needed for
             now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
@@ -230,12 +230,12 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
               <ol className="m-0 list-decimal pl-6 leading-relaxed text-neutral-800 dark:text-neutral-200">
                 {golden !== null && (
                   <li>
-                    <a href="#compare-structured">Manifest comparison summary</a>
+                    <a href="#compare-structured">Review comparison summary</a>
                   </li>
                 )}
                 {golden !== null && (
                   <li>
-                    <a href="#compare-raw-manifest-diff">Manifest diff appendix</a>
+                    <a href="#compare-raw-manifest-diff">Review change details appendix</a>
                   </li>
                 )}
                 {result !== null && (

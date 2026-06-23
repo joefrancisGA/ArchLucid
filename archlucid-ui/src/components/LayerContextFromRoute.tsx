@@ -40,7 +40,8 @@ export function LayerContextFromRoute() {
     pathname.startsWith("/ask") ||
     pathname.startsWith("/search") ||
     pathname === "/compare" ||
-    pathname.startsWith("/compare/");
+    pathname.startsWith("/compare/") ||
+    pathname.startsWith("/advisory");
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.

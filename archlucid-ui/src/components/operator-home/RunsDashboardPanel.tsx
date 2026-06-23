@@ -510,12 +510,12 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                     {buyerSafeHighlight ? (
                       <>
-                        Start with the finalized manifest or the public walkthrough — technical workspace detail stays
+                        Start with the finalized review package or the public walkthrough — technical workspace detail stays
                         available for architects who want the authenticated console.
                       </>
                     ) : (
                       <>
-                        Explore the completed sample review: review detail, finalized manifest, primary finding, or the
+                        Explore the completed sample review: review detail, finalized review package, primary finding, or the
                         read-only marketing showcase.
                       </>
                     )}

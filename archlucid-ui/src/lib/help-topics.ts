@@ -40,17 +40,17 @@ export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
 export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "first-run",
-    title: "Create your first architecture manifest",
+    title: "Create your first review package",
     keywords: ["wizard", "create", "pipeline", "run", "request"],
     summary:
-      "Create a request, track progress, finalize the reviewed manifest, and review artifacts, findings, and the review trail.",
+      "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
     routes: ["/reviews/new", "/", "/onboarding"],
   },
   {
     id: "artifacts",
     title: "Reviewing artifacts",
-    keywords: ["download", "manifest", "bundle", "zip"],
+    keywords: ["download", "review package", "bundle", "zip"],
     summary: "Open a review, then review artifact list, previews, and bundle downloads from review detail.",
     docPath: "docs/library/operator-shell.md",
     routes: ["/reviews", "/manifests"],
@@ -59,7 +59,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "compare",
     title: "Compare two reviews",
     keywords: ["diff", "delta", "replay"],
-    summary: "Use Compare to diff two reviews’ manifests and persisted comparison records.",
+    summary: "Use Compare to diff two reviews’ review packages and persisted comparison records.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/compare"],
   },
@@ -94,7 +94,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Governance approvals",
     keywords: ["approval", "promote", "staging", "production"],
     summary:
-      "Submit → review → approve → promote: walk approvals for a finalized manifest when your workspace enables governance.",
+      "Submit → review → approve → promote: walk approvals for a finalized review package when your workspace enables governance.",
     docPath: "docs/library/API_CONTRACTS.md",
     routes: ["/governance"],
   },

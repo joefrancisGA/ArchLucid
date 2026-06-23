@@ -14,7 +14,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No review packages yet",
   description:
-    "Start an architecture review to generate a package with findings, evidence, manifest, and exports. Or open the sample package to see the completed flow.",
+    "Start an architecture review to generate a review package with findings, evidence, signed review record, and exports. Or open the sample package to see the completed flow.",
   actions: [
     { label: "Start architecture review", href: "/reviews/new" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },

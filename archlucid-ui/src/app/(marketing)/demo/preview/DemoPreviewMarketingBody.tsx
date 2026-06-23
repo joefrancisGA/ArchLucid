@@ -296,7 +296,7 @@ export function DemoPreviewMarketingBody({
             <dd className="m-0 font-mono break-all">{chain.graphSnapshotId ?? "—"}</dd>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Findings snapshot ID</dt>
             <dd className="m-0 font-mono break-all">{chain.findingsSnapshotId ?? "—"}</dd>
-            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Reviewed manifest ID</dt>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Signed review record ID</dt>
             <dd className="m-0 font-mono break-all">{chain.goldenManifestId ?? "—"}</dd>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Decision trace ID</dt>
             <dd className="m-0 font-mono break-all">{chain.decisionTraceId ?? "—"}</dd>
@@ -307,12 +307,12 @@ export function DemoPreviewMarketingBody({
       </section>
 
       <section data-testid="demo-preview-manifest-summary">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Manifest summary</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review package summary</h2>
         {manifest?.operatorSummary ? (
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{manifest.operatorSummary}</p>
         ) : null}
         {!manifest ? (
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Manifest summary unavailable.</p>
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Review package summary unavailable.</p>
         ) : (
           <>
             <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
@@ -351,7 +351,7 @@ export function DemoPreviewMarketingBody({
               "This sample review shows how ArchLucid turns architecture evidence into a sponsor-readable risk narrative."}
           </p>
           <p className="mt-2 m-0 text-xs text-teal-800 dark:text-teal-200">
-            Evidence basis: committed sample manifest, persisted citations, and demo-labeled review artifacts. Treat the
+            Evidence basis: committed sample review package, persisted citations, and demo-labeled review artifacts. Treat the
             story as illustrative until you run the same path on buyer evidence.
           </p>
           <div className="mt-3">
@@ -469,7 +469,7 @@ export function DemoPreviewMarketingBody({
         data-testid="demo-preview-footer"
         className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
       >
-        Structured architecture review output — manifest, findings, and audit trail.
+        Structured architecture review output — review package, findings, and audit trail.
       </p>
     </div>
   );

@@ -62,25 +62,14 @@ export function LayerHeader({
       <p
         className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400"
         data-testid="layer-header-review-vocabulary"
-        title={
-          buyerDemoShell
-            ? ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp
-            : ARCHITECTURE_REVIEW_VOCABULARY.reviewManifestTraceHelp
-        }
+        title={ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
       >
-        {buyerDemoShell ? (
-          <>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">
-              Review package · Evidence · Trace:
-            </span>{" "}
-            {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
-          </>
-        ) : (
-          <>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Review · Manifest · Trace:</span>{" "}
-            {ARCHITECTURE_REVIEW_VOCABULARY.reviewManifestTraceHelp}
-          </>
-        )}
+        <>
+          <span className="font-medium text-neutral-800 dark:text-neutral-200">
+            Review package and evidence trail:
+          </span>{" "}
+          {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
+        </>
       </p>
       <p
         className={cn(

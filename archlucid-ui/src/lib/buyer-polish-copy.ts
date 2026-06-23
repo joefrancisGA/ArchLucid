@@ -9,6 +9,11 @@ export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
 
 export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
 
+export const BUYER_COMPARE_STRUCTURED_HEADING = "Review comparison";
+
+export const BUYER_COMPARE_STRUCTURED_LEAD =
+  "Compare finalized review packages to understand what changed between reviews — each card below summarizes one category. Prefer this narrative before supplementary diffs further down.";
+
 export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details";
 
 export const BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY = "Change compared reviews";

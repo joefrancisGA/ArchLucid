@@ -40,7 +40,7 @@ function isAbsoluteHttpHttpsUrl(href: string): boolean {
 const PHASE_LABELS = [
   "Creating architecture review",
   "Running simulator agents",
-  "Committing manifest",
+  "Finalizing review package",
 ] as const;
 
 function phaseFromElapsedMs(ms: number): number {

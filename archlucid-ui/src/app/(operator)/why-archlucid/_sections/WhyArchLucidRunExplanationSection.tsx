@@ -22,7 +22,7 @@ export function WhyArchLucidRunExplanationSection(props: WhyArchLucidRunExplanat
         Architecture review explanation and citations
       </h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Aggregate executive explanation persisted with the architecture review, with citations back to the manifest, findings,
+        Aggregate executive explanation persisted with the architecture review, with citations back to the signed review record, findings,
         decision traces, and evidence bundles that the explainability trace was built from.
       </p>
 

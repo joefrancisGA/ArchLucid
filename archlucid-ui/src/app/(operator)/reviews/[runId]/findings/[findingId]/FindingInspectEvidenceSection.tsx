@@ -76,7 +76,7 @@ export function FindingInspectEvidenceSection({
                 subgraph.
               </p>
               <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-                Linked in the evidence trail and manifest decision record for this review package.
+                Linked in the evidence trail and review decision record for this review package.
               </p>
               <div className="mt-2">
                 <Link href={reviewContextHref} className="text-xs font-medium text-sky-700 underline dark:text-sky-300">

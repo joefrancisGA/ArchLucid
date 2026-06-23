@@ -186,7 +186,7 @@ export default function DecisionRegisterClient() {
       {!loading && !loadError && decisions.length === 0 ? (
         <EmptyState
           title="No signed decisions yet"
-          description="Committed manifests with architecture decisions will appear here with confidence and supporting findings."
+          description="Committed review packages with architecture decisions will appear here with confidence and supporting findings."
         />
       ) : null}
 

@@ -44,8 +44,8 @@ describe("getBreadcrumbs", () => {
   it("maps showcase manifest detail trail", () => {
     expect(getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
       { label: "Home", href: "/" },
-      { label: "Manifests", href: "/manifests" },
-      { label: "Claims Intake package manifest" },
+      { label: "Signed review records", href: "/manifests" },
+      { label: "Claims Intake review package" },
     ]);
   });
 

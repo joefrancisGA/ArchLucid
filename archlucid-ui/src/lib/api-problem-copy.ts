@@ -25,7 +25,7 @@ export type OperatorProblemCopyContext = {
 /** Short headings for stable `extensions.errorCode` values (API contract). */
 const ERROR_CODE_HEADINGS: Record<string, string> = {
   RUN_NOT_FOUND: "Review not found",
-  MANIFEST_NOT_FOUND: "Manifest not found",
+  MANIFEST_NOT_FOUND: "Review package not found",
   RESOURCE_NOT_FOUND: "Resource not found",
   DATABASE_TIMEOUT: "Database timeout",
   DATABASE_UNAVAILABLE: "Database unavailable",
@@ -65,7 +65,7 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   CIRCUIT_BREAKER_OPEN: "The AI service is currently overwhelmed or unavailable. Please wait a few minutes before retrying your request.",
   VALIDATION_FAILED: "Review the highlighted fields above and correct any invalid inputs before resubmitting.",
   CONFLICT: "Another user or process may have modified this resource. Please refresh the page to see the latest changes.",
-  COMPARISON_VERIFICATION_FAILED: "The architecture reviews you selected cannot be compared. Ensure they belong to the same project and have compatible manifests.",
+  COMPARISON_VERIFICATION_FAILED: "The architecture reviews you selected cannot be compared. Ensure they belong to the same project and have compatible review packages.",
   INVALID_RUN_STATE: "This review is not in a valid state for this action. Refresh the page to check its current progress.",
   POLICY_PACK_VERSION_NOT_FOUND: "The requested policy pack version is missing. It may have been deleted or archived.",
   INTERNAL_ERROR: "An unexpected server error occurred. Try your action again in a few moments.",
@@ -92,7 +92,7 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   UPSTREAM_INTEGRATION_FAILED:
     "An upstream identity or integration dependency failed. Verify OIDC/SAML settings, network reachability, and IdP metadata before retrying.",
   GOVERNANCE_PRE_COMMIT_BLOCKED:
-    "Governance policy blocked manifest commit. Resolve critical findings or obtain approval per your policy pack before finalizing.",
+    "Governance policy blocked review package finalization. Resolve critical findings or obtain approval per your policy pack before finalizing.",
   PROOF_PACKET_HOLD:
     "Proof collection returned HOLD. Open the proof disposition JSON, clear blocking findings, and rerun collect-first-pilot-proof before external send.",
   CONFIG_LINT_HOLD:

@@ -72,5 +72,5 @@ export function resolveCurrentPipelineStageLabel(
     return buyerPipelineStageName(inferredStageName, buyerPolished);
   }
 
-  return buyerPolished ? "Finalizing signed package" : "manifest finalization";
+  return buyerPolished ? "Finalizing signed package" : "Review package finalization";
 }

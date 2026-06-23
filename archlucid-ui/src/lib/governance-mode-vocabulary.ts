@@ -34,9 +34,9 @@ const GOVERNANCE_VOCABULARY: GovernanceModeVocabulary = {
   reviewSingular: "Run",
   reviewPlural: "Runs",
   reviewDetailTitle: "Run detail",
-  goldenManifestLabel: "Golden manifest",
+  goldenManifestLabel: "Signed review record",
   authorityChainLabel: "Authority chain",
-  manifestSummaryHeading: "Golden manifest summary",
+  manifestSummaryHeading: "Signed review record summary",
 };
 
 export function governanceModeVocabulary(isGovernanceModeEnabled: boolean): GovernanceModeVocabulary {

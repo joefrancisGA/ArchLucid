@@ -58,7 +58,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <ScorecardMetricCard title="Reviews committed" value={String(data.totalRunsCommitted)} provenance={data.metricSources?.totalRunsCommitted} />
-              <ScorecardMetricCard title="Manifests created" value={String(data.totalManifestsCreated)} provenance={data.metricSources?.totalManifestsCreated} />
+              <ScorecardMetricCard title="Review packages finalized" value={String(data.totalManifestsCreated)} provenance={data.metricSources?.totalManifestsCreated} />
               <ScorecardMetricCard
                 title="Findings affirmed"
                 value={String(data.totalFindingsResolved)}
@@ -66,7 +66,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                 provenance={data.metricSources?.totalFindingsResolved}
               />
               <ScorecardMetricCard
-                title="Avg. time to manifest"
+                title="Avg. time to finalized review package"
                 value={
                   data.averageTimeToManifestMinutes === null ? "—" : `${data.averageTimeToManifestMinutes.toFixed(1)} min`
                 }

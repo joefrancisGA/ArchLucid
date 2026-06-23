@@ -286,7 +286,7 @@ export function tryStaticDemoGoldenManifestComparison(
     costChanges: [{ baseCost: 42000, targetCost: 48500 }],
     summaryHighlights: [
       "Updated review adds guard-railed OCR bypass monitoring — the monitored PHI minimization risk remains accepted with sampling.",
-      "Two architecture decisions changed between baseline and updated finalized manifests; topology adds an OCR worker path.",
+      "Two architecture decisions changed between baseline and updated finalized review packages; topology adds an OCR worker path.",
     ],
     totalDeltaCount: 7,
   };
@@ -1139,7 +1139,7 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
       status: "Approved",
       requestedBy: "Taylor Morgan",
       reviewedBy: "Jordan Lee",
-      requestComment: "Request governed use of the finalized intake manifest after privacy review.",
+      requestComment: "Request governed use of the finalized intake review package after privacy review.",
       reviewComment: "Approved — maintain weekly monitoring on unstructured attachment volume.",
       requestedUtc: "2026-01-14T21:00:00.000Z",
       reviewedUtc: "2026-01-14T22:05:00.000Z",

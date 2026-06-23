@@ -34,7 +34,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         6e8c4a102b1f4c9a9d3e10b2a4f0c501
       </code>
        
-      · manifest 
+      · review package 
       <code>
         v3
       </code>
@@ -87,7 +87,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             <span
               class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
             >
-              Review
+              Review package
             </span>
           </p>
           <p
@@ -118,12 +118,12 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
           <p
             class="font-medium text-neutral-900 dark:text-neutral-100"
           >
-            Golden manifest v3
+            Signed review record v3
              
             <span
               class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
             >
-              Manifest
+              Signed review record
             </span>
           </p>
           <p
@@ -276,7 +276,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             <span
               class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
             >
-              Manifest
+              Signed review record
             </span>
              
             <span>

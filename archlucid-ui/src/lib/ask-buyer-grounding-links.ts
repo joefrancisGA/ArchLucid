@@ -34,7 +34,7 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
       href: getShowcaseExecutiveHref(),
     },
     {
-      label: "Finalized manifest package",
+      label: "Finalized review package",
       href: getShowcaseManifestHref(),
     },
     {

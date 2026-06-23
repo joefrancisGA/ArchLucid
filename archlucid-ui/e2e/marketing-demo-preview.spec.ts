@@ -8,11 +8,11 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 test.describe("marketing-demo-preview", () => {
   test("/demo/preview loads manifest narrative, outcome strip, and signup CTA without auth", async ({ page }) => {
     await page.goto("/demo/preview", { waitUntil: "load" });
-    await expect(page.getByRole("heading", { name: "See a finalized manifest (demo)", level: 1 })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "See a finalized review package (demo)", level: 1 })).toBeVisible({
       timeout: 60_000,
     });
 
-    await expect(page.getByRole("heading", { name: "Manifest summary" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Review package summary" })).toBeVisible();
     // Default marketing chrome uses buyer-safe copy ("Review lifecycle timeline"); tooling/tests may use "Review trail".
     await expect(page.getByRole("heading", { name: /^(Review lifecycle timeline|Review trail)$/ })).toBeVisible();
     await expect(page.locator('[data-testid="demo-preview-review-trail"]')).toBeVisible();

@@ -3,7 +3,7 @@
 const TRIGGER_DESCRIPTIONS: Record<string, { label: string; helpText: string }> = {
   "com.archlucid.authority.run.completed": {
     label: "Review finalized",
-    helpText: "An architecture review produced a finalized manifest (operator UI: review detail).",
+    helpText: "An architecture review produced a finalized review package (operator UI: review detail).",
   },
   "com.archlucid.governance.approval.submitted": {
     label: "Governance approval requested",

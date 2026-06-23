@@ -19,11 +19,11 @@ export const ARCHITECTURE_REVIEW_VOCABULARY = {
   pipelineStagesAriaLabel: "Architecture review pipeline stages completed",
   /**
    * Shown under {@link LayerHeader} on Advanced operations / Governance surfaces.
-   * Review = work unit; manifest = finalized package; trace = per-step execution record.
+   * Review package = governed artifact; evidence trail = provenance for how outputs were produced.
    */
   reviewManifestTraceHelp:
-    "An architecture review is the end-to-end work unit (intake through finalized outputs). The finalized manifest is the signed package you govern and export for that review. Traces are per-step execution records—agents, scores, and pipeline stages—that explain how the manifest was produced.",
-  /** Buyer-polished shell — replaces {@link reviewManifestTraceHelp} on LayerHeader and governance surfaces. */
+    "A review package contains the finalized review record, findings, decisions, evidence, and audit trail. An architecture review is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review package was produced.",
+  /** LayerHeader and governance surfaces — same vocabulary as {@link reviewManifestTraceHelp}. */
   buyerReviewPackageScopeHelp:
-    "An architecture review is the end-to-end work unit from intake through finalized outputs. The finalized review package is the governed record you can export for that review. Evidence traces show how findings, decisions, and cited artifacts were produced.",
+    "A review package contains the finalized review record, findings, decisions, evidence, and audit trail. An architecture review is the end-to-end work unit from intake through those outputs. The evidence trail explains how the review package was produced.",
 } as const;

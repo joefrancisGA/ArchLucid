@@ -32,11 +32,11 @@ describe("LayerHeader", () => {
     expect(screen.getByText(/what changed between two finalized review packages/i)).toBeInTheDocument();
   });
 
-  it("explains Review, Manifest, and Trace relationship", () => {
+  it("explains review package and evidence trail relationship", () => {
     render(<LayerHeader pageKey="compare" />);
 
-    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review · Manifest · Trace/i);
-    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized manifest/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review package and evidence trail/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized review record/i);
   });
 
   it("renders Governance responsibility footnote on audit", () => {
@@ -92,7 +92,7 @@ describe("LayerHeader", () => {
 
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.getByText("How compare works")).toBeInTheDocument();
-    expect(screen.queryByText(/Review · Manifest · Trace/i)).not.toBeVisible();
+    expect(screen.queryByText(/Review package and evidence trail/i)).not.toBeVisible();
   });
 
   it("does not render Execute+ rank cue on Advanced operations pages", () => {

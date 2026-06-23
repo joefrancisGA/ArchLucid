@@ -24,7 +24,7 @@ export function RunDetailManifestSummaryAlerts(
       {manifestSummaryFailure ? (
         <div className="space-y-2">
           <p className="m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-            Manifest summary could not be loaded.
+            Review record summary could not be loaded.
           </p>
           <OperatorApiProblem
             problem={manifestSummaryFailure.problem}
@@ -35,13 +35,13 @@ export function RunDetailManifestSummaryAlerts(
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
             This is a failed request (HTTP / transport / 404), not a malformed JSON body.
           </p>
-          <OperatorSectionRetryButton label="Retry loading manifest summary" />
+          <OperatorSectionRetryButton label="Retry loading review record summary" />
         </div>
       ) : null}
 
       {manifestSummaryMalformed ? (
         <OperatorMalformedCallout>
-          <strong>Manifest summary response was not usable.</strong>
+          <strong>Review record summary response was not usable.</strong>
           <p className="mt-2">{manifestSummaryMalformed}</p>
         </OperatorMalformedCallout>
       ) : null}

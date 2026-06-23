@@ -21,7 +21,7 @@ function isFixtureHash(hash: string): boolean {
 /** Maps a potentially fixture-shaped manifest ID to a display label. */
 function displayManifestId(id: string, side: "left" | "right"): string {
   if (isFixtureManifestId(id)) {
-    return side === "left" ? "Baseline manifest" : "Updated manifest";
+    return side === "left" ? "Baseline review package" : "Updated review package";
   }
 
   return id;
@@ -93,12 +93,12 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         </table>
       )}
 
-      <h4 className="mt-6 text-[15px]">Manifest diff</h4>
+      <h4 className="mt-6 text-[15px]">Review package diff</h4>
       {!result.manifestComparison ? (
-        <OperatorEmptyState title="No manifest comparison block">
+        <OperatorEmptyState title="No review package comparison block">
           <p className="m-0 text-sm">
             {
-              'The API did not include a manifest comparison object for this pair (distinct from "zero diffs inside a comparison").'
+              'The API did not include a review package comparison object for this pair (distinct from "zero diffs inside a comparison").'
             }
           </p>
         </OperatorEmptyState>
@@ -113,7 +113,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
               Technical details
             </summary>
             <p className="mb-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-              <strong>Manifest IDs:</strong>{" "}
+              <strong>Review record IDs:</strong>{" "}
               <code className={monoCls}>
                 {displayManifestId(result.manifestComparison.leftManifestId, "left")}
               </code>{" "}
@@ -128,7 +128,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
             </p>
           </details>
           {manifestDiffs.length === 0 ? (
-            <OperatorEmptyState title="Manifest comparison has zero line items">
+            <OperatorEmptyState title="Review comparison has zero line items">
               <p className="m-0 text-sm">Comparison object present but diff list is empty.</p>
             </OperatorEmptyState>
           ) : (

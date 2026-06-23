@@ -86,7 +86,7 @@ describe("RunDetailSponsorModeExplanationCard", () => {
       />,
     );
 
-    expect(screen.getByText(/committed manifest and finding records/i)).toBeInTheDocument();
+    expect(screen.getByText(/committed review package and finding records/i)).toBeInTheDocument();
     expect(screen.getByText("Low support")).toBeInTheDocument();
     expect(screen.getByText(/send the executive briefing package/i)).toBeInTheDocument();
   });

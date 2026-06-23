@@ -46,8 +46,8 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
 
   const previewDisclosure =
     source === "snapshot"
-      ? "Public read-only sample (finalized January 2026). Tenant-accurate manifests and full artifact bytes use a signed-in workspace — this page stays a stable evaluation slice."
-      : "Public read-only marketing preview. Tenant-accurate manifests and full artifact bytes use a signed-in workspace.";
+      ? "Public read-only sample (finalized January 2026). Tenant-accurate review packages and full artifact bytes use a signed-in workspace — this page stays a stable evaluation slice."
+      : "Public read-only marketing preview. Tenant-accurate review packages and full artifact bytes use a signed-in workspace.";
 
   return (
     <div className="space-y-6">

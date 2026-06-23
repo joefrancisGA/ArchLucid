@@ -469,7 +469,7 @@ export function NewRunWizardClient() {
     runId === null
       ? "No review started yet."
       : pollSummary
-        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, reviewed manifest ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
+        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, signed review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
         : `Review ${runId} created; loading summary.`;
 
   const persistWizardMode = useCallback((mode: "quick" | "full") => {

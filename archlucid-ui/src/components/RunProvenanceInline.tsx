@@ -54,7 +54,7 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
       return "Findings reviewed";
 
     case "manifest":
-      return "Manifest finalized";
+      return "Review package finalized";
 
     default:
       return `${stage.label} · ok`;
@@ -87,7 +87,7 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
     },
     {
       key: "manifest",
-      label: "Manifest",
+      label: "Package",
       present: run.hasGoldenManifest === true,
     },
   ];

@@ -1,6 +1,7 @@
 import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { WhyArchLucidExplanationStat } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidExplanationStat";
+import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
 
 export type WhyArchLucidExplanationPanelProps = {
   readonly summary: RunExplanationSummary;
@@ -51,7 +52,7 @@ export function WhyArchLucidExplanationPanel(props: WhyArchLucidExplanationPanel
             {citations.map((c) => (
               <li key={`${c.kind}:${c.id}`} className="font-mono text-xs">
                 <span className="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-                  {c.kind}
+                  {citationKindBuyerLabel(c.kind)}
                 </span>{" "}
                 <span>{c.label}</span> <span className="text-neutral-500">({c.id})</span>
               </li>

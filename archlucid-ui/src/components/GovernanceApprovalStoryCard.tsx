@@ -76,7 +76,7 @@ export function GovernanceApprovalStoryCard(props: {
         </CardTitle>
         <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
           <p className="m-0 leading-relaxed">
-            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized manifest
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review package
             version <span className="font-semibold">{row.manifestVersion}</span> — approved as architecture decision record for
             this review package. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>

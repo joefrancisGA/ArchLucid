@@ -55,7 +55,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
               </>
             ) : (
               <>
-                This manifest records <strong>{summary.decisionCount}</strong> decision
+                This review package records <strong>{summary.decisionCount}</strong> decision
                 {summary.decisionCount === 1 ? "" : "s"}
                 {hasExcerpts ? " — preview:" : " — review the originating run for full evidence and narration."}
               </>
@@ -146,7 +146,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
         <CardDescription>
           {buyer
             ? "Main architecture choices captured in this review package."
-            : "Preview of key architecture choices captured in this manifest."}
+            : "Preview of key architecture choices captured in this review package."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

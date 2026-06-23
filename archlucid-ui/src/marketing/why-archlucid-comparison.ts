@@ -50,7 +50,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
   },
   {
     claim:
-      "Operators can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **golden manifest commits** consult governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
+      "Operators can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **review package commits** consult governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
     archlucidEvidence:
       "`docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` · `ArchLucid.Application/Governance/PreCommitGovernanceGate.cs` · `ArchLucid.Application.Tests/ArchitectureRunCommitPipelineIntegrationTests.cs` (gate exercised)",
     competitorBaseline:
@@ -80,6 +80,6 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
       "Static architecture decision logs **without traversable evidence linkage** often require readers to open many attachments per finding (**illustrative, not benchmarked** — category pattern, not a cited attachment-count study).",
     citation: "https://en.wikipedia.org/wiki/Data_provenance",
     narrativeParagraph:
-      "The provenance endpoint deliberately returns **422** until the golden manifest, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.",
+      "The provenance endpoint deliberately returns **422** until the signed review record, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.",
   },
 ];

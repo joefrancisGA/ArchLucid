@@ -9,9 +9,9 @@ import {
 describe("auditEventFriendlyTitle", () => {
   it("matches Contracts buyer titles for known audit spine codes", () => {
     expect(auditEventFriendlyTitle("RunStarted")).toBe("Review started");
-    expect(auditEventFriendlyTitle("ManifestFinalized")).toBe("Manifest finalized");
+    expect(auditEventFriendlyTitle("ManifestFinalized")).toBe("Review package finalized");
     expect(auditEventFriendlyTitle("GovernanceApprovalRequested")).toBe("Governance approval requested");
-    expect(auditEventFriendlyTitle("ManifestViewed")).toBe("Manifest viewed");
+    expect(auditEventFriendlyTitle("ManifestViewed")).toBe("Review package viewed");
   });
 });
 

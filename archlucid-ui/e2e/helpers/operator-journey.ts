@@ -156,7 +156,7 @@ export function comparePageSubmitButton(page: Page) {
 
 /** H3 shown once structured compare payload renders (`CompareResultsPanel`). */
 export function compareManifestComparisonHeading(page: Page): Locator {
-  return page.getByRole("heading", { name: "Manifest comparison", level: 3 });
+  return page.getByRole("heading", { name: "Review comparison", level: 3 });
 }
 
 /**

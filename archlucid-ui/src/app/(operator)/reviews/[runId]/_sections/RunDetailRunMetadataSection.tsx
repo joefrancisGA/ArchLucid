@@ -23,8 +23,8 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>Review</h3>
           <CardDescription>
-            Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip> has a{" "}
-            <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
+            Review record summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip> has a{" "}
+            <GlossaryTooltip termKey="golden_manifest">signed review record</GlossaryTooltip> (after finalization).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">

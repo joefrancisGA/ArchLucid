@@ -65,6 +65,36 @@ export const REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS = [
   "new run wizard",
 ] as const;
 
+/** Lowercase phrase fragments that must not appear in buyer-facing UI copy (manifest terminology sweep). */
+export const REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS = [
+  "manifest diff",
+  "manifest comparison",
+  "golden manifest",
+  "signed manifest",
+  "finalized manifest",
+  "review manifest",
+  "committed manifest",
+  "manifest trace",
+  "manifest summary",
+  "manifest record",
+  "manifest output",
+  "manifest decision",
+  "manifest finalized",
+  "manifest promoted",
+  "manifest not found",
+  "open manifest",
+  "manifest link",
+  "manifest baseline",
+  "manifest rollup",
+  "manifest posture",
+  "manifest pipeline",
+  "manifest package",
+  "manifests created",
+  "time to manifest",
+  "reviewed manifest",
+  "architecture manifest",
+] as const;
+
 export const REVIEW_TERMINOLOGY_BUYER_SURFACE_PATHS = [
   "src/lib/first-pilot-buyer-copy.ts",
   "src/lib/first-pilot-operating-rail-copy.ts",

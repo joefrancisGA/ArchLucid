@@ -68,7 +68,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <CardDescription>
           {buyerPolishedLayout
             ? "Status, policy posture, and what is included in this package."
-            : "Status, rules, and counts for this manifest."}
+            : "Status, rules, and counts for this review package."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -97,7 +97,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <CardDescription>
           {buyerPolishedLayout
             ? "This package records a monitored risk that maps back to the originating review and evidence trail."
-            : "Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review."}
+            : "Warnings or unresolved issues on this review package correspond to surfaced findings on the originating review."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -218,7 +218,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         </Link>
         {" · "}
         <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
-          {buyerPolishedLayout === true ? BUYER_SIGNED_DECISION_RECORD_LABEL : "Manifest"}
+          {BUYER_SIGNED_DECISION_RECORD_LABEL}
         </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
           <>
@@ -244,7 +244,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
               : buyerPolishedLayout
                 ? BUYER_SIGNED_DECISION_RECORD_LABEL
-                : "Finalized Architecture Manifest"}
+                : "Finalized architecture review package"}
           </h1>
         </div>
         {buyerPolishedLayout !== true ? (
@@ -413,7 +413,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
-            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this manifest"}>
+            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this review package"}>
               {buyerPolishedLayout ? (
                 <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
               ) : (

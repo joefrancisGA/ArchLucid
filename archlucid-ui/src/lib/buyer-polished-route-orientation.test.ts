@@ -15,7 +15,7 @@ describe("buyerPolishedRouteOrientation", () => {
     const result = buyerPolishedRouteOrientation("/search");
 
     expect(result?.label).toBe("Search review evidence");
-    expect(result?.line).toContain("tenant-scoped");
+    expect(result?.line).toContain("across this workspace");
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
@@ -53,5 +53,18 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Ask this review");
     expect(o?.line).toContain("signed review record");
     expect(o?.line).toContain("cite evidence");
+  });
+
+  it("orients the advisory route with recommendation copy", () => {
+    const o = buyerPolishedRouteOrientation("/advisory");
+
+    expect(o?.label).toBe("Architecture advisory");
+    expect(o?.line).toContain("Recommended changes");
+  });
+
+  it("orients advisory sub-routes (e.g. ?tab=schedules) consistently", () => {
+    const o = buyerPolishedRouteOrientation("/advisory?tab=schedules");
+
+    expect(o?.label).toBe("Architecture advisory");
   });
 });

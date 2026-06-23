@@ -88,7 +88,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     isDeterministicExplanationFallback(summary)
-      ? "Some narrative was deterministically aligned to the manifest when live synthesis was unavailable."
+      ? "Some narrative was deterministically aligned to the review package when live synthesis was unavailable."
       : null,
   ]
     .filter((s): s is string => s !== null && s.length > 0)
@@ -102,7 +102,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
         } surfaced in this review package.`
       : null,
     typeof summary.unresolvedIssueCount === "number" && Number.isFinite(summary.unresolvedIssueCount)
-      ? `${summary.unresolvedIssueCount} unresolved manifest issue${
+      ? `${summary.unresolvedIssueCount} unresolved review package issue${
           Math.trunc(summary.unresolvedIssueCount) === 1 ? "" : "s"
         }.`
       : null,
@@ -172,7 +172,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
             <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
               {evidenceConfidenceLine.length > 0
                 ? evidenceConfidenceLine
-                : "Confidence metadata was not returned for this review — use prioritized findings and the manifest package as the authoritative record."}
+                : "Confidence metadata was not returned for this review — use prioritized findings and the review package as the authoritative record."}
             </p>
           </CardContent>
         </Card>

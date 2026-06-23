@@ -39,13 +39,13 @@ export function auditEventFriendlyTitle(eventType: string): string {
       return "Architecture request captured";
 
     case "ManifestGenerated":
-      return "Manifest generated";
+      return "Review package generated";
 
     case "ManifestFinalized":
-      return "Manifest finalized";
+      return "Review package finalized";
 
     case "ManifestViewed":
-      return "Manifest viewed";
+      return "Review package viewed";
 
     case "ReviewTrailAccessed":
       return "Review trail accessed";

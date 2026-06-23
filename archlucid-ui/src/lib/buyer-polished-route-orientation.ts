@@ -168,5 +168,12 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
+  if (path.startsWith("/advisory")) {
+    return {
+      label: "Architecture advisory",
+      line: "Recommended changes based on committed review packages.",
+    };
+  }
+
   return null;
 }

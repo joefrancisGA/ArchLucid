@@ -17,7 +17,7 @@ export function DemoExplainStatusBanner(props: Props) {
       {payload.manifestVersion ? (
         <>
           {" "}
-          · manifest <code>{payload.manifestVersion}</code>
+          · review package <code>{payload.manifestVersion}</code>
         </>
       ) : null}{" "}
       · generated <code>{payload.generatedUtc}</code>

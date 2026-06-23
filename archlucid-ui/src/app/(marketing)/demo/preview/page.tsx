@@ -9,8 +9,8 @@ import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · See a finalized manifest (demo)",
-  description: "A live manifest preview powered by the ArchLucid demo seed.",
+  title: "ArchLucid · See a finalized review package (demo)",
+  description: "A live review package preview powered by the ArchLucid demo seed.",
   robots: { index: false, follow: false },
 };
 
@@ -43,7 +43,7 @@ export default async function DemoPreviewMarketingPage() {
   if (!base) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
           This public walkthrough uses illustrative sample data.
@@ -66,7 +66,7 @@ export default async function DemoPreviewMarketingPage() {
   } catch {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
           This public walkthrough uses illustrative sample data.
@@ -81,7 +81,7 @@ export default async function DemoPreviewMarketingPage() {
   if (!response.ok) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
           This public walkthrough uses illustrative sample data.
@@ -97,7 +97,7 @@ export default async function DemoPreviewMarketingPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
+      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized review package (demo)</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         A read-only walkthrough of a completed architecture review tailored for procurement and sponsor conversations —
         This public walkthrough uses illustrative sample data.

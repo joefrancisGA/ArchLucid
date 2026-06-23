@@ -28,7 +28,7 @@ describe("Compare / review views (55R smoke)", () => {
   it("StructuredComparisonView shows review heading labels, no empty summary fold, and consolidated no-deltas banner when there is no delta data", () => {
     render(<StructuredComparisonView golden={emptyGolden} />);
 
-    expect(screen.getByText("Manifest comparison")).toBeInTheDocument();
+    expect(screen.getByText("Review comparison")).toBeInTheDocument();
     expect(screen.getByText("run-base")).toBeInTheDocument();
     expect(screen.getByText("run-target")).toBeInTheDocument();
     expect(screen.queryByText("Summary highlights")).not.toBeInTheDocument();

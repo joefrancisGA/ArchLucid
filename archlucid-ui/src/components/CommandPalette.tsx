@@ -474,11 +474,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/graph")) {
-      return "Jump to audit, manifest, governance, or type another destination…";
+      return "Jump to audit, signed review record, governance, or type another destination…";
     }
 
     if (path.startsWith("/ask")) {
-      return "Jump to executive summary, manifest, evidence trail, or governance…";
+      return "Jump to executive summary, signed review record, evidence trail, or governance…";
     }
 
     if (path.startsWith("/compare")) {
@@ -486,7 +486,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/audit")) {
-      return "Jump to executive summary, evidence graph, manifest — or type a destination…";
+      return "Jump to executive summary, evidence graph, signed review record — or type a destination…";
     }
 
     if (path.startsWith("/governance")) {
