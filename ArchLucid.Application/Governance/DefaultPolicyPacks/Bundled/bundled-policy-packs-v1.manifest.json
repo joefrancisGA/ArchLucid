@@ -5,6 +5,7 @@
     "security-architecture-baseline.json",
     "azure-waf.json",
     "azure-caf-landing-zone.json",
+    "arc-ampe-architecture-themes.json",
     "gdpr-baseline.json",
     "soc2-tsc-architecture.json",
     "cost-optimization.json",
