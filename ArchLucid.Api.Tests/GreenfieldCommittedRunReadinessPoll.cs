@@ -44,6 +44,28 @@ internal static class GreenfieldCommittedRunReadinessPoll
     }
 
     /// <summary>
+    ///     Returns <see langword="true" /> when the run is already committed with a readable manifest version (idempotent
+    ///     success after a 409 manifest-load race or duplicate commit attempt).
+    /// </summary>
+    internal static async Task<bool> TryReturnIfRunAlreadyCommittedAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/run/{runId}", cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        ArchitectureRunDetailProbeDto? detail =
+            await response.Content.ReadFromJsonAsync<ArchitectureRunDetailProbeDto>(JsonOptions, cancellationToken);
+
+        return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
+    }
+
+    /// <summary>
     ///     Polls until execute has promoted the run to <c>ReadyForCommit</c> with agent results visible on
     ///     <c>GET /v1/architecture/run/{runId}</c>. Prevents POST /commit racing snapshot/materialization under CI SQL load.
     ///     Note: <c>CurrentManifestVersion</c> is populated only after commit, not at ReadyForCommit.
@@ -76,6 +98,17 @@ internal static class GreenfieldCommittedRunReadinessPoll
             cancellationToken,
             maxAttempts: 30,
             maxDelayMs: 4000);
+    }
+
+    internal static bool IsManifestNotLoadedYetConflict(HttpStatusCode statusCode, string? responseBody)
+    {
+        if (statusCode != HttpStatusCode.Conflict)
+            return false;
+
+        if (string.IsNullOrEmpty(responseBody))
+            return false;
+
+        return responseBody.Contains("manifest could not be loaded yet", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static Task<string> WaitUntilFirstValueReportMarkdownReadyAsync(

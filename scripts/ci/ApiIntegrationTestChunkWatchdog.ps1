@@ -70,7 +70,7 @@ function Get-DescendantProcessIds {
         }
     }
 
-    return ,@($visited.ToArray())
+    return [int[]]@($visited)
 }
 
 function Get-LinuxProcessCommandLine {
@@ -157,7 +157,7 @@ function Write-ChunkProcessTreeDiagnostics {
         [int]$CurrentProcessId
     )
 
-    $descendantIds = Get-DescendantProcessIds -RootProcessId $RootProcessId
+    $descendantIds = @(Get-DescendantProcessIds -RootProcessId $RootProcessId)
     Write-Host ("Chunk process tree diagnostics: root PID {0}, {1} descendant(s)" -f $RootProcessId, $descendantIds.Count)
 
     foreach ($processId in ($descendantIds | Sort-Object)) {
@@ -203,7 +203,7 @@ function Get-IntegrationTestDumpTargetProcessIds {
 
     Write-ChunkProcessTreeDiagnostics -RootProcessId $RootProcessId -CurrentProcessId $CurrentProcessId
 
-    $descendantIds = Get-DescendantProcessIds -RootProcessId $RootProcessId
+    $descendantIds = @(Get-DescendantProcessIds -RootProcessId $RootProcessId)
     $matchedIds = [System.Collections.Generic.List[int]]::new()
     $dotnetDescendantIds = [System.Collections.Generic.List[int]]::new()
     $directChildDotnetIds = [System.Collections.Generic.List[int]]::new()
@@ -227,7 +227,7 @@ function Get-IntegrationTestDumpTargetProcessIds {
     }
 
     if ($matchedIds.Count -gt 0) {
-        return ,@($matchedIds | Select-Object -Unique)
+        return [int[]]@($matchedIds | Select-Object -Unique)
     }
 
     if ($IsLinux -or [bool]$env:GITHUB_ACTIONS) {
@@ -253,13 +253,13 @@ function Get-IntegrationTestDumpTargetProcessIds {
     }
 
     if ($directChildDotnetIds.Count -gt 0) {
-        return ,@($directChildDotnetIds | Select-Object -Unique)
+        return [int[]]@($directChildDotnetIds | Select-Object -Unique)
     }
 
     if ($dotnetDescendantIds.Count -gt 0) {
         Write-Host ("No cmdline-matched dump targets; falling back to {0} dotnet descendant(s)" -f $dotnetDescendantIds.Count)
 
-        return ,@($dotnetDescendantIds | Select-Object -Unique)
+        return [int[]]@($dotnetDescendantIds | Select-Object -Unique)
     }
 
     return @()
@@ -535,9 +535,10 @@ function Invoke-IntegrationTestHangDumpCapture {
     $dotnetStackPath = Ensure-DotNetStackTool
 
     try {
-        $targetProcessIds = @(Get-IntegrationTestDumpTargetProcessIds `
-            -RootProcessId $RootProcessId `
-            -CurrentProcessId $PID)
+        $targetProcessIds = @(
+            Get-IntegrationTestDumpTargetProcessIds `
+                -RootProcessId $RootProcessId `
+                -CurrentProcessId $PID)
 
         if ($targetProcessIds.Count -eq 0) {
             Write-Host 'No dump target processes found in the chunk process tree; skipping dump/stack capture.'
@@ -598,7 +599,7 @@ function Stop-IntegrationTestProcessTree {
         }
     }
 
-    $descendantIds = Get-DescendantProcessIds -RootProcessId $RootProcess.Id
+    $descendantIds = @(Get-DescendantProcessIds -RootProcessId $RootProcess.Id)
 
     foreach ($processId in $descendantIds) {
         if ($processId -eq $PID) {

@@ -31,7 +31,10 @@ under load, not a test harness bug.
 `CurrentManifestVersion` is **not** populated until after commit succeeds; requiring it before commit always fails.
 
 `ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync` calls this gate
-**before** the commit retry loop so all greenfield SQL integration call sites benefit.
+**before** the commit retry loop so all greenfield SQL integration call sites benefit. On 409 responses whose
+detail mentions manifest load races, the helper re-polls this gate, checks for idempotent `Committed` state,
+and retries up to **25** attempts with backoff capped at **8s** (product-side commit reconciliation only waits
+~125ms across five attempts).
 
 ## Product follow-up (not changed in this pass)
 
