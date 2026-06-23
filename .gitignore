@@ -454,3 +454,4 @@ docs/assessments/latest_X.md
 
 # Local Azure OpenAI credentials for real-mode / golden-cohort runs (never commit)
 secrets/
+docs/assessments/latest_*.md

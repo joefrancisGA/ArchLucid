@@ -742,6 +742,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/ReviewsDemoController.cs",
+      "class_name": "ReviewsDemoController",
+      "route_template": "v{version:apiVersion}/reviews",
+      "normalized_prefix": "/v1/reviews",
+      "commercial_tier": "none",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/RunAgentEvaluationController.cs",
       "class_name": "RunAgentEvaluationController",
       "route_template": "v{version:apiVersion}/internal/architecture",

@@ -111,6 +111,7 @@ public partial class Program
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
         builder.Services.AddScoped<QuickStartService>();
+        builder.Services.AddScoped<OperatorDemoReviewService>();
 
         if (builder.Configuration.GetValue("Demo:Enabled", false))
         {

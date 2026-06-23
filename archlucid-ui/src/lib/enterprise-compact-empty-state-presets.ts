@@ -6,7 +6,7 @@ export const RUNS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "runs-list-empty-state",
   title: "No review packages yet",
   description:
-    `Start an architecture review to generate a package with findings, evidence, and exports. Or load the ${BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL} workspace to populate reviews and the executive ROI dashboard immediately.`,
+    "Start an architecture review to generate a package with findings, evidence, and exports. Or run a one-click demo review to see policy-aware findings immediately, or load the sample workspace for executive ROI.",
   actions: [
     { label: "Start architecture review", href: "/reviews/new", variant: "primary" },
     { label: "View sample package", href: "/reviews/claims-intake-modernization", variant: "outline" },
@@ -18,7 +18,7 @@ export const OPERATOR_HOME_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStatePro
   testId: "operator-home-workspace-empty-state",
   title: OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
   description:
-    `Your workspace has no committed reviews yet. Load the ${BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL} workspace to see findings, review packages, and portfolio ROI — or start a review from the actions above.`,
+    `Your workspace has no committed reviews yet. Run a one-click demo review to see policy-aware findings, load the ${BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL} workspace for portfolio ROI, or start a review from the actions above.`,
 };
 
 /** Semantic search returned no hits. */
