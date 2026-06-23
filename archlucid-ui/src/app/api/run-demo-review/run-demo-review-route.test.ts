@@ -6,14 +6,17 @@ import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 
 describe("POST /api/run-demo-review", () => {
   const fetchMock = vi.fn();
+  const upstreamApiBaseUrl = "http://localhost:5128";
 
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
+    process.env.ARCHLUCID_API_BASE_URL = upstreamApiBaseUrl;
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    delete process.env.ARCHLUCID_API_BASE_URL;
   });
 
   it("returns 200 with redirectTo from upstream runDetailUrl", async () => {
@@ -41,7 +44,7 @@ describe("POST /api/run-demo-review", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [calledUrl] = fetchMock.mock.calls[0]!;
-    expect(String(calledUrl)).toBe("http://localhost/api/proxy/v1/reviews/demo");
+    expect(String(calledUrl)).toBe(`${upstreamApiBaseUrl}/v1/reviews/demo`);
   });
 
   it("passes upstream non-200 status through", async () => {

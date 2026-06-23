@@ -68,7 +68,7 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
       data-testid="finding-policy-provenance-panel"
     >
       <div className="flex flex-wrap items-center gap-2">
-        {hasPolicyContext ? <StatusTag kind="warning" label={violationLabel} data-testid="finding-policy-violation-tag" /> : null}
+        {hasPolicyContext ? <StatusTag kind="needs-attention" label={violationLabel} data-testid="finding-policy-violation-tag" /> : null}
         <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", compact ? OPERATOR_TYPOGRAPHY.badge : "text-sm")}>
           Policy provenance
         </p>

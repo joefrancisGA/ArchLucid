@@ -6,14 +6,14 @@ import {
 } from "@/lib/reviews-new-path-copy";
 
 describe("reviews-new-path-copy buyer-facing copy", () => {
-  it("guided-intake hint mentions duration and system context without repeating the mode name", () => {
+  it("guided-intake hint describes structured clarifying questions without repeating the mode name", () => {
     expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).not.toMatch(/guided intake/i);
-    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/about 10 minutes/i);
-    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/system context/i);
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/clarifying questions/i);
+    expect(REVIEWS_NEW_PATH_HINTS["guided-intake"]).toMatch(/admission gates/i);
   });
 
-  it("quick-review hint is clearly for users with a ready brief", () => {
-    expect(REVIEWS_NEW_PATH_HINTS["quick-review"]).toMatch(/brief/i);
+  it("quick-review hint is clearly for the fastest first-pilot path", () => {
+    expect(REVIEWS_NEW_PATH_HINTS["quick-review"]).toMatch(/first-pilot|evidence|review title/i);
   });
 
   it("detailed hint is for export-ready review packages", () => {
