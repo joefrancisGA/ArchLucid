@@ -42,6 +42,7 @@ const NAV_GROUP_TO_LAYER: Readonly<Record<string, LayerId>> = {
   "operate-operations": "operate-analysis",
   "operate-governance": "operate-governance",
   "operator-admin": "operator-admin",
+  "operator-system-admin": "operator-admin",
 };
 
 const NAV_PATH_MATCHES: ReadonlyArray<NavPathMatch> = (() => {

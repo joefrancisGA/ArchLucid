@@ -38,6 +38,7 @@ import {
   COMMAND_PALETTE_START_CTO_DEMO_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { filterNavGroupsForGovernanceMode, isGovernanceModeHiddenNavHref } from "@/lib/governance-mode-nav-filter";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
@@ -258,6 +259,22 @@ function CommandPaletteNavGroups({
     isGovernanceModeEnabled,
   );
 
+  const systemAdminRows = isArchLucidInternalOperatorShellEnv()
+    ? filterNavGroupsForGovernanceMode(
+        listNavGroupsVisibleInOperatorShell(
+          NAV_GROUPS,
+          shellShowExtended,
+          shellShowAdvanced,
+          callerAuthorityRank,
+          false,
+          "system-admin",
+          hasCommittedArchitectureReview,
+          operateNavUnlockPhase,
+        ),
+        isGovernanceModeEnabled,
+      )
+    : [];
+
   return (
     <>
       {reviewRows.map(({ group, visibleLinks }) => (
@@ -288,6 +305,23 @@ function CommandPaletteNavGroups({
                 <CommandItem
                   key={link.href}
                   value={`administration ${link.label} ${link.href}`}
+                  onSelect={() => {
+                    onNavigate(link.href);
+                  }}
+                >
+                  {link.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))
+        : null}
+      {showAdminPalette
+        ? systemAdminRows.map(({ group, visibleLinks }) => (
+            <CommandGroup key={`palette-${group.id}`} heading="System admin">
+              {visibleLinks.map((link) => (
+                <CommandItem
+                  key={link.href}
+                  value={`system admin ${link.label} ${link.href}`}
                   onSelect={() => {
                     onNavigate(link.href);
                   }}

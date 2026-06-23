@@ -9,6 +9,7 @@ import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import { filterNavGroupsForGovernanceMode } from "@/lib/governance-mode-nav-filter";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
@@ -93,8 +94,25 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
             isGovernanceModeEnabled,
           );
 
+    const systemAdminNavRows: NavGroupWithVisibleLinks[] =
+      omitAdminClusters || !isArchLucidInternalOperatorShellEnv()
+        ? []
+        : filterNavGroupsForGovernanceMode(
+            listNavGroupsVisibleInOperatorShell(
+              NAV_GROUPS,
+              true,
+              navAdvanced,
+              callerAuthorityRank,
+              false,
+              "system-admin",
+              navGateHasCommittedArchitectureReview,
+              operateNavUnlockPhase,
+            ),
+            isGovernanceModeEnabled,
+          );
+
     return {
-      allRows: [...reviewNavRows, ...adminNavRows],
+      allRows: [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
       buyerPolishedShell,
       demoUi,
       effectiveHasCommittedArchitectureReview,

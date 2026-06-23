@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -35,8 +36,8 @@ export function PricingQuoteAgingPageView(props: Props) {
   if (m.surface === "demo") {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
-        capability="Pricing quote aging"
-        description="In a connected tenant, administrators track aging procurement quotes and follow-up actions here."
+        capability="Pricing quote follow-up"
+        description="In a connected internal operator build, staff track open quote requests and follow-up SLA status here."
       />
     );
   }
@@ -69,11 +70,10 @@ export function PricingQuoteAgingPageView(props: Props) {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Pricing quote aging</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Pricing quote follow-up</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Open marketing pricing quote requests with SLA posture (warn at 18h, breach at 24h). Sales follow-up is manual —
-          no automated buyer replies. Escalation steps:{" "}
-          <span className="font-mono text-xs">docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md</span>.
+          Track open pricing quote requests and follow-up SLA status. Sales follow-up is manual — no automated buyer
+          replies.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" disabled={m.loading} onClick={() => void m.refresh()}>
@@ -95,7 +95,7 @@ export function PricingQuoteAgingPageView(props: Props) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Warn (≥18h)</CardTitle>
+            <CardTitle className="text-sm font-medium">Warn threshold</CardTitle>
           </CardHeader>
           <CardContent>
             <p
@@ -103,12 +103,13 @@ export function PricingQuoteAgingPageView(props: Props) {
               data-testid="pricing-quote-aging-warn-count"
             >
               {data?.warnCount ?? "—"}
+              <span className="ml-1 text-sm font-normal text-neutral-600 dark:text-neutral-400">(18 hours)</span>
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Breach (≥24h)</CardTitle>
+            <CardTitle className="text-sm font-medium">Breach threshold</CardTitle>
           </CardHeader>
           <CardContent>
             <p
@@ -116,6 +117,7 @@ export function PricingQuoteAgingPageView(props: Props) {
               data-testid="pricing-quote-aging-breach-count"
             >
               {data?.breachCount ?? "—"}
+              <span className="ml-1 text-sm font-normal text-neutral-600 dark:text-neutral-400">(24 hours)</span>
             </p>
           </CardContent>
         </Card>
@@ -123,9 +125,9 @@ export function PricingQuoteAgingPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Open quote requests</CardTitle>
+          <CardTitle className="text-base">Open requests</CardTitle>
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-            Sorted by SLA severity, then age. Source: <span className="font-mono text-xs">GET /v1/admin/marketing/pricing-quote-aging</span>.
+            Sorted by SLA severity, then age.
           </p>
         </CardHeader>
         <CardContent>
@@ -198,6 +200,19 @@ export function PricingQuoteAgingPageView(props: Props) {
           ) : null}
         </CardContent>
       </Card>
+
+      <CollapsibleSection title="Technical details" sectionTestId="pricing-quote-aging-technical-details">
+        <dl className="m-0 space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <div>
+            <dt className="font-medium text-neutral-800 dark:text-neutral-200">Source</dt>
+            <dd className="m-0 font-mono text-xs">GET /v1/admin/marketing/pricing-quote-aging</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-neutral-800 dark:text-neutral-200">Runbook</dt>
+            <dd className="m-0 font-mono text-xs">MARKETING_PRICING_QUOTE_NOTIFICATIONS.md</dd>
+          </div>
+        </dl>
+      </CollapsibleSection>
     </div>
   );
 }

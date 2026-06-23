@@ -30,16 +30,16 @@ describe("nav-config structure", () => {
 
   it("declares NavShellSurface on every nav group", () => {
     for (const group of NAV_GROUPS) {
-      expect(group.surface).toMatch(/^(review-workflow|platform-admin)$/);
+      expect(group.surface).toMatch(/^(review-workflow|platform-admin|system-admin)$/);
     }
   });
 
-  it("keeps AdminAuthority rows in the operator-admin (platform-admin) group only", () => {
+  it("keeps AdminAuthority rows in tenant or internal admin groups only", () => {
     for (const group of NAV_GROUPS) {
       for (const link of group.links) {
         if (link.requiredAuthority === "AdminAuthority") {
-          expect(group.id, link.href).toBe("operator-admin");
-          expect(group.surface).toBe("platform-admin");
+          expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
+          expect(["platform-admin", "system-admin"]).toContain(group.surface);
         }
       }
     }

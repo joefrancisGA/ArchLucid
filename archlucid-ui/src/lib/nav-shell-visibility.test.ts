@@ -541,6 +541,49 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
 
     expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/health")).toBe(true);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
+  });
+});
+
+describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("omits internal sales-ops nav unless NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR is set", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "");
+
+    const hidden = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "all",
+      true,
+    );
+
+    expect(hidden.some((r) => r.group.id === "operator-system-admin")).toBe(false);
+
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
+    const visible = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "system-admin",
+      true,
+    );
+
+    expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toEqual([
+      "/admin/pricing-quote-aging",
+      "/admin/trial-funnel",
+      "/admin/fleet-llm-cogs",
+      "/admin/tenant-health",
+    ]);
   });
 });
 

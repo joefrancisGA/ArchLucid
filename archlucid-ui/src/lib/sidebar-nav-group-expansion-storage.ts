@@ -7,7 +7,8 @@ export type SidebarCollapsibleNavGroupId =
   | "operate-analysis"
   | "operate-governance"
   | "operate-operations"
-  | "operator-admin";
+  | "operator-admin"
+  | "operator-system-admin";
 
 export type SidebarNavGroupExpansionState = Record<SidebarCollapsibleNavGroupId, boolean>;
 
@@ -22,6 +23,7 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   "operate-governance": false,
   "operate-operations": false,
   "operator-admin": false,
+  "operator-system-admin": false,
 };
 
 function readLegacyBooleanStorage(key: string): boolean | null {
@@ -89,6 +91,7 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
     "operate-governance": governanceExpanded,
     "operate-operations": operationsExpanded,
     "operator-admin": showAdministration,
+    "operator-system-admin": false,
   };
 }
 
@@ -107,6 +110,7 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
       "operate-governance": record["operate-governance"] === true,
       "operate-operations": record["operate-operations"] === true,
       "operator-admin": record["operator-admin"] === true,
+      "operator-system-admin": record["operator-system-admin"] === true,
     };
   } catch {
     return null;
@@ -161,7 +165,8 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "operate-analysis" ||
     groupId === "operate-governance" ||
     groupId === "operate-operations" ||
-    groupId === "operator-admin"
+    groupId === "operator-admin" ||
+    groupId === "operator-system-admin"
   );
 }
 
