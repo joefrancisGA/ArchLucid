@@ -106,7 +106,7 @@ public static class FindingPayloadConverter
     /// <summary>
     ///     LLM engines sometimes wrap JSON objects in markdown code fences; strip those before parsing.
     /// </summary>
-    private static string NormalizeLlmJsonPayload(string raw)
+    public static string NormalizeLlmJsonPayload(string raw)
     {
         string trimmed = raw.Trim();
 

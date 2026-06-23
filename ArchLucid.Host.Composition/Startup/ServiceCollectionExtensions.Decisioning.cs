@@ -57,6 +57,8 @@ public static partial class ServiceCollectionExtensions
 
         services.TryAddSingleton<IReservationCoverageProvider, StubReservationCoverageProvider>();
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
+        services.Configure<FindingPayloadRemediationOptions>(configuration.GetSection(FindingPayloadRemediationOptions.SectionPath));
+        services.PostConfigure<FindingPayloadRemediationOptions>(static o => o.Normalize());
         services.Configure<InsightDensityGateOptions>(configuration.GetSection(InsightDensityGateOptions.SectionPath));
         services.AddSingleton<IInsightDensityGate, DeterministicInsightDensityGate>();
         services.TryAddSingleton<IInsightDensityLlmJudge, NoOpInsightDensityLlmJudge>();
