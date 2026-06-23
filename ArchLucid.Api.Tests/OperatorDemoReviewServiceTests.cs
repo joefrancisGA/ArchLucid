@@ -130,7 +130,7 @@ public sealed class OperatorDemoReviewServiceTests
             [
                 new AgentResult
                 {
-                    AgentName = "topology",
+                    AgentType = AgentType.Topology,
                     Findings = findings.ToList()
                 }
             ]
