@@ -10,6 +10,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
+import { FindingPolicyProvenancePanel } from "@/components/findings/FindingPolicyProvenancePanel";
 import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
@@ -27,8 +28,10 @@ import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 import {
+  buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyRuleIdFromInspect,
   resolvePolicyRuleLabelFromInspect,
+  resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +85,12 @@ export function FindingDetailPageView(props: Props) {
   const policyRuleId = inspectPayload !== null ? resolvePolicyRuleIdFromInspect(inspectPayload) : null;
   const policyRuleLabel =
     inspectPayload !== null ? resolvePolicyRuleLabelFromInspect(inspectPayload, policyRuleId) : null;
+  const policyProvenanceModel =
+    inspectPayload !== null
+      ? buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, inspectPayload)
+      : null;
+  const policyTraceExcerpt =
+    inspectPayload !== null ? resolvePolicyTraceExcerptFromInspect(inspectPayload) : null;
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
@@ -314,6 +323,10 @@ export function FindingDetailPageView(props: Props) {
           fallbackMessage={inspectFailure.message}
           correlationId={inspectFailure.correlationId}
         />
+      ) : null}
+
+      {policyProvenanceModel !== null ? (
+        <FindingPolicyProvenancePanel model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
       ) : null}
 
       {inspectPayload !== null ? (

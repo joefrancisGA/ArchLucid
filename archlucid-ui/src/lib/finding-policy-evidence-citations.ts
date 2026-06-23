@@ -2,9 +2,16 @@ import { typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
 import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
-import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
+
+export type FindingPolicyPackCitationLink = {
+  readonly packId: string;
+  readonly packName: string;
+  readonly href: string;
+};
 
 export type FindingPolicyCitationLink = {
   readonly ruleId: string;
@@ -19,6 +26,7 @@ export type FindingEvidenceCitationLink = {
 };
 
 export type FindingPolicyEvidenceCitationModel = {
+  readonly pack: FindingPolicyPackCitationLink | null;
   readonly policy: FindingPolicyCitationLink | null;
   readonly evidence: readonly FindingEvidenceCitationLink[];
 };
@@ -67,6 +75,66 @@ export function resolvePolicyRuleLabelFromInspect(payload: FindingInspectPayload
   return nonEmptyString(payload.decisionRuleName) ?? ruleId;
 }
 
+export function resolvePolicyPackIdFromInspect(payload: FindingInspectPayload): string | null {
+  return (
+    nonEmptyString(typedPayloadLookupString(payload, "policyPackId")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "PolicyPackId")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "ruleSetId")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "RuleSetId"))
+  );
+}
+
+export function resolvePolicyPackVersionFromInspect(payload: FindingInspectPayload): string | null {
+  return (
+    nonEmptyString(typedPayloadLookupString(payload, "policyPackVersion")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "PolicyPackVersion")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "ruleSetVersion")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "RuleSetVersion"))
+  );
+}
+
+export function resolvePolicyPackNameFromInspect(
+  payload: FindingInspectPayload,
+  packId: string | null,
+): string | null {
+  const explicitName =
+    nonEmptyString(typedPayloadLookupString(payload, "policyPackName")) ??
+    nonEmptyString(typedPayloadLookupString(payload, "PolicyPackName"));
+
+  if (explicitName !== null) {
+    return explicitName;
+  }
+
+  if (packId === null) {
+    return null;
+  }
+
+  const version = resolvePolicyPackVersionFromInspect(payload) ?? "";
+
+  return policyPackBuyerLabel(packId, version);
+}
+
+/** First non-empty reasoning excerpt suitable for policy provenance UI. */
+export function resolvePolicyTraceExcerptFromInspect(payload: FindingInspectPayload): string | null {
+  const reasoningSummary = nonEmptyString(payload.reasoningSummary);
+
+  if (reasoningSummary !== null) {
+    return reasoningSummary;
+  }
+
+  const reasoningTrace = nonEmptyString(payload.reasoningTrace);
+
+  if (reasoningTrace !== null) {
+    return reasoningTrace.length > 320 ? `${reasoningTrace.slice(0, 317)}…` : reasoningTrace;
+  }
+
+  const firstEvidenceExcerpt = payload.evidence
+    .map((row) => nonEmptyString(row.excerpt))
+    .find((excerpt) => excerpt !== null);
+
+  return firstEvidenceExcerpt ?? null;
+}
+
 export function buildFindingPolicyEvidenceCitationsFromInspect(
   runId: string,
   findingId: string,
@@ -74,9 +142,20 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
 ): FindingPolicyEvidenceCitationModel {
   const ruleId = resolvePolicyRuleIdFromInspect(payload);
   const ruleLabel = resolvePolicyRuleLabelFromInspect(payload, ruleId);
+  const packId = resolvePolicyPackIdFromInspect(payload);
+  const packName = resolvePolicyPackNameFromInspect(payload, packId);
   const inspectHref = findingInspectHref(runId, findingId);
   const graphHref = graphEvidenceHrefFromInspect(runId, findingId, payload);
   const defaultEvidenceHref = graphHref ?? inspectHref;
+
+  const pack =
+    packId !== null && packName !== null
+      ? {
+          packId,
+          packName,
+          href: policyPacksEditHref(packId),
+        }
+      : null;
 
   const policy =
     ruleId !== null && ruleLabel !== null
@@ -110,7 +189,7 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
     })
     .filter((row) => row.label.trim().length > 0);
 
-  return { policy, evidence };
+  return { pack, policy, evidence };
 }
 
 export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
@@ -145,16 +224,17 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
     .filter((row) => row.label.trim().length > 0);
 
   if (evidenceFromSnippets.length > 0) {
-    return { policy, evidence: evidenceFromSnippets };
+    return { pack: null, policy, evidence: evidenceFromSnippets };
   }
 
   const evidenceRefCount = finding.evidenceRefCount ?? 0;
 
   if (evidenceRefCount <= 0) {
-    return { policy, evidence: [] };
+    return { pack: null, policy, evidence: [] };
   }
 
   return {
+    pack: null,
     policy,
     evidence: [
       {

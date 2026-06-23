@@ -8,6 +8,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
     render(
       <FindingPolicyEvidenceCitationLinks
         model={{
+          pack: null,
           policy: {
             ruleId: "sec-base-001",
             ruleLabel: "Security baseline ingress rule",
@@ -24,7 +25,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
       />,
     );
 
-    expect(screen.getByTestId("finding-policy-evidence-citations")).toBeTruthy();
+    expect(screen.getByTestId("finding-policy-provenance-panel")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Security baseline ingress rule" })).toHaveAttribute(
       "href",
       "/policy-packs?ruleId=sec-base-001",
@@ -39,6 +40,7 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
     const { container } = render(
       <FindingPolicyEvidenceCitationLinks
         model={{
+          pack: null,
           policy: null,
           evidence: [],
         }}

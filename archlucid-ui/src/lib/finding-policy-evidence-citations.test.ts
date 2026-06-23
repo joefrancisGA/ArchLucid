@@ -5,6 +5,7 @@ import {
   buildFindingPolicyEvidenceCitationsFromQuickDecision,
   coercePolicyRuleIdFromFindingWire,
   findingInspectEvidenceCitationLabel,
+  resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -32,6 +33,7 @@ describe("finding-policy-evidence-citations", () => {
   it("buildFindingPolicyEvidenceCitationsFromInspect links policy rule and evidence", () => {
     const model = buildFindingPolicyEvidenceCitationsFromInspect("run-1", "f-1", inspectPayload());
 
+    expect(model.pack).toBeNull();
     expect(model.policy).toEqual({
       ruleId: "sec-base-001",
       ruleLabel: "Security Architecture Baseline rule",
@@ -41,6 +43,35 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.evidence[0]?.label).toContain("Request schema");
     expect(model.evidence[0]?.detail).toBe("Lines 42-48 · claims-intake-schema");
     expect(model.evidence[0]?.href).toContain("/graph?runId=run-1");
+  });
+
+  it("buildFindingPolicyEvidenceCitationsFromInspect resolves policy pack metadata from typed payload", () => {
+    const model = buildFindingPolicyEvidenceCitationsFromInspect(
+      "run-1",
+      "f-1",
+      inspectPayload({
+        typedPayload: {
+          policyPackId: "healthcare-claims-v3",
+          policyPackName: "Healthcare Claims Policy Pack v3",
+        },
+      }),
+    );
+
+    expect(model.pack).toEqual({
+      packId: "healthcare-claims-v3",
+      packName: "Healthcare Claims Policy Pack v3",
+      href: "/policy-packs?packId=healthcare-claims-v3",
+    });
+  });
+
+  it("resolvePolicyTraceExcerptFromInspect prefers reasoningSummary", () => {
+    expect(
+      resolvePolicyTraceExcerptFromInspect(
+        inspectPayload({
+          reasoningSummary: "Evidence shows public ingress.",
+        }),
+      ),
+    ).toBe("Evidence shows public ingress.");
   });
 
   it("falls back to typed payload policyRuleId when decisionRuleId is absent", () => {
