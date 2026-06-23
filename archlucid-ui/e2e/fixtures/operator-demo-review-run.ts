@@ -74,9 +74,21 @@ export function operatorDemoReviewApiResponse(runId: string = OPERATOR_DEMO_REVI
     policyPackName: OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME,
     runDetailUrl: `/reviews/${encodeURIComponent(runId)}`,
     topFindings: [
-      { findingId: "demo-finding-1", title: "Public SQL endpoint without private link", policyRuleKey: "sec-base-001" },
-      { findingId: "demo-finding-2", title: "Storage account allows anonymous blob read", policyRuleKey: "sec-base-010" },
-      { findingId: "demo-finding-3", title: "Application secrets stored in plain settings", policyRuleKey: "sec-base-020" },
+      {
+        title: "Public SQL endpoint without private link",
+        severity: "Critical",
+        policyRuleKey: "sec-base-001",
+      },
+      {
+        title: "Storage account allows anonymous blob read",
+        severity: "Critical",
+        policyRuleKey: "sec-base-010",
+      },
+      {
+        title: "Application secrets stored in plain settings",
+        severity: "Error",
+        policyRuleKey: "sec-base-020",
+      },
     ],
   };
 }

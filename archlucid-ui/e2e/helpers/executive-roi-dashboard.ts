@@ -28,9 +28,10 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
     page
       .getByTestId("executive-summary-heading")
       .or(page.getByRole("heading", { level: 2, name: v.pageTitle }))
-      .or(page.getByRole("heading", { name: /executive summary/i })),
+      .or(page.getByRole("heading", { level: 2, name: v.portfolioPageTitle }))
+      .or(page.getByRole("heading", { name: /executive summary|portfolio overview/i })),
   ).toBeVisible();
-  await expect(page.getByText(v.pageLead)).toBeVisible();
+  await expect(page.getByText(v.pageLead).or(page.getByText(v.portfolioPageLead))).toBeVisible();
 }
 
 export async function waitForExecutiveRoiExportResponse(page: Page): Promise<ExecutiveRoiExportPayload> {

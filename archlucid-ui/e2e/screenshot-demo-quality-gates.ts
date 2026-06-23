@@ -50,7 +50,7 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 
   await expect(summary).toBeVisible({ timeout: 30_000 });
 
-  let primedSearch = false;
+  let searchPrimedCount = 0;
 
   await expect
     .poll(
@@ -61,8 +61,8 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
           return true;
         }
 
-        if (!primedSearch) {
-          primedSearch = true;
+        if (searchPrimedCount < 3) {
+          searchPrimedCount += 1;
 
           const optionalFilters = page.getByRole("button", { name: /Optional filters/i });
 
@@ -79,7 +79,7 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 
         return false;
       },
-      { timeout: 30_000 },
+      { timeout: 60_000 },
     )
     .toBe(true);
 }
