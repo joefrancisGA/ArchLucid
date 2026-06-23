@@ -67,4 +67,11 @@ describe("buyerPolishedRouteOrientation", () => {
 
     expect(o?.label).toBe("Architecture advisory");
   });
+
+  it("orients the operator security-trust route for procurement reviewers", () => {
+    const o = buyerPolishedRouteOrientation("/workspace/security-trust");
+
+    expect(o?.label).toBe("Security & trust");
+    expect(o?.line).toContain("Procurement-facing security posture");
+  });
 });

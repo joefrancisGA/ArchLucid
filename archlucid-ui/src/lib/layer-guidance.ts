@@ -132,12 +132,12 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Search first; CSV export for auditors and admins.",
   },
   "security-trust": {
-    layerBadge: "Governance",
-    headline: "Procurement-facing security posture and NDA-gated pen-test summaries.",
-    useWhen: "Use when buyers need CAIQ/SIG pointers, Trust Center links, and the NDA path for redacted pen-test excerpts.",
-    firstPilotNote:
-      "Procurement/CCI, not Pilot scope. Redacted pen-test excerpts NDA-only; contact security@.",
-    enterpriseFootnote: "Read-oriented; Admin API may still emit SecurityAssessmentPublished for audit/SIEM without implying public publication.",
+    layerBadge: "Security & trust",
+    headline: "Security materials for procurement, vendor review, and enterprise trust.",
+    useWhen:
+      "Share procurement-ready security materials, trust-center links, and assessment status for this workspace.",
+    firstPilotNote: null,
+    omitReviewPackageScopeHelp: true,
   },
   "teams-notifications": {
     layerBadge: "Governance",

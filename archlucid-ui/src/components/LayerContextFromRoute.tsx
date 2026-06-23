@@ -27,7 +27,10 @@ export function LayerContextFromRoute() {
     searchRunId: searchRunIdFromUrl.length > 0 ? searchRunIdFromUrl : undefined,
   });
   const buyerRouteOrientation =
-    resolvedRouteOrientation !== null || buyerPolishedShell || pathname.startsWith("/graph")
+    resolvedRouteOrientation !== null ||
+    buyerPolishedShell ||
+    pathname.startsWith("/graph") ||
+    pathname.startsWith("/workspace/security-trust")
       ? (resolvedRouteOrientation ?? undefined)
       : null;
   const buyerOperateBackLinkRaw = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
@@ -41,7 +44,8 @@ export function LayerContextFromRoute() {
     pathname.startsWith("/search") ||
     pathname === "/compare" ||
     pathname.startsWith("/compare/") ||
-    pathname.startsWith("/advisory");
+    pathname.startsWith("/advisory") ||
+    pathname.startsWith("/workspace/security-trust");
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.
