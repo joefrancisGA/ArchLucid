@@ -46,6 +46,7 @@ describe("OnboardingPageView", () => {
     render(<OnboardingPageView model={{ fromRegistration: false }} />);
 
     expect(screen.getByTestId("onboarding-hero")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Onboarding" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: "Open sample review" })).toHaveAttribute(
       "href",
