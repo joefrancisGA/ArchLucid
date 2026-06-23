@@ -23,6 +23,66 @@ public sealed class GreenfieldBaselineMigrationRunnerTests
     }
 
     [Theory]
+    [InlineData(true, false, false, false, false, 0)]
+    [InlineData(false, false, false, false, false, 1)]
+    [InlineData(false, true, false, false, false, 2)]
+    [InlineData(false, false, true, false, false, 2)]
+    [InlineData(false, true, false, true, true, 2)]
+    public void BaselineRepairPlan_Create_matches_sentinel_matrix(
+        bool journal001,
+        bool tenantCore,
+        bool governance038,
+        bool dboRuns,
+        bool dboAuditEvents,
+        int expectedMode)
+    {
+        BaselineCatalogSentinels sentinels = new(
+            journal001,
+            tenantCore,
+            governance038,
+            dboRuns,
+            dboAuditEvents,
+            DboRunTelemetryPresent: false);
+
+        BaselineRepairPlan plan = BaselineRepairPlan.Create(sentinels);
+
+        plan.Mode.Should().Be((BaselineRepairMode)expectedMode);
+    }
+
+    [Fact]
+    public void BaselineRepairPlan_DriftRepair_without_AuditEvents_replays_from_017_when_Runs_missing()
+    {
+        BaselineCatalogSentinels sentinels = new(
+            JournalRecordsInitialSchema001: false,
+            TenantCoreTablesPresent: true,
+            GovernanceWorkflow038Present: false,
+            DboRunsPresent: false,
+            DboAuditEventsPresent: false,
+            DboRunTelemetryPresent: false);
+
+        BaselineRepairPlan plan = BaselineRepairPlan.Create(sentinels);
+
+        plan.Mode.Should().Be(BaselineRepairMode.DriftRepair);
+        plan.SparseReplayMinInclusive.Should().Be(17);
+    }
+
+    [Fact]
+    public void BaselineRepairPlan_DriftRepair_without_AuditEvents_replays_from_035_when_Runs_present()
+    {
+        BaselineCatalogSentinels sentinels = new(
+            JournalRecordsInitialSchema001: false,
+            TenantCoreTablesPresent: true,
+            GovernanceWorkflow038Present: false,
+            DboRunsPresent: true,
+            DboAuditEventsPresent: false,
+            DboRunTelemetryPresent: false);
+
+        BaselineRepairPlan plan = BaselineRepairPlan.Create(sentinels);
+
+        plan.SparseReplayMinInclusive.Should().Be(35);
+    }
+
+    [Theory]
     [InlineData("There is already an object named 'ArchitectureRequests' in the database.", 0, true)]
     [InlineData("There is already an object named 'GovernanceApprovalRequests' in the database.", 0, true)]
     [InlineData(

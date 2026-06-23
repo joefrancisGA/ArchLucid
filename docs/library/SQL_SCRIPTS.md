@@ -151,7 +151,7 @@ sequenceDiagram
     DM->>DU: Continue at 051+ only
 ```
 
-**Post-stamp verification:** integration tests in `JournalDriftBaselineRepairSqlIntegrationTests` and `GreenfieldBaselineMigrationRunnerTests` assert ordering, duplicate-name handling, and journal repair — not a second full schema diff in production.
+**Post-stamp verification:** integration tests in `GreenfieldBaselineMigrationRunnerSqlIntegrationTests`, `JournalDriftBaselineRepairSqlIntegrationTests`, and unit tests in `GreenfieldBaselineMigrationRunnerTests` / `BaselineRepairPlan` cover empty catalogs, partial journals, non-`dbo` tenant sentinels, duplicate-table catch paths, and journal repair — not a second full schema diff in production.
 
 ### 4.1 Mechanics
 

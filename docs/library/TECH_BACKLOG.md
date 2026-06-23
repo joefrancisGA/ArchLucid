@@ -320,7 +320,7 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-088 | Container jobs per-entity isolation | **Done (2026-06-01)** ? `TrialLifecycleArchLucidJob`, `AdvisoryDueScheduleProcessResult` | S |
 | TB-089 | Digest ledger-before-send | **Done (2026-06-01)** ? verified + `DigestEmailDispatcherIdempotencyTests` | S |
 | TB-090 | Backfill.Cli ? `--output-json` report + per-stage timing | **Done (2026-05-31)** ? extended with quarantine fields in JSON (2026-06-01) | XS |
-| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | **Done (2026-06-03 batch 5CM)** ? `SQL_SCRIPTS.md` ?4.0.1 mermaid decision flow + existing `GreenfieldBaselineMigrationRunnerTests` / `JournalDriftBaselineRepairSqlIntegrationTests`; `test_maintainability_batch_5cm.py` | M |
+| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | **Done (2026-06-22)** ? `BaselineCatalogSentinels` / `BaselineRepairPlan`; `GreenfieldBaselineMigrationRunnerSqlIntegrationTests`; `test_maintainability_batch_5cm.py` | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | **Done (2026-06-03 batch 5CM)** ? `ArchLucid.sql` header + divergence comments; `test_maintainability_batch_5cm.py` | XS |
 | TB-156 | `start-local-api-and-ui.ps1` ? strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **Done (2026-05-31)** ? `scripts/start-local-api-and-ui.ps1` E2E proxy gate | S |
 | TB-157 | API connectivity toasts ? distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **Done (2026-05-31)** ? `api-error-toast-policy.ts` + tests | XS |
@@ -3668,6 +3668,8 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 ---
 
 ## TB-069 ? Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path
+
+**Status:** **Done (2026-06-22)** ? `BaselineCatalogSentinels` + `BaselineRepairPlan` consolidate sparse-stamp decisions; `GreenfieldBaselineMigrationRunner` uses single drift-repair path; SQL integration tests (`GreenfieldBaselineMigrationRunnerSqlIntegrationTests`: empty catalog, partial journal, non-`dbo` sentinel, duplicate-table catch); unit planner matrix in `GreenfieldBaselineMigrationRunnerTests`; docs ?4.0.1; pytest **`test_maintainability_batch_5cm.py`**.
 
 **Source:** DDL hygiene and migration-safety audit (2026-05-27). Baseline runner stamps migrations **001?050** into `SchemaVersions` without always executing them, with complex drift-repair branches.
 

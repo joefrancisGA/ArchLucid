@@ -17,8 +17,23 @@ class TestMaintainabilityBatch5CM(unittest.TestCase):
 
     def test_tb_069_runner_documented_in_sql_scripts(self) -> None:
         doc = REPO_ROOT / "docs" / "library" / "SQL_SCRIPTS.md"
-        self.assertIn("GreenfieldBaselineMigrationRunner", doc.read_text(encoding="utf-8"))
-        self.assertIn("4.0.1", doc.read_text(encoding="utf-8"))
+        text = doc.read_text(encoding="utf-8")
+        self.assertIn("GreenfieldBaselineMigrationRunner", text)
+        self.assertIn("4.0.1", text)
+
+    def test_tb_069_baseline_repair_planner_present(self) -> None:
+        planner = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Infrastructure" / "BaselineRepairPlanner.cs"
+        sentinels = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Infrastructure" / "BaselineCatalogSentinels.cs"
+        integration = (
+            REPO_ROOT
+            / "ArchLucid.Persistence.Tests"
+            / "Data"
+            / "Infrastructure"
+            / "GreenfieldBaselineMigrationRunnerSqlIntegrationTests.cs"
+        )
+        self.assertTrue(planner.is_file())
+        self.assertTrue(sentinels.is_file())
+        self.assertTrue(integration.is_file())
 
 
 if __name__ == "__main__":
