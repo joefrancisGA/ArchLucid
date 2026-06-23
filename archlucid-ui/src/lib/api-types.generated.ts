@@ -33911,6 +33911,7 @@ export interface components {
             populatedFieldCount?: number;
         };
         FindingTraceConfidenceDto: {
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: int32 */
             evaluationConfidenceScore?: null | number;

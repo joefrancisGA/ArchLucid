@@ -10645,6 +10645,16 @@
       },
       "FindingTraceConfidenceDto": {
         "properties": {
+          "classification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "oneOf": [
               {

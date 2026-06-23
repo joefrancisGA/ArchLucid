@@ -68993,6 +68993,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class FindingTraceConfidenceDto
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("classification")]
+        public int? Classification { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
         public int? ConfidenceLevel { get; set; } = default!;
 

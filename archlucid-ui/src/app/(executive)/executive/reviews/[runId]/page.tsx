@@ -5,6 +5,7 @@ import { getRunExplanationSummary, getRunSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
+import { decisionGradeExecutiveTraceRows } from "@/lib/executive-decision-grade-trace-rows";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -41,8 +42,7 @@ type ExecutiveFindingRow = {
 };
 
 function traceToRows(traces: FindingTraceConfidenceDto[]): ExecutiveFindingRow[] {
-  const withTrace = traces
-    .filter((t) => (t.findingId ?? "").trim().length > 0)
+  const withTrace = decisionGradeExecutiveTraceRows(traces)
     .map((t) => {
       const findingId = t.findingId.trim();
       const titleRaw = (t.findingTitle ?? findingId).trim();
@@ -137,12 +137,13 @@ export default async function ExecutiveReviewFindingsPage({
       ? (runSummary.description ?? "").trim()
       : runId;
 
-  const traces =
-    summary?.findingTraceConfidences ?? summary?.explanation?.findingTraceConfidences ?? [];
-  const rows = traceToRows(traces ?? []);
-  const markdownRows = traceToMarkdownFindingRows(traces ?? []);
+  const traces = decisionGradeExecutiveTraceRows(
+    summary?.findingTraceConfidences ?? summary?.explanation?.findingTraceConfidences ?? [],
+  );
+  const rows = traceToRows(traces);
+  const markdownRows = traceToMarkdownFindingRows(traces);
   const ctoDemoPack = isCtoDemoPackEnv();
-  const ctoDemoTopRisks = traceRowsToCtoDemoTopRisks(traces ?? []);
+  const ctoDemoTopRisks = traceRowsToCtoDemoTopRisks(traces);
 
   return (
     <div className="space-y-6" data-testid="executive-review-page">
