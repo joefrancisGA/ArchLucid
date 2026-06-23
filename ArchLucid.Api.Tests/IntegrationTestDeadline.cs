@@ -68,7 +68,7 @@ internal static class IntegrationTestDeadline
         ArgumentException.ThrowIfNullOrWhiteSpace(testName);
 
         _ = runTask.ContinueWith(
-            static completed =>
+            completed =>
             {
                 if (completed.IsFaulted)
                 {
