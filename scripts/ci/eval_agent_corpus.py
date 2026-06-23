@@ -169,6 +169,7 @@ _BASELINE_DIMENSION_KEYS: tuple[str, ...] = (
     "semanticScore",
     "faithfulnessSupportRatio",
     "embeddingFaithfulnessMeanCosine",
+    "llmFaithfulnessScore",
     "aggregateScore",
 )
 
@@ -209,6 +210,10 @@ def quality_to_baseline_metrics(quality: Mapping[str, Any]) -> dict[str, Any]:
     faithfulness = float(quality.get("faithfulness_support_ratio") or 0.0)
     embedding_raw = quality.get("embedding_faithfulness_mean_cosine")
     embedding = float(embedding_raw) if embedding_raw is not None else None
+    
+    llm_faithfulness_raw = quality.get("llm_faithfulness_score")
+    llm_faithfulness = float(llm_faithfulness_raw) if llm_faithfulness_raw is not None else None
+
     aggregate = compute_aggregate_score(structural, semantic, faithfulness, embedding)
 
     return {
@@ -216,6 +221,7 @@ def quality_to_baseline_metrics(quality: Mapping[str, Any]) -> dict[str, Any]:
         "semanticScore": round(semantic, 6),
         "faithfulnessSupportRatio": round(faithfulness, 6),
         "embeddingFaithfulnessMeanCosine": round(embedding, 6) if embedding is not None else None,
+        "llmFaithfulnessScore": round(llm_faithfulness, 6) if llm_faithfulness is not None else None,
         "aggregateScore": round(aggregate, 6),
         "capturedUtc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "rubricVersion": _BASELINE_RUBRIC_VERSION,
@@ -269,6 +275,19 @@ def compare_baseline_metrics(
                     regressions.append(key)
 
                 continue
+
+        if key == "llmFaithfulnessScore":
+            if base_val is None and cur_val is None:
+                deltas[key] = 0.0
+                continue
+            
+            base_num = 0.0 if base_val is None else float(base_val)
+            cur_num = 0.0 if cur_val is None else float(cur_val)
+            deltas[key] = cur_num - base_num
+
+            if base_num - cur_num > 0.05:
+                regressions.append(key)
+            continue
 
         base_num = float(base_val or 0.0)
         cur_num = float(cur_val or 0.0)
@@ -530,6 +549,13 @@ def score_committed_agent_result_json(text: str) -> dict[str, Any]:
     if isinstance(trace, dict):
         faithfulness = float(trace.get("citationCoverage") or 0.0)
 
+    semantic_score = doc.get("semanticScore")
+    llm_faithfulness = None
+    if isinstance(semantic_score, dict):
+        val = semantic_score.get("llmFaithfulnessScore")
+        if val is not None:
+            llm_faithfulness = float(val)
+
     return {
         "parse_failure": False,
         "structural_ratio": structural,
@@ -538,6 +564,7 @@ def score_committed_agent_result_json(text: str) -> dict[str, Any]:
         "findings_quality_ratio": findings_ratio,
         "overall_semantic": overall,
         "faithfulness_support_ratio": faithfulness,
+        "llm_faithfulness_score": llm_faithfulness,
         "empty_claim_count": empty_claims,
         "incomplete_finding_count": incomplete_findings,
         "gate_outcome": gate,
@@ -1376,6 +1403,43 @@ def main() -> int:
         or (bool(args.baseline) and baseline_failed)
     )
 
+    llm_faithfulness_positive = []
+    llm_faithfulness_adversarial = []
+    llm_faithfulness_failed = False
+
+    for row in rows:
+        q = row.get("quality")
+        if not isinstance(q, dict) or q.get("mode") != "real" or q.get("skipped") or q.get("error"):
+            continue
+        
+        llm_score = q.get("llm_faithfulness_score")
+        if llm_score is None:
+            continue
+            
+        eo = row.get("expectedOutcome")
+        is_adversarial = isinstance(eo, dict) and not eo.get("error")
+        
+        if is_adversarial:
+            llm_faithfulness_adversarial.append((row["id"], llm_score))
+            if args.enforce and llm_score > 0.40:
+                print(f"::error::Adversarial scenario {row['id']} LLM faithfulness score {llm_score} exceeds ceiling 0.40", file=sys.stderr)
+                llm_faithfulness_failed = True
+        else:
+            llm_faithfulness_positive.append((row["id"], llm_score))
+            if args.enforce and llm_score < 0.50:
+                print(f"::error::Positive-readiness scenario {row['id']} LLM faithfulness score {llm_score} is below absolute hard floor 0.50", file=sys.stderr)
+                llm_faithfulness_failed = True
+
+    if args.enforce and llm_faithfulness_positive:
+        scores = sorted([score for _, score in llm_faithfulness_positive])
+        p50 = scores[len(scores) // 2] if len(scores) % 2 == 1 else (scores[len(scores) // 2 - 1] + scores[len(scores) // 2]) / 2.0
+        if p50 < 0.65:
+            print(f"::error::Cohort p50 LLM faithfulness score {p50} is below aggregate floor 0.65", file=sys.stderr)
+            llm_faithfulness_failed = True
+
+    if args.enforce and llm_faithfulness_failed:
+        would_fail_exit = True
+
     gate_snapshot: dict[str, Any] = {
         "enforce_recall": bool(args.enforce),
         "recall_failed": failed,
@@ -1409,6 +1473,10 @@ def main() -> int:
 
     if args.enforce and failed:
         print("::error::corpus enforce failed", file=sys.stderr)
+        return 1
+
+    if args.enforce and llm_faithfulness_failed:
+        print("::error::LLM faithfulness enforce failed", file=sys.stderr)
         return 1
 
     if quality_failed:
