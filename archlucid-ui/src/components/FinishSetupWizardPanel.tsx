@@ -27,7 +27,7 @@ type SetupContext = {
   principalAdmin: boolean;
 };
 
-type FinishSetupWizardPanelProps = {
+export type FinishSetupWizardPanelProps = {
   /** When nested under onboarding optional setup, use softer framing. */
   readonly variant?: "default" | "optional";
 };
