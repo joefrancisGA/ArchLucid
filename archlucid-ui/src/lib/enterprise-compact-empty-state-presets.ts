@@ -59,7 +59,8 @@ export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
 export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-zero-finalized-empty-state",
   title: "No finalized reviews available",
-  description: "Finalize at least two review packages to compare changes over time.",
+  description:
+    "You need at least two finalized review packages before ArchLucid can compare changes over time.",
   actions: [
     { label: "Start review", href: "/reviews/new", variant: "primary" },
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
@@ -69,8 +70,8 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
 /** Compare page when fewer than two finalized review packages exist. */
 export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-insufficient-finalized-empty-state",
-  title: "Not enough finalized reviews",
-  description: "You need at least two finalized review packages to compare changes.",
+  title: "One finalized review available",
+  description: "Finalize one more review package to compare changes over time.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Start review", href: "/reviews/new", variant: "outline" },

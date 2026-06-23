@@ -26,14 +26,6 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     },
   },
   {
-    prefix: "/compare",
-    hint: {
-      id: "compare-reviews",
-      message: "Pick two finalized review packages to see manifest diff and finding deltas.",
-      learnMoreHref: "/help/review-packages",
-    },
-  },
-  {
     prefix: "/policy-packs",
     hint: {
       id: "policy-packs",
