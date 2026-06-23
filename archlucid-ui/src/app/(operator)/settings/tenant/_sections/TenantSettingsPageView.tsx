@@ -1,21 +1,87 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
-import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
-import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
+import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
+
+// 0 = Sunday … 6 = Saturday (JavaScript Date.getDay() convention)
+const DAY_OF_WEEK_OPTIONS = [
+  { value: 0, label: "Sunday" },
+  { value: 1, label: "Monday" },
+  { value: 2, label: "Tuesday" },
+  { value: 3, label: "Wednesday" },
+  { value: 4, label: "Thursday" },
+  { value: 5, label: "Friday" },
+  { value: 6, label: "Saturday" },
+];
+
+function formatHour(hour: number): string {
+  if (hour === 0) return "12:00 AM";
+
+  if (hour < 12) return `${hour}:00 AM`;
+
+  if (hour === 12) return "12:00 PM";
+
+  return `${hour - 12}:00 PM`;
+}
+
+const HOUR_OF_DAY_OPTIONS = Array.from({ length: 24 }, (_, i) => ({
+  value: i,
+  label: formatHour(i),
+}));
+
+function getIanaTimeZones(): string[] {
+  try {
+    // Intl.supportedValuesOf is available in modern browsers and Node ≥ 18
+    return (Intl as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf?.("timeZone") ?? commonTimeZones();
+  } catch {
+    return commonTimeZones();
+  }
+}
+
+function commonTimeZones(): string[] {
+  return [
+    "Etc/UTC",
+    "America/New_York",
+    "America/Chicago",
+    "America/Denver",
+    "America/Los_Angeles",
+    "America/Phoenix",
+    "Europe/London",
+    "Europe/Paris",
+    "Europe/Berlin",
+    "Asia/Tokyo",
+    "Asia/Singapore",
+    "Australia/Sydney",
+  ];
+}
+
+const SELECT_CLASS =
+  "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-600";
+
+type SectionHeadingProps = { readonly children: ReactNode };
+
+function SectionHeading({ children }: SectionHeadingProps) {
+  return (
+    <h2 className="border-b border-neutral-200 pb-1 text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+      {children}
+    </h2>
+  );
+}
 
 type Props = {
   readonly model: TenantSettingsPageContentModel;
@@ -24,26 +90,31 @@ type Props = {
 export function TenantSettingsPageView(props: Props) {
   const m = props.model;
   const scope = getEffectiveBrowserProxyScopeHeaders();
+  const ianaTimeZones = getIanaTimeZones();
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Tenant settings</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Workspace defaults and operator-facing preferences for this tenant: trial status, executive digest email schedule,
-          and the active request scope. Sensitive infrastructure and feature-flag controls stay server-side only.
+          Workspace defaults and operator-facing preferences for this tenant.
         </p>
       </div>
+
+      <SectionHeading>General</SectionHeading>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Tenant name</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
-            Friendly organization display name is shown from your identity provider. Signed-in name:{" "}
-            <span className="font-medium">{m.currentPrincipalName ?? "—"}</span>.
-          </p>
+        <CardContent className="space-y-1 text-sm text-neutral-600 dark:text-neutral-300">
+          <p className="m-0">Organization name is managed by your identity provider.</p>
+          {m.currentPrincipalName != null ? (
+            <p className="m-0 text-xs text-neutral-500">
+              Signed in as:{" "}
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">{m.currentPrincipalName}</span>
+            </p>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -53,16 +124,17 @@ export function TenantSettingsPageView(props: Props) {
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
           <p className="m-0">
-            Active workspace and project come from the scope control on{" "}
+            Your active workspace and project are selected from the workspace switcher on the{" "}
             <Link className="text-teal-800 underline dark:text-teal-300" href="/">
-              home
+              Home page
             </Link>
-            . Change scope there to update what this session targets.
+            . Change the workspace there to update what this session targets.
           </p>
 
-            <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
+          <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
             <p className="m-0 text-sm">
-              Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your current selection.
+              Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your
+              current selection.
             </p>
             <p className="m-0 mt-2 text-sm">
               <Link className="text-teal-800 underline dark:text-teal-300" href="/settings/tenant/recycle-bin">
@@ -97,16 +169,15 @@ export function TenantSettingsPageView(props: Props) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Pilot / trial</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {m.trial == null ? (
-            <p className="m-0 text-sm text-neutral-500">Could not load trial status.</p>
-          ) : (
+      {/* Only render when an active pilot/trial exists; hide the "None" / null state to reduce noise */}
+      {m.trial != null && m.trial.status != null && m.trial.status !== "None" ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Pilot / trial</CardTitle>
+          </CardHeader>
+          <CardContent>
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
-              <span className="font-medium">Status:</span> {m.trial.status ?? "—"}
+              <span className="font-medium">Status:</span> {m.trial.status}
               {typeof m.trial.daysRemaining === "number" ? (
                 <span>
                   {" "}
@@ -114,9 +185,11 @@ export function TenantSettingsPageView(props: Props) {
                 </span>
               ) : null}
             </p>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <SectionHeading>Business settings</SectionHeading>
 
       <TenantCostSettingsCard canEdit={m.canEditCostSettings} />
 
@@ -131,13 +204,17 @@ export function TenantSettingsPageView(props: Props) {
             </p>
           ) : null}
           {m.digest == null || m.form == null ? (
-            <p className="m-0 text-sm text-neutral-500">Preferences will load when the notification API is available.</p>
+            <p className="m-0 text-sm text-neutral-500">
+              Preferences will load when the notification API is available.
+            </p>
           ) : (
             <form onSubmit={(e) => void m.onSaveDigest(e)} className="space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-100">Email enabled</p>
-                  <p className="m-0 text-xs text-neutral-500">Sends a weekly roll-up to the listed addresses (API-enforced on save).</p>
+                  <p className="m-0 text-xs text-neutral-500">
+                    Sends a weekly roll-up to the listed addresses (API-enforced on save).
+                  </p>
                 </div>
                 <label className="inline-flex cursor-pointer items-center gap-2">
                   <input
@@ -164,46 +241,68 @@ export function TenantSettingsPageView(props: Props) {
                 />
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="tz">IANA time zone</Label>
-                  <Input
+                <div className="sm:col-span-2">
+                  <Label htmlFor="tz">Time zone</Label>
+                  <select
                     id="tz"
-                    name="ianaTimeZoneId"
+                    className={SELECT_CLASS}
                     value={m.form.ianaTimeZoneId}
-                    onChange={(ev) => {
-                      m.setForm((f) => (f === null ? f : { ...f, ianaTimeZoneId: ev.target.value }));
+                    onChange={(e) => {
+                      m.setForm((f) => (f === null ? f : { ...f, ianaTimeZoneId: e.target.value }));
                     }}
-                    readOnly={!m.canEditDigest}
-                  />
+                    disabled={!m.canEditDigest}
+                  >
+                    {ianaTimeZones.map((tz) => (
+                      <option key={tz} value={tz}>
+                        {tz}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <Label htmlFor="dow">Day of week (0–6)</Label>
-                  <Input
+                  <Label htmlFor="dow">Day of week</Label>
+                  <select
                     id="dow"
-                    inputMode="numeric"
+                    className={SELECT_CLASS}
                     value={String(m.form.dayOfWeek)}
-                    onChange={(ev) => {
-                      m.setForm((f) => (f === null ? f : { ...f, dayOfWeek: Number.parseInt(ev.target.value, 10) || 0 }));
+                    onChange={(e) => {
+                      m.setForm((f) =>
+                        f === null ? f : { ...f, dayOfWeek: Number.parseInt(e.target.value, 10) },
+                      );
                     }}
-                    readOnly={!m.canEditDigest}
-                  />
+                    disabled={!m.canEditDigest}
+                  >
+                    {DAY_OF_WEEK_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={String(opt.value)}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <Label htmlFor="hour">Hour of day (0–23)</Label>
-                  <Input
+                  <Label htmlFor="hour">Send time</Label>
+                  <select
                     id="hour"
-                    inputMode="numeric"
+                    className={SELECT_CLASS}
                     value={String(m.form.hourOfDay)}
-                    onChange={(ev) => {
-                      m.setForm((f) => (f === null ? f : { ...f, hourOfDay: Number.parseInt(ev.target.value, 10) || 0 }));
+                    onChange={(e) => {
+                      m.setForm((f) =>
+                        f === null ? f : { ...f, hourOfDay: Number.parseInt(e.target.value, 10) },
+                      );
                     }}
-                    readOnly={!m.canEditDigest}
-                  />
+                    disabled={!m.canEditDigest}
+                  >
+                    {HOUR_OF_DAY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={String(opt.value)}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               {!m.canEditDigest ? (
                 <p className="m-0 text-xs text-neutral-500">
-                  Editing requires operator rank (Execute) on the API; your session is read-only in the UI for these controls.
+                  Editing requires operator rank (Execute) on the API; your session is read-only for these controls.
                 </p>
               ) : null}
               <div>
@@ -216,6 +315,8 @@ export function TenantSettingsPageView(props: Props) {
         </CardContent>
       </Card>
 
+      <SectionHeading>Support &amp; diagnostics</SectionHeading>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Support bundle</CardTitle>
@@ -226,9 +327,20 @@ export function TenantSettingsPageView(props: Props) {
         </CardContent>
       </Card>
 
-      <TenantLlmJudgeGuideCard />
-
-      <TenantQualityGatesCard />
+      <CollapsibleSection
+        title="Advanced — AI quality controls"
+        defaultOpen={false}
+        sectionTestId="tenant-advanced-section"
+      >
+        <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+          Configure how strictly ArchLucid evaluates generated review output before it is accepted. These settings affect
+          AI spend and review pipeline behaviour — leave at host defaults unless directed by support.
+        </p>
+        <div className="space-y-4">
+          <TenantLlmJudgeGuideCard />
+          <TenantQualityGatesCard />
+        </div>
+      </CollapsibleSection>
     </div>
   );
 }
