@@ -8,6 +8,9 @@ agent output text.
 Reads ``tests/eval-datasets/faithfulness-golden/cases.json`` and writes
 ``docs/quality/faithfulness-report.md``. Exit 0 by default; use ``--enforce`` to fail when the
 mean support ratio is below ``minSupportRatio``.
+
+Phase B (LLM-graded faithfulness on real-mode golden cohort rows) is enforced by
+``scripts/ci/eval_agent_corpus.py --enforce-llm-faithfulness`` — not this script.
 """
 
 from __future__ import annotations

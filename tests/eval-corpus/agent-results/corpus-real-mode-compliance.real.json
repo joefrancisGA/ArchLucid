@@ -5,11 +5,15 @@
   "agentType": 3,
   "claims": [
     {
-      "evidenceRefs": ["policy-regulatory-isolation"],
+      "evidenceRefs": [
+        "policy-regulatory-isolation"
+      ],
       "detail": "Committed exemplar: regulated data paths avoid public endpoints and honor regional boundaries."
     }
   ],
-  "evidenceRefs": ["policy-regulatory-isolation"],
+  "evidenceRefs": [
+    "policy-regulatory-isolation"
+  ],
   "confidence": 0.78,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Align retention with records policy and gate analyst access through PIM."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-08T12:00:00Z"
+  "createdUtc": "2026-05-08T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.71
+  }
 }

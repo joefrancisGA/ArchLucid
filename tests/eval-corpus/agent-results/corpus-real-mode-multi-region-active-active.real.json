@@ -5,11 +5,15 @@
   "agentType": 1,
   "claims": [
     {
-      "evidenceRefs": ["helio-active-active-drill"],
+      "evidenceRefs": [
+        "helio-active-active-drill"
+      ],
       "detail": "Committed exemplar: Front Door shifts weights only after synthetic probes confirm both regions pass checkout health contracts."
     }
   ],
-  "evidenceRefs": ["helio-active-active-drill"],
+  "evidenceRefs": [
+    "helio-active-active-drill"
+  ],
   "confidence": 0.8,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Run chaos experiments that isolate a region writer while verifying compensating workflows alert analysts."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T18:00:00Z"
+  "createdUtc": "2026-05-10T18:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.72
+  }
 }

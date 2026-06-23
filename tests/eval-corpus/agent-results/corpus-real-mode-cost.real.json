@@ -5,11 +5,15 @@
   "agentType": 2,
   "claims": [
     {
-      "evidenceRefs": ["finops-tagging-standard"],
+      "evidenceRefs": [
+        "finops-tagging-standard"
+      ],
       "detail": "Committed exemplar: migration waves sequenced by savings potential with dependency-aware cutovers."
     }
   ],
-  "evidenceRefs": ["finops-tagging-standard"],
+  "evidenceRefs": [
+    "finops-tagging-standard"
+  ],
   "confidence": 0.74,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Revisit reservation coverage quarterly when workloads shift to serverless tiers."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-08T12:00:00Z"
+  "createdUtc": "2026-05-08T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.74
+  }
 }

@@ -5,11 +5,15 @@
   "agentType": 1,
   "claims": [
     {
-      "evidenceRefs": ["pattern-front-door"],
+      "evidenceRefs": [
+        "pattern-front-door"
+      ],
       "detail": "Committed exemplar: marketing site and API share Front Door plus WAF before App Service origins with slot-based deployment."
     }
   ],
-  "evidenceRefs": ["pattern-front-door"],
+  "evidenceRefs": [
+    "pattern-front-door"
+  ],
   "confidence": 0.83,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Enable automatic rotation alerts for any emergency break-glass secrets."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T12:00:00Z"
+  "createdUtc": "2026-05-10T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.72
+  }
 }

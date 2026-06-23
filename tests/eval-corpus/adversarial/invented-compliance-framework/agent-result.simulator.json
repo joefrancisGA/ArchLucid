@@ -12,5 +12,8 @@
   "confidence": 0.36,
   "findings": [],
   "proposedChanges": null,
-  "createdUtc": "2026-05-09T12:00:00Z"
+  "createdUtc": "2026-05-09T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.31
+  }
 }

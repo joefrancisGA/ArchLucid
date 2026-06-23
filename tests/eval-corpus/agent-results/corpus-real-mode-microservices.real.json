@@ -5,11 +5,15 @@
   "agentType": 1,
   "claims": [
     {
-      "evidenceRefs": ["mesh-without-gateway"],
+      "evidenceRefs": [
+        "mesh-without-gateway"
+      ],
       "detail": "Committed exemplar: services invoke peers directly; edge hardening relies on per-service authz instead of a shared gateway."
     }
   ],
-  "evidenceRefs": ["mesh-without-gateway"],
+  "evidenceRefs": [
+    "mesh-without-gateway"
+  ],
   "confidence": 0.76,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Pair segmentation controls with centralized correlation identifiers across all outbound HTTP clients."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T12:00:00Z"
+  "createdUtc": "2026-05-10T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.76
+  }
 }

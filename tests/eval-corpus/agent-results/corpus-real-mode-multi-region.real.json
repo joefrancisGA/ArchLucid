@@ -5,11 +5,15 @@
   "agentType": 1,
   "claims": [
     {
-      "evidenceRefs": ["multi-region-drill"],
+      "evidenceRefs": [
+        "multi-region-drill"
+      ],
       "detail": "Committed exemplar: user ingress is multi-region while database writes remain in a single primary region with manual playbook cutover."
     }
   ],
-  "evidenceRefs": ["multi-region-drill"],
+  "evidenceRefs": [
+    "multi-region-drill"
+  ],
   "confidence": 0.74,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Document residency commitments and maximum acceptable replication delay for authoritative OLTP changes."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T12:00:00Z"
+  "createdUtc": "2026-05-10T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.75
+  }
 }

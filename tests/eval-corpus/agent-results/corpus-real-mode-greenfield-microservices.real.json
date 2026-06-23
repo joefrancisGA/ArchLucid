@@ -5,11 +5,15 @@
   "agentType": 1,
   "claims": [
     {
-      "evidenceRefs": ["greenfield-ingress-blueprint"],
+      "evidenceRefs": [
+        "greenfield-ingress-blueprint"
+      ],
       "detail": "Committed exemplar: API Management terminates OAuth at the edge while AKS ingress keeps internal-only listeners for cluster traffic."
     }
   ],
-  "evidenceRefs": ["greenfield-ingress-blueprint"],
+  "evidenceRefs": [
+    "greenfield-ingress-blueprint"
+  ],
   "confidence": 0.79,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Replay prior peak traces against both regions with Front Door weighting set to production ratios."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T18:00:00Z"
+  "createdUtc": "2026-05-10T18:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.73
+  }
 }

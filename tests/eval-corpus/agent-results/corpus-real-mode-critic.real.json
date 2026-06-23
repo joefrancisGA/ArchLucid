@@ -5,11 +5,15 @@
   "agentType": 4,
   "claims": [
     {
-      "evidenceRefs": ["peer-review-rubric-v3"],
+      "evidenceRefs": [
+        "peer-review-rubric-v3"
+      ],
       "detail": "Committed exemplar: privileged paths require documented mitigations and secondary sign-off."
     }
   ],
-  "evidenceRefs": ["peer-review-rubric-v3"],
+  "evidenceRefs": [
+    "peer-review-rubric-v3"
+  ],
   "confidence": 0.7,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Attach last DR exercise results or schedule a tabletop before CAB closure."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-08T12:00:00Z"
+  "createdUtc": "2026-05-08T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.73
+  }
 }

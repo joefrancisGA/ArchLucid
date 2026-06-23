@@ -5,11 +5,15 @@
   "agentType": 2,
   "claims": [
     {
-      "evidenceRefs": ["vm-utilization-study"],
+      "evidenceRefs": [
+        "vm-utilization-study"
+      ],
       "detail": "Committed exemplar: average CPU under fifteen percent while SKUs remain pegged to holiday peak sizing."
     }
   ],
-  "evidenceRefs": ["vm-utilization-study"],
+  "evidenceRefs": [
+    "vm-utilization-study"
+  ],
   "confidence": 0.72,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Tighten scale-down cool-downs after validating maximum queue age SLOs."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T12:00:00Z"
+  "createdUtc": "2026-05-10T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.68
+  }
 }

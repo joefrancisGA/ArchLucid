@@ -19,6 +19,10 @@ Default: informational only (exit 0). Use ``--enforce`` when you want recall /
 unexpected probes to block; use ``--enforce-quality-gate`` when rejected gate
 outcomes must fail the process for **simulator** rows; use
 ``--enforce-real-quality-gate`` for evaluated **real-mode** rows.
+Use ``--enforce-llm-faithfulness`` (Phase B) on nightly/release jobs once
+committed real-mode exemplars include ``semanticScore.llmFaithfulnessScore``:
+positive-readiness **p50 ≥ 0.65**, per-scenario absolute floor **0.50**, adversarial
+**≤ 0.40** (with ``::error::`` annotations on failure).
 Scenarios with sibling ``expected-outcome.json`` always enforce offline gate
 contracts (adversarial fixtures).
 """
@@ -309,6 +313,131 @@ def compare_baseline_metrics(
         "baseline_rubric_version": str(baseline.get("rubricVersion") or ""),
         "current_rubric_version": str(current.get("rubricVersion") or ""),
     }
+
+
+_LLM_FAITHFULNESS_P50_FLOOR_DEFAULT = 0.65
+_LLM_FAITHFULNESS_ABSOLUTE_FLOOR_DEFAULT = 0.50
+_LLM_FAITHFULNESS_ADVERSARIAL_CEILING_DEFAULT = 0.40
+
+
+def _resolve_llm_faithfulness_p50_floor() -> float:
+    env_override = os.environ.get("ARCHLUCID_LLM_FAITHFULNESS_P50_FLOOR", "").strip()
+
+    if env_override:
+        return float(env_override)
+
+    return _LLM_FAITHFULNESS_P50_FLOOR_DEFAULT
+
+
+def _resolve_llm_faithfulness_absolute_floor() -> float:
+    env_override = os.environ.get("ARCHLUCID_LLM_FAITHFULNESS_ABSOLUTE_FLOOR", "").strip()
+
+    if env_override:
+        return float(env_override)
+
+    return _LLM_FAITHFULNESS_ABSOLUTE_FLOOR_DEFAULT
+
+
+def _resolve_llm_faithfulness_adversarial_ceiling() -> float:
+    env_override = os.environ.get("ARCHLUCID_LLM_FAITHFULNESS_ADVERSARIAL_CEILING", "").strip()
+
+    if env_override:
+        return float(env_override)
+
+    return _LLM_FAITHFULNESS_ADVERSARIAL_CEILING_DEFAULT
+
+
+def _compute_p50(scores: Sequence[float]) -> float:
+    if not scores:
+        return 0.0
+
+    ordered = sorted(float(score) for score in scores)
+    mid = len(ordered) // 2
+
+    if len(ordered) % 2 == 1:
+        return ordered[mid]
+
+    return (ordered[mid - 1] + ordered[mid]) / 2.0
+
+
+def _is_adversarial_eval_row(row: Mapping[str, Any]) -> bool:
+    expected = row.get("expectedOutcome")
+
+    if not isinstance(expected, dict) or expected.get("error"):
+        return False
+
+    return expected.get("offline_quality_gate_expectation") is not None
+
+
+def enforce_llm_faithfulness_floors(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    p50_floor: float,
+    absolute_floor: float,
+    adversarial_ceiling: float,
+    require_scores_on_evaluated_real: bool = False,
+) -> list[str]:
+    """Phase B LLM faithfulness floors for nightly/release jobs."""
+
+    failures: list[str] = []
+    positive_scores: list[float] = []
+    evaluated_real_positive = 0
+    real_positive_with_score = 0
+
+    for row in rows:
+        quality = row.get("quality")
+
+        if not isinstance(quality, dict) or quality.get("skipped") or quality.get("error"):
+            continue
+
+        scenario_id = str(row.get("id") or "unknown")
+        is_adversarial = _is_adversarial_eval_row(row)
+        mode = str(quality.get("mode") or "")
+
+        if not is_adversarial and mode != "real":
+            continue
+
+        llm_score_raw = quality.get("llm_faithfulness_score")
+
+        if not is_adversarial and mode == "real":
+            evaluated_real_positive += 1
+
+        if llm_score_raw is None:
+            continue
+
+        llm_score = float(llm_score_raw)
+
+        if is_adversarial:
+            if llm_score > adversarial_ceiling:
+                failures.append(
+                    f"Adversarial scenario {scenario_id} LLM faithfulness score {llm_score:.4f} "
+                    f"exceeds ceiling {adversarial_ceiling:.4f}",
+                )
+        else:
+            real_positive_with_score += 1
+            positive_scores.append(llm_score)
+
+            if llm_score < absolute_floor:
+                failures.append(
+                    f"Positive-readiness scenario {scenario_id} LLM faithfulness score {llm_score:.4f} "
+                    f"is below absolute hard floor {absolute_floor:.4f}",
+                )
+
+    if require_scores_on_evaluated_real and evaluated_real_positive > 0 and real_positive_with_score == 0:
+        failures.append(
+            f"{evaluated_real_positive} evaluated real-mode positive scenario(s) missing "
+            "semanticScore.llmFaithfulnessScore; Phase B enforce requires committed LLM faithfulness scores.",
+        )
+
+    if positive_scores:
+        p50 = _compute_p50(positive_scores)
+
+        if p50 < p50_floor:
+            failures.append(
+                f"Cohort p50 LLM faithfulness score {p50:.4f} is below aggregate floor {p50_floor:.4f}",
+            )
+
+    return failures
 
 
 def _is_baseline_eligible_quality(quality: Mapping[str, Any] | None) -> bool:
@@ -1192,6 +1321,14 @@ def main() -> int:
         default=None,
         help="Baseline directory (default: tests/golden-cohort/baselines).",
     )
+    parser.add_argument(
+        "--enforce-llm-faithfulness",
+        action="store_true",
+        help=(
+            "Exit non-zero when Phase B LLM faithfulness floors fail "
+            "(positive p50, absolute floor, adversarial ceiling)."
+        ),
+    )
     args = parser.parse_args()
 
     baseline_dir = (args.baseline_dir or _default_baseline_dir()).resolve()
@@ -1403,42 +1540,23 @@ def main() -> int:
         or (bool(args.baseline) and baseline_failed)
     )
 
-    llm_faithfulness_positive = []
-    llm_faithfulness_adversarial = []
-    llm_faithfulness_failed = False
+    enforce_llm_faithfulness = bool(args.enforce_llm_faithfulness or args.enforce)
+    llm_faithfulness_failures: list[str] = []
 
-    for row in rows:
-        q = row.get("quality")
-        if not isinstance(q, dict) or q.get("mode") != "real" or q.get("skipped") or q.get("error"):
-            continue
-        
-        llm_score = q.get("llm_faithfulness_score")
-        if llm_score is None:
-            continue
-            
-        eo = row.get("expectedOutcome")
-        is_adversarial = isinstance(eo, dict) and not eo.get("error")
-        
-        if is_adversarial:
-            llm_faithfulness_adversarial.append((row["id"], llm_score))
-            if args.enforce and llm_score > 0.40:
-                print(f"::error::Adversarial scenario {row['id']} LLM faithfulness score {llm_score} exceeds ceiling 0.40", file=sys.stderr)
-                llm_faithfulness_failed = True
-        else:
-            llm_faithfulness_positive.append((row["id"], llm_score))
-            if args.enforce and llm_score < 0.50:
-                print(f"::error::Positive-readiness scenario {row['id']} LLM faithfulness score {llm_score} is below absolute hard floor 0.50", file=sys.stderr)
-                llm_faithfulness_failed = True
+    if enforce_llm_faithfulness:
+        llm_faithfulness_failures = enforce_llm_faithfulness_floors(
+            rows,
+            p50_floor=_resolve_llm_faithfulness_p50_floor(),
+            absolute_floor=_resolve_llm_faithfulness_absolute_floor(),
+            adversarial_ceiling=_resolve_llm_faithfulness_adversarial_ceiling(),
+            require_scores_on_evaluated_real=bool(args.enforce_llm_faithfulness),
+        )
 
-    if args.enforce and llm_faithfulness_positive:
-        scores = sorted([score for _, score in llm_faithfulness_positive])
-        p50 = scores[len(scores) // 2] if len(scores) % 2 == 1 else (scores[len(scores) // 2 - 1] + scores[len(scores) // 2]) / 2.0
-        if p50 < 0.65:
-            print(f"::error::Cohort p50 LLM faithfulness score {p50} is below aggregate floor 0.65", file=sys.stderr)
-            llm_faithfulness_failed = True
+        for failure in llm_faithfulness_failures:
+            print(f"::error::{failure}", file=sys.stderr)
 
-    if args.enforce and llm_faithfulness_failed:
-        would_fail_exit = True
+        if llm_faithfulness_failures:
+            would_fail_exit = True
 
     gate_snapshot: dict[str, Any] = {
         "enforce_recall": bool(args.enforce),
@@ -1457,6 +1575,9 @@ def main() -> int:
         "would_fail_exit": would_fail_exit,
         "worst_recall": worst_recall,
         "min_recall": float(args.min_recall),
+        "enforce_llm_faithfulness": enforce_llm_faithfulness,
+        "llm_faithfulness_failed": len(llm_faithfulness_failures) > 0,
+        "llm_faithfulness_failure_count": len(llm_faithfulness_failures),
     }
 
     md = render_markdown_report(
@@ -1475,8 +1596,8 @@ def main() -> int:
         print("::error::corpus enforce failed", file=sys.stderr)
         return 1
 
-    if args.enforce and llm_faithfulness_failed:
-        print("::error::LLM faithfulness enforce failed", file=sys.stderr)
+    if enforce_llm_faithfulness and llm_faithfulness_failures:
+        print("::error::Phase B LLM faithfulness enforce failed", file=sys.stderr)
         return 1
 
     if quality_failed:

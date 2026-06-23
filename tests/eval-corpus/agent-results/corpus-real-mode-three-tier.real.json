@@ -4,12 +4,16 @@
   "runId": "corpus-rm3t-run-exemplar",
   "agentType": 1,
   "claims": [
-   {
-      "evidenceRefs": ["three-tier-web-pattern"],
+    {
+      "evidenceRefs": [
+        "three-tier-web-pattern"
+      ],
       "detail": "Committed exemplar: HTTPS web tier, application tier, and data tier separated with managed identity database access."
     }
   ],
-  "evidenceRefs": ["three-tier-web-pattern"],
+  "evidenceRefs": [
+    "three-tier-web-pattern"
+  ],
   "confidence": 0.81,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Rotate client secrets for any remaining legacy service principals quarterly."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T12:00:00Z"
+  "createdUtc": "2026-05-10T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.7
+  }
 }

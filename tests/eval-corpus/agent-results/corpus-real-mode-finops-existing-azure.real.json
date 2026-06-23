@@ -5,11 +5,15 @@
   "agentType": 2,
   "claims": [
     {
-      "evidenceRefs": ["lz-cost-baseline-2026"],
+      "evidenceRefs": [
+        "lz-cost-baseline-2026"
+      ],
       "detail": "Committed exemplar: hub firewall logs attribute shared egress so FinOps can reconcile chargeback disputes with network owners."
     }
   ],
-  "evidenceRefs": ["lz-cost-baseline-2026"],
+  "evidenceRefs": [
+    "lz-cost-baseline-2026"
+  ],
   "confidence": 0.75,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Gate lifecycle policies on compliance metadata before blanket age-based transitions."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T18:00:00Z"
+  "createdUtc": "2026-05-10T18:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.7
+  }
 }

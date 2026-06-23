@@ -5,11 +5,15 @@
   "agentType": 3,
   "claims": [
     {
-      "evidenceRefs": ["sql-backup-posture"],
+      "evidenceRefs": [
+        "sql-backup-posture"
+      ],
       "detail": "Committed exemplar: backup window documented but geo-redundancy flags disabled on primary storage accounts."
     }
   ],
-  "evidenceRefs": ["sql-backup-posture"],
+  "evidenceRefs": [
+    "sql-backup-posture"
+  ],
   "confidence": 0.78,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Either enable paired-region storage patterns or narrow availability claims in external communications."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T12:00:00Z"
+  "createdUtc": "2026-05-10T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.69
+  }
 }

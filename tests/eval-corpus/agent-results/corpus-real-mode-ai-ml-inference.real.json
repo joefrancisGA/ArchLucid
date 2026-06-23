@@ -5,11 +5,15 @@
   "agentType": 1,
   "claims": [
     {
-      "evidenceRefs": ["falcon-ml-serving"],
+      "evidenceRefs": [
+        "falcon-ml-serving"
+      ],
       "detail": "Committed exemplar: Batch endpoints pin ONNX bundles with signed manifests before traffic shifts off shadow lanes."
     }
   ],
-  "evidenceRefs": ["falcon-ml-serving"],
+  "evidenceRefs": [
+    "falcon-ml-serving"
+  ],
   "confidence": 0.78,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Block automatic artifact promotion unless geo-fence metadata matches the production subscription policy."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T18:00:00Z"
+  "createdUtc": "2026-05-10T18:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.73
+  }
 }

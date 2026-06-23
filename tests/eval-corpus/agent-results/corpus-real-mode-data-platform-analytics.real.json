@@ -5,11 +5,15 @@
   "agentType": 2,
   "claims": [
     {
-      "evidenceRefs": ["lakehouse-finops-pack"],
+      "evidenceRefs": [
+        "lakehouse-finops-pack"
+      ],
       "detail": "Committed exemplar: Synapse pause automation references occupancy sensors so nightly jobs still finish before the SLA window."
     }
   ],
-  "evidenceRefs": ["lakehouse-finops-pack"],
+  "evidenceRefs": [
+    "lakehouse-finops-pack"
+  ],
   "confidence": 0.74,
   "findings": [
     {
@@ -25,7 +29,14 @@
       "recommendation": "Rightsize Premium SKUs once embedded refresh telemetry stabilizes for two billing cycles."
     }
   ],
-  "citations": [{ "source": "committed-real-mode-exemplar" }],
+  "citations": [
+    {
+      "source": "committed-real-mode-exemplar"
+    }
+  ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-10T18:00:00Z"
+  "createdUtc": "2026-05-10T18:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.71
+  }
 }

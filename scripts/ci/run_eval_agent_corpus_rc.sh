@@ -55,6 +55,8 @@ CMD=(
   "--enforce-quality-gate"
   "--enforce-real-quality-gate"
   "--require-real-mode-evidence"
+  "--enforce-llm-faithfulness"
+  "--baseline"
 )
 
 if [[ -n "${ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT:-}" ]]; then

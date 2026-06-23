@@ -48,7 +48,9 @@ jobs:
           python3 scripts/ci/eval_agent_corpus.py \
             --markdown-report "${REP}" \
             --enforce-quality-gate \
-            --enforce-real-quality-gate
+            --enforce-real-quality-gate \
+            --enforce-llm-faithfulness \
+            --baseline
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "${REP}" >> "${GITHUB_STEP_SUMMARY}"; fi
 
       - name: Adversarial hallucination resistance floor (TB-257)

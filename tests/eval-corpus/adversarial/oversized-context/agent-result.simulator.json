@@ -5,11 +5,15 @@
   "agentType": 4,
   "claims": [
     {
-      "evidenceRefs": ["oversized-context-truncation-pattern"],
+      "evidenceRefs": [
+        "oversized-context-truncation-pattern"
+      ],
       "detail": "Simulator critic claim: oversized prompts must raise explicit token budget signals instead of silently discarding interior spans."
     }
   ],
-  "evidenceRefs": ["oversized-context-truncation-pattern"],
+  "evidenceRefs": [
+    "oversized-context-truncation-pattern"
+  ],
   "confidence": 0.76,
   "findings": [
     {
@@ -26,5 +30,8 @@
     }
   ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-09T12:00:00Z"
+  "createdUtc": "2026-05-09T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.35
+  }
 }

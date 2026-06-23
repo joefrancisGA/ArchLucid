@@ -5,11 +5,15 @@
   "agentType": 4,
   "claims": [
     {
-      "evidenceRefs": ["contradictory-hosting-rfp-pattern"],
-      "detail": "Simulator critic claim: mutually exclusive hosting mandates must be surfaced as an explicit deadlock pending waiver—not smoothed over in prose."
+      "evidenceRefs": [
+        "contradictory-hosting-rfp-pattern"
+      ],
+      "detail": "Simulator critic claim: mutually exclusive hosting mandates must be surfaced as an explicit deadlock pending waiver\u2014not smoothed over in prose."
     }
   ],
-  "evidenceRefs": ["contradictory-hosting-rfp-pattern"],
+  "evidenceRefs": [
+    "contradictory-hosting-rfp-pattern"
+  ],
   "confidence": 0.81,
   "findings": [
     {
@@ -26,5 +30,8 @@
     }
   ],
   "proposedChanges": null,
-  "createdUtc": "2026-05-09T12:00:00Z"
+  "createdUtc": "2026-05-09T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.3
+  }
 }
