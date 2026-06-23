@@ -149,7 +149,7 @@ export function ExecutiveDashboardPrimaryMetricsSection(
                 : formatUsd(
                     resolveRunSavingsUsd({
                       serverSummary: buildExecutiveServerSavingsSummary(summary?.totalEstimatedUsdSavings, summary?.savingsPricingBasisDescription),
-                    })?.annualizedUsd ?? summary?.totalEstimatedUsdSavings,
+                    })?.annualizedUsd ?? summary?.totalEstimatedUsdSavings ?? 0,
                   )}
             </p>
           </CardContent>
