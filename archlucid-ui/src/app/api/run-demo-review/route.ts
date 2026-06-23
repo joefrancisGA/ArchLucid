@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import {
   CORRELATION_ID_HEADER,
   generateCorrelationId,
   isSafeCorrelationId,
 } from "@/lib/correlation";
+import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
 /**
  * Internal route handler bridging the operator one-click demo review button to
@@ -31,9 +34,20 @@ function buildForwardHeaders(request: NextRequest, correlationId: string): Heade
   headers.set(CORRELATION_ID_HEADER, correlationId);
 
   const authorization = request.headers.get("authorization");
+  const browserBearer = authorization?.trim() ?? "";
 
-  if (authorization !== null && authorization.trim().length > 0) {
-    headers.set("Authorization", authorization);
+  if (browserBearer.length > 0) {
+    headers.set("Authorization", browserBearer);
+  }
+
+  const key = readServerSideApiKey()?.trim() ?? "";
+
+  if (key.length > 0 && browserBearer.length === 0) {
+    headers.set("X-Api-Key", key);
+  }
+
+  for (const [headerName, headerValue] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers))) {
+    headers.set(headerName, headerValue);
   }
 
   const cookie = request.headers.get("cookie");
@@ -46,9 +60,13 @@ function buildForwardHeaders(request: NextRequest, correlationId: string): Heade
 }
 
 function buildDemoReviewTargetUrl(request: NextRequest): string {
-  const origin = request.nextUrl.origin;
+  const resolved = resolveUpstreamApiBaseUrlForProxy();
 
-  return `${origin}${DEMO_REVIEW_TARGET_PATH}`;
+  if (resolved.ok) {
+    return `${resolved.baseUrl}/v1/reviews/demo`;
+  }
+
+  return `${request.nextUrl.origin}${DEMO_REVIEW_TARGET_PATH}`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

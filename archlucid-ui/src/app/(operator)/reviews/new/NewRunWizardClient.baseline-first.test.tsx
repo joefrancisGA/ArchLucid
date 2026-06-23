@@ -55,6 +55,8 @@ vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
+const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
+
 function makeArchLucidPackageZip(): File {
   const manifest = {
     schemaVersion: 1,
@@ -71,6 +73,7 @@ function makeArchLucidPackageZip(): File {
 
 describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 }, () => {
   beforeEach(() => {
+    window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
     vi.clearAllMocks();
     vi.stubGlobal(
       "fetch",
@@ -129,7 +132,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
 
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 4/i);
     expect(screen.getByTestId("wizard-baseline-zip-field")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Pilot baseline (4 steps)" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByTestId("new-run-wizard-mode-toggle")).not.toBeInTheDocument();
 
     const zipInput = within(screen.getByTestId("wizard-baseline-zip-field")).getByTestId("wizard-baseline-zip-field-input");
     const zipFile = makeArchLucidPackageZip();

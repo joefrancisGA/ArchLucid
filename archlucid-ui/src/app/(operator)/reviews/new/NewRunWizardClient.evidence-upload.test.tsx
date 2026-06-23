@@ -69,6 +69,7 @@ vi.mock("@/app/(operator)/reviews/new/NewRunWizardDeferredChunks", async (import
 });
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
@@ -150,9 +151,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   async function advanceToEvidenceStep(): Promise<void> {
     render(<NewRunWizardClient />);
 
-    await waitFor(() => {
-      expect(screen.getByTestId("new-run-wizard-mode-toggle")).toBeInTheDocument();
-    });
+    await optIntoAdvancedNewRunWizardConfiguration();
 
     fireEvent.click(screen.getByRole("button", { name: /All steps/i }));
 
