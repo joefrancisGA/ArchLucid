@@ -136,7 +136,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   teamsNotifications: "Teams notifications",
   valueReport: "Value report",
   compareTwoReviews: "Compare two reviews",
-  replayReview: "Replay a review",
+  replayReview: "Validate review package",
   askReview: "Ask this review",
   searchEvidence: "Search review evidence",
   architectureAdvisory: "Architecture advisory",

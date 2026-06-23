@@ -7,7 +7,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: "/settings", label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
   { prefix: "/search", label: "Search", description: "Full-text search across all review packages, findings, and decisions." },
-  { prefix: "/replay", label: "Replay", description: "Re-run any historical review with updated policy packs to track improvement." },
+  { prefix: "/replay", label: "Validate review package", description: "Check whether stored review output for a finalized package still validates." },
   { prefix: "/planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines (V1.1). Native one-click ITSM create is gated by Integrations:Itsm:NativeEnabled." },
   { prefix: "/evolution-review", label: "Evolution candidates", description: "Trend analysis of recurring findings across review packages." },

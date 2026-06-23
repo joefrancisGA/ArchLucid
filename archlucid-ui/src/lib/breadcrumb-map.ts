@@ -47,7 +47,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   new: "New request",
   graph: "Graph",
   compare: "Compare",
-  replay: "Replay",
+  replay: "Validate review package",
   ask: "Ask",
   search: "Search",
   advisory: "Advisory",

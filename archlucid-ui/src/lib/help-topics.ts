@@ -65,9 +65,9 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "replay",
-    title: "Replay",
-    keywords: ["verify", "drift", "comparison"],
-    summary: "Replay re-executes stored comparison logic; verify mode detects drift.",
+    title: "Validate review package",
+    keywords: ["verify", "drift", "validation"],
+    summary: "Validate whether a finalized review package can still be reproduced and its signed review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/replay"],
   },

@@ -45,7 +45,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/replay",
     hint: {
       id: "replay-review",
-      message: "Validate stored pipeline output for a single review — not a visual diff.",
+      message: "Validate stored review output for a single review package — not a visual diff.",
       learnMoreHref: "/help/comparison-replay",
     },
   },

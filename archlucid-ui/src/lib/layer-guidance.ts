@@ -72,9 +72,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   replay: {
     layerBadge: "Advanced operations",
-    headline: "Answers: does stored pipeline output still validate for this review on replay?",
+    headline: "Answers: does stored review output still validate for this review package?",
     useWhen: "Use when you need drift or integrity checks on a single review, not a visual diff.",
-    firstPilotNote: "Typically after Pilot proof when you replay or validate chains.",
+    firstPilotNote: "Typically after Pilot proof when you validate stored review chains.",
   },
   graph: {
     layerBadge: "Evidence graph",

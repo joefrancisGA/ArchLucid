@@ -13,10 +13,15 @@ import {
   OperatorTryNext,
 } from "@/components/OperatorShellMessage";
 import { RunIdPicker } from "@/components/RunIdPicker";
-import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS, sortReplayNotes } from "@/lib/replay-display";
+import {
+  replayModeLabel,
+  replayModeShortLabel,
+  replayValidationActionLabel,
+  REPLAY_MODE_PLAIN_OPTIONS,
+  sortReplayNotes,
+} from "@/lib/replay-display";
 
 import type { ReplayFormViewModel } from "./replay-form-view-model";
-import { ArchitectureComparisonReplayCostSection } from "./ArchitectureComparisonReplayCostSection";
 
 type Props = {
   readonly model: ReplayFormViewModel;
@@ -24,48 +29,37 @@ type Props = {
 
 export function ReplayFormView(props: Props) {
   const m = props.model;
+  const validateOnlyLabel = replayModeShortLabel("ReconstructOnly");
+  const regenerateArtifactsLabel = replayModeShortLabel("RebuildArtifacts");
 
   return (
     <div>
       <LayerHeader pageKey="replay" density="compact" />
-      <OperatorPageHeader title="Replay" helpKey="replay-run" />
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        <Link href="/">Home</Link>
-        {" · "}
-        <Link href="/reviews?projectId=default">Reviews</Link>
-        {" · "}
-        <Link href="/compare">Compare two reviews</Link>
-      </p>
+      <OperatorPageHeader title="Validate review package" helpKey="replay-run" />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Re-run the stored validation pipeline for a review. Choose a mode, then read validation flags and notes below.
+        Check whether a finalized review package can still be reproduced and whether its evidence links, findings, decisions, and signed
+        review record remain valid.
       </p>
 
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
-          label="Review to replay"
-          placeholder="Review ID"
+          label="Review package"
+          placeholder="Choose or enter review package"
           value={m.runId}
           onChange={m.setRunId}
           inputId="replay-run-id"
         />
 
         <fieldset className="max-w-3xl space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-          <legend className="px-1 text-sm font-medium text-neutral-800 dark:text-neutral-200">Replay mode</legend>
+          <legend className="px-1 text-sm font-medium text-neutral-800 dark:text-neutral-200">Validation mode</legend>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Pick the lightest mode that answers your question—heavier modes regenerate more server-side output.
+            Pick the lightest mode that answers your question—heavier modes regenerate more stored output.
           </p>
-          <ul className="m-0 list-none space-y-1 p-0 text-xs text-neutral-600 dark:text-neutral-400">
-            {REPLAY_MODE_PLAIN_OPTIONS.map((row) => (
-              <li key={row.mode}>
-                <strong className="font-medium text-neutral-800 dark:text-neutral-200">{row.mode}:</strong> {row.label}
-              </li>
-            ))}
-          </ul>
           <select
             className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
             value={m.mode}
             onChange={(e) => m.setMode(e.target.value)}
-            aria-label="Replay mode"
+            aria-label="Validation mode"
           >
             {REPLAY_MODE_PLAIN_OPTIONS.map((row) => (
               <option key={row.mode} value={row.mode} title={replayModeLabel(row.mode)}>
@@ -82,25 +76,27 @@ export function ReplayFormView(props: Props) {
           onClick={() => void m.onReplay()}
           disabled={m.loading || !m.runIdTrimmed}
         >
-          {m.loading ? "Replaying…" : "Replay"}
+          {replayValidationActionLabel(m.mode, m.loading)}
         </button>
       </div>
 
       {!m.runIdTrimmed && (
-        <OperatorEmptyState title="Waiting for a review ID">
+        <OperatorEmptyState title="No review selected">
           <p className="m-0">
-            Enter the review to replay, open this page with <code>?runId=…</code>, or go from{" "}
-            <Link href="/reviews?projectId=default">Reviews</Link> → review detail → <strong>Replay this review</strong>.
+            Open this page from a review package, or choose a finalized review package to validate.
+          </p>
+          <p className="m-0 mt-2">
+            <Link href="/reviews?projectId=default">Open review packages</Link>
           </p>
         </OperatorEmptyState>
       )}
 
       {m.loading && m.runIdTrimmed && (
         <OperatorLoadingNotice>
-          <strong>Replay in progress.</strong>
+          <strong>Validation in progress.</strong>
           <p className="mt-2 text-sm">
-            Waiting for the API to finish the authority-chain replay. Large manifests or artifact rebuild modes can take longer—avoid
-            navigating away until this clears.
+            Waiting for the API to finish validating stored review output. Heavier validation modes can take longer—avoid navigating away
+            until this clears.
           </p>
         </OperatorLoadingNotice>
       )}
@@ -110,7 +106,8 @@ export function ReplayFormView(props: Props) {
           <OperatorApiProblem failure={m.failure} />
           <OperatorTryNext>
             Confirm the review exists, you have operator permissions, and the API is healthy. Retry with a lighter mode (e.g.{" "}
-            <code>ReconstructOnly</code>) before <code>RebuildArtifacts</code>. Copy the correlation ID for API logs.
+            <strong>{validateOnlyLabel}</strong>) before <strong>{regenerateArtifactsLabel}</strong>. Copy the correlation ID for support
+            logs.
           </OperatorTryNext>
         </>
       )}
@@ -118,34 +115,29 @@ export function ReplayFormView(props: Props) {
       {m.malformedMessage && (
         <>
           <OperatorMalformedCallout>
-            <strong>Replay response was not usable.</strong>
+            <strong>Validation response was not usable.</strong>
             <p className="mt-2">{m.malformedMessage}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Compare API and UI versions. If HTTP succeeded but validation JSON drifted, open a defect with <code>GET /version</code> and the
+            Compare API and UI versions. If HTTP succeeded but validation JSON drifted, open a defect with the product version and the
             correlation ID from any paired failing request.
           </OperatorTryNext>
         </>
       )}
 
       {m.result && (
-        <ClientErrorBoundary title="Replay result failed to render">
+        <ClientErrorBoundary title="Validation result failed to render">
           <section className="mt-6 max-w-3xl rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
-            <h3 className="mt-0">Replay result</h3>
+            <h3 className="mt-0">Validation result</h3>
             <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
-              Deterministic summary of what the API validated after replay. Use notes below for operator follow-up.
+              Summary of what the API validated. Use notes below for follow-up.
             </p>
             <dl className="grid grid-cols-[220px_1fr] gap-x-4 gap-y-2 text-sm mb-5">
-              <dt className="text-neutral-500 dark:text-neutral-400">Review ID</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Review package</dt>
               <dd className="m-0 font-mono text-[13px]">{m.result.runId}</dd>
-              <dt className="text-neutral-500 dark:text-neutral-400">Mode</dt>
-              <dd className="m-0">
-                <span className="font-mono text-[13px]">{m.result.mode}</span>
-                <span className="block text-[13px] text-neutral-500 dark:text-neutral-400 mt-1">
-                  {replayModeLabel(m.result.mode)}
-                </span>
-              </dd>
-              <dt className="text-neutral-500 dark:text-neutral-400">Replayed (local)</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Validation mode</dt>
+              <dd className="m-0 text-[13px]">{replayModeLabel(m.result.mode)}</dd>
+              <dt className="text-neutral-500 dark:text-neutral-400">Validated (local)</dt>
               <dd className="m-0">{new Date(m.result.replayedUtc).toLocaleString()}</dd>
               {m.result.rebuiltManifestId && (
                 <>
@@ -183,14 +175,14 @@ export function ReplayFormView(props: Props) {
               <dd className="m-0">{String(m.result.validation.artifactsPresent)}</dd>
               <dt className="text-neutral-500 dark:text-neutral-400">Review record hash matches</dt>
               <dd className="m-0">{String(m.result.validation.manifestHashMatches)}</dd>
-              <dt className="text-neutral-500 dark:text-neutral-400">Artifact bundle after replay</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Artifact bundle after validation</dt>
               <dd className="m-0">{String(m.result.validation.artifactBundlePresentAfterReplay)}</dd>
             </dl>
 
             <h4 className="text-[15px] mb-2">Validation notes</h4>
             {m.result.validation.notes.length === 0 ? (
               <OperatorEmptyState title="No validation notes">
-                <p className="m-0">The replay completed; the API returned zero note lines.</p>
+                <p className="m-0">Validation completed; the API returned zero note lines.</p>
               </OperatorEmptyState>
             ) : (
               <ul className="leading-relaxed m-0 pl-5">
@@ -202,7 +194,6 @@ export function ReplayFormView(props: Props) {
           </section>
         </ClientErrorBoundary>
       )}
-      <ArchitectureComparisonReplayCostSection />
     </div>
   );
 }

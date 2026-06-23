@@ -13,7 +13,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS } from "@/lib/replay-display";
 
-/** Architecture comparison replay helpers (distinct from `/v1/authority/replay`). */
+/** Warn-only cost band estimate for architecture comparison replay (distinct from review-package validation). */
 
 export function ArchitectureComparisonReplayCostSection() {
   const searchParams = useSearchParams();
@@ -93,24 +93,20 @@ export function ArchitectureComparisonReplayCostSection() {
   }, [executeEstimate, trimmedId]);
 
   return (
-    <section className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-10 max-w-3xl p-4">
-      <h3 className="mt-0 text-sm font-semibold text-al-text-primary">
-        Architecture comparison replay — estimated cost (warn-only)
-      </h3>
+    <section className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-3xl p-4">
+      <h3 className="mt-0 text-sm font-semibold text-al-text-primary">Comparison replay cost estimate (warn-only)</h3>
       <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
-        Targets{" "}
-        <span className="font-mono text-xs">GET /v1/architecture/comparisons/&lt;id&gt;/replay/cost-estimate</span> — distinct from the
-        review replay POST above. Populate <span className="font-mono text-xs">comparisonRecordId</span> query on this route (optional{" "}
-        <span className="font-mono text-xs">comparisonFormat</span>) to hydrate the ID field automatically.
+        Estimate relative cost before you replay a saved comparison record. This is separate from validating a single review package on the
+        validate page.
       </p>
 
       <div className="mt-3 grid max-w-xl gap-3">
         <div className="space-y-2">
-          <Label htmlFor="comparison-record-id-cost">Comparison record ID</Label>
+          <Label htmlFor="comparison-record-id-cost">Comparison record</Label>
           <Input
             id="comparison-record-id-cost"
             value={comparisonRecordId}
-            placeholder="comparison record identifier"
+            placeholder="Saved comparison record identifier"
             onChange={(ev) => {
               setComparisonRecordId(ev.target.value);
             }}
@@ -123,7 +119,7 @@ export function ArchitectureComparisonReplayCostSection() {
           <Input
             id="comparison-replay-format"
             value={format}
-            placeholder="leave blank unless your replay/export format narrows estimator inputs"
+            placeholder="Leave blank unless a specific export format narrows the estimate"
             onChange={(ev) => {
               setFormat(ev.target.value);
             }}
@@ -132,16 +128,16 @@ export function ArchitectureComparisonReplayCostSection() {
         </div>
 
         <fieldset className="space-y-2 rounded-md border border-amber-200/80 bg-white/40 p-3 dark:border-amber-800 dark:bg-neutral-950/60">
-          <legend className="px-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Replay mode overlay (optional)</legend>
+          <legend className="px-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Validation mode (optional)</legend>
           <select
             className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900"
             value={replayMode}
-            aria-label="Optional comparison replay mode sent to estimator"
+            aria-label="Optional validation mode for comparison replay cost estimate"
             onChange={(e) => {
               setReplayMode(e.target.value);
             }}
           >
-            <option value="">Estimator default</option>
+            <option value="">Default</option>
             {REPLAY_MODE_PLAIN_OPTIONS.map((row) => (
               <option key={row.mode} value={row.mode}>
                 {row.label}
@@ -151,7 +147,7 @@ export function ArchitectureComparisonReplayCostSection() {
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
             {replayMode.trim().length > 0
               ? replayModeLabel(replayMode)
-              : "Only set this when parity with a heavyweight comparison replay POST calls for estimating with a richer mode overlay."}
+              : "Only set this when you need a cost estimate aligned with a heavier comparison replay."}
           </p>
         </fieldset>
 
@@ -164,7 +160,7 @@ export function ArchitectureComparisonReplayCostSection() {
               setPersistReplay(ev.target.checked);
             }}
           />
-          Estimate with persisted replay (if estimator supports flag)
+          Include persisted replay in estimate
         </label>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -208,7 +204,7 @@ export function ArchitectureComparisonReplayCostSection() {
               </Fragment>
             ) : null}
             <p className="m-0 mt-2 text-xs font-medium text-amber-950 dark:text-amber-50">
-              Guidance only — not a hard block before any downstream replay/export job you trigger elsewhere from tooling.
+              Guidance only — not a hard block before any downstream replay or export you trigger elsewhere.
             </p>
           </div>
         ) : null}
