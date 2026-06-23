@@ -49,6 +49,11 @@ export {
   RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
 } from "./runs-list-heading";
 export { fixtureRunDetail, fixtureRunDetailAlignedToShowcase } from "./run-detail";
+export {
+  fixtureOperatorDemoReviewRunDetail,
+  operatorDemoReviewApiResponse,
+  OPERATOR_DEMO_REVIEW_RUN_ID,
+} from "./operator-demo-review-run";
 export { fixtureRunExplanationSummary } from "./run-explanation-summary";
 export { fixtureTenantCostEstimate } from "./tenant-cost-estimate";
 export {

@@ -9,6 +9,8 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
+import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
+import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +26,10 @@ import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION, BUYER_FINDING_SUMMARY_
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
+import {
+  resolvePolicyRuleIdFromInspect,
+  resolvePolicyRuleLabelFromInspect,
+} from "@/lib/finding-policy-evidence-citations";
 import { cn } from "@/lib/utils";
 
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
@@ -73,6 +79,9 @@ export function FindingDetailPageView(props: Props) {
 
   const confidenceLevel = inspectPayload?.confidenceLevel ?? null;
   const evaluationScore = inspectPayload?.evaluationConfidenceScore ?? null;
+  const policyRuleId = inspectPayload !== null ? resolvePolicyRuleIdFromInspect(inspectPayload) : null;
+  const policyRuleLabel =
+    inspectPayload !== null ? resolvePolicyRuleLabelFromInspect(inspectPayload, policyRuleId) : null;
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
@@ -101,6 +110,13 @@ export function FindingDetailPageView(props: Props) {
                     ? findingDetailLeadSentence(inspectPayload)
                     : findingDetailLeadFallback(decodedFindingId)}
                 </p>
+                {policyRuleId !== null ? (
+                  <FindingPolicyRuleBadge
+                    policyRuleId={policyRuleId}
+                    policyRuleLabel={policyRuleLabel}
+                    className="inline-flex"
+                  />
+                ) : null}
               </div>
 
               <div className="rounded-xl border border-white/70 bg-white/90 p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/80">
@@ -251,6 +267,9 @@ export function FindingDetailPageView(props: Props) {
                   Business impact: {labels.impactedAreaLabel}
                 </Badge>
               ) : null}
+              {policyRuleId !== null ? (
+                <FindingPolicyRuleBadge policyRuleId={policyRuleId} policyRuleLabel={policyRuleLabel} />
+              ) : null}
             </div>
           ) : null}
 
@@ -306,6 +325,10 @@ export function FindingDetailPageView(props: Props) {
         />
       ) : null}
 
+      {inspectPayload !== null ? (
+        <FindingExplainabilityTracePanel runId={runId} findingId={decodedFindingId} />
+      ) : null}
+
       {inspectPayload !== null && !buyerPolishedShell ? (
         <FindingInspectContextDebugPanel
           runId={runId}
@@ -326,16 +349,26 @@ export function FindingDetailPageView(props: Props) {
         <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
       ) : null}
 
-      {inspectPayload !== null && !buyerPolishedShell ? (
-        <CollapsibleSection title="Copy for work tracking" defaultOpen={false}>
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            Copy a structured summary formatted for Markdown, GitHub Issues, or Azure Boards when your team does not
-            use the Jira or ServiceNow connectors above.
+      {inspectPayload !== null ? (
+        <section
+          className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+          aria-labelledby="finding-copy-work-item-heading"
+          data-testid="finding-copy-work-item-promoted"
+        >
+          <h2
+            id="finding-copy-work-item-heading"
+            className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+          >
+            Copy for external work tracking
+          </h2>
+          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            Copy a structured summary formatted for Markdown, GitHub Issues, or Azure Boards when your team tracks
+            remediation outside native connectors.
           </p>
           <div className="pt-3">
             <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />
           </div>
-        </CollapsibleSection>
+        </section>
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (

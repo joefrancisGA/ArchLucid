@@ -19,6 +19,7 @@ import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
+import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
@@ -363,7 +364,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                   >
                     <SyncActiveRunFromPathname />
                     <DemoStrictNavigationGate>
-                      <OperatorRoleGate>{children}</OperatorRoleGate>
+                      <SponsorExecutiveShellRedirect>
+                        <OperatorRoleGate>{children}</OperatorRoleGate>
+                      </SponsorExecutiveShellRedirect>
                     </DemoStrictNavigationGate>
                   </main>
                 </KeyboardShortcutProvider>
@@ -422,7 +425,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                     <AppShellMainAffordances />
                     <SyncActiveRunFromPathname />
                     <DemoStrictNavigationGate>
-                      <OperatorRoleGate>{children}</OperatorRoleGate>
+                      <SponsorExecutiveShellRedirect>
+                        <OperatorRoleGate>{children}</OperatorRoleGate>
+                      </SponsorExecutiveShellRedirect>
                     </DemoStrictNavigationGate>
                 </main>
               </KeyboardShortcutProvider>

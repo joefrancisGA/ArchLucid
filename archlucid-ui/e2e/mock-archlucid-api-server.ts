@@ -23,6 +23,9 @@ import {
   fixtureRunDetail,
   fixtureRunDetailAlignedToShowcase,
   fixtureRunExplanationSummary,
+  fixtureOperatorDemoReviewRunDetail,
+  operatorDemoReviewApiResponse,
+  OPERATOR_DEMO_REVIEW_RUN_ID,
 } from "./fixtures/index";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
@@ -57,6 +60,10 @@ function resolveRunDetailBodyForRunId(runId: string): RunDetail | null {
 
   if (runId === SHOWCASE_DEMO_RUN_ID || runId === SCREENSHOT_RUN_ID) {
     return fixtureRunDetailAlignedToShowcase(runId);
+  }
+
+  if (runId === OPERATOR_DEMO_REVIEW_RUN_ID) {
+    return fixtureOperatorDemoReviewRunDetail(runId);
   }
 
   return null;
@@ -284,6 +291,11 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      if (req.method === "POST" && pathname === "/v1/reviews/demo") {
+        sendJson(res, 200, operatorDemoReviewApiResponse());
+        return;
+      }
+
       if (req.method === "POST" && pathname === "/v1/ask") {
         sendJson(res, 200, {
           threadId: randomUUID(),
@@ -369,6 +381,11 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           return;
         }
 
+        if (rid === OPERATOR_DEMO_REVIEW_RUN_ID) {
+          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureOperatorDemoReviewRunDetail(rid)));
+          return;
+        }
+
         sendJson(res, 404, { detail: "Run summary not found." });
         return;
       }
@@ -384,6 +401,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           "demo",
           SHOWCASE_DEMO_RUN_ID,
           SCREENSHOT_RUN_ID,
+          OPERATOR_DEMO_REVIEW_RUN_ID,
         ]);
 
         if (aggregateFixtureRunIds.has(runId)) {

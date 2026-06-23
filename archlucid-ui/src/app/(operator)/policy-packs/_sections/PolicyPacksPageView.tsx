@@ -7,6 +7,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 
+import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSimulationCard";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
 import { PolicyPacksBuyerPolishedAdministratorNote } from "./PolicyPacksBuyerPolishedAdministratorNote";
 import { PolicyPacksInspectSection } from "./PolicyPacksInspectSection";
@@ -152,6 +153,11 @@ export function PolicyPacksPageView(props: Props) {
 
       {m.pageTab === "my-packs" ? (
         <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
+          <PolicyPackImpactSimulationCard
+            selectedPackId={m.selectedPackId}
+            selectedPackLabel={m.selectedPackSummary?.name ?? null}
+          />
+
           <PolicyPacksRegisteredListSection
             buyerPolishedShell={m.buyerPolishedShell}
             canMutatePacks={m.canMutatePacks}
