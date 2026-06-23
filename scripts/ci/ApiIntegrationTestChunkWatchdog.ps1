@@ -363,7 +363,10 @@ function Invoke-DotNetTestChunkWithWatchdog {
         '-c', $Configuration,
         '--settings', $RunSettingsPath,
         '--filter', $Filter,
-        '--collect:XPlat Code Coverage',
+        # Do NOT pass --collect here: Start-Process -ArgumentList joins array elements with spaces
+        # without quoting, so "--collect:XPlat Code Coverage" splits into three tokens and MSBuild
+        # treats "Code" and "Coverage" as extra project paths (MSB1008). The XPlat Code Coverage
+        # collector is already declared in coverage.runsettings, matching the non-integration job path.
         '--results-directory', $ResultsDirectory,
         '--logger', 'console;verbosity=minimal',
         '--logger', "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$ChunkNumber-",
