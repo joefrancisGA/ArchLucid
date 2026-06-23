@@ -57,6 +57,51 @@ public sealed class DecisionEngineV2Tests
     }
 
     [Fact]
+    public async Task ResolveAsync_topology_uses_calibrated_accept_prior_and_labels_source()
+    {
+        List<AgentResult> results =
+        [
+            new()
+            {
+                RunId = "RUN-CAL",
+                AgentType = AgentType.Topology,
+                Confidence = 0.55,
+                CalibratedConfidence = 0.91,
+                ProposedChanges = new AgentTopologyProposal
+                {
+                    SourceAgent = AgentType.Topology,
+                    AddedDatastores =
+                    [
+                        new() { DatastoreName = "redis" }
+                    ]
+                }
+            }
+        ];
+
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
+            "RUN-CAL",
+            request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
+            tasks:
+            [
+                new()
+                {
+                    TaskId = "T-1",
+                    RunId = "RUN-CAL",
+                    AgentType = AgentType.Topology,
+                    Status = AgentTaskStatus.Completed
+                }
+            ],
+            results: results,
+            evaluations: []);
+
+        DecisionNode node = decisions.Single(d => d.Topic == "TopologyAcceptance");
+        DecisionOption accept = node.Options.Single(o => o.Description == "Accept topology proposal");
+
+        accept.BaseConfidence.Should().Be(0.91);
+        node.AcceptPriorConfidenceSource.Should().Be(MergeAcceptPriorConfidenceSources.Calibrated);
+    }
+
+    [Fact]
     public async Task ResolveAsync_WhenOpposed_SelectsExclude()
     {
         List<AgentResult> results =
@@ -270,6 +315,7 @@ public sealed class DecisionEngineV2Tests
 
         DecisionNode security = decisions.Single(d => d.Topic == "SecurityControlPromotion");
         security.Rationale.Should().Contain("Private Endpoints");
+        security.AcceptPriorConfidenceSource.Should().Be(MergeAcceptPriorConfidenceSources.StrategyPrior);
     }
 
     [Fact]

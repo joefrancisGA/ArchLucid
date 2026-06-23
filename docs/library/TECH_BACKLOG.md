@@ -2995,6 +2995,8 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 
 ## TB-050 ? Manifest `ResolvedArchitectureDecision` ? confidence + `ConfidenceSource`
 
+**Status:** **Done (2026-06-22)** ? `ResolvedArchitectureDecision.Confidence` / `ConfidenceSource` + buyer label; `ManifestDecisionConfidenceProjector` in `DefaultGoldenManifestBuilder`; relational read/write parity; unit tests `ManifestDecisionConfidenceProjectorTests`, `DefaultGoldenManifestBuilderBatchATests`; pytest **`test_decision_explainability_batch_tb050_tb053_tb051.py`**.
+
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Operator-facing manifest decisions are built in `DefaultGoldenManifestBuilder` from accepted findings; the persisted type has no confidence field.
 
 **Problem:**
@@ -3024,6 +3026,8 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 ---
 
 ## TB-051 ? Decisioning V2 merge ? consume `CalibratedConfidence`
+
+**Status:** **Done (2026-06-22)** ? `DecisionStrategyAgentConfidenceResolver.ResolveAcceptPriorWithSource`; `MergeAcceptPriorConfidenceSources`; topology/security/complexity strategies label `AcceptPriorConfidenceSource`; tests `DecisionStrategyAgentConfidenceResolverTests`, `DecisionEngineV2Tests`; pytest **`test_decision_explainability_batch_tb050_tb053_tb051.py`**.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). `AgentConfidenceCalibrationService` writes `CalibratedConfidence` on `AgentResult`; V2 strategies and `DecisionNode.Confidence` use raw `Confidence` and hardcoded `BaseConfidence` priors (`TopologyAcceptanceDecisionStrategy`, `SecurityControlsDecisionStrategy`, `ComplexityDecisionStrategy`).
 
@@ -3088,6 +3092,8 @@ An operator with only the rule audit trace cannot join it to the **exact** conte
 ---
 
 ## TB-053 ? `FindingConfidenceCalculator` ? typed unknown/failed (no bare catch)
+
+**Status:** **Done (2026-06-22)** ? `FindingConfidenceCalculationResult` + `FindingConfidenceStatus` (`Computed` / `Unknown` / `Failed`); null trace ratio is Unknown not zero; typed catch with log; enrichers skip non-`Computed`; tests `FindingConfidenceCalculatorTests`; pytest **`test_decision_explainability_batch_tb050_tb053_tb051.py`**.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Finding-level confidence feeds manifest and operator trust surfaces.
 
@@ -4786,6 +4792,8 @@ All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storag
 ---
 
 ## TB-101 --- Resolve legacy App Service VNet integration in `terraform-private/app_service.tf`
+
+**Status:** **Done (2026-06-22)** ? `app_service.tf` documents TB-101 legacy optional path (count=0 when `linux_web_app_id` empty); `variables.tf` describes Container Apps as active compute; README cross-ref; pytest **`test_decision_explainability_batch_tb050_tb053_tb051.py`** (TB-101 guard).
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 

@@ -46,6 +46,35 @@ public sealed class DefaultGoldenManifestBuilderBatchATests
     }
 
     [Fact]
+    public async Task Build_security_decision_null_scores_yield_Unknown_not_zero()
+    {
+        ManifestDocument manifest = await BuildWithFindingsAsync(
+        [
+            new Finding
+            {
+                FindingType = FindingTypes.SecurityControlFinding,
+                Category = "Security",
+                EngineType = "test",
+                Severity = FindingSeverity.Error,
+                Title = "Missing MFA",
+                Rationale = "gap",
+                Payload = new SecurityControlFindingPayload
+                {
+                    ControlId = "mfa",
+                    ControlName = "MFA",
+                    Status = "missing",
+                    Impact = "High risk",
+                },
+            },
+        ]);
+
+        manifest.Decisions.Should().ContainSingle();
+        ResolvedArchitectureDecision decision = manifest.Decisions[0];
+        decision.Confidence.Should().BeNull();
+        decision.ConfidenceSource.Should().Be(DecisionConfidenceSource.Unknown);
+    }
+
+    [Fact]
     public async Task Build_engine_failures_add_manifest_warnings()
     {
         FindingsSnapshot snapshot = new()

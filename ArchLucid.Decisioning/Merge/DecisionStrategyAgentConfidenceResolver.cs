@@ -11,12 +11,18 @@ public static class DecisionStrategyAgentConfidenceResolver
     /// </summary>
     public static double ResolveAcceptPrior(AgentResult result)
     {
+        return ResolveAcceptPriorWithSource(result).Prior;
+    }
+
+    /// <summary>Resolves accept prior and labels whether calibration or raw self-report was used.</summary>
+    public static (double Prior, string Source) ResolveAcceptPriorWithSource(AgentResult result)
+    {
         ArgumentNullException.ThrowIfNull(result);
 
         if (result.CalibratedConfidence is { } calibrated && calibrated >= 0d && calibrated <= 1d)
-            return calibrated;
+            return (calibrated, MergeAcceptPriorConfidenceSources.Calibrated);
 
-        return result.Confidence;
+        return (result.Confidence, MergeAcceptPriorConfidenceSources.Raw);
     }
 
     /// <summary>Human-readable label for operator explainability when a strategy prior is used.</summary>

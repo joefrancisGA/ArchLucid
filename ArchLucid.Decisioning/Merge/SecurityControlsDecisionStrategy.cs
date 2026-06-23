@@ -70,6 +70,7 @@ internal sealed class SecurityControlsDecisionStrategy : IDecisionStrategy
             Options = [promote],
             SelectedOptionId = promote.OptionId,
             Confidence = promote.FinalScore,
+            AcceptPriorConfidenceSource = MergeAcceptPriorConfidenceSources.StrategyPrior,
             Rationale = promote.Description,
             SupportingEvaluationIds = relevant
                 .Where(e => e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))

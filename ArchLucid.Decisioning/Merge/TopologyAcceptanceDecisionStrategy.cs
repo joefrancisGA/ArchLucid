@@ -30,7 +30,8 @@ internal sealed class TopologyAcceptanceDecisionStrategy : IDecisionStrategy
             .ToList();
 
         // Accept prior prefers calibrated confidence when present (TB-051); otherwise topology self-report.
-        double baseConfidence = DecisionStrategyAgentConfidenceResolver.ResolveAcceptPrior(topologyResult);
+        (double baseConfidence, string acceptPriorSource) =
+            DecisionStrategyAgentConfidenceResolver.ResolveAcceptPriorWithSource(topologyResult);
         // SupportScore: Support + Strengthen evaluations add max(0, ConfidenceDelta) — only reinforcing evidence increases accept’s FinalScore.
         double support = relevant
             .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase) ||
@@ -67,6 +68,7 @@ internal sealed class TopologyAcceptanceDecisionStrategy : IDecisionStrategy
             Options = [accept, reject],
             SelectedOptionId = selected.OptionId,
             Confidence = selected.FinalScore,
+            AcceptPriorConfidenceSource = acceptPriorSource,
             Rationale = selected == accept
                 ? "Topology proposal retained after applying support and opposition signals."
                 : "Topology proposal rejected due to accumulated opposition signals.",

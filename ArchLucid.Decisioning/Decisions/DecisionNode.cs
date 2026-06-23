@@ -49,6 +49,15 @@ public sealed class DecisionNode
         set;
     }
 
+    /// <summary>
+    ///     How the selected option's base prior was derived: <c>calibrated</c>, <c>raw</c>, or <c>strategyPrior</c> (TB-051).
+    /// </summary>
+    public string? AcceptPriorConfidenceSource
+    {
+        get;
+        set;
+    }
+
     public IReadOnlyList<string> SupportingEvaluationIds
     {
         get;

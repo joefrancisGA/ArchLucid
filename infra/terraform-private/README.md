@@ -1,4 +1,4 @@
-﻿# Private endpoints (SQL + Blob + optional Azure AI Search)
+# Private endpoints (SQL + Blob + optional Azure AI Search)
 
 Optional Terraform root for **private data-plane** connectivity: VNet, **private DNS** zones, and **private endpoints** for **Azure SQL** and **Blob storage**, plus **optional** endpoints for **Key Vault** (`key_vault_id`, `privatelink.vaultcore.azure.net`) and **Azure AI Search** (`search_service_id`). Optionally wires **regional VNet integration** for a **Linux Web App** (`linux_web_app_id` + `web_app_vnet_integration_subnet_id`) so the API resolves private DNS inside the VNet. Defaults **`enable_private_data_plane = false`**.
 
@@ -9,7 +9,7 @@ Optional Terraform root for **private data-plane** connectivity: VNet, **private
 
 ## What you must do after apply
 
-1. **Disable public network access** on the SQL server and storage account (or restrict with firewall rules) so data is not still reachable publicly â€” Terraform here does not flip those flags by design (avoid locking you out mid-migration).
+1. **Disable public network access** on the SQL server and storage account (or restrict with firewall rules) so data is not still reachable publicly — Terraform here does not flip those flags by design (avoid locking you out mid-migration).
 2. Update **`ConnectionStrings:ArchLucid`** to use the **same server FQDN**; with private DNS linked to the VNet, `*.database.windows.net` resolves to the private IP inside the VNet.
 3. Integrate **compute** (App Service, Container Apps, AKS) with this VNet (**VNet integration** or subnet injection) so the API resolves private DNS.
 
@@ -20,4 +20,6 @@ See `variables.tf` and `terraform.tfvars.example`.
 ## SMB / port 445
 
 This module does **not** expose SMB. Blob access from the API should use **HTTPS** to `*.blob.core.windows.net`, which resolves privately when the private DNS zone is linked.
+## TB-101 � legacy App Service VNet integration
 
+`linux_web_app_id` and `web_app_vnet_integration_subnet_id` are **optional**. Production-like pilots use **Azure Container Apps** (infra/terraform-container-apps). The swift connection in `app_service.tf` is created only when both variables are non-empty; leave them empty when no legacy Linux Web App exists.
