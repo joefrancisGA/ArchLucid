@@ -31838,12 +31838,14 @@ export interface components {
             /** Format: uuid */
             manifestId?: null | string;
             ownerUserId?: null | string;
+            resourceId?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
             /** Format: uuid */
             runId?: null | string;
             severity?: string;
             statusLabel?: string;
+            systemName?: null | string;
             title?: string;
             /** Format: date-time */
             waiverExpiresAtUtc?: null | string;
