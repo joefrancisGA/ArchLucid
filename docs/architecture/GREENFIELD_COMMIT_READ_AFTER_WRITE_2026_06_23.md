@@ -33,15 +33,15 @@ under load, not a test harness bug.
 `ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync` calls this gate
 **before** the commit retry loop so all greenfield SQL integration call sites benefit. On 409 responses whose
 detail mentions manifest load races, the helper re-polls this gate, checks for idempotent `Committed` state,
-and retries up to **25** attempts with backoff capped at **8s** (product-side commit reconciliation only waits
-~125ms across five attempts).
+and retries up to **25** attempts with backoff capped at **8s**.
 
-## Product follow-up (not changed in this pass)
+## Product mitigation (2026-06-23)
+
+`AuthorityDrivenArchitectureRunCommitOrchestrator` polls manifest reconciliation up to **8** times per
+unique-key violation (150ms–1200ms backoff) across **12** outer attempts before surfacing the 409
+manifest-load conflict.
+
+## Remaining follow-up
 
 Consider making `/execute` completion or `/commit` idempotency block until commit prerequisites are
-durable (snapshot rows + manifest version readable), or extend server-side commit reconciliation
-backoff when manifest load races. Until then, tests rely on the readiness poll + existing commit retries.
-
-**2026-06-23 update:** `AuthorityDrivenArchitectureRunCommitOrchestrator` now polls manifest
-reconciliation up to **8** times per unique-key violation (150ms–1200ms backoff) across **12** outer
-attempts before surfacing the 409 manifest-load conflict.
+durable (snapshot rows + manifest version readable) instead of relying on reconciliation polling.

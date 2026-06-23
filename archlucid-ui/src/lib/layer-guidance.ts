@@ -30,6 +30,7 @@ export type LayerGuidancePageKey =
   | "governance-first-30-days"
   | "governance-resolution"
   | "governance-workflow"
+  | "risk-exceptions"
   | "policy-packs"
   | "alert-rules"
   | "alert-routing"
@@ -186,6 +187,16 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
+  },
+  "risk-exceptions": {
+    layerBadge: "Governance",
+    headline: "Track active waivers, expirations, owners, and linked governance decisions.",
+    useWhen:
+      "Use this page to track owner, expiration, evidence, and the linked decision record so exceptions do not become unmanaged risk.",
+    firstPilotNote:
+      "After Pilot proof when waivers from findings need portfolio-level expiry and renewal tracking.",
+    enterpriseFootnote:
+      "Risk exceptions are approved waivers for findings that are not immediately remediated.",
   },
   "policy-packs": {
     layerBadge: "Governance",

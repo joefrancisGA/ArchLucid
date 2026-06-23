@@ -92,7 +92,6 @@ const HREFS: string[] = [
   "/settings/baseline",
   "/settings/exec-digest",
   "/settings/tenant",
-  "/settings/tenant-cost",
   "/signup",
   "/signup/verify",
   "/trust",

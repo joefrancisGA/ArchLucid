@@ -64634,56 +64634,6 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/tenant/cost-estimate": {
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          }
-        },
-        "tags": [
-          "TenantCostEstimate"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
     "/v1/tenant/cost-settings": {
       "get": {
         "responses": {
@@ -67082,9 +67032,6 @@
     },
     {
       "name": "TenantBaseline"
-    },
-    {
-      "name": "TenantCostEstimate"
     },
     {
       "name": "TenantCostSettings"

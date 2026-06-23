@@ -8,7 +8,7 @@ export const fetchCache = "force-no-store";
 export const metadata: Metadata = {
   title: "Planning",
   description:
-    "59R improvement themes and prioritized plans: browse evidence-backed planning items (read-only).",
+    "Improvement themes and prioritized plans: browse evidence-backed planning items (read-only).",
 };
 
 export default function PlanningLayout({ children }: { children: ReactNode }) {

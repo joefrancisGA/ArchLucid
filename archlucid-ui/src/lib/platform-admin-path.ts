@@ -16,10 +16,6 @@ export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
     return true;
   }
 
-  if (pathname.startsWith("/settings/tenant-cost")) {
-    return true;
-  }
-
   if (pathname.startsWith("/settings/baseline")) {
     return true;
   }

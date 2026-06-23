@@ -32,7 +32,7 @@ Unauthenticated requests **pass through** the tier filter (no tier check).
 | Governance | `GovernanceController`, `GovernanceResolutionController`, `GovernancePreviewController`, `ManifestsController`, `PolicyPacksController` |
 | Diagnostics | `OperatorTaskSuccessDiagnosticsController` |
 | Notifications / integrations | `CustomerNotificationChannelPreferencesController`, `TeamsIncomingWebhookConnectionsController` |
-| Pilots | `PilotsBoardPackController`, `TenantCostEstimateController` |
+| Pilots | `PilotsBoardPackController` |
 | Tenancy ROI / lifecycle | `TenantMeasuredRoiController`, `TenantExecDigestPreferencesController`, `TenantCustomerSuccessController` |
 | Value reports | `ValueReportController` |
 

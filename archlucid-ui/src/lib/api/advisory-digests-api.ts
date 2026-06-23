@@ -13,7 +13,6 @@ import type {
   TeamsIncomingWebhookConnectionResponse,
   TeamsIncomingWebhookConnectionUpsertRequest,
 } from "@/types/teams-incoming-webhook-connection";
-import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
 import { apiDelete, apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
@@ -85,11 +84,6 @@ export async function tryGetTenantTrialStatus(): Promise<TenantTrialStatusPayloa
   } catch {
     return null;
   }
-}
-
-/** Rough monthly spend band for Standard+ tenants (404 when below Standard; route not disclosed). */
-export async function getTenantCostEstimate(): Promise<TenantCostEstimateResponse> {
-  return apiGet<TenantCostEstimateResponse>(`/${ApiV1Routes.tenantCostEstimate}`);
 }
 
 /** Saves weekly executive digest email preferences (Execute+). */

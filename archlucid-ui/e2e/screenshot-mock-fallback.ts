@@ -268,18 +268,6 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     };
   }
 
-  if (pathname === "/v1/tenant/cost-estimate") {
-    return {
-      currency: "USD",
-      tier: "Standard",
-      estimatedMonthlyUsdLow: 1200,
-      estimatedMonthlyUsdHigh: 1800,
-      factors: ["Pilot workspace", "Typical run volume (mock)"],
-      methodologyNote:
-        "Non-authoritative band from list-price configuration. Reconcile with Azure Cost Management and invoices before quoting.",
-    };
-  }
-
   if (pathname === "/v1/tenant/exec-digest-preferences") {
     return { digestCadence: "None", channels: [] as string[], topics: [] as string[] };
   }

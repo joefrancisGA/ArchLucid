@@ -11,7 +11,6 @@ import {
   BookOpen,
   Shield,
   Users,
-  Wallet,
   Webhook,
 } from "lucide-react";
 
@@ -91,14 +90,6 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: Webhook,
           tier: "advanced",
           requiredAuthority: "AdminAuthority",
-        },
-        {
-          href: "/settings/tenant-cost",
-          label: "Tenant cost",
-          title: "Tenant cost — estimated monthly spend band (Standard+)",
-          icon: Wallet,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
         },
         {
           href: "/settings/billing",

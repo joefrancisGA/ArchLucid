@@ -240,10 +240,22 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
   });
 
+  it("PlanningPage does not render internal codename '59R' in user-visible output", async () => {
+    const page = await PlanningPage();
+    render(page);
+    expect(document.body.textContent).not.toContain("59R");
+  });
+
   it("EvolutionReviewPage renders primary heading", async () => {
     const page = await EvolutionReviewPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Simulation review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Change simulation" })).toBeInTheDocument();
+  });
+
+  it("EvolutionReviewPage does not render internal codename '60R' in user-visible output", async () => {
+    const page = await EvolutionReviewPage();
+    render(page);
+    expect(document.body.textContent).not.toContain("60R");
   });
 
   it("Digests hub Browse tab content renders primary heading", () => {

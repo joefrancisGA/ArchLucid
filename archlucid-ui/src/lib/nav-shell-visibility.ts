@@ -50,7 +50,6 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/settings/tenant",
   "/settings/tenant/recycle-bin",
   "/settings/baseline",
-  "/settings/tenant-cost",
   "/settings/exec-digest",
   "/settings/webhooks",
   "/settings/roles",

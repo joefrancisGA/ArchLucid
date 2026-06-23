@@ -491,7 +491,7 @@
     {
       "id": "ai-gov-021",
       "title": "Prompt-injection regression gate before production promotion",
-      "description": "Production-bound AI workloads must cite an offline prompt-injection regression corpus result — not only ad-hoc red-team notes.",
+      "description": "Production-bound AI workloads must cite an offline prompt-injection regression corpus result \u2014 not only ad-hoc red-team notes.",
       "severity": "High",
       "remediationGuidance": "Reference tests/eval-datasets/prompt-injection outcomes in governance.PolicyConstraints; block promotion when deterministic injection cases fail.",
       "evidenceHints": [
@@ -529,7 +529,7 @@
     {
       "id": "ai-gov-023",
       "title": "Human-in-the-loop for consequential model outputs",
-      "description": "Findings that could change production access, spend, or compliance posture require a named human approver — autonomous apply is out of scope.",
+      "description": "Findings that could change production access, spend, or compliance posture require a named human approver \u2014 autonomous apply is out of scope.",
       "severity": "Critical",
       "remediationGuidance": "Align governance.RequiredControls with segregation-of-duties language; reference approval workflow IDs when governance packs enable pre-commit gates.",
       "evidenceHints": [
@@ -548,7 +548,7 @@
     {
       "id": "ai-gov-024",
       "title": "Training data lineage for fine-tuned or RAG corpora",
-      "description": "Custom corpora must document source, retention, and tenant isolation — cross-tenant text retrieval is forbidden outside approved aggregate patterns.",
+      "description": "Custom corpora must document source, retention, and tenant isolation \u2014 cross-tenant text retrieval is forbidden outside approved aggregate patterns.",
       "severity": "High",
       "remediationGuidance": "List corpus kinds and scope in governance.ComplianceTags; cite CONTEXT_INGESTION warnings when unsupported document types appear.",
       "evidenceHints": [

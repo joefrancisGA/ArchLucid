@@ -15,7 +15,6 @@ import {
   fixtureLegacyRunComparison,
   fixtureManifestSummary,
   fixtureRunDetail,
-  fixtureTenantCostEstimate,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_ID,
   FIXTURE_RIGHT_RUN_ID,
@@ -389,13 +388,6 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
       return;
     }
 
-    if (apiPath === "/v1/tenant/cost-estimate") {
-      await fulfillJson(route, 200, fixtureTenantCostEstimate());
-
-      return;
-    }
-
-    /** Ask + New Run wizard: browser calls these through `/api/proxy`. */
     if (apiPath === "/v1/conversations" && url.searchParams.has("take")) {
       await fulfillJson(route, 200, fixtureConversationThreads());
 

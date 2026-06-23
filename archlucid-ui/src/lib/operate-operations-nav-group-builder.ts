@@ -121,7 +121,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/planning",
           label: OPERATOR_NAV_LINK_LABELS.planning,
-          title: "Planning — improvement themes and prioritized plans (59R)",
+          title: "Planning — improvement themes and prioritized plans",
           icon: BarChart3,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",
@@ -129,7 +129,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/evolution-review",
           label: OPERATOR_NAV_LINK_LABELS.evolutionCandidates,
-          title: "Evolution candidates — simulations and before/after review (60R)",
+          title: "Change simulation — preview expected impact of proposed architecture changes",
           icon: GitBranch,
           tier: "advanced",
           requiredAuthority: "ExecuteAuthority",

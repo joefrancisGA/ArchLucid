@@ -14,7 +14,6 @@ describe("getLayerForRoute", () => {
   });
 
   it("returns operator-admin for tenant admin nav paths", () => {
-    expect(getLayerForRoute("/settings/tenant-cost")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/billing")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/baseline")).toBe("pilot");
     expect(getLayerForRoute("/settings/cloud-connections")).toBe("operator-admin");

@@ -19,7 +19,6 @@ export const ApiV1Routes = {
   tenantTrialStatus: "v1/tenant/trial-status",
   tenantUsageStatus: "v1/tenant/usage-status",
   adminPricingQuoteAging: "v1/admin/marketing/pricing-quote-aging",
-  tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
   tenantWorkspaces: "v1/tenant/workspaces",
   /** Persisted Azure extractor baseline artifact presence for the scoped workspace. */

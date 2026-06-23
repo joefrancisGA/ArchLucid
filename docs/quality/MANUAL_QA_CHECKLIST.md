@@ -525,7 +525,6 @@ Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clea
 | **Webhooks** | `/settings/webhooks` | [ ] |
 | **Cloud connections** | `/settings/cloud-connections` | [ ] |
 | **Extract upload** | `/settings/extract-upload` | [ ] |
-| **Tenant cost** | `/settings/tenant-cost` | [ ] |
 | **Cost reporting** | `/settings/cost-reporting` | [ ] |
 | **Identity providers** | `/settings/identity-providers` | [ ] |
 | **SSO wizard** | `/settings/identity/sso-wizard` | [ ] |
@@ -766,7 +765,6 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | API keys | `/settings/api-keys` | **Admin → API keys**. |
 | SCIM provisioning | `/settings/scim-provisioning` | **Admin → SCIM provisioning**. |
 | Role management | `/settings/roles` | **Admin → Role management**. |
-| Tenant cost | `/settings/tenant-cost` | **Admin → Tenant cost**. |
 | Billing & plans | `/settings/billing` | **Admin → Billing & plans**. |
 | Baseline settings | `/settings/baseline` | **Admin → Baseline settings** (Execute). |
 | Webhooks | `/settings/webhooks` | **Admin → Webhooks** (Execute). |

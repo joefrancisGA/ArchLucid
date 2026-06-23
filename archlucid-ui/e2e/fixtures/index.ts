@@ -55,7 +55,6 @@ export {
   OPERATOR_DEMO_REVIEW_RUN_ID,
 } from "./operator-demo-review-run";
 export { fixtureRunExplanationSummary } from "./run-explanation-summary";
-export { fixtureTenantCostEstimate } from "./tenant-cost-estimate";
 export {
   fixtureGoldenManifestComparisonScreenshot,
   fixtureArtifactDescriptorsScreenshot,

@@ -89,7 +89,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/tenant-cost"
+      "nav_operator_href": "/settings/cost-reporting"
     },
     {
       "controller_file": "Admin/AdminLlmMonthlyDollarBudgetStatusController.cs",
@@ -1460,16 +1460,6 @@
       "class_policy": "Authorize",
       "exemption": null,
       "nav_operator_href": null
-    },
-    {
-      "controller_file": "Tenancy/TenantCostEstimateController.cs",
-      "class_name": "TenantCostEstimateController",
-      "route_template": "v{version:apiVersion}/tenant/cost-estimate",
-      "normalized_prefix": "/v1/tenant/cost-estimate",
-      "commercial_tier": "standard",
-      "class_policy": "Authorize",
-      "exemption": null,
-      "nav_operator_href": "/settings/tenant-cost"
     },
     {
       "controller_file": "Tenancy/TenantCostSettingsController.cs",

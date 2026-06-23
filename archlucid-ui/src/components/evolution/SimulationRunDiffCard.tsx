@@ -39,33 +39,30 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
     <article className={cardCls} aria-labelledby={`sim-run-${run.simulationRunId}`}>
       <div className={headerCls} id={`sim-run-${run.simulationRunId}`}>
         <span>
-          <strong>Baseline run</strong>{" "}
+          <strong>Review baseline</strong>{" "}
           <Link href={`/reviews/${encodeURIComponent(baselineId)}`} className={monoCls}>
             {baselineId}
           </Link>
         </span>
         <span className="text-neutral-500 dark:text-neutral-400">
           Completed {new Date(run.completedUtc).toLocaleString()} · {run.evaluationMode}
-          {run.isShadowOnly ? " · shadow" : ""}
-          {run.outcomeSchemaVersion !== null && run.outcomeSchemaVersion !== undefined && run.outcomeSchemaVersion !== ""
-            ? ` · ${run.outcomeSchemaVersion}`
-            : ""}
+          {run.isShadowOnly ? " · read-only estimate" : ""}
         </span>
       </div>
 
       <div className="grid grid-cols-2">
         <div className={colBeforeCls}>
-          <div className={labelCls}>Before (plan &amp; baseline)</div>
+          <div className={labelCls}>Before (current baseline)</div>
           <p className="mb-2 text-stone-700 dark:text-stone-300">
-            This review re-reads the architecture for a baseline that the source plan associated with the candidate.
+            The review package associated with this proposed change before the simulated update is applied.
           </p>
           <ul className="m-0 pl-[18px] text-stone-600 dark:text-stone-400">
             <li>
-              Listed on plan snapshot:{" "}
+              Linked from planning:{" "}
               <strong>{isLinkedOnPlan ? "yes" : "no"}</strong>
               {planLinkedRunIds.length > 0 ? (
                 <span className="mt-1.5 block">
-                  Plan-linked IDs:{" "}
+                  Linked review packages:{" "}
                   {planLinkedRunIds.map((id, idx) => (
                     <span key={`${id}-${idx}`} className="block">
                       <Link href={`/reviews/${encodeURIComponent(id)}`} className={monoCls}>
@@ -76,17 +73,19 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
                   ))}
                 </span>
               ) : (
-                <span className="text-amber-700 dark:text-amber-400"> No runs linked on the plan snapshot.</span>
+                <span className="text-amber-700 dark:text-amber-400"> No review packages linked from planning.</span>
               )}
             </li>
           </ul>
         </div>
 
         <div className={colAfterCls}>
-          <div className={labelCls}>After (simulation read)</div>
+          <div className={labelCls}>After (simulated impact)</div>
           {parsed.kind === "empty" || parsed.kind === "invalid" ? (
             <p className="m-0 text-red-800 dark:text-red-400">
-              {parsed.kind === "empty" ? "No outcome payload stored." : "Outcome JSON could not be parsed as shadow data."}
+              {parsed.kind === "empty"
+                ? "No simulation outcome stored yet."
+                : "Simulation outcome could not be loaded for comparison."}
             </p>
           ) : (
             <>

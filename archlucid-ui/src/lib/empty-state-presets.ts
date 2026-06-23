@@ -86,7 +86,7 @@ export const PLANNING_EMPTY: EmptyStateProps = {
   icon: BarChart3,
   title: "No themes or plans in this scope yet",
   description:
-    "59R themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows operator defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
+    "Feedback themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows operator defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
   actions: [
     { label: "View reviews", href: "/reviews?projectId=default" },
     { label: "Pilot feedback", href: "/product-learning", variant: "outline" },

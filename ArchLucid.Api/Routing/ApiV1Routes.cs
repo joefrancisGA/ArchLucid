@@ -30,8 +30,6 @@ public static class ApiV1Routes
 
     public const string TenantExecDigestPreferences = "v1/tenant/exec-digest-preferences";
 
-    public const string TenantCostEstimate = "v1/tenant/cost-estimate";
-
     public const string TenantUsageStatus = "v1/tenant/usage-status";
 
     public const string AdminMarketingPricingQuoteAging = "v1/admin/marketing/pricing-quote-aging";

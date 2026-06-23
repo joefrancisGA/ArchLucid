@@ -26,6 +26,7 @@ import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-
 import { coerceComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
+import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import {
   readGroupByResourcePreference,
@@ -556,6 +557,7 @@ export default function GovernanceFindingsQueueClient() {
   const [rows, setRows] = useState<GovernanceFindingQueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>(() =>
     riskRegisterFilterFromQuery(searchParams.get("filter")),
   );
@@ -699,7 +701,7 @@ export default function GovernanceFindingsQueueClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshTrigger]);
 
   return (
     <>
@@ -883,23 +885,14 @@ export default function GovernanceFindingsQueueClient() {
           ) : (
           <>
             {selectedFindingIds.size > 0 ? (
-              <div
-                className="mb-2 flex flex-wrap items-center gap-3 rounded-md border border-teal-200 bg-teal-50/60 px-3 py-2 text-sm dark:border-teal-800 dark:bg-teal-950/30"
-                role="status"
-                aria-live="polite"
-              >
-                <span className="font-medium text-teal-900 dark:text-teal-100">
-                  {selectedFindingIds.size} finding{selectedFindingIds.size === 1 ? "" : "s"} selected
-                </span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={() => { setSelectedFindingIds(new Set()); }}
-                >
-                  Clear selection
-                </Button>
+              <div className="mb-2">
+                <GovernanceFindingsBulkActions
+                  selectedFindingIds={Array.from(selectedFindingIds)}
+                  onApplied={() => {
+                    setSelectedFindingIds(new Set());
+                    setRefreshTrigger((prev) => prev + 1);
+                  }}
+                />
               </div>
             ) : null}
             <GovernanceFindingsQueueDesktopTable

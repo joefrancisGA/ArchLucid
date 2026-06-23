@@ -54,7 +54,6 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/tenant": "admin-only",
   "/settings/tenant/recycle-bin": "admin-only",
   "/settings/baseline": "advanced-only",
-  "/settings/tenant-cost": "advanced-only",
   "/settings/billing": "advanced-only",
   "/settings/exec-digest": "advanced-only",
   "/settings/webhooks": "advanced-only",
@@ -111,7 +110,6 @@ import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/settings",
   "/settings/billing",
-  "/settings/tenant-cost",
   "/settings/tenant",
   "/settings/api-keys",
   "/settings/roles",

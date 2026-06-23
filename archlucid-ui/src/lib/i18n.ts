@@ -143,7 +143,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   recommendationTuning: "Recommendation tuning",
   pilotFeedback: BUYER_TERMINOLOGY.evaluationFeedback,
   planning: "Planning",
-  evolutionCandidates: "Evolution candidates",
+  evolutionCandidates: "Change simulation",
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
   connectorOperations: "Connector operations",

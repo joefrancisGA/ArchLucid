@@ -1,19 +1,11 @@
 # ArchLucid Strategic Release and Market Readiness Assessment
 
-`ArchLucid Assessment – (A) Headline Readiness: 89.67%`
+`ArchLucid Assessment – (A) Headline Readiness: 88.87%`
 
 * **Readiness excludes explicitly deferred items.**
 * **Reasoning engine used:** Gemini 3.1 Pro
-* **Assessment timestamp:** 2026-06-23 23:15 UTC (rescored after Bulk Disposition API)
-
-## Rescore delta (Bulk Disposition API for Governance Findings)
-
-| Quality | Prior | Rescore | Δ | Rationale |
-|---------|------:|--------:|--:|-----------|
-| **Cognitive Load** | 75 | **80** | +5 | Removing repetitive single-click dispositions dramatically decreases friction for large reviews. |
-| **30-Day Voluntary Usage Probability** | 82 | **85** | +3 | Operators are much more likely to complete reviews and engage with the platform if bulk operations are supported. |
-
-*Overall (A) Headline Readiness increased from 88.87% to 89.67%.*
+* **Assessment timestamp:** 2026-06-23 19:33 UTC (rescored 2026-06-23 20:07 UTC after Improvement 1; rescored 2026-06-23 21:22 UTC after Improvement 2; rescored 2026-06-23 21:42 UTC after Improvement 3; rescored 2026-06-23 21:58 UTC after Improvement 4; rescored 2026-06-23 22:28 UTC after Improvement 5)
+* **Source materials inspected:** Codebase (`ArchLucid.Contracts`, `ArchLucid.Core`, `ArchLucid.Decisioning`, `archlucid-ui`), `REPO_DIGEST.md`, commits `fb7f0f45a` (robust finding payload parsing), Improvement 2 (LLM payload remediation + orchestrator graceful degradation), `ac06e057c` (ARC-AMPE Architecture Themes bundled pack #24), `f6c377c02` (Explicit "Mark as Remediated" Workflow), Improvement 5 (Filter Generic Findings from Executive View).
 
 ## Rescore delta (Improvement 5 — Filter Generic Findings from Executive View)
 
@@ -73,7 +65,7 @@
 # 2. Executive Summary
 
 ## (A) Overall Headline Readiness
-ArchLucid demonstrates a strong V1 readiness posture (89.67%), driven by its explicit architectural decision to treat policy packs, evidence traceability, and governance workflows as first-class primitives. It successfully avoids the trap of being a "generic AI chatbot" by structuring its output into formal `ManifestDocument` packages with explicit `PolicySection`, `FeasibilityVerdict`, and `ExplainabilityTrace` components.
+ArchLucid demonstrates a strong V1 readiness posture (88.87%), driven by its explicit architectural decision to treat policy packs, evidence traceability, and governance workflows as first-class primitives. It successfully avoids the trap of being a "generic AI chatbot" by structuring its output into formal `ManifestDocument` packages with explicit `PolicySection`, `FeasibilityVerdict`, and `ExplainabilityTrace` components.
 
 ## (B) Procurement / Market Motion Realism
 The product is highly realistic for enterprise procurement. The separation of the `(executive)` and `(operator)` UI routes, combined with explicit `SeverityTag` and `EnterpriseTable` components, speaks directly to enterprise buyers. The presence of `ProjectedImpactUsd`, `IsMuted`, and `FindingEnforcementTier` (PolicyViolation vs Advisory) shows a deep understanding of how enterprise architecture review boards actually operate.
@@ -602,77 +594,78 @@ Because frontier AI licenses do not provide a governed workflow, immutable audit
 
 # 10. Top Improvement Opportunities
 
-## Tier 1 – Must Fix (Before V1.1 GA)
+## Tier 1 – Must Fix
 
-1. **Bulk Disposition API for Governance Findings** — **SHIPPED** (2026-06-23)
-   * **Why it matters:** The UI has a `GovernanceFindingsBulkActions` component that allows operators to select multiple findings and click "Accept all" / "Waive all". It was previously a client-side stub.
-   * **Expected impact:** Dramatically lowers the cognitive load and time required to process large reviews.
-   * **Affected qualities:** Cognitive Load (+5), 30-Day Voluntary Usage Probability (+3).
-   * **Classification:** V1.1 ✓
+1. **Robust Finding Payload Parsing** — **SHIPPED** (`fb7f0f45a`)
+   * **Why it matters:** `FindingPayloadConverter` failures lead to dropped findings, destroying trust.
+   * **Expected impact:** Higher reliability of review generation.
+   * **Affected qualities:** Correctness (+5), AI/Agent Readiness (+3), Insight Density (+1).
+   * **Classification:** V1 ✓
 
-2. **Surface Dead-Lettered Runs to the Operator UI**
-   * **Why it matters:** Background orchestrator tasks (`AuthorityPipelineWork`) can dead-letter. The UI currently relies on a time-elapsed check (`detectStalledReview`). The Run API must expose when its background pipeline has permanently failed so the UI can show a clear "Failed" state instead of an endless spinner.
-   * **Expected impact:** Prevents operator confusion and distrust when background pipelines fail silently.
-   * **Affected qualities:** Transparency (+4), AI/Agent Readiness (+2).
-   * **Classification:** V1.1
+2. **LLM retry on unrecoverable parse failures** — **SHIPPED** (2026-06-23)
+   * **Why it matters:** Schema violations after formatting normalization still caused silent drops or engine failures.
+   * **Expected impact:** Recoverable payloads surface in review packages; orchestrator degrades gracefully.
+   * **Affected qualities:** Correctness (+2), AI/Agent Readiness (+3), Insight Density (+1).
+   * **Classification:** V1 ✓
 
-3. **Confidence Intervals for Projected Cost Savings**
-   * **Why it matters:** `CostConstraintFindingPayload` includes `ProjectedImpactUsd`, but LLM cost estimates can hallucinate wildly. Exposing a confidence interval (or requiring human validation before projecting the savings to executive dashboards) prevents credibility loss.
-   * **Expected impact:** Protects ArchLucid's credibility from absurd LLM cost hallucinations.
-   * **Affected qualities:** Correctness (+4), Decision Advantage (+3).
-   * **Classification:** V1.1
+3. **Curated Default Policy Packs** — **SHIPPED** (`ac06e057c`, 2026-06-23)
+   * **Why it matters:** Overcomes the cold-start problem and demonstrates immediate value.
+   * **Expected impact:** Dramatically improved Time-to-Value.
+   * **Affected qualities:** Time-to-Value (+5), Insight Density (+1), Differentiability (+1).
+   * **Classification:** V1 ✓
 
 ## Tier 2 – High Leverage
 
-4. **Policy Pack Authoring Validation Tool**
-   * **Why it matters:** While curated GA packs exist, enterprise customers building custom policy packs need a CLI command or UI validator to catch JSON schema errors or missing mandatory fields before uploading.
-   * **Expected impact:** Eliminates frustrating trial-and-error for power users.
-   * **Affected qualities:** Time-to-Value (+3), Differentiability (+2).
-   * **Classification:** V1.1 Backlog
+4. **Explicit "Mark as Remediated" Workflow** — **SHIPPED** (`f6c377c02`, 2026-06-23)
+   * **Why it matters:** Provides a seam for tracking without full Jira integration.
+   * **Expected impact:** Increased operator engagement and proof of ROI.
+   * **Affected qualities:** Differentiability (+1), Proof-of-ROI Readiness (+2), Cognitive Load (+2).
+   * **Classification:** V1.1 ✓
 
-5. **Interactive Evidence Graph Visualization**
-   * **Why it matters:** The backend traces `GraphNodeIdsExamined`, but visualizing the actual path the LLM took through the architecture graph (rather than just listing nodes) would significantly boost principal architect trust.
-   * **Expected impact:** Solidifies the Explainability/Traceability moat.
-   * **Affected qualities:** Differentiability (+3), Traceability (+2).
-   * **Classification:** V1.2
+5. **Filter Generic Findings from Executive View** — **SHIPPED** (2026-06-23)
+   * **Why it matters:** Protects the perceived "Insight Density" of the product.
+   * **Expected impact:** Higher executive trust.
+   * **Affected qualities:** Insight Density (+1), Cognitive Load (+2).
+   * **Actionability:** High.
+   * **Classification:** V1 ✓
 
 ## Tier 3 – Hold For Reassessment
 
-6. **Full Jira / ServiceNow Integration**
-   * **Why it matters:** Enterprise workflow requirement, explicitly deferred. Currently, users must use the "Copy for external work tracking" stub.
-   * **Classification:** V1.1+
+6. **Full Jira Integration**
+   * **Why it matters:** Enterprise workflow requirement, but too complex for V1.
+   * **Classification:** V1.1
 
 ---
 
 # 11. Prompt Batching Guidance
 
 ## First Batch (Safe for Composer)
-* ~~Connect the `GovernanceFindingsBulkActions` UI component to a new backend bulk disposition endpoint.~~ **Done** (Improvement 1).
-* Expose `IsDeadLettered` or equivalent from the `Run` model and update `detectStalledReview` to reflect definitive failure states.
+* ~~Implement robust retry/fallback logic in `FindingPayloadConverter`.~~ **Done** (Improvements 1–2).
+* ~~Add curated default Policy Packs (e.g., basic OWASP/CIS subsets).~~ **Done** (Improvement 3 — ARC-AMPE pack #24).
 
 ## Second Batch (Sonnet-safe)
-* Add `ConfidenceInterval` or `RequiresHumanValidation` to `CostConstraintFindingPayload` and update the UI to highlight uncertain financial projections.
-* Create a lightweight CLI validator or UI upload check for custom `PolicyPack` JSON authoring.
+* ~~Refine the UI to explicitly hide `ChecklistCoverage` findings from the Executive view.~~ **Done** (Improvement 5).
+* ~~Add a simple "Mark as Remediated" state to the `Finding` model and UI.~~ **Done** (Improvement 4).
 
 ## Third Batch (Strong-model recommended)
-* Develop the interactive graph visualization for `GraphNodeIdsExamined` to show the LLM's traversal path.
+* Tune the LLM prompts to aggressively penalize generic advice and improve the `InsightDensityScore` generation.
 
 ---
 
 # 12. Model Usage Guidance
 
-* **Composer-safe:** UI polish, simple CRUD operations, wiring existing frontend stubs to new API endpoints.
-* **Sonnet-safe:** Component refactoring, adding new fields to existing models, basic API integration, JSON validation tools.
-* **Strong-model recommended:** Prompt engineering, complex policy resolution logic, evidence graph traversal visualization.
+* **Composer-safe:** UI polish, simple CRUD operations, basic parsing logic.
+* **Sonnet-safe:** Component refactoring, adding new fields to existing models, basic API integration.
+* **Strong-model recommended:** Prompt engineering, complex policy resolution logic, evidence graph traversal.
 * **Opus/Gemini assessment recommended:** Strategic evaluation of the policy-aware moat and competitive positioning.
 
 ---
 
 # 13. Pending Questions For Later
 
-* **Requires Customer Validation:** Will operators trust LLM cost-savings estimates, or will they require manual validation before accepting them?
-* **Blocks V1.1:** How should the UI gracefully present dead-letter failures to non-technical users without exposing raw backend logs?
-* **Requires Founder Decision:** Should custom Policy Pack authoring be a premium enterprise feature or open to all tiers?
+* **Blocks V1.1:** How will we handle Policy Pack versioning and drift?
+* **Requires customer validation:** Do principal architects actually agree with the LLM's `InsightDensityScore`?
+* **Requires founder decision:** Should we pursue SOC 2 immediately after V1 launch, or focus on feature expansion?
 
 ---
 

@@ -10,7 +10,7 @@ export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
   title: "Plan detail",
-  description: "Read-only improvement plan: steps, priority, and evidence link counts (59R).",
+  description: "Read-only improvement plan: steps, priority, and evidence link counts.",
 };
 
 export default async function PlanningPlanLayout({

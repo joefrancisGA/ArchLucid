@@ -104,7 +104,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operator-admin",
-    hrefs: ["/settings/tenant", "/settings/tenant-cost", "/settings/billing", "/settings/tenant/recycle-bin"],
+    hrefs: ["/settings/tenant", "/settings/billing", "/settings/tenant/recycle-bin"],
   },
 ];
 
