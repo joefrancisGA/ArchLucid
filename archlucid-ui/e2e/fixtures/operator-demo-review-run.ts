@@ -11,6 +11,13 @@ import { FIXTURE_MANIFEST_ID, FIXTURE_PROJECT_ID } from "./ids";
 
 export const OPERATOR_DEMO_REVIEW_RUN_ID = "operator-demo-review-e2e";
 
+/** Loopback mock ArchLucid API base used by `e2e/start-e2e-with-mock.ts` (default port 18765). */
+export function mockArchlucidApiBaseUrl(): string {
+  const port = process.env.E2E_MOCK_API_PORT ?? "18765";
+
+  return `http://127.0.0.1:${port}`;
+}
+
 function operatorDemoFinding(
   findingId: string,
   message: string,

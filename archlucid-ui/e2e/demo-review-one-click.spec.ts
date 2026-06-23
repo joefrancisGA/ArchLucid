@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  mockArchlucidApiBaseUrl,
   OPERATOR_DEMO_REVIEW_RUN_ID,
   operatorDemoReviewApiResponse,
 } from "./fixtures/operator-demo-review-run";
@@ -18,7 +19,7 @@ test.describe("demo review one-click reliability @demo-review", () => {
       data: {},
     });
 
-    expect(demoResponse.ok()).toBeTruthy();
+    expect(demoResponse.ok(), await demoResponse.text()).toBeTruthy();
 
     const body: unknown = await demoResponse.json();
     expect(body).toMatchObject({
@@ -36,16 +37,13 @@ test.describe("demo review one-click reliability @demo-review", () => {
     await expect(findingLinks).toHaveCount(3, { timeout: 15_000 });
   });
 
-  test("run-demo-review returns stable demo review payload shape", async ({ request }) => {
-    const response = await request.post("/api/run-demo-review", {
+  test("mock API returns stable demo review payload shape", async ({ request }) => {
+    const upstream = await request.post(`${mockArchlucidApiBaseUrl()}/v1/reviews/demo`, {
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       data: {},
     });
 
-    expect(response.ok()).toBeTruthy();
-    await expect(response.json()).resolves.toMatchObject({
-      ...operatorDemoReviewApiResponse(),
-      redirectTo: `/reviews/${OPERATOR_DEMO_REVIEW_RUN_ID}`,
-    });
+    expect(upstream.ok(), await upstream.text()).toBeTruthy();
+    await expect(upstream.json()).resolves.toEqual(operatorDemoReviewApiResponse());
   });
 });

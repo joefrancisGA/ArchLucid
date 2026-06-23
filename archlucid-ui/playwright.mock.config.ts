@@ -20,6 +20,8 @@ const mockWebServerCommand = mockE2eSkipNextBuild
 /** When 3000 is taken (e.g. another dev server), set `MOCK_E2E_PORT=3001` and `PORT=3001`. */
 const mockE2ePort = process.env.MOCK_E2E_PORT ?? process.env.PORT ?? "3000";
 const mockBaseUrl = `http://127.0.0.1:${mockE2ePort}`;
+const mockApiPort = process.env.E2E_MOCK_API_PORT ?? "18765";
+const mockApiBaseUrl = `http://127.0.0.1:${mockApiPort}`;
 
 /** Time until `webServer` URL responds. Large copies + cold Node + AV can exceed 10m even without `npm run build`. */
 const mockWebServerStartupTimeoutMs = 30 * 60 * 1_000;
@@ -82,6 +84,8 @@ export default defineConfig({
     timeout: mockWebServerStartupTimeoutMs,
     env: {
       ...process.env,
+      E2E_MOCK_API_PORT: mockApiPort,
+      ARCHLUCID_API_BASE_URL: mockApiBaseUrl,
       NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1",
       /** Client bundle: hide dev-only chrome in mock E2E/screenshot runs when set at build time via local env. */
       NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "true",
