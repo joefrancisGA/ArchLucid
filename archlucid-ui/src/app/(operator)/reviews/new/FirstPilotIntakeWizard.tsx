@@ -8,6 +8,7 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExc
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
+import { ReviewSubmitPhaseProgress, type ReviewSubmitPhaseId } from "@/components/usability/ReviewSubmitPhaseProgress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ import {
 } from "@/lib/first-pilot-intake";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
@@ -84,6 +86,26 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
+  const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
+
+  useEffect(() => {
+    if (!submitting) {
+      return;
+    }
+
+    setSubmitPhase("mapping");
+    const policyTimer = window.setTimeout(() => {
+      setSubmitPhase("policy");
+    }, 900);
+    const findingsTimer = window.setTimeout(() => {
+      setSubmitPhase("findings");
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(policyTimer);
+      window.clearTimeout(findingsTimer);
+    };
+  }, [submitting]);
 
   useEffect(() => {
     if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
@@ -253,6 +275,13 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <ReviewPathTimeEstimateBanner pathId="quick-review" />
 
+          {submitting ? (
+            <ReviewSubmitPhaseProgress
+              activePhase={submitPhase}
+              minutesEstimate={`First package typically ready in ${reviewPathTimeEstimate("quick-review").minutesLow}–${reviewPathTimeEstimate("quick-review").minutesHigh} minutes`}
+            />
+          ) : null}
+
           {submitError !== null ? (
             <div data-testid="first-pilot-submit-error">
               {isApiRequestError(submitError) ? (
@@ -276,16 +305,18 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             </div>
           ) : null}
 
-          <Button
-            type="button"
-            disabled={!canStart}
-            onClick={() => {
-              void submitRun();
-            }}
-            data-testid="first-pilot-start"
-          >
-            {submitting ? "Starting review…" : "Start Architecture Review"}
-          </Button>
+          {!submitting ? (
+            <Button
+              type="button"
+              disabled={!canStart}
+              onClick={() => {
+                void submitRun();
+              }}
+              data-testid="first-pilot-start"
+            >
+              Start Architecture Review
+            </Button>
+          ) : null}
         </CardContent>
       </Card>
     </div>
