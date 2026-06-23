@@ -36,13 +36,16 @@ test.describe("demo review one-click reliability @demo-review", () => {
     await expect(findingLinks).toHaveCount(3, { timeout: 15_000 });
   });
 
-  test("mock API returns stable demo review payload shape", async ({ request }) => {
-    const upstream = await request.post("/api/proxy/v1/reviews/demo", {
+  test("run-demo-review returns stable demo review payload shape", async ({ request }) => {
+    const response = await request.post("/api/run-demo-review", {
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       data: {},
     });
 
-    expect(upstream.ok()).toBeTruthy();
-    await expect(upstream.json()).resolves.toEqual(operatorDemoReviewApiResponse());
+    expect(response.ok()).toBeTruthy();
+    await expect(response.json()).resolves.toMatchObject({
+      ...operatorDemoReviewApiResponse(),
+      redirectTo: `/reviews/${OPERATOR_DEMO_REVIEW_RUN_ID}`,
+    });
   });
 });

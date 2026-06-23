@@ -87,6 +87,13 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
   await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("exec-roi-identified-pending-usd")).toHaveText("$120,000");
   await expect(page.getByTestId("exec-roi-realized-usd")).toHaveText("$25,000");
+
+  const supportingMetrics = page.getByTestId("executive-dashboard-supporting-metrics");
+
+  if ((await supportingMetrics.count()) > 0) {
+    await supportingMetrics.locator("summary").click();
+  }
+
   await expect(page.getByTestId("exec-kpi-resolved-30d")).toBeVisible();
   await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 30_000 });
 }
