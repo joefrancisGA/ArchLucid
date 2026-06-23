@@ -18,6 +18,10 @@ function isCorePilotEssentialOnlyPathname(pathname: string): boolean {
     return true;
   }
 
+  if (pathname === "/settings" || pathname.startsWith("/settings/")) {
+    return true;
+  }
+
   return false;
 }
 

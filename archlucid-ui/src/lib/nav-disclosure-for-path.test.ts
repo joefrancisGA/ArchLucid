@@ -14,6 +14,9 @@ describe("effectiveNavDisclosureForPathname", () => {
     "/help",
     "/help/core-pilot",
     "/help/troubleshooting",
+    "/settings",
+    "/settings/tenant",
+    "/settings/extract-upload",
   ])(
     "forces essential tier on Core Pilot path %s without changing stored preference semantics at call site",
     (path) => {

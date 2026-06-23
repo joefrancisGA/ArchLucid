@@ -35,6 +35,10 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await expect(page.getByTestId("pilot-command-center-primary")).toBeVisible();
     await expect(page.getByTestId("operator-home-advanced-guidance")).toBeVisible({ timeout: 60_000 });
 
+    await expect(page.getByTestId("operate-features-unlock-panel")).toBeVisible();
+    await expect(page.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveCount(0);
+    await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toHaveCount(0);
+
     await page.goto("/reviews/new");
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
 

@@ -35,16 +35,24 @@ export function SidebarNav() {
   const [mounted, setMounted] = useState(false);
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
-  const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase, unlockOperateFeatures } =
-    useOperatorShellNavRows();
+  const {
+    allRows,
+    buyerPolishedShell,
+    demoUi,
+    effectiveHasCommittedArchitectureReview,
+    effectiveOperateUnlockPhase,
+    unlockOperateFeatures,
+    navExpanded,
+    navAdvanced,
+    shellShowExtended,
+    shellShowAdvanced,
+  } = useOperatorShellNavRows();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
   const resolvedDemoUi = runtimeDemoUi;
   const showSidebarCustomizationChrome =
     !resolvedDemoUi && !buyerPolishedShell && V1_SIDEBAR_CUSTOMIZATION_VISIBLE;
-  const navExpanded = true;
-  const navAdvanced = true;
 
   useLayoutEffect(() => {
     setMounted(true);
@@ -124,7 +132,7 @@ export function SidebarNav() {
         settingsOpen={settingsOpen}
         onSettingsOpenChange={setSettingsOpen}
         navAllFeaturesExpanded={navExpanded && navAdvanced}
-        shellShowAdvanced={navAdvanced}
+        shellShowAdvanced={shellShowAdvanced}
         showExtended={showExtended}
         showAdvanced={showAdvanced}
         onToggleShowAdvanced={() => {
