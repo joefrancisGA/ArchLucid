@@ -26,7 +26,9 @@ under load, not a test harness bug.
 `GET /v1/architecture/run/{runId}` until:
 
 - `Status == ReadyForCommit`, and
-- `CurrentManifestVersion` is non-empty.
+- `Results` contains at least one agent result (execute finished).
+
+`CurrentManifestVersion` is **not** populated until after commit succeeds; requiring it before commit always fails.
 
 `ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync` calls this gate
 **before** the commit retry loop so all greenfield SQL integration call sites benefit.
