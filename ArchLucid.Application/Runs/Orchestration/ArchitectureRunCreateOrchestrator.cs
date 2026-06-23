@@ -298,44 +298,47 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runGuid))
             runGuid = Guid.Empty;
 
-        await DurableAuditLogRetry.TryLogAsync(async ct =>
-            {
-                AuditEvent requestCreated = scopeCtx.CreateAuditEvent(
-                    AuditEventTypes.RequestCreated,
-                    actor,
-                    actor,
-                    JsonSerializer.Serialize(
-                        new
-                        {
-                            requestId = request.RequestId,
-                            runId = coordination.Run.RunId,
-                            systemName = request.SystemName,
-                            environment = request.Environment,
-                            cloudProvider = request.CloudProvider.ToString()
-                        }, AuditJsonSerializationOptions.Instance));
-                requestCreated.RunId = runGuid == Guid.Empty ? null : runGuid;
+        AuditEvent requestCreated = scopeCtx.CreateAuditEvent(
+            AuditEventTypes.RequestCreated,
+            actor,
+            actor,
+            JsonSerializer.Serialize(
+                new
+                {
+                    requestId = request.RequestId,
+                    runId = coordination.Run.RunId,
+                    systemName = request.SystemName,
+                    environment = request.Environment,
+                    cloudProvider = request.CloudProvider.ToString()
+                }, AuditJsonSerializationOptions.Instance));
+        requestCreated.RunId = runGuid == Guid.Empty ? null : runGuid;
 
-                await _auditService.LogAsync(requestCreated, ct);
-            }, _logger, $"{AuditEventTypes.RequestCreated}:{LogSanitizer.Sanitize(coordination.Run.RunId)}", cancellationToken,
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => _auditService.LogAsync(requestCreated, ct),
+            _logger,
+            $"{AuditEventTypes.RequestCreated}:{LogSanitizer.Sanitize(coordination.Run.RunId)}",
+            cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RequestCreated);
-        await DurableAuditLogRetry.TryLogAsync(async ct =>
-            {
-                AuditEvent requestLocked = scopeCtx.CreateAuditEvent(
-                    AuditEventTypes.RequestLocked,
-                    actor,
-                    actor,
-                    JsonSerializer.Serialize(
-                        new
-                        {
-                            requestId = request.RequestId,
-                            runId = coordination.Run.RunId,
-                            rationale =
-                                "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
-                        }, AuditJsonSerializationOptions.Instance));
-                requestLocked.RunId = runGuid == Guid.Empty ? null : runGuid;
 
-                await _auditService.LogAsync(requestLocked, ct);
-            }, _logger, $"{AuditEventTypes.RequestLocked}:{LogSanitizer.Sanitize(coordination.Run.RunId)}", cancellationToken,
+        AuditEvent requestLocked = scopeCtx.CreateAuditEvent(
+            AuditEventTypes.RequestLocked,
+            actor,
+            actor,
+            JsonSerializer.Serialize(
+                new
+                {
+                    requestId = request.RequestId,
+                    runId = coordination.Run.RunId,
+                    rationale =
+                        "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
+                }, AuditJsonSerializationOptions.Instance));
+        requestLocked.RunId = runGuid == Guid.Empty ? null : runGuid;
+
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => _auditService.LogAsync(requestLocked, ct),
+            _logger,
+            $"{AuditEventTypes.RequestLocked}:{LogSanitizer.Sanitize(coordination.Run.RunId)}",
+            cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RequestLocked);
 
         if (_logger.IsEnabled(LogLevel.Information))

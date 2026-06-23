@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 
@@ -183,18 +184,24 @@ public sealed class OperatorDemoReviewService(
     {
         Guid? runGuid = TryParseRunGuidForAudit(runId);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RunSubmitted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid
-            },
-            cancellationToken).ConfigureAwait(false);
+        AuditEvent runSubmitted = new()
+        {
+            EventType = AuditEventTypes.RunSubmitted,
+            ActorUserId = actor,
+            ActorUserName = actor,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runGuid
+        };
+
+        await DurableAuditLogRetry.TryLogAsync(
+                ct => _auditService.LogAsync(runSubmitted, ct),
+                _logger,
+                $"{AuditEventTypes.RunSubmitted}:{LogSanitizer.Sanitize(runId)}",
+                cancellationToken,
+                auditEventTypeForMetrics: AuditEventTypes.RunSubmitted)
+            .ConfigureAwait(false);
     }
 
     private async Task LogDemoReviewCompletedAuditAsync(
@@ -205,26 +212,32 @@ public sealed class OperatorDemoReviewService(
     {
         Guid? runGuid = TryParseRunGuidForAudit(runId);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RunCompleted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId,
-                        source = "operator-demo-review",
-                        policyPack = OperatorDemoReviewPresets.HighlightPolicyPackDisplayName
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            cancellationToken).ConfigureAwait(false);
+        AuditEvent demoReviewCompleted = new()
+        {
+            EventType = AuditEventTypes.RunCompleted,
+            ActorUserId = actor,
+            ActorUserName = actor,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runGuid,
+            DataJson = JsonSerializer.Serialize(
+                new
+                {
+                    runId,
+                    source = "operator-demo-review",
+                    policyPack = OperatorDemoReviewPresets.HighlightPolicyPackDisplayName
+                },
+                AuditJsonSerializationOptions.Instance)
+        };
+
+        await DurableAuditLogRetry.TryLogAsync(
+                ct => _auditService.LogAsync(demoReviewCompleted, ct),
+                _logger,
+                $"{AuditEventTypes.RunCompleted}:{LogSanitizer.Sanitize(runId)}",
+                cancellationToken,
+                auditEventTypeForMetrics: AuditEventTypes.RunCompleted)
+            .ConfigureAwait(false);
     }
 
     private static Guid? TryParseRunGuidForAudit(string runId)

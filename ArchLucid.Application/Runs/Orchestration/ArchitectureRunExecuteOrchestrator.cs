@@ -208,23 +208,26 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             ScopeContext retryScope = scopeContextProvider.GetCurrentScope();
             if (TryParseRunGuid(runId, out Guid failedRunGuid))
-                await DurableAuditLogRetry.TryLogAsync(async ct =>
+            {
+                AuditEvent retryRequested = retryScope.CreateAuditEvent(
+                    AuditEventTypes.Run.RetryRequested,
+                    actor,
+                    actor,
+                    JsonSerializer.Serialize(new
                     {
-                        AuditEvent retryRequested = retryScope.CreateAuditEvent(
-                            AuditEventTypes.Run.RetryRequested,
-                            actor,
-                            actor,
-                            JsonSerializer.Serialize(new
-                            {
-                                runId,
-                                previousStatus = run.Status.ToString()
-                            },
-                                AuditJsonSerializationOptions.Instance));
-                        retryRequested.RunId = failedRunGuid;
+                        runId,
+                        previousStatus = run.Status.ToString()
+                    },
+                        AuditJsonSerializationOptions.Instance));
+                retryRequested.RunId = failedRunGuid;
 
-                        await auditService.LogAsync(retryRequested, ct);
-                    }, logger, $"{AuditEventTypes.Run.RetryRequested}:{LogSanitizer.Sanitize(runId)}", cancellationToken,
+                await DurableAuditLogRetry.TryLogAsync(
+                    ct => auditService.LogAsync(retryRequested, ct),
+                    logger,
+                    $"{AuditEventTypes.Run.RetryRequested}:{LogSanitizer.Sanitize(runId)}",
+                    cancellationToken,
                     auditEventTypeForMetrics: AuditEventTypes.Run.RetryRequested);
+            }
         }
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
@@ -518,27 +521,29 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             header.RealModeFellBackToSimulator);
         await runRepository.UpdateAsync(header, cancellationToken);
         string actor = actorContext.GetActor();
-        await DurableAuditLogRetry.TryLogAsync(async ct =>
+        AuditEvent legacyReadyForCommitPromoted = new()
+        {
+            EventType = AuditEventTypes.RunLegacyReadyForCommitPromoted,
+            ActorUserId = actor,
+            ActorUserName = actor,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runGuid,
+            DataJson = JsonSerializer.Serialize(new
             {
-                AuditEvent auditEvent = new()
-                {
-                    EventType = AuditEventTypes.RunLegacyReadyForCommitPromoted,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = runGuid,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        runId,
-                        previousLegacyRunStatus,
-                        newLegacyRunStatus = header.LegacyRunStatus
-                    },
-                        AuditJsonSerializationOptions.Instance)
-                };
-                await auditService.LogAsync(auditEvent, ct);
-            }, logger, $"{AuditEventTypes.RunLegacyReadyForCommitPromoted}:{LogSanitizer.Sanitize(runId)}", cancellationToken,
+                runId,
+                previousLegacyRunStatus,
+                newLegacyRunStatus = header.LegacyRunStatus
+            },
+                AuditJsonSerializationOptions.Instance)
+        };
+
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => auditService.LogAsync(legacyReadyForCommitPromoted, ct),
+            logger,
+            $"{AuditEventTypes.RunLegacyReadyForCommitPromoted}:{LogSanitizer.Sanitize(runId)}",
+            cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RunLegacyReadyForCommitPromoted);
     }
 
