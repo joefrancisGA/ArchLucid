@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0]
+        shard: [0, 1, 2, 3, 4, 5]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
