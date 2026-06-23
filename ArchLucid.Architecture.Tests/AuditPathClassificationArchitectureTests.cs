@@ -82,7 +82,8 @@ public sealed class AuditPathClassificationArchitectureTests
         "BillingWebhookTrialActivator",
         "AuthorityPipelineStagesExecutor",
         "AuthorityCommittedPipelineFinalizer",
-        "SqlTrialFunnelCommitHook"
+        "SqlTrialFunnelCommitHook",
+        "OperatorDemoReviewService"
     ];
 
     private static string FindRepoRoot()
