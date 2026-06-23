@@ -37,7 +37,10 @@ export function LayerContextFromRoute() {
       : buyerOperateBackLinkRaw;
   const buyerGoldenJourneyNav = buyerPolishedShell ? resolveBuyerGoldenJourneyNav(pathname) : null;
   const hideOperateBackLink =
-    pathname.startsWith("/ask") || pathname === "/compare" || pathname.startsWith("/compare/");
+    pathname.startsWith("/ask") ||
+    pathname.startsWith("/search") ||
+    pathname === "/compare" ||
+    pathname.startsWith("/compare/");
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.

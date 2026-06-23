@@ -157,7 +157,7 @@ export function buyerPolishedRouteOrientation(
 
     return {
       label: "Search review evidence",
-      line: "Find language across review summaries, signed review records, and linked metadata (tenant-scoped). Narrow with an optional run filter when you open Search from a review.",
+      line: "Find evidence, findings, decisions, and signed review records across this workspace.",
     };
   }
 

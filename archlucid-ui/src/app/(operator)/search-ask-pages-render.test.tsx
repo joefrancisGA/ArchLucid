@@ -24,8 +24,8 @@ describe("SearchPage (operator shell)", () => {
     const page = await SearchPage();
     render(page);
 
-    expect(screen.getByRole("heading", { name: /semantic search/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/^query$/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /search review evidence/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^search$/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^search$/i })).toBeInTheDocument();
   });
 });

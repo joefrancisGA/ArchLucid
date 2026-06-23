@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { apiGet } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -18,13 +19,21 @@ type SearchPageClientProps = {
 export function SearchPageClient(props: SearchPageClientProps) {
   const buyerShell = props.buyerShell;
   const isDemo = props.isDemo;
+  const searchParams = useSearchParams();
+  const initialRunId = searchParams.get("runId")?.trim() ?? "";
 
   const [query, setQuery] = useState("");
-  const [runId, setRunId] = useState("");
+  const [runId, setRunId] = useState(initialRunId);
   const [results, setResults] = useState<RetrievalHit[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+
+  useEffect(() => {
+    const nextRunId = searchParams.get("runId")?.trim() ?? "";
+
+    setRunId(nextRunId);
+  }, [searchParams]);
 
   const onSearch = useCallback(async () => {
     const q = query.trim();

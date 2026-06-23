@@ -4,21 +4,30 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { RunIdPicker } from "@/components/RunIdPicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  semanticSearchPageDeploymentNoteDev,
-  semanticSearchPageSubtitleOperator,
-} from "@/lib/enterprise-controls-context-copy";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
+import {
+  SEARCH_EXAMPLE_QUERIES_LINE,
+  SEARCH_PAGE_SUBTITLE,
+  SEARCH_QUERY_PLACEHOLDER,
+  SEARCH_REVIEW_FILTER_LABEL,
+  SEARCH_REVIEW_FILTER_PLACEHOLDER,
+} from "./search-page-copy";
+import { SearchRetrievalHitCard } from "./SearchRetrievalHitCard";
 
 type SearchPageViewProps = {
   model: SearchPageViewModel;
 };
+
+function searchPageTitle(runId: string): string {
+  return runId.trim().length > 0 ? "Search this review's evidence" : "Search review evidence";
+}
 
 export function SearchPageView({ model }: SearchPageViewProps) {
   const {
@@ -35,23 +44,18 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     setRunId,
   } = model;
 
-  const buyerSearchTitle =
-    buyerShell === true ? (runId.trim().length > 0 ? "Search this review's evidence" : "Search review evidence") : "Semantic Search";
+  const pageTitle = searchPageTitle(runId);
+  const scopedRunId = runId.trim();
 
   if (isDemo) {
-    // Same heading chrome as the live page so demo builds keep a recognizable route title below the shell.
     return (
       <div className="max-w-4xl">
-        <OperatorPageHeader
-          title={buyerSearchTitle}
-          helpKey="semantic-search"
-          subtitle={semanticSearchPageSubtitleOperator}
-        />
+        <OperatorPageHeader title={pageTitle} helpKey="semantic-search" subtitle={SEARCH_PAGE_SUBTITLE} />
 
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
-          capability="Semantic search"
-          description="In a connected tenant, operators search across review evidence and audit records with full-text semantic search."
+          capability="Search review evidence"
+          description="In a connected tenant, operators search findings, decisions, and signed review records across the workspace evidence index."
         />
       </div>
     );
@@ -59,44 +63,53 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
   return (
     <div className="max-w-4xl">
-      <OperatorPageHeader
-        title={buyerSearchTitle}
-        helpKey="semantic-search"
-        subtitle={semanticSearchPageSubtitleOperator}
-      />
-
-      {process.env.NODE_ENV === "development" ? (
-        <details className="mb-4 max-w-prose rounded-md border border-dashed border-neutral-300 bg-neutral-50/80 px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900/40">
-          <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-            Deployment note (development only)
-          </summary>
-          <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">{semanticSearchPageDeploymentNoteDev}</p>
-        </details>
-      ) : null}
+      <OperatorPageHeader title={pageTitle} helpKey="semantic-search" subtitle={SEARCH_PAGE_SUBTITLE} />
 
       <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
-        <CardContent className="grid gap-3 p-4">
+        <CardContent className="grid gap-4 p-4">
           <div className="space-y-2">
-            <Label htmlFor="semantic-search-query">Query</Label>
+            <Label htmlFor="semantic-search-query">Search</Label>
             <Input
               id="semantic-search-query"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search architecture knowledge..."
+              placeholder={SEARCH_QUERY_PLACEHOLDER}
               autoComplete="off"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="semantic-search-run-id">Optional run ID</Label>
-            <Input
-              id="semantic-search-run-id"
-              className="font-mono text-sm"
-              value={runId}
-              onChange={(e) => setRunId(e.target.value)}
-              placeholder="Optional Review ID filter"
-              autoComplete="off"
-            />
-          </div>
+
+          <RunIdPicker
+            preferAutoPick={false}
+            committedOnly
+            label={SEARCH_REVIEW_FILTER_LABEL}
+            placeholder={SEARCH_REVIEW_FILTER_PLACEHOLDER}
+            value={runId}
+            onChange={setRunId}
+            inputId="semantic-search-run-filter"
+            useBuyerFacingRunLabels={buyerShell === true}
+          />
+
+          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
+            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+              Advanced: filter by review ID
+            </summary>
+            <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
+              Paste a review ID when the review package is not in the recent list. The filter above accepts the same
+              value.
+            </p>
+            <div className="mt-3 space-y-2">
+              <Label htmlFor="semantic-search-run-id-advanced">Review ID</Label>
+              <Input
+                id="semantic-search-run-id-advanced"
+                className="font-mono text-sm"
+                value={runId}
+                onChange={(e) => setRunId(e.target.value)}
+                placeholder="Paste review ID to narrow search"
+                autoComplete="off"
+              />
+            </div>
+          </details>
+
           <Button
             type="button"
             variant="primary"
@@ -106,6 +119,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           >
             {loading ? "Searching…" : "Search"}
           </Button>
+
+          <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{SEARCH_EXAMPLE_QUERIES_LINE}</p>
         </CardContent>
       </Card>
 
@@ -125,14 +140,11 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
       <div className="grid gap-3">
         {results.map((hit) => (
-          <Card key={hit.chunkId}>
-            <CardContent className="space-y-2 p-4">
-              <div className="font-semibold text-neutral-900 dark:text-neutral-100">{hit.title}</div>
-              <div className="text-sm text-neutral-600 dark:text-neutral-400">{hit.sourceType}</div>
-              <div className="text-sm text-neutral-800 dark:text-neutral-200">Score: {hit.score.toFixed(3)}</div>
-              <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">{hit.text}</p>
-            </CardContent>
-          </Card>
+          <SearchRetrievalHitCard
+            key={hit.chunkId}
+            hit={hit}
+            scopedRunId={scopedRunId.length > 0 ? scopedRunId : undefined}
+          />
         ))}
       </div>
     </div>

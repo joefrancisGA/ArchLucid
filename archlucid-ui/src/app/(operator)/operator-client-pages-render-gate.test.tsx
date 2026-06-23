@@ -271,7 +271,7 @@ describe("operator client pages — render gate", () => {
   it("SearchPage renders primary heading without heading-level contextual help", async () => {
     const page = await SearchPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Search review evidence" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 
