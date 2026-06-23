@@ -1588,6 +1588,10 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
 
+      - name: Run-ArchLucidAzureExtractor.Tests.ps1
+        shell: pwsh
+        run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Run-ArchLucidAzureExtractor.Tests.ps1'
+
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
     # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.

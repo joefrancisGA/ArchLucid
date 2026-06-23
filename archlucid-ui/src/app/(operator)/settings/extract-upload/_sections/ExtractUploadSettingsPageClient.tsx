@@ -10,11 +10,12 @@ import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUpl
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
+import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
-import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
+import { buildAdvancedGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import {
   DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   getAzureExtractorDemoScenario,
@@ -234,36 +235,36 @@ export function ExtractUploadSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 1 — Download script</CardTitle>
-          <CardDescription>Inspect the script before running it in your Azure tenant.</CardDescription>
+          <CardTitle className="text-base">Step 1 — Collect inventory locally</CardTitle>
+          <CardDescription>
+            Copy the quick-start command, run it from your ArchLucid checkout, then upload the ZIP below. Use{" "}
+            <code>-DryRun</code> on the advanced script when you need a preview first.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
+        <CardContent className="space-y-4">
+          <AzureExtractorQuickStartCommandPanel testIdPrefix="extract-upload-quick-start" />
+          <details className="rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-700">
+            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+              Advanced: full Get-ArchLucidAzurePackage.ps1 command
+            </summary>
+            <pre className="mt-3 overflow-x-auto rounded-md bg-neutral-950 p-3 text-xs text-neutral-100">
+              {buildAdvancedGetArchLucidAzurePackageCommandLine()}
+            </pre>
+          </details>
           <a
             href={EXTRACTOR_SCRIPT_CDN_URL}
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className="inline-block text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
             target="_blank"
             rel="noreferrer"
           >
-            Download Get-ArchLucidAzurePackage.ps1
+            Download Get-ArchLucidAzurePackage.ps1 (inspect before running)
           </a>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 2 — Run locally</CardTitle>
-          <CardDescription>Use <code>-DryRun</code> first to preview inventory without writing files.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <pre className="overflow-x-auto rounded-md bg-neutral-950 p-3 text-xs text-neutral-100">
-            {buildGetArchLucidAzurePackageCommandLine()}
-          </pre>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Step 3 — Validate (optional)</CardTitle>
+          <CardTitle className="text-base">Step 2 — Validate (optional)</CardTitle>
           <CardDescription>CLI validation before upload.</CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-neutral-700 dark:text-neutral-300">
@@ -304,7 +305,7 @@ export function ExtractUploadSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 4 — Upload ZIP</CardTitle>
+          <CardTitle className="text-base">Step 3 — Upload ZIP</CardTitle>
           <CardDescription>
             Drag and drop or browse. Client-side checks validate <code>manifest.json</code> schemaVersion before the API
             call (max {maxMb} MB).
