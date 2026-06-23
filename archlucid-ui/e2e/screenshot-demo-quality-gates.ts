@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type Response } from "@playwright/test";
 
 /**
  * Fail the full-route screenshot crawl when evergreen demo pages still show empty states or internal placeholders.
@@ -35,6 +35,61 @@ async function waitForGraphScreenshotSettled(page: Page, href: string): Promise<
     .toBe(true);
 }
 
+function isAuditSearchProxyResponse(candidate: Response): boolean {
+  return (
+    candidate.url().includes("/v1/audit/search") &&
+    candidate.request().method() === "GET" &&
+    candidate.ok()
+  );
+}
+
+async function auditScreenshotTimelineHasRows(page: Page): Promise<boolean> {
+  return (await page.getByTestId("audit-timeline-event-card").count()) > 0;
+}
+
+async function auditScreenshotSummaryShowsRows(page: Page): Promise<boolean> {
+  const summaryText = (await page.getByTestId("audit-search-summary").innerText()).trim();
+
+  return /Showing [1-9]\d*/.test(summaryText);
+}
+
+/** Buyer-polished audit tucks Search inside a Radix collapsible — open via aria-expanded, not summary text alone. */
+async function expandAuditBuyerFiltersIfPresent(page: Page): Promise<void> {
+  const optionalFilters = page.getByRole("button", {
+    name: /Optional filters — event type, review scope, and search actions/i,
+  });
+
+  if ((await optionalFilters.count()) === 0) {
+    return;
+  }
+
+  const trigger = optionalFilters.first();
+  await trigger.scrollIntoViewIfNeeded().catch(() => undefined);
+
+  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
+    await trigger.click();
+    await expect(trigger).toHaveAttribute("aria-expanded", "true", { timeout: 10_000 });
+  }
+}
+
+async function primeAuditSearchIfStillEmpty(page: Page): Promise<void> {
+  await expandAuditBuyerFiltersIfPresent(page);
+
+  const searchButton = page.getByRole("button", { name: /^(Search audit log|Search)$/i }).first();
+
+  if ((await searchButton.count()) > 0) {
+    await searchButton.click({ force: true });
+
+    return;
+  }
+
+  const clearFilters = page.getByRole("button", { name: /^(Clear filters|Clear filters & search)$/i }).first();
+
+  if ((await clearFilters.count()) > 0) {
+    await clearFilters.click({ force: true });
+  }
+}
+
 /**
  * Audit page briefly renders “Showing 0 events” until the client search resolves (initial state is an empty list).
  * Buyer-polished shells tuck Search inside a collapsed panel — expand and trigger search when auto-prime races.
@@ -50,36 +105,35 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
 
   await expect(summary).toBeVisible({ timeout: 30_000 });
 
-  let searchPrimedCount = 0;
+  void page.waitForResponse(isAuditSearchProxyResponse, { timeout: 90_000 }).catch(() => undefined);
+
+  let primeAttempts = 0;
 
   await expect
     .poll(
       async () => {
-        const text = (await summary.innerText()).trim();
-
-        if (/Showing [1-9]\d*/.test(text)) {
+        if (await auditScreenshotSummaryShowsRows(page)) {
           return true;
         }
 
-        if (searchPrimedCount < 3) {
-          searchPrimedCount += 1;
+        if (await auditScreenshotTimelineHasRows(page)) {
+          return true;
+        }
 
-          const optionalFilters = page.getByRole("button", { name: /Optional filters/i });
+        if (primeAttempts < 8) {
+          primeAttempts += 1;
 
-          if (await optionalFilters.isVisible()) {
-            await optionalFilters.click();
-          }
+          const searchResponsePromise = page
+            .waitForResponse(isAuditSearchProxyResponse, { timeout: 20_000 })
+            .catch(() => null);
 
-          const searchButton = page.getByRole("button", { name: /^(Search audit log|Search)$/i }).first();
-
-          if ((await searchButton.count()) > 0) {
-            await searchButton.click({ force: true });
-          }
+          await primeAuditSearchIfStillEmpty(page);
+          await searchResponsePromise;
         }
 
         return false;
       },
-      { timeout: 60_000 },
+      { timeout: 90_000, intervals: [500, 1_000, 2_000] },
     )
     .toBe(true);
 }
