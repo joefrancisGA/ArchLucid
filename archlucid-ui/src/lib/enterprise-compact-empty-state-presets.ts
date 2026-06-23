@@ -45,25 +45,44 @@ export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   ],
 };
 
-/** Compare page before both review ids are selected. */
+/** Compare page before both reviews are selected. */
 export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-waiting-empty-state",
-  title: "Waiting for both review IDs",
-  description:
-    "Enter a base and target review ID to diff manifests and findings. Prefill with query parameters leftRunId and rightRunId, or copy IDs from the review header or list.",
+  title: "Select two reviews to compare",
+  description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "View reviews list", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Open Compare", href: "/compare", variant: "outline" },
+    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+  ],
+};
+
+/** Compare page when zero finalized review packages exist. */
+export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "compare-zero-finalized-empty-state",
+  title: "No finalized reviews available",
+  description: "Finalize at least two review packages to compare changes over time.",
+  actions: [
+    { label: "Start review", href: "/reviews/new", variant: "primary" },
+    { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
+  ],
+};
+
+/** Compare page when fewer than two finalized review packages exist. */
+export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "compare-insufficient-finalized-empty-state",
+  title: "Not enough finalized reviews",
+  description: "You need at least two finalized review packages to compare changes.",
+  actions: [
+    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
+    { label: "Start review", href: "/reviews/new", variant: "outline" },
   ],
 };
 
 /** Buyer-polished compare idle state. */
 export const COMPARE_WAITING_BUYER_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-waiting-empty-state",
-  title: "Choose two reviews to compare",
-  description: "Choose two finalized review packages to compare.",
+  title: "Select two reviews to compare",
+  description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "View reviews list", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Load sample comparison", href: "/compare", variant: "outline" },
+    { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
   ],
 };

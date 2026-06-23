@@ -22,7 +22,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "Compare reviews",
       summary: "Side-by-side diff of two architecture reviews — findings, decision records, and cost deltas.",
-      nextAction: "Pick a baseline and candidate review, then read the structured comparison summary.",
+      nextAction: "Pick a baseline and updated review, then read the structured comparison summary.",
     },
   },
   {

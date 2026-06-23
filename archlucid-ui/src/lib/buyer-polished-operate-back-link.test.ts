@@ -23,10 +23,7 @@ describe("buyerPolishedOperateBackLink", () => {
       label: "Back to review package",
       href: "/reviews/claims-intake-modernization",
     });
-    expect(buyerPolishedOperateBackLink("/compare?prior=claims-intake-run-v1&later=claims-intake-run-v2")).toEqual({
-      label: "Back to review package",
-      href: "/reviews/claims-intake-modernization",
-    });
+    expect(buyerPolishedOperateBackLink("/compare?prior=claims-intake-run-v1&later=claims-intake-run-v2")).toBeNull();
   });
 
   it("returns null when already on or under the showcase package", () => {

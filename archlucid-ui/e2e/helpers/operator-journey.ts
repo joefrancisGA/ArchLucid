@@ -31,21 +31,19 @@ export async function gotoComparePageWithFixturePair(
 }
 
 /**
- * Primary `/compare` H2 from {@link OperatorPageHeader}. Mock E2E sets demo env flags, so
- * `isBuyerPolishedOperatorShellEnv()` is true and the title is **Advanced review comparison**; full-operator
- * builds use **Compare reviews**.
+ * Primary `/compare` H2 from {@link OperatorPageHeader}. Buyer-polished and full-operator shells both use
+ * **Compare reviews**.
  */
 export function comparePageMainHeading(page: Page): Locator {
-  return page.getByRole("heading", { level: 2, name: /Compare reviews|Advanced review comparison/i });
+  return page.getByRole("heading", { level: 2, name: /^Compare reviews$/i });
 }
 
 /**
- * Intro paragraph from {@link ComparePageIntro}. Mock E2E uses buyer-polished copy ("structured manifest diff
- * summary is the authoritative delta"); full-operator builds use "review the structured summary first".
+ * Compare page subtitle under {@link OperatorPageHeader}.
  */
 export function comparePageIntroGuidance(page: Page): Locator {
   return page.getByText(
-    /review the structured summary first|structured manifest diff summary is the authoritative delta/i,
+    /Select two finalized review packages to see what changed in scope, findings, decisions, and evidence/i,
   );
 }
 

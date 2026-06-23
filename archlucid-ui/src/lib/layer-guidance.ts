@@ -62,9 +62,9 @@ export type LayerGuidanceBlock = {
 
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
   compare: {
-    layerBadge: "Advanced operations",
-    headline: "Answers: what changed between two finalized reviews?",
-    useWhen: "Use after you have two reviews with architecture snapshots when you need a structured diff or narrative.",
+    layerBadge: "Compare reviews",
+    headline: "See what changed between two finalized review packages.",
+    useWhen: "Choose a baseline and an updated review after both packages are finalized.",
     firstPilotNote:
       "Optional until first Pilot proof unless you deliberately compare two finalized reviews.",
   },
@@ -255,10 +255,9 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   compare: {
-    layerBadge: "Advanced review comparison",
-    headline: "See what changed between two finalized architecture reviews.",
-    useWhen:
-      "Use when you need a structured package diff or an optional executive narrative after two packages are finalized.",
+    layerBadge: "Compare reviews",
+    headline: "See what changed between two finalized review packages.",
+    useWhen: "Choose a baseline and an updated review after both packages are finalized.",
     firstPilotNote: null,
   },
   "governance-findings": {

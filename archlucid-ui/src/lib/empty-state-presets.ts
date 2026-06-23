@@ -65,23 +65,20 @@ export const GRAPH_IDLE_BUYER: EmptyStateProps = {
 
 export const COMPARE_WAITING: EmptyStateProps = {
   icon: GitCompareArrows,
-  title: "Waiting for both review IDs",
-  description:
-    "Enter a base and target review ID to diff manifests and findings. Prefill with query parameters leftRunId and rightRunId, or copy IDs from the review header or list.",
+  title: "Select two reviews to compare",
+  description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "View reviews list", href: "/reviews?projectId=default" },
-    { label: "Open Compare", href: "/compare", variant: "outline" },
+    { label: "Open review packages", href: "/reviews?projectId=default" },
   ],
 };
 
 /** Buyer-polished compare: no raw IDs or query-parameter instructions. */
 export const COMPARE_WAITING_BUYER: EmptyStateProps = {
   icon: GitCompareArrows,
-  title: "Choose two reviews to compare",
-  description: "Choose two finalized review packages to compare.",
+  title: "Select two reviews to compare",
+  description: "Choose a baseline and updated review to continue.",
   actions: [
-    { label: "View reviews list", href: "/reviews?projectId=default" },
-    { label: "Load sample comparison", href: "/compare", variant: "outline" },
+    { label: "Open review packages", href: "/reviews?projectId=default" },
   ],
 };
 

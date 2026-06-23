@@ -36,6 +36,7 @@ export function LayerContextFromRoute() {
       ? null
       : buyerOperateBackLinkRaw;
   const buyerGoldenJourneyNav = buyerPolishedShell ? resolveBuyerGoldenJourneyNav(pathname) : null;
+  const hideOperateBackLink = pathname === "/compare" || pathname.startsWith("/compare/");
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
   // New request is the primary create flow — keep the header uncluttered like home.
@@ -58,6 +59,7 @@ export function LayerContextFromRoute() {
         buyerOperateBackLink={buyerOperateBackLink}
         buyerGoldenJourneyNav={buyerGoldenJourneyNav}
         demoDataSourceBadge={buyerGoldenJourneyNav !== null ? <CtoDemoSimulatorTrustBadge /> : undefined}
+        hideOperateBackLink={hideOperateBackLink}
       />
     </>
   );

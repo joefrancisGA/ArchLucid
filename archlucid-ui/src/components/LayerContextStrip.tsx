@@ -60,6 +60,8 @@ export type LayerContextStripProps = {
   buyerGoldenJourneyNav?: ResolvedBuyerGoldenJourneyNav | null;
   /** CTO demo pack: sample/live data indicator on golden-journey spine pages. */
   demoDataSourceBadge?: ReactNode;
+  /** When true, omit the default Operate "Back to home" / contextual return link (breadcrumbs + nav suffice). */
+  hideOperateBackLink?: boolean;
 };
 
 const DEFAULT_OPERATE_BACK = { label: "Back to home", href: "/" } as const;
@@ -76,10 +78,15 @@ export function LayerContextStrip({
   buyerOperateBackLink = null,
   buyerGoldenJourneyNav = null,
   demoDataSourceBadge = undefined,
+  hideOperateBackLink = false,
 }: LayerContextStripProps) {
   const orientation = buyerRouteOrientation;
 
   const stripBackForOriented = (isOperateLayer: boolean): { label: string; href: string } | null => {
+    if (hideOperateBackLink) {
+      return null;
+    }
+
     if (buyerOperateBackLink !== null && buyerOperateBackLink !== undefined) {
       return buyerOperateBackLink;
     }

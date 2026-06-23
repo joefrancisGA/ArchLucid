@@ -14,6 +14,8 @@ export type LayerHeaderProps = {
   className?: string;
   /** `compact` drops the accent rail for lighter-weight detail pages */
   density?: "default" | "compact";
+  /** When set, wraps guidance in a collapsed `<details>` so primary page actions stay above the fold. */
+  collapsibleGuidance?: string;
 };
 
 /**
@@ -29,7 +31,12 @@ export type LayerHeaderProps = {
  * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Advanced operations vs Governance footnote contract.
  * @see `operate-authority-ui-shaping.test.tsx` — mutation hook → **`disabled`** / **`readOnly`** on representative pages.
  */
-export function LayerHeader({ pageKey, className, density = "default" }: LayerHeaderProps) {
+export function LayerHeader({
+  pageKey,
+  className,
+  density = "default",
+  collapsibleGuidance,
+}: LayerHeaderProps) {
   const surface = useNavSurface(pageKey);
   const buyerDemoShell = isBuyerPolishedOperatorShellEnv();
   const block = mergeLayerGuidanceForBuyerDemoShell(pageKey, surface.layerGuidance, buyerDemoShell);
@@ -39,17 +46,8 @@ export function LayerHeader({ pageKey, className, density = "default" }: LayerHe
     block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
   const compact = density === "compact";
 
-  return (
-    <aside
-      className={cn(
-        !className &&
-          (compact
-            ? "mb-3 max-w-3xl rounded-md bg-neutral-100/70 py-2 pl-0 text-xs dark:bg-neutral-900/60"
-            : "mb-4 max-w-3xl border-l-4 border-teal-700 py-1 pl-3 dark:border-teal-500"),
-        className,
-      )}
-      aria-label={`${block.layerBadge}: ${block.headline}`}
-    >
+  const guidanceBody = (
+    <>
       <p
         className={cn(
           "m-0 font-semibold uppercase tracking-wide",
@@ -113,6 +111,38 @@ export function LayerHeader({ pageKey, className, density = "default" }: LayerHe
           {operateExecuteRankCue}
         </p>
       ) : null}
+    </>
+  );
+
+  const guidanceAside = (
+    <aside
+      className={cn(
+        !className &&
+          (compact
+            ? "max-w-3xl rounded-md bg-neutral-100/70 py-2 pl-0 text-xs dark:bg-neutral-900/60"
+            : "mb-4 max-w-3xl border-l-4 border-teal-700 py-1 pl-3 dark:border-teal-500"),
+        collapsibleGuidance ? "mb-0" : null,
+        className,
+      )}
+      aria-label={`${block.layerBadge}: ${block.headline}`}
+    >
+      {guidanceBody}
     </aside>
   );
+
+  if (collapsibleGuidance !== undefined && collapsibleGuidance.trim().length > 0) {
+    return (
+      <details
+        className="mb-4 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40"
+        data-testid="layer-header-collapsible-guidance"
+      >
+        <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          {collapsibleGuidance}
+        </summary>
+        <div className="mt-3">{guidanceAside}</div>
+      </details>
+    );
+  }
+
+  return guidanceAside;
 }

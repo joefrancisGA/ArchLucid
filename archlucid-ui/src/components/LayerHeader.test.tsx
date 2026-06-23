@@ -25,11 +25,11 @@ describe("LayerHeader", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.AdminAuthority;
   });
 
-  it("renders Advanced operations guidance for compare (analysis slice)", () => {
+  it("renders compare guidance (analysis slice)", () => {
     render(<LayerHeader pageKey="compare" />);
 
-    expect(screen.getByText("Advanced operations")).toBeInTheDocument();
-    expect(screen.getByText(/what changed between two finalized reviews/i)).toBeInTheDocument();
+    expect(screen.getByText("Compare reviews")).toBeInTheDocument();
+    expect(screen.getByText(/what changed between two finalized review packages/i)).toBeInTheDocument();
   });
 
   it("explains Review, Manifest, and Trace relationship", () => {
@@ -85,6 +85,14 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
+  });
+
+  it("wraps guidance in a collapsed details panel when collapsibleGuidance is set", () => {
+    render(<LayerHeader pageKey="compare" collapsibleGuidance="How compare works" />);
+
+    expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
+    expect(screen.getByText("How compare works")).toBeInTheDocument();
+    expect(screen.queryByText(/Review · Manifest · Trace/i)).not.toBeVisible();
   });
 
   it("does not render Execute+ rank cue on Advanced operations pages", () => {

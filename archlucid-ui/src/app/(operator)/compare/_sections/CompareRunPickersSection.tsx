@@ -1,10 +1,5 @@
-import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
-import {
-  COMPARE_WAITING_BUYER_COMPACT,
-  COMPARE_WAITING_COMPACT,
-} from "@/lib/enterprise-compact-empty-state-presets";
 import type { RunSummary } from "@/types/authority";
 
 export type CompareRunPickersSectionProps = {
@@ -59,18 +54,12 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     collapseBelowResults = false,
   } = props;
 
+  const compareActionsDisabled = loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
+  const summarizeActionsDisabled = aiLoading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
+  const showSelectionHelper = !leftTrim || !rightTrim;
+
   const pickerFields = (
     <>
-      <h2 id="compare-select-heading" className="m-0 text-sm font-semibold text-al-text-primary">
-        {useBuyerFacingRunLabels ? BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY : "Select reviews to compare"}
-      </h2>
-      {!useBuyerFacingRunLabels ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Recent committed reviews appear in the typeahead. Open{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Advanced — enter review ID manually</span>{" "}
-          below when you need a run that is not listed.
-        </p>
-      ) : null}
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
           preferAutoPick={false}
@@ -110,7 +99,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         {!useBuyerFacingRunLabels ? (
           <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
             <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
-              Advanced — enter review ID manually
+              Advanced: enter review IDs manually
             </summary>
             <p className="mt-2 m-0 text-neutral-600 dark:text-neutral-400">
               Type or paste a review ID in either field above when the review is not in the recent list (for example an
@@ -132,9 +121,9 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             data-testid="compare-submit-button"
             className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
             onClick={() => void onCompare()}
-            disabled={loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked}
+            disabled={compareActionsDisabled}
           >
-            {loading ? "Comparing…" : "Compare"}
+            {loading ? "Comparing…" : "Compare reviews"}
           </button>
           <button
             type="button"
@@ -144,16 +133,17 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
                 : "rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm font-medium text-neutral-600 shadow-sm hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-400 dark:hover:bg-neutral-800/60"
             }
             onClick={() => void onSummarizeForSponsor()}
-            disabled={aiLoading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked}
+            disabled={summarizeActionsDisabled}
           >
             {aiLoading ? "Summarizing…" : summarizeButtonLabel}
           </button>
         </div>
+        {showSelectionHelper ? (
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            Choose a baseline and updated review to continue.
+          </p>
+        ) : null}
       </div>
-
-      {(!leftTrim || !rightTrim) && (
-        <EnterpriseCompactEmptyState {...(useBuyerFacingRunLabels ? COMPARE_WAITING_BUYER_COMPACT : COMPARE_WAITING_COMPACT)} />
-      )}
     </>
   );
 
@@ -163,7 +153,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         <summary className="cursor-pointer text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
         </summary>
-        <section className="mt-3 space-y-4" aria-labelledby="compare-select-heading">
+        <section className="mt-3 space-y-4" aria-label="Change compared reviews">
           {pickerFields}
         </section>
       </details>
@@ -171,7 +161,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
   }
 
   return (
-    <section className="scroll-mt-8 space-y-4" aria-labelledby="compare-select-heading">
+    <section className="scroll-mt-8 space-y-4" aria-label="Select reviews to compare">
       {pickerFields}
     </section>
   );

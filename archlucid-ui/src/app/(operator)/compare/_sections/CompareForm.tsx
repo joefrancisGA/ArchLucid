@@ -26,10 +26,12 @@ import {
 import { cn } from "@/lib/utils";
 import { CompareBuyerScopedGate } from "@/app/(operator)/compare/_sections/CompareBuyerScopedGate";
 import { CompareDemoQuickPick } from "@/app/(operator)/compare/_sections/CompareDemoQuickPick";
+import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/compare/_sections/CompareInsufficientFinalizedEmptyState";
 import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/compare/_sections/CompareLastRequestOutcomeDetails";
-import { ComparePageIntro } from "@/app/(operator)/compare/_sections/ComparePageIntro";
+import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/compare/_sections/ComparePageIntro";
 import { CompareResultsPanel } from "@/app/(operator)/compare/_sections/CompareResultsPanel";
 import { CompareRunPickersSection } from "@/app/(operator)/compare/_sections/CompareRunPickersSection";
+import { useCompareFinalizedRunAvailability } from "@/app/(operator)/compare/_sections/useCompareFinalizedRunAvailability";
 import type { ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
 import { comparePickerFootnote } from "@/app/(operator)/compare/_sections/compare-page-helpers";
 import type { GoldenManifestComparison } from "@/types/comparison";
@@ -382,6 +384,7 @@ export function CompareForm() {
     pairAligned && !loading && (golden !== null || result !== null || aiExplanation !== null);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const { finalizedCount, insufficientForCompare } = useCompareFinalizedRunAvailability();
 
   const leftPickerLabel = isDemoClaimsIntakeComparePair
     ? "Baseline Claims Intake Review"
@@ -402,12 +405,20 @@ export function CompareForm() {
   const urlComparePair = readCompareRunIdsFromSearchParams(searchParams);
   const buyerCompareHasUrlPair =
     urlComparePair.prior.trim().length > 0 && urlComparePair.later.trim().length > 0;
+  const hasPrefilledSelection = leftTrim.length > 0 || rightTrim.length > 0;
+  const showInsufficientFinalized =
+    insufficientForCompare &&
+    !hasPrefilledSelection &&
+    !buyerCompareHasUrlPair &&
+    !compareHasRenderableOutcome;
   const showBuyerCompareScopedGate =
     buyerPolished &&
+    !showInsufficientFinalized &&
     !buyerCompareHasUrlPair &&
     !compareHasRenderableOutcome &&
     leftTrim.length === 0 &&
     rightTrim.length === 0;
+  const showCompareWorkflow = !showInsufficientFinalized && !showBuyerCompareScopedGate;
 
   const loadBuyerSampleComparison = () => {
     pickClaimsIntakePair();
@@ -419,9 +430,9 @@ export function CompareForm() {
 
   return (
     <div>
-      <LayerHeader pageKey="compare" />
       <OperatorPageHeader
         title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare reviews"}
+        subtitle={COMPARE_PAGE_SUBTITLE}
         helpKey="compare-runs"
         docsPageKey="/compare"
         metadata={
@@ -430,17 +441,19 @@ export function CompareForm() {
           )
         }
       />
-      <ComparePageIntro buyerPolished={buyerPolished} />
+      {showInsufficientFinalized ? (
+        <CompareInsufficientFinalizedEmptyState finalizedCount={finalizedCount} />
+      ) : null}
       {showBuyerCompareScopedGate ? (
         <CompareBuyerScopedGate onLoadSampleComparison={loadBuyerSampleComparison} />
       ) : null}
-      {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
+      {isStaticDemoPayloadFallbackEnabled() && !buyerPolished && showCompareWorkflow ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
       ) : null}
+      {showCompareWorkflow ? (
       <div
         className={cn("flex max-w-3xl flex-col gap-8", compareInsightFirstLayout ? "flex-col-reverse" : null)}
       >
-        {showBuyerCompareScopedGate ? null : (
         <CompareRunPickersSection
           leftPickerLabel={leftPickerLabel}
           rightPickerLabel={rightPickerLabel}
@@ -464,9 +477,7 @@ export function CompareForm() {
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           collapseBelowResults={compareInsightFirstLayout && buyerPolished}
         />
-        )}
 
-        {showBuyerCompareScopedGate ? null : (
         <CompareResultsPanel
           showStaleInputsWarning={showStaleInputsWarning}
           lastComparedPair={lastComparedPair}
@@ -490,10 +501,10 @@ export function CompareForm() {
           comparisonNarrativeLoading={comparisonNarrativeLoading}
           buyerPolished={buyerPolished}
         />
-        )}
       </div>
+      ) : null}
 
-      {showBuyerCompareScopedGate ? null : (
+      {showCompareWorkflow ? (
       <CompareLastRequestOutcomeDetails
         pairAligned={pairAligned}
         loading={loading}
@@ -509,7 +520,11 @@ export function CompareForm() {
         legacyMalformed={legacyMalformed}
         buyerPolished={buyerPolished}
       />
-      )}
+      ) : null}
+
+      {showCompareWorkflow ? (
+        <LayerHeader pageKey="compare" density="compact" collapsibleGuidance="How compare works" />
+      ) : null}
     </div>
   );
 }

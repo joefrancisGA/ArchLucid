@@ -7,7 +7,7 @@ export const BUYER_WORKSPACE_DISPLAY_NAME = "Claims Intake Workspace";
 export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
   "Claims Intake workspace — demonstration data for architecture review walkthroughs.";
 
-export const BUYER_COMPARE_PAGE_TITLE = "Advanced review comparison";
+export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
 
 export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details";
 
