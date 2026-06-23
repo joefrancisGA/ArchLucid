@@ -284,6 +284,39 @@ function Stop-IntegrationTestProcessTree {
         Stop-Process -Force -ErrorAction SilentlyContinue
 }
 
+function Write-ChunkRedirectLogTail {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Label,
+
+        [Parameter(Mandatory)]
+        [string]$LogPath,
+
+        [int]$TailLineCount = 120
+    )
+
+    Write-Host ''
+    Write-Host ('===== {0} (last {1} lines): {2} =====' -f $Label, $TailLineCount, $LogPath)
+
+    if (-not (Test-Path -LiteralPath $LogPath)) {
+        Write-Host '(log file missing)'
+        return
+    }
+
+    $lines = @(Get-Content -LiteralPath $LogPath -ErrorAction SilentlyContinue)
+
+    if ($null -eq $lines -or $lines.Count -eq 0) {
+        Write-Host '(log file empty)'
+        return
+    }
+
+    $startIndex = [Math]::Max(0, $lines.Count - $TailLineCount)
+
+    for ($lineIndex = $startIndex; $lineIndex -lt $lines.Count; $lineIndex++) {
+        Write-Host $lines[$lineIndex]
+    }
+}
+
 function Invoke-DotNetTestChunkWithWatchdog {
     param(
         [Parameter(Mandatory)]
@@ -384,6 +417,11 @@ function Invoke-DotNetTestChunkWithWatchdog {
 
     if ($exitCode -ne 0) {
         Write-Host ("dotnet test chunk exited with code {0}" -f $exitCode)
+
+        # dotnet test stdout/stderr are redirected to chunk-*.log; without echoing them here and
+        # uploading them in ci.yml, fast test-host crashes leave no visible failure in the job log.
+        Write-ChunkRedirectLogTail -Label 'dotnet test chunk stdout' -LogPath $stdoutLogPath
+        Write-ChunkRedirectLogTail -Label 'dotnet test chunk stderr' -LogPath $stderrLogPath
     }
 
     return $exitCode

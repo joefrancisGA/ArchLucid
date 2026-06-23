@@ -1,0 +1,73 @@
+# TEMPORARY: fast feedback loop for ci/fix-api-integration-shard-crash (deleted in Prompt 5).
+name: CI debug - api integration shard
+on:
+  push:
+    branches: [ci/fix-api-integration-shard-crash]
+jobs:
+  debug-api-integration-shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0]
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Wait for SQL Server (service warm-up)
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Build (Release)
+        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Wait for SQL Server (pre-shard)
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+
+      - name: Test - Api.Tests integration shard ${{ matrix.shard }}/6
+        timeout-minutes: 25
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: >
+          pwsh -NoProfile -File ./scripts/ci/Invoke-ApiIntegrationTestShard.ps1
+          -ShardIndex ${{ matrix.shard }}
+          -ShardCount 6
+          -BlameHangTimeout 75min
+          -ChunkTimeout 20min
+          -ResultsDirectory "${{ runner.temp }}/debug-shard-${{ matrix.shard }}"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: debug-shard-${{ matrix.shard }}-all
+          path: ${{ runner.temp }}/debug-shard-${{ matrix.shard }}/**
+          if-no-files-found: warn

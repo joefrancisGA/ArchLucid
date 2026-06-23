@@ -2125,6 +2125,13 @@ jobs:
       - uses: actions/upload-artifact@v6
         if: always()
         with:
+          name: chunk-console-api-integration-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/chunk-*.log
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
           name: dotnet-trx-full-core-api-integration-shard-${{ matrix.shard }}
           path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/**/*.trx
           if-no-files-found: warn
