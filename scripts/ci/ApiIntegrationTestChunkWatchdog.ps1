@@ -26,6 +26,10 @@ function ConvertTo-ChunkTimeoutSpan {
     return [TimeSpan]::Parse($trimmed)
 }
 
+function Test-LinuxCiRunner {
+    return $IsLinux -or [bool]$env:GITHUB_ACTIONS
+}
+
 function Get-DescendantProcessIds {
     param(
         [Parameter(Mandatory)]
@@ -43,7 +47,7 @@ function Get-DescendantProcessIds {
             continue
         }
 
-        if ($IsLinux) {
+        if (Test-LinuxCiRunner) {
             $childOutput = & pgrep -P $currentProcessId 2>$null
 
             if ($null -ne $childOutput) {
@@ -529,46 +533,53 @@ function Invoke-IntegrationTestHangDumpCapture {
 
     $dotnetDumpPath = Ensure-DotNetDumpTool
     $dotnetStackPath = Ensure-DotNetStackTool
-    $targetProcessIds = Get-IntegrationTestDumpTargetProcessIds `
-        -RootProcessId $RootProcessId `
-        -CurrentProcessId $PID
 
-    if ($targetProcessIds.Count -eq 0) {
-        Write-Host 'No dump target processes found in the chunk process tree; skipping dump/stack capture.'
-        return
-    }
+    try {
+        $targetProcessIds = @(Get-IntegrationTestDumpTargetProcessIds `
+            -RootProcessId $RootProcessId `
+            -CurrentProcessId $PID)
 
-    foreach ($targetProcessId in $targetProcessIds) {
-        $dumpPath = Join-Path $ResultsDirectory (
-            "hangdump-shard-{0}-chunk{1}-{2}.dmp" -f $ShardIndex, $ChunkNumber, $targetProcessId
-        )
+        if ($targetProcessIds.Count -eq 0) {
+            Write-Host 'No dump target processes found in the chunk process tree; skipping dump/stack capture.'
+            return
+        }
 
-        Write-Host ("Capturing out-of-process dump for PID {0} -> {1}" -f $targetProcessId, $dumpPath)
+        foreach ($targetProcessId in $targetProcessIds) {
+            $dumpPath = Join-Path $ResultsDirectory (
+                "hangdump-shard-{0}-chunk{1}-{2}.dmp" -f $ShardIndex, $ChunkNumber, $targetProcessId
+            )
 
-        $capturedDump = $false
+            Write-Host ("Capturing out-of-process dump for PID {0} -> {1}" -f $targetProcessId, $dumpPath)
 
-        try {
-            $capturedDump = Invoke-DotNetDumpCollectBounded `
-                -DotNetDumpPath $dotnetDumpPath `
-                -ProcessId $targetProcessId `
-                -OutputPath $dumpPath
+            $capturedDump = $false
+
+            try {
+                $capturedDump = Invoke-DotNetDumpCollectBounded `
+                    -DotNetDumpPath $dotnetDumpPath `
+                    -ProcessId $targetProcessId `
+                    -OutputPath $dumpPath
+
+                if (-not $capturedDump) {
+                    Write-Host ("Dump capture did not produce a file for PID {0}" -f $targetProcessId)
+                }
+            }
+            catch {
+                Write-Host ("Dump capture failed for PID {0}: {1}" -f $targetProcessId, $_.Exception.Message)
+            }
 
             if (-not $capturedDump) {
-                Write-Host ("Dump capture did not produce a file for PID {0}" -f $targetProcessId)
+                Invoke-IntegrationTestHangStackReportCapture `
+                    -DotNetStackPath $dotnetStackPath `
+                    -ProcessId $targetProcessId `
+                    -ShardIndex $ShardIndex `
+                    -ChunkNumber $ChunkNumber `
+                    -ResultsDirectory $ResultsDirectory
             }
         }
-        catch {
-            Write-Host ("Dump capture failed for PID {0}: {1}" -f $targetProcessId, $_.Exception.Message)
-        }
-
-        if (-not $capturedDump) {
-            Invoke-IntegrationTestHangStackReportCapture `
-                -DotNetStackPath $dotnetStackPath `
-                -ProcessId $targetProcessId `
-                -ShardIndex $ShardIndex `
-                -ChunkNumber $ChunkNumber `
-                -ResultsDirectory $ResultsDirectory
-        }
+    }
+    catch {
+        Write-Host ("Hang dump/stack capture failed: {0}" -f $_.Exception.Message)
+        Write-Host $_.ScriptStackTrace
     }
 }
 
@@ -688,10 +699,10 @@ function Invoke-DotNetTestChunkWithWatchdog {
         '--results-directory', $ResultsDirectory,
         '--logger', 'console;verbosity=minimal',
         '--logger', "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$ChunkNumber-",
-        '--diag', $DiagLogPath,
-        '--blame-hang',
-        '--blame-hang-timeout', $BlameHangTimeout,
-        '--blame-hang-dump-type', 'mini'
+        '--diag', $DiagLogPath
+        # Do NOT pass --blame-hang here: the in-process collector keeps testhost alive after failures and
+        # wedges vstest in TcpClientExtensions.MessageLoopAsync until the parent chunk watchdog fires.
+        # Out-of-process dumps are captured in Invoke-IntegrationTestHangDumpCapture instead.
     )
 
     $process = Start-Process `
