@@ -56,7 +56,7 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/product-learning",
           label: OPERATOR_NAV_LINK_LABELS.pilotFeedback,
-          title: `${BUYER_TERMINOLOGY.evaluationFeedback} — rollups and triage (58R)`,
+          title: `${BUYER_TERMINOLOGY.evaluationFeedback} — recurring issues and improvement opportunities (advanced)`,
           icon: ClipboardList,
           tier: "advanced",
           requiredAuthority: "ReadAuthority",

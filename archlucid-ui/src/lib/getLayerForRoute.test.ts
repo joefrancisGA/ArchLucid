@@ -42,6 +42,11 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/reviews/550e8400-e29b-41d4-a716-446655440000")).toBe("pilot");
   });
 
+  it("returns operate-analysis for operate-operations nav paths", () => {
+    expect(getLayerForRoute("/product-learning")).toBe("operate-analysis");
+    expect(getLayerForRoute("/scorecard")).toBe("operate-analysis");
+  });
+
   it("returns pilot for paths not in NAV_GROUPS", () => {
     expect(getLayerForRoute("/this-route-not-in-config")).toBe("pilot");
   });

@@ -41,7 +41,7 @@ export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
     "59R themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows operator defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
   actions: [
     { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Product learning", href: "/product-learning", variant: "outline" },
+    { label: "Pilot feedback", href: "/product-learning", variant: "outline" },
   ],
 };
 
