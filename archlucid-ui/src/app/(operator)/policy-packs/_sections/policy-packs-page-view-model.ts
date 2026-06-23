@@ -11,7 +11,7 @@ import type {
 } from "@/types/policy-packs";
 
 /** Primary sections on the policy packs page. */
-export type PolicyPacksPageTab = "my-packs" | "catalog" | "generator";
+export type PolicyPacksPageTab = "my-packs" | "catalog" | "generator" | "author";
 
 /** Client view-model for {@link PolicyPacksPageView}; produced by {@link usePolicyPacksPage} after server hydration. */
 export type PolicyPacksPageViewModel = {

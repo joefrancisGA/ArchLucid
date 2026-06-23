@@ -22,6 +22,10 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
       "href",
       "/governance/policy-packs/demo-healthcare-claims-pack",
     );
+    expect(screen.getByTestId("review-detail-policy-pack-impact-edit-rules")).toHaveAttribute(
+      "href",
+      "/policy-packs?tab=author&packId=healthcare-claims-v3",
+    );
     expect(screen.getByTestId("review-detail-policy-pack-impact-simulate")).toHaveAttribute(
       "href",
       "/policy-packs?packId=healthcare-claims-v3",

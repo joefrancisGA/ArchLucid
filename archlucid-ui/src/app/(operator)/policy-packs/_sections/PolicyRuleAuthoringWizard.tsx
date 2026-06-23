@@ -333,8 +333,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
         Rule authoring wizard
       </h3>
       <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-        Design custom policy content, evaluate it against a committed architecture review (golden snapshot lineage), then
-        create or publish through the same durable policy-pack versioning as platform defaults.
+        Design custom policy content, evaluate it against a committed architecture review, then create or publish through
+        the same durable policy-pack versioning as platform defaults.
       </p>
 
       <ol className="mt-4 flex flex-wrap gap-3 text-sm" aria-label="Wizard steps">

@@ -4,7 +4,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
-import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
+import { policyPacksAuthorHref, policyPacksEditHref } from "@/lib/policy-packs-deep-link";
 import { cn } from "@/lib/utils";
 
 export type ReviewDetailPolicyPackImpactCalloutProps = {
@@ -31,6 +31,7 @@ export function ReviewDetailPolicyPackImpactCallout(
   const packLabel = policyPackBuyerLabel(ruleSetId, props.ruleSetVersion ?? "");
   const packHref = resolveReviewDetailPolicyPackHref(ruleSetId);
   const simulateHref = policyPacksEditHref(ruleSetId);
+  const authorHref = policyPacksAuthorHref(ruleSetId);
   const mappedCount =
     props.mappedFindingCount !== null &&
     props.mappedFindingCount !== undefined &&
@@ -78,6 +79,13 @@ export function ReviewDetailPolicyPackImpactCallout(
               View policy basis
             </Link>
           ) : null}
+          <Link
+            href={authorHref}
+            className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+            data-testid="review-detail-policy-pack-impact-edit-rules"
+          >
+            Edit pack rules
+          </Link>
           <Link
             href={simulateHref}
             className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"

@@ -17,7 +17,7 @@ import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksRefreshToolbar } from "./PolicyPacksRefreshToolbar";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPackGeneratorSection } from "./PolicyPackGeneratorSection";
-import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
+import { PolicyPacksAuthoringTabSection } from "./PolicyPacksAuthoringTabSection";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 
 type Props = {
@@ -91,6 +91,24 @@ export function PolicyPacksPageView(props: Props) {
               type="button"
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium",
+                m.pageTab === "author"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent/60",
+              )}
+              onClick={() => {
+                m.setPageTab("author");
+              }}
+              aria-label={m.pageTab === "author" ? "Author rules, current section" : "Author rules"}
+              data-testid="policy-packs-tab-author"
+            >
+              Author rules
+            </button>
+          ) : null}
+          {!m.buyerPolishedShell && m.canMutatePacks && !isStaticDemoPayloadFallbackEnabled() ? (
+            <button
+              type="button"
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium",
                 m.pageTab === "generator"
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",
@@ -126,6 +144,10 @@ export function PolicyPacksPageView(props: Props) {
           onCreatePack={m.onCreateFromGenerator}
           onOpenAuthoringWizard={m.openAuthoringWizardFromGenerator}
         />
+      ) : null}
+
+      {m.pageTab === "author" && !m.buyerPolishedShell && m.canMutatePacks && !isStaticDemoPayloadFallbackEnabled() ? (
+        <PolicyPacksAuthoringTabSection model={m} />
       ) : null}
 
       {m.pageTab === "catalog" ? (
@@ -172,30 +194,8 @@ export function PolicyPacksPageView(props: Props) {
               className="mb-8"
               open={m.authoringAdvancedOpen}
               onOpenChange={m.setAuthoringAdvancedOpen}
-              triggerLabel="Authoring wizard and inspect tools"
+              triggerLabel="Inspect tools and JSON lifecycle"
             >
-              {isStaticDemoPayloadFallbackEnabled() ? null : (
-                <PolicyRuleAuthoringWizard
-                  canMutatePacks={m.canMutatePacks}
-                  loading={m.loading}
-                  bundledPublishBlocked={m.bundledPublishBlocked}
-                  selectedPackId={m.selectedPackId}
-                  policyContentJson={m.publishJson}
-                  onPolicyContentJsonSync={m.syncPolicyContentJson}
-                  name={m.name}
-                  onNameChange={m.setName}
-                  description={m.description}
-                  onDescriptionChange={m.setDescription}
-                  packType={m.packType}
-                  onPackTypeChange={m.setPackType}
-                  publishVersion={m.publishVersion}
-                  onPublishVersionChange={m.setPublishVersion}
-                  onCreate={m.onCreate}
-                  onPublish={m.onPublish}
-                  highlightRuleId={m.ruleIdFromUrl}
-                  initialInputMode={m.authoringWizardInputMode}
-                />
-              )}
               <PolicyPacksInspectSection
                 canMutatePacks={m.canMutatePacks}
                 selectedPackId={m.selectedPackId}
