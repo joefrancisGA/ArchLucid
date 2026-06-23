@@ -95,6 +95,14 @@ describe("LayerHeader", () => {
     expect(screen.queryByText(/Review package and evidence trail/i)).not.toBeVisible();
   });
 
+  it("omits review package vocabulary on integration readiness pages", () => {
+    render(<LayerHeader pageKey="integrations-operations" />);
+
+    expect(screen.getByText("Integration readiness")).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-review-vocabulary")).toBeNull();
+    expect(screen.getByText(/verify connector readiness/i)).toBeInTheDocument();
+  });
+
   it("does not render Execute+ rank cue on Advanced operations pages", () => {
     render(<LayerHeader pageKey="compare" />);
 

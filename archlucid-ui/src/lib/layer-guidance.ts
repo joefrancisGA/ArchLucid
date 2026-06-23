@@ -58,6 +58,8 @@ export type LayerGuidanceBlock = {
    * See docs/OPERATOR_DECISION_GUIDE.md §2.
    */
   enterpriseFootnote?: string | null;
+  /** When true, omit the global review-package vocabulary strip (integration/admin surfaces). */
+  omitReviewPackageScopeHelp?: boolean;
 };
 
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
@@ -82,12 +84,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
   "integrations-operations": {
-    layerBadge: "Advanced operations",
-    headline: "Connector readiness across Teams, Slack, ITSM, Confluence, digests, and messaging buses.",
+    layerBadge: "Integration readiness",
+    headline: "Check whether notification, ticketing, publishing, and messaging integrations are configured for this workspace.",
     useWhen:
-      "Use when operators need a single read-only health view of wiring without storing connector secrets in this UI.",
+      "Use this page to verify connector readiness before enabling notifications, ticket creation, publishing, or scheduled digests.",
     firstPilotNote:
-      "After Pilot proof when integration footprint spans multiple channels and operators want a consolidated snapshot.",
+      "These connectors are optional for first review value; full native Jira and ServiceNow operations are not required for Pilot proof.",
+    omitReviewPackageScopeHelp: true,
   },
   "governance-dashboard": {
     layerBadge: "Governance",

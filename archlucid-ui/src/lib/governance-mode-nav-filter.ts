@@ -13,6 +13,7 @@ export const GOVERNANCE_MODE_HIDDEN_NAV_HREFS = new Set<string>([
   "/governance/first-30-days",
   "/audit",
   "/alerts",
+  "/integrations/operations",
 ]);
 
 const GOVERNANCE_NAV_GROUP_IDS = new Set<string>(["operate-governance"]);

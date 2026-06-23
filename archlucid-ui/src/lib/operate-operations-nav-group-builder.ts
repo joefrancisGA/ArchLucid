@@ -64,9 +64,9 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/integrations/operations",
           label: OPERATOR_NAV_LINK_LABELS.connectorOperations,
-          title: "Connector operations — readiness, smoke signals, and Service Bus posture",
+          title: "Connector operations — integration readiness and connectivity status",
           icon: Plug,
-          tier: "extended",
+          tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
         {
