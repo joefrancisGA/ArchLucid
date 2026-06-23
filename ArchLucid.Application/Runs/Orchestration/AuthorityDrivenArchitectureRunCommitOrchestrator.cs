@@ -80,8 +80,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
-    private const int CommitRunTransientMaxAttempts = 5;
-    private const int CommitRunTransientBackoffMillisecondsPerAttempt = 25;
+    private const int CommitRunTransientMaxAttempts = 12;
+    private const int CommitRunTransientBackoffMillisecondsPerAttempt = 150;
+    private const int CommitRunManifestReconcilePollAttempts = 8;
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
@@ -182,16 +183,30 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             }
             catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
             {
-                CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
-                if (reconciled is not null)
-                    return reconciled;
+                for (int reconcilePoll = 1; reconcilePoll <= CommitRunManifestReconcilePollAttempts; reconcilePoll++)
+                {
+                    CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
+
+                    if (reconciled is not null)
+                        return reconciled;
+
+                    if (reconcilePoll < CommitRunManifestReconcilePollAttempts)
+                    {
+                        await Task.Delay(
+                            TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * reconcilePoll),
+                            cancellationToken);
+                    }
+                }
+
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning(ex,
                         "CommitRunAsync (authority) unique-key violation without reconcilable manifest (attempt {Attempt}/{Max}) for RunId={RunId}.", attempt,
                         CommitRunTransientMaxAttempts, LogSanitizer.Sanitize(runId));
+
                 if (attempt >= CommitRunTransientMaxAttempts)
                     throw new ConflictException(
                         $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
+
                 await Task.Delay(TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt), cancellationToken);
             }
             catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)

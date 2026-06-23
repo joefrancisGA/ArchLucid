@@ -265,25 +265,39 @@ function Get-IntegrationTestDumpTargetProcessIds {
     return @()
 }
 
-function Get-DotNetDumpExecutablePath {
-    $command = Get-Command -Name dotnet-dump -ErrorAction SilentlyContinue
+function Resolve-DotNetGlobalToolExecutablePath {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ToolName
+    )
 
-    if ($null -ne $command) {
-        return $command.Source
+    # Prefer a single Application command; Get-Command without -CommandType can return multiple infos
+    # and .Source becomes a string[] that fails [string] parameters in Start-Job argument lists.
+    $applicationCommand = Get-Command -Name $ToolName -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if ($null -ne $applicationCommand -and -not [string]::IsNullOrWhiteSpace($applicationCommand.Source)) {
+        return [string]$applicationCommand.Source
     }
 
     $homeDirectory = if ($null -ne $env:HOME -and $env:HOME.Length -gt 0) { $env:HOME } else { $env:USERPROFILE }
-    $defaultPath = Join-Path $homeDirectory '.dotnet/tools/dotnet-dump'
+    $defaultPath = Join-Path $homeDirectory (".dotnet/tools/$ToolName")
 
-    if ($IsLinux -and (Test-Path -LiteralPath $defaultPath)) {
-        return $defaultPath
+    if ((Test-LinuxCiRunner) -and (Test-Path -LiteralPath $defaultPath)) {
+        return [string]$defaultPath
     }
 
-    if (-not $IsLinux -and (Test-Path -LiteralPath "$defaultPath.exe")) {
-        return "$defaultPath.exe"
+    $windowsPath = "$defaultPath.exe"
+
+    if (-not (Test-LinuxCiRunner) -and (Test-Path -LiteralPath $windowsPath)) {
+        return [string]$windowsPath
     }
 
     return $null
+}
+
+function Get-DotNetDumpExecutablePath {
+    return Resolve-DotNetGlobalToolExecutablePath -ToolName 'dotnet-dump'
 }
 
 function Ensure-DotNetDumpTool {
@@ -291,7 +305,7 @@ function Ensure-DotNetDumpTool {
 
     if ($null -ne $existingPath) {
         Write-Host ("dotnet-dump already available at {0}" -f $existingPath)
-        return $existingPath
+        return [string]$existingPath
     }
 
     Write-Host ("Installing dotnet-dump global tool (version {0}) ..." -f $script:DotNetDumpToolVersion)
@@ -308,7 +322,7 @@ function Ensure-DotNetDumpTool {
     }
 
     Write-Host ("dotnet-dump installed at {0}" -f $installedPath)
-    return $installedPath
+    return [string]$installedPath
 }
 
 function Invoke-DotNetDumpCollectBounded {
@@ -330,7 +344,7 @@ function Invoke-DotNetDumpCollectBounded {
         Set-StrictMode -Version Latest
         & $ToolPath collect -p $TargetProcessId --type Full -o $DumpPath
         exit $LASTEXITCODE
-    } -ArgumentList $DotNetDumpPath, $ProcessId, $OutputPath
+    } -ArgumentList ([string]$DotNetDumpPath), $ProcessId, ([string]$OutputPath)
 
     $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
 
@@ -372,24 +386,7 @@ function Invoke-DotNetDumpCollectBounded {
 }
 
 function Get-DotNetStackExecutablePath {
-    $command = Get-Command -Name dotnet-stack -ErrorAction SilentlyContinue
-
-    if ($null -ne $command) {
-        return $command.Source
-    }
-
-    $homeDirectory = if ($null -ne $env:HOME -and $env:HOME.Length -gt 0) { $env:HOME } else { $env:USERPROFILE }
-    $defaultPath = Join-Path $homeDirectory '.dotnet/tools/dotnet-stack'
-
-    if ($IsLinux -and (Test-Path -LiteralPath $defaultPath)) {
-        return $defaultPath
-    }
-
-    if (-not $IsLinux -and (Test-Path -LiteralPath "$defaultPath.exe")) {
-        return "$defaultPath.exe"
-    }
-
-    return $null
+    return Resolve-DotNetGlobalToolExecutablePath -ToolName 'dotnet-stack'
 }
 
 function Ensure-DotNetStackTool {
@@ -397,7 +394,7 @@ function Ensure-DotNetStackTool {
 
     if ($null -ne $existingPath) {
         Write-Host ("dotnet-stack already available at {0}" -f $existingPath)
-        return $existingPath
+        return [string]$existingPath
     }
 
     Write-Host ("Installing dotnet-stack global tool (version {0}) ..." -f $script:DotNetStackToolVersion)
@@ -414,7 +411,7 @@ function Ensure-DotNetStackTool {
     }
 
     Write-Host ("dotnet-stack installed at {0}" -f $installedPath)
-    return $installedPath
+    return [string]$installedPath
 }
 
 function Invoke-DotNetStackReportBounded {
@@ -436,7 +433,7 @@ function Invoke-DotNetStackReportBounded {
         Set-StrictMode -Version Latest
         & $ToolPath report -p $TargetProcessId | Out-File -LiteralPath $ReportPath -Encoding utf8
         exit $LASTEXITCODE
-    } -ArgumentList $DotNetStackPath, $ProcessId, $OutputPath
+    } -ArgumentList ([string]$DotNetStackPath), $ProcessId, ([string]$OutputPath)
 
     $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
 
