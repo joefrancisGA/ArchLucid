@@ -24,6 +24,14 @@ function ConvertFrom-DotNetTestListOutput {
             continue
         }
 
+        # dotnet test --list-tests emits a trailing summary line such as:
+        #   "Test run for /path/Assembly.dll (net10.0)"
+        # That line contains dots (in the path) and would pass the dot check below,
+        # producing a bogus class name with spaces that corrupts the vstest filter.
+        if ($trimmed.StartsWith('Test run for ', [StringComparison]::Ordinal)) {
+            continue
+        }
+
         if ($trimmed -notmatch '\.') {
             continue
         }
