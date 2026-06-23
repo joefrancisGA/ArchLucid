@@ -51,7 +51,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   ask: "Ask",
   search: "Search",
   advisory: "Advisory",
-  "recommendation-learning": "Learning",
+  "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Planning",
   "evolution-review": "Simulation review",

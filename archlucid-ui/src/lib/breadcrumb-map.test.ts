@@ -8,6 +8,13 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: "Home" }]);
   });
 
+  it("maps recommendation tuning breadcrumb to the nav label", () => {
+    expect(getBreadcrumbs("/recommendation-learning")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Recommendation tuning" },
+    ]);
+  });
+
   it("uses New review on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
       { label: "Home", href: "/" },
