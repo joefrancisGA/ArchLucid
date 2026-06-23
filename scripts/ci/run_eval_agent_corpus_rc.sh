@@ -47,6 +47,10 @@ else
   PYTHON=(python)
 fi
 
+export REPO_ROOT
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/export_real_mode_eval_corpus_env.sh"
+
 CMD=(
   "${PYTHON[@]}" "${SCRIPT_DIR}/eval_agent_corpus.py"
   "--corpus" "${CORPUS}"

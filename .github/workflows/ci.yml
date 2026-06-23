@@ -1453,6 +1453,28 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Real-mode AI quality evidence (committed exemplars + Phase B floors)
+        id: real_mode_ai_quality_evidence
+        run: |
+          set -euo pipefail
+          bash scripts/ci/run_real_mode_ai_quality_evidence_ci.sh \
+            --output-dir artifacts/ci/real-mode-ai-quality-evidence
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## Real-mode AI quality evidence" >> "$GITHUB_STEP_SUMMARY"
+            head -n 60 artifacts/ci/real-mode-ai-quality-evidence/ai-quality-release-summary.md >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "## Agent eval corpus (real-mode slice)" >> "$GITHUB_STEP_SUMMARY"
+            head -n 40 artifacts/ci/real-mode-ai-quality-evidence/eval-corpus-real-mode-evidence.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload real-mode AI quality evidence bundle
+        if: always() && steps.real_mode_ai_quality_evidence.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-mode-ai-quality-evidence
+          path: artifacts/ci/real-mode-ai-quality-evidence/
+          if-no-files-found: warn
+
       - name: Agent eval corpus (offline recall + simulator quality evidence + blocking baseline)
         id: eval_corpus
         run: |
@@ -1460,15 +1482,6 @@ jobs:
           REP="${{ runner.temp }}/eval-corpus-report.md"
           python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP" --baseline --enforce-quality-gate
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
-
-      - name: Deterministic agent faithfulness (Phase A enforce)
-        run: |
-          set -euo pipefail
-          python3 scripts/ci/eval_agent_faithfulness.py --enforce
-          if [ -f docs/quality/faithfulness-report.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
-            echo "## Agent faithfulness (deterministic)" >> "$GITHUB_STEP_SUMMARY"
-            head -n 40 docs/quality/faithfulness-report.md >> "$GITHUB_STEP_SUMMARY"
-          fi
 
       - name: Upload agent eval scorecard
         if: always() && steps.eval_corpus.outcome != 'skipped'
