@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
+import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
@@ -57,6 +58,11 @@ import {
 } from "@/lib/wizard-schema";
 import { WizardAiSuggestedFieldsProvider } from "@/lib/wizard-ai-suggested-fields";
 import { trackWizardStepViewed, trackWizardCompleted, trackWizardValidationFailed } from "@/lib/telemetry";
+import {
+  resolveFirstRunWizardMode,
+  shouldShowWizardModeToggle,
+} from "@/lib/core-pilot-step-presentation";
+import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import {
   applyBundledSamplePackageToWizard,
   isZeroConfigDemoQuery,
@@ -178,6 +184,7 @@ function tryParseSampleRunQuery(raw: string | null): string | null {
 /** Full wizard client: react-hook-form + zod, create run, poll summary with live region + toast. */
 export function NewRunWizardClient() {
   const searchParams = useSearchParams();
+  const commitPresentationContext = useCorePilotCommitPresentationContext();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const featuredSampleRunId = useMemo(() => {
     const raw = searchParams?.get("sampleRunId") ?? null;
@@ -218,6 +225,7 @@ export function NewRunWizardClient() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [advancedConfigurationOptIn, setAdvancedConfigurationOptIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
@@ -391,9 +399,15 @@ export function NewRunWizardClient() {
 
         const page = await listRunsByProjectPaged("default", 1, 50);
         const anyCommitted = page.items.some((r) => r.hasGoldenManifest === true);
+        const storedMode = stored === "quick" || stored === "full" ? stored : null;
 
         if (!cancelled) {
-          setWizardMode(anyCommitted ? "full" : "quick");
+          setWizardMode(
+            resolveFirstRunWizardMode({
+              hasCommittedManifest: anyCommitted,
+              storedMode,
+            }),
+          );
         }
       } catch {
         if (!cancelled) {
@@ -680,6 +694,15 @@ export function NewRunWizardClient() {
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
   const showSimplifiedPilotWizard = baselineFirst && wizardMode === "quick" && !showQuickTrack;
   const showQuickStartWizard = !baselineFirst && wizardMode === "quick" && !showQuickTrack;
+  const showWizardModeToggle = shouldShowWizardModeToggle(
+    commitPresentationContext.hasCommittedManifest,
+    advancedConfigurationOptIn,
+  );
+  const showFirstRunProgressBanner =
+    wizardModeReady &&
+    wizardMode === "quick" &&
+    !showQuickTrack &&
+    !commitPresentationContext.hasCommittedManifest;
   const fullWizardStepCountLabel: number = baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE.length
     : WIZARD_STEP_DEFINITIONS_FULL.length;
@@ -703,7 +726,9 @@ export function NewRunWizardClient() {
             </p>
           ) : null}
           {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
+          {showFirstRunProgressBanner ? <CorePilotProgressTrackerBanner /> : null}
           {wizardModeReady ? (
+            showWizardModeToggle ? (
             <div
               className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
               role="group"
@@ -738,6 +763,27 @@ export function NewRunWizardClient() {
                 All steps ({fullWizardStepCountLabel})
               </button>
             </div>
+            ) : (
+              <div
+                className="rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+                data-testid="new-run-wizard-advanced-opt-in"
+              >
+                <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+                  <span className="font-medium text-neutral-900 dark:text-neutral-100">Quick start (3 steps)</span>
+                  {" — recommended for your first review package. Constraints, Azure context, and advanced fields use safe defaults."}
+                </p>
+                <button
+                  type="button"
+                  className="mt-2 rounded-md px-3 py-1.5 text-sm font-medium text-teal-900 underline decoration-teal-700/40 underline-offset-2 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-950/40"
+                  onClick={() => {
+                    setAdvancedConfigurationOptIn(true);
+                    persistWizardMode("full");
+                  }}
+                >
+                  Show all wizard steps (advanced configuration)
+                </button>
+              </div>
+            )
           ) : null}
 
           {wizardModeReady && !isBuyerPolishedOperatorShellEnv() && llmBudgetStatus !== null ? (

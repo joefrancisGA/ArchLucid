@@ -13,6 +13,40 @@ export type CorePilotStepPresentation = {
   readonly label: string;
 };
 
+export type FirstRunWizardModeInput = {
+  readonly hasCommittedManifest: boolean;
+  readonly storedMode: "quick" | "full" | null;
+};
+
+/** First-run tenants default to quick start; returning tenants honor stored preference. */
+export function resolveFirstRunWizardMode(input: FirstRunWizardModeInput): "quick" | "full" {
+  if (input.hasCommittedManifest) {
+    if (input.storedMode === "quick" || input.storedMode === "full") {
+      return input.storedMode;
+    }
+
+    return "full";
+  }
+
+  if (input.storedMode === "full") {
+    return "full";
+  }
+
+  return "quick";
+}
+
+/** First-time operators see advanced wizard steps only after explicit opt-in. */
+export function shouldShowWizardModeToggle(
+  hasCommittedManifest: boolean,
+  advancedConfigurationOptIn: boolean,
+): boolean {
+  if (hasCommittedManifest) {
+    return true;
+  }
+
+  return advancedConfigurationOptIn;
+}
+
 /** Resolves step CTA copy — step 5 links to sample review until the tenant has a committed package. */
 export function resolveCorePilotStepPresentation(
   stepIndex: number,

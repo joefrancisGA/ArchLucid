@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   CORE_PILOT_FINAL_STEP_INDEX,
   resolveCorePilotStepPresentation,
+  resolveFirstRunWizardMode,
+  shouldShowWizardModeToggle,
 } from "@/lib/core-pilot-step-presentation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -36,5 +38,36 @@ describe("resolveCorePilotStepPresentation", () => {
 
     expect(presentation.label).toBe("Open finalized review");
     expect(presentation.href).toBe(`/reviews/${runId}`);
+  });
+});
+
+describe("resolveFirstRunWizardMode", () => {
+  it("defaults first-run tenants to quick start", () => {
+    expect(
+      resolveFirstRunWizardMode({ hasCommittedManifest: false, storedMode: null }),
+    ).toBe("quick");
+  });
+
+  it("honors stored full mode when tenant opts in before first commit", () => {
+    expect(
+      resolveFirstRunWizardMode({ hasCommittedManifest: false, storedMode: "full" }),
+    ).toBe("full");
+  });
+
+  it("defaults returning tenants to full wizard when no stored preference", () => {
+    expect(
+      resolveFirstRunWizardMode({ hasCommittedManifest: true, storedMode: null }),
+    ).toBe("full");
+  });
+});
+
+describe("shouldShowWizardModeToggle", () => {
+  it("hides mode toggle until first-run operator opts into advanced configuration", () => {
+    expect(shouldShowWizardModeToggle(false, false)).toBe(false);
+    expect(shouldShowWizardModeToggle(false, true)).toBe(true);
+  });
+
+  it("shows mode toggle for tenants with a committed review package", () => {
+    expect(shouldShowWizardModeToggle(true, false)).toBe(true);
   });
 });
