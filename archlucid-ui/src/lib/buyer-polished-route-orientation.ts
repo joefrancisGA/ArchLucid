@@ -190,5 +190,33 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
+  if (path === "/value-report") {
+    return {
+      label: "Value report",
+      line: "Generate sponsor-ready summaries of review outcomes, ROI, and governance progress.",
+    };
+  }
+
+  if (path.startsWith("/value-report/pilot")) {
+    return {
+      label: "Sponsor report",
+      line: "Pilot outcomes — metrics and governance signals from finalized reviews.",
+    };
+  }
+
+  if (path.startsWith("/value-report/roi")) {
+    return {
+      label: "Sponsor report",
+      line: "ROI summary — estimated hours saved from review findings.",
+    };
+  }
+
+  if (path.startsWith("/scorecard")) {
+    return {
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
+      line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,
+    };
+  }
+
   return null;
 }

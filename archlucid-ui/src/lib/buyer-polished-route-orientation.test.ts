@@ -74,4 +74,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Security & trust");
     expect(o?.line).toContain("Procurement-facing security posture");
   });
+
+  it("orients the sponsor value report route", () => {
+    const o = buyerPolishedRouteOrientation("/value-report");
+
+    expect(o?.label).toBe("Value report");
+    expect(o?.line).toContain("sponsor-ready summaries");
+  });
 });
