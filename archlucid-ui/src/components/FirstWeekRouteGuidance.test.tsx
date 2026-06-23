@@ -63,10 +63,12 @@ describe("FirstWeekRouteGuidance", () => {
     expect(screen.getByText(/Claude, GPT, or Gemini/i)).toBeInTheDocument();
   });
 
-  it("renders onboarding guidance with new review route CTA", () => {
+  it("renders onboarding guidance with start review CTA and user-facing lead copy", () => {
     render(<FirstWeekRouteGuidance variant="onboarding" />);
 
-    expect(screen.getByRole("link", { name: "Open new review wizard" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByText(FIRST_WEEK_ROUTE_GUIDANCE.onboarding.useWhen)).toBeInTheDocument();
+    expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("renders home guidance with recommended first-session summary", () => {

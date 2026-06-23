@@ -13,6 +13,8 @@ import {
   writePilotChecklistPanelState,
 } from "@/lib/core-pilot-checklist-storage";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
+import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -34,6 +36,7 @@ type CorePilotChecklistProps = {
 /** Operator-home checklist: manual "mark complete" synced with `archlucid-pilot-checklist` and legacy step keys. */
 export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
   const checklistVariant = props.variant ?? "full";
+  const commitPresentationContext = useCorePilotCommitPresentationContext();
   const [hydrated, setHydrated] = useState(false);
   const [stepsDone, setStepsDone] = useState<boolean[]>(() =>
     Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false),
@@ -125,6 +128,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
         {CORE_PILOT_STEPS.map((step, index) => {
           const checkboxId = `core-pilot-checklist-step-${index}`;
           const hashFragment = CORE_PILOT_HELP_HASH_FRAGMENTS[index];
+          const stepPresentation = resolveCorePilotStepPresentation(index, commitPresentationContext);
 
           return (
             <li
@@ -133,7 +137,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
             >
               <div className="flex flex-wrap items-start gap-2">
                 <Link
-                  href={step.primaryHref}
+                  href={stepPresentation.href}
                   className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold text-blue-700 underline-offset-2 hover:underline dark:text-blue-400")}
                 >
                   {step.title}

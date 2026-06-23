@@ -27,11 +27,16 @@ type SetupContext = {
   principalAdmin: boolean;
 };
 
+type FinishSetupWizardPanelProps = {
+  /** When nested under onboarding optional setup, use softer framing. */
+  readonly variant?: "default" | "optional";
+};
+
 const SETUP_STEPS: SetupStep[] = [
   {
     id: "health",
     label: "Confirm platform health",
-    description: "API and database migrations must be healthy before your first review.",
+    description: "Required for self-hosted deployments before your first review. API and database migrations must be healthy.",
     href: "/admin/health",
     cta: "Open health",
     isDone: (ctx) => ctx.healthReady && !ctx.healthLoadFailed,
@@ -76,7 +81,8 @@ function readSetupCompleted(): boolean {
 }
 
 /** Guided post-deploy checklist: health, identity, admin role, optional extractor. */
-export function FinishSetupWizardPanel(): React.JSX.Element | null {
+export function FinishSetupWizardPanel(props: FinishSetupWizardPanelProps = {}): React.JSX.Element | null {
+  const panelVariant = props.variant ?? "default";
   const [ctx, setCtx] = useState<SetupContext>({
     healthReady: false,
     healthLoadFailed: true,
@@ -142,12 +148,14 @@ export function FinishSetupWizardPanel(): React.JSX.Element | null {
         <CardHeader>
           <div className="flex flex-wrap items-center gap-2">
             <CardTitle id="finish-setup-heading" className="text-base">
-              Finish workspace setup
+              {panelVariant === "optional" ? "Optional workspace setup" : "Finish workspace setup"}
             </CardTitle>
             {allRequiredDone ? <StatusTag kind="ready" label="Required steps complete" /> : <StatusTag kind="needs-attention" label="Setup in progress" />}
           </div>
           <CardDescription>
-            Complete these steps after infrastructure deploy so your team can run the first architecture review without manual Key Vault edits.
+            {panelVariant === "optional"
+              ? "Configure identity, health, and tenant settings when you are ready. These steps are not required to complete your first review package unless noted below."
+              : "Complete these steps after infrastructure deploy so your team can run the first architecture review without manual Key Vault edits."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

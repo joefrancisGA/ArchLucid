@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OnboardingPageView } from "./OnboardingPageView";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -24,39 +25,41 @@ vi.mock("@/components/OperatorPageContainer", () => ({
   OperatorPageContainer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/FinishSetupWizardPanel", () => ({
-  FinishSetupWizardPanel: () => <div data-testid="finish-setup-wizard-panel-stub" />,
-}));
-
-vi.mock("@/components/TryCliDemoCard", () => ({
-  TryCliDemoCard: () => <div data-testid="try-cli-demo-card-stub" />,
-}));
-
 vi.mock("@/components/GettingStartedTrialSection", () => ({
   GettingStartedTrialSection: () => <div data-testid="getting-started-trial-section-stub" />,
-}));
-
-vi.mock("@/components/FirstWeekRouteGuidance", () => ({
-  FirstWeekRouteGuidance: () => <div data-testid="first-week-route-guidance-stub" />,
 }));
 
 vi.mock("@/components/InAppHelpLink", () => ({
   InAppHelpLink: ({ label }: { label: string }) => <span>{label}</span>,
 }));
 
-vi.mock("@/components/usability/CorePilotProgressTrackerBanner", () => ({
-  CorePilotProgressTrackerBanner: () => <div data-testid="core-pilot-progress-tracker-banner-stub" />,
-}));
-
 vi.mock("@/components/usability/UnifiedFirstPilotProgressPanel", () => ({
   UnifiedFirstPilotProgressPanel: () => <div data-testid="unified-first-pilot-progress-panel-stub" />,
 }));
 
+vi.mock("./OnboardingOptionalSetupSection", () => ({
+  OnboardingOptionalSetupSection: () => <div data-testid="onboarding-optional-setup-section-stub" />,
+}));
+
 describe("OnboardingPageView", () => {
-  it("shows ROI baseline setup call-to-action", () => {
+  it("shows primary hero CTAs and progress section", () => {
     render(<OnboardingPageView model={{ fromRegistration: false }} />);
 
-    expect(screen.getByRole("heading", { name: "Configure ROI baseline" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Configure ROI baseline" })).toHaveAttribute("href", "/settings/baseline");
+    expect(screen.getByTestId("onboarding-hero")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Open sample review" })).toHaveAttribute(
+      "href",
+      `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+    );
+    expect(screen.getByRole("heading", { name: "Progress" })).toBeInTheDocument();
+    expect(screen.getByTestId("unified-first-pilot-progress-panel-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("onboarding-optional-setup-section-stub")).toBeInTheDocument();
+    expect(screen.queryByTestId("getting-started-trial-section-stub")).not.toBeInTheDocument();
+  });
+
+  it("shows trial section when arriving from registration", () => {
+    render(<OnboardingPageView model={{ fromRegistration: true }} />);
+
+    expect(screen.getByTestId("getting-started-trial-section-stub")).toBeInTheDocument();
   });
 });

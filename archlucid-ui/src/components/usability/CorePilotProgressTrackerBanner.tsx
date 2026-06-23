@@ -14,6 +14,8 @@ import {
   FIRST_VALUE_MINUTES_ESTIMATE,
   parseCorePilotProgressFromSnapshot,
 } from "@/lib/usability/core-pilot-progress-tracker";
+import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
+import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { cn } from "@/lib/utils";
 
 type CorePilotProgressTrackerBannerProps = {
@@ -22,13 +24,14 @@ type CorePilotProgressTrackerBannerProps = {
 };
 
 /**
- * Cross-page "5 steps to first proof" tracker with time-to-value estimate.
+ * Cross-page "5 steps to first review package" tracker with time-to-value estimate.
  * Reads the same localStorage keys as {@link CorePilotChecklist}.
  *
  * Defers render until client hydration (localStorage is unavailable on SSR).
  */
 export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBannerProps) {
   const [hydrated, setHydrated] = useState(false);
+  const commitPresentationContext = useCorePilotCommitPresentationContext();
   const storageSnapshot = useSyncExternalStore(
     subscribeCorePilotChecklist,
     getCorePilotChecklistStorageSnapshot,
@@ -51,6 +54,10 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
 
   const nextStep =
     progress.nextStepIndex !== null ? CORE_PILOT_STEPS[progress.nextStepIndex] : null;
+  const nextStepPresentation =
+    progress.nextStepIndex !== null
+      ? resolveCorePilotStepPresentation(progress.nextStepIndex, commitPresentationContext)
+      : null;
   const remainingSteps = progress.totalCount - progress.completedCount;
   const estimatedMinutes = Math.max(
     5,
@@ -69,12 +76,13 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
-            First proof progress — {progress.completedCount} of {progress.totalCount} steps
+            First review progress — {progress.completedCount} of {progress.totalCount} steps
           </p>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            About {estimatedMinutes} min remaining · see{" "}
+            About {estimatedMinutes} minutes remaining
+            {" · "}
             <Link href="/help/first-value-20-minutes" className="font-medium text-teal-800 underline dark:text-teal-300">
-              first value in ~{FIRST_VALUE_MINUTES_ESTIMATE} minutes
+              Complete one review package in about {FIRST_VALUE_MINUTES_ESTIMATE} minutes
             </Link>
           </p>
           {nextStep !== null ? (
@@ -83,9 +91,9 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
             </p>
           ) : null}
         </div>
-        {nextStep !== null ? (
+        {nextStepPresentation !== null ? (
           <Button asChild type="button" size="sm" variant="default">
-            <Link href={nextStep.primaryHref}>{nextStep.primaryLabel}</Link>
+            <Link href={nextStepPresentation.href}>{nextStepPresentation.label}</Link>
           </Button>
         ) : null}
       </div>
