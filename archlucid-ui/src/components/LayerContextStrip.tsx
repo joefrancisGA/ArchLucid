@@ -89,8 +89,7 @@ export function LayerContextStrip({
 
   if (orientation !== undefined && orientation.line.trim().length > 0 && orientation.label.trim().length > 0) {
     const baseStrip = LAYER_COPY[layerId];
-    const isOperateOriented =
-      layerId === "operate-analysis" || layerId === "operate-governance" || layerId === "operator-admin";
+    const isOperateOriented = layerId === "operate-analysis" || layerId === "operate-governance";
     const stripBack = stripBackForOriented(isOperateOriented);
 
     return (
@@ -225,8 +224,7 @@ export function LayerContextStrip({
     layerId === "operate-analysis" && polishedOperateAnalysisLabel !== undefined && polishedOperateAnalysisLabel.length > 0
       ? { ...baseCopy, label: polishedOperateAnalysisLabel }
       : baseCopy;
-  const isOperate =
-    layerId === "operate-analysis" || layerId === "operate-governance" || layerId === "operator-admin";
+  const isOperate = layerId === "operate-analysis" || layerId === "operate-governance";
   const stripBack = stripBackForOriented(isOperate);
 
   const compactRegionLabel = `${copy.label}. ${copy.question}`;

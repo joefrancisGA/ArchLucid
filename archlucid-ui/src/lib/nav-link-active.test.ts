@@ -24,4 +24,10 @@ describe("isNavLinkActive", () => {
     expect(isNavLinkActive("/governance/dashboard", "/governance/dashboard")).toBe(true);
     expect(isNavLinkActive("/governance/dashboard/extra", "/governance/dashboard")).toBe(true);
   });
+
+  it("matches tenant settings but not projects recycle bin", () => {
+    expect(isNavLinkActive("/settings/tenant", "/settings/tenant")).toBe(true);
+    expect(isNavLinkActive("/settings/tenant/recycle-bin", "/settings/tenant")).toBe(false);
+    expect(isNavLinkActive("/settings/tenant/recycle-bin", "/settings/tenant/recycle-bin")).toBe(true);
+  });
 });

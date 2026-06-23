@@ -35,7 +35,7 @@ describe("LayerContextStrip", () => {
     expect(t).toContain(wantLabel);
     expect(t).not.toContain(wantQuestion);
     expect(strip).toHaveAttribute("aria-label", `${wantLabel}. ${wantQuestion}`);
-    if (id === "pilot") {
+    if (id === "pilot" || id === "operator-admin") {
       expect(queryByTestId("layer-context-back-pilot")).toBeNull();
     } else {
       expect(getByTestId("layer-context-back-pilot")).toBeInTheDocument();
