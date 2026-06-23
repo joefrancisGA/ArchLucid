@@ -24,6 +24,11 @@ const QuickReviewWizard = dynamic(
   { loading: () => <NewRunWizardSkeleton /> },
 );
 
+const FirstPilotIntakeWizard = dynamic(
+  () => import("./FirstPilotIntakeWizard").then((module) => module.FirstPilotIntakeWizard),
+  { loading: () => <NewRunWizardSkeleton /> },
+);
+
 const SocraticIntakeWizard = dynamic(
   () => import("./SocraticIntakeWizard").then((module) => module.SocraticIntakeWizard),
   { loading: () => <NewRunWizardSkeleton /> },
@@ -47,7 +52,7 @@ export function ReviewsNewPathSwitcher() {
       resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).invalidTemplateId,
     [searchParams],
   );
-  const [activePath, setActivePath] = useState<ReviewsNewActivePath>("guided-intake");
+  const [activePath, setActivePath] = useState<ReviewsNewActivePath>("quick-review");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -96,6 +101,19 @@ export function ReviewsNewPathSwitcher() {
           <Button
             type="button"
             role="tab"
+            aria-selected={activePath === "quick-review"}
+            variant={activePath === "quick-review" ? "default" : "outline"}
+            className="min-w-[10rem]"
+            onClick={() => {
+              selectPath("quick-review");
+            }}
+            data-testid="reviews-new-path-quick"
+          >
+            Quick start
+          </Button>
+          <Button
+            type="button"
+            role="tab"
             aria-selected={activePath === "guided-intake"}
             variant={activePath === "guided-intake" ? "default" : "outline"}
             className="min-w-[10rem]"
@@ -105,19 +123,6 @@ export function ReviewsNewPathSwitcher() {
             data-testid="reviews-new-path-guided-intake"
           >
             Guided intake
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={activePath === "quick-review"}
-            variant={activePath === "quick-review" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={() => {
-              selectPath("quick-review");
-            }}
-            data-testid="reviews-new-path-quick"
-          >
-            Quick review
           </Button>
           <Button
             type="button"
@@ -143,7 +148,7 @@ export function ReviewsNewPathSwitcher() {
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
       {!ready ? null : activePath === "quick-review" ? (
-        <QuickReviewWizard />
+        <FirstPilotIntakeWizard />
       ) : activePath === "guided-intake" ? (
         <SocraticIntakeWizard />
       ) : (

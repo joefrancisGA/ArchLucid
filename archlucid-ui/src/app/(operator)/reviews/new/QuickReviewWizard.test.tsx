@@ -30,6 +30,10 @@ vi.mock("./SocraticIntakeWizard", () => ({
   SocraticIntakeWizard: () => <div data-testid="guided-intake-stub">Guided intake stub</div>,
 }));
 
+vi.mock("./FirstPilotIntakeWizard", () => ({
+  FirstPilotIntakeWizard: () => <div data-testid="first-pilot-intake-wizard">First pilot intake stub</div>,
+}));
+
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 
 import {
@@ -89,7 +93,7 @@ describe("QuickReviewWizard", () => {
 });
 
 describe("ReviewsNewPathSwitcher", () => {
-  it("defaults to full guided path and toggles to Detailed wizard stub", async () => {
+  it("defaults to quick start path and toggles to Detailed wizard stub", async () => {
     localStorage.clear();
     render(<ReviewsNewPathSwitcher />);
 
@@ -97,12 +101,12 @@ describe("ReviewsNewPathSwitcher", () => {
       expect(screen.getByTestId("reviews-new-path-toggle")).toBeTruthy();
     });
 
-    expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
-    expect(screen.queryByTestId("quick-review-progress")).not.toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-intake-wizard")).toBeInTheDocument();
+    expect(screen.queryByTestId("guided-intake-stub")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("reviews-new-path-quick"));
+    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
     await waitFor(() => {
-      expect(screen.getByTestId("quick-review-progress")).toBeInTheDocument();
+      expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));
@@ -110,14 +114,9 @@ describe("ReviewsNewPathSwitcher", () => {
       expect(screen.getByTestId("detailed-wizard-stub")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
-    await waitFor(() => {
-      expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
-    });
-
     fireEvent.click(screen.getByTestId("reviews-new-path-quick"));
     await waitFor(() => {
-      expect(screen.getByTestId("quick-review-progress")).toBeInTheDocument();
+      expect(screen.getByTestId("first-pilot-intake-wizard")).toBeInTheDocument();
     });
   });
 
@@ -130,13 +129,13 @@ describe("ReviewsNewPathSwitcher", () => {
     });
 
     const visiblePaths = [
-      screen.queryByTestId("quick-review-progress"),
+      screen.queryByTestId("first-pilot-intake-wizard"),
       screen.queryByTestId("guided-intake-stub"),
       screen.queryByTestId("detailed-wizard-stub"),
     ].filter((node) => node !== null);
 
     expect(visiblePaths).toHaveLength(1);
-    expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-intake-wizard")).toBeInTheDocument();
   });
 
   it("shows mode-specific path hint copy", async () => {
@@ -144,12 +143,12 @@ describe("ReviewsNewPathSwitcher", () => {
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["guided-intake"]);
+      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
     });
 
-    fireEvent.click(screen.getByTestId("reviews-new-path-quick"));
+    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
     await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
+      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["guided-intake"]);
     });
 
     fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));

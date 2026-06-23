@@ -7,9 +7,9 @@ export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
   "guided-intake":
-    "This takes about 10 minutes and captures the system context needed for analysis.",
+    "Structured clarifying questions when you want admission gates and branch drafts before analysis.",
   "quick-review":
-    "Paste a complete architecture brief to start analysis in a few minutes. Best when you already have a full description ready.",
+    "Fastest first-pilot path: review title, attach evidence, and start analysis in one screen.",
   detailed:
     "Use templates, imports, and evidence upload when you need an export-ready review package with full configuration.",
 };

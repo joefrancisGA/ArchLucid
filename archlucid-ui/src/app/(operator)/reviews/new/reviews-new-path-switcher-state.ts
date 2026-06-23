@@ -9,7 +9,7 @@ type FullGuidedSubMode = "guided-intake" | "detailed";
 
 function readStoredPathMode(): ReviewsNewPathMode {
   if (typeof window === "undefined") {
-    return "full-guided";
+    return "quick-review";
   }
 
   try {
@@ -36,7 +36,7 @@ function readStoredPathMode(): ReviewsNewPathMode {
     /* ignore */
   }
 
-  return "full-guided";
+  return "quick-review";
 }
 
 function readStoredFullGuidedSubMode(): FullGuidedSubMode {

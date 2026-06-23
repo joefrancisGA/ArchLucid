@@ -1,0 +1,293 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
+import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  QuickReviewProofScopeField,
+  proofScopeToRequiredCapabilities,
+  type QuickReviewProofScopeId,
+} from "@/components/usability/QuickReviewProofScopeField";
+import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
+import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import {
+  buildEvidenceBackedIntakeBrief,
+  FIRST_PILOT_MIN_BRIEF_CHARS,
+  isFirstPilotIntakeReady,
+  normalizeFirstPilotReviewTitle,
+} from "@/lib/first-pilot-intake";
+import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
+import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { showError, showSuccess } from "@/lib/toast";
+
+import { WizardEvidenceUploadZone } from "./QuickReviewWizardDeferredPanels";
+
+const V1_DEFAULT_CLOUD_PROVIDER: CreateArchitectureRunRequestPayload["cloudProvider"] = "None";
+const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
+
+function buildFirstPilotPayload(
+  title: string,
+  brief: string,
+  requiredCapabilities: string[],
+  focusedPilotModeEnabled: boolean,
+): CreateArchitectureRunRequestPayload {
+  return {
+    requestId: crypto.randomUUID().replace(/-/g, ""),
+    description: brief.trim(),
+    systemName: normalizeFirstPilotReviewTitle(title),
+    environment: "staging",
+    cloudProvider: V1_DEFAULT_CLOUD_PROVIDER,
+    constraints: [],
+    requiredCapabilities,
+    assumptions: [],
+    policyReferences: applyFocusedPilotModePolicyReferences([], focusedPilotModeEnabled),
+  };
+}
+
+export type FirstPilotIntakeWizardProps = {
+  readonly onRunCreatedNavigate?: (runId: string) => void;
+};
+
+/** Single-screen first-pilot intake: review title, evidence upload, optional brief, advanced settings collapsed. */
+export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
+  const { onRunCreatedNavigate } = props;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const exampleTemplatePrefillAppliedRef = useRef(false);
+
+  const exampleTemplate = useMemo(
+    () =>
+      resolveReviewIntakeExampleTemplateFromSearchParams((key) => searchParams?.get(key) ?? null).template,
+    [searchParams],
+  );
+
+  const [runTitle, setRunTitle] = useState("");
+  const [briefText, setBriefText] = useState("");
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
+  const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(DEFAULT_PROOF_SCOPE);
+  const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown | null>(null);
+
+  useEffect(() => {
+    if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
+      return;
+    }
+
+    exampleTemplatePrefillAppliedRef.current = true;
+    setRunTitle(exampleTemplate.title);
+    setBriefText(exampleTemplate.briefText);
+  }, [exampleTemplate]);
+
+  const resolvedBrief = useMemo(
+    () => buildEvidenceBackedIntakeBrief(runTitle, evidenceFiles, briefText),
+    [briefText, evidenceFiles, runTitle],
+  );
+
+  const canStart =
+    isFirstPilotIntakeReady({
+      title: runTitle,
+      brief: resolvedBrief,
+      evidenceFileCount: evidenceFiles.length,
+    }) &&
+    resolvedBrief.length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH &&
+    !submitting &&
+    !blocksLlmExecution;
+
+  const showToast = useCallback((kind: "ok" | "err", message: string) => {
+    if (kind === "ok") {
+      showSuccess(message);
+    } else {
+      showError("First-pilot intake", message);
+    }
+  }, []);
+
+  const submitRun = async () => {
+    if (!canStart) {
+      showToast("err", "Enter a review title and attach at least one evidence file or a complete brief.");
+
+      return;
+    }
+
+    if (resolvedBrief.length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH) {
+      showToast("err", `Brief must not exceed ${ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters.`);
+
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const body = buildFirstPilotPayload(
+        runTitle,
+        resolvedBrief,
+        proofScopeToRequiredCapabilities(proofScope),
+        focusedPilotModeEnabled,
+      );
+      const res = await createArchitectureRun(body);
+      const id = res.run?.runId ?? null;
+
+      if (id === null) {
+        showToast("err", "API returned no architecture review id.");
+
+        return;
+      }
+
+      recordFirstTenantFunnelEvent("first_run_started");
+      showToast("ok", `Architecture review ${id} created — opening pipeline.`);
+
+      if (onRunCreatedNavigate !== undefined) {
+        onRunCreatedNavigate(id);
+
+        return;
+      }
+
+      router.push(buildReviewGenerationRedirect(id, "quick-review"));
+    } catch (error: unknown) {
+      setSubmitError(error);
+
+      if (!isApiRequestError(error)) {
+        const message =
+          error && typeof error === "object" && "message" in error
+            ? String((error as { message?: string }).message)
+            : "Request failed.";
+        showToast("err", message);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 pb-24" data-testid="first-pilot-intake-wizard">
+      {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
+      {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
+
+      <div className="space-y-1" data-testid="first-pilot-intake-progress">
+        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">First-pilot intake</p>
+        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+          Name the review, attach architecture evidence, and start analysis. Advanced settings stay optional.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Start your first review</CardTitle>
+          <CardDescription>
+            Minimum path: review title plus at least one uploaded file. Add a brief only if you want extra context.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="first-pilot-title">Review title</Label>
+            <Input
+              id="first-pilot-title"
+              value={runTitle}
+              onChange={(event) => {
+                setRunTitle(event.target.value);
+              }}
+              placeholder="Example: Retail API modernization review"
+              autoComplete="off"
+              data-testid="first-pilot-title"
+            />
+          </div>
+
+          <WizardEvidenceUploadZone
+            title="Attach architecture evidence"
+            description="Upload at least one diagram, document, or architecture artifact. Files are tagged automatically as architecture evidence."
+            onFilesSelected={(files) => {
+              setEvidenceFiles(files);
+            }}
+          />
+
+          <div className="space-y-2">
+            <Label htmlFor="first-pilot-brief">Architecture brief (optional when files are attached)</Label>
+            <Textarea
+              id="first-pilot-brief"
+              value={briefText}
+              onChange={(event) => {
+                setBriefText(event.target.value);
+              }}
+              className="min-h-[140px] text-sm"
+              placeholder="Optional goals, constraints, or context. If omitted, ArchLucid builds a brief from your uploaded file names."
+              data-testid="first-pilot-brief"
+            />
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              {evidenceFiles.length > 0
+                ? `${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — brief optional.`
+                : `Without files, brief must be at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters.`}
+            </p>
+          </div>
+
+          <AdvancedOptionsAccordion triggerLabel="Advanced configuration (optional)">
+            <div className="space-y-4">
+              <PilotModePolicyPackToggle
+                enabled={focusedPilotModeEnabled}
+                onEnabledChange={setFocusedPilotModeEnabled}
+              />
+              <QuickReviewProofScopeField
+                selected={proofScope}
+                onChange={(next) => {
+                  setProofScope(next);
+                }}
+              />
+            </div>
+          </AdvancedOptionsAccordion>
+
+          <ReviewPathTimeEstimateBanner pathId="quick-review" />
+
+          {submitError !== null ? (
+            <div data-testid="first-pilot-submit-error">
+              {isApiRequestError(submitError) ? (
+                <OperatorApiProblem
+                  problem={submitError.problem}
+                  fallbackMessage={submitError.message}
+                  correlationId={submitError.correlationId}
+                  httpStatus={submitError.httpStatus}
+                  retryAfterSeconds={submitError.retryAfterSeconds}
+                />
+              ) : (
+                <OperatorApiProblem
+                  problem={null}
+                  fallbackMessage={
+                    submitError && typeof submitError === "object" && "message" in submitError
+                      ? String((submitError as { message?: string }).message)
+                      : "Request failed."
+                  }
+                />
+              )}
+            </div>
+          ) : null}
+
+          <Button
+            type="button"
+            disabled={!canStart}
+            onClick={() => {
+              void submitRun();
+            }}
+            data-testid="first-pilot-start"
+          >
+            {submitting ? "Starting review…" : "Start Architecture Review"}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
