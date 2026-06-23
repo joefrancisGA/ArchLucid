@@ -36787,6 +36787,7 @@ export interface components {
             hasGovernanceWarnings?: boolean;
             hasWarnings?: boolean;
             isDemoWelcomeRun?: boolean;
+            isDeadLettered?: boolean;
             isPinned?: boolean;
             isPublicShowcase?: boolean;
             isSample?: boolean;

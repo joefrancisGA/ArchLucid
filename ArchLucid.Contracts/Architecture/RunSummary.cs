@@ -48,4 +48,13 @@ public sealed class RunSummary
         get;
         set;
     } = string.Empty;
+
+    /// <summary>
+    ///     When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.
+    /// </summary>
+    public bool IsDeadLettered
+    {
+        get;
+        set;
+    }
 }

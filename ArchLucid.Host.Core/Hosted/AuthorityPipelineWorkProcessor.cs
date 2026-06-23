@@ -1,4 +1,5 @@
 using ArchLucid.Application.AzureExtractor;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
@@ -66,7 +67,7 @@ public sealed class AuthorityPipelineWorkProcessor(
             }
             catch (Exception ex)
             {
-                await OnProcessingFailedAsync(workOutbox, entry, ex, opts, cancellationToken);
+                await OnProcessingFailedAsync(scope, workOutbox, entry, ex, opts, cancellationToken);
             }
     }
 
@@ -223,6 +224,7 @@ public sealed class AuthorityPipelineWorkProcessor(
     }
 
     private async Task OnProcessingFailedAsync(
+        IServiceScope scope,
         IAuthorityPipelineWorkRepository workOutbox,
         AuthorityPipelineWorkOutboxEntry entry,
         Exception fault,
@@ -242,6 +244,24 @@ public sealed class AuthorityPipelineWorkProcessor(
         if (RetriesExhaustedAfterThisFailure(entry, opts))
         {
             await workOutbox.RecordDeadLetterAsync(entry.OutboxId, summary, cancellationToken);
+
+            ScopeContext jobScope = new()
+            {
+                TenantId = entry.TenantId,
+                WorkspaceId = entry.WorkspaceId,
+                ProjectId = entry.ProjectId
+            };
+
+            IRunRepository runRepository =
+                scope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+            await AuthorityPipelineDeadLetterRunMarker.TryMarkRunDeadLetteredAsync(
+                runRepository,
+                jobScope,
+                entry.RunId,
+                summary,
+                _timeProvider.UtcNowDateTime(),
+                cancellationToken);
 
             if (_logger.IsEnabled(LogLevel.Error))
 

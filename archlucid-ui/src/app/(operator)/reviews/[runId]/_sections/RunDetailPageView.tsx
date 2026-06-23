@@ -207,11 +207,14 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {!m.manifestId ? (
         (() => {
           const legacyStatus = m.resolvedDetail.run.legacyRunStatus;
+          const isDeadLettered = m.resolvedDetail.run.isDeadLettered === true;
           const stalled = detectStalledReview(
             m.resolvedDetail.run.createdUtc,
             m.resolvedDetail.run.completedUtc != null
               || legacyStatus === "Completed"
               || legacyStatus === "Failed",
+            Date.now(),
+            isDeadLettered,
           );
 
           return stalled.isStalled ? (

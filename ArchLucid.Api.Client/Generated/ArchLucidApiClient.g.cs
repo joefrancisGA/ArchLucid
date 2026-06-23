@@ -61875,6 +61875,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
         public bool? IsPinned { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("isDeadLettered")]
+        public bool? IsDeadLettered { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("lastAgentExecutionFailure")]
         public AgentExecutionFailureSummary? LastAgentExecutionFailure { get; set; } = default!;
 
@@ -62799,6 +62802,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("hasGraphSnapshot")]
         public bool? HasGraphSnapshot { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("isDeadLettered")]
+        public bool? IsDeadLettered { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
         public string? ProjectId { get; set; } = default!;
@@ -78607,6 +78613,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("isDemoWelcomeRun")]
         public bool? IsDemoWelcomeRun { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("isDeadLettered")]
+        public bool? IsDeadLettered { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
         public bool? IsPinned { get; set; } = default!;

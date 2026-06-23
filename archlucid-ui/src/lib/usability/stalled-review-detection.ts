@@ -14,8 +14,9 @@ export function detectStalledReview(
   startedAtIso: string | null | undefined,
   isTerminal: boolean,
   nowMs: number = Date.now(),
+  isDeadLettered: boolean = false,
 ): StalledReviewSignal {
-  if (isTerminal) {
+  if (isDeadLettered || isTerminal) {
     return { isStalled: false, elapsedMinutes: 0 };
   }
 

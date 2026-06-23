@@ -33,4 +33,7 @@ public static class AgentExecutionFailureClasses
 
     /// <summary>Post-execute output quality gate rejected trace (grounding / structural bar).</summary>
     public const string QualityGate = "qualityGate";
+
+    /// <summary>Deferred authority pipeline outbox exhausted retries and dead-lettered.</summary>
+    public const string PipelineDeadLetter = "pipelineDeadLetter";
 }

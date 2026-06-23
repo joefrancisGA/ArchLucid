@@ -3692,6 +3692,9 @@
           "isPinned": {
             "type": "boolean"
           },
+          "isDeadLettered": {
+            "type": "boolean"
+          },
           "lastAgentExecutionFailure": {
             "oneOf": [
               {
@@ -4641,6 +4644,9 @@
             "type": "boolean"
           },
           "hasGraphSnapshot": {
+            "type": "boolean"
+          },
+          "isDeadLettered": {
             "type": "boolean"
           },
           "projectId": {
@@ -20394,6 +20400,9 @@
             "type": "boolean"
           },
           "isDemoWelcomeRun": {
+            "type": "boolean"
+          },
+          "isDeadLettered": {
             "type": "boolean"
           },
           "isPinned": {

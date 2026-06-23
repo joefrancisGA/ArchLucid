@@ -1,7 +1,12 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
@@ -24,15 +29,30 @@ public sealed class AuthorityPipelineWorkProcessorTests
     {
         Mock<IAuthorityPipelineWorkRepository> outbox = new();
         Mock<IAuthorityRunOrchestrator> orchestrator = new();
+        Mock<IRunRepository> runRepository = new();
 
         FaultCompleteQueuedOrchestrator(orchestrator);
 
         AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
 
+        RunRecord runRow = new()
+        {
+            RunId = entry.RunId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+        };
+
+        runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runRow);
+
+        runRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([entry]);
 
-        IServiceProvider provider = BuildProvider(outbox, orchestrator);
+        IServiceProvider provider = BuildProvider(outbox, orchestrator, runRepository);
         Mock<IServiceScopeFactory> scopeFactory = CreateScopeFactory(provider);
 
         AuthorityPipelineWorkProcessorOptions options = new()
@@ -50,6 +70,16 @@ public sealed class AuthorityPipelineWorkProcessorTests
 
         outbox.Verify(
             r => r.RecordDeadLetterAsync(entry.OutboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        runRepository.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(run =>
+                    run.RunId == entry.RunId
+                    && run.LegacyRunStatus == nameof(ArchitectureRunStatus.Failed)
+                    && run.CompletedUtc.HasValue
+                    && RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(run)),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -220,11 +250,13 @@ public sealed class AuthorityPipelineWorkProcessorTests
 
     private static IServiceProvider BuildProvider(
         Mock<IAuthorityPipelineWorkRepository> outbox,
-        Mock<IAuthorityRunOrchestrator> orchestrator)
+        Mock<IAuthorityRunOrchestrator> orchestrator,
+        Mock<IRunRepository>? runRepository = null)
     {
         ServiceCollection services = new();
         services.AddSingleton(outbox.Object);
         services.AddSingleton(orchestrator.Object);
+        services.AddSingleton(runRepository?.Object ?? new Mock<IRunRepository>().Object);
         return services.BuildServiceProvider();
     }
 

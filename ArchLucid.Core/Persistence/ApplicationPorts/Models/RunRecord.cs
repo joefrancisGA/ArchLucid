@@ -252,4 +252,14 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.
+    ///     Populated at API read time from <see cref="LastFailureReason"/>; not stored in SQL.
+    /// </summary>
+    public bool IsDeadLettered
+    {
+        get;
+        set;
+    }
 }

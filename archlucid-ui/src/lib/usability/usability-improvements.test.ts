@@ -24,6 +24,14 @@ describe("usability improvements", () => {
     expect(signal.elapsedMinutes).toBeGreaterThan(14);
   });
 
+  it("detectStalledReview suppresses stall guidance when run is dead-lettered", () => {
+    const started = new Date(Date.now() - STALLED_REVIEW_THRESHOLD_MS - 60_000).toISOString();
+    const signal = detectStalledReview(started, false, Date.now(), true);
+
+    expect(signal.isStalled).toBe(false);
+    expect(signal.elapsedMinutes).toBe(0);
+  });
+
   it("readCorePilotProgressSnapshot returns five steps", () => {
     const snapshot = readCorePilotProgressSnapshot();
 
