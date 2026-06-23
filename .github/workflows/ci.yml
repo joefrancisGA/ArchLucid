@@ -1873,22 +1873,7 @@ jobs:
         uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create empty SQL catalog for DbUp
-        run: |
-          set -euo pipefail
-          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
-            mcr.microsoft.com/mssql/server:2022-latest \
-            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidCiDbUp') CREATE DATABASE ArchLucidCiDbUp;"
-          RAW=$(docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
-            mcr.microsoft.com/mssql/server:2022-latest \
-            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "SET NOCOUNT ON; SELECT name FROM sys.databases WHERE name = N'ArchLucidCiDbUp';" \
-            -h -1 -W)
-          if ! printf '%s\n' "$RAW" | grep -q 'ArchLucidCiDbUp'; then
-            echo "::error::ArchLucidCiDbUp catalog was not created"
-            printf '%s\n' "$RAW"
-            exit 1
-          fi
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidCiDbUp
 
       - name: Apply DbUp scripts (embedded)
         env:
@@ -1956,12 +1941,7 @@ jobs:
         uses: ./.github/actions/wait-for-sqlserver
 
       - name: Create empty SQL catalog for greenfield boot
-        run: |
-          set -e
-          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
-            mcr.microsoft.com/mssql/server:2022-latest \
-            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidGreenfieldCi') CREATE DATABASE ArchLucidGreenfieldCi;"
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidGreenfieldCi
 
       - name: Start ArchLucid.Api (background)
         env:
@@ -2107,6 +2087,9 @@ jobs:
       - name: Wait for SQL Server to be ready (pre-shard)
         uses: ./.github/actions/wait-for-sqlserver
 
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+
       # Parent-process chunk watchdog (Invoke-ApiIntegrationTestShard.ps1) is the primary hang defense:
       # it captures an out-of-process dotnet-dump before killing the test host. Step timeout-minutes is
       # the Actions backstop so failure/cancelled upload steps still run if the watchdog is bypassed.
@@ -2213,6 +2196,9 @@ jobs:
       - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
 
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+
       - name: Test â€” ArchLucid.Api.Tests (non-Integration, exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
@@ -2311,6 +2297,9 @@ jobs:
 
       - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
 
       # Resolves test projects from ArchLucid.sln (excluding Api.Tests â†’ dotnet-full-regression-core-api-* shards).
       - name: Test â€” non-Api test assemblies (exclude Category=Slow)
@@ -2411,6 +2400,9 @@ jobs:
       - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
 
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+
       - name: Test â€” ArchLucid.Api.Tests (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
@@ -2509,6 +2501,9 @@ jobs:
 
       - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
 
       # Same as dotnet-full-regression-core-libs: SDK 10+ MSBuild rejects multiple projects in one dotnet test (MSB1008).
       - name: Test â€” domain test projects (Category=Slow only)

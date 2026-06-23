@@ -69,6 +69,19 @@ public static partial class GreenfieldBaselineMigrationRunner
             {
                 sentinels = BaselineCatalogSentinels.Read(connection);
                 plan = BaselineRepairPlan.Create(sentinels);
+
+                if (plan.Mode == BaselineRepairMode.DriftRepair)
+                {
+                    ExecuteDriftRepair(connection, assembly, plan);
+
+                    return;
+                }
+
+                // Partial replay without sentinel drift: stamp 001–050 so DbUp continues at 051+.
+                CommitBaselineJournalThrough050(connection);
+                StampRunTelemetryMigration138WhenDboTableExists(connection, null);
+
+                return;
             }
         }
 
