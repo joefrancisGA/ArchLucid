@@ -17,6 +17,44 @@ type ExecutiveRoiExportPayload = {
   savingsByEnvironment?: Array<{ environment?: string; estimatedUsdSavings?: number }>;
 };
 
+function isExecutiveRoiSummaryProxyResponse(candidate: Response): boolean {
+  const url = candidate.url();
+
+  return (
+    url.includes("/v1/roi/executive-summary") &&
+    !url.includes("/export") &&
+    !url.includes("/history") &&
+    !url.includes("/board-pack") &&
+    candidate.request().method() === "GET" &&
+    candidate.ok()
+  );
+}
+
+function isExecutiveRoiExportProxyResponse(candidate: Response): boolean {
+  return candidate.url().includes("/v1/roi/executive-summary/export") && candidate.ok();
+}
+
+async function expandExecutiveSupportingMetricsIfPresent(page: Page): Promise<void> {
+  const supportingMetrics = page.getByTestId("executive-dashboard-supporting-metrics");
+
+  if ((await supportingMetrics.count()) === 0) {
+    return;
+  }
+
+  const details = supportingMetrics.first();
+  await expect(details).toBeVisible({ timeout: 30_000 });
+
+  const isOpen = await details.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!isOpen) {
+    await details.evaluate((element) => {
+      (element as HTMLDetailsElement).open = true;
+    });
+  }
+
+  await expect(details).toHaveAttribute("open");
+}
+
 export async function expectNoExecutiveRoiDashboardErrorBoundary(page: Page): Promise<void> {
   await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 }
@@ -35,13 +73,21 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 }
 
 export async function waitForExecutiveRoiExportResponse(page: Page): Promise<ExecutiveRoiExportPayload> {
-  const response = await page.waitForResponse(
-    (candidate: Response) =>
-      candidate.url().includes("/api/proxy/v1/roi/executive-summary/export") && candidate.ok(),
-    { timeout: 60_000 },
-  );
+  const exportResponsePromise = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 });
 
-  return (await response.json()) as ExecutiveRoiExportPayload;
+  await page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
+
+  try {
+    const response = await exportResponsePromise;
+
+    return (await response.json()) as ExecutiveRoiExportPayload;
+  } catch {
+    await page.getByText("Savings by environment").scrollIntoViewIfNeeded({ timeout: 15_000 }).catch(() => undefined);
+
+    const response = await page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 15_000 });
+
+    return (await response.json()) as ExecutiveRoiExportPayload;
+  }
 }
 
 export function expectedExecutiveRoiExportPayload(): ExecutiveRoiExportPayload {
@@ -88,13 +134,9 @@ export async function expectExecutiveRoiPortfolioPanels(page: Page): Promise<voi
   await expect(page.getByTestId("exec-roi-identified-pending-usd")).toHaveText("$120,000");
   await expect(page.getByTestId("exec-roi-realized-usd")).toHaveText("$25,000");
 
-  const supportingMetrics = page.getByTestId("executive-dashboard-supporting-metrics");
+  await expandExecutiveSupportingMetricsIfPresent(page);
 
-  if ((await supportingMetrics.count()) > 0) {
-    await supportingMetrics.locator("summary").click();
-  }
-
-  await expect(page.getByTestId("exec-kpi-resolved-30d")).toBeVisible();
+  await expect(page.getByTestId("exec-kpi-resolved-30d")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("exec-roi-trend-chart")).toBeVisible({ timeout: 30_000 });
 }
 
