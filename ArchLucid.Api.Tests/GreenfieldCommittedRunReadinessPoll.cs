@@ -43,6 +43,38 @@ internal static class GreenfieldCommittedRunReadinessPoll
             cancellationToken);
     }
 
+    /// <summary>
+    ///     Polls until execute has promoted the run to <c>ReadyForCommit</c> with a manifest version visible on
+    ///     <c>GET /v1/architecture/run/{runId}</c>. Prevents POST /commit racing manifest materialization under CI SQL load.
+    /// </summary>
+    internal static Task WaitUntilRunManifestReadableForCommitAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        return WaitUntilAsync(
+            async ct =>
+            {
+                using HttpResponseMessage response = await client.GetAsync($"/v1/architecture/run/{runId}", ct);
+
+                if (!response.IsSuccessStatusCode)
+                    return false;
+
+                ArchitectureRunDetailProbeDto? detail =
+                    await response.Content.ReadFromJsonAsync<ArchitectureRunDetailProbeDto>(JsonOptions, ct);
+
+                if (detail?.Run is null)
+                    return false;
+
+                if (!string.Equals(detail.Run.Status, "ReadyForCommit", StringComparison.Ordinal))
+                    return false;
+
+                return !string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion);
+            },
+            "GET /v1/architecture/run/{runId} did not show ReadyForCommit with a readable manifest version before commit.",
+            cancellationToken);
+    }
+
     internal static Task<string> WaitUntilFirstValueReportMarkdownReadyAsync(
         HttpClient client,
         string runId,

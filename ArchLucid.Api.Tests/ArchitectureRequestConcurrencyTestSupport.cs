@@ -536,11 +536,16 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         HttpClient client,
         string runId,
         CancellationToken cancellationToken = default,
-        int maxAttempts = 25)
+        int maxAttempts = 10)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+        await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
+            client,
+            runId,
+            cancellationToken);
 
         int delayMs = 250;
         HttpStatusCode? lastStatusCode = null;
@@ -595,7 +600,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             }
 
             await Task.Delay(delayMs, cancellationToken);
-            delayMs = Math.Min(delayMs * 2, 8000);
+            delayMs = Math.Min(delayMs * 2, 4000);
         }
 
         throw new Xunit.Sdk.XunitException(
