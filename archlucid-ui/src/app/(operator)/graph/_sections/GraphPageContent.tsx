@@ -11,7 +11,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, OPERATOR_GRAPH_PAGE_SUBTITLE, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
+import { BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE, BUYER_EVIDENCE_TRAIL_PAGE_TITLE, OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { OPERATOR_PAGE_CONTAINER } from "@/lib/design-tokens";
@@ -408,9 +408,6 @@ export function GraphPageContent() {
   const buyerGraphAwaitingSelection =
     buyerPolishedShell && (runId.trim().length === 0 || !graphLoadRequested);
 
-  const operatorAwaitingReviewSelection =
-    !buyerPolishedShell && !demoUi && runId.trim().length === 0;
-
   const showOperatorControls = buyerPolishedShell || demoUi || runId.trim().length > 0;
 
   const showIdleCard =
@@ -554,12 +551,6 @@ export function GraphPageContent() {
       />
       <GraphEvidenceTrailGuidanceDisclosure />
       {showOperatorControls ? (buyerPolishedShell ? controls : null) : null}
-      {operatorAwaitingReviewSelection && showIdleCard ? (
-        <p className="m-0 mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          {OPERATOR_GRAPH_WHAT_YOU_WILL_SEE}
-        </p>
-      ) : null}
-
       {!buyerPolishedShell && showOperatorControls && effectiveGraph === null ? (
         <>
           {savedViewsBar}

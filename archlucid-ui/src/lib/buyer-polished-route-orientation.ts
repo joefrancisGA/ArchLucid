@@ -81,7 +81,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/graph")) {
     return {
       label: "Evidence graph",
-      line: "Trace provenance, findings, decisions, and audit trail.",
+      line: "Explore review evidence connections.",
     };
   }
 

@@ -1,6 +1,7 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
+import { OPERATOR_GRAPH_IDLE_BODY, OPERATOR_GRAPH_WHAT_YOU_WILL_SEE } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import {
   governanceWorkflowIdleGettingStartedOperator,
@@ -36,7 +37,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
 export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
   title: "No review package available",
-  description: "Create or load a review package before opening the evidence graph.",
+  description: `${OPERATOR_GRAPH_WHAT_YOU_WILL_SEE} ${OPERATOR_GRAPH_IDLE_BODY}`,
   actions: [
     { label: "Start review", href: "/reviews/new" },
     {

@@ -740,7 +740,7 @@ export const OPERATOR_GRAPH_LOAD_ERROR_TRY_NEXT =
 export const OPERATOR_GRAPH_IDLE_TITLE = "No review package available";
 
 export const OPERATOR_GRAPH_IDLE_BODY =
-  "Create or load a review package before opening the evidence graph.";
+  "Create a review package or load the sample workspace to view the evidence graph.";
 
 export const OPERATOR_GRAPH_WHAT_YOU_WILL_SEE =
   "The graph connects review inputs, evidence, policy references, findings, decisions, and signed review records.";

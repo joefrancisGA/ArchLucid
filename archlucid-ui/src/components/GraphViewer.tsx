@@ -382,11 +382,15 @@ export function GraphViewer({
         ) : null}
 
         <div className="flex-1">
-          {!selectedEdge && !selectedNode && !buyerTrailPanel ? (
+          {!selectedEdge && !selectedNode && !interactiveSurfaceReady ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">Rendering graph…</p>
+          ) : null}
+
+          {!selectedEdge && !selectedNode && interactiveSurfaceReady && !buyerTrailPanel ? (
             <p>Select a node or inferred edge on the canvas to inspect reasoning and metadata.</p>
           ) : null}
 
-          {!selectedEdge && !selectedNode && buyerTrailPanel ? (
+          {!selectedEdge && !selectedNode && interactiveSurfaceReady && buyerTrailPanel ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Select a node or edge on the canvas to see technical details.
             </p>

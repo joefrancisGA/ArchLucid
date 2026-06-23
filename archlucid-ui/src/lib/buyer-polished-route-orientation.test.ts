@@ -30,6 +30,6 @@ describe("buyerPolishedRouteOrientation", () => {
     const o = buyerPolishedRouteOrientation("/graph");
 
     expect(o?.label).toBe("Evidence graph");
-    expect(o?.line).toContain("Trace provenance, findings, decisions, and audit trail.");
+    expect(o?.line).toContain("Explore review evidence connections.");
   });
 });
