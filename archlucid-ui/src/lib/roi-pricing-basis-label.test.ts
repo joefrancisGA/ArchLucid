@@ -19,6 +19,6 @@ describe("roi-pricing-basis-label", () => {
     expect(shouldShowRoiCostEvidenceFreshnessWarning("Fresh")).toBe(false);
 
     expect(formatRoiCostEvidenceFreshnessWarning("Stale", 90, "2026-01-01T00:00:00Z")).toContain("stale");
-    expect(formatRoiCostEvidenceFreshnessWarning("Missing", 90, null)).toContain("No uploaded extractor");
+    expect(formatRoiCostEvidenceFreshnessWarning("Missing", 90, null)).toContain("Cost baseline not configured");
   });
 });

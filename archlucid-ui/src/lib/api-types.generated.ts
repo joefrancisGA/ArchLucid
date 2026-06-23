@@ -27535,6 +27535,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/reviews/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OperatorDemoReviewResponse"];
+                        "text/json": components["schemas"]["OperatorDemoReviewResponse"];
+                        "text/plain": components["schemas"]["OperatorDemoReviewResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/roi/cross-tenant-portfolio": {
         parameters: {
             query?: never;
@@ -34991,6 +35061,18 @@ export interface components {
             notes?: string[];
             /** Format: double */
             suppressionPenalty?: number | string;
+        };
+        OperatorDemoReviewFindingSummary: {
+            policyRuleKey?: null | string;
+            severity?: string;
+            title?: string;
+        };
+        OperatorDemoReviewResponse: {
+            manifestId?: string;
+            policyPackName?: string;
+            runDetailUrl?: string;
+            runId?: string;
+            topFindings?: components["schemas"]["OperatorDemoReviewFindingSummary"][];
         };
         OperatorNextBestActionResponse: {
             actionId?: string;
