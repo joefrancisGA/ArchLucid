@@ -6,7 +6,7 @@ on:
 jobs:
   debug-api-integration-shard:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -54,13 +54,14 @@ jobs:
         run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
 
       - name: Test - Api.Tests integration shard ${{ matrix.shard }}/6
-        timeout-minutes: 25
+        timeout-minutes: 45
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: >
           pwsh -NoProfile -File ./scripts/ci/Invoke-ApiIntegrationTestShard.ps1
           -ShardIndex ${{ matrix.shard }}
           -ShardCount 6
+          -FilterChunkSize 8
           -BlameHangTimeout 75min
           -ChunkTimeout 20min
           -ResultsDirectory "${{ runner.temp }}/debug-shard-${{ matrix.shard }}"

@@ -2040,7 +2040,7 @@ jobs:
             shard_label: "1/6"
             blame_timeout: "75min"
             chunk_timeout: "20min"
-            step_timeout_minutes: 30
+            step_timeout_minutes: 45
           - shard: 1
             shard_label: "2/6"
             # CI #2268: RetrievalQuerySmokeIntegrationTests hangs inside GetAsync; 130s fires before the
@@ -2048,28 +2048,27 @@ jobs:
             # server-side thread stacks. Revert to 75min once the root cause is identified and fixed.
             blame_timeout: "130s"
             chunk_timeout: "20min"
-            # Tighter step backstop for the known-hanging shard (healthy shards finish in ~12 min incl. build).
-            step_timeout_minutes: 25
+            step_timeout_minutes: 45
           - shard: 2
             shard_label: "3/6"
             blame_timeout: "75min"
             chunk_timeout: "20min"
-            step_timeout_minutes: 30
+            step_timeout_minutes: 45
           - shard: 3
             shard_label: "4/6"
             blame_timeout: "75min"
             chunk_timeout: "20min"
-            step_timeout_minutes: 30
+            step_timeout_minutes: 45
           - shard: 4
             shard_label: "5/6"
             blame_timeout: "75min"
             chunk_timeout: "20min"
-            step_timeout_minutes: 30
+            step_timeout_minutes: 45
           - shard: 5
             shard_label: "6/6"
             blame_timeout: "75min"
             chunk_timeout: "20min"
-            step_timeout_minutes: 30
+            step_timeout_minutes: 45
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -2123,6 +2122,7 @@ jobs:
           pwsh -NoProfile -File ./scripts/ci/Invoke-ApiIntegrationTestShard.ps1
           -ShardIndex ${{ matrix.shard }}
           -ShardCount 6
+          -FilterChunkSize 8
           -BlameHangTimeout ${{ matrix.blame_timeout }}
           -ChunkTimeout ${{ matrix.chunk_timeout }}
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"

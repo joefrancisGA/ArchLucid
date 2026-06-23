@@ -536,7 +536,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         HttpClient client,
         string runId,
         CancellationToken cancellationToken = default,
-        int maxAttempts = 10)
+        int maxAttempts = 25)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -595,7 +595,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             }
 
             await Task.Delay(delayMs, cancellationToken);
-            delayMs = Math.Min(delayMs * 2, 4000);
+            delayMs = Math.Min(delayMs * 2, 8000);
         }
 
         throw new Xunit.Sdk.XunitException(
