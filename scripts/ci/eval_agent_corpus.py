@@ -315,7 +315,7 @@ def _is_baseline_eligible_quality(quality: Mapping[str, Any] | None) -> bool:
     if not isinstance(quality, dict):
         return False
 
-    if quality.get("mode") != "simulator":
+    if quality.get("mode") not in ("simulator", "real"):
         return False
 
     if quality.get("skipped") or quality.get("error"):
@@ -886,7 +886,7 @@ def render_markdown_report(
                     "Sibling `expected-outcome.json` rows must match scored `gate_outcome`. |"
                 ),
                 (
-                    "| Simulator baseline regression | "
+                    "| Simulator and real baseline regression | "
                     f"{'yes (`--baseline`)' if gate_snapshot.get('enforce_baseline') else 'no'} | "
                     f"{'**FAIL**' if gate_snapshot.get('baseline_failed') else 'PASS'} | "
                     "Aggregate drop >3.0 or single dimension drop >5.0 vs committed baselines. |"
@@ -899,7 +899,7 @@ def render_markdown_report(
         failed_n = sum(1 for row in baseline_comparisons if row.get("failed"))
         lines.extend(
             [
-                "### Baseline regression (simulator qualityEvidence)",
+                "### Baseline regression (simulator and real qualityEvidence)",
                 "",
                 "_Compares committed scores under `tests/golden-cohort/baselines/*.baseline.json`. "
                 "Regression = aggregate drop >3.0 pts or any single dimension drop >5.0 pts._",
@@ -1177,14 +1177,14 @@ def main() -> int:
         "--baseline",
         action="store_true",
         help=(
-            "Compare simulator qualityEvidence scores against committed baselines under "
+            "Compare simulator and real qualityEvidence scores against committed baselines under "
             "tests/golden-cohort/baselines/ (fail when aggregate or dimension regressions exceed thresholds)."
         ),
     )
     parser.add_argument(
         "--write-baseline",
         action="store_true",
-        help="Regenerate baseline JSON for all evaluable simulator qualityEvidence rows (maintainer-only).",
+        help="Regenerate baseline JSON for all evaluable simulator and real qualityEvidence rows (maintainer-only).",
     )
     parser.add_argument(
         "--baseline-dir",
@@ -1252,7 +1252,7 @@ def main() -> int:
             print(f"baseline_written\t{row['id']}\t{path}")
 
         if written == 0:
-            print("::error::no evaluable simulator quality rows to write baselines", file=sys.stderr)
+            print("::error::no evaluable simulator or real quality rows to write baselines", file=sys.stderr)
             return 1
 
         print(f"Wrote {written} baseline file(s) under {baseline_dir}")
