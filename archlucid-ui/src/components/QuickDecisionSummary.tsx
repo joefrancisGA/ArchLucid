@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
@@ -191,8 +191,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               {findingEnforcementTierLabel(f.enforcementTier)}
             </span>
           ) : null}
-          {f.policyRuleId !== null && f.policyRuleId !== undefined && f.policyRuleId.trim().length > 0 ? (
-            <FindingPolicyRuleBadge policyRuleId={f.policyRuleId} />
+          {citationModel.pack !== null || citationModel.policy !== null ? (
+            <FindingPolicyTraceabilityBadges pack={citationModel.pack} policy={citationModel.policy} />
           ) : null}
           {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
             <FindingConfidenceBadge level={f.confidenceLevel} />

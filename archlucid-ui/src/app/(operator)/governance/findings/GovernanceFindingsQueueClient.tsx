@@ -7,7 +7,8 @@ import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } f
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { ProductConceptsGlossary } from "@/components/ProductConceptsGlossary";
@@ -450,7 +451,10 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
           </Link>
         </CardTitle>
         {row.recordKind === "finding" && row.policyRuleId ? (
-          <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} className="mt-1 inline-flex" />
+          <FindingPolicyTraceabilityBadges
+            className="mt-1"
+            {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+          />
         ) : null}
       </CardHeader>
       <CardContent className="grid gap-3 pt-0 text-sm">
@@ -998,7 +1002,9 @@ export default function GovernanceFindingsQueueClient() {
                       <span className="font-medium text-neutral-700 dark:text-neutral-300">Category</span>
                       {row.recordKind === "finding" && row.policyRuleId ? (
                         <div className="mt-0.5">
-                          <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} />
+                          <FindingPolicyTraceabilityBadges
+                            {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+                          />
                         </div>
                       ) : (
                         <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.category}</p>

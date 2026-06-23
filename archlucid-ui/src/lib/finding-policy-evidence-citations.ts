@@ -193,12 +193,43 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
   return { pack, policy, evidence };
 }
 
+export function buildPolicyTraceabilityLinksFromRuleId(
+  ruleId: string | null | undefined,
+  ruleLabel?: string | null,
+): Pick<FindingPolicyEvidenceCitationModel, "pack" | "policy"> {
+  const normalizedRuleId = nonEmptyString(ruleId);
+  const normalizedRuleLabel = nonEmptyString(ruleLabel) ?? normalizedRuleId;
+
+  if (normalizedRuleId === null || normalizedRuleLabel === null) {
+    return { pack: null, policy: null };
+  }
+
+  const policy: FindingPolicyCitationLink = {
+    ruleId: normalizedRuleId,
+    ruleLabel: normalizedRuleLabel,
+    href: policyPacksRuleHref(normalizedRuleId),
+  };
+
+  const packName = inferPolicyPackDisplayNameFromComplianceRuleKey(normalizedRuleId);
+  const pack =
+    packName !== null
+      ? {
+          packId: normalizedRuleId,
+          packName,
+          href: policyPacksRuleHref(normalizedRuleId),
+        }
+      : null;
+
+  return { pack, policy };
+}
+
 export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
   runId: string,
   finding: QuickDecisionFinding,
 ): FindingPolicyEvidenceCitationModel {
   const ruleId = nonEmptyString(finding.policyRuleId);
   const ruleLabel = ruleId;
+  const { pack, policy } = buildPolicyTraceabilityLinksFromRuleId(ruleId, ruleLabel);
   const inspectHref = findingInspectHref(runId, finding.findingId);
   const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, finding.findingId);
   const graphHref =
@@ -206,25 +237,6 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
       ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
       : null;
   const defaultEvidenceHref = graphHref ?? inspectHref;
-
-  const policy =
-    ruleId !== null && ruleLabel !== null
-      ? {
-          ruleId,
-          ruleLabel,
-          href: policyPacksRuleHref(ruleId),
-        }
-      : null;
-
-  const packName = inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId);
-  const pack =
-    packName !== null
-      ? {
-          packId: ruleId ?? packName,
-          packName,
-          href: policyPacksRuleHref(ruleId ?? ""),
-        }
-      : null;
 
   const evidenceFromSnippets = (finding.evidenceRefSnippets ?? [])
     .map((snippet) => ({
