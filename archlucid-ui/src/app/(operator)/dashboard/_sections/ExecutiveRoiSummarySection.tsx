@@ -232,17 +232,6 @@ export function ExecutiveRoiSummarySection({
 
   const displayData = usesExternalSummary ? (summaryProp ?? null) : data;
   const showLoading = usesExternalSummary ? (loadingProp ?? false) : displayData === null;
-  const workspaceHasNoCommittedReviews =
-    displayData !== null &&
-    displayData.systemCount === 0 &&
-    displayData.latestRunCount === 0 &&
-    displayData.totalEstimatedUsdSavings === 0;
-  const resolvedPortfolioSavings = resolveRunSavingsUsd({
-    serverSummary: buildExecutiveServerSavingsSummary(
-      displayData.totalEstimatedUsdSavings,
-      displayData.savingsPricingBasisDescription,
-    ),
-  });
 
   if (showLoading || displayData === null) {
     return (
@@ -258,6 +247,17 @@ export function ExecutiveRoiSummarySection({
       </Card>
     );
   }
+
+  const workspaceHasNoCommittedReviews =
+    displayData.systemCount === 0 &&
+    displayData.latestRunCount === 0 &&
+    displayData.totalEstimatedUsdSavings === 0;
+  const resolvedPortfolioSavings = resolveRunSavingsUsd({
+    serverSummary: buildExecutiveServerSavingsSummary(
+      displayData.totalEstimatedUsdSavings,
+      displayData.savingsPricingBasisDescription,
+    ),
+  });
 
   return (
     <Card>
