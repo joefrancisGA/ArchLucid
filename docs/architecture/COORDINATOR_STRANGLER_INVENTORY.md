@@ -65,5 +65,20 @@
 ## Related automation
 
 - Reference-count ceiling (non-test `.cs` hits vs baseline): `scripts/ci/assert_coordinator_reference_ceiling.py`
+- Integration tests canonical run-write guard (Improvement 3, 2026-06-23): `scripts/ci/assert_integration_tests_canonical_run_writes.py` — fails when `*Integration*Tests*.cs` files call deprecated run-lifecycle alias routes (`/v1/requests`, `/v1/runs/{runId}/submit`, `/v1/runs/{runId}/manifest/finalize`); canonical authority routes only.
+- Architecture closure pins: [`CoordinatorStranglerCompletionArchitectureTests`](../../ArchLucid.Architecture.Tests/CoordinatorStranglerCompletionArchitectureTests.cs) — retired coordinator types absent, single `AuthorityDrivenArchitectureRunCommitOrchestrator`, `RegisterAuthorityDecisionEngineAndRepositories` naming.
 - Archived dual-path map: `docs/archive/dual-pipeline-navigator-superseded.md`
 - Superseded completion scaffold: `docs/architecture/adrs/0028-coordinator-strangler-completion.md` (**Superseded by** [ADR 0029](adrs/0029-coordinator-strangler-acceleration-2026-05-15.md))
+
+---
+
+## Improvement 3 closure (2026-06-23)
+
+**Status:** Code-complete strangler per ADR 0030 PR A3/A4 + ADR 0042 canonical write surface. Legacy coordinator repositories, commit orchestrator, and `dbo.GoldenManifestVersions` are removed; integration tests and CI guards pin the authority-only path.
+
+| Deliverable | Location |
+|-------------|----------|
+| Production type retirement pins | [`CoordinatorStranglerCompletionArchitectureTests`](../../ArchLucid.Architecture.Tests/CoordinatorStranglerCompletionArchitectureTests.cs) |
+| DI registration naming (TB-305 decision D) | Same + [`DualPipelineRegistrationDisciplineTests`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs) |
+| Integration test canonical write guard | [`assert_integration_tests_canonical_run_writes.py`](../../scripts/ci/assert_integration_tests_canonical_run_writes.py) |
+| HTTP alias sunset (customer traffic soak) | **Deferred** — requires future ADR; aliases remain routable with deprecation headers per ADR 0042 |
