@@ -1,4 +1,8 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import {
+  BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
+  BUYER_SURFACE_VOCABULARY,
+  BUYER_TERMINOLOGY,
+} from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -75,6 +79,13 @@ export function buyerPolishedRouteOrientation(
     return {
       label: SIGNED_MANIFEST_LABEL,
       line: `${BUYER_SURFACE_VOCABULARY.finalizedSignedManifestRecord} — decisions, findings counts, artifacts, and download bundle.`,
+    };
+  }
+
+  if (path === "/dashboard" || path === "/executive/dashboard") {
+    return {
+      label: BUYER_TERMINOLOGY.portfolioOverview,
+      line: "ROI, remediation, and governance posture across committed review packages.",
     };
   }
 

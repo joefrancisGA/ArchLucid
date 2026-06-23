@@ -5,9 +5,9 @@ import {
   EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL,
   EXECUTIVE_ROI_REALIZED_COMMITTED_DESCRIPTION,
   EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL,
-  formatExecutiveRoiUsd,
   type ExecutiveRoiIdentifiedVsRealizedBuckets,
 } from "@/lib/executive-roi-identified-vs-realized";
+import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { resolveExecutiveHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
@@ -26,6 +26,14 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
   props: ExecutiveRoiIdentifiedVsRealizedPanelProps,
 ): ReactElement {
   const { summary, buckets } = props;
+  const identifiedSavings = presentExecutiveEstimatedSavings(buckets.identifiedPendingApprovalUsd, {
+    loading: false,
+    summary,
+  });
+  const realizedSavings = presentExecutiveEstimatedSavings(buckets.realizedCommittedUsd, {
+    loading: false,
+    summary,
+  });
 
   return (
     <section
@@ -63,8 +71,11 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
             className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
             data-testid="exec-roi-identified-pending-usd"
           >
-            {formatExecutiveRoiUsd(buckets.identifiedPendingApprovalUsd)}
+            {identifiedSavings.display}
           </div>
+          {identifiedSavings.footnote ? (
+            <p className="mt-2 text-xs text-amber-900/90 dark:text-amber-100/90">{identifiedSavings.footnote}</p>
+          ) : null}
           <p className="mt-2 text-xs text-amber-900/90 dark:text-amber-100/90">
             {EXECUTIVE_ROI_IDENTIFIED_PENDING_DESCRIPTION}
           </p>
@@ -92,8 +103,11 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
             className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
             data-testid="exec-roi-realized-usd"
           >
-            {formatExecutiveRoiUsd(buckets.realizedCommittedUsd)}
+            {realizedSavings.display}
           </div>
+          {realizedSavings.footnote ? (
+            <p className="mt-2 text-xs text-teal-900 dark:text-teal-100">{realizedSavings.footnote}</p>
+          ) : null}
           <p className="mt-2 text-xs text-teal-900 dark:text-teal-100">
             {EXECUTIVE_ROI_REALIZED_COMMITTED_DESCRIPTION}
           </p>

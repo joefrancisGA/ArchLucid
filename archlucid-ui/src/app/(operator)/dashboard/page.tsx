@@ -5,7 +5,7 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabula
 import { ExecutiveRoiDashboardPageView } from "./_sections/ExecutiveRoiDashboardPageView";
 
 export const metadata: Metadata = {
-  title: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
+  title: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.portfolioPageTitle,
 };
 
 export default function ExecutiveRoiDashboardPage() {

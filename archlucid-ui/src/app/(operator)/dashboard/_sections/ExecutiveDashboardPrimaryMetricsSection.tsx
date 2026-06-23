@@ -13,11 +13,11 @@ import {
   presentExecutiveKpiCount,
 } from "@/lib/executive-roi-kpi-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatUsd } from "@/lib/roi-assumptions";
 import {
   buildExecutiveServerSavingsSummary,
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
+import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 
 export type ExecutiveDashboardPrimaryMetricsSectionProps = {
   readonly summary: ExecutiveRoiSummary | null;
@@ -83,6 +83,15 @@ export function ExecutiveDashboardPrimaryMetricsSection(
     staleAfterDays: summary?.costEvidenceStaleAfterDays,
     executiveSurface: true,
   });
+  const estimatedSavings = presentExecutiveEstimatedSavings(
+    resolveRunSavingsUsd({
+      serverSummary: buildExecutiveServerSavingsSummary(
+        summary?.totalEstimatedUsdSavings,
+        summary?.savingsPricingBasisDescription,
+      ),
+    })?.annualizedUsd ?? summary?.totalEstimatedUsdSavings,
+    { loading, summary },
+  );
 
   return (
     <section aria-labelledby="executive-primary-metrics-heading" className="space-y-3">
@@ -143,15 +152,10 @@ export function ExecutiveDashboardPrimaryMetricsSection(
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
-              {loading
-                ? "…"
-                : formatUsd(
-                    resolveRunSavingsUsd({
-                      serverSummary: buildExecutiveServerSavingsSummary(summary?.totalEstimatedUsdSavings, summary?.savingsPricingBasisDescription),
-                    })?.annualizedUsd ?? summary?.totalEstimatedUsdSavings ?? 0,
-                  )}
-            </p>
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{estimatedSavings.display}</p>
+            {estimatedSavings.footnote ? (
+              <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{estimatedSavings.footnote}</p>
+            ) : null}
           </CardContent>
         </Card>
 

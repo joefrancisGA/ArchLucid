@@ -166,7 +166,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
     status: state.summary?.costEvidenceFreshnessStatus,
     savingsPricingBasis: state.summary?.savingsPricingBasis,
     staleAfterDays: state.summary?.costEvidenceStaleAfterDays,
-    executiveSurface: executiveDetails,
+    executiveSurface: executiveDetails || buyerPolished,
   });
   const pilotDayNumber = computePilotDayNumber(state.summary?.firstCommitUtc);
 

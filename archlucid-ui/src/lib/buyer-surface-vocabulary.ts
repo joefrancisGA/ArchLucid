@@ -32,14 +32,37 @@ export const BUYER_TERMINOLOGY = {
  */
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   pageTitle: "Executive summary",
+  /** `/dashboard` portfolio surface — aligns with sidebar “Portfolio overview”. */
+  portfolioPageTitle: "Portfolio overview",
+  portfolioPageLead:
+    "Track governance posture, remediation progress, and estimated ROI across committed review packages.",
   pageLead:
     "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Executive ROI metrics",
-  emptyStateTitle: "No committed reviews yet.",
+  emptyStateTitle: "No committed reviews yet",
   emptyStateDescription:
-    "Run or commit a review to populate executive risk, ROI, and compliance trends.",
+    "Portfolio metrics appear after you commit at least one review package.",
   emptyStatePrimaryAction: "Start review",
-  emptyStateSecondaryAction: "Upload baseline inventory",
+  emptyStateSecondaryAction: "Load sample workspace",
+  emptyStateTertiaryAction: "View sample portfolio dashboard",
+  emptyStatePreviewSectionTitle: "What this dashboard will show",
+  emptyStatePreviewBullets: [
+    "Findings discovered and resolved",
+    "Decisions and waivers",
+    "Stale architecture risks",
+    "Estimated savings",
+    "Compliance drift trends",
+    "Sponsor-ready exports",
+  ] as const,
+  portfolioMetricsUnavailableTitle: "Portfolio metrics unavailable",
+  portfolioMetricsUnavailableDescription:
+    "Commit a review package to populate findings, decisions, waivers, risks, and remediation trends.",
+  estimatedSavingsNotAvailableYet: "Not available yet",
+  estimatedSavingsNotAvailableFootnote:
+    "Commit reviews or add cost evidence to estimate savings.",
+  costEvidenceNotConfigured: "Cost baseline not configured",
+  costEvidenceNotConfiguredFootnote:
+    "Add Azure cost evidence to estimate savings and ROI.",
   sampleWorkspaceBannerTitle: "Sample workspace data",
   sampleWorkspaceBannerDescription:
     "Figures below come from the demonstration workspace — not your production inventory.",

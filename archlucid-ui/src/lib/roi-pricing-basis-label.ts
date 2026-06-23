@@ -46,7 +46,7 @@ export function formatRoiCostEvidenceFreshnessWarning(
   }
 
   if (normalized === "Missing") {
-    return "No uploaded extractor cost evidence in this workspace. Savings may rely on Retail catalog or heuristic estimates.";
+    return "Cost baseline not configured. Savings may rely on Retail catalog or heuristic estimates until you upload Azure cost evidence.";
   }
 
   return "";

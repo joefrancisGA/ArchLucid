@@ -32,4 +32,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Evidence graph");
     expect(o?.line).toContain("Explore review evidence connections.");
   });
+
+  it("orients the portfolio dashboard route", () => {
+    const o = buyerPolishedRouteOrientation("/dashboard");
+
+    expect(o?.label).toBe("Portfolio overview");
+    expect(o?.line).toContain("committed review packages");
+  });
 });

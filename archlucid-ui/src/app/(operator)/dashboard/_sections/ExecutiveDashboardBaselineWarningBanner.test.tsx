@@ -119,4 +119,12 @@ describe("ExecutiveDashboardBaselineWarningBanner", () => {
     expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
     expect(sessionStorage.getItem(SESSION_STORAGE_KEY)).toBe("1");
   });
+
+  it("renders setup card variant without alert role", () => {
+    render(<ExecutiveDashboardBaselineWarningBanner variant="setup" />);
+
+    expect(screen.getByTestId("executive-baseline-upload-setup-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("executive-baseline-upload-warning-banner")).toBeNull();
+    expect(screen.getByText(/Optional: upload workspace baseline inventory/i)).toBeInTheDocument();
+  });
 });

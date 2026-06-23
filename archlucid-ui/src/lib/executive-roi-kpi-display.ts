@@ -1,5 +1,6 @@
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 export type ExecutiveKpiCountState = "loading" | "missing" | "zero" | "value";
 
@@ -90,13 +91,16 @@ export function presentCostEvidenceFreshness(input: {
   }
 
   const status = input.status?.trim();
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const softCostLabels = input.executiveSurface === true || buyerPolished;
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   if (!status) {
     return {
-      display: executiveSurface ? "Not uploaded" : "Unavailable",
+      display: softCostLabels ? v.costEvidenceNotConfigured : "Unavailable",
       state: "missing",
-      footnote: executiveSurface
-        ? "Upload Azure inventory to ground savings in measured spend."
+      footnote: softCostLabels
+        ? v.costEvidenceNotConfiguredFootnote
         : "No cost evidence freshness signal was returned.",
       runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
     };
@@ -116,17 +120,17 @@ export function presentCostEvidenceFreshness(input: {
 
   if (/not estimated|unavailable|missing/i.test(status)) {
     return {
-      display: executiveSurface ? "Not uploaded" : status,
+      display: softCostLabels ? v.costEvidenceNotConfigured : status,
       state: "not-estimated",
-      footnote: executiveSurface
-        ? "Upload Azure inventory to ground savings in measured spend."
+      footnote: softCostLabels
+        ? v.costEvidenceNotConfiguredFootnote
         : "ROI cost findings are not backed by fresh measured evidence yet.",
       runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
     };
   }
 
   return {
-    display: executiveSurface && /fresh/i.test(status) ? "Current" : status,
+    display: softCostLabels && /fresh/i.test(status) ? "Current" : status,
     state: "fresh",
     footnote: null,
     runbookHref: null,

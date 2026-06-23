@@ -19,7 +19,14 @@ export const EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF = "/reviews/new?bas
 
 /** Prominent nudge when no Azure extractor baseline artifact exists in the active workspace. */
 
-export function ExecutiveDashboardBaselineWarningBanner() {
+export type ExecutiveDashboardBaselineWarningBannerProps = {
+  /** `setup` renders a neutral optional-setup card; `banner` keeps the legacy alert strip. */
+  readonly variant?: "banner" | "setup";
+};
+
+export function ExecutiveDashboardBaselineWarningBanner({
+  variant = "banner",
+}: ExecutiveDashboardBaselineWarningBannerProps = {}) {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const { loading: artifactsLoading, hasBaselineArtifacts } = useWorkspaceBaselineArtifactsPresence();
   const [sessionDismissed, setSessionDismissed] = useState(false);
@@ -41,6 +48,29 @@ export function ExecutiveDashboardBaselineWarningBanner() {
 
   if (sessionDismissed || !operatorOrAdminTier || artifactsLoading || hasBaselineArtifacts !== false) {
     return null;
+  }
+
+  if (variant === "setup") {
+    return (
+      <div
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-sm text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950/40"
+        data-testid="executive-baseline-upload-setup-card"
+      >
+        <p className="m-0 font-semibold">Optional: upload workspace baseline inventory</p>
+        <p className="mt-2 mb-0 text-neutral-700 dark:text-neutral-300">
+          Ground ROI estimates by uploading an Azure extractor inventory ZIP for this workspace.
+        </p>
+        <p className="mt-2 mb-0">
+          <Link
+            href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            data-testid="executive-baseline-upload-wizard-link"
+          >
+            Open baseline upload wizard
+          </Link>
+        </p>
+      </div>
+    );
   }
 
   return (

@@ -47,7 +47,9 @@ describe("ExecutiveRoiDashboardPageView executive surface", () => {
     render(<ExecutiveRoiDashboardPageView surface="executive" />);
 
     expect(screen.getByTestId("executive-dashboard-empty-state")).toBeInTheDocument();
+    expect(screen.getByTestId("executive-dashboard-empty-preview")).toBeInTheDocument();
     expect(screen.queryByTestId("executive-primary-decisions-needed")).not.toBeInTheDocument();
     expect(screen.getByTestId("sponsor-exports-section")).toHaveAttribute("data-surface", "executive");
+    expect(screen.getByRole("heading", { name: "Portfolio overview" })).toBeInTheDocument();
   });
 });

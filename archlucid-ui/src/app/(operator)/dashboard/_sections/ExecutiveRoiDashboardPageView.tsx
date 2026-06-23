@@ -2,7 +2,6 @@
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveDashboardEmptyState } from "@/components/executive/ExecutiveDashboardEmptyState";
 import { ExecutiveDashboardSampleWorkspaceBanner } from "@/components/executive/ExecutiveDashboardSampleWorkspaceBanner";
@@ -11,6 +10,7 @@ import { OperatorPilotOrientationBanner } from "@/components/OperatorPilotOrient
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   hasExecutiveCommittedReviews,
   isExecutiveDashboardEmpty,
@@ -30,6 +30,7 @@ import { ExecutiveRoiTrendSection } from "./ExecutiveRoiTrendSection";
 import { SponsorExportsSection } from "./SponsorExportsSection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
+import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 
 export type ExecutiveRoiDashboardPageViewProps = {
   readonly surface?: "operator" | "executive";
@@ -37,7 +38,7 @@ export type ExecutiveRoiDashboardPageViewProps = {
 
 type DashboardSectionsProps = {
   readonly defaultTrendRange: ExecutiveTimeRange;
-  readonly isExecutiveSurface: boolean;
+  readonly surface: "operator" | "executive";
   readonly summary?: ReturnType<typeof useExecutiveDashboardData>["summary"];
   readonly summaryLoading?: boolean;
   readonly summaryError?: string | null;
@@ -46,15 +47,25 @@ type DashboardSectionsProps = {
   readonly driftError?: boolean;
 };
 
-function ExecutiveRoiDashboardOperatorSections({
+function resolvePortfolioPageHeaderCopy(surface: "operator" | "executive"): {
+  readonly title: string;
+  readonly subtitle: string;
+} {
+  const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolished || surface === "executive") {
+    return { title: v.portfolioPageTitle, subtitle: v.portfolioPageLead };
+  }
+
+  return { title: v.pageTitle, subtitle: v.pageLead };
+}
+
+function ExecutiveRoiDashboardLegacyOperatorSections({
   defaultTrendRange,
-  summary,
-  summaryLoading,
-  summaryError,
-  driftPoints,
-  driftLoading,
-  driftError,
-}: Omit<DashboardSectionsProps, "isExecutiveSurface">): React.JSX.Element {
+}: {
+  readonly defaultTrendRange: ExecutiveTimeRange;
+}): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   return (
@@ -69,32 +80,24 @@ function ExecutiveRoiDashboardOperatorSections({
           {v.roiMetricsSrOnly}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <ExecutiveRoiDashboardLiveKpiCards summary={summary} loading={summaryLoading} />
+          <ExecutiveRoiDashboardLiveKpiCards />
           <ExecutiveOrphanCandidatesCard />
           <ExecutiveSqlBackupRegionVerificationCard />
         </div>
       </section>
 
-      <BusinessImpactSummaryWidget summary={summary} loading={summaryLoading} />
+      <BusinessImpactSummaryWidget />
 
       <QualityGateMetricsTile />
 
       <section aria-label="Executive portfolio summary and sponsor exports" className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ExecutiveRoiSummarySection
-            summary={summary}
-            loading={summaryLoading}
-            summaryError={summaryError}
-          />
+          <ExecutiveRoiSummarySection />
         </div>
         <SponsorExportsSection />
       </section>
 
-      <ExecutiveComplianceDriftTrendSection
-        points={driftPoints}
-        loading={driftLoading}
-        error={driftError}
-      />
+      <ExecutiveComplianceDriftTrendSection />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ExecutiveRoiTrendSection defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
@@ -104,26 +107,35 @@ function ExecutiveRoiDashboardOperatorSections({
   );
 }
 
-function ExecutiveRoiDashboardExecutiveSections({
+function ExecutiveRoiDashboardPortfolioSections({
   defaultTrendRange,
+  surface,
   summary,
   summaryLoading,
   summaryError,
   driftPoints,
   driftLoading,
   driftError,
-}: Omit<DashboardSectionsProps, "isExecutiveSurface">): React.JSX.Element {
+}: DashboardSectionsProps): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const headerCopy = resolvePortfolioPageHeaderCopy(surface);
   const dashboardEmpty = isExecutiveDashboardEmpty(summary, summaryLoading ?? false);
   const hasCommittedReviews = hasExecutiveCommittedReviews(summary);
   const showSampleBanner = isExecutiveSampleWorkspaceData(summary);
+  const hasDriftData = (driftPoints?.length ?? 0) > 0;
 
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-6">
-      <ExecutiveDashboardBaselineWarningBanner />
       {showSampleBanner ? <ExecutiveDashboardSampleWorkspaceBanner /> : null}
 
-      <OperatorPageHeader title={v.pageTitle} subtitle={v.pageLead} titleTestId="executive-summary-heading" />
+      {!dashboardEmpty ? <OperatorWelcomeOnboarding /> : null}
+      {!dashboardEmpty ? <OperatorPilotOrientationBanner /> : null}
+
+      <OperatorPageHeader
+        title={headerCopy.title}
+        subtitle={headerCopy.subtitle}
+        titleTestId="executive-summary-heading"
+      />
 
       {!dashboardEmpty ? (
         <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} roiSummary={summary} />
@@ -142,31 +154,30 @@ function ExecutiveRoiDashboardExecutiveSections({
         </>
       )}
 
+      <SponsorExportsSection surface={surface} />
+
       {hasCommittedReviews ? (
         <section aria-labelledby="executive-findings-heading" className="space-y-4">
           <h2 id="executive-findings-heading" className="m-0 text-base font-semibold text-al-text-primary">
             {v.latestFindingsSectionTitle}
           </h2>
-          <BusinessImpactSummaryWidget summary={summary} loading={summaryLoading} surface="executive" />
+          <BusinessImpactSummaryWidget summary={summary} loading={summaryLoading} surface={surface} />
           <ExecutiveRoiSummarySection
             summary={summary}
             loading={summaryLoading}
             summaryError={summaryError}
-            surface="executive"
+            surface={surface}
           />
         </section>
       ) : null}
 
-      <section aria-label="Executive exports and compliance drift" className="grid gap-4 lg:grid-cols-3">
-        <div className={hasCommittedReviews ? "lg:col-span-2" : "lg:col-span-3"}>
-          <ExecutiveComplianceDriftTrendSection
-            points={driftPoints}
-            loading={driftLoading}
-            error={driftError}
-          />
-        </div>
-        <SponsorExportsSection surface="executive" />
-      </section>
+      {hasCommittedReviews && (hasDriftData || driftLoading) ? (
+        <ExecutiveComplianceDriftTrendSection
+          points={driftPoints}
+          loading={driftLoading}
+          error={driftError}
+        />
+      ) : null}
 
       {hasCommittedReviews ? (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -182,42 +193,18 @@ function ExecutiveRoiDashboardExecutiveSections({
           showDetailedKpiCards
         />
       ) : null}
+
+      <ExecutiveDashboardBaselineWarningBanner variant="setup" />
     </OperatorPageContainer>
   );
 }
 
-function ExecutiveRoiDashboardSections(props: DashboardSectionsProps): React.JSX.Element {
-  if (props.isExecutiveSurface) {
-    return (
-      <ExecutiveRoiDashboardExecutiveSections
-        defaultTrendRange={props.defaultTrendRange}
-        summary={props.summary}
-        summaryLoading={props.summaryLoading}
-        summaryError={props.summaryError}
-        driftPoints={props.driftPoints}
-        driftLoading={props.driftLoading}
-        driftError={props.driftError}
-      />
-    );
-  }
-
-  return (
-    <ExecutiveRoiDashboardOperatorSections
-      defaultTrendRange={props.defaultTrendRange}
-      summary={props.summary}
-      summaryLoading={props.summaryLoading}
-      summaryError={props.summaryError}
-      driftPoints={props.driftPoints}
-      driftLoading={props.driftLoading}
-      driftError={props.driftError}
-    />
-  );
-}
-
-function ExecutiveRoiDashboardExecutiveView({
+function ExecutiveRoiDashboardPortfolioView({
   defaultTrendRange,
+  surface,
 }: {
   readonly defaultTrendRange: ExecutiveTimeRange;
+  readonly surface: "operator" | "executive";
 }): React.JSX.Element {
   const {
     summary,
@@ -229,9 +216,9 @@ function ExecutiveRoiDashboardExecutiveView({
   } = useExecutiveDashboardData();
 
   return (
-    <ExecutiveRoiDashboardSections
+    <ExecutiveRoiDashboardPortfolioSections
       defaultTrendRange={defaultTrendRange}
-      isExecutiveSurface
+      surface={surface}
       summary={summary}
       summaryLoading={summaryLoading}
       summaryError={summaryError}
@@ -244,19 +231,15 @@ function ExecutiveRoiDashboardExecutiveView({
 
 export function ExecutiveRoiDashboardPageView({ surface = "operator" }: ExecutiveRoiDashboardPageViewProps) {
   const defaultTrendRange: ExecutiveTimeRange = "quarter";
+  const usePortfolioLayout = surface === "executive" || isBuyerPolishedOperatorShellEnv();
 
-  if (surface === "executive") {
+  if (usePortfolioLayout) {
     return (
       <ExecutiveDashboardDataProvider>
-        <ExecutiveRoiDashboardExecutiveView defaultTrendRange={defaultTrendRange} />
+        <ExecutiveRoiDashboardPortfolioView defaultTrendRange={defaultTrendRange} surface={surface} />
       </ExecutiveDashboardDataProvider>
     );
   }
 
-  return (
-    <ExecutiveRoiDashboardSections
-      defaultTrendRange={defaultTrendRange}
-      isExecutiveSurface={false}
-    />
-  );
+  return <ExecutiveRoiDashboardLegacyOperatorSections defaultTrendRange={defaultTrendRange} />;
 }

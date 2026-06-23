@@ -78,6 +78,6 @@ describe("presentCostEvidenceFreshness", () => {
       executiveSurface: true,
     });
 
-    expect(result.display).toBe("Not uploaded");
+    expect(result.display).toBe("Cost baseline not configured");
   });
 });
