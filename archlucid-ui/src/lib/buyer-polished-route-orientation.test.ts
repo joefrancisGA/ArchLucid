@@ -46,4 +46,12 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Executive scorecard");
     expect(o?.line).toBe("Value metrics and recommended actions.");
   });
+
+  it("orients the ask route with evidence-grounding copy", () => {
+    const o = buyerPolishedRouteOrientation("/ask");
+
+    expect(o?.label).toBe("Ask this review");
+    expect(o?.line).toContain("signed review record");
+    expect(o?.line).toContain("cite evidence");
+  });
 });

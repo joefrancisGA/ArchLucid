@@ -38,7 +38,9 @@ export function AskCompareReviewsCollapsible(props: AskCompareReviewsCollapsible
             className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
             aria-expanded={compareOpen}
           >
-            <span>{buyerPolishedShell ? "Optional comparison review" : "Compare against another review"}</span>
+            <span>
+              {buyerPolishedShell ? "Optional comparison review" : "Advanced: compare against another review"}
+            </span>
             <ChevronDown
               className={cn(
                 "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",

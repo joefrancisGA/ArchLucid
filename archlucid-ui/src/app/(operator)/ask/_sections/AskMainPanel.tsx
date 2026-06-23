@@ -95,16 +95,21 @@ export function AskMainPanel(props: AskMainPanelProps) {
           />
           <AskBuyerRunAnchors buyerPolishedShell={buyerPolishedShell} runId={runId} />
           {hideCompareChrome ? null : (
-            <AskCompareReviewsCollapsible
-              buyerPolishedShell={buyerPolishedShell}
-              compareOpen={compareOpen}
-              onCompareOpenChange={onCompareOpenChange}
-              selectedThreadId={selectedThreadId}
-              baseRunId={baseRunId}
-              onBaseRunIdChange={onBaseRunIdChange}
-              targetRunId={targetRunId}
-              onTargetRunIdChange={onTargetRunIdChange}
-            />
+            <div className="space-y-2">
+              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                Advanced
+              </p>
+              <AskCompareReviewsCollapsible
+                buyerPolishedShell={buyerPolishedShell}
+                compareOpen={compareOpen}
+                onCompareOpenChange={onCompareOpenChange}
+                selectedThreadId={selectedThreadId}
+                baseRunId={baseRunId}
+                onBaseRunIdChange={onBaseRunIdChange}
+                targetRunId={targetRunId}
+                onTargetRunIdChange={onTargetRunIdChange}
+              />
+            </div>
           )}
         </div>
 

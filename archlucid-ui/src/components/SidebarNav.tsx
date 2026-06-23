@@ -24,6 +24,8 @@ import {
   type SidebarCollapsibleNavGroupId,
 } from "@/lib/sidebar-nav-group-expansion-storage";
 
+const FIRST_RUN_WORKFLOW_ROUTE_PREFIXES = ["/ask", "/compare"] as const;
+
 /**
  * Grouped sidebar navigation (desktop). Review work stays open; deeper groups collapse by default
  * unless the user has saved expansion preferences.
@@ -32,7 +34,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
-  const { expansion, toggleGroupExpanded } = useSidebarNavGroupExpansion();
+  const { expansion, toggleGroupExpanded, setGroupExpanded } = useSidebarNavGroupExpansion();
   const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase, unlockOperateFeatures } =
     useOperatorShellNavRows();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -62,6 +64,22 @@ export function SidebarNav() {
       window.removeEventListener("storage", refreshRuntimeDemoState);
     };
   }, [demoUiEnv]);
+
+  useEffect(() => {
+    if (!mounted) {
+      return;
+    }
+
+    const route = pathname ?? "";
+    const onFirstRunWorkflowRoute = FIRST_RUN_WORKFLOW_ROUTE_PREFIXES.some((prefix) => route.startsWith(prefix));
+
+    if (!onFirstRunWorkflowRoute) {
+      return;
+    }
+
+    setGroupExpanded("operate-governance", false);
+    setGroupExpanded("operator-admin", false);
+  }, [mounted, pathname, setGroupExpanded]);
 
   return (
     <div className="flex min-h-0 flex-col gap-0 pb-2">

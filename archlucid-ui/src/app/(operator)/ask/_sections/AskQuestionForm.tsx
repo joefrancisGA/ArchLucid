@@ -1,9 +1,11 @@
+import Link from "next/link";
 import type { RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BUYER_ASK_INPUT_PLACEHOLDER } from "@/lib/buyer-polish-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import {
   ASK_BUYER_PROMPT_GROUPS,
@@ -114,11 +116,28 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
                 </Button>
               ))}
         </div>
+        {runMissing ? (
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="ask-prompts-sample-callout">
+            Load the{" "}
+            <Link
+              className="font-medium text-teal-800 underline dark:text-teal-300"
+              href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+            >
+              sample workspace
+            </Link>{" "}
+            to try these questions.
+          </p>
+        ) : null}
       </div>
 
       <Button type="button" variant="primary" className="w-fit" onClick={() => void onAsk()} disabled={askDisabled}>
         {loading ? "Thinking…" : "Ask this review"}
       </Button>
+      {runMissing ? (
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="ask-select-review-helper">
+          Select a review package first.
+        </p>
+      ) : null}
     </>
   );
 }

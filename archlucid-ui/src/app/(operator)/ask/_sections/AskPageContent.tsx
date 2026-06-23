@@ -10,6 +10,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { getConversationMessages, listConversationThreads } from "@/lib/conversation-api";
 import { useAskStream } from "@/hooks/useAskStream";
+import { useAskReviewAvailability } from "@/hooks/useAskReviewAvailability";
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -20,9 +21,14 @@ import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
+import { cn } from "@/lib/utils";
 import { AskContextParagraph } from "@/app/(operator)/ask/_sections/AskContextParagraph";
 import { AskMainPanel } from "@/app/(operator)/ask/_sections/AskMainPanel";
+import { AskNoReviewEmptyState } from "@/app/(operator)/ask/_sections/AskNoReviewEmptyState";
 import { AskThreadHistoryPanel } from "@/app/(operator)/ask/_sections/AskThreadHistoryPanel";
+
+const ASK_PAGE_SUBTITLE =
+  "Ask questions about a finalized review package. Answers use the signed review record and cite evidence when available.";
 
 export function AskPageContent() {
   const searchParams = useSearchParams();
@@ -32,11 +38,12 @@ export function AskPageContent() {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const [runId, setRunId] = useState(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const [runId, setRunId] = useState("");
   const [baseRunId, setBaseRunId] = useState("");
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
+  const { loading: reviewsLoading, hasSelectableReviews } = useAskReviewAvailability();
   const {
     tokens: streamingAssistantContent,
     isStreaming: askStreaming,
@@ -351,17 +358,24 @@ export function AskPageContent() {
       const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
 
       setRunId(fromWs.length > 0 ? canonicalizeDemoRunId(fromWs) : SHOWCASE_STATIC_DEMO_RUN_ID);
+    } else {
+      setRunId("");
     }
   }, [buyerPolishedShell, workspaceRun?.activeRunId]);
+
+  const showNoReviewEmptyState =
+    !reviewsLoading &&
+    !hasSelectableReviews &&
+    threads.length === 0 &&
+    selectedThreadId.trim().length === 0;
+  const showThreadHistoryPanel = threads.length > 0;
 
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader
-        title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask about a review"}
+        title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask this review"}
         helpKey="ask-archlucid"
-        subtitle={
-          buyerPolishedShell ? undefined : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
-        }
+        subtitle={buyerPolishedShell ? undefined : ASK_PAGE_SUBTITLE}
       />
       {buyerPolishedShell ? (
         <p
@@ -371,7 +385,7 @@ export function AskPageContent() {
           Scoped to {buyerFacingReviewLinkLabelFromRunId(runId.trim())}
         </p>
       ) : null}
-      <AskContextParagraph buyerPolishedShell={buyerPolishedShell} runId={runId} />
+      {buyerPolishedShell ? <AskContextParagraph buyerPolishedShell={buyerPolishedShell} runId={runId} /> : null}
 
       {listFailure !== null ? (
         <div role="alert" className="mb-4">
@@ -383,46 +397,57 @@ export function AskPageContent() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(180px,220px)_1fr]">
-        <AskThreadHistoryPanel
-          buyerPolishedShell={buyerPolishedShell}
-          runId={runId}
-          threads={threads}
-          selectedThreadId={selectedThreadId}
-          listDateFormatter={listDateFormatter}
-          onNewConversation={onNewConversation}
-          onSelectThread={onSelectThread}
-        />
+      {reviewsLoading ? null : showNoReviewEmptyState ? (
+        <AskNoReviewEmptyState />
+      ) : (
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-4",
+            showThreadHistoryPanel && "md:grid-cols-[minmax(180px,220px)_1fr]",
+          )}
+        >
+          {showThreadHistoryPanel ? (
+            <AskThreadHistoryPanel
+              buyerPolishedShell={buyerPolishedShell}
+              runId={runId}
+              threads={threads}
+              selectedThreadId={selectedThreadId}
+              listDateFormatter={listDateFormatter}
+              onNewConversation={onNewConversation}
+              onSelectThread={onSelectThread}
+            />
+          ) : null}
 
-        <AskMainPanel
-          runId={runId}
-          onRunIdChange={setRunId}
-          selectedThreadId={selectedThreadId}
-          buyerPolishedShell={buyerPolishedShell}
-          hideCompareChrome={hideCompareChrome}
-          compareOpen={compareOpen}
-          onCompareOpenChange={setCompareOpen}
-          baseRunId={baseRunId}
-          onBaseRunIdChange={setBaseRunId}
-          targetRunId={targetRunId}
-          onTargetRunIdChange={setTargetRunId}
-          questionRef={questionRef}
-          question={question}
-          onQuestionChange={setQuestion}
-          showRunDeepLinkPrompts={showRunDeepLinkPrompts}
-          runMissing={runMissing}
-          onMergePromptLine={mergePromptLine}
-          loading={loading || askStreaming}
-          askDisabled={askDisabled}
-          onAsk={onAsk}
-          actionFailure={actionFailure}
-          messages={messages}
-          streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
-          askAssistantGroundingLinks={askAssistantGroundingLinks}
-          showPostAssistantFollowUps={showPostAssistantFollowUps}
-          retrievalDegraded={retrievalDegraded}
-        />
-      </div>
+          <AskMainPanel
+            runId={runId}
+            onRunIdChange={setRunId}
+            selectedThreadId={selectedThreadId}
+            buyerPolishedShell={buyerPolishedShell}
+            hideCompareChrome={hideCompareChrome}
+            compareOpen={compareOpen}
+            onCompareOpenChange={setCompareOpen}
+            baseRunId={baseRunId}
+            onBaseRunIdChange={setBaseRunId}
+            targetRunId={targetRunId}
+            onTargetRunIdChange={setTargetRunId}
+            questionRef={questionRef}
+            question={question}
+            onQuestionChange={setQuestion}
+            showRunDeepLinkPrompts={showRunDeepLinkPrompts}
+            runMissing={runMissing}
+            onMergePromptLine={mergePromptLine}
+            loading={loading || askStreaming}
+            askDisabled={askDisabled}
+            onAsk={onAsk}
+            actionFailure={actionFailure}
+            messages={messages}
+            streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
+            askAssistantGroundingLinks={askAssistantGroundingLinks}
+            showPostAssistantFollowUps={showPostAssistantFollowUps}
+            retrievalDegraded={retrievalDegraded}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -95,4 +95,17 @@ describe("LayerContextStrip", () => {
 
     unmount();
   });
+
+  it("omits operate back link when hideOperateBackLink is true", () => {
+    const { queryByTestId, unmount } = render(
+      <LayerContextStrip
+        layerId="operate-analysis"
+        buyerRouteOrientation={{ label: "Ask this review", line: "Ask questions about a finalized review package." }}
+        hideOperateBackLink
+      />,
+    );
+
+    expect(queryByTestId("layer-context-back-pilot")).toBeNull();
+    unmount();
+  });
 });

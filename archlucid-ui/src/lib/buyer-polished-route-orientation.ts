@@ -141,7 +141,7 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith("/ask")) {
     return {
       label: "Ask this review",
-      line: `Pose questions scoped to persisted reviews; answers cite the signed review record and evidence trail when available.`,
+      line: "Ask questions about a finalized review package. Answers use the signed review record and cite evidence when available.",
     };
   }
 
