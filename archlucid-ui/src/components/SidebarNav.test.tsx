@@ -5,6 +5,7 @@ import {
   SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
   SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
 } from "@/lib/sidebar-nav-group-expansion-storage";
+import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 import { SidebarNav } from "./SidebarNav";
 
@@ -41,6 +42,11 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCallerAuthorityRank: (): number => 3,
+  useNavCommittedArchitectureReview: (): boolean => false,
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -60,6 +66,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+function unlockOperateFeatures(): void {
+  fireEvent.click(screen.getByTestId("nav-advanced-unlock"));
+}
+
 describe("SidebarNav (primary navigation)", () => {
   beforeEach(() => {
     buyerPolishedMock.value = false;
@@ -68,7 +78,7 @@ describe("SidebarNav (primary navigation)", () => {
     localStorage.clear();
   });
 
-  it("shows a calm first-run nav: Review work expanded and deeper groups collapsed", () => {
+  it("shows a calm first-run nav: Review work expanded, Operate hidden until unlock", () => {
     render(<SidebarNav />);
 
     const reviewNav = screen.getByRole("navigation", { name: "Review work" });
@@ -79,9 +89,10 @@ describe("SidebarNav (primary navigation)", () => {
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(reviewNav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByTestId("sidebar-group-toggle-operate-operations")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-governance")).toBeNull();
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-operations")).toBeNull();
     expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toHaveAttribute("aria-expanded", "false");
 
     expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
@@ -89,8 +100,13 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByRole("navigation", { name: "Operations" })).toBeNull();
   });
 
-  it("expands Analysis with a chevron disclosure and reveals analysis destinations", async () => {
+  it("expands Analysis with a chevron disclosure after Operate features are unlocked", async () => {
     render(<SidebarNav />);
+    unlockOperateFeatures();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
+    });
 
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-analysis"));
 
@@ -104,6 +120,7 @@ describe("SidebarNav (primary navigation)", () => {
   });
 
   it("persists saved group expansion without overwriting on reload", async () => {
+    writeOperateNavUnlockPhase(1);
     localStorage.setItem(
       SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
       JSON.stringify({
@@ -122,18 +139,13 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("does not show Enable advanced features or meaningless child-count badges on group headings", () => {
+  it("shows the Operate unlock affordance instead of legacy advanced-feature copy", () => {
     render(<SidebarNav />);
 
     expect(screen.queryByText("Enable advanced features")).toBeNull();
-    expect(screen.queryByTestId("nav-advanced-unlock")).toBeNull();
+    expect(screen.getByTestId("nav-advanced-unlock")).toHaveTextContent("Unlock Operate features");
     expect(screen.queryByTestId("sidebar-governance-disclosure")).toBeNull();
     expect(screen.queryByRole("button", { name: /Show \d+ more destinations/ })).toBeNull();
-
-    for (const groupId of ["operate-analysis", "operate-governance", "operate-operations", "operator-admin"]) {
-      const toggle = screen.getByTestId(`sidebar-group-toggle-${groupId}`);
-      expect(toggle.textContent?.trim()).not.toMatch(/\d+/);
-    }
   });
 
   it("uses chevron Administration disclosure separate from Review work", async () => {
@@ -169,7 +181,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     localStorage.clear();
   });
 
-  it("keeps Review work expanded with advanced groups collapsed and reachable", async () => {
+  it("keeps Review work expanded with Operate hidden until unlock", async () => {
     render(<SidebarNav />);
 
     expect(screen.queryByRole("button", { name: /Review work/i })).toBeNull();
@@ -180,11 +192,15 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(nav).getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
 
-    expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByTestId("sidebar-group-toggle-operate-operations")).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
+
+    unlockOperateFeatures();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toBeInTheDocument();
+    });
 
     fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-governance"));
 

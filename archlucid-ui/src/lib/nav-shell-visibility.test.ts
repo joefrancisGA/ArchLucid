@@ -306,6 +306,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
       false,
       "all",
       true,
+      2,
     ).find((r) => r.group.id === "operate-governance");
 
     expect(fromList).toBeDefined();
@@ -413,6 +414,7 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
       false,
       AUTHORITY_RANK.ReadAuthority,
       true,
+      1,
     );
     const revealed = countSidebarLinksRevealedByShowAllFeatures(
       NAV_GROUPS,
@@ -420,6 +422,7 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
       false,
       AUTHORITY_RANK.ReadAuthority,
       true,
+      1,
     );
 
     expect(revealed).toBe(collapsedOnly);

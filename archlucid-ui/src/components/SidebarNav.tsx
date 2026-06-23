@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { GovernanceModeToggle } from "@/components/GovernanceModeToggle";
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
+import { OperateFeaturesUnlockPanel } from "@/components/usability/OperateFeaturesUnlockPanel";
 import { SidebarNavLayoutSettingsPanel } from "@/components/sidebar-nav/SidebarNavLayoutSettingsPanel";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
@@ -32,7 +33,7 @@ export function SidebarNav() {
   const [mounted, setMounted] = useState(false);
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const { expansion, toggleGroupExpanded } = useSidebarNavGroupExpansion();
-  const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase } =
+  const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase, unlockOperateFeatures } =
     useOperatorShellNavRows();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
@@ -93,6 +94,8 @@ export function SidebarNav() {
           />
         );
       })}
+
+      <OperateFeaturesUnlockPanel phase={effectiveOperateUnlockPhase} onUnlock={unlockOperateFeatures} />
 
       <div className="mt-2 border-t border-neutral-200 px-2 pt-2 dark:border-neutral-700">
         <GovernanceModeToggle />

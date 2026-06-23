@@ -6,6 +6,7 @@ import { useLayoutEffect, useState } from "react";
 
 import { GovernanceModeToggle } from "@/components/GovernanceModeToggle";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
+import { OperateFeaturesUnlockPanel } from "@/components/usability/OperateFeaturesUnlockPanel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +31,7 @@ export function MobileNavDrawer() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { expansion, toggleGroupExpanded } = useSidebarNavGroupExpansion();
-  const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase } =
+  const { allRows, buyerPolishedShell, demoUi, effectiveHasCommittedArchitectureReview, effectiveOperateUnlockPhase, unlockOperateFeatures } =
     useOperatorShellNavRows();
 
   useLayoutEffect(() => {
@@ -90,6 +91,7 @@ export function MobileNavDrawer() {
                 />
               );
             })}
+            <OperateFeaturesUnlockPanel phase={effectiveOperateUnlockPhase} onUnlock={unlockOperateFeatures} />
             <div className="mt-2 border-t border-neutral-200 px-2 pt-2 dark:border-neutral-700">
               <GovernanceModeToggle />
             </div>

@@ -7,7 +7,11 @@ import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
-import { filterNavLinksByOperateUnlockPhase, type OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+import {
+  filterNavLinksByOperateUnlockPhase,
+  isOperateNavGroupId,
+  type OperateNavUnlockPhase,
+} from "@/lib/usability/operate-nav-progressive-unlock";
 
 /**
  * Buyer-polished shell nav omissions. Empty: Compare (and other advanced destinations) stay reachable
@@ -182,11 +186,15 @@ export function listNavGroupsVisibleInOperatorShell(
   applyCollapsedSidebarPilotFilter = false,
   surfaceFilter: "all" | NavShellSurface = "all",
   hasCommittedArchitectureReview = true,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 2,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
+    if (operateNavUnlockPhase === 0 && isOperateNavGroupId(group.id)) {
+      continue;
+    }
+
     if (surfaceFilter !== "all" && group.surface !== surfaceFilter) {
       continue;
     }
@@ -194,20 +202,24 @@ export function listNavGroupsVisibleInOperatorShell(
     const useCollapsedPilot =
       applyCollapsedSidebarPilotFilter && group.surface === "review-workflow";
 
-    const visibleLinks = filterNavLinksByOperateUnlockPhase(
-      filterNavLinksByPublishReadiness(
-        filterNavLinksForOperatorShell(
-          group.links,
-          showExtended,
-          showAdvanced,
-          callerAuthorityRank,
-          useCollapsedPilot,
-          hasCommittedArchitectureReview,
-        ),
+    const shellLinks = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        useCollapsedPilot,
+        hasCommittedArchitectureReview,
       ),
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
     );
+
+    const visibleLinks = isOperateNavGroupId(group.id)
+      ? filterNavLinksByOperateUnlockPhase(
+          shellLinks,
+          hasCommittedArchitectureReview,
+          operateNavUnlockPhase,
+        )
+      : shellLinks;
 
     if (visibleLinks.length === 0) {
       continue;
@@ -228,7 +240,7 @@ export function visibleOperatorShellHrefSet(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 2,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): Set<string> {
   const rows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -261,6 +273,7 @@ export function countSidebarLinksRevealedByShowAllFeatures(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview: boolean,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): number {
   return countSidebarLinksHiddenByCollapsedPilot(
     groups,
@@ -268,6 +281,7 @@ export function countSidebarLinksRevealedByShowAllFeatures(
     showAdvanced,
     callerAuthorityRank,
     hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
 }
 
@@ -280,7 +294,7 @@ export function countSidebarLinksHiddenByCollapsedPilot(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   hasCommittedArchitectureReview = true,
-  operateNavUnlockPhase: OperateNavUnlockPhase = 2,
+  operateNavUnlockPhase: OperateNavUnlockPhase = 0,
 ): number {
   let full = 0;
   let collapsed = 0;
@@ -290,34 +304,37 @@ export function countSidebarLinksHiddenByCollapsedPilot(
       continue;
     }
 
-    full += filterNavLinksByOperateUnlockPhase(
-      filterNavLinksByPublishReadiness(
-        filterNavLinksForOperatorShell(
-          group.links,
-          showExtended,
-          showAdvanced,
-          callerAuthorityRank,
-          false,
-          hasCommittedArchitectureReview,
-        ),
+    if (operateNavUnlockPhase === 0 && isOperateNavGroupId(group.id)) {
+      continue;
+    }
+
+    const fullLinks = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        false,
+        hasCommittedArchitectureReview,
       ),
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
-    ).length;
-    collapsed += filterNavLinksByOperateUnlockPhase(
-      filterNavLinksByPublishReadiness(
-        filterNavLinksForOperatorShell(
-          group.links,
-          showExtended,
-          showAdvanced,
-          callerAuthorityRank,
-          true,
-          hasCommittedArchitectureReview,
-        ),
+    );
+    const collapsedLinks = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        true,
+        hasCommittedArchitectureReview,
       ),
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
-    ).length;
+    );
+
+    full += isOperateNavGroupId(group.id)
+      ? filterNavLinksByOperateUnlockPhase(fullLinks, hasCommittedArchitectureReview, operateNavUnlockPhase).length
+      : fullLinks.length;
+    collapsed += isOperateNavGroupId(group.id)
+      ? filterNavLinksByOperateUnlockPhase(collapsedLinks, hasCommittedArchitectureReview, operateNavUnlockPhase).length
+      : collapsedLinks.length;
   }
 
   return Math.max(0, full - collapsed);

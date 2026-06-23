@@ -1,10 +1,27 @@
 /**
- * Progressive Operate nav unlock: analysis first after first commit, governance after phase 2.
+ * Progressive Operate nav unlock: pilot-only (0) → analysis (1) → governance (2).
  */
 
-export type OperateNavUnlockPhase = 1 | 2;
+export type OperateNavUnlockPhase = 0 | 1 | 2;
 
 export const OPERATE_NAV_UNLOCK_STORAGE_KEY = "archlucid.operateNavUnlockPhase.v1";
+
+export const OPERATE_NAV_UNLOCK_CHANGED_EVENT = "archlucid-operate-nav-unlock-changed";
+
+const OPERATE_NAV_GROUP_IDS = new Set<string>([
+  "operate-analysis",
+  "operate-governance",
+  "operate-operations",
+]);
+
+const LEGACY_SIDEBAR_PREFERENCE_KEYS = [
+  "archlucid_nav_sidebar_groups.v2",
+  "archlucid_nav_show_administration",
+  "archlucid_nav_show_extended",
+  "archlucid_nav_show_advanced",
+  "archlucid-nav-expanded",
+  "archlucid-nav-collapsed-pilot-expanded",
+] as const;
 
 /** Hrefs hidden until phase 2 (governance cluster). Recurrence schedules stay in phase 1 — operating rhythm, not deep governance. */
 const GOVERNANCE_PHASE_HREFS = new Set<string>([
@@ -25,23 +42,53 @@ const NAV_CONSOLIDATED_OMIT_HREFS = new Set<string>([
   "/digest-subscriptions",
 ]);
 
+export function isOperateNavGroupId(groupId: string): boolean {
+  return OPERATE_NAV_GROUP_IDS.has(groupId);
+}
+
+function hasLegacySidebarNavPreference(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return LEGACY_SIDEBAR_PREFERENCE_KEYS.some((key) => window.localStorage.getItem(key) !== null);
+  }
+  catch {
+    return false;
+  }
+}
+
+function parseStoredOperateNavUnlockPhase(raw: string): OperateNavUnlockPhase | null {
+  if (raw === "0" || raw === "1" || raw === "2") {
+    return Number(raw) as OperateNavUnlockPhase;
+  }
+
+  return null;
+}
+
 export function readOperateNavUnlockPhase(): OperateNavUnlockPhase {
   if (typeof window === "undefined") {
-    return 1;
+    return 0;
   }
 
   try {
     const raw = window.localStorage.getItem(OPERATE_NAV_UNLOCK_STORAGE_KEY);
+    const parsed = raw === null ? null : parseStoredOperateNavUnlockPhase(raw);
 
-    if (raw === "2") {
-      return 2;
+    if (parsed !== null) {
+      return parsed;
+    }
+
+    if (hasLegacySidebarNavPreference()) {
+      return 1;
     }
   }
   catch {
     /* ignore */
   }
 
-  return 1;
+  return 0;
 }
 
 export function writeOperateNavUnlockPhase(phase: OperateNavUnlockPhase): void {
@@ -51,10 +98,15 @@ export function writeOperateNavUnlockPhase(phase: OperateNavUnlockPhase): void {
 
   try {
     window.localStorage.setItem(OPERATE_NAV_UNLOCK_STORAGE_KEY, String(phase));
+    window.dispatchEvent(new Event(OPERATE_NAV_UNLOCK_CHANGED_EVENT));
   }
   catch {
     /* ignore */
   }
+}
+
+export function advanceOperateNavUnlockToAnalysis(): void {
+  writeOperateNavUnlockPhase(1);
 }
 
 export function advanceOperateNavUnlockToGovernance(): void {
@@ -66,6 +118,10 @@ export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
   _hasCommittedArchitectureReview: boolean,
   unlockPhase: OperateNavUnlockPhase,
 ): T[] {
+  if (unlockPhase === 0) {
+    return [];
+  }
+
   const filtered = links.filter((link) => !NAV_CONSOLIDATED_OMIT_HREFS.has(link.href.split("?")[0] ?? ""));
 
   if (unlockPhase >= 2) {

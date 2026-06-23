@@ -41,7 +41,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { filterNavGroupsForGovernanceMode, isGovernanceModeHiddenNavHref } from "@/lib/governance-mode-nav-filter";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
-import { operateNavUnlockPhaseForAdvancedFeatures } from "@/lib/usability/operate-advanced-features-disclosure";
+import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
+import { resolveOperateNavUnlockPhase } from "@/lib/usability/operate-advanced-features-disclosure";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
@@ -222,7 +223,7 @@ function CommandPaletteNavGroups({
   shellShowAdvanced: boolean;
   hasCommittedArchitectureReview: boolean;
   buyerPolishedShell: boolean;
-  operateNavUnlockPhase: ReturnType<typeof operateNavUnlockPhaseForAdvancedFeatures>;
+  operateNavUnlockPhase: ReturnType<typeof resolveOperateNavUnlockPhase>;
   isGovernanceModeEnabled: boolean;
   onNavigate: (href: string) => void;
 }) {
@@ -394,8 +395,9 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const paletteExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
   const paletteAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const { effectiveOperateUnlockPhase } = useOperateNavUnlockPhase();
   const operatorAdvancedModeOn = showExtended && showAdvanced;
-  const operateNavUnlockPhase = operateNavUnlockPhaseForAdvancedFeatures(operatorAdvancedModeOn);
+  const operateNavUnlockPhase = resolveOperateNavUnlockPhase(effectiveOperateUnlockPhase, operatorAdvancedModeOn);
 
   const visibleHrefs = useMemo(() => {
     const hrefs = visibleOperatorShellHrefSet(

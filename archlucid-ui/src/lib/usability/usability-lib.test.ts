@@ -11,6 +11,13 @@ describe("usability lib", () => {
     expect(navLinkQuestionSubtitle("/compare")).toContain("changed");
   });
 
+  it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {
+    const links = [{ href: "/compare" }, { href: "/audit" }];
+    const phase0 = filterNavLinksByOperateUnlockPhase(links, false, 0);
+
+    expect(phase0).toEqual([]);
+  });
+
   it("filterNavLinksByOperateUnlockPhase hides governance until phase 2", () => {
     const links = [{ href: "/compare" }, { href: "/audit" }];
     const phase1 = filterNavLinksByOperateUnlockPhase(links, true, 1);

@@ -30,6 +30,10 @@ export function filterSidebarNavClusterLinks(input: SidebarNavClusterLinksInput)
     ? input.visibleLinks.filter((link) => !shouldHideOperatorNavLinkInDemo(link.href, true))
     : [...input.visibleLinks];
 
+  if (input.effectiveOperateUnlockPhase === 0) {
+    return linksAfterDemoFilter;
+  }
+
   return filterNavLinksByOperateUnlockPhase(
     linksAfterDemoFilter,
     input.hasCommittedArchitectureReview,

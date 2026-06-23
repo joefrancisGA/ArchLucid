@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
+
 import { SidebarNav } from "./SidebarNav";
 
 const { mockPathname } = vi.hoisted(() => ({
@@ -35,8 +37,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 // Reproduce a brand-new buyer tenant: Admin rank, but no committed architecture review yet.
-// This is the case the running app hits for first-use buyers, and the first-commit gate used
-// to strip Analysis / Governance / Operations entirely.
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => 3,
   useNavCommittedArchitectureReview: (): boolean => false,
@@ -82,16 +82,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
-    hrefs: [
-      "/governance/findings",
-      "/governance/risk-exceptions",
-      "/policy-packs",
-      "/governance-resolution",
-      "/governance",
-      "/audit",
-      "/governance/decision-register",
-      "/alerts",
-    ],
+    hrefs: ["/governance/findings", "/governance/risk-exceptions"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-operations",
@@ -117,8 +108,18 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
 ];
 
+const OPERATE_COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = COLLAPSED_GROUPS.filter((group) =>
+  group.toggleTestId.startsWith("sidebar-group-toggle-operate-"),
+);
+
+const ADMIN_GROUP = COLLAPSED_GROUPS.find((group) => group.toggleTestId === "sidebar-group-toggle-operator-admin");
+
 function hrefRendered(href: string): boolean {
   return document.querySelector(`a[href="${href}"]`) !== null;
+}
+
+function unlockOperateFeatures(): void {
+  fireEvent.click(screen.getByTestId("nav-advanced-unlock"));
 }
 
 describe("SidebarNav — new-user buyer-polished catalog (no committed review)", () => {
@@ -135,18 +136,27 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
     }
   });
 
-  it("renders all four advanced groups collapsed by default", () => {
+  it("hides Operate groups until the user unlocks them while keeping Administration visible", () => {
     render(<SidebarNav />);
 
-    for (const group of COLLAPSED_GROUPS) {
-      expect(screen.getByTestId(group.toggleTestId)).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
+
+    for (const group of OPERATE_COLLAPSED_GROUPS) {
+      expect(screen.queryByTestId(group.toggleTestId)).toBeNull();
     }
+
+    expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toBeInTheDocument();
   });
 
-  it("exposes every requested destination once its group is expanded", async () => {
+  it("exposes every requested destination once Operate features are unlocked and groups expanded", async () => {
     render(<SidebarNav />);
+    unlockOperateFeatures();
 
-    for (const group of COLLAPSED_GROUPS) {
+    await waitFor(() => {
+      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
+    });
+
+    for (const group of OPERATE_COLLAPSED_GROUPS) {
       fireEvent.click(screen.getByTestId(group.toggleTestId));
 
       await waitFor(() => {
@@ -157,5 +167,26 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
         expect(hrefRendered(href)).toBe(true);
       }
     }
+
+    expect(ADMIN_GROUP).toBeDefined();
+    fireEvent.click(screen.getByTestId(ADMIN_GROUP!.toggleTestId));
+
+    await waitFor(() => {
+      expect(screen.getByTestId(ADMIN_GROUP!.toggleTestId)).toHaveAttribute("aria-expanded", "true");
+    });
+
+    for (const href of ADMIN_GROUP!.hrefs) {
+      expect(hrefRendered(href)).toBe(true);
+    }
+  });
+
+  it("restores previously unlocked Operate groups without showing the unlock panel again", async () => {
+    writeOperateNavUnlockPhase(1);
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("operate-features-unlock-panel")).toBeNull();
+      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
+    });
   });
 });

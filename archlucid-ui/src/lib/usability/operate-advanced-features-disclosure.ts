@@ -1,12 +1,29 @@
 import {
   advanceOperateNavUnlockToGovernance,
+  readOperateNavUnlockPhase,
   writeOperateNavUnlockPhase,
   type OperateNavUnlockPhase,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
-/** Maps the V1 advanced-features toggle to operate-governance nav unlock phase. */
+/** Combines persisted pilot unlock phase with the sidebar advanced-features toggle for palette visibility. */
+export function resolveOperateNavUnlockPhase(
+  storedPhase: OperateNavUnlockPhase,
+  advancedFeaturesEnabled: boolean,
+): OperateNavUnlockPhase {
+  if (advancedFeaturesEnabled) {
+    return 2;
+  }
+
+  if (storedPhase >= 2) {
+    return 1;
+  }
+
+  return storedPhase;
+}
+
+/** @deprecated Prefer {@link resolveOperateNavUnlockPhase} with a stored phase from {@link readOperateNavUnlockPhase}. */
 export function operateNavUnlockPhaseForAdvancedFeatures(advancedFeaturesEnabled: boolean): OperateNavUnlockPhase {
-  return advancedFeaturesEnabled ? 2 : 1;
+  return resolveOperateNavUnlockPhase(readOperateNavUnlockPhase(), advancedFeaturesEnabled);
 }
 
 export function syncOperateNavUnlockWithAdvancedFeatures(advancedFeaturesEnabled: boolean): void {
@@ -16,5 +33,7 @@ export function syncOperateNavUnlockWithAdvancedFeatures(advancedFeaturesEnabled
     return;
   }
 
-  writeOperateNavUnlockPhase(1);
+  if (readOperateNavUnlockPhase() >= 1) {
+    writeOperateNavUnlockPhase(1);
+  }
 }

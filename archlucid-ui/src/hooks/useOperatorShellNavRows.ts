@@ -4,19 +4,22 @@ import { useMemo } from "react";
 
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
+import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { filterNavGroupsForGovernanceMode } from "@/lib/governance-mode-nav-filter";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 type UseOperatorShellNavRowsResult = {
   readonly allRows: NavGroupWithVisibleLinks[];
   readonly buyerPolishedShell: boolean;
   readonly demoUi: boolean;
   readonly effectiveHasCommittedArchitectureReview: boolean;
-  readonly effectiveOperateUnlockPhase: 2;
+  readonly effectiveOperateUnlockPhase: OperateNavUnlockPhase;
+  readonly unlockOperateFeatures: () => void;
 };
 
 /** Shared sidebar / mobile drawer nav composition with governance-mode filtering. */
@@ -26,10 +29,12 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const { isGovernanceModeEnabled } = useGovernanceMode();
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { effectiveOperateUnlockPhase, unlockOperateFeatures } = useOperateNavUnlockPhase();
   const navExpanded = true;
   const navAdvanced = true;
-  const effectiveOperateUnlockPhase = 2 as const;
   const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
+  const navGateHasCommittedArchitectureReview =
+    effectiveHasCommittedArchitectureReview || effectiveOperateUnlockPhase >= 1;
   const omitAdminClusters = demoUi && !buyerPolishedShell;
 
   return useMemo(() => {
@@ -41,7 +46,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
         callerAuthorityRank,
         false,
         "review-workflow",
-        effectiveHasCommittedArchitectureReview,
+        navGateHasCommittedArchitectureReview,
         effectiveOperateUnlockPhase,
       ),
       isGovernanceModeEnabled,
@@ -58,7 +63,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
               callerAuthorityRank,
               false,
               "platform-admin",
-              effectiveHasCommittedArchitectureReview,
+              navGateHasCommittedArchitectureReview,
               effectiveOperateUnlockPhase,
             ),
             isGovernanceModeEnabled,
@@ -70,6 +75,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       demoUi,
       effectiveHasCommittedArchitectureReview,
       effectiveOperateUnlockPhase,
+      unlockOperateFeatures,
     };
   }, [
     buyerPolishedShell,
@@ -80,6 +86,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     isGovernanceModeEnabled,
     navAdvanced,
     navExpanded,
+    navGateHasCommittedArchitectureReview,
     omitAdminClusters,
+    unlockOperateFeatures,
   ]);
 }

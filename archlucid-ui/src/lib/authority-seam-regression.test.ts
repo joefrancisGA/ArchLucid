@@ -183,7 +183,7 @@ describe("authority seam regression", () => {
    * Findings link lives in the Governance group at extended tier so it appears after "Show more".
    * Confirm it is visible for a Reader with extended links enabled.
    */
-  it("Reader with extended links sees Findings in the Governance group", () => {
+  it("Reader with extended links sees Findings in the Governance group after Operate unlock", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       true,
@@ -192,6 +192,7 @@ describe("authority seam regression", () => {
       false,
       "all",
       true,
+      1,
     );
 
     const governance = rows.find((r) => r.group.id === "operate-governance");
