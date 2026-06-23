@@ -40,7 +40,6 @@ import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
   BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE,
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
-  BUYER_GOVERNANCE_FINDINGS_EMPTY,
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
   BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
@@ -79,6 +78,12 @@ import {
 export type { GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
 type RiskRegisterFilter = "all" | "stale" | "waiver-expiring";
+
+const ARCHITECTURE_RISK_REGISTER_SUBTITLE =
+  "Track architecture risks across review packages, including owner, disposition, age, evidence, and linked decisions.";
+
+const ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW =
+  "Risks appear here after review findings are accepted into governance or review decisions create follow-up risk items.";
 
 const WAIVER_EXPIRING_WINDOW_DAYS = 14;
 
@@ -732,7 +737,7 @@ export default function GovernanceFindingsQueueClient() {
               .
             </>
           ) : (
-            "Owned architecture risks across reviews — disposition, owner, aging, stale cadence, and evidence links."
+            ARCHITECTURE_RISK_REGISTER_SUBTITLE
           )}
         </p>
 
@@ -1070,18 +1075,16 @@ export default function GovernanceFindingsQueueClient() {
         {!loading && rows.length === 0 ? (
           <EnterpriseCompactEmptyState
             testId="governance-findings-empty-state"
-            title="No risks in the register"
+            title="No architecture risks yet"
             description={
               loadFailed
                 ? buyerPolishedShell
                   ? "We could not load the architecture risk register for this workspace. Check your connection, or return to reviews and try again."
                   : "We could not load the architecture risk register for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
-                : buyerPolishedShell
-                  ? `When reviews surface owned risks or recorded decisions, they will appear here. ${BUYER_GOVERNANCE_FINDINGS_EMPTY}`
-                  : "When committed reviews produce findings or signed review decisions, they appear here. Start from an architecture request, finalize a review record, then return to this register."
+                : ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW
             }
             actions={[
-              { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
+              { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
               {
                 label: buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Governance workflow",
                 href: "/governance",
@@ -1097,15 +1100,9 @@ export default function GovernanceFindingsQueueClient() {
               What the risk register contains
             </summary>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Each row is either an architecture risk (explainability-backed finding with owner, disposition, and review
-              cadence) or a recorded review decision. Both link back to the producing review and signed review record
-              evidence — not a separate risk subsystem.
+              {ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW} Each row links back to its source review package and signed
+              review record — not a separate risk subsystem.
             </p>
-            <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
-              <li>Create an architecture request and wait for the pipeline to complete.</li>
-              <li>Finalize the review to lock the signed review record and surface findings.</li>
-              <li>Return here or open review detail to inspect findings.</li>
-            </ol>
           </details>
         ) : null}
         <ProductConceptsGlossary className="mt-4" />
