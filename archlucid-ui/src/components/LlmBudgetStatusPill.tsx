@@ -42,7 +42,7 @@ function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: 
     status.blocksAdditionalLlmExecution ||
     (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
 
-  return paused ? `Budget: ${display} — paused` : `Budget: ${display}`;
+  return paused ? `AI budget: ${display} — paused` : `AI budget: ${display}`;
 }
 
 function buildPillAriaLabel(remainingPercent: number | null, paused: boolean): string {
@@ -150,8 +150,12 @@ export function LlmBudgetStatusPill() {
         <PopoverContent data-testid="llm-budget-status-pill-popover">
           <LlmBudgetUtilizationMeter />
           <p className="m-0 mt-3 text-xs">
+            <Link href="/settings/billing#billing-usage" className="font-medium text-teal-800 underline dark:text-teal-300">
+              View usage on Billing &amp; plans
+            </Link>
+            {" · "}
             <Link href="/settings/cost-reporting" className="font-medium text-teal-800 underline dark:text-teal-300">
-              Manage budget
+              Cost reporting
             </Link>
           </p>
         </PopoverContent>

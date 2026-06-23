@@ -1,77 +1,39 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
+import { buildOperatorBillingPricingLines } from "@/lib/operator-billing-pricing-lines";
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import { showInfo } from "@/lib/toast";
 
-function formatMoney(amount: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 function PricingLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
-  const { pricing, pkg } = props;
+  const lines = buildOperatorBillingPricingLines(props.pricing, props.pkg);
 
   return (
     <dl className="space-y-1 border-t border-neutral-200 pt-4 text-sm text-neutral-800 dark:border-neutral-700 dark:text-neutral-200">
-      {typeof pkg.workspaceMonthlyUsd === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Workspace platform</dt>
-          <dd className="font-medium tabular-nums">{formatMoney(pkg.workspaceMonthlyUsd, pricing.currency)} / mo</dd>
+      {lines.map((line) => (
+        <div key={line.label} className="flex justify-between gap-2">
+          <dt>{line.label}</dt>
+          <dd className="font-medium tabular-nums">{line.value}</dd>
         </div>
-      ) : null}
-      {typeof pkg.maxWorkspaces === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Workspaces (cap)</dt>
-          <dd className="tabular-nums">{pkg.maxWorkspaces}</dd>
-        </div>
-      ) : null}
-      {typeof pkg.seatMonthlyUsd === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Architect seat (beyond included allocation)</dt>
-          <dd className="font-medium tabular-nums">{formatMoney(pkg.seatMonthlyUsd, pricing.currency)} / seat / mo</dd>
-        </div>
-      ) : null}
-      {typeof pkg.includedArchitectSeats === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Architect seats (included)</dt>
-          <dd className="tabular-nums">Up to {pkg.includedArchitectSeats}</dd>
-        </div>
-      ) : null}
-      {typeof pkg.includedReviewsPerMonth === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Reviews / month (included)</dt>
-          <dd className="tabular-nums">{pkg.includedReviewsPerMonth}</dd>
-        </div>
-      ) : null}
-      {typeof pkg.overageReviewUsd === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Review overage</dt>
-          <dd className="tabular-nums">{formatMoney(pkg.overageReviewUsd, pricing.currency)} / review</dd>
-        </div>
-      ) : null}
-      {typeof pkg.annualFloorUsd === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Annual contract from</dt>
-          <dd className="font-medium tabular-nums">{formatMoney(pkg.annualFloorUsd, pricing.currency)}</dd>
-        </div>
-      ) : null}
-      {typeof pkg.annualCeilingUsd === "number" ? (
-        <div className="flex justify-between gap-2">
-          <dt>Typical land range (to)</dt>
-          <dd className="tabular-nums">{formatMoney(pkg.annualCeilingUsd, pricing.currency)} / yr</dd>
-        </div>
-      ) : null}
+      ))}
     </dl>
   );
+}
+
+function tierPrimaryActionLabel(pkg: PricingPackage): string {
+  if (pkg.id === "enterprise") {
+    return "Talk to sales — Enterprise";
+  }
+
+  if (pkg.id === "professional") {
+    return "Upgrade to Professional";
+  }
+
+  return "Upgrade to Team";
 }
 
 export function OperatorBillingPlansClient() {
@@ -98,34 +60,12 @@ export function OperatorBillingPlansClient() {
     void loadPricing();
   }, [loadPricing]);
 
-  const onUpgradeToTeam = useCallback(() => {
-    showInfo("Stripe Checkout Integration Pending");
-  }, []);
-
   const onPlaceholderCommercialAction = useCallback(() => {
     showInfo("Stripe Checkout Integration Pending");
   }, []);
 
   return (
-    <div className="w-full max-w-[1440px] space-y-6 px-4 py-8" data-testid="operator-billing-plans-page">
-      <header className="space-y-2">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
-          Billing & plans
-        </h1>
-        <p className="max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Compare Team, Professional, and Enterprise packaging. Figures mirror{" "}
-          <Link
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            href="/pricing"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            public pricing
-          </Link>{" "}
-          (<span className="font-mono">pricing.json</span>). Checkout is not wired from this workspace yet.
-        </p>
-      </header>
-
+    <div className="space-y-4">
       {pricingError ? (
         <p className="text-sm text-red-600 dark:text-red-400" role="alert">
           Pricing data failed to load. Retry later or visit the public pricing page.
@@ -145,15 +85,17 @@ export function OperatorBillingPlansClient() {
               <Card key={pkg.id} className="flex flex-col" data-testid={`billing-tier-${pkg.id}`}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl">{pkg.title}</CardTitle>
-                  <CardDescription>{pkg.summary}</CardDescription>
+                  <CardDescription>
+                    {pkg.id === "enterprise"
+                      ? "Annual contract for high-volume reviews, custom policy packs, and enterprise support."
+                      : pkg.summary}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-4 pt-0">
                   <PricingLines pricing={pricing} pkg={pkg} />
-                  {pkg.id === "team" ? (
-                    <p className="text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-                      Self-serve Stripe Checkout will use a single bundled Team subscription (currently modeled at{" "}
-                      <strong className="font-medium text-neutral-800 dark:text-neutral-200">$249</strong> / mo) until
-                      workspace + seat line items ship; quotes and order forms still use decomposed list fees.
+                  {pkg.id === "enterprise" ? (
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                      Contact sales for volume, retention, and support options tailored to your organization.
                     </p>
                   ) : null}
                   <div>
@@ -168,21 +110,14 @@ export function OperatorBillingPlansClient() {
                   </div>
                 </CardContent>
                 <CardFooter className="mt-auto flex-col gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-                  {pkg.id === "team" ? (
-                    <Button type="button" variant="primary" className="w-full" onClick={onUpgradeToTeam}>
-                      Upgrade to Team
-                    </Button>
-                  ) : null}
-                  {pkg.id === "professional" ? (
-                    <Button type="button" variant="outline" className="w-full" onClick={onPlaceholderCommercialAction}>
-                      Upgrade to Professional
-                    </Button>
-                  ) : null}
-                  {pkg.id === "enterprise" ? (
-                    <Button type="button" variant="outline" className="w-full" onClick={onPlaceholderCommercialAction}>
-                      Talk to sales — Enterprise
-                    </Button>
-                  ) : null}
+                  <Button
+                    type="button"
+                    variant={pkg.id === "team" ? "primary" : "outline"}
+                    className="w-full"
+                    onClick={onPlaceholderCommercialAction}
+                  >
+                    {tierPrimaryActionLabel(pkg)}
+                  </Button>
                   <p className="text-center text-[11px] text-neutral-500 dark:text-neutral-500">
                     Effective {pricing.effectiveDate} · {pricing.currency}
                   </p>
