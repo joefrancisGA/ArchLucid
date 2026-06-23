@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -308,7 +309,20 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           <p className="m-0 mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
             Work tracking
           </p>
-          <ItsmOutboundQuickActions findingId={f.findingId} compact />
+          <div className="flex flex-wrap items-center gap-2">
+            <CopyGovernanceQueueWorkItemButton
+              runId={props.runId}
+              findingId={f.findingId}
+              findingTitle={f.title}
+              severityLabel={
+                f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
+              }
+              recommendedAction={f.recommendation}
+              statusLabel="Open"
+              compact
+            />
+            <ItsmOutboundQuickActions findingId={f.findingId} compact />
+          </div>
         </div>
         {askFindingId === f.findingId ? (
           <div className="mt-3">
