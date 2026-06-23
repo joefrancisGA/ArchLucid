@@ -14392,6 +14392,46 @@
         },
         "type": "object"
       },
+      "OperatorDemoReviewFindingSummary": {
+        "properties": {
+          "policyRuleKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "severity": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperatorDemoReviewResponse": {
+        "properties": {
+          "manifestId": {
+            "type": "string"
+          },
+          "policyPackName": {
+            "type": "string"
+          },
+          "runDetailUrl": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "topFindings": {
+            "items": {
+              "$ref": "#/components/schemas/OperatorDemoReviewFindingSummary"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "OperatorNextBestActionResponse": {
         "properties": {
           "actionId": {
@@ -25829,6 +25869,9 @@
     },
     {
       "name": "Retrieval"
+    },
+    {
+      "name": "ReviewsDemo"
     },
     {
       "name": "Roi"
