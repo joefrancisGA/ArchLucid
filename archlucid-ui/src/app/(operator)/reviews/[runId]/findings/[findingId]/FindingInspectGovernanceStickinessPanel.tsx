@@ -110,6 +110,27 @@ export function FindingInspectGovernanceStickinessPanel({
     }
   }
 
+  async function submitExplicitRemediation(): Promise<void> {
+    setBusy(true);
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    try {
+      await recordFindingDisposition(findingId, {
+        disposition: "Remediated",
+        rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
+        runId,
+      });
+
+      setStatusMessage("Finding explicitly marked as Remediated.");
+      await reload();
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to record remediation.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function submitWaiver(): Promise<void> {
     setBusy(true);
     setErrorMessage(null);
@@ -164,6 +185,18 @@ export function FindingInspectGovernanceStickinessPanel({
 
         <section className="space-y-3">
           <h3 className="m-0 text-sm font-semibold">Record disposition</h3>
+          <div className="flex gap-2 pb-2">
+            <Button 
+              type="button" 
+              size="sm" 
+              variant="default" 
+              className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-700"
+              disabled={busy} 
+              onClick={() => void submitExplicitRemediation()}
+            >
+              Mark as Remediated
+            </Button>
+          </div>
           <label className="grid gap-1">
             <span className="font-medium">Disposition</span>
             <select

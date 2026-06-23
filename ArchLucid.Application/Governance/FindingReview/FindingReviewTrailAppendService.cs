@@ -20,7 +20,7 @@ public sealed class FindingReviewTrailAppendService(IFindingReviewTrailRepositor
     {
         ArgumentNullException.ThrowIfNull(reviewEvent);
         await _trailRepository.AppendAsync(reviewEvent, cancellationToken);
-        string eventType = MapActionToAuditEventType(reviewEvent.Action);
+        string eventType = MapActionToAuditEventType(reviewEvent.Action, reviewEvent.Disposition);
         await _auditService.LogAsync(
             new AuditEvent
             {
@@ -42,8 +42,13 @@ public sealed class FindingReviewTrailAppendService(IFindingReviewTrailRepositor
             }, cancellationToken);
     }
 
-    private static string MapActionToAuditEventType(FindingReviewAction action)
+    private static string MapActionToAuditEventType(FindingReviewAction action, ArchLucid.Contracts.Findings.FindingDisposition? disposition)
     {
+        if (action == FindingReviewAction.RecordDisposition && disposition == ArchLucid.Contracts.Findings.FindingDisposition.Remediated)
+        {
+            return AuditEventTypes.FindingRemediated;
+        }
+
         return action switch
         {
             FindingReviewAction.Approve => AuditEventTypes.FindingReviewApproved,

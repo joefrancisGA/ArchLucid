@@ -111,6 +111,9 @@ public static class AuditEventTypes
     /// <summary>Operator recorded a TB-058 finding disposition.</summary>
     public const string FindingReviewDispositionRecorded = "FindingReviewDispositionRecorded";
 
+    /// <summary>Operator explicitly marked a finding as Remediated.</summary>
+    public const string FindingRemediated = "FindingRemediated";
+
     /// <summary>Operator created a TB-059 risk exception (waiver).</summary>
     public const string RiskExceptionCreated = "RiskExceptionCreated";
 
