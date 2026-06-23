@@ -42,19 +42,19 @@ function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: 
     status.blocksAdditionalLlmExecution ||
     (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
 
-  return paused ? `${display} left — paused` : `${display} left`;
+  return paused ? `Budget: ${display} — paused` : `Budget: ${display}`;
 }
 
 function buildPillAriaLabel(remainingPercent: number | null, paused: boolean): string {
   if (remainingPercent === null) {
-    return "Monthly analysis allowance";
+    return "Monthly LLM budget allowance";
   }
 
   if (paused) {
-    return `Monthly analysis allowance: ${remainingPercent}% left, new reviews paused`;
+    return `Monthly LLM budget allowance: ${remainingPercent}% remaining, new reviews paused`;
   }
 
-  return `Monthly analysis allowance: ${remainingPercent}% left`;
+  return `Monthly LLM budget allowance: ${remainingPercent}% remaining`;
 }
 
 function isOperatorShellAuthenticated(): boolean {

@@ -229,22 +229,19 @@ export function LayerContextStrip({
     layerId === "operate-analysis" || layerId === "operate-governance" || layerId === "operator-admin";
   const stripBack = stripBackForOriented(isOperate);
 
+  const compactRegionLabel = `${copy.label}. ${copy.question}`;
+
   return (
     <div
-      aria-labelledby="operator-layer-context-text"
+      aria-label={compactRegionLabel}
       className={cn("min-h-9 w-full", copy.strip, className)}
       data-layer-context-strip=""
       data-testid="layer-context-strip"
       role="region"
     >
       <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6")}>
-        <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text">
+        <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text" title={copy.question}>
           <span className={cn("font-medium", copy.labelClass)}>{copy.label}</span>
-          <span className="text-neutral-500 dark:text-neutral-400" aria-hidden>
-            {" "}
-            —{" "}
-          </span>
-          <span className="font-normal text-neutral-800 dark:text-neutral-200">{copy.question}</span>
         </p>
         {stripBack !== null ? (
           <Link

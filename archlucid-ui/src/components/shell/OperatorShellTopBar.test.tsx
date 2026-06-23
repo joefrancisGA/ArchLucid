@@ -77,7 +77,8 @@ describe("OperatorShellTopBar", () => {
 
     expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
-    expect(screen.getByTestId("active-tenant-context-badge")).toBeInTheDocument();
+    expect(screen.queryByTestId("active-tenant-context-badge")).not.toBeInTheDocument();
+    expect(screen.getByTestId("app-shell-topbar-context")).toBeInTheDocument();
     expect(screen.getByTestId("archlucid-wordmark-link")).toHaveAttribute(
       "aria-label",
       "ArchLucid — go to operator home",
@@ -98,16 +99,18 @@ describe("OperatorShellTopBar", () => {
     );
 
     const sessionRail = screen.getByTestId("app-shell-topbar-session");
+    const contextRail = screen.getByTestId("app-shell-topbar-context");
     const personaSwitcher = screen.getByTestId("executive-operator-shell-switcher");
     const scopeTrigger = screen.getByTestId("operator-scope-switcher-trigger");
     const allowancePill = await screen.findByTestId("llm-budget-status-pill");
     const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
 
-    expect(sessionRail.contains(personaSwitcher)).toBe(true);
-    expect(sessionRail.contains(scopeTrigger)).toBe(true);
+    expect(sessionRail.contains(contextRail)).toBe(true);
+    expect(contextRail.contains(scopeTrigger)).toBe(true);
+    expect(contextRail.contains(personaSwitcher)).toBe(true);
     expect(sessionRail.contains(allowancePill)).toBe(true);
+    expect(scopeTrigger.compareDocumentPosition(personaSwitcher) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(personaSwitcher.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(scopeTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(helpTrigger.compareDocumentPosition(allowancePill) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 

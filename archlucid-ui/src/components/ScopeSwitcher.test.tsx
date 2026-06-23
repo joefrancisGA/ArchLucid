@@ -111,6 +111,7 @@ describe("ScopeSwitcher — operator shell", () => {
       BUYER_SCOPE_SAMPLE_WORKSPACE_BODY,
     );
     expect(screen.queryByText(/directory is unavailable/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-scope-switcher-tenant-context")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_SCOPE_SWITCHER_LEARN_ABOUT_WORKSPACES })).toHaveAttribute(
       "href",
       "/help/scope",

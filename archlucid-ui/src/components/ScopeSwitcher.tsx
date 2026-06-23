@@ -14,6 +14,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -559,6 +560,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             ) : null}
           </>
         ) : null}
+        <ScopeSwitcherTenantContextFooter />
       </Card>
     ) : null;
 

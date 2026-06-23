@@ -28,12 +28,13 @@ describe("LayerContextStrip", () => {
         wantQuestion: "How do we configure the tenant, cost visibility, and access for this workspace?"
       }
     ] as const
-  )("renders label and question for $id", ({ id, wantLabel, wantQuestion }) => {
+  )("renders compact layer label for $id", ({ id, wantLabel, wantQuestion }) => {
     const { getByTestId, queryByTestId, unmount } = render(<LayerContextStrip layerId={id} />);
     const strip = getByTestId("layer-context-strip");
     const t = (strip.textContent ?? "").replace(/\s+/g, " ");
     expect(t).toContain(wantLabel);
-    expect(t).toContain(wantQuestion);
+    expect(t).not.toContain(wantQuestion);
+    expect(strip).toHaveAttribute("aria-label", `${wantLabel}. ${wantQuestion}`);
     if (id === "pilot") {
       expect(queryByTestId("layer-context-back-pilot")).toBeNull();
     } else {
