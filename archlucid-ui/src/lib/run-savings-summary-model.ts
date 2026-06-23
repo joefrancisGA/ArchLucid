@@ -13,7 +13,11 @@ import type { ArtifactDescriptor } from "@/types/authority";
 
 const SAVINGS_JSON_FETCH_CAP_BYTES = 786_432;
 
-export type RunSavingsSummarySourceKind = "server-findings" | "static-demo" | "extractor-heuristic";
+export type RunSavingsSummarySourceKind =
+  | "server-findings"
+  | "static-demo"
+  | "extractor-heuristic"
+  | "client-hours-estimate";
 
 /** Headline KPI surfaced on run detail — server resolver, static demo, or demo-only extractor heuristics. */
 export type RunSavingsSummaryModel = Readonly<{

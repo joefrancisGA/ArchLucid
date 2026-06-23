@@ -1,20 +1,16 @@
 import type { ReactElement } from "react";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { formatUsd } from "@/lib/roi-assumptions";
 import type { RunSavingsSummaryModel, RunSavingsSummarySourceKind } from "@/lib/run-savings-summary-model";
-
-function formatUsdWhole(amount: number): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {
   if (sourceKind === "server-findings") {
     return "findings snapshot • tenant ROI resolver";
+  }
+
+  if (sourceKind === "client-hours-estimate") {
+    return "labour-hours estimate • client coefficients";
   }
 
   if (sourceKind === "static-demo") {
@@ -30,7 +26,7 @@ function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {
 
 /** Highlights annualized savings opportunity on run detail (server resolver or demo-only heuristics). */
 export function RunSavingsSummary(props: { readonly model: RunSavingsSummaryModel }): ReactElement {
-  const formatted = formatUsdWhole(props.model.annualizedUsd);
+  const formatted = formatUsd(props.model.annualizedUsd);
   const badgeLabel = sourceBadgeLabel(props.model.sourceKind);
 
   return (

@@ -18,6 +18,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     hours,
     onSaveBaselines,
     rate,
+    resolvedAnnualSavingsLabel,
+    resolvedStatusQuoCostLabel,
     reviews,
     saving,
     setHours,
@@ -156,15 +158,11 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
               <div className="grid gap-3 sm:grid-cols-2">
                 <ScorecardMetricCard
                   title="Status quo — annual review labor"
-                  value={`$${data.roiEstimate.annualReviewCostStatusQuoUsd.toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })}`}
+                  value={resolvedStatusQuoCostLabel ?? "—"}
                 />
                 <ScorecardMetricCard
                   title="Estimated annual savings (50% review hours)"
-                  value={`$${data.roiEstimate.annualReviewSavingsFromReviewTimeLeverUsd.toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })}`}
+                  value={resolvedAnnualSavingsLabel ?? "—"}
                 />
                 <p className="sm:col-span-2 text-xs text-neutral-500 dark:text-neutral-400">
                   Model: {data.roiEstimate.modelReference} · Currency: {data.roiEstimate.currency}

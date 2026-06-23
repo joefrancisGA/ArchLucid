@@ -13,18 +13,11 @@ import {
   presentExecutiveKpiCount,
 } from "@/lib/executive-roi-kpi-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-function formatUsd(value: number | undefined): string {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
-  }
-
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+import { formatUsd } from "@/lib/roi-assumptions";
+import {
+  buildExecutiveServerSavingsSummary,
+  resolveRunSavingsUsd,
+} from "@/lib/roi-resolution-priority";
 
 export type ExecutiveDashboardPrimaryMetricsSectionProps = {
   readonly summary: ExecutiveRoiSummary | null;
@@ -151,7 +144,13 @@ export function ExecutiveDashboardPrimaryMetricsSection(
           </CardHeader>
           <CardContent>
             <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
-              {loading ? "…" : formatUsd(summary?.totalEstimatedUsdSavings)}
+              {loading
+                ? "…"
+                : formatUsd(
+                    resolveRunSavingsUsd({
+                      serverSummary: buildExecutiveServerSavingsSummary(summary?.totalEstimatedUsdSavings, summary?.savingsPricingBasisDescription),
+                    })?.annualizedUsd ?? summary?.totalEstimatedUsdSavings,
+                  )}
             </p>
           </CardContent>
         </Card>

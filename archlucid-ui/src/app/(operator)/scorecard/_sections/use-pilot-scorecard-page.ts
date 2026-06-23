@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { getPilotScorecard } from "@/lib/api";
+import { formatUsd } from "@/lib/roi-assumptions";
+import { buildExecutiveServerSavingsSummary, resolveRunSavingsUsd } from "@/lib/roi-resolution-priority";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 import type { PilotScorecardPageServerLoad } from "./load-pilot-scorecard-page-data";
@@ -20,6 +22,8 @@ export type UsePilotScorecardPageModel = {
   setHours: (next: string) => void;
   setRate: (next: string) => void;
   setReviews: (next: string) => void;
+  resolvedAnnualSavingsLabel: string | null;
+  resolvedStatusQuoCostLabel: string | null;
 };
 
 function baselineFieldsFromData(data: PilotScorecardJson | null): { hours: string; reviews: string; rate: string } {
@@ -122,6 +126,33 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     }
   }, [canExecute, hours, load, rate, reviews]);
 
+  const resolvedAnnualSavingsLabel = useMemo(() => {
+    if (data?.roiEstimate === null || data?.roiEstimate === undefined) {
+      return null;
+    }
+
+    const resolved = resolveRunSavingsUsd({
+      serverSummary: buildExecutiveServerSavingsSummary(
+        data.roiEstimate.annualReviewSavingsFromReviewTimeLeverUsd,
+        `Model: ${data.roiEstimate.modelReference}`,
+      ),
+    });
+
+    if (resolved === null) {
+      return null;
+    }
+
+    return formatUsd(resolved.annualizedUsd);
+  }, [data?.roiEstimate]);
+
+  const resolvedStatusQuoCostLabel = useMemo(() => {
+    if (data?.roiEstimate === null || data?.roiEstimate === undefined) {
+      return null;
+    }
+
+    return formatUsd(data.roiEstimate.annualReviewCostStatusQuoUsd);
+  }, [data?.roiEstimate]);
+
   return {
     canExecute,
     data,
@@ -130,6 +161,8 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     onSaveBaselines,
     rate,
     reviews,
+    resolvedAnnualSavingsLabel,
+    resolvedStatusQuoCostLabel,
     saving,
     setHours,
     setRate,

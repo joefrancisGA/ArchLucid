@@ -1,4 +1,5 @@
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { formatUsd } from "@/lib/roi-assumptions";
 
 export type ExecutiveRoiIdentifiedVsRealizedBuckets = {
   /** Open + needs-evidence USD — headline scope; not yet remediated. */
@@ -45,13 +46,5 @@ export function resolveExecutiveRoiIdentifiedVsRealized(
 }
 
 export function formatExecutiveRoiUsd(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return formatUsd(value);
 }

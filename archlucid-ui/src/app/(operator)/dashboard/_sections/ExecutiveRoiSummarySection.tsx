@@ -47,6 +47,10 @@ import {
   resolveExecutiveHeadlineScopeLabel,
   resolveExecutiveSystemRowScopeLabel,
 } from "@/lib/roi-sponsor-scope-labels";
+import {
+  buildExecutiveServerSavingsSummary,
+  resolveRunSavingsUsd,
+} from "@/lib/roi-resolution-priority";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
 
@@ -233,6 +237,12 @@ export function ExecutiveRoiSummarySection({
     displayData.systemCount === 0 &&
     displayData.latestRunCount === 0 &&
     displayData.totalEstimatedUsdSavings === 0;
+  const resolvedPortfolioSavings = resolveRunSavingsUsd({
+    serverSummary: buildExecutiveServerSavingsSummary(
+      displayData.totalEstimatedUsdSavings,
+      displayData.savingsPricingBasisDescription,
+    ),
+  });
 
   if (showLoading || displayData === null) {
     return (
@@ -306,6 +316,11 @@ export function ExecutiveRoiSummarySection({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {resolvedPortfolioSavings !== null ? (
+          <p className="sr-only" data-testid="exec-roi-resolved-source-kind">
+            Resolved savings source: {resolvedPortfolioSavings.sourceKind}
+          </p>
+        ) : null}
         {workspaceHasNoCommittedReviews && !executiveSurface ? <DemoTenantSeedCallout /> : null}
         <ExecutiveRoiIdentifiedVsRealizedPanel
           summary={displayData}

@@ -3,14 +3,16 @@ import { describe, expect, it, vi } from "vitest";
 import type { RunDetail } from "@/types/authority";
 
 import { resolveRunDetailSavingsSummary } from "./run-detail-savings-summary-resolve";
+import * as roiResolutionPriority from "./roi-resolution-priority";
 import * as runSavingsSummaryFromDetail from "./run-savings-summary-from-detail";
 import * as runSavingsSummaryModel from "./run-savings-summary-model";
 
 describe("resolveRunDetailSavingsSummary", () => {
-  it("returns server savings without invoking artifact heuristics", async () => {
+  it("returns server savings without invoking lower tiers", async () => {
     const serverModel = { annualizedUsd: 9000, basisFootnotes: ["Tenant-adjusted."], sourceKind: "server-findings" as const };
     const fromDetailSpy = vi.spyOn(runSavingsSummaryFromDetail, "resolveRunSavingsSummaryFromRunDetail").mockReturnValue(serverModel);
     const loadModelSpy = vi.spyOn(runSavingsSummaryModel, "loadRunSavingsSummaryModel");
+    const clientHoursSpy = vi.spyOn(roiResolutionPriority, "buildRunDetailClientHoursSavingsSummary").mockReturnValue(null);
 
     const result = await resolveRunDetailSavingsSummary({
       resolvedDetail: {} as RunDetail,
@@ -22,15 +24,19 @@ describe("resolveRunDetailSavingsSummary", () => {
 
     expect(result).toEqual(serverModel);
     expect(fromDetailSpy).toHaveBeenCalledOnce();
-    expect(loadModelSpy).not.toHaveBeenCalled();
+    expect(loadModelSpy).toHaveBeenCalledOnce();
+    expect(clientHoursSpy).toHaveBeenCalledOnce();
 
     fromDetailSpy.mockRestore();
     loadModelSpy.mockRestore();
+    clientHoursSpy.mockRestore();
   });
 
-  it("skips artifact heuristics for live runs when server savings are absent", async () => {
+  it("falls back to client hours when server and extractor savings are absent", async () => {
+    const clientModel = { annualizedUsd: 1200, basisFootnotes: ["Client."], sourceKind: "client-hours-estimate" as const };
     const fromDetailSpy = vi.spyOn(runSavingsSummaryFromDetail, "resolveRunSavingsSummaryFromRunDetail").mockReturnValue(null);
-    const loadModelSpy = vi.spyOn(runSavingsSummaryModel, "loadRunSavingsSummaryModel");
+    const loadModelSpy = vi.spyOn(runSavingsSummaryModel, "loadRunSavingsSummaryModel").mockResolvedValue(null);
+    const clientHoursSpy = vi.spyOn(roiResolutionPriority, "buildRunDetailClientHoursSavingsSummary").mockReturnValue(clientModel);
 
     const result = await resolveRunDetailSavingsSummary({
       resolvedDetail: {} as RunDetail,
@@ -40,17 +46,19 @@ describe("resolveRunDetailSavingsSummary", () => {
       routeRunId: "run-1",
     });
 
-    expect(result).toBeNull();
-    expect(loadModelSpy).not.toHaveBeenCalled();
+    expect(result).toEqual(clientModel);
+    expect(loadModelSpy).toHaveBeenCalledOnce();
 
     fromDetailSpy.mockRestore();
     loadModelSpy.mockRestore();
+    clientHoursSpy.mockRestore();
   });
 
-  it("allows demo artifact heuristics only for static demo runs", async () => {
+  it("allows static demo savings only after higher tiers fail", async () => {
     const demoModel = { annualizedUsd: 12000, basisFootnotes: ["Demonstration KPI."], sourceKind: "static-demo" as const };
     const fromDetailSpy = vi.spyOn(runSavingsSummaryFromDetail, "resolveRunSavingsSummaryFromRunDetail").mockReturnValue(null);
     const loadModelSpy = vi.spyOn(runSavingsSummaryModel, "loadRunSavingsSummaryModel").mockResolvedValue(demoModel);
+    const clientHoursSpy = vi.spyOn(roiResolutionPriority, "buildRunDetailClientHoursSavingsSummary").mockReturnValue(null);
 
     const result = await resolveRunDetailSavingsSummary({
       resolvedDetail: {} as RunDetail,
@@ -65,5 +73,6 @@ describe("resolveRunDetailSavingsSummary", () => {
 
     fromDetailSpy.mockRestore();
     loadModelSpy.mockRestore();
+    clientHoursSpy.mockRestore();
   });
 });
