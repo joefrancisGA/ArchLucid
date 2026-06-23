@@ -98,4 +98,122 @@ public sealed class FindingPayloadConverterAdditionalTests
             .Throw<InvalidOperationException>()
             .WithMessage("*RequirementFindingPayload*FindingId=bad-payload*");
     }
+
+    [Fact]
+    public void ConvertPayload_WithMarkdownWrappedJsonString_StripsMarkdownAndDeserializes()
+    {
+        const string markdownPayload =
+            """
+            ```json
+            {
+              "requirementName": "MarkdownWrapped",
+              "requirementText": "From fenced block",
+              "isMandatory": true
+            }
+            ```
+            """;
+
+        Finding finding = new()
+        {
+            FindingId = "markdown-string",
+            Payload = markdownPayload,
+        };
+
+        RequirementFindingPayload? result = FindingPayloadConverter.ConvertPayload<RequirementFindingPayload>(finding);
+
+        result.Should().NotBeNull();
+        result!.RequirementName.Should().Be("MarkdownWrapped");
+        result.RequirementText.Should().Be("From fenced block");
+        result.IsMandatory.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ConvertPayload_WithRawJsonString_Deserializes()
+    {
+        const string rawJson =
+            """
+            {"requirementName":"RawJson","requirementText":"Direct string payload","isMandatory":false}
+            """;
+
+        Finding finding = new()
+        {
+            FindingId = "raw-json-string",
+            Payload = rawJson,
+        };
+
+        RequirementFindingPayload? result = FindingPayloadConverter.ConvertPayload<RequirementFindingPayload>(finding);
+
+        result.Should().NotBeNull();
+        result!.RequirementName.Should().Be("RawJson");
+        result.RequirementText.Should().Be("Direct string payload");
+        result.IsMandatory.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ConvertPayload_WithNumbersAsStrings_Deserializes()
+    {
+        const string rawJson =
+            """
+            {"budgetName":"prod","maxMonthlyCost":"12500","costRisk":"medium"}
+            """;
+
+        Finding finding = new()
+        {
+            FindingId = "numeric-strings",
+            Payload = rawJson,
+        };
+
+        CostConstraintFindingPayload? result = FindingPayloadConverter.ConvertPayload<CostConstraintFindingPayload>(finding);
+
+        result.Should().NotBeNull();
+        result!.BudgetName.Should().Be("prod");
+        result.MaxMonthlyCost.Should().Be(12500m);
+        result.CostRisk.Should().Be("medium");
+    }
+
+    [Fact]
+    public void ConvertPayload_WithTrailingCommas_Deserializes()
+    {
+        const string rawJson =
+            """
+            {
+              "requirementName": "TrailingComma",
+              "requirementText": "Tolerates trailing comma",
+              "isMandatory": true,
+            }
+            """;
+
+        Finding finding = new()
+        {
+            FindingId = "trailing-comma",
+            Payload = rawJson,
+        };
+
+        RequirementFindingPayload? result = FindingPayloadConverter.ConvertPayload<RequirementFindingPayload>(finding);
+
+        result.Should().NotBeNull();
+        result!.RequirementName.Should().Be("TrailingComma");
+    }
+
+    [Fact]
+    public void ConvertPayload_JsonElementStringPayload_UnwrapsAndDeserializes()
+    {
+        const string rawJson =
+            """
+            {"requirementName":"Embedded","requirementText":"JsonElement string kind","isMandatory":true}
+            """;
+
+        JsonElement element = JsonSerializer.SerializeToElement(rawJson);
+
+        Finding finding = new()
+        {
+            FindingId = "json-element-string",
+            Payload = element,
+        };
+
+        RequirementFindingPayload? result = FindingPayloadConverter.ConvertPayload<RequirementFindingPayload>(finding);
+
+        result.Should().NotBeNull();
+        result!.RequirementName.Should().Be("Embedded");
+    }
 }
