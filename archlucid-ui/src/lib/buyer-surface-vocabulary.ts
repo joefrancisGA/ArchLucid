@@ -54,6 +54,21 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     "Compliance drift trends",
     "Sponsor-ready exports",
   ] as const,
+  scorecardLayerContextLine: "Value metrics and recommended actions.",
+  scorecardPageTitle: "Executive scorecard",
+  scorecardEmptyStateDescription:
+    "The scorecard appears after at least one review package is finalized. It summarizes review volume, findings, estimated hours saved, compliance drift, and recommended actions.",
+  scorecardEmptyStatePrimaryAction: "Start review",
+  scorecardEmptyStateSecondaryAction: "Load sample workspace",
+  scorecardEmptyStateTertiaryAction: "Open sample scorecard",
+  scorecardEmptyStatePreviewSectionTitle: "What this scorecard will show",
+  scorecardEmptyStatePreviewBullets: [
+    "Architecture reviews completed",
+    "Findings generated",
+    "Estimated hours saved",
+    "Compliance drift activity",
+    "Recommended actions",
+  ] as const,
   portfolioMetricsUnavailableTitle: "Portfolio metrics unavailable",
   portfolioMetricsUnavailableDescription:
     "Commit a review package to populate findings, decisions, waivers, risks, and remediation trends.",

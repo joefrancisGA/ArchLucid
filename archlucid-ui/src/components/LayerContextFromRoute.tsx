@@ -27,7 +27,9 @@ export function LayerContextFromRoute() {
     searchRunId: searchRunIdFromUrl.length > 0 ? searchRunIdFromUrl : undefined,
   });
   const buyerRouteOrientation =
-    buyerPolishedShell || pathname.startsWith("/graph") ? resolvedRouteOrientation : null;
+    resolvedRouteOrientation !== null || buyerPolishedShell || pathname.startsWith("/graph")
+      ? (resolvedRouteOrientation ?? undefined)
+      : null;
   const buyerOperateBackLinkRaw = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
   const buyerOperateBackLink =
     buyerOperateBackLinkRaw !== null && isBuyerOperateBackLinkRedundantWithBreadcrumbs(queryRunId, buyerOperateBackLinkRaw)

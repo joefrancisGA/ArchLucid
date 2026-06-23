@@ -39,4 +39,11 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Portfolio overview");
     expect(o?.line).toContain("committed review packages");
   });
+
+  it("orients the executive scorecard route", () => {
+    const o = buyerPolishedRouteOrientation("/executive/scorecard");
+
+    expect(o?.label).toBe("Executive scorecard");
+    expect(o?.line).toBe("Value metrics and recommended actions.");
+  });
 });

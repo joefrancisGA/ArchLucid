@@ -571,6 +571,11 @@ export const BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT =
 export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY =
   "No actions needed for the current period.";
 
+export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_NOT_READY =
+  "No actions yet. Commit a review package to generate scorecard signals.";
+
+export const BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES = "Open review packages";
+
 export const BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK = "Review this action →";
 
 export const BUYER_EXECUTIVE_OPERATOR_HANDOFF_LINK = "Open in Operator →";

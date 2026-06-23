@@ -8,6 +8,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExecutiveScorecardEmptyState } from "@/components/executive/ExecutiveScorecardEmptyState";
 import { getComplianceDriftTrend } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
@@ -26,6 +27,7 @@ import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
   BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT,
+  BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES,
   BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY,
   BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP,
 } from "@/lib/buyer-polish-copy";
@@ -267,6 +269,7 @@ export function ExecutiveScorecardClient() {
   const driftTotal = sumDriftChanges(driftPoints);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const driftTrend = driftTrendLabel(driftPoints, buyerPolished);
+  const scorecardEmpty = reviewsCount === 0;
 
   return (
     <div className="space-y-6" data-testid="executive-scorecard">
@@ -280,8 +283,6 @@ export function ExecutiveScorecardClient() {
           governance drift endpoints.
         </p>
       </header>
-
-      <ExecutiveValueNarrativeBanner timeRange={range} />
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-xs">
@@ -305,138 +306,134 @@ export function ExecutiveScorecardClient() {
           </p>
         </div>
         <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
-          <Link href="/executive/reviews">Architecture risk reviews</Link>
+          <Link href="/executive/reviews">{BUYER_EXECUTIVE_SCORECARD_LINK_REVIEW_PACKAGES}</Link>
         </Button>
       </div>
 
-      {reviewsCount === 0 ? (
-        <div
-          className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
-          role="status"
-        >
-          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">No committed reviews in this range</p>
-          <p className="m-0 mt-1 leading-snug">
-            Finalize a review to populate executive ROI and drift for this workspace.
-          </p>
-        </div>
-      ) : null}
+      {scorecardEmpty ? (
+        <ExecutiveScorecardEmptyState />
+      ) : (
+        <>
+          <ExecutiveValueNarrativeBanner timeRange={range} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-              Architecture reviews completed
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {finiteIntegerCountDisplay(reviewsCount)}
-            </p>
-            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL}
-            </p>
-          </CardContent>
-        </Card>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                  Architecture reviews completed
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                  {finiteIntegerCountDisplay(reviewsCount)}
+                </p>
+                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  {BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL}
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Findings generated</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {finiteIntegerCountDisplay(findingsTotal)}
-            </p>
-            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">Across committed reviews in range</p>
-          </CardContent>
-        </Card>
+            <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Findings generated</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                  {finiteIntegerCountDisplay(findingsTotal)}
+                </p>
+                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">Across committed reviews in range</p>
+              </CardContent>
+            </Card>
 
-        <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Estimated hours saved</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {formatHours(estimatedHours)}
-            </p>
-            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {buyerPolished
-                ? "Estimated hours saved (methodology in pilot guide)"
-                : (
-                    <>
-                      Severity-weighted ROI model
-                      {hoursRoi <= 0 && reviewsCount > 0
-                        ? ` · fallback ${AVERAGE_MANUAL_REVIEW_HOURS} h × reviews when weighted hours are zero`
-                        : ""}
-                      {!precommitBlocksExact ? " · pre-commit block count may be capped" : ""}
-                    </>
-                  )}
-            </p>
-          </CardContent>
-        </Card>
+            <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Estimated hours saved</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                  {formatHours(estimatedHours)}
+                </p>
+                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  {buyerPolished
+                    ? "Estimated hours saved (methodology in pilot guide)"
+                    : (
+                        <>
+                          Severity-weighted ROI model
+                          {hoursRoi <= 0 && reviewsCount > 0
+                            ? ` · fallback ${AVERAGE_MANUAL_REVIEW_HOURS} h × reviews when weighted hours are zero`
+                            : ""}
+                          {!precommitBlocksExact ? " · pre-commit block count may be capped" : ""}
+                        </>
+                      )}
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Compliance drift activity</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-              {finiteIntegerCountDisplay(driftTotal)}
-            </p>
-            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">{driftTrend}</p>
-          </CardContent>
-        </Card>
-      </div>
+            <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Compliance drift activity</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                  {finiteIntegerCountDisplay(driftTotal)}
+                </p>
+                <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">{driftTrend}</p>
+              </CardContent>
+            </Card>
+          </div>
 
-      <Card
-        className="border border-neutral-200 shadow-sm dark:border-neutral-800"
-        data-testid="executive-scorecard-recommended-actions"
-      >
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Recommended actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-0">
-          {recommendedActions.length === 0 ? (
-            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
-              {buyerPolished
-                ? BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY
-                : "No actions needed — all signals are healthy."}
-            </p>
-          ) : (
-            <ul className="m-0 list-none space-y-4 p-0">
-              {recommendedActions.map((action) => (
-                <li key={action.id} className="space-y-1 border-b border-neutral-100 pb-4 last:border-0 last:pb-0 dark:border-neutral-800">
-                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{action.headline}</p>
-                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{action.explanation}</p>
-                  <Link
-                    href={action.href}
-                    className="text-sm font-medium text-blue-700 underline dark:text-blue-400"
-                    data-testid={`executive-scorecard-action-${action.id}`}
-                  >
-                    {executiveShellHandoffLinkLabel(action.href, { buyerPolished })}
-                  </Link>
-                </li>
-              ))}
+          <Card
+            className="border border-neutral-200 shadow-sm dark:border-neutral-800"
+            data-testid="executive-scorecard-recommended-actions"
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Recommended actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-0">
+              {recommendedActions.length === 0 ? (
+                <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+                  {buyerPolished
+                    ? BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY
+                    : "No actions needed — all signals are healthy."}
+                </p>
+              ) : (
+                <ul className="m-0 list-none space-y-4 p-0">
+                  {recommendedActions.map((action) => (
+                    <li key={action.id} className="space-y-1 border-b border-neutral-100 pb-4 last:border-0 last:pb-0 dark:border-neutral-800">
+                      <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{action.headline}</p>
+                      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{action.explanation}</p>
+                      <Link
+                        href={action.href}
+                        className="text-sm font-medium text-blue-700 underline dark:text-blue-400"
+                        data-testid={`executive-scorecard-action-${action.id}`}
+                      >
+                        {executiveShellHandoffLinkLabel(action.href, { buyerPolished })}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <CollapsibleSection title="About these metrics" defaultOpen={false}>
+            <ul className="m-0 list-disc space-y-2 ps-5 text-sm text-neutral-700 dark:text-neutral-300">
+              <li>
+                Reviews and findings come from{" "}
+                <Link href="/value-report/pilot" className="font-medium text-blue-700 underline dark:text-blue-400">
+                  pilot value report
+                </Link>{" "}
+                (same API as operator ROI tiles).
+              </li>
+              <li>
+                Estimated hours use the same coefficients as workspace health (critical/high/medium findings plus pre-commit
+                blocks). When that sum is zero but reviews exist, the scorecard uses a simple reviews × hours fallback.
+              </li>
+              <li>Drift activity sums daily buckets from the governance compliance-drift-trend endpoint; trend compares first vs second half of the window.</li>
             </ul>
-          )}
-        </CardContent>
-      </Card>
-
-      <CollapsibleSection title="About these metrics" defaultOpen={false}>
-        <ul className="m-0 list-disc space-y-2 ps-5 text-sm text-neutral-700 dark:text-neutral-300">
-          <li>
-            Reviews and findings come from{" "}
-            <Link href="/value-report/pilot" className="font-medium text-blue-700 underline dark:text-blue-400">
-              pilot value report
-            </Link>{" "}
-            (same API as operator ROI tiles).
-          </li>
-          <li>
-            Estimated hours use the same coefficients as workspace health (critical/high/medium findings plus pre-commit
-            blocks). When that sum is zero but reviews exist, the scorecard uses a simple reviews × hours fallback.
-          </li>
-          <li>Drift activity sums daily buckets from the governance compliance-drift-trend endpoint; trend compares first vs second half of the window.</li>
-        </ul>
-      </CollapsibleSection>
+          </CollapsibleSection>
+        </>
+      )}
     </div>
   );
 }

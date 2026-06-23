@@ -10,6 +10,10 @@ import { ExecutiveScorecardClient } from "./ExecutiveScorecardClient";
 
 expect.extend(toHaveNoViolations);
 
+vi.mock("@/components/SeedSampleReviewButton", () => ({
+  SeedSampleReviewButton: () => <button type="button">Load sample workspace</button>,
+}));
+
 const mockPilotReport: PilotValueReportJson = {
   tenantId: "00000000-0000-0000-0000-000000000001",
   fromUtc: "2026-01-01T00:00:00.000Z",
@@ -82,6 +86,31 @@ vi.mock("@/lib/workspace-health-audit-count", () => ({
 }));
 
 describe("ExecutiveScorecardClient", () => {
+  it("shows empty state instead of metric cards when no committed reviews", async () => {
+    const { fetchPilotValueReportJson } = await import("@/lib/pilot-value-report-fetch");
+    const { getComplianceDriftTrend } = await import("@/lib/api");
+    const { countAuditEventsInWindow } = await import("@/lib/workspace-health-audit-count");
+
+    vi.mocked(fetchPilotValueReportJson).mockResolvedValue({
+      ...mockPilotReport,
+      totalRunsCommitted: 0,
+      totalFindings: 0,
+      findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+    });
+    vi.mocked(getComplianceDriftTrend).mockResolvedValue([]);
+    vi.mocked(countAuditEventsInWindow).mockResolvedValue({ count: 0, exact: true });
+
+    const { container } = render(<ExecutiveScorecardClient />);
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-testid="executive-scorecard-empty-state"]')).toBeTruthy();
+    });
+
+    expect(container.querySelector('[data-testid="executive-scorecard-recommended-actions"]')).toBeNull();
+    expect(container.textContent).not.toContain("No actions needed — all signals are healthy");
+    expect(container.textContent).toContain("No committed reviews yet");
+  });
+
   it("matches snapshot when data loads", async () => {
     const { fetchPilotValueReportJson } = await import("@/lib/pilot-value-report-fetch");
     const { getComplianceDriftTrend } = await import("@/lib/api");

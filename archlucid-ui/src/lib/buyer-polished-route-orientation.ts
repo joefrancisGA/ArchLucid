@@ -89,6 +89,13 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
+  if (path === "/executive/scorecard") {
+    return {
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
+      line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,
+    };
+  }
+
   if (path.startsWith("/graph")) {
     return {
       label: "Evidence graph",
