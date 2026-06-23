@@ -220,6 +220,19 @@ export function tryParseCuratedRulesDocumentJson(jsonText: string): CuratedRules
   };
 }
 
+/** Parses a single curated rule row JSON object. Returns null when shape is invalid. */
+export function tryParseCuratedRuleRowJson(jsonText: string): CuratedRuleRow | null {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(jsonText);
+  } catch {
+    return null;
+  }
+
+  return parseRuleRow(parsed);
+}
+
 export function extractCuratedRulesFromPackMetadata(
   metadata: Record<string, string> | undefined,
 ): CuratedRulesDocument | null {

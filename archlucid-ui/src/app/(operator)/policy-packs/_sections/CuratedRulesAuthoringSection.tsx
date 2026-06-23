@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
-import { cn } from "@/lib/utils";
+import { PolicyRulePlainEnglishDraftPanel } from "./PolicyRulePlainEnglishDraftPanel";
 import {
   createEmptyCuratedRuleRow,
   CURATED_RULE_SEVERITIES,
@@ -23,6 +23,7 @@ import {
   type CuratedRuleSeverity,
   serializeCuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
+import { cn } from "@/lib/utils";
 
 export type CuratedRulesAuthoringSectionProps = {
   readonly canMutatePacks: boolean;
@@ -167,6 +168,12 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
         Form-based rows round-trip to metadata <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">pack.curatedRules.v1</code> and
         extend <span className="font-mono">complianceRuleKeys</span> on merge.
       </p>
+
+      <PolicyRulePlainEnglishDraftPanel
+        canMutatePacks={canMutatePacks}
+        curatedDoc={curatedDoc}
+        onCuratedDocChange={onCuratedDocChange}
+      />
 
       {curatedDoc.rules.length === 0 ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400 m-0">No curated rules yet.</p>

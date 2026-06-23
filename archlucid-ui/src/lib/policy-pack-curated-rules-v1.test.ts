@@ -9,6 +9,7 @@ import {
   hydrateCuratedFromContentDocument,
   POLICY_PACK_CURATED_RULES_METADATA_V1,
   tryParseCuratedRulesDocumentJson,
+  tryParseCuratedRuleRowJson,
 } from "./policy-pack-curated-rules-v1";
 import type { GuidedPolicyFields } from "./policy-pack-guided-content";
 
@@ -85,6 +86,21 @@ describe("policy-pack-curated-rules-v1", () => {
     expect(doc.metadata[POLICY_PACK_CURATED_RULES_METADATA_V1]).toBeDefined();
     const nested = extractCuratedRulesFromPackMetadata(doc.metadata);
     expect(nested?.rules[0]?.id).toBe("sec-base-001");
+  });
+
+  it("tryParseCuratedRuleRowJson parses a single curated rule object", () => {
+    const row = tryParseCuratedRuleRowJson(`{
+      "id": "sec-base-010",
+      "title": "Encrypt data at rest",
+      "description": "Sensitive data stores must use customer-managed encryption.",
+      "severity": "High",
+      "remediationGuidance": "Enable CMK on storage accounts.",
+      "evidenceHints": ["storage.encryption"],
+      "frameworkMappings": []
+    }`);
+
+    expect(row?.id).toBe("sec-base-010");
+    expect(row?.severity).toBe("High");
   });
 
   it("hydrate splits curated ids from additional compliance keys", () => {
