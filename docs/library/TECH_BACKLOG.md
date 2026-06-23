@@ -3193,6 +3193,8 @@ Operators hitting `GET ?/decisions` or trace endpoints see **either** rule-audit
 
 ## TB-056 ? Decisioning partial-failure surfacing + sentinel trace inflation guard
 
+**Status:** **Done (2026-06-22)** ? `FindingsOrchestrator` `EngineFailures` + `RecordFindingsEnginePartialFailure`; `DefaultGoldenManifestBuilder.AppendManifestHonestyWarnings` + `WarnSkippedFindingPayload` (all typed payload sections including RequirementCoverage); `EvaluationConfidenceEnrichmentSkipped` on `NullFindingsSnapshotEvaluationConfidenceEnricher`; `ExplainabilityTraceCompletenessAnalyzer.ListHasMeaningfulAlternativePaths` excludes sentinel; `RunDecisionExplainabilityBuilder.FindingEngineFailures`; unit tests `DefaultGoldenManifestBuilderBatchATests`, `ExplainabilityTraceCompletenessAnalyzerTests`, `RunDecisionExplainabilityBuilderTests`, `FindingsOrchestratorTests`; pytest **`test_traceability_batch_5ce.py`**.
+
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Multiple paths degrade uncertainty without operator-visible signals.
 
 **Problem:**

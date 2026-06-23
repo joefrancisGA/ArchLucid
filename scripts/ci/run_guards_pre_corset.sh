@@ -45,6 +45,7 @@ python -m unittest discover -s scripts/ci/tests -p "test_assert_tenant_table_iso
 python -m unittest discover -s scripts/ci/tests -p "test_csharp_style_guards.py"
 python -m unittest discover -s scripts/ci/tests -p "test_maintainability_batch_5cm.py"
 python -m unittest discover -s scripts/ci/tests -p "test_decision_explainability_batch_tb050_tb053_tb051.py"
+python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5ce.py"
 
 python3 scripts/ci/check_migration_numbering.py || true
 python3 scripts/ci/check_test_configure_await.py

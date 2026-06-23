@@ -601,7 +601,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
 
             if (payload is null)
+            {
+                WarnSkippedFindingPayload(manifest, finding, "RequirementCoverage");
+
                 continue;
+            }
 
             foreach (string req in payload.UncoveredRequirements)
 

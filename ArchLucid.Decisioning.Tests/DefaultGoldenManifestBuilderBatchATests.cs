@@ -127,6 +127,28 @@ public sealed class DefaultGoldenManifestBuilderBatchATests
     }
 
     [Fact]
+    public async Task Build_requirement_coverage_null_payload_emits_skipped_warning()
+    {
+        ManifestDocument manifest = await BuildWithFindingsAsync(
+        [
+            new Finding
+            {
+                FindingType = FindingTypes.RequirementCoverageFinding,
+                Category = "Requirements",
+                EngineType = "test",
+                Severity = FindingSeverity.Warning,
+                Title = "Missing requirement mapping",
+                Rationale = "x",
+                Payload = null,
+            },
+        ]);
+
+        manifest.Warnings.Should().Contain(w =>
+            w.Contains("skipped finding", StringComparison.Ordinal)
+            && w.Contains("RequirementCoverage", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task Build_enrichment_skipped_flag_adds_warning()
     {
         FindingsSnapshot snapshot = new()

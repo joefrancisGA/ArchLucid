@@ -26,6 +26,15 @@ class TestTraceabilityBatch5CE(unittest.TestCase):
         manifest_text = manifest_builder.read_text(encoding="utf-8")
         self.assertIn("EngineFailures", manifest_text)
         self.assertIn("enrichment was skipped", manifest_text)
+        self.assertIn("WarnSkippedFindingPayload", manifest_text)
+
+        null_enricher = (
+            REPO_ROOT
+            / "ArchLucid.Decisioning"
+            / "Findings"
+            / "NullFindingsSnapshotEvaluationConfidenceEnricher.cs"
+        )
+        self.assertIn("EvaluationConfidenceEnrichmentSkipped = true", null_enricher.read_text(encoding="utf-8"))
 
         analyzer_text = analyzer.read_text(encoding="utf-8")
         self.assertIn("ListHasMeaningfulAlternativePaths", analyzer_text)
