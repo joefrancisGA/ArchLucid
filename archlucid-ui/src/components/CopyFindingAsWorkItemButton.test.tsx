@@ -12,7 +12,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 describe("CopyFindingAsWorkItemButton", () => {
 
-  it("calls clipboard.writeText with Markdown work item body", async () => {
+  it("calls clipboard.writeText with default Jira work item body", async () => {
 
     const writeText = vi.fn().mockResolvedValue(undefined);
 
@@ -65,7 +65,7 @@ describe("CopyFindingAsWorkItemButton", () => {
 
 
     fireEvent.click(
-      screen.getByRole("button", { name: /create remediation ticket — copy formatted text to clipboard/i }),
+      screen.getByRole("button", { name: /copy finding for jira or servicenow — formatted text to clipboard/i }),
     );
 
 
@@ -80,9 +80,8 @@ describe("CopyFindingAsWorkItemButton", () => {
 
     const body = writeText.mock.calls[0]?.[0] ?? "";
 
-    expect(body).toContain("## Finding: Cost — Over-provisioned");
-
-    expect(body).toContain("`fid-1`");
+    expect(body).toContain("h2. ArchLucid Finding — Cost — Over-provisioned");
+    expect(body).toContain("{{fid-1}}");
 
     expect(body).toContain("/reviews/run-42");
 

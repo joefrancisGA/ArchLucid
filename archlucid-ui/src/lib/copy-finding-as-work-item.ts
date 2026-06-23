@@ -1,10 +1,28 @@
-/** Clipboard targets for pasted work items (Markdown / wiki / ServiceNow plain text). */
+/** Clipboard targets for pasted work items (Markdown / wiki / ServiceNow plain text / JSON seam). */
 export type WorkItemClipboardFormat =
   | "markdown"
   | "jiraWiki"
   | "githubMarkdown"
   | "azureDevOpsMarkdown"
-  | "serviceNowText";
+  | "serviceNowText"
+  | "json";
+
+/** Stable JSON envelope for external ticketing scripts (not a Jira/ServiceNow API integration). */
+export type FindingWorkItemJsonDocument = {
+  schema: "archlucid.work-item.v1";
+  findingId: string;
+  runId: string;
+  title: string;
+  severity: string;
+  recommendedAction: string;
+  status: string;
+  ruleId: string;
+  links: {
+    review: string;
+    finding: string;
+    inspect: string;
+  };
+};
 
 /** Fields assembled from inspect payload + UI labels for a full finding work item. */
 export type FindingWorkItemBuildInput = {
@@ -61,23 +79,69 @@ function ruleSummary(decisionRuleName: string | null, decisionRuleId: string | n
   return "Not available";
 }
 
-/** Minimal block for per-finding table rows (aggregate explanation list). */
+/** Minimal block for per-finding table rows (aggregate explanation list / governance queue). */
 export type TraceRowWorkItemInput = {
   runId: string;
   findingId: string;
   findingTitle: string | null;
+  severityLabel: string | null;
+  recommendedAction: string | null;
+  statusLabel: string | null;
   ruleId: string | null;
   siteOrigin: string;
 };
 
-/** Builds pasted text for [`RunFindingExplainabilityTable`](/components/RunFindingExplainabilityTable) rows. */
-export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input: TraceRowWorkItemInput): string {
+function traceRowWorkItemLinks(input: TraceRowWorkItemInput): {
+  origin: string;
+  runUrl: string;
+  findingUrl: string;
+  inspectUrl: string;
+} {
   const origin = input.siteOrigin.replace(/\/$/, "");
   const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
   const findingPath = `${runPath}/findings/${encodeURIComponent(input.findingId)}`;
   const inspectPath = `${findingPath}/inspect`;
+
+  return {
+    origin,
+    runUrl: `${origin}${runPath}`,
+    findingUrl: `${origin}${findingPath}`,
+    inspectUrl: `${origin}${inspectPath}`,
+  };
+}
+
+function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): FindingWorkItemJsonDocument {
+  const links = traceRowWorkItemLinks(input);
+
+  return {
+    schema: "archlucid.work-item.v1",
+    findingId: input.findingId,
+    runId: input.runId,
+    title: na(input.findingTitle),
+    severity: na(input.severityLabel),
+    recommendedAction: na(input.recommendedAction),
+    status: na(input.statusLabel),
+    ruleId: na(input.ruleId),
+    links: {
+      review: links.runUrl,
+      finding: links.findingUrl,
+      inspect: links.inspectUrl,
+    },
+  };
+}
+
+/** Builds pasted text for queue rows and aggregate explanation tables. */
+export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input: TraceRowWorkItemInput): string {
+  const links = traceRowWorkItemLinks(input);
   const title = na(input.findingTitle);
+  const severity = na(input.severityLabel);
+  const reco = na(input.recommendedAction);
+  const status = na(input.statusLabel);
   const rule = na(input.ruleId);
+
+  if (format === "json") {
+    return JSON.stringify(buildTraceRowWorkItemJsonDocument(input), null, 2);
+  }
 
   if (format === "jiraWiki") {
     const lines = [
@@ -85,50 +149,61 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
       "",
       `*Finding ID:* {{${input.findingId}}}`,
       "",
+      `*Severity:* ${severity}`,
+      `*Status:* ${status}`,
       `*Rule id:* ${rule}`,
       "",
-      "*Links:*",
-      `* (${origin || "(origin)"}${runPath}|ArchLucid run)`,
-      `* (${origin || "(origin)"}${findingPath}|Finding — explain page)`,
-      `* (${origin || "(origin)"}${inspectPath}|Structured inspector — Why?)`,
+      "*Recommended action*",
+      reco,
+      "",
+      "*Links*",
+      `* (${links.runUrl}|ArchLucid review)`,
+      `* (${links.findingUrl}|Finding — explain page)`,
+      `* (${links.inspectUrl}|Structured inspector — Why?)`,
     ];
 
     return lines.join("\n");
   }
 
   if (format === "serviceNowText") {
-    const inspectUrl = `${origin || "(origin)"}${inspectPath}`;
+    const remediationStep = reco !== "Not available" ? reco : "Apply remediation per team standards.";
 
     return [
       `Short description: ArchLucid finding — ${title} (${input.findingId})`,
       "",
       "Description:",
-      "Review this finding in ArchLucid and create remediation work as needed.",
+      `Severity: ${severity}`,
+      `Status: ${status}`,
+      "",
+      "Recommended action:",
+      reco,
       "",
       "Steps to resolve:",
       "1. Open the structured inspector link below.",
-      `2. Record disposition in ArchLucid (${rule}).`,
+      `2. ${remediationStep}`,
       "",
-      `ArchLucid inspector link: ${inspectUrl}`,
+      `ArchLucid inspector link: ${links.inspectUrl}`,
       `Finding ID: ${input.findingId}`,
       `Run ID: ${input.runId}`,
     ].join("\n");
   }
 
   return [
-    "## Finding: architecture — " + title,
+    "## Finding: " + title,
     "",
-    `**Severity:** Not available`,
-    `**Finding ID:** \`${input.findingId}\``,
-    `**Run:** \`${input.runId}\``,
-    `**Rule id:** ${rule}`,
+    "**Severity:** " + severity,
+    "**Status:** " + status,
+    "**Finding ID:** `" + input.findingId + "`",
+    "**Run:** `" + input.runId + "`",
+    "**Rule id:** " + rule,
+    "",
+    "### Recommended action",
+    reco,
     "",
     "### Links",
-    `- ArchLucid run: ${origin}${runPath}`,
-    `- Finding (explain page): ${origin}${findingPath}`,
-    `- Structured inspector: ${origin}${inspectPath}`,
-    "",
-    "_Generated from aggregate explanation table — open Finding details for full inspect payload._",
+    `- ArchLucid review: ${links.runUrl}`,
+    `- Finding (explain page): ${links.findingUrl}`,
+    `- Structured inspector: ${links.inspectUrl}`,
   ].join("\n");
 }
 
@@ -152,6 +227,31 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
 
   const evidenceBlock =
     input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts.map((e) => `- ${na(e)}`).join("\n") : "- Not available";
+
+  if (format === "json") {
+    return JSON.stringify(
+      {
+        schema: "archlucid.work-item.v1",
+        findingId: input.findingId,
+        runId: input.runId,
+        title: heading,
+        severity,
+        recommendedAction: reco,
+        status: "Not available",
+        ruleId: ruleLine,
+        whatWasFlagged: whatFlagged,
+        whyItMatters,
+        evidence: input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts : ["Not available"],
+        links: {
+          review: base,
+          finding: explainUrl,
+          inspect: inspectUrl,
+        },
+      },
+      null,
+      2,
+    );
+  }
 
   if (format === "jiraWiki") {
     const lines = [

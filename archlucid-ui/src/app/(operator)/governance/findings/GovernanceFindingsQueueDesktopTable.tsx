@@ -320,15 +320,18 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
                       : "Open"}
                   </Link>
                 </Button>
-                {!buyerPolishedShell && row.recordKind === "finding" ? (
+                {row.recordKind === "finding" ? (
                   <>
                     <CopyGovernanceQueueWorkItemButton
                       runId={row.runId}
                       findingId={row.findingId}
                       findingTitle={row.title}
+                      severityLabel={row.severity}
+                      recommendedAction={row.recommended}
+                      statusLabel={row.status}
                       compact
                     />
-                    <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                    {!buyerPolishedShell ? <ItsmOutboundQuickActions findingId={row.findingId} compact /> : null}
                   </>
                 ) : null}
               </div>

@@ -284,7 +284,7 @@ function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[]): Gov
         ? rationale
         : selectedOption.length > 0
           ? `Selected: ${selectedOption}`
-          : "Open the signed manifest for decision context and supporting findings.";
+          : "Open the signed review record for decision context and supporting findings.";
 
     return {
       runId: runId.length > 0 ? runId : "—",
@@ -503,6 +503,19 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
               </Link>
             </p>
           </details>
+        ) : null}
+        {row.recordKind === "finding" ? (
+          <div className="flex flex-col gap-2">
+            <CopyGovernanceQueueWorkItemButton
+              runId={row.runId}
+              findingId={row.findingId}
+              findingTitle={row.title}
+              severityLabel={row.severity}
+              recommendedAction={row.recommended}
+              statusLabel={row.status}
+              compact
+            />
+          </div>
         ) : null}
         {graphHref !== null ? (
           <p className="m-0">
@@ -994,15 +1007,18 @@ export default function GovernanceFindingsQueueClient() {
                     ) : null}
                   </div>
                   <div className="flex flex-col gap-2 sm:col-span-2">
-                    {!buyerPolishedShell && row.recordKind === "finding" ? (
+                    {row.recordKind === "finding" ? (
                       <>
                         <CopyGovernanceQueueWorkItemButton
                           runId={row.runId}
                           findingId={row.findingId}
                           findingTitle={row.title}
+                          severityLabel={row.severity}
+                          recommendedAction={row.recommended}
+                          statusLabel={row.status}
                           compact
                         />
-                        <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                        {!buyerPolishedShell ? <ItsmOutboundQuickActions findingId={row.findingId} compact /> : null}
                       </>
                     ) : null}
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
@@ -1043,7 +1059,7 @@ export default function GovernanceFindingsQueueClient() {
                   : "We could not load the architecture risk register for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
                 : buyerPolishedShell
                   ? `When reviews surface owned risks or recorded decisions, they will appear here. ${BUYER_GOVERNANCE_FINDINGS_EMPTY}`
-                  : "When committed reviews produce findings or signed manifest decisions, they appear here. Start from an architecture request, finalize a review record, then return to this register."
+                  : "When committed reviews produce findings or signed review decisions, they appear here. Start from an architecture request, finalize a review record, then return to this register."
             }
             actions={[
               { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
@@ -1063,7 +1079,7 @@ export default function GovernanceFindingsQueueClient() {
             </summary>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
               Each row is either an architecture risk (explainability-backed finding with owner, disposition, and review
-              cadence) or a recorded manifest decision. Both link back to the producing review and signed manifest
+              cadence) or a recorded review decision. Both link back to the producing review and signed review record
               evidence — not a separate risk subsystem.
             </p>
             <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">

@@ -69,32 +69,53 @@ describe("buildInspectFindingWorkItemBody", () => {
 });
 
 describe("buildTraceRowWorkItemBody", () => {
-  it("lists relative paths for stubs", () => {
-    const text = buildTraceRowWorkItemBody("markdown", {
-      runId: "run-z",
-      findingId: "find-z",
-      findingTitle: "Title z",
-      ruleId: "R1",
-      siteOrigin: "https://demo.example.org",
-    });
+  const traceInput = {
+    runId: "run-z",
+    findingId: "find-z",
+    findingTitle: "Title z",
+    severityLabel: "High",
+    recommendedAction: "Restrict egress.",
+    statusLabel: "Open",
+    ruleId: "R1",
+    siteOrigin: "https://demo.example.org",
+  } as const;
 
-    expect(text).toContain("## Finding: architecture");
+  it("lists relative paths for stubs", () => {
+    const text = buildTraceRowWorkItemBody("markdown", traceInput);
+
+    expect(text).toContain("## Finding: Title z");
+    expect(text).toContain("**Severity:** High");
+    expect(text).toContain("Restrict egress.");
     expect(text).toContain("`find-z`");
-    expect(text).toContain(`/reviews/run-z/findings/find-z`);
-    expect(text).toContain("aggregate explanation table");
+    expect(text).toContain("https://demo.example.org/reviews/run-z/findings/find-z");
   });
 
   it("supports ServiceNow plain text for trace rows", () => {
-    const text = buildTraceRowWorkItemBody("serviceNowText", {
-      runId: "run-z",
-      findingId: "find-z",
-      findingTitle: "Title z",
-      ruleId: "R1",
-      siteOrigin: "https://demo.example.org",
-    });
+    const text = buildTraceRowWorkItemBody("serviceNowText", traceInput);
 
     expect(text).toContain("Short description: ArchLucid finding — Title z (find-z)");
+    expect(text).toContain("Severity: High");
+    expect(text).toContain("Restrict egress.");
     expect(text).toContain("ArchLucid inspector link:");
     expect(text).toContain("Finding ID: find-z");
+  });
+
+  it("supports Jira wiki with severity and recommended action", () => {
+    const text = buildTraceRowWorkItemBody("jiraWiki", traceInput);
+
+    expect(text).toContain("h2. ArchLucid Finding — Title z");
+    expect(text).toContain("*Severity:* High");
+    expect(text).toContain("*Recommended action*");
+    expect(text).toContain("Restrict egress.");
+    expect(text).toContain("{{find-z}}");
+  });
+
+  it("emits stable JSON seam document", () => {
+    const text = buildTraceRowWorkItemBody("json", traceInput);
+    const parsed = JSON.parse(text) as { schema: string; findingId: string; links: { inspect: string } };
+
+    expect(parsed.schema).toBe("archlucid.work-item.v1");
+    expect(parsed.findingId).toBe("find-z");
+    expect(parsed.links.inspect).toContain("/findings/find-z/inspect");
   });
 });

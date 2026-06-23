@@ -140,7 +140,7 @@ export function FindingDetailPageView(props: Props) {
                     Open signed decision record
                   </Link>
                 ) : (
-                  <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">Manifest link unavailable</p>
+                  <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">Signed review record link unavailable</p>
                 )}
               </div>
             </div>
@@ -375,8 +375,8 @@ export function FindingDetailPageView(props: Props) {
             Copy for external work tracking
           </h2>
           <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            Copy a structured summary formatted for Markdown, GitHub Issues, or Azure Boards when your team tracks
-            remediation outside native connectors.
+            Copy a structured summary for Jira, ServiceNow, Markdown, or JSON when your team tracks remediation outside
+            native connectors. The finding ID is included for stable external references.
           </p>
           <div className="pt-3">
             <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />

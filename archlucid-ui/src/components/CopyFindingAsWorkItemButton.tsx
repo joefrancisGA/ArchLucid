@@ -28,12 +28,16 @@ import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 /** Target system for pasted body text (Markdown family shares the same builders today). */
 const FORMAT_ITEMS: readonly { readonly value: WorkItemClipboardFormat; readonly label: string }[] = [
+  { value: "jiraWiki", label: "Jira (wiki)" },
+  { value: "serviceNowText", label: "ServiceNow (plain text)" },
   { value: "markdown", label: "Markdown" },
   { value: "githubMarkdown", label: "GitHub Issues" },
   { value: "azureDevOpsMarkdown", label: "Azure Boards" },
-  { value: "jiraWiki", label: "Jira (wiki)" },
-  { value: "serviceNowText", label: "ServiceNow (plain text)" },
+  { value: "json", label: "JSON (external seam)" },
 ] as const;
+
+const COPY_FOR_ITSM_LABEL = "Copy for Jira/ITSM";
+const COPY_FOR_ITSM_ARIA = "Copy finding for Jira or ServiceNow — formatted text to clipboard";
 
 function evidenceLinesFromInspectPayload(payload: FindingInspectPayload): string[] {
   return payload.evidence.map((e) => {
@@ -87,7 +91,7 @@ export type CopyFindingAsWorkItemButtonProps = {
  * Copies a structured work-item body for Jira, GitHub, Azure Boards, or ServiceNow from the finding inspect payload.
  */
 export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyFindingAsWorkItemButtonProps) {
-  const [format, setFormat] = useState<WorkItemClipboardFormat>("markdown");
+  const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
   const [copied, setCopied] = useState(false);
 
   const onCopy = useCallback(async () => {
@@ -102,7 +106,7 @@ export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyF
       return;
     }
 
-    showSuccess("Copied work item to clipboard");
+    showSuccess("Copied for Jira/ITSM");
     setCopied(true);
     window.setTimeout(() => {
       setCopied(false);
@@ -133,13 +137,13 @@ export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyF
         variant="secondary"
         size="sm"
         className="h-8 gap-1.5 text-xs"
-        aria-label="Create remediation ticket — copy formatted text to clipboard"
+        aria-label={COPY_FOR_ITSM_ARIA}
         onClick={() => {
           void onCopy();
         }}
       >
         {copied ? <Check className="size-3.5 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3.5" aria-hidden />}
-        {copied ? "Copied" : "Create remediation ticket"}
+        {copied ? "Copied" : COPY_FOR_ITSM_LABEL}
       </Button>
     </div>
   );
@@ -149,6 +153,9 @@ export type CopyGovernanceQueueWorkItemButtonProps = {
   runId: string;
   findingId: string;
   findingTitle: string;
+  severityLabel: string;
+  recommendedAction: string;
+  statusLabel: string;
   /** Compact layout for queue table cells. */
   compact?: boolean;
 };
@@ -160,9 +167,12 @@ export function CopyGovernanceQueueWorkItemButton({
   runId,
   findingId,
   findingTitle,
+  severityLabel,
+  recommendedAction,
+  statusLabel,
   compact = false,
 }: CopyGovernanceQueueWorkItemButtonProps) {
-  const [format, setFormat] = useState<WorkItemClipboardFormat>("serviceNowText");
+  const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
   const [copied, setCopied] = useState(false);
 
   const onCopy = useCallback(async () => {
@@ -171,6 +181,9 @@ export function CopyGovernanceQueueWorkItemButton({
       runId,
       findingId,
       findingTitle,
+      severityLabel,
+      recommendedAction,
+      statusLabel,
       ruleId: null,
       siteOrigin,
     });
@@ -182,12 +195,12 @@ export function CopyGovernanceQueueWorkItemButton({
       return;
     }
 
-    showSuccess("Copied work item stub to clipboard");
+    showSuccess("Copied for Jira/ITSM");
     setCopied(true);
     window.setTimeout(() => {
       setCopied(false);
     }, 2_000);
-  }, [findingId, findingTitle, format, runId]);
+  }, [findingId, findingTitle, format, recommendedAction, runId, severityLabel, statusLabel]);
 
   return (
     <div className={compact ? "flex min-w-0 flex-col gap-1" : "flex flex-wrap items-center gap-2"}>
@@ -216,13 +229,13 @@ export function CopyGovernanceQueueWorkItemButton({
         variant={compact ? "outline" : "secondary"}
         size="sm"
         className={compact ? "h-7 gap-1 px-2 text-[0.65rem]" : "h-8 gap-1.5 text-xs"}
-        aria-label="Copy finding as work item to clipboard"
+        aria-label={COPY_FOR_ITSM_ARIA}
         onClick={() => {
           void onCopy();
         }}
       >
         {copied ? <Check className="size-3 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3" aria-hidden />}
-        {copied ? "Copied" : compact ? "Copy item" : "Copy work item"}
+        {copied ? "Copied" : COPY_FOR_ITSM_LABEL}
       </Button>
     </div>
   );
@@ -246,6 +259,9 @@ export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemB
       runId,
       findingId: row.findingId,
       findingTitle: row.findingTitle ?? null,
+      severityLabel: null,
+      recommendedAction: null,
+      statusLabel: null,
       ruleId: row.ruleId ?? null,
       siteOrigin,
     });
