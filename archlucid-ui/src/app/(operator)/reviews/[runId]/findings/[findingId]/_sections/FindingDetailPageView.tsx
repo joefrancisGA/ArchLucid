@@ -29,9 +29,7 @@ import { cn } from "@/lib/utils";
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
 import { FindingInspectItsmWorkflowPanel } from "../FindingInspectItsmWorkflowPanel";
 import {
-  fallbackImpactedScope,
   fallbackSeverity,
-  fallbackStatus,
   findingDetailLeadFallback,
   buyerFindingDecisionPanelCopy,
   buyerFindingDecisionImpactCopy,

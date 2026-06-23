@@ -72,9 +72,14 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       effectiveOperateUnlockPhase,
     };
   }, [
+    buyerPolishedShell,
     callerAuthorityRank,
+    demoUi,
     effectiveHasCommittedArchitectureReview,
+    effectiveOperateUnlockPhase,
     isGovernanceModeEnabled,
+    navAdvanced,
+    navExpanded,
     omitAdminClusters,
   ]);
 }

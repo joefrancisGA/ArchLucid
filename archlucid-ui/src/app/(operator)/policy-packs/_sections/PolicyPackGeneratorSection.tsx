@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
 import { cn } from "@/lib/utils";

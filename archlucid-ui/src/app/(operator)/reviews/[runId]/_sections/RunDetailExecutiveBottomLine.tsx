@@ -25,9 +25,8 @@ export function RunDetailExecutiveBottomLine(props: RunDetailExecutiveBottomLine
       </CardHeader>
       <CardContent>
         <ul className="m-0 list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          {themes.map((theme, index) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <li key={index} className="leading-relaxed">
+          {themes.map((theme) => (
+            <li key={theme} className="leading-relaxed">
               {theme}
             </li>
           ))}
