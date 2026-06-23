@@ -18,20 +18,34 @@ const DEFAULT_ACCEPTED_EXTENSIONS = ".pdf,.docx,.md,.txt,.json,.yaml,.yml,.png,.
 /** Drag-drop evidence upload with format hints for the review wizard. */
 export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
   const acceptedExtensions = props.accept ?? DEFAULT_ACCEPTED_EXTENSIONS;
-  const [fileNames, setFileNames] = useState<string[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+
+  const syncFiles = useCallback(
+    (nextFiles: File[]) => {
+      setFiles(nextFiles);
+      props.onFilesSelected?.(nextFiles);
+    },
+    [props],
+  );
 
   const handleFiles = useCallback(
-    (files: FileList | null) => {
-      if (files === null || files.length === 0) {
+    (incoming: FileList | null) => {
+      if (incoming === null || incoming.length === 0) {
         return;
       }
 
-      const list = Array.from(files);
-      setFileNames(list.map((file) => file.name));
-      props.onFilesSelected?.(list);
+      const list = Array.from(incoming);
+      syncFiles(list);
       showSuccess(`${list.length} file${list.length === 1 ? "" : "s"} ready for intake`);
     },
-    [props],
+    [syncFiles],
+  );
+
+  const removeFile = useCallback(
+    (index: number) => {
+      syncFiles(files.filter((_, fileIndex) => fileIndex !== index));
+    },
+    [files, syncFiles],
   );
 
   return (
@@ -79,19 +93,43 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
             />
           </label>
         </Button>
+      </div>
+      <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        Need an example?{" "}
         <Link
           href="/help/evidence-intake"
-          className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
+          className="font-medium text-teal-800 underline dark:text-teal-300"
         >
-          Start review guide
+          View the start review guide
         </Link>
-      </div>
-      {fileNames.length > 0 ? (
-        <ul className="m-0 mt-2 list-disc pl-5 text-xs text-neutral-700 dark:text-neutral-300">
-          {fileNames.map((name) => (
-            <li key={name}>{name}</li>
-          ))}
-        </ul>
+        .
+      </p>
+      {files.length > 0 ? (
+        <div className="mt-3 space-y-2" data-testid="wizard-evidence-upload-attachments">
+          <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">Attached evidence</p>
+          <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+            {files.map((file, index) => (
+              <li
+                key={`${file.name}-${index}`}
+                className="inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-200"
+              >
+                <span className="truncate" title={file.name}>
+                  {file.name}
+                </span>
+                <button
+                  type="button"
+                  className="shrink-0 font-medium text-neutral-600 underline-offset-2 hover:text-red-700 hover:underline dark:text-neutral-400 dark:hover:text-red-400"
+                  aria-label={`Remove ${file.name}`}
+                  onClick={() => {
+                    removeFile(index);
+                  }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );

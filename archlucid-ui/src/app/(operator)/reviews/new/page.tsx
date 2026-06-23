@@ -26,8 +26,8 @@ export default function NewRunPage() {
         <InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />
       </div>
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Capture intent, business outcome, actors, and clarifying questions in the guided path below, or use quick review
-        when you already have a complete architecture brief.
+        Use Quick start when you already have an architecture brief or evidence file. Use Guided intake when you want
+        ArchLucid to walk you through the context.
       </p>
       <NewReviewSampleEscapeLink className="mt-2" />
       <div id="new-review-wizard" className="mt-4 scroll-mt-24">

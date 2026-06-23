@@ -173,7 +173,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       }
 
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Architecture review ${id} created — opening pipeline.`);
+      showToast("ok", `Architecture review ${id} created — starting analysis.`);
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -211,9 +211,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Start your first review</CardTitle>
+          <CardTitle>Create review package</CardTitle>
           <CardDescription>
-            Minimum path: review title plus at least one uploaded file. Add a brief only if you want extra context.
+            Add a title and at least one evidence file. You can add extra context if needed.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -314,7 +314,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               }}
               data-testid="first-pilot-start"
             >
-              Start Architecture Review
+              Start analysis
             </Button>
           ) : null}
         </CardContent>

@@ -4,7 +4,10 @@ import { formatReviewPathTimeEstimate, reviewPathTimeEstimate } from "@/lib/revi
 
 describe("review-path-time-estimates", () => {
   it("formats quick review estimate", () => {
-    expect(formatReviewPathTimeEstimate("quick-review")).toContain("2–5 min");
+    const estimate = formatReviewPathTimeEstimate("quick-review");
+    expect(estimate).toContain("2–5 min");
+    expect(estimate).toContain("to start analysis");
+    expect(estimate).not.toContain("pipeline execution");
   });
 
   it("falls back to quick review for unknown path", () => {

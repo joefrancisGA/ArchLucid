@@ -16,7 +16,7 @@ export const REVIEW_PATH_TIME_ESTIMATES: readonly ReviewPathTimeEstimate[] = [
     pathId: "quick-review",
     minutesLow: 2,
     minutesHigh: 5,
-    outcome: "One pasted brief → pipeline execution",
+    outcome: "to start analysis",
   },
   {
     pathId: "guided-intake",

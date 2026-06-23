@@ -46,13 +46,15 @@ describe("FirstPilotIntakeWizard", () => {
 
     render(<FirstPilotIntakeWizard />);
 
+    expect(screen.getByText("Create review package")).toBeInTheDocument();
+
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
       target: { value: "Retail API review" },
     });
 
     fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
 
-    const startButton = screen.getByTestId("first-pilot-start");
+    const startButton = screen.getByRole("button", { name: "Start analysis" });
     expect(startButton).not.toBeDisabled();
 
     fireEvent.click(startButton);
