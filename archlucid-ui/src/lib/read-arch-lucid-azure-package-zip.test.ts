@@ -49,7 +49,7 @@ describe("readArchLucidAzurePackageZipFromBytes", () => {
       return;
     }
 
-    expect(result.message).toContain("Required schemaVersion is 1");
+    expect(result.message).toContain("Required schemaVersion: 1");
   });
 
   it("rejects ZIPs without manifest.json", () => {
@@ -80,7 +80,7 @@ describe("readArchLucidAzurePackageZipFromFile", () => {
       return;
     }
 
-    expect(result.message).toContain("too large");
+    expect(result.message).toContain("exceeds maximum size");
   });
 });
 

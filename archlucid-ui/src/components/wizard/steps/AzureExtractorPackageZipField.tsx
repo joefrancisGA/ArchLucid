@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
+import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
@@ -147,9 +148,12 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
               </p>
             ) : null}
             {localError !== null && localError.length > 0 ? (
-              <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert" data-testid="wizard-azure-zip-error">
-                {localError}
-              </p>
+              <AzureExtractorUploadFailureCallout
+                fallbackMessage={localError}
+                problem={null}
+                correlationId={null}
+                rootTestId="wizard-azure-zip-error"
+              />
             ) : null}
             {variant === "ingest" ? (
               <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

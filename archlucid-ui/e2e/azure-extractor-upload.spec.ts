@@ -64,7 +64,7 @@ test.describe("Azure extractor ZIP wizard field", () => {
     await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toContainText(
-      /Unsupported schema version/i,
+      /Unsupported manifest schemaVersion/i,
       { timeout: 15_000 },
     );
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);

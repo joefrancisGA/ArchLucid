@@ -50,6 +50,12 @@ export function parseAzureExtractorUploadFailure(
       detail,
       errors,
       correlationId: correlationId ?? problem?.correlationId ?? null,
+      validationSurface: problem === null ? "client" : "api",
     },
   };
+}
+
+/** Maps client-side wizard / settings ZIP validation messages into the same presentation as API upload failures. */
+export function parseClientAzurePackageZipFailure(message: string): AzureExtractorUploadFailurePresentation {
+  return parseAzureExtractorUploadFailure(null, message, null);
 }

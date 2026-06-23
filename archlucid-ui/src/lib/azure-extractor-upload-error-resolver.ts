@@ -27,24 +27,24 @@ export type AzureExtractorUploadErrorResolution = {
   docPath: string;
 };
 
-function readFailureKind(problem: ApiProblemDetails | null): AzureExtractorUploadFailureKind {
+function readFailureKind(problem: ApiProblemDetails | null, detail: string): AzureExtractorUploadFailureKind {
   const raw = problem?.failureKind;
 
   if (raw === "schema" || raw === "archive" || raw === "validation") {
     return raw;
   }
 
-  const detail = problem?.detail?.toLowerCase() ?? "";
+  const normalized = detail.toLowerCase();
 
-  if (detail.includes("schemaversion") || detail.includes("manifest.json")) {
+  if (normalized.includes("schemaversion") || normalized.includes("manifest.json")) {
     return "schema";
   }
 
-  if (detail.includes("zip") || detail.includes("archive")) {
+  if (normalized.includes("zip") || normalized.includes("archive")) {
     return "archive";
   }
 
-  if (detail.includes("run id") || detail.includes("resources.json") || detail.includes("maximum size")) {
+  if (normalized.includes("run id") || normalized.includes("resources.json") || normalized.includes("maximum size")) {
     return "validation";
   }
 
@@ -58,8 +58,20 @@ function resolveSemanticCode(detail: string, failureKind: AzureExtractorUploadFa
     return "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION";
   }
 
-  if (normalized.includes("does not contain manifest.json")) {
+  if (normalized.includes("missing or unsupported schemaversion")) {
+    return "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION";
+  }
+
+  if (normalized.includes("no manifest.json found") || normalized.includes("does not contain manifest.json")) {
     return "AZURE_EXTRACTOR_MISSING_MANIFEST";
+  }
+
+  if (normalized.includes("could not read zip archive") || normalized.includes("not a valid zip archive")) {
+    return "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE";
+  }
+
+  if (normalized.includes("exceeds maximum size") || normalized.includes("zip is too large")) {
+    return "AZURE_EXTRACTOR_ZIP_TOO_LARGE";
   }
 
   if (normalized.includes("not valid json")) {
@@ -155,8 +167,8 @@ export function resolveAzureExtractorUploadError(
   problem: ApiProblemDetails | null,
   fallbackMessage: string,
 ): AzureExtractorUploadErrorResolution {
-  const failureKind = readFailureKind(problem);
   const detail = problem?.detail?.trim() ?? fallbackMessage.trim();
+  const failureKind = readFailureKind(problem, detail);
   const semanticCode = resolveSemanticCode(detail, failureKind);
 
   return {
