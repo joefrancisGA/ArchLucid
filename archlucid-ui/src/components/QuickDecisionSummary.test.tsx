@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
@@ -193,5 +193,48 @@ describe("QuickDecisionSummary", () => {
     const { container } = render(<QuickDecisionSummary runId="run-z" findings={findings} />);
 
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("hides low-confidence findings by default and reveals them when toggled", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-trusted",
+        title: "Trusted finding",
+        recommendation: "Fix now.",
+        severityValue: 3,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        confidenceLevel: "High",
+      },
+      {
+        findingId: "f-low",
+        title: "Low confidence finding",
+        recommendation: "Verify first.",
+        severityValue: 3,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        confidenceLevel: "Low",
+      },
+    ];
+
+    render(<QuickDecisionSummary runId="run-conf" findings={findings} />);
+
+    expect(screen.getByRole("link", { name: /Trusted finding/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Low confidence finding/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("quick-decision-low-confidence-hidden-hint")).toHaveTextContent(
+      "1 low-confidence finding hidden",
+    );
+
+    fireEvent.click(screen.getByTestId("quick-decision-show-low-confidence"));
+
+    expect(screen.getByTestId("quick-decision-low-confidence-section")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Low confidence finding/i })).toBeInTheDocument();
+    expect(screen.getByTestId("quick-decision-low-confidence-f-low")).toBeInTheDocument();
   });
 });

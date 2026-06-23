@@ -43,6 +43,11 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
+import {
+  formatHiddenLowConfidenceHint,
+  partitionQuickDecisionFindingsByConfidence,
+} from "@/lib/finding-confidence-filter";
+import { cn } from "@/lib/utils";
 
 const badgeBase =
   "inline-flex shrink-0 rounded-md border px-2 py-0.5 text-xs font-semibold tabular-nums";
@@ -80,9 +85,17 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const canMutate = useOperateCapability();
   const sorted = sortQuickDecisionFindings(props.findings);
   const [showMuted, setShowMuted] = useState(false);
+  const [showLowConfidence, setShowLowConfidence] = useState(false);
   const [showAdvisory, setShowAdvisory] = useState(false);
-  const visibleFindings = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
-  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(visibleFindings);
+  const afterMuteFilter = showMuted ? sorted : sorted.filter((f) => !f.isMuted);
+  const { trustedFindings, lowConfidenceFindings } = partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
+  const hiddenLowConfidenceCount = showLowConfidence ? 0 : lowConfidenceFindings.length;
+  const hiddenLowConfidenceHint = formatHiddenLowConfidenceHint(hiddenLowConfidenceCount);
+  const { policyViolations, advisoryNotes } = partitionQuickDecisionFindings(trustedFindings);
+  const {
+    policyViolations: lowConfidencePolicyViolations,
+    advisoryNotes: lowConfidenceAdvisoryNotes,
+  } = partitionQuickDecisionFindings(lowConfidenceFindings);
   const top = policyViolations.slice(0, 3);
   const hasSourceFindings = props.findings.length > 0;
   const buyerPolishedShell = props.buyerPolishedShell === true;
@@ -128,7 +141,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     return <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>;
   }
 
-  function renderFindingRow(f: QuickDecisionFinding, showTierBadge: boolean): ReactElement {
+  function renderFindingRow(f: QuickDecisionFinding, showTierBadge: boolean, subdued = false): ReactElement {
     const href = `/reviews/${encodeURIComponent(props.runId)}/findings/${encodeURIComponent(f.findingId)}`;
     const snippet =
       f.recommendation.length > 0
@@ -144,7 +157,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
 
     return (
-      <li key={f.findingId} className="pl-1">
+      <li
+        key={f.findingId}
+        className={cn("pl-1", subdued ? "opacity-80" : undefined)}
+        data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : undefined}
+      >
         <div className="flex flex-wrap items-start gap-2">
           <span className={severityBadgeClass(f.severityValue)}>
             <span className="sr-only">Severity </span>
@@ -300,6 +317,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               {hasSourceFindings ? (
                 <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                   One-click Jira or ServiceNow sync is available on each priority finding below.
+                  {hiddenLowConfidenceHint !== null ? (
+                    <span className="mt-1 block" data-testid="quick-decision-low-confidence-hidden-hint">
+                      {hiddenLowConfidenceHint}.
+                    </span>
+                  ) : null}
                 </p>
               ) : null}
             </div>
@@ -327,6 +349,18 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 >
                   {exportingCsv ? "Exporting…" : "Export to CSV"}
                 </Button>
+                <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+                    checked={showLowConfidence}
+                    onChange={(e) => {
+                      setShowLowConfidence(e.target.checked);
+                    }}
+                    data-testid="quick-decision-show-low-confidence"
+                  />
+                  Show low-confidence findings
+                </label>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                   <input
                     type="checkbox"
@@ -360,9 +394,14 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : null}
           {!hasSourceFindings ? (
             renderEmptySummary()
-          ) : visibleFindings.length === 0 ? (
+          ) : afterMuteFilter.length === 0 ? (
             <p className="m-0 text-neutral-600 dark:text-neutral-400">
               All findings are currently muted. Enable <strong>Show muted findings</strong> to review them.
+            </p>
+          ) : trustedFindings.length === 0 && lowConfidenceFindings.length > 0 && !showLowConfidence ? (
+            <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
+              Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong>{" "}
+              to review unverified items.
             </p>
           ) : (
             <div className="space-y-4">
@@ -413,6 +452,30 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                   {showAdvisory ? (
                     <ol className="m-0 mt-3 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
                       {advisoryNotes.map((f) => renderFindingRow(f, true))}
+                    </ol>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {showLowConfidence && lowConfidenceFindings.length > 0 ? (
+                <div
+                  className="rounded-md border border-dashed border-neutral-300 bg-neutral-50/50 p-3 dark:border-neutral-600 dark:bg-neutral-900/20"
+                  data-testid="quick-decision-low-confidence-section"
+                >
+                  <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                    Unverified / low confidence
+                  </h3>
+                  <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                    These findings had low evaluation confidence or ambiguous evidence. Verify before acting.
+                  </p>
+                  {lowConfidencePolicyViolations.length > 0 ? (
+                    <ol className="m-0 mt-3 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
+                      {lowConfidencePolicyViolations.map((f) => renderFindingRow(f, false, true))}
+                    </ol>
+                  ) : null}
+                  {lowConfidenceAdvisoryNotes.length > 0 ? (
+                    <ol className="m-0 mt-3 list-decimal space-y-3 pl-5 marker:text-neutral-500 dark:marker:text-neutral-400">
+                      {lowConfidenceAdvisoryNotes.map((f) => renderFindingRow(f, true, true))}
                     </ol>
                   ) : null}
                 </div>
