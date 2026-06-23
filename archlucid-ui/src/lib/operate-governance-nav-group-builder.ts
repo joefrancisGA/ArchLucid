@@ -26,7 +26,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           href: "/governance/findings",
           label: OPERATOR_NAV_LINK_LABELS.findings,
           title: this.shortcutTitle(
-            "Findings — open risks from completed reviews, severity and recommended actions",
+            "Risk register — owned architecture risks, dispositions, review cadence, and linked manifest decisions",
             "alt+f",
           ),
           keyShortcut: "alt+f",

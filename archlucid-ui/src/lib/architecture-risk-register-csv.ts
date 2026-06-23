@@ -10,6 +10,7 @@ export type ArchitectureRiskRegisterCsvRow = {
   ownerUserId?: string | null;
   agingDays?: number;
   waiverExpiresAtUtc?: string | null;
+  lastReviewedUtc?: string | null;
   revisitDueUtc?: string | null;
   evidenceHref?: string;
   isStale?: boolean;
@@ -58,7 +59,7 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
       row.recommended,
       row.status,
       row.evidenceHref ?? inspectPath(row.runId, row.findingId),
-      row.waiverExpiresAtUtc ?? "",
+      row.lastReviewedUtc ?? "",
       row.revisitDueUtc ?? "",
       row.agingDays !== undefined ? String(row.agingDays) : "",
       row.isStale ? "yes" : "no",

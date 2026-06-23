@@ -99,11 +99,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-findings": {
     layerBadge: "Governance",
-    headline: "Findings from architecture reviews — policy basis, analysis, and recorded dispositions.",
-    useWhen: "Open a review for snapshot and explainability; use the governance dashboard for portfolio-level review context.",
+    headline: "Architecture risk register — owned risks, dispositions, review cadence, and linked manifest decisions.",
+    useWhen: "Answer what risks the organization owns now without opening each review; filter stale risks and expiring waivers.",
     firstPilotNote:
-      "After Pilot proof, use review detail for drill-down; dashboard queues portfolio governance findings.",
-    enterpriseFootnote: "Review-scoped detail; portfolio governance view on governance dashboard.",
+      "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
+    enterpriseFootnote: "Review-scoped detail on inspect routes; portfolio register on /governance/findings.",
   },
   "governance-first-30-days": {
     layerBadge: "Governance",

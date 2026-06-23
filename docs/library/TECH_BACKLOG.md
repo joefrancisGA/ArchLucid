@@ -3234,6 +3234,8 @@ Operators hitting `GET ?/decisions` or trace endpoints see **either** rule-audit
 
 ## TB-057 ? Architecture risk register framing over governance findings
 
+**Status:** **Done (2026-06-22)** ? `/governance/findings` reframed as **Architecture risk register** (nav, layer guidance, empty states); `GET /v1/governance/risk-register` + merged `getArchitectureDecisionRegister` on the live path; stale / waiver-expiring filters; buyer CSV (`lastReviewedUtc`, `revisitDueUtc`); desktop **Last reviewed** / **Next review** columns; `GoldenManifestId` on risk-register SQL projection; pytest **`test_stickiness_batch_tb057.py`**.
+
 **Source:** Commercial stickiness review (2026-05-27). ArchLucid already has cross-review findings, monitored risks, signed manifests, governance decisions, and audit. The gap is not a missing risk engine; it is that operators do not see one durable, owned risk register over time.
 
 **Problem:**

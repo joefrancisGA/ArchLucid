@@ -55,6 +55,19 @@ The page uses the same **`api.ts`** helpers as the rest of the shell: browser re
 
 **Shell** → **Alerts & governance** → **Dashboard** (`/governance/dashboard`), then **Governance workflow** (`/governance`), between **Governance resolution** and **Audit log**.
 
+## Architecture risk register (`/governance/findings`)
+
+The **Architecture risk register** (`archlucid-ui/src/app/(operator)/governance/findings/`) is the portfolio-level surface for **owned architecture risks** and **linked manifest decisions** (TB-057). It answers “what risks do we own right now?” without opening each review package.
+
+| Area | Source |
+|------|--------|
+| Finding rows (owner, disposition, aging, stale, waivers) | `GET /v1/governance/risk-register` (`ArchitectureRiskRegisterService` / `ArchitectureRiskRegisterReader`) |
+| Manifest decision rows | `GET /v1/governance/decision-register` merged on the client (not duplicated into a second subsystem) |
+| Stale / waiver-expiring filters | Client filters on `isStale` and `waiverExpiresAtUtc` query presets |
+| Buyer CSV export | `buildArchitectureRiskRegisterCsv` — system, risk, impact, owner, disposition, evidence link, last reviewed, next review |
+
+Operator copy uses **Risk register** in nav (`i18n.ts`) and **Architecture risk register** on the operator page title. Disposition mutations remain on finding inspect routes (**TB-058**).
+
 ## Related
 
 - Types and API wrappers: `archlucid-ui/src/types/governance-workflow.ts`, `archlucid-ui/src/types/governance-dashboard.ts`, `archlucid-ui/src/lib/api.ts` (functions under `v1/governance`, including `getGovernanceDashboard`).

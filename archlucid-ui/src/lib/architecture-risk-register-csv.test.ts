@@ -3,6 +3,32 @@ import { describe, expect, it } from "vitest";
 import { buildArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 
 describe("buildArchitectureRiskRegisterCsv", () => {
+  it("maps last reviewed and next review columns separately from waiver expiry", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "PHI exposure",
+        severity: "High",
+        category: "Claims intake",
+        status: "Accepted · monitoring",
+        recommended: "Review with security owner",
+        ownerUserId: "owner-1",
+        agingDays: 12,
+        isStale: true,
+        lastReviewedUtc: "2026-05-01T12:00:00Z",
+        waiverExpiresAtUtc: "2026-07-01T12:00:00Z",
+        revisitDueUtc: "2026-06-15T12:00:00Z",
+        evidenceHref: "/reviews/run-1/findings/f-1/inspect",
+      },
+    ]);
+
+    expect(csv).toContain("2026-05-01T12:00:00Z");
+    expect(csv).toContain("2026-06-15T12:00:00Z");
+    expect(csv).not.toContain("2026-07-01T12:00:00Z");
+  });
+
   it("emits buyer-facing columns for finding rows only", () => {
     const csv = buildArchitectureRiskRegisterCsv([
       {

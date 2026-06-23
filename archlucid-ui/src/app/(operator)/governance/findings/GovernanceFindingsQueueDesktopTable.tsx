@@ -41,6 +41,26 @@ function inspectHref(runId: string, findingId: string): string {
   return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
 }
 
+function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
+  const raw = (utc ?? "").trim();
+
+  if (raw.length === 0) {
+    return "—";
+  }
+
+  const parsed = Date.parse(raw);
+
+  if (Number.isNaN(parsed)) {
+    return raw;
+  }
+
+  return new Date(parsed).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function manifestRecordHref(runId: string, manifestId: string): string {
   if (manifestId !== "—") {
     return `/manifests/${encodeURIComponent(manifestId)}`;
@@ -141,6 +161,8 @@ function GovernanceFindingsQueueTableHead(props: {
         {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>{SIGNED_MANIFEST_LABEL}</EnterpriseTableHeaderCell>}
         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
         {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>}
+        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Last reviewed</EnterpriseTableHeaderCell>}
+        {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Next review</EnterpriseTableHeaderCell>}
         {buyerPolishedShell ? null : <EnterpriseTableHeaderCell>Aging</EnterpriseTableHeaderCell>}
         <EnterpriseTableHeaderCell>Recommended action</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
@@ -265,6 +287,16 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
             {buyerPolishedShell ? null : (
               <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
                 {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
+              </EnterpriseTableCell>
+            )}
+            {buyerPolishedShell ? null : (
+              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+                {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "—"}
+              </EnterpriseTableCell>
+            )}
+            {buyerPolishedShell ? null : (
+              <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
+                {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.revisitDueUtc) : "—"}
               </EnterpriseTableCell>
             )}
             {buyerPolishedShell ? null : (

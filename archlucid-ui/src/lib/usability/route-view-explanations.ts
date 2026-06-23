@@ -38,7 +38,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
     explanation: {
       title: "Governance workflow",
       summary: "Approvals, promotions, and policy activations for committed architecture reviews.",
-      nextAction: "Start from pending approvals or open the findings queue to clear blocking items.",
+      nextAction: "Start from pending approvals or open the architecture risk register to clear blocking items.",
     },
   },
   {

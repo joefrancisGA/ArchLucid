@@ -97,7 +97,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   }
 
   if (path === "/governance/findings") {
-    return "Findings queue";
+    return "Risk register";
   }
 
   if (path === "/audit") {

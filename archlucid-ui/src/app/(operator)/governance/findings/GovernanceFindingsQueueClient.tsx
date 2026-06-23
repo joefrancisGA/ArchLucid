@@ -15,7 +15,9 @@ import { GovernanceFindingsQueueDesktopTable } from "./GovernanceFindingsQueueDe
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import {
+  getArchitectureDecisionRegister,
   getArchitectureRiskRegister,
+  type ArchitectureDecisionRegisterEntry,
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
@@ -243,7 +245,7 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
     return {
       runId: runId.length > 0 ? runId : "—",
       runLabel,
-      manifestId: entry.manifestId ?? "—",
+      manifestId: (entry.manifestId ?? "").trim().length > 0 ? (entry.manifestId ?? "").trim() : "—",
       findingId: entry.findingId,
       title: entry.title,
       severity: entry.severity,
@@ -255,6 +257,7 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
       ownerUserId: entry.ownerUserId ?? null,
       agingDays: entry.agingDays,
       waiverExpiresAtUtc: entry.waiverExpiresAtUtc ?? null,
+      lastReviewedUtc: entry.lastReviewedUtc ?? null,
       revisitDueUtc: entry.revisitDueUtc ?? null,
       isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
@@ -265,6 +268,38 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
           : null,
       systemName: systemName.length > 0 ? systemName : null,
       resourceId: resourceId.length > 0 ? resourceId : null,
+    };
+  });
+}
+
+function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[]): GovernanceFindingQueueRow[] {
+  return entries.map((entry) => {
+    const runId = (entry.runId ?? "").trim();
+    const manifestId = (entry.manifestId ?? "").trim();
+    const titleRaw = (entry.title ?? entry.selectedOption ?? entry.decisionId).trim();
+    const rationale = (entry.rationale ?? "").trim();
+    const selectedOption = (entry.selectedOption ?? "").trim();
+    const recommended =
+      rationale.length > 0
+        ? rationale
+        : selectedOption.length > 0
+          ? `Selected: ${selectedOption}`
+          : "Open the signed manifest for decision context and supporting findings.";
+
+    return {
+      runId: runId.length > 0 ? runId : "—",
+      runLabel: runId.length > 0 ? runId : "—",
+      manifestId: manifestId.length > 0 ? manifestId : "—",
+      findingId: entry.decisionId,
+      title: titleRaw.length > 0 ? titleRaw : entry.decisionId,
+      severity: "Info",
+      category: (entry.category ?? "").trim().length > 0 ? entry.category : "Architecture decision",
+      status: "Recorded",
+      recommended,
+      recordKind: "decision",
+      traceConfidenceLevel: null,
+      lastReviewedUtc: entry.recordedAtUtc ?? null,
+      evidenceHref: manifestId.length > 0 ? `/manifests/${encodeURIComponent(manifestId)}` : undefined,
     };
   });
 }
@@ -559,8 +594,14 @@ export default function GovernanceFindingsQueueClient() {
       }
 
       try {
-        const riskRegister = await getArchitectureRiskRegister();
-        const registerRows = riskRegisterRows(riskRegister.entries ?? []);
+        const [riskRegister, decisionRegister] = await Promise.all([
+          getArchitectureRiskRegister(),
+          getArchitectureDecisionRegister(),
+        ]);
+        const registerRows = dedupeRows([
+          ...riskRegisterRows(riskRegister.entries ?? []),
+          ...decisionRegisterRows(decisionRegister.decisions ?? []),
+        ]);
 
         if (registerRows.length > 0) {
           if (!cancelled) {
@@ -994,15 +1035,15 @@ export default function GovernanceFindingsQueueClient() {
         {!loading && rows.length === 0 ? (
           <EnterpriseCompactEmptyState
             testId="governance-findings-empty-state"
-            title="No findings to display"
+            title="No risks in the register"
             description={
               loadFailed
                 ? buyerPolishedShell
-                  ? "We could not load findings for this workspace. Check your connection, or return to reviews and try again."
-                  : "We could not load reviews for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
+                  ? "We could not load the architecture risk register for this workspace. Check your connection, or return to reviews and try again."
+                  : "We could not load the architecture risk register for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
                 : buyerPolishedShell
-                  ? `When reviews surface items that need attention, they will appear here. ${BUYER_GOVERNANCE_FINDINGS_EMPTY}`
-                  : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a review record, then return or open findings from review detail."
+                  ? `When reviews surface owned risks or recorded decisions, they will appear here. ${BUYER_GOVERNANCE_FINDINGS_EMPTY}`
+                  : "When committed reviews produce findings or signed manifest decisions, they appear here. Start from an architecture request, finalize a review record, then return to this register."
             }
             actions={[
               { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
@@ -1018,12 +1059,12 @@ export default function GovernanceFindingsQueueClient() {
         {!loading && rows.length === 0 && !buyerPolishedShell ? (
           <details className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/60">
             <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-              What findings look like
+              What the risk register contains
             </summary>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Each row is either a finding (explainability-backed item to inspect) or a recorded architecture decision. Both
-              include severity and category where applicable, plus rationale, supporting evidence, and a recommended
-              action when the analysis produced one. Items are attached to architecture reviews.
+              Each row is either an architecture risk (explainability-backed finding with owner, disposition, and review
+              cadence) or a recorded manifest decision. Both link back to the producing review and signed manifest
+              evidence — not a separate risk subsystem.
             </p>
             <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
               <li>Create an architecture request and wait for the pipeline to complete.</li>

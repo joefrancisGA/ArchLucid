@@ -104,7 +104,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
     "Pick a run under Approval requests for this review, then Load — approvals, promotions, and activations appear for that review.",
   actions: [
     { label: "View reviews", href: "/reviews?projectId=default" },
-    { label: "Governance findings", href: "/governance/findings", variant: "outline" },
+    { label: "Risk register", href: "/governance/findings", variant: "outline" },
     { label: "Policy packs", href: "/policy-packs", variant: "outline" },
   ],
   helpTopicPath: "governance",
@@ -119,7 +119,7 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
     "Choose a review under Approval requests and click Load to review approvals, promotions, and activations for that run.",
   actions: [
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
-    { label: "Governance findings", href: "/governance/findings", variant: "outline" },
+    { label: "Risk register", href: "/governance/findings", variant: "outline" },
   ],
   helpTopicPath: "governance",
   gettingStarted: governanceWorkflowIdleGettingStartedReader,

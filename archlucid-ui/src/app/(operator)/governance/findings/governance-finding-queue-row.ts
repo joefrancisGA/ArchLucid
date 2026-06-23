@@ -20,6 +20,7 @@ export type GovernanceFindingQueueRow = {
   ownerUserId?: string | null;
   agingDays?: number;
   waiverExpiresAtUtc?: string | null;
+  lastReviewedUtc?: string | null;
   revisitDueUtc?: string | null;
   isStale?: boolean;
   evidenceHref?: string;

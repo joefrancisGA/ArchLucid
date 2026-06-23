@@ -35,6 +35,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                       SELECT TOP (@MaxRows)
                              fr.FindingId,
                              TRY_CONVERT(uniqueidentifier, fr.RunIdRef) AS RunId,
+                             runs.GoldenManifestId AS ManifestId,
                              fr.Title,
                              fr.Severity,
                              fr.Category,
@@ -119,6 +120,7 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                 {
                     FindingId = row.FindingId,
                     RunId = row.RunId,
+                    ManifestId = row.ManifestId,
                     Title = row.Title,
                     Severity = row.Severity,
                     Category = row.Category,
@@ -175,6 +177,12 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         } = string.Empty;
 
         public Guid? RunId
+        {
+            get;
+            init;
+        }
+
+        public Guid? ManifestId
         {
             get;
             init;

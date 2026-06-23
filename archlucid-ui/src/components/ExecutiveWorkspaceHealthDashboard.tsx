@@ -318,7 +318,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
             </p>
             <p className="m-0 text-sm">
               <Link href="/governance/findings" className="font-medium text-blue-700 underline dark:text-blue-400">
-                {buyerPolishedShell ? "Review findings queue" : "Governance findings queue"}
+                {buyerPolishedShell ? "Open risk register" : "Architecture risk register"}
               </Link>
             </p>
           </CardContent>
