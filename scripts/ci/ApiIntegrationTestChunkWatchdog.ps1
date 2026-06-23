@@ -4,8 +4,58 @@ Set-StrictMode -Version Latest
 
 $script:DotNetDumpToolVersion = '9.0.621003'
 $script:DotNetStackToolVersion = '9.0.621003'
-$script:DotNetDumpCollectTimeoutSeconds = 120
-$script:DotNetStackReportTimeoutSeconds = 60
+$script:DotNetDumpCollectTimeoutSeconds = 60
+$script:DotNetStackReportTimeoutSeconds = 45
+$script:IntegrationTestHangHeartbeatIntervalSeconds = 8
+
+function Write-IntegrationTestHangProgressHeartbeat {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Phase,
+
+        [int]$ShardIndex = -1,
+
+        [int]$ChunkNumber = -1,
+
+        [int]$ProcessId = 0,
+
+        [nullable[datetime]]$StartedUtc = $null,
+
+        [nullable[datetime]]$DeadlineUtc = $null
+    )
+
+    $timestamp = Get-Date -Format 'HH:mm:ss'
+    $details = @($Phase)
+
+    if ($ShardIndex -ge 0 -and $ChunkNumber -ge 0) {
+        $details += ("shard {0} chunk {1}" -f $ShardIndex, $ChunkNumber)
+    }
+
+    if ($ProcessId -gt 0) {
+        $details += ("PID {0}" -f $ProcessId)
+    }
+
+    if ($null -ne $StartedUtc) {
+        $elapsed = [datetime]::UtcNow - $StartedUtc
+
+        if ($null -ne $DeadlineUtc) {
+            $remaining = $DeadlineUtc - [datetime]::UtcNow
+
+            if ($remaining.TotalSeconds -lt 0) {
+                $remaining = [TimeSpan]::Zero
+            }
+
+            $details += (
+                "elapsed {0:mm\:ss}, remaining {1:mm\:ss}" -f $elapsed, $remaining
+            )
+        }
+        else {
+            $details += ("elapsed {0:mm\:ss}" -f $elapsed)
+        }
+    }
+
+    Write-Host ("STILL EXECUTING... {0} ({1})" -f $timestamp, ($details -join ', '))
+}
 
 function ConvertTo-ChunkTimeoutSpan {
     param(
@@ -183,13 +233,40 @@ function Write-ChunkProcessTreeDiagnostics {
     }
 }
 
+function Test-IntegrationTestHangDumpPrimaryTargetCommandLine {
+    param(
+        [Parameter(Mandatory)]
+        [string]$CommandLine
+    )
+
+    return $CommandLine -match '(?i)(/|\\)testhost\.dll\b'
+}
+
+function Test-IntegrationTestHangDumpSecondaryTargetCommandLine {
+    param(
+        [Parameter(Mandatory)]
+        [string]$CommandLine
+    )
+
+    if ($CommandLine -match '(?i)dotnet\s+test\s+') {
+        return $false
+    }
+
+    if ($CommandLine -match '(?i)datacollector') {
+        return $false
+    }
+
+    return $CommandLine -match '(?i)vstest\.console|Microsoft\.TestPlatform|/testhost\.dll'
+}
+
 function Test-IntegrationTestDumpTargetCommandLine {
     param(
         [Parameter(Mandatory)]
         [string]$CommandLine
     )
 
-    return $CommandLine -match '(?i)testhost|ArchLucid\.Api\.Tests|vstest\.console|Microsoft\.TestPlatform|/testhost\.dll'
+    return (Test-IntegrationTestHangDumpPrimaryTargetCommandLine -CommandLine $CommandLine) `
+        -or (Test-IntegrationTestHangDumpSecondaryTargetCommandLine -CommandLine $CommandLine)
 }
 
 function Get-IntegrationTestDumpTargetProcessIds {
@@ -204,7 +281,8 @@ function Get-IntegrationTestDumpTargetProcessIds {
     Write-ChunkProcessTreeDiagnostics -RootProcessId $RootProcessId -CurrentProcessId $CurrentProcessId
 
     $descendantIds = @(Get-DescendantProcessIds -RootProcessId $RootProcessId)
-    $matchedIds = [System.Collections.Generic.List[int]]::new()
+    $primaryTargetIds = [System.Collections.Generic.List[int]]::new()
+    $secondaryTargetIds = [System.Collections.Generic.List[int]]::new()
     $dotnetDescendantIds = [System.Collections.Generic.List[int]]::new()
     $directChildDotnetIds = [System.Collections.Generic.List[int]]::new()
 
@@ -220,14 +298,32 @@ function Get-IntegrationTestDumpTargetProcessIds {
             [void]$dotnetDescendantIds.Add($processId)
         }
 
-        if ($null -ne $commandLine -and (Test-IntegrationTestDumpTargetCommandLine -CommandLine $commandLine)) {
-            Write-Host ("Selected dump target PID {0} (cmdline match)" -f $processId)
-            [void]$matchedIds.Add($processId)
+        if ($null -eq $commandLine) {
+            continue
+        }
+
+        if (Test-IntegrationTestHangDumpPrimaryTargetCommandLine -CommandLine $commandLine) {
+            Write-Host ("Selected dump target PID {0} (testhost primary match)" -f $processId)
+            [void]$primaryTargetIds.Add($processId)
+            continue
+        }
+
+        if (Test-IntegrationTestHangDumpSecondaryTargetCommandLine -CommandLine $commandLine) {
+            Write-Host ("Selected dump target PID {0} (secondary vstest match)" -f $processId)
+            [void]$secondaryTargetIds.Add($processId)
         }
     }
 
-    if ($matchedIds.Count -gt 0) {
-        return [int[]]@($matchedIds | Select-Object -Unique)
+    if ($primaryTargetIds.Count -gt 0) {
+        $bestPrimaryTargetId = @($primaryTargetIds | Sort-Object -Descending)[0]
+
+        return [int[]]@($bestPrimaryTargetId)
+    }
+
+    if ($secondaryTargetIds.Count -gt 0) {
+        $bestSecondaryTargetId = @($secondaryTargetIds | Sort-Object -Descending)[0]
+
+        return [int[]]@($bestSecondaryTargetId)
     }
 
     if ($IsLinux -or [bool]$env:GITHUB_ACTIONS) {
@@ -347,6 +443,9 @@ function Invoke-DotNetDumpCollectBounded {
     } -ArgumentList ([string]$DotNetDumpPath), $ProcessId, ([string]$OutputPath)
 
     $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
+    $startedUtc = [datetime]::UtcNow
+    $heartbeatIntervalSeconds = $script:IntegrationTestHangHeartbeatIntervalSeconds
+    $nextHeartbeatUtc = $startedUtc
 
     try {
         while ($collectJob.State -eq 'Running') {
@@ -354,6 +453,16 @@ function Invoke-DotNetDumpCollectBounded {
                 Write-Host ("dotnet-dump collect timed out after {0}s for PID {1}" -f $TimeoutSeconds, $ProcessId)
                 Stop-Job -Job $collectJob -Force -ErrorAction SilentlyContinue
                 return $false
+            }
+
+            if ([datetime]::UtcNow -ge $nextHeartbeatUtc) {
+                Write-IntegrationTestHangProgressHeartbeat `
+                    -Phase 'dotnet-dump collect' `
+                    -ProcessId $ProcessId `
+                    -StartedUtc $startedUtc `
+                    -DeadlineUtc $deadline
+
+                $nextHeartbeatUtc = [datetime]::UtcNow.AddSeconds($heartbeatIntervalSeconds)
             }
 
             Start-Sleep -Seconds 2
@@ -436,6 +545,9 @@ function Invoke-DotNetStackReportBounded {
     } -ArgumentList ([string]$DotNetStackPath), $ProcessId, ([string]$OutputPath)
 
     $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSeconds)
+    $startedUtc = [datetime]::UtcNow
+    $heartbeatIntervalSeconds = $script:IntegrationTestHangHeartbeatIntervalSeconds
+    $nextHeartbeatUtc = $startedUtc
 
     try {
         while ($reportJob.State -eq 'Running') {
@@ -443,6 +555,16 @@ function Invoke-DotNetStackReportBounded {
                 Write-Host ("dotnet-stack report timed out after {0}s for PID {1}" -f $TimeoutSeconds, $ProcessId)
                 Stop-Job -Job $reportJob -Force -ErrorAction SilentlyContinue
                 return $false
+            }
+
+            if ([datetime]::UtcNow -ge $nextHeartbeatUtc) {
+                Write-IntegrationTestHangProgressHeartbeat `
+                    -Phase 'dotnet-stack report' `
+                    -ProcessId $ProcessId `
+                    -StartedUtc $startedUtc `
+                    -DeadlineUtc $deadline
+
+                $nextHeartbeatUtc = [datetime]::UtcNow.AddSeconds($heartbeatIntervalSeconds)
             }
 
             Start-Sleep -Seconds 2
@@ -712,8 +834,10 @@ function Invoke-DotNetTestChunkWithWatchdog {
         -RedirectStandardError $stderrLogPath
 
     $deadline = [datetime]::UtcNow.Add($ChunkTimeout)
+    $startedUtc = [datetime]::UtcNow
     $timedOut = $false
-    $heartbeatIntervalSeconds = 8
+    $heartbeatIntervalSeconds = $script:IntegrationTestHangHeartbeatIntervalSeconds
+    $heartbeatCount = 0
 
     while (-not $process.HasExited) {
         if ([datetime]::UtcNow -ge $deadline) {
@@ -735,7 +859,23 @@ function Invoke-DotNetTestChunkWithWatchdog {
             break
         }
 
-        Write-Host ("STILL EXECUTING... {0}" -f (Get-Date -Format 'HH:mm:ss'))
+        $heartbeatCount += 1
+
+        Write-IntegrationTestHangProgressHeartbeat `
+            -Phase 'dotnet test chunk' `
+            -ShardIndex $ShardIndex `
+            -ChunkNumber $ChunkNumber `
+            -ProcessId $process.Id `
+            -StartedUtc $startedUtc `
+            -DeadlineUtc $deadline
+
+        if ($heartbeatCount % 4 -eq 0) {
+            Write-ChunkRedirectLogTail `
+                -Label 'dotnet test chunk stdout (recent)' `
+                -LogPath $stdoutLogPath `
+                -TailLineCount 8
+        }
+
         Start-Sleep -Seconds $heartbeatIntervalSeconds
     }
 
