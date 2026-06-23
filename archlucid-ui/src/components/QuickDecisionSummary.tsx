@@ -46,7 +46,7 @@ import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
 import {
   groupQuickDecisionFindingsByPolicyPack,
-  summarizeQuickDecisionFindingsByPolicyPack,
+  summarizePolicyPackFindingImpact,
 } from "@/lib/group-findings-by-policy-pack";
 import {
   formatHiddenLowConfidenceHint,
@@ -108,11 +108,12 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     props.manifestRuleSetId,
     props.manifestRuleSetVersion,
   );
-  const policyPackSummary = summarizeQuickDecisionFindingsByPolicyPack(
+  const policyPackImpact = summarizePolicyPackFindingImpact(
     afterMuteFilter,
     props.manifestRuleSetId,
     props.manifestRuleSetVersion,
   );
+  const policyPackSummary = policyPackImpact.groups;
   const hasSourceFindings = props.findings.length > 0;
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const headlineFindingCount = props.headlineFindingCount;
@@ -394,7 +395,12 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
           {hasSourceFindings && policyPackSummary.length > 0 ? (
-            <ReviewDetailPolicyPackFindingsBreakdown groups={policyPackSummary} />
+            <ReviewDetailPolicyPackFindingsBreakdown
+              groups={policyPackSummary}
+              manifestRuleSetId={props.manifestRuleSetId}
+              mappedFindingCount={policyPackImpact.mappedFindingCount}
+              unmappedFindingCount={policyPackImpact.unmappedFindingCount}
+            />
           ) : null}
           {props.usingExplanationFallback === true ? (
             <p

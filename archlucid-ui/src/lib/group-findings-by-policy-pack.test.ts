@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   groupQuickDecisionFindingsByPolicyPack,
+  summarizePolicyPackFindingImpact,
   summarizeQuickDecisionFindingsByPolicyPack,
 } from "./group-findings-by-policy-pack";
 import type { QuickDecisionFinding } from "./quick-decision-summary-derive";
@@ -31,8 +32,18 @@ describe("group-findings-by-policy-pack", () => {
     const grouped = groupQuickDecisionFindingsByPolicyPack(findings);
 
     expect(summary).toEqual([
-      { groupKey: "security architecture baseline", packDisplayName: "Security Architecture Baseline", findingCount: 2 },
-      { groupKey: "azure well-architected framework", packDisplayName: "Azure Well-Architected Framework", findingCount: 1 },
+      {
+        groupKey: "security architecture baseline",
+        packDisplayName: "Security Architecture Baseline",
+        findingCount: 2,
+        packHref: "/policy-packs?ruleId=sec-base-001",
+      },
+      {
+        groupKey: "azure well-architected framework",
+        packDisplayName: "Azure Well-Architected Framework",
+        findingCount: 1,
+        packHref: "/policy-packs?ruleId=waf-az-003",
+      },
     ]);
     expect(grouped).toHaveLength(2);
     expect(grouped[0]?.findings.map((row) => row.findingId)).toEqual(["f1", "f2"]);
@@ -44,5 +55,19 @@ describe("group-findings-by-policy-pack", () => {
     const summary = summarizeQuickDecisionFindingsByPolicyPack(findings, "healthcare-claims-v3", "3.4.1");
 
     expect(summary[0]?.packDisplayName).toBe("Healthcare Claims Policy Pack v3.4.1");
+    expect(summary[0]?.packHref).toBe("/governance/policy-packs/demo-healthcare-claims-pack");
+  });
+
+  it("summarizePolicyPackFindingImpact counts mapped vs unmapped findings", () => {
+    const findings = [
+      finding({ findingId: "f1", title: "A", policyRuleId: "sec-base-001" }),
+      finding({ findingId: "f2", title: "B" }),
+    ];
+
+    const impact = summarizePolicyPackFindingImpact(findings);
+
+    expect(impact.totalFindings).toBe(2);
+    expect(impact.mappedFindingCount).toBe(1);
+    expect(impact.unmappedFindingCount).toBe(1);
   });
 });

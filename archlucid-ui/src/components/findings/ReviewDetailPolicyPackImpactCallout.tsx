@@ -1,0 +1,101 @@
+import Link from "next/link";
+
+import { StatusTag } from "@/components/ui/status-tag";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
+import { cn } from "@/lib/utils";
+
+export type ReviewDetailPolicyPackImpactCalloutProps = {
+  readonly ruleSetId: string;
+  readonly ruleSetVersion?: string | null;
+  readonly runId: string;
+  readonly mappedFindingCount?: number | null;
+  readonly totalFindingCount?: number | null;
+};
+
+/**
+ * Surfaces the governing policy pack on committed review detail so buyers can see policy-aware evaluation.
+ */
+export function ReviewDetailPolicyPackImpactCallout(
+  props: ReviewDetailPolicyPackImpactCalloutProps,
+): React.JSX.Element | null {
+  const ruleSetId = props.ruleSetId.trim();
+  const runId = props.runId.trim();
+
+  if (ruleSetId.length === 0) {
+    return null;
+  }
+
+  const packLabel = policyPackBuyerLabel(ruleSetId, props.ruleSetVersion ?? "");
+  const packHref = resolveReviewDetailPolicyPackHref(ruleSetId);
+  const simulateHref = policyPacksEditHref(ruleSetId);
+  const mappedCount =
+    props.mappedFindingCount !== null &&
+    props.mappedFindingCount !== undefined &&
+    Number.isFinite(props.mappedFindingCount)
+      ? Math.max(0, Math.trunc(props.mappedFindingCount))
+      : null;
+  const totalCount =
+    props.totalFindingCount !== null &&
+    props.totalFindingCount !== undefined &&
+    Number.isFinite(props.totalFindingCount)
+      ? Math.max(0, Math.trunc(props.totalFindingCount))
+      : null;
+
+  return (
+    <aside
+      data-testid="review-detail-policy-pack-impact-callout"
+      className="rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/50"
+      aria-label="Policy pack evaluation context"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-2">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
+            Policy-aware review
+          </p>
+          <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            Evaluated against{" "}
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">{packLabel}</span>. Findings below
+            should cite curated pack rules, evidence, and explainability traces — not generic model advice alone.
+          </p>
+          {mappedCount !== null && totalCount !== null ? (
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="review-detail-policy-pack-impact-counts">
+              {mappedCount} of {totalCount} surfaced finding{totalCount === 1 ? "" : "s"} map to a policy rule on this
+              review.
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusTag kind="ready" label={`Pack: ${packLabel}`} />
+          {packHref !== null ? (
+            <Link
+              href={packHref}
+              className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+              data-testid="review-detail-policy-pack-impact-view-pack"
+            >
+              View policy basis
+            </Link>
+          ) : null}
+          <Link
+            href={simulateHref}
+            className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+            data-testid="review-detail-policy-pack-impact-simulate"
+          >
+            Simulate pack changes
+          </Link>
+          {runId.length > 0 ? (
+            <Link
+              href={`/audit?runId=${encodeURIComponent(runId)}`}
+              className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+              data-testid="review-detail-policy-pack-impact-audit"
+            >
+              Audit trail
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </aside>
+  );
+}
