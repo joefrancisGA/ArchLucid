@@ -28,9 +28,21 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
             node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostStr);
             node.Properties.TryGetValue("costRisk", out string? costRisk);
 
+            node.Properties.TryGetValue("projectedImpactUsdLowerBound", out string? lowerBoundStr);
+            node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundStr);
+            node.Properties.TryGetValue("confidenceReasoning", out string? confidenceReasoning);
+
             decimal? maxMonthly = null;
             if (!string.IsNullOrWhiteSpace(maxCostStr) && decimal.TryParse(maxCostStr, out decimal mc))
                 maxMonthly = mc;
+
+            decimal? lowerBound = null;
+            if (!string.IsNullOrWhiteSpace(lowerBoundStr) && decimal.TryParse(lowerBoundStr, out decimal lb))
+                lowerBound = lb;
+
+            decimal? upperBound = null;
+            if (!string.IsNullOrWhiteSpace(upperBoundStr) && decimal.TryParse(upperBoundStr, out decimal ub))
+                upperBound = ub;
 
             findings.Add(new Finding
             {
@@ -44,9 +56,18 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 Title = $"Cost constraint: {node.Label}",
                 Rationale = "A cost constraint node was found and should constrain architecture choices.",
                 RelatedNodeIds = [node.NodeId],
+                ProjectedImpactUsd = maxMonthly, // Assign maxMonthly to ProjectedImpactUsd to ensure it has a point estimate for ROI
                 PayloadType = nameof(CostConstraintFindingPayload),
                 Payload =
-                    new CostConstraintFindingPayload { BudgetName = budgetName ?? node.Label, MaxMonthlyCost = maxMonthly, CostRisk = costRisk ?? "unknown" },
+                    new CostConstraintFindingPayload
+                    {
+                        BudgetName = budgetName ?? node.Label,
+                        MaxMonthlyCost = maxMonthly,
+                        CostRisk = costRisk ?? "unknown",
+                        ProjectedImpactUsdLowerBound = lowerBound,
+                        ProjectedImpactUsdUpperBound = upperBound,
+                        ConfidenceReasoning = confidenceReasoning
+                    },
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [node.NodeId],

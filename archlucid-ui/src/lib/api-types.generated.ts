@@ -31893,6 +31893,7 @@ export interface components {
             /** Format: uuid */
             graphSnapshotId?: null | string;
             isPinned?: boolean;
+            isDeadLettered?: boolean;
             lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
             otelTraceId?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
@@ -32181,6 +32182,7 @@ export interface components {
             hasFindingsSnapshot?: boolean;
             hasGoldenManifest?: boolean;
             hasGraphSnapshot?: boolean;
+            isDeadLettered?: boolean;
             projectId?: string;
             runDegradedExecution?: boolean;
             /** Format: uuid */

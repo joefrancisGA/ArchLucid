@@ -19,4 +19,22 @@ public class CostConstraintFindingPayload
         get;
         set;
     } = null!;
+
+    public decimal? ProjectedImpactUsdLowerBound
+    {
+        get;
+        set;
+    }
+
+    public decimal? ProjectedImpactUsdUpperBound
+    {
+        get;
+        set;
+    }
+
+    public string? ConfidenceReasoning
+    {
+        get;
+        set;
+    }
 }
