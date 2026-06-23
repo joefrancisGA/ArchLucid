@@ -609,7 +609,9 @@ $jsonPayload = New-RealLlmEvidenceGateJsonPayload `
 
 
 
-$jsonPayload | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonOutAbs -Encoding UTF8
+$jsonPayload | ConvertTo-Json -Depth 8 | ForEach-Object {
+    [System.IO.File]::WriteAllText($jsonOutAbs, $_, (New-Object System.Text.UTF8Encoding $false))
+}
 
 Write-Host "Wrote $jsonOutAbs" -ForegroundColor Green
 

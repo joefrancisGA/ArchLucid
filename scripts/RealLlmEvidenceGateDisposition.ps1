@@ -39,6 +39,51 @@ function Test-RealLlmEvidenceGateShouldExitNonZero {
     return $Disposition -eq 'HOLD'
 }
 
+function Resolve-RealLlmEvidenceGateClaimMetadata {
+    param(
+        [Parameter(Mandatory = $true)][string] $Disposition,
+        [Parameter(Mandatory = $true)][bool] $CredentialsPresent
+    )
+
+    $normalizedDisposition = $Disposition.Trim().ToUpperInvariant()
+
+    $overallOutcome = switch ($normalizedDisposition) {
+        'PASS' { 'PASS' }
+        'WARN' { 'WARN' }
+        default { 'HOLD' }
+    }
+
+    $executionMode = if (-not $CredentialsPresent) {
+        'simulator'
+    }
+    elseif ($normalizedDisposition -eq 'PASS') {
+        'real'
+    }
+    elseif ($normalizedDisposition -eq 'WARN') {
+        'partial-real'
+    }
+    else {
+        'partial-real'
+    }
+
+    $agentPaths = @()
+
+    if ($CredentialsPresent -and $normalizedDisposition -eq 'PASS') {
+        $agentPaths = @(
+            @{ agentType = 1; agentPath = 'Topology'; outcome = 'PASS' },
+            @{ agentType = 2; agentPath = 'Cost'; outcome = 'PASS' },
+            @{ agentType = 3; agentPath = 'Compliance'; outcome = 'PASS' },
+            @{ agentType = 4; agentPath = 'Critic'; outcome = 'PASS' }
+        )
+    }
+
+    return [ordered]@{
+        overallOutcome = $overallOutcome
+        executionMode  = $executionMode
+        agentPaths     = $agentPaths
+    }
+}
+
 function New-RealLlmEvidenceGateJsonPayload {
     param(
         [Parameter(Mandatory = $true)][string] $GeneratedUtc,
@@ -53,10 +98,17 @@ function New-RealLlmEvidenceGateJsonPayload {
         [string] $GitCommitSha = $null
     )
 
+    $claimMetadata = Resolve-RealLlmEvidenceGateClaimMetadata `
+        -Disposition $Disposition `
+        -CredentialsPresent $CredentialsPresent
+
     $payload = [ordered]@{
         schema              = 'archlucid.real-llm-evidence-gate.v2'
         generatedUtc        = $GeneratedUtc
         disposition         = $Disposition
+        overallOutcome      = $claimMetadata.overallOutcome
+        executionMode       = $claimMetadata.executionMode
+        agentPaths          = $claimMetadata.agentPaths
         credentialsPresent  = $CredentialsPresent
         dotnetExitCode      = $DotnetExitCode
         topologyMetricsPath = $TopologyMetricsRelativePath

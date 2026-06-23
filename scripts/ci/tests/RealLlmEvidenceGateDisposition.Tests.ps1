@@ -90,4 +90,21 @@ Describe 'RealLlmEvidenceGateDisposition' {
         Test-RealLlmEvidenceGateShouldExitNonZero -Disposition 'HOLD' |
             Should -Be $true
     }
+
+    It 'maps PASS disposition to release claim metadata' {
+        $metadata = Resolve-RealLlmEvidenceGateClaimMetadata -Disposition 'PASS' -CredentialsPresent $true
+
+        $metadata.overallOutcome | Should -Be 'PASS'
+        $metadata.executionMode | Should -Be 'real'
+        $metadata.agentPaths.Count | Should -Be 4
+        $metadata.agentPaths[0].agentPath | Should -Be 'Topology'
+    }
+
+    It 'maps skipped credentials to HOLD simulator metadata' {
+        $metadata = Resolve-RealLlmEvidenceGateClaimMetadata -Disposition 'SKIPPED_NO_CREDENTIALS' -CredentialsPresent $false
+
+        $metadata.overallOutcome | Should -Be 'HOLD'
+        $metadata.executionMode | Should -Be 'simulator'
+        $metadata.agentPaths.Count | Should -Be 0
+    }
 }

@@ -1,0 +1,21 @@
+{
+  "generatedUtc": "2026-06-22T09:33:58.1695232Z",
+  "deploymentName": "gpt-4o",
+  "liveEvidenceProfile": "full-pipeline",
+  "mergeSuccess": true,
+  "manifestServiceCount": 2,
+  "decisionsCount": 0,
+  "decisionTraceCount": 29,
+  "totalClaims": 5,
+  "totalFindings": 11,
+  "topologyProposalItemCount": 9,
+  "parseAttempts": 3,
+  "parseFailures": 0,
+  "inputTokensTotal": 0,
+  "outputTokensTotal": 0,
+  "estimatedCostUsd": null,
+  "semanticScoreCaptured": false,
+  "evidenceRefsObserved": true,
+  "traceRecorderInvocations": 3,
+  "durableSqlPersistenceExercised": false
+}
