@@ -15,6 +15,8 @@ type UnifiedFirstPilotProgressPanelProps = {
   readonly checklistVariant?: "full" | "compact";
   /** When nested under advanced guidance, omit the outer section heading. */
   readonly embedded?: boolean;
+  /** Onboarding layout: checklist only — no operating path or readiness tabs. */
+  readonly checklistOnly?: boolean;
 };
 
 type ProgressTab = "path" | "checklist" | "readiness";
@@ -23,7 +25,21 @@ type ProgressTab = "path" | "checklist" | "readiness";
 export function UnifiedFirstPilotProgressPanel(props: UnifiedFirstPilotProgressPanelProps) {
   const checklistVariant = props.checklistVariant ?? "compact";
   const embedded = props.embedded === true;
+  const checklistOnly = props.checklistOnly === true;
   const [activeTab, setActiveTab] = useState<ProgressTab>("path");
+
+  if (checklistOnly) {
+    return (
+      <section
+        className="space-y-3"
+        data-testid="unified-first-pilot-progress-panel"
+      >
+        <div id="core-pilot-checklist-anchor">
+          <CorePilotChecklist variant={checklistVariant} />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -34,10 +50,10 @@ export function UnifiedFirstPilotProgressPanel(props: UnifiedFirstPilotProgressP
       <div className="flex flex-wrap items-center justify-between gap-2">
         {embedded ? null : (
           <h2 id="unified-first-pilot-progress-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">
-            First pilot progress
+            First review progress
           </h2>
         )}
-        <div className="flex flex-wrap gap-1" role="tablist" aria-label="First pilot progress views">
+        <div className="flex flex-wrap gap-1" role="tablist" aria-label="First review progress views">
           {(
             [
               { id: "path" as const, label: "Operating path" },

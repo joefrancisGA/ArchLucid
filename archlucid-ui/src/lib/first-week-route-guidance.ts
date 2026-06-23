@@ -42,11 +42,11 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
   },
   onboarding: {
-    useWhen: "You want a guided checklist before opening the full product.",
+    useWhen: "Follow this guided path to create and commit your first review package.",
     bridgeCopy:
       "The checklist below walks one architecture review from capture to committed signed review record.",
-    primaryAction: { label: "Open new review wizard", href: "/reviews/new" },
-    operateDeferralNote: "Finish this four-step path before exploring Operate analysis or governance lanes.",
+    primaryAction: { label: "Start review", href: "/reviews/new" },
+    operateDeferralNote: "Finish this path before exploring Operate analysis or governance lanes.",
   },
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",

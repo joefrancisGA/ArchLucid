@@ -54,6 +54,24 @@ function GuidanceBody(props: {
 export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
   const config = resolveFirstWeekRouteGuidanceForShell(props.variant, isBuyerPolishedOperatorShellEnv());
 
+  if (props.variant === "onboarding") {
+    return (
+      <aside
+        aria-label="First-week guidance"
+        data-testid={`first-week-route-guidance-${props.variant}`}
+        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 text-sm leading-snug"
+      >
+        <p className="m-0 font-semibold text-teal-900 dark:text-teal-200">{config.useWhen}</p>
+        <GuidanceBody
+          useWhen={config.useWhen}
+          bridgeCopy={config.bridgeCopy}
+          operateDeferralNote={config.operateDeferralNote}
+          primaryAction={config.primaryAction}
+        />
+      </aside>
+    );
+  }
+
   if (props.variant === "home") {
     return (
       <details

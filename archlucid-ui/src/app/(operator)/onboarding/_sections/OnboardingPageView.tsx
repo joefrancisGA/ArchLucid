@@ -2,69 +2,70 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
-import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
-import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
-import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
 import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
 
 type OnboardingPageViewProps = {
   model: OnboardingPageViewModel;
 };
 
+const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
 /**
- * Canonical onboarding orientation: optional trial card when arriving from registration,
- * plus the unified first-pilot progress panel.
+ * Canonical onboarding orientation: primary first-review path, single progress checklist,
+ * and collapsed optional setup for ROI, workspace, and CLI tooling.
  */
 export function OnboardingPageView({ model }: OnboardingPageViewProps) {
   const { fromRegistration } = model;
 
   return (
     <OperatorPageContainer variant="reading" className="space-y-8">
-      <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
-        Onboarding
-      </h1>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-        Follow the checklist below to complete your first architecture review. For the full home overview, go to{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/">
-          Home
-        </Link>
-        .
-      </p>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-        Prefer proof before wiring your own tenant?{" "}
-        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/preview">
-          See the evidence trail walkthrough
-        </Link>
-        .
-      </p>
-      <CorePilotProgressTrackerBanner />
-      <FirstWeekRouteGuidance variant="onboarding" />
-      <div className="flex flex-wrap items-center gap-2">
-        <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
-        <InAppHelpLink helpSlug="specialty-walkthroughs" label="Specialty templates (optional, after first commit)" />
-      </div>
-      <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} />
-      <section aria-labelledby="onboarding-roi-baseline-setup-heading" data-testid="onboarding-roi-baseline-setup">
-        <h2 id="onboarding-roi-baseline-setup-heading" className="m-0 text-base font-semibold text-al-text-primary">
-          Configure ROI baseline
-        </h2>
-        <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-          Add baseline assumptions so Portfolio overview can show estimated savings and sponsor ROI.
+      <header className="max-w-prose space-y-3" data-testid="onboarding-hero">
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
+          Onboarding
+        </h1>
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          Create your first review package. Complete one architecture review from intake to committed package.
         </p>
-        <div className="mt-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild size="sm" variant="default">
+            <Link href="/reviews/new">Start review</Link>
+          </Button>
           <Button asChild size="sm" variant="outline">
-            <Link href="/settings/baseline">Configure ROI baseline</Link>
+            <Link href={sampleReviewHref}>Open sample review</Link>
           </Button>
         </div>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          For the full home overview, go to{" "}
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/">
+            Home
+          </Link>
+          .
+        </p>
+      </header>
+
+      {fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} /> : null}
+
+      <section aria-labelledby="onboarding-progress-heading" className="space-y-3" data-testid="onboarding-progress">
+        <h2 id="onboarding-progress-heading" className="m-0 text-base font-semibold text-al-text-primary">
+          Progress
+        </h2>
+        <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          Follow this guided path to create and commit your first review package.
+        </p>
+        <UnifiedFirstPilotProgressPanel checklistVariant="full" embedded checklistOnly />
+        <div className="flex flex-wrap items-center gap-2">
+          <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
+          <InAppHelpLink helpSlug="specialty-walkthroughs" label="Specialty templates (optional, after first commit)" />
+        </div>
       </section>
-      <FinishSetupWizardPanel />
-      <TryCliDemoCard />
-      <UnifiedFirstPilotProgressPanel checklistVariant="full" />
+
+      <OnboardingOptionalSetupSection />
     </OperatorPageContainer>
   );
 }

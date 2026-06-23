@@ -7,9 +7,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
-///     On a brand-new SQL catalog, applies <c>Migrations/Baseline/000_Baseline_2026_04_17.sql</c> (union of
-///     forward migrations 001–050) and stamps <c>dbo.SchemaVersions</c> so DbUp continues at 051+.
-///     Existing catalogs that already ran <c>001_InitialSchema</c> are left on the incremental path.
+///     On a brand-new SQL catalog, replays embedded forward migrations <c>001</c>–<c>050</c> and stamps
+///     <c>dbo.SchemaVersions</c> so DbUp continues at <c>051+</c>. Existing catalogs that already ran
+///     <c>001_InitialSchema</c> are left on the incremental path.
 /// </summary>
 public static partial class GreenfieldBaselineMigrationRunner
 {
@@ -31,113 +31,84 @@ public static partial class GreenfieldBaselineMigrationRunner
     }
 
     /// <summary>
-    ///     When <c>dbo.SchemaVersions</c> does not yet record <c>001_InitialSchema</c>, applies baseline SQL and stamps
-    ///     001–050 so DbUp continues at 051+. No-op once that journal row exists.
+    ///     When <c>dbo.SchemaVersions</c> does not yet record <c>001_InitialSchema</c>, repairs the catalog and stamps
+    ///     <c>001</c>–<c>050</c> so DbUp continues at <c>051+</c>. No-op once that journal row exists.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while
-    ///         <c>001_InitialSchema</c>
-    ///         objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
-    ///         001–050 so DbUp continues without re-executing DDL — but only when <c>dbo.AuditEvents</c> already exists
-    ///         (migration
-    ///         <c>035</c>). Otherwise we replay incremental scripts through <c>050</c> first: from <c>035</c> when
-    ///         <c>dbo.Runs</c>
-    ///         exists, or from <c>017</c> when it does not (035–050 assume <c>dbo.Runs</c> from
-    ///         <c>017_GraphSnapshots_ParentTables</c>)
-    ///         so later DbUp scripts (e.g. <c>060</c> indexes on <c>dbo.AuditEvents</c>) do not run against a missing table.
-    ///     </para>
-    ///     <para>
-    ///         A catalog can also have <b>non-empty</b> <c>dbo.SchemaVersions</c> (e.g. 051+ applied) <b>without</b> a
-    ///         <c>001_InitialSchema</c> row while physical <c>001</c> tables still exist (manual repair, forked CI, or journal
-    ///         drift). The legacy gate treated that as "no baseline" and skipped this runner entirely, letting DbUp re-run
-    ///         <c>001</c> and collide. We always enter here when <c>001</c> is missing from the journal, then branch on
-    ///         whether
-    ///         tenant tables already exist.
-    ///     </para>
-    ///     <para>
-    ///         If pre-flight detection still misses, replaying <c>001</c> can raise a duplicate-object error for
-    ///         <c>ArchitectureRequests</c> (or <c>038_GovernanceWorkflow</c> for <c>GovernanceApprovalRequests</c> and related
-    ///         tables);
-    ///         that case is caught and repaired with the same stamp / optional <c>017</c>–<c>050</c>
-    ///         or <c>035</c>–<c>050</c> replay (depending on <c>dbo.Runs</c>) as the tenant-exists branch.
-    ///         Graph parents run at <c>017_GraphSnapshots_ParentTables</c>; governance workflow runs later at
-    ///         <c>038_GovernanceWorkflow</c>.
-    ///         When governance tables already exist, that script is skipped during replay so the remaining <c>017</c>–<c>050</c>
-    ///         migrations can still apply.
-    ///     </para>
+    ///     Decision flow is documented in <c>docs/library/SQL_SCRIPTS.md</c> section 4.0.1 (TB-069). Sentinel probes live in
+    ///     <see cref="BaselineCatalogSentinels" />; repair planning in <see cref="BaselineRepairPlanner" />.
     /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string is required.", nameof(connectionString));
 
-        // Mandatory TLS: CodeQL cs/insecure-sql-connection; see SqlConnectionStringSecurity.
         string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
         using SqlConnection connection = new(secured);
         connection.Open();
 
-        if (SchemaVersionsJournalRecordsInitialSchema001(connection))
+        BaselineCatalogSentinels sentinels = BaselineCatalogSentinels.Read(connection);
+        BaselineRepairPlan plan = BaselineRepairPlan.Create(sentinels);
+
+        if (plan.Mode == BaselineRepairMode.None)
             return;
 
         Assembly assembly = Assembly.GetExecutingAssembly();
 
-        if (TenantCoreTablesFromInitialMigrationExist(connection) || GovernanceWorkflow038TablesExist(connection))
+        if (plan.Mode == BaselineRepairMode.FullReplay)
         {
-            StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
-
-            return;
-        }
-
-        // Replay 001–050 from embedded incremental scripts (same SQL as `Migrations/Baseline/000_Baseline_2026_04_17.sql`,
-        // which is kept for human review / optional tooling). We execute **per migration file** so `GO` lines inside
-        // block comments in a concatenated mega-file cannot be mistaken for batch separators.
-        try
-        {
-            ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
-        }
-        catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex) ||
-                                      IsKnownDuplicateBaselineConstraintName(ex))
-        {
-            StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
-
-            return;
-        }
-
-        EnsureSchemaVersionsTable(connection, null);
-        StampIncrementalScriptsThrough050(connection, null);
-    }
-
-    /// <summary>
-    ///     Stamps 001–050 into <c>dbo.SchemaVersions</c> and replays incremental scripts when <c>dbo.AuditEvents</c> is
-    ///     missing
-    ///     (partial catalog repair). Replays from <b>017</b> when <c>dbo.Runs</c> is absent — migrations in the 035–050 range
-    ///     (e.g. <c>039_RowVersion</c>) assume <c>dbo.Runs</c> exists (created in
-    ///     <c>017_GraphSnapshots_ParentTables</c>).
-    /// </summary>
-    private static void StampThrough050OrReplay035IfAuditMissingThenStamp(SqlConnection connection, Assembly assembly)
-    {
-        if (!DboAuditEventsTableExists(connection))
-        {
-            // Partial catalog: stamp-only would record 001–050 as applied without creating 035 targets (AuditEvents, …).
-            // Never start at 035 if dbo.Runs is missing — 039+ ALTER dbo.Runs.
-            int minInclusive = DboRunsTableExists(connection) ? 35 : 17;
-
             try
             {
-                ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, minInclusive, 50);
+                ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
+                CommitBaselineJournalThrough050(connection);
+
+                return;
             }
             catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex) ||
                                           IsKnownDuplicateBaselineConstraintName(ex))
             {
-                // Objects from 017–050 (including 027 FK hardening) may already exist while SchemaVersions is empty;
-                // fall through to stamp so DbUp does not re-execute the same DDL.
+                sentinels = BaselineCatalogSentinels.Read(connection);
+                plan = BaselineRepairPlan.Create(sentinels);
             }
         }
 
+        if (plan.Mode == BaselineRepairMode.DriftRepair)
+            ExecuteDriftRepair(connection, assembly, plan);
+    }
+
+    private static void ExecuteDriftRepair(SqlConnection connection, Assembly assembly, BaselineRepairPlan plan)
+    {
+        BaselineCatalogSentinels sentinels = BaselineCatalogSentinels.Read(connection);
+
+        if (!sentinels.RequiresDriftRepair)
+            throw new InvalidOperationException(
+                "Baseline drift repair refused: tenant-core or governance-workflow sentinel tables are absent.");
+
+        if (plan.SparseReplayMinInclusive is int minInclusive)
+        {
+            try
+            {
+                ExecuteIncrementalMigrationScriptsInInclusiveRange(
+                    connection,
+                    assembly,
+                    minInclusive,
+                    plan.SparseReplayMaxInclusive);
+            }
+            catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex) ||
+                                          IsKnownDuplicateBaselineConstraintName(ex))
+            {
+                // Objects from 017–050 may already exist while SchemaVersions is empty; stamp so DbUp does not replay DDL.
+            }
+        }
+
+        CommitBaselineJournalThrough050(connection);
+        StampRunTelemetryMigration138WhenDboTableExists(connection, null);
+    }
+
+    private static void CommitBaselineJournalThrough050(SqlConnection connection)
+    {
         EnsureSchemaVersionsTable(connection, null);
         StampIncrementalScriptsThrough050(connection, null);
-        StampRunTelemetryMigration138WhenDboTableExists(connection, null);
     }
 
     /// <summary>
@@ -147,7 +118,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </summary>
     private static void StampRunTelemetryMigration138WhenDboTableExists(SqlConnection connection, SqlTransaction? tx)
     {
-        if (!DboRunTelemetryUserTableExists(connection))
+        if (!BaselineCatalogSentinels.Read(connection).DboRunTelemetryPresent)
             return;
 
         string? resourceName = GetOrderedIncrementalMigrationResourceNames()
@@ -165,46 +136,6 @@ public static partial class GreenfieldBaselineMigrationRunner
             tx);
         stamp.Parameters.AddWithValue("@ScriptName", resourceName);
         stamp.ExecuteNonQuery();
-    }
-
-    private static bool SchemaVersionRowExistsForScript(SqlConnection connection, SqlTransaction? tx, string scriptName)
-    {
-        const string sql = """
-                           SELECT CASE WHEN EXISTS (
-                               SELECT 1
-                               FROM dbo.SchemaVersions
-                               WHERE ScriptName = @ScriptName) THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection, tx);
-        command.Parameters.AddWithValue("@ScriptName", scriptName);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
-    }
-
-    private static bool DboRunTelemetryUserTableExists(SqlConnection connection)
-    {
-        const string sql = """
-                           SELECT CASE WHEN OBJECT_ID(N'dbo.RunTelemetry', N'U') IS NOT NULL THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     /// <summary>
@@ -278,7 +209,6 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        // SQL Server: "There is already an object named '…' in the database."
         return errorNumber == 2714;
     }
 
@@ -328,162 +258,14 @@ public static partial class GreenfieldBaselineMigrationRunner
         }
     }
 
-    /// <summary>True when <c>dbo.Runs</c> exists (created in <c>017_GraphSnapshots_ParentTables</c>).</summary>
-    private static bool DboRunsTableExists(SqlConnection connection)
-    {
-        const string sql = """
-                           SELECT CASE WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
-    }
-
-    /// <summary>
-    ///     True when <c>038_GovernanceWorkflow.sql</c> objects already exist (unqualified <c>CREATE TABLE</c>; same drift
-    ///     cases as <c>001</c>).
-    ///     Any of the three workflow tables blocks a full replay of that script.
-    /// </summary>
-    /// <remarks>
-    ///     CI catalogs can place objects outside <c>dbo</c> or the session default schema; probing only <c>dbo</c> +
-    ///     <c>SCHEMA_NAME()</c>
-    ///     misses them and replays <c>038_GovernanceWorkflow</c>, producing duplicate <c>GovernanceApprovalRequests</c>.
-    /// </remarks>
-    private static bool GovernanceWorkflow038TablesExist(SqlConnection connection)
-    {
-        const string sql = """
-                           SELECT CASE WHEN EXISTS (
-                               SELECT 1
-                               FROM sys.tables AS t
-                               WHERE t.name IN (
-                                   N'GovernanceApprovalRequests',
-                                   N'GovernancePromotionRecords',
-                                   N'GovernanceEnvironmentActivations')
-                                 AND t.is_ms_shipped = 0
-                           ) THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
-    }
-
     /// <summary>
     ///     The workflow script is not idempotent; skip it when its tables already exist so replay can still apply graph
     ///     parents and the rest of the <c>017</c>–<c>050</c> batch.
     /// </summary>
     private static bool ShouldSkipEmbeddedMigrationResourceAlreadyApplied(SqlConnection connection, string resourceName)
     {
-        return resourceName.Contains("038_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase) && GovernanceWorkflow038TablesExist(connection);
-    }
-
-    /// <summary>True when <c>dbo.AuditEvents</c> exists (created in <c>035_AuditProvenanceConversationTables</c>).</summary>
-    private static bool DboAuditEventsTableExists(SqlConnection connection)
-    {
-        const string sql = """
-                           SELECT CASE WHEN OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
-    }
-
-    /// <summary>
-    ///     True when <c>001_InitialSchema</c> already created its primary tenant table — journal may be missing, empty, or
-    ///     inconsistent on a reused test catalog.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         <c>001_InitialSchema.sql</c> uses <c>CREATE TABLE ArchitectureRequests</c> without a schema prefix, so the
-    ///         object
-    ///         lands in the <b>connection default schema</b> (<c>SCHEMA_NAME()</c>), often <c>dbo</c> but not guaranteed.
-    ///         Probing
-    ///         only <c>dbo.ArchitectureRequests</c> or only <c>sys.objects</c> with <c>type = N'U'</c> can miss real catalogs
-    ///         and
-    ///         replay <c>001</c>, producing &quot;already an object named …&quot;.
-    ///     </para>
-    ///     <para>
-    ///         Any non-system object named <c>ArchitectureRequests</c> in the caller default schema (table, view, synonym, …)
-    ///         blocks the same unqualified <c>CREATE</c> and is treated as &quot;tenant core already present&quot;.
-    ///     </para>
-    /// </remarks>
-    private static bool TenantCoreTablesFromInitialMigrationExist(SqlConnection connection)
-    {
-        const string sql = """
-                           SELECT CASE
-                               WHEN OBJECT_ID(N'dbo.ArchitectureRequests', N'U') IS NOT NULL THEN 1
-                               WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.ArchitectureRequests', N'U') IS NOT NULL THEN 1
-                               WHEN EXISTS (
-                                   SELECT 1
-                                   FROM sys.objects AS o
-                                   INNER JOIN sys.schemas AS s ON o.schema_id = s.schema_id
-                                   WHERE o.name = N'ArchitectureRequests'
-                                     AND s.name = SCHEMA_NAME()
-                                     AND o.is_ms_shipped = 0
-                               ) THEN 1
-                               WHEN EXISTS (
-                                   SELECT 1
-                                   FROM sys.tables AS t
-                                   WHERE t.name = N'ArchitectureRequests'
-                                     AND t.is_ms_shipped = 0
-                               ) THEN 1
-                               ELSE 0
-                           END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
-    }
-
-    /// <summary>True when <c>dbo.SchemaVersions</c> exists and records <c>001_InitialSchema</c> (DbUp script name).</summary>
-    private static bool SchemaVersionsJournalRecordsInitialSchema001(SqlConnection connection)
-    {
-        const string sql = """
-                           IF OBJECT_ID(N'dbo.SchemaVersions', N'U') IS NULL
-                               SELECT CAST(0 AS bit);
-                           ELSE IF EXISTS (
-                               SELECT 1
-                               FROM dbo.SchemaVersions
-                               WHERE ScriptName LIKE N'%001_InitialSchema%')
-                               SELECT CAST(1 AS bit);
-                           ELSE
-                               SELECT CAST(0 AS bit);
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-        return scalar is not (null or DBNull) && Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
+        return resourceName.Contains("038_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase)
+               && BaselineCatalogSentinels.Read(connection).GovernanceWorkflow038Present;
     }
 
     private static void EnsureSchemaVersionsTable(SqlConnection connection, SqlTransaction? tx)

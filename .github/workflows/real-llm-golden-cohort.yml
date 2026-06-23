@@ -31,6 +31,9 @@ jobs:
           ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
         run: pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
 
+      - name: Enforce Phase B LLM Faithfulness Thresholds
+        run: bash ./scripts/ci/run_eval_agent_corpus_rc.sh
+
       - name: Upload real-LLM session artifacts
         if: always()
         uses: actions/upload-artifact@v4
