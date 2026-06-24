@@ -77,5 +77,7 @@ export type PolicyPacksPageViewModel = {
   readonly authoringWizardInputMode: "guided" | "visual" | "json" | "ai";
   readonly authoringAdvancedOpen: boolean;
   readonly setAuthoringAdvancedOpen: Dispatch<SetStateAction<boolean>>;
+  readonly authoringToolsOpen: boolean;
+  readonly setAuthoringToolsOpen: Dispatch<SetStateAction<boolean>>;
   readonly onCreateFromGenerator: () => Promise<void>;
 };

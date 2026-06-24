@@ -1,12 +1,7 @@
 "use client";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
-import { LayerHeader } from "@/components/LayerHeader";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { cn } from "@/lib/utils";
-
+import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSimulationCard";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
 import { PolicyPacksBuyerPolishedAdministratorNote } from "./PolicyPacksBuyerPolishedAdministratorNote";
@@ -16,16 +11,39 @@ import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksRefreshToolbar } from "./PolicyPacksRefreshToolbar";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
-import { PolicyPackGeneratorSection } from "./PolicyPackGeneratorSection";
-import { PolicyPacksAuthoringTabSection } from "./PolicyPacksAuthoringTabSection";
-import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
+import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
+import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { cn } from "@/lib/utils";
+
+import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
 
 type Props = {
   readonly model: PolicyPacksPageViewModel;
 };
 
+function resolveAuthoringInnerTab(pageTab: PolicyPacksPageTab): "author" | "generator" {
+  if (pageTab === "generator") {
+    return "generator";
+  }
+
+  return "author";
+}
+
+function resolveSurfaceTab(pageTab: PolicyPacksPageTab): "my-packs" | "catalog" {
+  if (pageTab === "catalog") {
+    return "catalog";
+  }
+
+  return "my-packs";
+}
+
 export function PolicyPacksPageView(props: Props) {
   const m = props.model;
+  const surfaceTab = resolveSurfaceTab(m.pageTab);
+  const authoringInnerTab = resolveAuthoringInnerTab(m.pageTab);
 
   return (
     <div className="max-w-5xl">
@@ -56,14 +74,14 @@ export function PolicyPacksPageView(props: Props) {
             type="button"
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-medium",
-              m.pageTab === "my-packs"
+              surfaceTab === "my-packs"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/60",
             )}
             onClick={() => {
               m.setPageTab("my-packs");
             }}
-            aria-label={m.pageTab === "my-packs" ? "My packs, current section" : "My packs"}
+            aria-label={surfaceTab === "my-packs" ? "My packs, current section" : "My packs"}
             data-testid="policy-packs-tab-my-packs"
           >
             My packs
@@ -72,7 +90,7 @@ export function PolicyPacksPageView(props: Props) {
             type="button"
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-medium",
-              m.pageTab === "catalog"
+              surfaceTab === "catalog"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/60",
             )}
@@ -80,77 +98,16 @@ export function PolicyPacksPageView(props: Props) {
               m.setPageTab("catalog");
             }}
             aria-label={
-              m.pageTab === "catalog" ? "Platform catalog, current section" : "Platform catalog"
+              surfaceTab === "catalog" ? "Platform catalog, current section" : "Platform catalog"
             }
             data-testid="policy-packs-tab-catalog"
           >
             Catalog
           </button>
-          {!m.buyerPolishedShell && m.canMutatePacks && !isStaticDemoPayloadFallbackEnabled() ? (
-            <button
-              type="button"
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium",
-                m.pageTab === "author"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent/60",
-              )}
-              onClick={() => {
-                m.setPageTab("author");
-              }}
-              aria-label={m.pageTab === "author" ? "Author rules, current section" : "Author rules"}
-              data-testid="policy-packs-tab-author"
-            >
-              Author rules
-            </button>
-          ) : null}
-          {!m.buyerPolishedShell && m.canMutatePacks && !isStaticDemoPayloadFallbackEnabled() ? (
-            <button
-              type="button"
-              className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium",
-                m.pageTab === "generator"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent/60",
-              )}
-              onClick={() => {
-                m.setPageTab("generator");
-              }}
-              aria-label={
-                m.pageTab === "generator" ? "Policy pack generator, current section" : "Policy pack generator"
-              }
-              data-testid="policy-packs-tab-generator"
-            >
-              Generate
-            </button>
-          ) : null}
         </div>
       </nav>
 
-      {m.pageTab === "generator" && !m.buyerPolishedShell && m.canMutatePacks ? (
-        <PolicyPackGeneratorSection
-          canMutatePacks={m.canMutatePacks}
-          loading={m.loading}
-          name={m.name}
-          description={m.description}
-          packType={m.packType}
-          publishVersion={m.publishVersion}
-          generatedRuleCount={m.generatedRuleCount}
-          validationErrors={m.generatedValidationErrors}
-          onNameChange={m.setName}
-          onDescriptionChange={m.setDescription}
-          onPackTypeChange={m.setPackType}
-          onGenerated={m.applyGeneratedPolicyPack}
-          onCreatePack={m.onCreateFromGenerator}
-          onOpenAuthoringWizard={m.openAuthoringWizardFromGenerator}
-        />
-      ) : null}
-
-      {m.pageTab === "author" && !m.buyerPolishedShell && m.canMutatePacks && !isStaticDemoPayloadFallbackEnabled() ? (
-        <PolicyPacksAuthoringTabSection model={m} />
-      ) : null}
-
-      {m.pageTab === "catalog" ? (
+      {surfaceTab === "catalog" ? (
         <PolicyPacksCatalogSection
           canMutatePacks={m.canMutatePacks}
           loading={m.catalogLoading || m.loading}
@@ -163,7 +120,7 @@ export function PolicyPacksPageView(props: Props) {
         />
       ) : null}
 
-      {m.pageTab === "my-packs" && m.failure !== null ? (
+      {surfaceTab === "my-packs" && m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={m.failure.problem}
@@ -173,13 +130,8 @@ export function PolicyPacksPageView(props: Props) {
         </div>
       ) : null}
 
-      {m.pageTab === "my-packs" ? (
+      {surfaceTab === "my-packs" ? (
         <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
-          <PolicyPackImpactSimulationCard
-            selectedPackId={m.selectedPackId}
-            selectedPackLabel={m.selectedPackSummary?.name ?? null}
-          />
-
           <PolicyPacksRegisteredListSection
             buyerPolishedShell={m.buyerPolishedShell}
             canMutatePacks={m.canMutatePacks}
@@ -190,63 +142,76 @@ export function PolicyPacksPageView(props: Props) {
           />
 
           {!m.buyerPolishedShell ? (
-            <AdvancedOptionsAccordion
-              className="mb-8"
-              open={m.authoringAdvancedOpen}
-              onOpenChange={m.setAuthoringAdvancedOpen}
-              triggerLabel="Inspect tools and JSON lifecycle"
-            >
-              <PolicyPacksInspectSection
-                canMutatePacks={m.canMutatePacks}
-                selectedPackId={m.selectedPackId}
-                effective={m.effective}
-                effectiveContent={m.effectiveContent}
-                packVersions={m.packVersions}
-                compareLeftId={m.compareLeftId}
-                compareRightId={m.compareRightId}
-                onCompareLeftIdChange={m.setCompareLeftId}
-                onCompareRightIdChange={m.setCompareRightId}
-                showVersionDiff={m.showVersionDiff}
-                setShowVersionDiff={m.setShowVersionDiff}
-                compareLeftVersion={m.compareLeftVersion}
-                compareRightVersion={m.compareRightVersion}
-              />
-
-              {isStaticDemoPayloadFallbackEnabled() || m.buyerPolishedShell ? null : (
-                <PolicyPacksLifecycleSection
-                  canMutatePacks={m.canMutatePacks}
-                  loading={m.loading}
+            <div data-testid="policy-packs-advanced-options">
+              <AdvancedOptionsAccordion
+                className="mb-8"
+                open={m.authoringAdvancedOpen}
+                onOpenChange={m.setAuthoringAdvancedOpen}
+                triggerLabel="Inspect tools and JSON lifecycle"
+              >
+                <PolicyPackImpactSimulationCard
                   selectedPackId={m.selectedPackId}
-                  verticalImportSlug={m.verticalImportSlug}
-                  bundledPublishBlocked={m.bundledPublishBlocked}
-                  onImportVertical={m.importVerticalPolicyPack}
-                  name={m.name}
-                  onNameChange={m.setName}
-                  description={m.description}
-                  onDescriptionChange={m.setDescription}
-                  packType={m.packType}
-                  onPackTypeChange={m.setPackType}
-                  createJson={m.createJson}
-                  onCreateJsonChange={m.setCreateJson}
-                  onCreate={m.onCreate}
-                  publishVersion={m.publishVersion}
-                  onPublishVersionChange={m.setPublishVersion}
-                  publishJson={m.publishJson}
-                  onPublishJsonChange={m.setPublishJson}
-                  onPublish={m.onPublish}
-                  assignVersion={m.assignVersion}
-                  onAssignVersionChange={m.setAssignVersion}
-                  assignScopeLevel={m.assignScopeLevel}
-                  onAssignScopeLevelChange={m.setAssignScopeLevel}
-                  assignPinned={m.assignPinned}
-                  onAssignPinnedChange={m.setAssignPinned}
-                  onAssign={m.onAssign}
+                  selectedPackLabel={m.selectedPackSummary?.name ?? null}
                 />
-              )}
-            </AdvancedOptionsAccordion>
+
+                <PolicyPacksInspectSection
+                  canMutatePacks={m.canMutatePacks}
+                  selectedPackId={m.selectedPackId}
+                  effective={m.effective}
+                  effectiveContent={m.effectiveContent}
+                  packVersions={m.packVersions}
+                  compareLeftId={m.compareLeftId}
+                  compareRightId={m.compareRightId}
+                  onCompareLeftIdChange={m.setCompareLeftId}
+                  onCompareRightIdChange={m.setCompareRightId}
+                  showVersionDiff={m.showVersionDiff}
+                  setShowVersionDiff={m.setShowVersionDiff}
+                  compareLeftVersion={m.compareLeftVersion}
+                  compareRightVersion={m.compareRightVersion}
+                />
+
+                {isStaticDemoPayloadFallbackEnabled() || m.buyerPolishedShell ? null : (
+                  <PolicyPacksLifecycleSection
+                    canMutatePacks={m.canMutatePacks}
+                    loading={m.loading}
+                    selectedPackId={m.selectedPackId}
+                    verticalImportSlug={m.verticalImportSlug}
+                    bundledPublishBlocked={m.bundledPublishBlocked}
+                    onImportVertical={m.importVerticalPolicyPack}
+                    name={m.name}
+                    onNameChange={m.setName}
+                    description={m.description}
+                    onDescriptionChange={m.setDescription}
+                    packType={m.packType}
+                    onPackTypeChange={m.setPackType}
+                    createJson={m.createJson}
+                    onCreateJsonChange={m.setCreateJson}
+                    onCreate={m.onCreate}
+                    publishVersion={m.publishVersion}
+                    onPublishVersionChange={m.setPublishVersion}
+                    publishJson={m.publishJson}
+                    onPublishJsonChange={m.setPublishJson}
+                    onPublish={m.onPublish}
+                    assignVersion={m.assignVersion}
+                    onAssignVersionChange={m.setAssignVersion}
+                    assignScopeLevel={m.assignScopeLevel}
+                    onAssignScopeLevelChange={m.setAssignScopeLevel}
+                    assignPinned={m.assignPinned}
+                    onAssignPinnedChange={m.setAssignPinned}
+                    onAssign={m.onAssign}
+                  />
+                )}
+              </AdvancedOptionsAccordion>
+            </div>
           ) : (
             <PolicyPacksBuyerPolishedAdministratorNote />
           )}
+
+          <PolicyPacksAdvancedAuthoringPanel
+            model={m}
+            authoringTab={authoringInnerTab}
+            onAuthoringTabChange={m.setPageTab}
+          />
         </div>
       ) : null}
     </div>

@@ -76,6 +76,9 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
   const [generatedValidationErrors, setGeneratedValidationErrors] = useState<readonly string[]>([]);
   const [authoringWizardInputMode, setAuthoringWizardInputMode] = useState<"guided" | "visual" | "json" | "ai">("guided");
   const [authoringAdvancedOpen, setAuthoringAdvancedOpen] = useState(false);
+  const [authoringToolsOpen, setAuthoringToolsOpen] = useState(
+    pageTabFromUrl === "author" || pageTabFromUrl === "generator",
+  );
   const [catalogItems, setCatalogItems] = useState<PolicyPackCatalogListItem[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogFailure, setCatalogFailure] = useState<ApiLoadFailureState | null>(null);
@@ -214,6 +217,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
 
     if (pageTabFromUrl === "author") {
       setPageTab("author");
+      setAuthoringToolsOpen(true);
       setAuthoringAdvancedOpen(false);
 
       return;
@@ -429,6 +433,12 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     setPageTab(pageTabFromUrl);
   }, [pageTabFromUrl]);
 
+  useEffect(() => {
+    if (pageTab === "author" || pageTab === "generator") {
+      setAuthoringToolsOpen(true);
+    }
+  }, [pageTab]);
+
   const applyGeneratedPolicyPack = useCallback(
     (document: CuratedRulesDocument) => {
       const result = applyGeneratedCuratedPolicyPack({
@@ -457,6 +467,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
 
   const openAuthoringWizardFromGenerator = useCallback(() => {
     setAuthoringWizardInputMode("visual");
+    setAuthoringToolsOpen(true);
     setPageTab("author");
 
     window.setTimeout(() => {
@@ -536,6 +547,8 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     authoringWizardInputMode,
     authoringAdvancedOpen,
     setAuthoringAdvancedOpen,
+    authoringToolsOpen,
+    setAuthoringToolsOpen,
     onCreateFromGenerator,
   };
 }

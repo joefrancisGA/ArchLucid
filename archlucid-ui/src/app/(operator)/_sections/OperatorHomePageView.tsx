@@ -6,10 +6,9 @@ import {
 import { OperatorHomeExampleRequestPanel } from "@/components/operator-home/OperatorHomeExampleRequestPanel";
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import {
-  OperatorHomeDeltaPanel,
   OperatorHomeRunsPanel,
-  OperatorHomeWorkspaceStatusPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
+import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
@@ -40,12 +39,12 @@ function BuyerPolishedHomePageBody() {
       <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
 
-      <OperatorHomeDeltaPanel />
-
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
         <OperatorHomeRunsPanel hideHeading />
       </section>
+
+      <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={false} />
 
       <OperatorHomeAdvancedGuidancePanel buyerPolishedShell checklistVariant="compact" />
     </>
@@ -63,20 +62,18 @@ function OperatorHomePageBody() {
       <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
 
-      <OperatorHomeDeltaPanel />
-
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
         <OperatorHomeRunsPanel hideHeading />
       </section>
+
+      <OperatorHomeWorkspaceContextDisclosure showWorkspaceStatus={fullOperatorShell} />
 
       <OperatorHomeAdvancedGuidancePanel
         buyerPolishedShell={false}
         fullOperatorShell={fullOperatorShell}
         checklistVariant={fullOperatorShell ? "full" : "compact"}
       />
-
-      {fullOperatorShell ? <OperatorHomeWorkspaceStatusPanel /> : null}
     </>
   );
 }

@@ -230,9 +230,24 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   /**
-   * Rule authoring lives on the Author rules tab; inspect/lifecycle JSON stays in {@link AdvancedOptionsAccordion}.
+   * Rule authoring lives in the Authoring and generation tools accordion; inspect/lifecycle JSON stays in
+   * {@link AdvancedOptionsAccordion} labeled Inspect tools and JSON lifecycle.
    */
+  async function expandPolicyPacksAuthoringTools(): Promise<void> {
+    const toggle = screen.getByRole("button", { name: /^Authoring and generation tools$/ });
+
+    fireEvent.click(toggle);
+
+    await waitFor(
+      () => {
+        expect(toggle).toHaveAttribute("aria-expanded", "true");
+      },
+      { timeout: 8000 },
+    );
+  }
+
   async function openPolicyPacksAuthorTab(): Promise<void> {
+    await expandPolicyPacksAuthoringTools();
     fireEvent.click(screen.getByTestId("policy-packs-tab-author"));
 
     await waitFor(() => {
@@ -261,10 +276,15 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       render(page);
 
       await waitFor(() => {
-        expect(screen.getByTestId("policy-packs-tab-author")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /^Authoring and generation tools$/ })).toBeInTheDocument();
       });
 
-      await openPolicyPacksAuthorTab();
+      await expandPolicyPacksAuthoringTools();
+      fireEvent.click(screen.getByTestId("policy-packs-tab-author"));
+
+      await waitFor(() => {
+        expect(screen.getByTestId("policy-packs-author-tab")).toBeInTheDocument();
+      });
 
       expect(screen.getByTestId("policy-rule-authoring-wizard")).toBeInTheDocument();
     },
@@ -529,7 +549,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
       // Promotions / activations `h3` is inside the default-closed `AdvancedOptionsAccordion`; Radix unmounts
       // closed panel content, so open it before querying the heading.
-      const advancedToggle = screen.getByRole("button", { name: /^Advanced Options$/ });
+      const advancedToggle = screen.getByRole("button", { name: /^Environment promotions and activations$/ });
 
       fireEvent.click(advancedToggle);
 

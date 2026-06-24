@@ -538,7 +538,9 @@ export function GovernanceWorkflowPageContent() {
           <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
         </CollapsibleSection>
       ) : (
-        <GovernanceInteractiveQuickstartCard />
+        <AdvancedOptionsAccordion triggerLabel="Approval workflow quickstart" defaultOpen={false} className="mb-6">
+          <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
+        </AdvancedOptionsAccordion>
       )}
 
       {buyerPolishedShell && !showBuyerApprovalStory ? (
@@ -660,21 +662,23 @@ export function GovernanceWorkflowPageContent() {
         <>
           <Separator className="mb-10" />
 
-          <AdvancedOptionsAccordion className="mb-10">
-            <GovernanceWorkflowPromotionsActivationsSection
-              canMutateWorkflow={canMutateWorkflow}
-              listsLoading={listsLoading}
-              activeRunId={activeRunId}
-              promotions={promotions}
-              activations={activations}
-              listFailure={listFailure}
-              workflowActor={workflowActor}
-              pendingActivate={pendingActivate}
-              setPendingActivate={setPendingActivate}
-              pendingActivatePromotionRef={pendingActivatePromotionRef}
-              activateBusyId={activateBusyId}
-            />
-          </AdvancedOptionsAccordion>
+          <div data-testid="governance-workflow-advanced-options">
+            <AdvancedOptionsAccordion triggerLabel="Environment promotions and activations" className="mb-10">
+              <GovernanceWorkflowPromotionsActivationsSection
+                canMutateWorkflow={canMutateWorkflow}
+                listsLoading={listsLoading}
+                activeRunId={activeRunId}
+                promotions={promotions}
+                activations={activations}
+                listFailure={listFailure}
+                workflowActor={workflowActor}
+                pendingActivate={pendingActivate}
+                setPendingActivate={setPendingActivate}
+                pendingActivatePromotionRef={pendingActivatePromotionRef}
+                activateBusyId={activateBusyId}
+              />
+            </AdvancedOptionsAccordion>
+          </div>
         </>
       )}
 
