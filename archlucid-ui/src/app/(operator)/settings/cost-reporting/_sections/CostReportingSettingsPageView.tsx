@@ -23,8 +23,8 @@ export function CostReportingSettingsPageView(props: Props) {
   if (m.surface === "demo") {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
-        capability="Cost reporting"
-        description="In a connected tenant, tenant administrators review estimated LLM costs and budget utilization here."
+        capability="AI usage and cost"
+        description="In a connected tenant, administrators review estimated AI usage costs and budget utilization here."
       />
     );
   }
@@ -57,9 +57,9 @@ export function CostReportingSettingsPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="cost-reporting-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cost reporting</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">AI usage and cost</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Aggregated LLM token usage and <strong>estimated cost</strong> from ArchLucid usage records — not an invoice.
+          Track estimated AI usage cost for this workspace. These figures are usage estimates, not invoices.
           Reconcile with Azure Cost Management or your reseller statements for billing truth.
         </p>
       </div>
@@ -70,9 +70,8 @@ export function CostReportingSettingsPageView(props: Props) {
           role="status"
           data-testid="cost-reporting-mock-banner"
         >
-          Showing <strong>sample estimated cost</strong> data — the reporting API is not available on this environment yet.
-          Numbers are for layout only until <span className="font-mono text-xs">GET /v1/tenant/llm-cost-reporting</span>{" "}
-          returns valid JSON.
+          Showing <strong>sample estimated cost</strong> data — the reporting API is not available on this environment
+          yet. Numbers are for layout only.
         </p>
       ) : null}
 
@@ -80,10 +79,9 @@ export function CostReportingSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">LLM budget utilization</CardTitle>
+          <CardTitle className="text-base">Monthly AI budget</CardTitle>
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-            UTC-month hard cap usage from <span className="font-mono text-xs">GET /v1/admin/llm-monthly-dollar-budget-status</span>
-            . Bar turns amber near the configured warn fraction and red at the hard cap.
+            UTC-month hard cap usage. Bar turns amber when nearing the configured warn threshold and red at the hard cap.
           </p>
         </CardHeader>
         <CardContent>
@@ -91,13 +89,11 @@ export function CostReportingSettingsPageView(props: Props) {
         </CardContent>
       </Card>
 
-      <OperatorOutboxDiagnosticsCard />
-
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Estimated cost (last 30 days)</CardTitle>
+          <CardTitle className="text-base">Daily AI usage (last 30 days)</CardTitle>
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-            Daily totals in {data?.currency ?? "USD"} — all figures are estimates.
+            Daily estimated cost totals in {data?.currency ?? "USD"} — all figures are estimates.
           </p>
         </CardHeader>
         <CardContent>
@@ -120,9 +116,9 @@ export function CostReportingSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Estimated cost by workspace and project</CardTitle>
+          <CardTitle className="text-base">Usage by workspace and project</CardTitle>
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-            Breakdown over the same window — token counts are summed from provider usage records where available.
+            Breakdown over the same 30-day window — token counts are summed from provider usage records where available.
           </p>
         </CardHeader>
         <CardContent>
@@ -169,6 +165,18 @@ export function CostReportingSettingsPageView(props: Props) {
           ) : null}
         </CardContent>
       </Card>
+
+      <details className="group">
+        <summary className="cursor-pointer list-none">
+          <span className="text-sm font-medium text-neutral-700 underline decoration-dotted underline-offset-2 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100">
+            Related diagnostics
+          </span>
+          <span className="ml-1 text-xs text-neutral-500 group-open:hidden">(processing queues and dead-letter health)</span>
+        </summary>
+        <div className="mt-4">
+          <OperatorOutboxDiagnosticsCard />
+        </div>
+      </details>
     </div>
   );
 }
