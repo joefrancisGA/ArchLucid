@@ -11,7 +11,7 @@
 
 **Rules:** No code changes implied here. Items are **documentation-sourced**; treat as **V1.1+ candidates or internal backlog** unless your program promotes them.
 
-**Operator UI (V1 vs V1.1):** V1 proxy/types work and the V1.1-only UI architecture backlog are summarized in [UI_ARCHITECTURE_V1_1.md](UI_ARCHITECTURE_V1_1.md).
+**Operator UI (V1 vs V1.1):** V1 proxy/types work and the V1.1-only UI architecture backlog are summarized in [UI_ARCHITECTURE_V1_1.md](UI_ARCHITECTURE_V1_1.md). Progressive disclosure Batch 3 (run-detail IA refactor) is tracked as **TB-401** in the V1.1 backlog.
 
 ---
 
