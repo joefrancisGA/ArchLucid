@@ -45,6 +45,18 @@ function budgetToneClass(disposition: LlmBudgetCommandCenterSummary["disposition
   return operatorSemanticSurface("ready");
 }
 
+function dispositionLabel(disposition: LlmBudgetCommandCenterSummary["disposition"]): string {
+  if (disposition === "HOLD") {
+    return "At limit";
+  }
+
+  if (disposition === "WARN") {
+    return "Approaching limit";
+  }
+
+  return "Within limit";
+}
+
 function BudgetDispositionBanner(props: { readonly budget: LlmBudgetCommandCenterSummary }) {
   const { budget } = props;
 
@@ -54,9 +66,9 @@ function BudgetDispositionBanner(props: { readonly budget: LlmBudgetCommandCente
       role="status"
       data-testid="llm-cost-command-center-budget-disposition"
     >
-      <strong>UTC-month budget ({budget.disposition}):</strong> {budget.summary}
+      <strong>Monthly AI budget: {dispositionLabel(budget.disposition)}</strong>
       {budget.utilizationPercent !== null ? (
-        <span className="ml-1 tabular-nums">({Math.round(budget.utilizationPercent)}% of hard cap)</span>
+        <span className="ml-2 tabular-nums">{Math.round(budget.utilizationPercent)}% of cap used</span>
       ) : null}
     </p>
   );
@@ -153,9 +165,9 @@ export function LlmCostCommandCenterSummaryCard(props: {
   return (
     <Card data-testid="llm-cost-command-center-summary">
       <CardHeader>
-        <CardTitle className="text-base">LLM cost command center</CardTitle>
+        <CardTitle className="text-base">Monthly AI usage</CardTitle>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-          UTC-month and today estimates from persisted token usage — not invoiced Azure spend.
+          Estimated AI usage cost for the current UTC month — not invoiced Azure spend.
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
