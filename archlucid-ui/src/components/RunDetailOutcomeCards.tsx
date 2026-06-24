@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
 import { StatusPill } from "@/components/StatusPill";
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER, BUYER_SEALED_MANIFEST_TOOLTIP } from "@/lib/buyer-polish-copy";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
@@ -222,6 +226,23 @@ function stripSegmentLabelClass(): string {
   return "m-0 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400";
 }
 
+function useStreamlinedPilotOutcomeLabels(): {
+  readonly evaluationStandardsLabel: string;
+  readonly approvalStatusLabel: string;
+} {
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
+
+  return {
+    evaluationStandardsLabel: streamlinedPilotPath
+      ? CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards
+      : "Policy pack",
+    approvalStatusLabel: streamlinedPilotPath
+      ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
+      : "Governance approval",
+  };
+}
+
 type PackageStatusStripProps = {
   manifestId: string | null | undefined;
   hasGoldenManifest: boolean;
@@ -234,6 +255,7 @@ type PackageStatusStripProps = {
 };
 
 function PackageStatusStrip(props: PackageStatusStripProps) {
+  const { evaluationStandardsLabel, approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
   const trimmedManifestId = props.manifestId?.trim() ?? "";
   const hasManifest = trimmedManifestId.length > 0;
   const warningsLine = manifestWarningsSecondaryCopy(props.warningCountDisplay);
@@ -322,7 +344,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       props.showcasePolicyPackStrip.href.trim().length > 0 &&
       props.showcasePolicyPackStrip.label.trim().length > 0 ? (
         <div className={segmentInner}>
-          <p className={stripSegmentLabelClass()}>Policy pack</p>
+          <p className={stripSegmentLabelClass()}>{evaluationStandardsLabel}</p>
           <div className="mt-1">
             <Link
               href={props.showcasePolicyPackStrip.href.trim()}
@@ -379,7 +401,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
               status={gate}
               domain="governance"
               uppercase={false}
-              ariaLabel={`Governance approval: ${gate}`}
+              ariaLabel={`${approvalStatusLabel}: ${gate}`}
             />
           ) : (
             <p className={cn(valueClass, "mt-0")}>{gate}</p>
@@ -405,6 +427,7 @@ export function RunDetailOutcomeCards({
   failedEngineLabels = [],
   findingCoverageSummary = null,
 }: RunDetailOutcomeCardsProps) {
+  const { approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const coverageBanner =
     degradedFindingCoverage === true ? (
@@ -595,7 +618,7 @@ export function RunDetailOutcomeCards({
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (
             <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Governance approval:</span>{" "}
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">{approvalStatusLabel}:</span>{" "}
               {governanceGateLabel}
             </p>
           ) : null}

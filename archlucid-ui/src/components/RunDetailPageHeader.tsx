@@ -9,6 +9,8 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { Badge } from "@/components/ui/badge";
 import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";
 import { Button } from "@/components/ui/button";
@@ -100,6 +102,17 @@ export function RunDetailPageHeader({
   hasGovernanceWarnings,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
+  const approvalStatusLabel = streamlinedPilotPath
+    ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
+    : "Governance approval";
+  const approvalCheckLabel = streamlinedPilotPath
+    ? CORE_PILOT_PATH_STREAMLINED_LABELS.approvalCheck
+    : "Governance gate";
+  const reviewWarningsLabel = streamlinedPilotPath
+    ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewWarnings
+    : "Governance warnings";
   const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
   const showExecutionFlavorOperator =
     Boolean(executionFlavorBuyerSummary) && buyerPolishedShell !== true;
@@ -209,7 +222,7 @@ export function RunDetailPageHeader({
               buyerGovernanceApprovalLabel.trim().length > 0 ? (
                 <div className="flex flex-col items-end gap-1">
                   <p className="m-0 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                    Governance approval
+                    {approvalStatusLabel}
                   </p>
                   <StatusPill
                     status={buyerGovernanceApprovalLabel.trim()}
@@ -235,13 +248,13 @@ export function RunDetailPageHeader({
                   className="w-fit font-normal text-amber-900 dark:text-amber-200"
                   data-testid="run-detail-commit-governance-warning-badge"
                 >
-                  Governance warnings
+                  {reviewWarningsLabel}
                 </Badge>
               ) : null}
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
               <div className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-                <span className="whitespace-nowrap">Governance approval</span>
+                <span className="whitespace-nowrap">{approvalStatusLabel}</span>
                 <ContextualHelp helpKey="governance-gate" placement="left" />
               </div>
             </div>
@@ -258,13 +271,13 @@ export function RunDetailPageHeader({
                 className="w-fit font-normal text-amber-900 dark:text-amber-200"
                 data-testid="run-detail-commit-governance-warning-badge"
               >
-                Governance warnings
+                {reviewWarningsLabel}
               </Badge>
             ) : null}
             <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
             {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
             <div className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-              <span className="whitespace-nowrap">Governance gate</span>
+              <span className="whitespace-nowrap">{approvalCheckLabel}</span>
               <ContextualHelp helpKey="governance-gate" placement="left" />
             </div>
           </div>

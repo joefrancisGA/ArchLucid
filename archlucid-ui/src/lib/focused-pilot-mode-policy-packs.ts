@@ -1,3 +1,5 @@
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+
 /** Policy reference token sent when focused pilot mode is enabled on review intake. */
 export const FOCUSED_PILOT_MODE_POLICY_REFERENCE = "pilot-mode:security-baseline-cost-only";
 
@@ -8,14 +10,12 @@ export const FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES = [
 ] as const;
 
 export const FOCUSED_PILOT_MODE_COPY = {
-  toggleLabel: "Focused pilot mode",
-  toggleDescription:
-    "Limit this review to Security Architecture Baseline and FinOps & Cloud Cost Optimization policy packs so your first package stays actionable.",
-  appliedCalloutTitle: "Customer policy packs applied automatically",
-  appliedCalloutBody:
-    "This first review evaluates against Security Architecture Baseline and FinOps & Cloud Cost Optimization — no manual pack assignment required.",
-  toggleAssistiveOn: "Policy evaluation is limited to security baseline and cost packs.",
-  toggleAssistiveOff: "All enabled policy packs may contribute findings.",
+  toggleLabel: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleLabel,
+  toggleDescription: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleDescription,
+  appliedCalloutTitle: CORE_PILOT_PATH_STREAMLINED_LABELS.standardsAppliedTitle,
+  appliedCalloutBody: CORE_PILOT_PATH_STREAMLINED_LABELS.standardsAppliedBody,
+  toggleAssistiveOn: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleAssistiveOn,
+  toggleAssistiveOff: CORE_PILOT_PATH_STREAMLINED_LABELS.focusedPilotToggleAssistiveOff,
 } as const;
 
 /** Adds or removes the focused pilot policy reference token. */

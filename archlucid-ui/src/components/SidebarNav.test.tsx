@@ -124,7 +124,10 @@ describe("SidebarNav (primary navigation)", () => {
   });
 
   it("persists saved group expansion without overwriting on reload", async () => {
+    committedReviewMock.value = true;
     writeOperateNavUnlockPhase(1);
+    localStorage.setItem("archlucid_nav_show_extended", "1");
+    localStorage.setItem("archlucid_nav_show_advanced", "1");
     localStorage.setItem(
       SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
       JSON.stringify({
@@ -219,18 +222,10 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     unlockOperateFeatures();
 
     await waitFor(() => {
-      expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toBeInTheDocument();
+      expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("sidebar-group-toggle-operate-governance"));
-
-    await waitFor(() => {
-      expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
-    });
-
-    expect(within(screen.getByRole("navigation", { name: "Governance" })).getByRole("link", { name: "Risk register" })).toHaveAttribute(
-      "href",
-      "/governance/findings",
-    );
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-governance")).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
   });
 });

@@ -27,6 +27,7 @@ import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from 
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import {
   buildEvidenceBackedIntakeBrief,
@@ -210,7 +211,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       <div className="space-y-1" data-testid="first-pilot-intake-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Your first review package</p>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-          Upload one architecture diagram and add a short description if you want. Policy packs are applied automatically.
+          {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead}
         </p>
       </div>
 
@@ -270,8 +271,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           <AdvancedOptionsAccordion triggerLabel="Advanced configuration (optional)">
             <div className="space-y-4">
               <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                Focused pilot policy packs are on by default. Turn off only if you need every enabled pack to contribute
-                findings.
+                {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
               </p>
               <PilotModePolicyPackToggle
                 enabled={focusedPilotModeEnabled}

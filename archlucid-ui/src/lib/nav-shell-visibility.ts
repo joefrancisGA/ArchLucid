@@ -197,6 +197,10 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
+    if (operateNavUnlockPhase < 2 && group.id === "operate-governance") {
+      continue;
+    }
+
     if (group.surface === "system-admin" && !isShowSystemAdministrationNavEnabled()) {
       continue;
     }

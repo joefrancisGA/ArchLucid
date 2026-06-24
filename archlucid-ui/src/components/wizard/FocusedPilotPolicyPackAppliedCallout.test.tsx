@@ -8,7 +8,7 @@ describe("FocusedPilotPolicyPackAppliedCallout", () => {
     render(<FocusedPilotPolicyPackAppliedCallout />);
 
     expect(screen.getByTestId("focused-pilot-policy-pack-applied-callout")).toBeTruthy();
-    expect(screen.getByText(/Customer policy packs applied automatically/i)).toBeTruthy();
+    expect(screen.getByText(/Customer standards applied automatically/i)).toBeTruthy();
     expect(screen.getByText("Security Architecture Baseline")).toBeTruthy();
     expect(screen.getByText("FinOps & Cloud Cost Optimization")).toBeTruthy();
   });

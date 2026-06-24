@@ -9,6 +9,7 @@ import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleto
 import { Button } from "@/components/ui/button";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
@@ -149,7 +150,7 @@ export function ReviewsNewPathSwitcher() {
       {ready && isFirstRunTenant && !showPathSwitcher ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40">
           <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
-            Streamlined first review — upload one diagram to start. Policy packs apply automatically.
+            {CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner}
           </p>
           <Button
             type="button"

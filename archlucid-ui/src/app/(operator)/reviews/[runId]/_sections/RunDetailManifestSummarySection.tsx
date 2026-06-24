@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactElement } from "react";
 
 import { ManifestJsonActions } from "@/components/ManifestJsonActions";
@@ -7,6 +9,8 @@ import {
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/core-pilot-path-vocabulary";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
@@ -25,6 +29,10 @@ export function RunDetailManifestSummarySection(
   props: RunDetailManifestSummarySectionProps,
 ): ReactElement {
   const { manifestSummary, runExecution, buyerPolishedShell } = props;
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
+  const evaluationStandardsLabel = isStreamlinedCorePilotPath(hasCommittedArchitectureReview)
+    ? CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards
+    : "Policy pack";
 
   return (
     <section id="manifest-summary" className="scroll-mt-24 space-y-4">
@@ -57,7 +65,7 @@ export function RunDetailManifestSummarySection(
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
               {manifestStatusForDisplay(manifestSummary.status)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Policy pack</dt>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{evaluationStandardsLabel}</dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>

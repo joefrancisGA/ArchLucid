@@ -50,6 +50,23 @@ describe("operate-nav-progressive-unlock", () => {
     expect(ids).toContain("operator-admin");
   });
 
+  it("shows analysis at phase 1 but keeps governance hidden until phase 2", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
+      1,
+    );
+    const ids = rows.map((row) => row.group.id);
+
+    expect(ids).toContain("operate-analysis");
+    expect(ids).not.toContain("operate-governance");
+  });
+
   it("defaults stored phase to 0 for new users", () => {
     localStorage.clear();
     expect(readOperateNavUnlockPhase()).toBe(0);

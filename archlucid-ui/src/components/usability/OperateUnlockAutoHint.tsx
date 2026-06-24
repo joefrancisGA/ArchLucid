@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 
 type OperateUnlockAutoHintProps = {
   readonly visible: boolean;
@@ -22,8 +23,7 @@ export function OperateUnlockAutoHint(props: OperateUnlockAutoHintProps): ReactE
       role="status"
     >
       <p className="m-0 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200">
-        Analysis tools are now available in the sidebar — compare reviews, ask questions, and explore the evidence
-        graph. Governance routes stay hidden until you unlock them or visit a governance page.
+        {CORE_PILOT_PATH_STREAMLINED_LABELS.operateAutoUnlockHint}
       </p>
       <Button
         type="button"

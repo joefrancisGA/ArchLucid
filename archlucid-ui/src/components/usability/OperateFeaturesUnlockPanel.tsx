@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 type OperateFeaturesUnlockPanelProps = {
@@ -23,17 +24,16 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
     >
       <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Need deeper analysis?</p>
       <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-        Your first session focuses on starting and finalizing a review package. Compare, evidence graph, ask-this-review,
-        and governance routes stay hidden until you unlock them — or until you finalize your first review package.
+        {CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockLead}
       </p>
       <ul className="list-disc space-y-1 pl-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
         <li>
-          <span className="font-medium text-neutral-700 dark:text-neutral-300">Unlocks:</span> Analysis — compare,
-          graph, replay, and Q&amp;A
+          <span className="font-medium text-neutral-700 dark:text-neutral-300">Unlocks:</span>{" "}
+          {CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockAnalysisUnlocks}
         </li>
         <li>
-          <span className="font-medium text-neutral-700 dark:text-neutral-300">Still hidden:</span> Governance —
-          policy packs, audit log, alerts (until you need them)
+          <span className="font-medium text-neutral-700 dark:text-neutral-300">Still hidden:</span>{" "}
+          {CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockStillHidden}
         </li>
       </ul>
       <Button
