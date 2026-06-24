@@ -39,7 +39,7 @@ describe("ExecutiveShellFrame", () => {
     );
 
     expect(screen.getByTestId("executive-operator-shell-switcher")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Operator" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Architect" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Executive" })).toHaveAttribute("href", "/executive/dashboard");
   });
 

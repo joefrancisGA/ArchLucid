@@ -19789,6 +19789,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/findings/bulk-disposition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["RecordBulkFindingDispositionRequest"];
+                    "application/json": null | components["schemas"]["RecordBulkFindingDispositionRequest"];
+                    "text/json": null | components["schemas"]["RecordBulkFindingDispositionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecordBulkFindingDispositionResponse"];
+                        "text/json": components["schemas"]["RecordBulkFindingDispositionResponse"];
+                        "text/plain": components["schemas"]["RecordBulkFindingDispositionResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/findings/{findingId}/dispositions": {
         parameters: {
             query?: never;
@@ -20117,6 +20171,17 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -26146,7 +26211,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": unknown;
+                        "application/json": components["schemas"]["PolicyPackContentValidationResponse"];
                     };
                 };
                 /** @description Bad Request */
@@ -31892,8 +31957,8 @@ export interface components {
             goldenManifestId?: null | string;
             /** Format: uuid */
             graphSnapshotId?: null | string;
-            isPinned?: boolean;
             isDeadLettered?: boolean;
+            isPinned?: boolean;
             lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
             otelTraceId?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
@@ -35552,6 +35617,33 @@ export interface components {
         PolicyPackContentDocumentJsonSchemaResponse: {
             schema: components["schemas"]["JsonElement"];
         };
+        PolicyPackContentValidationIssue: {
+            kind?: components["schemas"]["PolicyPackContentValidationIssueKind"];
+            message?: string;
+            path?: null | string;
+        };
+        PolicyPackContentValidationIssueKind: number;
+        PolicyPackContentValidationResponse: {
+            issues?: components["schemas"]["PolicyPackContentValidationIssue"][];
+            summary?: components["schemas"]["PolicyPackContentValidationSummary"];
+            valid?: boolean;
+        };
+        PolicyPackContentValidationSummary: {
+            /** Format: int32 */
+            advisoryDefaultCount?: number;
+            /** Format: int32 */
+            alertRuleIdCount?: number;
+            /** Format: int32 */
+            complianceRuleIdCount?: number;
+            /** Format: int32 */
+            complianceRuleKeyCount?: number;
+            /** Format: int32 */
+            compositeAlertRuleIdCount?: number;
+            /** Format: int32 */
+            elicitationQuestionCount?: number;
+            /** Format: int32 */
+            metadataEntryCount?: number;
+        };
         PolicyPackDryRunDeltaCounts: {
             /** Format: int32 */
             evaluated?: number;
@@ -36076,6 +36168,18 @@ export interface components {
             urgency?: string;
             /** Format: uuid */
             workspaceId?: string;
+        };
+        RecordBulkFindingDispositionRequest: {
+            disposition: components["schemas"]["FindingDisposition"];
+            findingIds: string[];
+            rationale: string;
+            /** Format: date-time */
+            revisitDueUtc?: null | string;
+        };
+        RecordBulkFindingDispositionResponse: {
+            /** Format: int32 */
+            processedCount?: number;
+            updatedFindingIds: string[];
         };
         RecordFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
@@ -36790,8 +36894,8 @@ export interface components {
             graphSnapshotId?: null | string;
             hasGovernanceWarnings?: boolean;
             hasWarnings?: boolean;
-            isDemoWelcomeRun?: boolean;
             isDeadLettered?: boolean;
+            isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isPublicShowcase?: boolean;
             isSample?: boolean;
