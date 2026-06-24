@@ -6,6 +6,10 @@ export type OperateNavUnlockPhase = 0 | 1 | 2;
 
 export const OPERATE_NAV_UNLOCK_STORAGE_KEY = "archlucid.operateNavUnlockPhase.v1";
 
+export const OPERATE_NAV_AUTO_UNLOCK_HINT_PENDING_KEY = "archlucid.operateNavAutoUnlockHintPending.v1";
+
+export const OPERATE_NAV_AUTO_UNLOCK_HINT_DISMISSED_KEY = "archlucid.operateNavAutoUnlockHintDismissed.v1";
+
 export const OPERATE_NAV_UNLOCK_CHANGED_EVENT = "archlucid-operate-nav-unlock-changed";
 
 const OPERATE_NAV_GROUP_IDS = new Set<string>([
@@ -107,6 +111,57 @@ export function writeOperateNavUnlockPhase(phase: OperateNavUnlockPhase): void {
 
 export function advanceOperateNavUnlockToAnalysis(): void {
   writeOperateNavUnlockPhase(1);
+}
+
+function readLocalStorageFlag(key: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(key) === "1";
+  }
+  catch {
+    return false;
+  }
+}
+
+function writeLocalStorageFlag(key: string, value: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (value) {
+      window.localStorage.setItem(key, "1");
+    }
+    else {
+      window.localStorage.removeItem(key);
+    }
+  }
+  catch {
+    /* ignore */
+  }
+}
+
+/** Marks that analysis nav was auto-unlocked after the first committed review (shows sidebar hint). */
+export function markOperateNavAutoUnlockHintPending(): void {
+  writeLocalStorageFlag(OPERATE_NAV_AUTO_UNLOCK_HINT_PENDING_KEY, true);
+}
+
+/** Clears a pending auto-unlock hint when the operator unlocks Operate manually. */
+export function clearOperateNavAutoUnlockHintPending(): void {
+  writeLocalStorageFlag(OPERATE_NAV_AUTO_UNLOCK_HINT_PENDING_KEY, false);
+}
+
+export function shouldShowOperateNavAutoUnlockHint(): boolean {
+  return readLocalStorageFlag(OPERATE_NAV_AUTO_UNLOCK_HINT_PENDING_KEY)
+    && !readLocalStorageFlag(OPERATE_NAV_AUTO_UNLOCK_HINT_DISMISSED_KEY);
+}
+
+export function dismissOperateNavAutoUnlockHint(): void {
+  writeLocalStorageFlag(OPERATE_NAV_AUTO_UNLOCK_HINT_DISMISSED_KEY, true);
+  clearOperateNavAutoUnlockHintPending();
 }
 
 export function advanceOperateNavUnlockToGovernance(): void {

@@ -32,9 +32,8 @@ describe("RunDetailPageView progressive disclosure", () => {
 
   it("hides operator forensics and metadata in sponsor mode", () => {
     expect(source).toContain("{!m.buyerPolishedArtifactTable ? (");
-    expect(source).toMatch(
-      /\{!m\.buyerPolishedArtifactTable \?\s*\(\s*\n\s*<RunDetailRunMetadataSection/,
-    );
+    expect(source).toContain("RunDetailOperatorTechnicalDisclosure");
+    expect(source).toContain("RunDetailRunMetadataSection");
 
     const belowFoldSource = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "RunDetailBelowFoldSections.tsx"),
@@ -56,6 +55,18 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(belowFoldSource).toContain("RunDetailOperatorPipelineToolsCollapsible");
   });
 
+  it("wraps operator technical forensics in a default-closed accordion", () => {
+    const disclosureSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailOperatorTechnicalDisclosure.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("RunDetailOperatorTechnicalDisclosure");
+    expect(source).toContain("RunEstimatedLlmCostCard");
+    expect(disclosureSource).toContain('data-testid="run-detail-advanced-options"');
+    expect(disclosureSource).toContain('defaultOpen={false}');
+  });
+
   it("hides per-finding trace table behind collapsible disclosure", () => {
     const collapsibleSource = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "RunDetailRunExplanationCollapsible.tsx"),
@@ -63,6 +74,6 @@ describe("RunDetailPageView progressive disclosure", () => {
     );
 
     expect(collapsibleSource).toContain("run-finding-explainability-collapsible");
-    expect(collapsibleSource).toContain('defaultOpen={false}');
+    expect(collapsibleSource).toContain("defaultOpen={false}");
   });
 });

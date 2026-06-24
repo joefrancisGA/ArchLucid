@@ -24,6 +24,8 @@ type UseOperatorShellNavRowsResult = {
   readonly effectiveHasCommittedArchitectureReview: boolean;
   readonly effectiveOperateUnlockPhase: OperateNavUnlockPhase;
   readonly unlockOperateFeatures: () => void;
+  readonly showAutoUnlockHint: boolean;
+  readonly dismissAutoUnlockHint: () => void;
   readonly navExpanded: boolean;
   readonly navAdvanced: boolean;
   readonly shellShowExtended: boolean;
@@ -38,7 +40,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
-  const { effectiveOperateUnlockPhase, unlockOperateFeatures } = useOperateNavUnlockPhase();
+  const { effectiveOperateUnlockPhase, unlockOperateFeatures, showAutoUnlockHint, dismissAutoUnlockHint } =
+    useOperateNavUnlockPhase();
   const { navExpanded, navAdvanced, shellShowExtended, shellShowAdvanced } = resolveSidebarNavExpansionState({
     pathname: pathname ?? "/",
     showExtended,
@@ -105,6 +108,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       effectiveHasCommittedArchitectureReview,
       effectiveOperateUnlockPhase,
       unlockOperateFeatures,
+      showAutoUnlockHint,
+      dismissAutoUnlockHint,
       navExpanded,
       navAdvanced,
       shellShowExtended,
@@ -126,5 +131,7 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     shellShowAdvanced,
     shellShowExtended,
     unlockOperateFeatures,
+    showAutoUnlockHint,
+    dismissAutoUnlockHint,
   ]);
 }

@@ -10,7 +10,7 @@ type OperateFeaturesUnlockPanelProps = {
   readonly onUnlock: () => void;
 };
 
-/** Pilot-only sidebar affordance: reveal Operate analysis/governance/operations groups on demand. */
+/** Pilot-only sidebar affordance: reveal Operate analysis/governance groups on demand. */
 export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProps): ReactElement | null {
   if (props.phase !== 0) {
     return null;
@@ -21,10 +21,21 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
       className="mt-2 space-y-2 border-t border-neutral-200 px-2 pt-3 dark:border-neutral-700"
       data-testid="operate-features-unlock-panel"
     >
+      <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Need deeper analysis?</p>
       <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-        Compare, graph, and governance tools stay hidden during your first pilot session. Unlock them when you need
-        deeper analysis.
+        Your first session focuses on starting and finalizing a review package. Compare, evidence graph, ask-this-review,
+        and governance routes stay hidden until you unlock them — or until you finalize your first review package.
       </p>
+      <ul className="list-disc space-y-1 pl-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <li>
+          <span className="font-medium text-neutral-700 dark:text-neutral-300">Unlocks:</span> Analysis — compare,
+          graph, replay, and Q&amp;A
+        </li>
+        <li>
+          <span className="font-medium text-neutral-700 dark:text-neutral-300">Still hidden:</span> Governance —
+          policy packs, audit log, alerts (until you need them)
+        </li>
+      </ul>
       <Button
         type="button"
         variant="outline"
@@ -33,7 +44,7 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
         data-testid="nav-advanced-unlock"
         onClick={props.onUnlock}
       >
-        Unlock Operate features
+        Show analysis tools
       </Button>
     </div>
   );

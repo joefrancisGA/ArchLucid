@@ -9,8 +9,9 @@ import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progress
 
 import { SidebarNav } from "./SidebarNav";
 
-const { mockPathname } = vi.hoisted(() => ({
+const { mockPathname, committedReviewMock } = vi.hoisted(() => ({
   mockPathname: vi.fn((): string => "/"),
+  committedReviewMock: { value: false },
 }));
 
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
@@ -44,7 +45,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => 3,
-  useNavCommittedArchitectureReview: (): boolean => false,
+  useNavCommittedArchitectureReview: (): boolean => committedReviewMock.value,
 }));
 
 vi.mock("next/link", () => ({
@@ -73,6 +74,7 @@ function unlockOperateFeatures(): void {
 describe("SidebarNav (primary navigation)", () => {
   beforeEach(() => {
     buyerPolishedMock.value = false;
+    committedReviewMock.value = false;
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     mockPathname.mockReturnValue("/");
     localStorage.clear();
@@ -145,7 +147,7 @@ describe("SidebarNav (primary navigation)", () => {
     render(<SidebarNav />);
 
     expect(screen.queryByText("Enable advanced features")).toBeNull();
-    expect(screen.getByTestId("nav-advanced-unlock")).toHaveTextContent("Unlock Operate features");
+    expect(screen.getByTestId("nav-advanced-unlock")).toHaveTextContent("Show analysis tools");
     expect(screen.queryByTestId("sidebar-governance-disclosure")).toBeNull();
     expect(screen.queryByRole("button", { name: /Show \d+ more destinations/ })).toBeNull();
   });
@@ -173,11 +175,27 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByTestId("sidebar-quick-actions")).not.toBeInTheDocument();
     expect(screen.queryByText("First-hour path")).not.toBeInTheDocument();
   });
+
+  it("shows dismissible auto-unlock hint after first committed review", async () => {
+    committedReviewMock.value = true;
+    render(<SidebarNav />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operate-unlock-auto-hint")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("operate-unlock-auto-hint-dismiss"));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("operate-unlock-auto-hint")).toBeNull();
+    });
+  });
 });
 
 describe("SidebarNav buyer-polished desktop shell", () => {
   beforeEach(() => {
     buyerPolishedMock.value = true;
+    committedReviewMock.value = false;
     delete process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE;
     mockPathname.mockReturnValue("/");
     localStorage.clear();

@@ -6,7 +6,11 @@ import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAutho
 import {
   OPERATE_NAV_UNLOCK_CHANGED_EVENT,
   advanceOperateNavUnlockToAnalysis,
+  clearOperateNavAutoUnlockHintPending,
+  dismissOperateNavAutoUnlockHint,
+  markOperateNavAutoUnlockHintPending,
   readOperateNavUnlockPhase,
+  shouldShowOperateNavAutoUnlockHint,
   type OperateNavUnlockPhase,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -14,14 +18,18 @@ import {
 export function useOperateNavUnlockPhase(): {
   effectiveOperateUnlockPhase: OperateNavUnlockPhase;
   unlockOperateFeatures: () => void;
+  showAutoUnlockHint: boolean;
+  dismissAutoUnlockHint: () => void;
   mounted: boolean;
 } {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<OperateNavUnlockPhase>(0);
+  const [showAutoUnlockHint, setShowAutoUnlockHint] = useState(false);
 
   const refreshPhase = useCallback(() => {
     setPhase(readOperateNavUnlockPhase());
+    setShowAutoUnlockHint(shouldShowOperateNavAutoUnlockHint());
   }, []);
 
   useEffect(() => {
@@ -35,6 +43,7 @@ export function useOperateNavUnlockPhase(): {
     }
 
     if (readOperateNavUnlockPhase() === 0) {
+      markOperateNavAutoUnlockHintPending();
       advanceOperateNavUnlockToAnalysis();
       refreshPhase();
     }
@@ -55,13 +64,21 @@ export function useOperateNavUnlockPhase(): {
   }, [refreshPhase]);
 
   const unlockOperateFeatures = useCallback(() => {
+    clearOperateNavAutoUnlockHintPending();
     advanceOperateNavUnlockToAnalysis();
     refreshPhase();
   }, [refreshPhase]);
 
+  const dismissAutoUnlockHint = useCallback(() => {
+    dismissOperateNavAutoUnlockHint();
+    setShowAutoUnlockHint(false);
+  }, []);
+
   return {
     effectiveOperateUnlockPhase: mounted ? phase : 0,
     unlockOperateFeatures,
+    showAutoUnlockHint: mounted && showAutoUnlockHint,
+    dismissAutoUnlockHint,
     mounted,
   };
 }

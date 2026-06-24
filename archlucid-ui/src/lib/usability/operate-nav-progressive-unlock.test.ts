@@ -6,7 +6,11 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   filterNavLinksByOperateUnlockPhase,
   isOperateNavGroupId,
+  markOperateNavAutoUnlockHintPending,
   readOperateNavUnlockPhase,
+  shouldShowOperateNavAutoUnlockHint,
+  dismissOperateNavAutoUnlockHint,
+  clearOperateNavAutoUnlockHintPending,
   writeOperateNavUnlockPhase,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
@@ -57,5 +61,22 @@ describe("operate-nav-progressive-unlock", () => {
     expect(readOperateNavUnlockPhase()).toBe(1);
     writeOperateNavUnlockPhase(2);
     expect(readOperateNavUnlockPhase()).toBe(2);
+  });
+
+  it("shows auto-unlock hint once after commit until dismissed", () => {
+    localStorage.clear();
+    markOperateNavAutoUnlockHintPending();
+    expect(shouldShowOperateNavAutoUnlockHint()).toBe(true);
+    dismissOperateNavAutoUnlockHint();
+    expect(shouldShowOperateNavAutoUnlockHint()).toBe(false);
+    markOperateNavAutoUnlockHintPending();
+    expect(shouldShowOperateNavAutoUnlockHint()).toBe(false);
+  });
+
+  it("clears pending auto-unlock hint on manual unlock", () => {
+    localStorage.clear();
+    markOperateNavAutoUnlockHintPending();
+    clearOperateNavAutoUnlockHintPending();
+    expect(shouldShowOperateNavAutoUnlockHint()).toBe(false);
   });
 });

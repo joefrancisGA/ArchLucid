@@ -45,6 +45,7 @@ import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySecti
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
+import { RunDetailOperatorTechnicalDisclosure } from "./RunDetailOperatorTechnicalDisclosure";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
@@ -352,22 +353,16 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
 
       {!m.buyerPolishedArtifactTable ? (
-        <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunAgentResultsSummaryCard results={m.resolvedDetail.results} />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunRetrievalGroundingSummaryCard
-          summary={m.resolvedDetail.retrievalGroundingSummary}
-          runId={m.resolvedDetail.run.runId}
-        />
+        <RunDetailOperatorTechnicalDisclosure>
+          <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+          <RunAgentResultsSummaryCard results={m.resolvedDetail.results} />
+          <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
+          <RunRetrievalGroundingSummaryCard
+            summary={m.resolvedDetail.retrievalGroundingSummary}
+            runId={m.resolvedDetail.run.runId}
+          />
+          <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
+        </RunDetailOperatorTechnicalDisclosure>
       ) : null}
 
       {m.showProgressTracker ? (
@@ -424,10 +419,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             manifestRuleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
           />
         </Suspense>
-      ) : null}
-
-      {!m.buyerPolishedArtifactTable ? (
-        <RunDetailRunMetadataSection run={m.resolvedDetail.run} runDetailTraceId={m.runDetailTraceId} />
       ) : null}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
