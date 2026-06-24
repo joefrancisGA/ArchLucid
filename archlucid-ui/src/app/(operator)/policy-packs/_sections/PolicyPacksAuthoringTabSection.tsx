@@ -16,8 +16,7 @@ export function PolicyPacksAuthoringTabSection(props: PolicyPacksAuthoringTabSec
   return (
     <div className="space-y-8" data-testid="policy-packs-author-tab">
       <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-        Map your organization&apos;s standards into curated policy rules. Author in guided, visual, JSON, or natural-language
-        modes; validate against a committed review; then publish a version for workspace assignment.
+        Map your organization&apos;s standards into curated policy rules. Use guided, visual, or natural-language builders on one workspace with inline review testing, then publish a version for workspace assignment.
       </p>
 
       <PolicyPacksRegisteredListSection

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PolicyPackContentJsonEditor } from "@/components/PolicyPackContentJsonEditor";
@@ -58,7 +59,7 @@ export type PolicyRuleAuthoringWizardProps = {
   readonly initialInputMode?: "guided" | "visual" | "json" | "ai";
 };
 
-type WizardStepId = 1 | 2 | 3;
+type AuthoringInputMode = "guided" | "visual" | "ai";
 
 function tryParseContentDocument(json: string): PolicyPackContentDocument | null {
   try {
@@ -72,6 +73,16 @@ function tryParseContentDocument(json: string): PolicyPackContentDocument | null
   } catch {
     return null;
   }
+}
+
+function resolveInitialInputMode(
+  initialInputMode: PolicyRuleAuthoringWizardProps["initialInputMode"],
+): AuthoringInputMode {
+  if (initialInputMode === "visual" || initialInputMode === "ai") {
+    return initialInputMode;
+  }
+
+  return "guided";
 }
 
 export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps) {
@@ -96,8 +107,9 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     initialInputMode = "guided",
   } = props;
 
-  const [step, setStep] = useState<WizardStepId>(1);
-  const [inputMode, setInputMode] = useState<"guided" | "visual" | "json" | "ai">(initialInputMode);
+  const skipHydrationRef = useRef(false);
+  const [inputMode, setInputMode] = useState<AuthoringInputMode>(() => resolveInitialInputMode(initialInputMode));
+  const [rawJsonAccordionOpen, setRawJsonAccordionOpen] = useState(initialInputMode === "json");
   const [guidedFields, setGuidedFields] = useState<GuidedPolicyFields>(() => ({
     complianceRuleKeysText: "",
     alertRuleIdsText: "",
@@ -108,10 +120,17 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
   const [authoringErrors, setAuthoringErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    setInputMode(initialInputMode);
+    setInputMode(resolveInitialInputMode(initialInputMode));
+    setRawJsonAccordionOpen(initialInputMode === "json");
   }, [initialInputMode]);
 
   useEffect(() => {
+    if (skipHydrationRef.current) {
+      skipHydrationRef.current = false;
+
+      return;
+    }
+
     const doc: PolicyPackContentDocument | null = tryParseContentDocument(policyContentJson);
 
     if (doc === null) {
@@ -134,8 +153,6 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       return;
     }
 
-    setStep(1);
-
     const timer = window.setTimeout(() => {
       const row = document.querySelector(`[data-rule-id="${CSS.escape(ruleId)}"]`);
 
@@ -149,19 +166,11 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
     };
   }, [highlightRuleId]);
 
-  const [simulateRunId, setSimulateRunId] = useState("");
-  const [recentRuns, setRecentRuns] = useState<RunSummary[]>([]);
-  const [runsLoadError, setRunsLoadError] = useState<string | null>(null);
-  const [simulateBusy, setSimulateBusy] = useState(false);
-  const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
-  const [simulateResult, setSimulateResult] =
-    useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(null);
-  const [blockOnCritical, setBlockOnCritical] = useState(true);
-  const [allowPublishWithoutTest, setAllowPublishWithoutTest] = useState(false);
+  useEffect(() => {
+    if (inputMode !== "guided") {
+      return;
+    }
 
-  const jsonEditorValue = policyContentJson;
-
-  const mergeAuthoringIntoPolicyJson = useCallback(() => {
     const validationErrors: string[] = validateCuratedRulesDocument(curatedDoc);
 
     if (validationErrors.length > 0) {
@@ -181,9 +190,35 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
         packType,
       },
     });
+    const nextJson = JSON.stringify(doc, null, 2);
 
-    onPolicyContentJsonSync(JSON.stringify(doc, null, 2));
-  }, [curatedDoc, guidedFields, name, description, onPolicyContentJsonSync, packType, publishVersion]);
+    if (nextJson === policyContentJson) {
+      return;
+    }
+
+    skipHydrationRef.current = true;
+    onPolicyContentJsonSync(nextJson);
+  }, [
+    curatedDoc,
+    description,
+    guidedFields,
+    inputMode,
+    name,
+    onPolicyContentJsonSync,
+    packType,
+    policyContentJson,
+    publishVersion,
+  ]);
+
+  const [simulateRunId, setSimulateRunId] = useState("");
+  const [recentRuns, setRecentRuns] = useState<RunSummary[]>([]);
+  const [runsLoadError, setRunsLoadError] = useState<string | null>(null);
+  const [simulateBusy, setSimulateBusy] = useState(false);
+  const [simulateFailure, setSimulateFailure] = useState<ApiLoadFailureState | null>(null);
+  const [simulateResult, setSimulateResult] =
+    useState<components["schemas"]["PolicyPackGovernanceDryRunResult"] | null>(null);
+  const [blockOnCritical, setBlockOnCritical] = useState(true);
+  const [allowPublishWithoutTest, setAllowPublishWithoutTest] = useState(false);
 
   const applyGeneratedCuratedDocument = useCallback(
     (document: CuratedRulesDocument) => {
@@ -239,6 +274,8 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       complianceRuleKeysText: hydrated.additionalComplianceKeysText,
     });
     setAuthoringErrors([]);
+    setInputMode("guided");
+    showSuccess("Guided fields loaded from current policy JSON.");
   }, [policyContentJson]);
 
   const loadRecentRuns = useCallback(async () => {
@@ -316,7 +353,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
   const canPublishAfterTest: boolean = simulateResult !== null && !gateBlocked;
 
-  const step3PublishDisabled: boolean =
+  const publishDisabled: boolean =
     !canMutatePacks ||
     loading ||
     bundledPublishBlocked ||
@@ -330,48 +367,15 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       data-testid="policy-rule-authoring-wizard"
     >
       <h3 id="policy-rule-authoring-wizard-heading" className="mt-0">
-        Rule authoring wizard
+        Rule authoring workspace
       </h3>
       <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
-        Design custom policy content, evaluate it against a committed architecture review, then create or publish through
-        the same durable policy-pack versioning as platform defaults.
+        Design custom policy content and evaluate it against a committed architecture review on one surface, then create
+        or publish through the same durable policy-pack versioning as platform defaults.
       </p>
 
-      <ol className="mt-4 flex flex-wrap gap-3 text-sm" aria-label="Wizard steps">
-        <li>
-          <Button
-            type="button"
-            size="sm"
-            variant={step === 1 ? "default" : "secondary"}
-            onClick={() => setStep(1)}
-          >
-            1 — Design
-          </Button>
-        </li>
-        <li>
-          <Button
-            type="button"
-            size="sm"
-            variant={step === 2 ? "default" : "secondary"}
-            onClick={() => setStep(2)}
-          >
-            2 — Test on review
-          </Button>
-        </li>
-        <li>
-          <Button
-            type="button"
-            size="sm"
-            variant={step === 3 ? "default" : "secondary"}
-            onClick={() => setStep(3)}
-          >
-            3 — Publish
-          </Button>
-        </li>
-      </ol>
-
-      {step === 1 ? (
-        <div className="mt-4 space-y-4 max-w-3xl" data-testid="policy-rule-wizard-step-design">
+      <div className="mt-4 grid gap-6 lg:grid-cols-2 lg:items-start">
+        <div className="space-y-4" data-testid="policy-rule-wizard-step-design">
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -399,14 +403,6 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             >
               Visual builder
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={inputMode === "json" ? "default" : "secondary"}
-              onClick={() => setInputMode("json")}
-            >
-              Raw JSON
-            </Button>
           </div>
 
           {inputMode === "ai" ? (
@@ -423,11 +419,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               onPolicyContentJsonSync={onPolicyContentJsonSync}
               selectedPackId={selectedPackId}
             />
-          ) : inputMode === "guided" ? (
+          ) : null}
+
+          {inputMode === "guided" ? (
             <div className="grid gap-3">
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 Map compliance rule keys and optional alert hooks; metadata lines use{" "}
-                <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">key=value</code> per line.
+                <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">key=value</code> per line. Policy JSON
+                stays in sync as you edit.
               </p>
               <div className="space-y-1">
                 <label htmlFor="wizard-guided-keys" className="text-sm font-medium">
@@ -498,8 +497,11 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                 highlightRuleId={highlightRuleId}
               />
               {authoringErrors.length > 0 ? (
-                <div role="alert" className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-2 text-xs">
-                  <p className="font-medium m-0 mb-1">Fix before merging</p>
+                <div
+                  role="alert"
+                  className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-2 text-xs"
+                >
+                  <p className="font-medium m-0 mb-1">Fix before testing or publish</p>
                   <ul className="list-disc ml-4 m-0">
                     {authoringErrors.map((e) => (
                       <li key={e}>{e}</li>
@@ -507,44 +509,46 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                   </ul>
                 </div>
               ) : null}
-              <div className="flex flex-wrap gap-2">
-                <Button type="button" size="sm" data-testid="policy-rule-wizard-merge-authoring" onClick={() => mergeAuthoringIntoPolicyJson()}>
-                  Merge guided + curated rules into policy JSON
-                </Button>
-                <Button type="button" size="sm" variant="secondary" onClick={() => syncGuidedFromCurrentJson()}>
-                  Load guided fields from current JSON
-                </Button>
-              </div>
             </div>
-          ) : (
-            <div className="space-y-2">
-              <PolicyPackContentJsonEditor
-                id="wizard-raw-json"
-                label="Policy pack content document (JSON)"
-                testId="policy-rule-wizard-raw-json"
-                value={jsonEditorValue}
-                onChange={onPolicyContentJsonSync}
-                rows={14}
-                readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-              {!canMutatePacks ? (
-                <p className="text-xs text-neutral-500">Reader tier: JSON edits are disabled.</p>
-              ) : null}
-            </div>
-          )}
+          ) : null}
 
-          <Button type="button" size="sm" variant="secondary" onClick={() => setStep(2)}>
-            Next: test on review
-          </Button>
+          <AdvancedOptionsAccordion
+            triggerLabel="View raw policy JSON"
+            defaultOpen={rawJsonAccordionOpen}
+            open={rawJsonAccordionOpen}
+            onOpenChange={setRawJsonAccordionOpen}
+          >
+            <PolicyPackContentJsonEditor
+              id="wizard-raw-json"
+              label="Policy pack content document (JSON)"
+              testId="policy-rule-wizard-raw-json"
+              value={policyContentJson}
+              onChange={onPolicyContentJsonSync}
+              rows={14}
+              readOnly={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            />
+            {!canMutatePacks ? (
+              <p className="text-xs text-neutral-500">Reader tier: JSON edits are disabled.</p>
+            ) : null}
+            <Button type="button" size="sm" variant="secondary" onClick={() => syncGuidedFromCurrentJson()}>
+              Load guided fields from current JSON
+            </Button>
+          </AdvancedOptionsAccordion>
         </div>
-      ) : null}
 
-      {step === 2 ? (
-        <div className="mt-4 space-y-4 max-w-3xl" data-testid="policy-rule-wizard-step-test">
+        <div
+          className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30"
+          data-testid="policy-rule-wizard-step-test"
+        >
+          <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Test on review</h4>
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            Dry-run this policy content against a committed architecture snapshot without leaving the authoring surface.
+          </p>
+
           {parsedDocumentForSimulate === null ? (
             <p className="text-sm text-amber-800 dark:text-amber-200" role="status">
-              Fix invalid policy JSON on step 1 (raw mode) or merge guided fields before running a test.
+              Fix invalid policy JSON or guided-field validation errors before running a test.
             </p>
           ) : null}
 
@@ -558,7 +562,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                 data-testid="policy-rule-wizard-run-id"
                 value={simulateRunId}
                 onChange={(e) => setSimulateRunId(e.target.value)}
-                className="w-72 font-mono text-xs"
+                className="w-full max-w-xs font-mono text-xs"
               />
             </div>
             <Button type="button" size="sm" variant="secondary" onClick={() => void loadRecentRuns()}>
@@ -599,22 +603,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             Treat critical findings as blocking (pre-commit semantics)
           </label>
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => void runSimulation()}
-              disabled={simulateBusy || parsedDocumentForSimulate === null}
-            >
-              {simulateBusy ? "Testing…" : "Run policy test"}
-            </Button>
-            <Button type="button" size="sm" variant="secondary" onClick={() => setStep(1)}>
-              Back
-            </Button>
-            <Button type="button" size="sm" variant="secondary" onClick={() => setStep(3)}>
-              Next: publish
-            </Button>
-          </div>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => void runSimulation()}
+            disabled={simulateBusy || parsedDocumentForSimulate === null}
+          >
+            {simulateBusy ? "Testing…" : "Run policy test"}
+          </Button>
 
           {simulateFailure !== null ? (
             <div role="alert">
@@ -632,112 +628,110 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             </div>
           ) : null}
         </div>
-      ) : null}
+      </div>
 
-      {step === 3 ? (
-        <div className="mt-4 space-y-4 max-w-3xl" data-testid="policy-rule-wizard-step-publish">
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Custom packs use the same versioned storage as bundled defaults (tenant-owned rows). Publish requires pack admin
-            authority.
-          </p>
+      <div
+        className="mt-6 space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
+        data-testid="policy-rule-wizard-step-publish"
+      >
+        <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Create or publish</h4>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 m-0">
+          Custom packs use the same versioned storage as bundled defaults (tenant-owned rows). Publish requires pack
+          admin authority.
+        </p>
 
-          <label className="flex items-start gap-2 text-sm max-w-prose">
-            <input
-              type="checkbox"
-              checked={allowPublishWithoutTest}
-              onChange={(e) => setAllowPublishWithoutTest(e.target.checked)}
-              disabled={canPublishAfterTest}
-            />
-            <span>
-              Allow publish without a successful in-wizard test (not recommended when the pre-commit gate would block).
-            </span>
-          </label>
+        <label className="flex items-start gap-2 text-sm max-w-prose">
+          <input
+            type="checkbox"
+            checked={allowPublishWithoutTest}
+            onChange={(e) => setAllowPublishWithoutTest(e.target.checked)}
+            disabled={canPublishAfterTest}
+          />
+          <span>
+            Allow publish without a successful in-wizard test (not recommended when the pre-commit gate would block).
+          </span>
+        </label>
 
-          <div className="grid gap-2 max-w-xl">
-            <div className="space-y-1">
-              <label htmlFor="wizard-publish-name" className="text-sm font-medium">
-                Pack name (create)
-              </label>
-              <Input
-                id="wizard-publish-name"
-                value={name}
-                onChange={(e) => onNameChange(e.target.value)}
-                readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-            </div>
-            <div className="space-y-1">
-              <label htmlFor="wizard-publish-desc" className="text-sm font-medium">
-                Description
-              </label>
-              <Input
-                id="wizard-publish-desc"
-                value={description}
-                onChange={(e) => onDescriptionChange(e.target.value)}
-                readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-            </div>
-            <label>
-              Pack type
-              <select
-                value={packType}
-                onChange={(e) => onPackTypeChange(e.target.value)}
-                disabled={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                className="block w-full p-2 mt-1"
-              >
-                {PACK_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
+        <div className="grid gap-2 max-w-xl sm:grid-cols-2">
+          <div className="space-y-1">
+            <label htmlFor="wizard-publish-name" className="text-sm font-medium">
+              Pack name (create)
             </label>
-            <div className="space-y-1">
-              <label htmlFor="wizard-publish-version" className="text-sm font-medium">
-                Version label (publish)
-              </label>
-              <Input
-                id="wizard-publish-version"
-                value={publishVersion}
-                onChange={(e) => onPublishVersionChange(e.target.value)}
-                readOnly={!canMutatePacks}
-                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              data-testid="policy-rule-wizard-create-pack"
-              onClick={() => void onCreate()}
-              disabled={loading || !canMutatePacks || parsedDocumentForSimulate === null}
+            <Input
+              id="wizard-publish-name"
+              value={name}
+              onChange={(e) => onNameChange(e.target.value)}
+              readOnly={!canMutatePacks}
               title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="wizard-publish-desc" className="text-sm font-medium">
+              Description
+            </label>
+            <Input
+              id="wizard-publish-desc"
+              value={description}
+              onChange={(e) => onDescriptionChange(e.target.value)}
+              readOnly={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            />
+          </div>
+          <label className="sm:col-span-2">
+            Pack type
+            <select
+              value={packType}
+              onChange={(e) => onPackTypeChange(e.target.value)}
+              disabled={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              className="block w-full p-2 mt-1"
             >
-              Create pack
-            </Button>
-            <Button
-              type="button"
-              data-testid="policy-rule-wizard-publish-version"
-              onClick={() => void onPublish()}
-              disabled={step3PublishDisabled}
-              title={
-                bundledPublishBlocked
-                  ? "Bundled default packs cannot be republished from Policy packs."
-                  : undefined
-              }
-            >
-              Publish version
-            </Button>
-            <Button type="button" variant="secondary" onClick={() => setStep(2)}>
-              Back
-            </Button>
+              {PACK_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="space-y-1 sm:col-span-2">
+            <label htmlFor="wizard-publish-version" className="text-sm font-medium">
+              Version label (publish)
+            </label>
+            <Input
+              id="wizard-publish-version"
+              value={publishVersion}
+              onChange={(e) => onPublishVersionChange(e.target.value)}
+              readOnly={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+            />
           </div>
         </div>
-      ) : null}
 
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            data-testid="policy-rule-wizard-create-pack"
+            onClick={() => void onCreate()}
+            disabled={loading || !canMutatePacks || parsedDocumentForSimulate === null}
+            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+          >
+            Create pack
+          </Button>
+          <Button
+            type="button"
+            data-testid="policy-rule-wizard-publish-version"
+            onClick={() => void onPublish()}
+            disabled={publishDisabled}
+            title={
+              bundledPublishBlocked
+                ? "Bundled default packs cannot be republished from Policy packs."
+                : undefined
+            }
+          >
+            Publish version
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }
