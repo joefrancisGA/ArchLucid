@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 
 import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
@@ -33,7 +34,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
-import { postFindingMute, downloadRunFindingsCsv } from "@/lib/api";
+import { postFindingMute } from "@/lib/api";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -122,8 +123,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
   const [reasoningOpen, setReasoningOpen] = useState(false);
   const [activeReasoning, setActiveReasoning] = useState<QuickDecisionFinding | null>(null);
   const [muteOpen, setMuteOpen] = useState(false);
-  const [exportingCsv, setExportingCsv] = useState(false);
-  const [exportCsvError, setExportCsvError] = useState<string | null>(null);
   const [muteTarget, setMuteTarget] = useState<QuickDecisionFinding | null>(null);
   const [muteReason, setMuteReason] = useState("");
   const [muteBusy, setMuteBusy] = useState(false);
@@ -306,8 +305,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
           data-testid={`finding-itsm-sync-${f.findingId}`}
         >
-          <p className="m-0 mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
-            Work tracking
+          <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+            Jira / ServiceNow
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <CopyGovernanceQueueWorkItemButton
@@ -347,7 +346,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               </CardTitle>
               {hasSourceFindings ? (
                 <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  One-click Jira or ServiceNow sync is available on each priority finding below.
+                  Export CSV or JSON above, or use <strong>Copy for Jira</strong> on each finding for one-click ticket paste.
                   {hiddenLowConfidenceHint !== null ? (
                     <span className="mt-1 block" data-testid="quick-decision-low-confidence-hidden-hint">
                       {hiddenLowConfidenceHint}.
@@ -358,28 +357,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             </div>
             {hasSourceFindings ? (
               <div className="flex flex-wrap items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={exportingCsv}
-                  onClick={() => {
-                    void (async () => {
-                      setExportingCsv(true);
-                      setExportCsvError(null);
-
-                      try {
-                        await downloadRunFindingsCsv(props.runId);
-                      } catch (error) {
-                        setExportCsvError(error instanceof Error ? error.message : "Export failed.");
-                      } finally {
-                        setExportingCsv(false);
-                      }
-                    })();
-                  }}
-                >
-                  {exportingCsv ? "Exporting…" : "Export to CSV"}
-                </Button>
                 <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                   <input
                     type="checkbox"
@@ -408,6 +385,9 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+          {hasSourceFindings ? (
+            <FindingsItsmExportToolbar runId={props.runId} findings={props.findings} />
+          ) : null}
           {hasSourceFindings && policyPackSummary.length > 0 ? (
             <ReviewDetailPolicyPackFindingsBreakdown
               groups={policyPackSummary}
@@ -424,11 +404,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             >
               Confidence rows are derived from the aggregate explanation trace because per-finding agent results were not
               on this review payload. Re-run execute or refresh after commit if you need agent-result grounding.
-            </p>
-          ) : null}
-          {exportCsvError !== null ? (
-            <p className="m-0 text-xs text-red-700 dark:text-red-300" role="alert">
-              {exportCsvError}
             </p>
           ) : null}
           {!hasSourceFindings ? (

@@ -4,7 +4,7 @@ import { FindingInspectContextDebugPanel } from "@/components/findings/FindingIn
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
-import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { FindingItsmExportPanel } from "@/components/FindingItsmExportPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -204,6 +204,16 @@ export function FindingDetailPageView(props: Props) {
             </div>
           </div>
 
+          {inspectPayload !== null ? (
+            <div className="border-t border-teal-100 px-6 py-4 dark:border-teal-950">
+              <FindingItsmExportPanel
+                runId={runId}
+                findingId={decodedFindingId}
+                payload={inspectPayload}
+              />
+            </div>
+          ) : null}
+
           <CollapsibleSection title="Evidence trace details" defaultOpen={false}>
             <FindingProvenancePanel runId={runId} findingId={decodedFindingId} />
           </CollapsibleSection>
@@ -319,6 +329,10 @@ export function FindingDetailPageView(props: Props) {
               {findingDetailLeadSentence(inspectPayload)}
             </p>
           ) : null}
+
+          {inspectPayload !== null ? (
+            <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
+          ) : null}
         </header>
       )}
 
@@ -365,28 +379,6 @@ export function FindingDetailPageView(props: Props) {
 
       {inspectPayload !== null ? (
         <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
-      ) : null}
-
-      {inspectPayload !== null ? (
-        <section
-          className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-          aria-labelledby="finding-copy-work-item-heading"
-          data-testid="finding-copy-work-item-promoted"
-        >
-          <h2
-            id="finding-copy-work-item-heading"
-            className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
-          >
-            Copy for external work tracking
-          </h2>
-          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            Copy a structured summary for Jira, ServiceNow, Markdown, or JSON when your team tracks remediation outside
-            native connectors. The finding ID is included for stable external references.
-          </p>
-          <div className="pt-3">
-            <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />
-          </div>
-        </section>
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (

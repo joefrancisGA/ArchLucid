@@ -36,8 +36,10 @@ const FORMAT_ITEMS: readonly { readonly value: WorkItemClipboardFormat; readonly
   { value: "json", label: "JSON (external seam)" },
 ] as const;
 
-const COPY_FOR_ITSM_LABEL = "Copy for Jira/ITSM";
+const COPY_FOR_JIRA_LABEL = "Copy for Jira";
+const COPY_AS_WORK_ITEM_LABEL = "Copy as work item";
 const COPY_FOR_ITSM_ARIA = "Copy finding for Jira or ServiceNow — formatted text to clipboard";
+const QUICK_COPY_JIRA_ARIA = "Copy finding as Jira wiki markup to clipboard";
 
 function evidenceLinesFromInspectPayload(payload: FindingInspectPayload): string[] {
   return payload.evidence.map((e) => {
@@ -81,47 +83,66 @@ function buildFindingWorkItemInput(
   };
 }
 
-export type CopyFindingAsWorkItemButtonProps = {
-  runId: string;
-  findingId: string;
-  payload: FindingInspectPayload;
+type CopyFeedbackKind = "none" | "jira" | "selected";
+
+type WorkItemCopyControlsProps = {
+  format: WorkItemClipboardFormat;
+  onFormatChange: (format: WorkItemClipboardFormat) => void;
+  copied: CopyFeedbackKind;
+  onQuickCopyJira: () => void;
+  onCopySelectedFormat: () => void;
+  compact?: boolean;
+  prominent?: boolean;
+  selectedFormatTestId?: string;
 };
 
-/**
- * Copies a structured work-item body for Jira, GitHub, Azure Boards, or ServiceNow from the finding inspect payload.
- */
-export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyFindingAsWorkItemButtonProps) {
-  const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
-  const [copied, setCopied] = useState(false);
+function WorkItemCopyControls({
+  format,
+  onFormatChange,
+  copied,
+  onQuickCopyJira,
+  onCopySelectedFormat,
+  compact = false,
+  prominent = false,
+  selectedFormatTestId = "copy-work-item-selected-format",
+}: WorkItemCopyControlsProps) {
+  const selectTriggerClass = compact
+    ? "h-7 w-full text-[0.65rem]"
+    : prominent
+      ? "h-9 w-[12rem] text-xs"
+      : "h-8 w-[11.5rem] text-xs";
 
-  const onCopy = useCallback(async () => {
-    const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
-    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
-    const text = buildInspectFindingWorkItemBody(format, input);
-    const ok = await writeWorkItemBodyToClipboard(text);
-
-    if (!ok) {
-      showError("Could not copy to clipboard");
-
-      return;
-    }
-
-    showSuccess("Copied for Jira/ITSM");
-    setCopied(true);
-    window.setTimeout(() => {
-      setCopied(false);
-    }, 2_000);
-  }, [findingId, format, payload, runId]);
+  const buttonClass = compact
+    ? "h-7 gap-1 px-2 text-[0.65rem]"
+    : prominent
+      ? "h-9 gap-1.5 text-xs"
+      : "h-8 gap-1.5 text-xs";
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={compact ? "flex min-w-0 flex-col gap-1.5" : "flex flex-wrap items-center gap-2"}>
+      <Button
+        type="button"
+        variant="default"
+        size="sm"
+        className={buttonClass}
+        aria-label={QUICK_COPY_JIRA_ARIA}
+        data-testid="copy-for-jira-button"
+        onClick={onQuickCopyJira}
+      >
+        {copied === "jira" ? (
+          <Check className="size-3.5 text-emerald-100" aria-hidden />
+        ) : (
+          <ClipboardList className="size-3.5" aria-hidden />
+        )}
+        {copied === "jira" ? "Copied for Jira" : COPY_FOR_JIRA_LABEL}
+      </Button>
       <Select
         value={format}
-        onValueChange={(v) => {
-          setFormat(v as WorkItemClipboardFormat);
+        onValueChange={(value) => {
+          onFormatChange(value as WorkItemClipboardFormat);
         }}
       >
-        <SelectTrigger className="h-8 w-[11.5rem] text-xs" aria-label="Work item format">
+        <SelectTrigger className={selectTriggerClass} aria-label="Work item format">
           <SelectValue placeholder="Format" />
         </SelectTrigger>
         <SelectContent>
@@ -134,18 +155,94 @@ export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyF
       </Select>
       <Button
         type="button"
-        variant="secondary"
+        variant={compact ? "outline" : "secondary"}
         size="sm"
-        className="h-8 gap-1.5 text-xs"
+        className={buttonClass}
         aria-label={COPY_FOR_ITSM_ARIA}
-        onClick={() => {
-          void onCopy();
-        }}
+        data-testid={selectedFormatTestId}
+        onClick={onCopySelectedFormat}
       >
-        {copied ? <Check className="size-3.5 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3.5" aria-hidden />}
-        {copied ? "Copied" : COPY_FOR_ITSM_LABEL}
+        {copied === "selected" ? (
+          <Check className="size-3.5 text-emerald-600" aria-hidden />
+        ) : (
+          <ClipboardList className="size-3.5" aria-hidden />
+        )}
+        {copied === "selected" ? "Copied" : COPY_AS_WORK_ITEM_LABEL}
       </Button>
     </div>
+  );
+}
+
+export type CopyFindingAsWorkItemButtonProps = {
+  runId: string;
+  findingId: string;
+  payload: FindingInspectPayload;
+  /** Larger controls for above-the-fold finding detail placement. */
+  prominent?: boolean;
+};
+
+/**
+ * Copies a structured work-item body for Jira, GitHub, Azure Boards, or ServiceNow from the finding inspect payload.
+ */
+export function CopyFindingAsWorkItemButton({
+  runId,
+  findingId,
+  payload,
+  prominent = false,
+}: CopyFindingAsWorkItemButtonProps) {
+  const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
+  const [copied, setCopied] = useState<CopyFeedbackKind>("none");
+
+  const resetCopied = useCallback(() => {
+    window.setTimeout(() => {
+      setCopied("none");
+    }, 2_000);
+  }, []);
+
+  const copyText = useCallback(
+    async (text: string, kind: CopyFeedbackKind) => {
+      const ok = await writeWorkItemBodyToClipboard(text);
+
+      if (!ok) {
+        showError("Could not copy to clipboard");
+
+        return;
+      }
+
+      showSuccess(kind === "jira" ? "Copied for Jira" : "Copied for Jira/ITSM");
+      setCopied(kind);
+      resetCopied();
+    },
+    [resetCopied],
+  );
+
+  const onQuickCopyJira = useCallback(async () => {
+    const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
+    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
+    const text = buildInspectFindingWorkItemBody("jiraWiki", input);
+    await copyText(text, "jira");
+  }, [copyText, findingId, payload, runId]);
+
+  const onCopySelectedFormat = useCallback(async () => {
+    const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
+    const input = buildFindingWorkItemInput(runId, findingId, siteOrigin, payload);
+    const text = buildInspectFindingWorkItemBody(format, input);
+    await copyText(text, "selected");
+  }, [copyText, findingId, format, payload, runId]);
+
+  return (
+    <WorkItemCopyControls
+      format={format}
+      onFormatChange={setFormat}
+      copied={copied}
+      onQuickCopyJira={() => {
+        void onQuickCopyJira();
+      }}
+      onCopySelectedFormat={() => {
+        void onCopySelectedFormat();
+      }}
+      prominent={prominent}
+    />
   );
 }
 
@@ -173,11 +270,18 @@ export function CopyGovernanceQueueWorkItemButton({
   compact = false,
 }: CopyGovernanceQueueWorkItemButtonProps) {
   const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<CopyFeedbackKind>("none");
 
-  const onCopy = useCallback(async () => {
+  const resetCopied = useCallback(() => {
+    window.setTimeout(() => {
+      setCopied("none");
+    }, 2_000);
+  }, []);
+
+  const buildRowInput = useCallback(() => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
-    const text = buildTraceRowWorkItemBody(format, {
+
+    return {
       runId,
       findingId,
       findingTitle,
@@ -186,58 +290,50 @@ export function CopyGovernanceQueueWorkItemButton({
       statusLabel,
       ruleId: null,
       siteOrigin,
-    });
-    const ok = await writeWorkItemBodyToClipboard(text);
+    };
+  }, [findingId, findingTitle, recommendedAction, runId, severityLabel, statusLabel]);
 
-    if (!ok) {
-      showError("Could not copy to clipboard");
+  const copyText = useCallback(
+    async (text: string, kind: CopyFeedbackKind) => {
+      const ok = await writeWorkItemBodyToClipboard(text);
 
-      return;
-    }
+      if (!ok) {
+        showError("Could not copy to clipboard");
 
-    showSuccess("Copied for Jira/ITSM");
-    setCopied(true);
-    window.setTimeout(() => {
-      setCopied(false);
-    }, 2_000);
-  }, [findingId, findingTitle, format, recommendedAction, runId, severityLabel, statusLabel]);
+        return;
+      }
+
+      showSuccess(kind === "jira" ? "Copied for Jira" : "Copied for Jira/ITSM");
+      setCopied(kind);
+      resetCopied();
+    },
+    [resetCopied],
+  );
+
+  const onQuickCopyJira = useCallback(async () => {
+    const text = buildTraceRowWorkItemBody("jiraWiki", buildRowInput());
+    await copyText(text, "jira");
+  }, [buildRowInput, copyText]);
+
+  const onCopySelectedFormat = useCallback(async () => {
+    const text = buildTraceRowWorkItemBody(format, buildRowInput());
+    await copyText(text, "selected");
+  }, [buildRowInput, copyText, format]);
 
   return (
-    <div className={compact ? "flex min-w-0 flex-col gap-1" : "flex flex-wrap items-center gap-2"}>
-      <Select
-        value={format}
-        onValueChange={(v) => {
-          setFormat(v as WorkItemClipboardFormat);
-        }}
-      >
-        <SelectTrigger
-          className={compact ? "h-7 w-full text-[0.65rem]" : "h-8 w-[11.5rem] text-xs"}
-          aria-label="Work item format for governance queue row"
-        >
-          <SelectValue placeholder="Format" />
-        </SelectTrigger>
-        <SelectContent>
-          {FORMAT_ITEMS.map((item) => (
-            <SelectItem key={item.value} value={item.value} className="text-xs">
-              {item.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button
-        type="button"
-        variant={compact ? "outline" : "secondary"}
-        size="sm"
-        className={compact ? "h-7 gap-1 px-2 text-[0.65rem]" : "h-8 gap-1.5 text-xs"}
-        aria-label={COPY_FOR_ITSM_ARIA}
-        onClick={() => {
-          void onCopy();
-        }}
-      >
-        {copied ? <Check className="size-3 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3" aria-hidden />}
-        {copied ? "Copied" : COPY_FOR_ITSM_LABEL}
-      </Button>
-    </div>
+    <WorkItemCopyControls
+      format={format}
+      onFormatChange={setFormat}
+      copied={copied}
+      onQuickCopyJira={() => {
+        void onQuickCopyJira();
+      }}
+      onCopySelectedFormat={() => {
+        void onCopySelectedFormat();
+      }}
+      compact={compact}
+      selectedFormatTestId="copy-governance-work-item-selected-format"
+    />
   );
 }
 
@@ -250,12 +346,19 @@ export type CopyTraceRowWorkItemButtonProps = {
  * Minimal copy for [`RunFindingExplainabilityTable`](/components/RunFindingExplainabilityTable) rows (aggregate trace list).
  */
 export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemButtonProps) {
-  const [format, setFormat] = useState<WorkItemClipboardFormat>("markdown");
-  const [copied, setCopied] = useState(false);
+  const [format, setFormat] = useState<WorkItemClipboardFormat>("jiraWiki");
+  const [copied, setCopied] = useState<CopyFeedbackKind>("none");
 
-  const onCopy = useCallback(async () => {
+  const resetCopied = useCallback(() => {
+    window.setTimeout(() => {
+      setCopied("none");
+    }, 2_000);
+  }, []);
+
+  const buildRowInput = useCallback(() => {
     const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
-    const text = buildTraceRowWorkItemBody(format, {
+
+    return {
       runId,
       findingId: row.findingId,
       findingTitle: row.findingTitle ?? null,
@@ -264,54 +367,49 @@ export function CopyTraceRowWorkItemButton({ runId, row }: CopyTraceRowWorkItemB
       statusLabel: null,
       ruleId: row.ruleId ?? null,
       siteOrigin,
-    });
-    const ok = await writeWorkItemBodyToClipboard(text);
+    };
+  }, [row.findingId, row.findingTitle, row.ruleId, runId]);
 
-    if (!ok) {
-      showError("Could not copy to clipboard");
+  const copyText = useCallback(
+    async (text: string, kind: CopyFeedbackKind) => {
+      const ok = await writeWorkItemBodyToClipboard(text);
 
-      return;
-    }
+      if (!ok) {
+        showError("Could not copy to clipboard");
 
-    showSuccess("Copied work item stub to clipboard");
-    setCopied(true);
-    window.setTimeout(() => {
-      setCopied(false);
-    }, 2_000);
-  }, [format, row.findingId, row.findingTitle, row.ruleId, runId]);
+        return;
+      }
+
+      showSuccess(kind === "jira" ? "Copied for Jira" : "Copied work item to clipboard");
+      setCopied(kind);
+      resetCopied();
+    },
+    [resetCopied],
+  );
+
+  const onQuickCopyJira = useCallback(async () => {
+    const text = buildTraceRowWorkItemBody("jiraWiki", buildRowInput());
+    await copyText(text, "jira");
+  }, [buildRowInput, copyText]);
+
+  const onCopySelectedFormat = useCallback(async () => {
+    const text = buildTraceRowWorkItemBody(format, buildRowInput());
+    await copyText(text, "selected");
+  }, [buildRowInput, copyText, format]);
 
   return (
-    <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center">
-      <Select
-        value={format}
-        onValueChange={(v) => {
-          setFormat(v as WorkItemClipboardFormat);
-        }}
-      >
-        <SelectTrigger className="h-7 w-[9.5rem] text-[0.65rem]" aria-label="Work item format for this row">
-          <SelectValue placeholder="Format" />
-        </SelectTrigger>
-        <SelectContent>
-          {FORMAT_ITEMS.map((item) => (
-            <SelectItem key={item.value} value={item.value} className="text-xs">
-              {item.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        className="h-7 gap-1 px-2 text-[0.65rem]"
-        aria-label="Copy finding as work item to clipboard"
-        onClick={() => {
-          void onCopy();
-        }}
-      >
-        {copied ? <Check className="size-3 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3" aria-hidden />}
-        Copy item
-      </Button>
-    </div>
+    <WorkItemCopyControls
+      format={format}
+      onFormatChange={setFormat}
+      copied={copied}
+      onQuickCopyJira={() => {
+        void onQuickCopyJira();
+      }}
+      onCopySelectedFormat={() => {
+        void onCopySelectedFormat();
+      }}
+      compact
+      selectedFormatTestId="copy-trace-row-work-item-selected-format"
+    />
   );
 }

@@ -28,6 +28,7 @@ import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWor
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
+import { downloadGovernanceFindingsItsmJsonExport } from "@/lib/run-findings-itsm-export";
 import {
   readGroupByResourcePreference,
   writeGroupByResourcePreference,
@@ -790,6 +791,18 @@ export default function GovernanceFindingsQueueClient() {
                 onClick={() => downloadArchitectureRiskRegisterCsv(displayedRows)}
               >
                 Export CSV
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                data-testid="governance-findings-export-json-button"
+                onClick={() => {
+                  const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
+                  downloadGovernanceFindingsItsmJsonExport(displayedRows, siteOrigin);
+                }}
+              >
+                Export JSON (work items)
               </Button>
               <Button
                 type="button"
