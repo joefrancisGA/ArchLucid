@@ -1,4 +1,4 @@
-using ArchLucid.Api.Validators;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;

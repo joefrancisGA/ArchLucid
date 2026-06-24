@@ -240,6 +240,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();
         services.AddScoped<IPolicyPackGovernanceDryRunService, PolicyPackGovernanceDryRunService>();
         services.AddSingleton<IPolicyPackSchemaKeysService, PolicyPackSchemaKeysService>();
+        services.AddScoped<IPolicyPackContentAuthoringValidationService, PolicyPackContentAuthoringValidationService>();
         services.AddSingleton<IPolicyPackRuleTemplatesService, PolicyPackRuleTemplatesService>();
         services.AddSingleton<IEvidencePackSourceProvider, EmbeddedResourceEvidencePackSourceProvider>();
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();

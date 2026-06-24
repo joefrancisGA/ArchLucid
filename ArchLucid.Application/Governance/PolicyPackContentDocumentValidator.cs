@@ -2,10 +2,14 @@ using ArchLucid.Contracts.Governance;
 
 using FluentValidation;
 
-namespace ArchLucid.Api.Validators;
+namespace ArchLucid.Application.Governance;
 
+/// <summary>
+///     FluentValidation rules for <see cref="PolicyPackContentDocument" /> JSON used by the API, CLI, and authoring tools.
+/// </summary>
 public sealed class PolicyPackContentDocumentValidator : AbstractValidator<PolicyPackContentDocument>
 {
+    /// <summary>Registers collection and dictionary hygiene rules.</summary>
     public PolicyPackContentDocumentValidator()
     {
         RuleFor(x => x.ComplianceRuleIds)
