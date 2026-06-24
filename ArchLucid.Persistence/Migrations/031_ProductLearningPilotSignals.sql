@@ -29,6 +29,7 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.ProductLearningPilotSignals', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProductLearningPilotSignals_ArchitectureRun')
     ALTER TABLE dbo.ProductLearningPilotSignals ADD CONSTRAINT FK_ProductLearningPilotSignals_ArchitectureRun
         FOREIGN KEY (ArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);

@@ -804,9 +804,18 @@ BEGIN
         RequestFingerprint VARBINARY(32) NOT NULL,
         RunId NVARCHAR(64) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash),
-        CONSTRAINT FK_ArchitectureRunIdempotency_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash)
     );
+END
+GO
+
+-- Legacy FK to dbo.ArchitectureRuns (dropped in 049). Skip when drift-repair replays after ArchitectureRuns is gone.
+IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ArchitectureRunIdempotency', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ArchitectureRunIdempotency_Run')
+BEGIN
+    ALTER TABLE dbo.ArchitectureRunIdempotency
+        ADD CONSTRAINT FK_ArchitectureRunIdempotency_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -1668,6 +1677,7 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.ProductLearningPilotSignals', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProductLearningPilotSignals_ArchitectureRun')
     ALTER TABLE dbo.ProductLearningPilotSignals ADD CONSTRAINT FK_ProductLearningPilotSignals_ArchitectureRun
         FOREIGN KEY (ArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
@@ -1772,6 +1782,7 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProductLearningImprovementPlanArchitectureRuns_Run')
     ALTER TABLE dbo.ProductLearningImprovementPlanArchitectureRuns ADD CONSTRAINT FK_ProductLearningImprovementPlanArchitectureRuns_Run
         FOREIGN KEY (ArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
@@ -1905,6 +1916,7 @@ IF OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U') IS NOT NULL
 GO
 
 IF OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_EvolutionSimulationRuns_ArchitectureRun')
     ALTER TABLE dbo.EvolutionSimulationRuns ADD CONSTRAINT FK_EvolutionSimulationRuns_ArchitectureRun
         FOREIGN KEY (BaselineArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
@@ -2088,13 +2100,16 @@ GO
 /* ---- 039_RowVersion_OptimisticConcurrency.sql ---- */
 -- Adds ROWVERSION columns for optimistic concurrency on high-churn tables (Runs wired in app code; others reserved for future updates).
 
-IF COL_LENGTH('dbo.Runs', 'RowVersionStamp') IS NULL
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.Runs ADD RowVersionStamp ROWVERSION;
 
-IF COL_LENGTH('dbo.GoldenManifests', 'RowVersionStamp') IS NULL
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.GoldenManifests ADD RowVersionStamp ROWVERSION;
 
-IF COL_LENGTH('dbo.PolicyPackAssignments', 'RowVersionStamp') IS NULL
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.PolicyPackAssignments ADD RowVersionStamp ROWVERSION;
 
 GO

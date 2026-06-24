@@ -256,6 +256,40 @@ public sealed class SqlItsmFindingCorrelationRepositoryInboundSnapshotScopingSql
                 GoldenManifestId = goldenManifestId
             });
 
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        DateTime snapshotUtc = completedUtc.AddMinutes(-4);
+
+        await AuthorityRunChainTestSeed.InsertContextSnapshotHeaderAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            projectId,
+            contextSnapshotId,
+            runId,
+            "tb390",
+            snapshotUtc,
+            "[]",
+            null,
+            "[]",
+            "[]",
+            "{}",
+            CancellationToken.None);
+
+        await AuthorityRunChainTestSeed.InsertGraphSnapshotHeaderAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            projectId,
+            graphSnapshotId,
+            contextSnapshotId,
+            runId,
+            snapshotUtc,
+            "[]",
+            "[]",
+            "[]",
+            CancellationToken.None);
+
         const string insertFindingsSnapshot = """
                                               INSERT INTO dbo.FindingsSnapshots
                                               (
@@ -264,7 +298,7 @@ public sealed class SqlItsmFindingCorrelationRepositoryInboundSnapshotScopingSql
                                               )
                                               VALUES
                                               (
-                                                  @FindingsSnapshotId, @RunId, @RunId, @RunId,
+                                                  @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
                                                   @TenantId, @WorkspaceId, @ProjectId, @CreatedUtc, 1, N'[]'
                                               );
                                               """;
@@ -275,10 +309,12 @@ public sealed class SqlItsmFindingCorrelationRepositoryInboundSnapshotScopingSql
             {
                 FindingsSnapshotId = findingsSnapshotId,
                 RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
                 TenantId = tenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
-                CreatedUtc = completedUtc.AddMinutes(-4)
+                CreatedUtc = snapshotUtc
             });
 
         await connection.ExecuteAsync(

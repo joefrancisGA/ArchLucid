@@ -82,6 +82,9 @@ public sealed class PolicyPackResolverTests
 
         PolicyPackAssignment assignment = new()
         {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
             PolicyPackId = packId,
             PolicyPackVersion = versionLabel,
             IsEnabled = true
@@ -222,12 +225,18 @@ public sealed class PolicyPackResolverTests
         [
             new()
             {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
                 PolicyPackId = packA,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true
             },
             new()
             {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
                 PolicyPackId = packB,
                 PolicyPackVersion = "2.0.0",
                 IsEnabled = true

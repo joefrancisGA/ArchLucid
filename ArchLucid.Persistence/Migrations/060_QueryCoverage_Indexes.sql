@@ -95,7 +95,8 @@ END
 
 -- PolicyPackAssignments: ListByScopeAsync filters ArchivedUtc IS NULL with OR-based ScopeLevel checks.
 -- Existing indexes do not include ArchivedUtc filter.
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_PolicyPackAssignments_Scope_Active'
       AND object_id = OBJECT_ID(N'dbo.PolicyPackAssignments'))
