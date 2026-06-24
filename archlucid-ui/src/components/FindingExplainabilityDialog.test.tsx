@@ -5,6 +5,10 @@ import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityD
 import * as api from "@/lib/api";
 import type { FindingExplainability } from "@/types/explanation";
 
+vi.mock("@/components/findings/FindingEvidenceGraph", () => ({
+  FindingEvidenceGraph: () => <div data-testid="finding-evidence-graph">Evidence graph mock</div>,
+}));
+
 describe("FindingExplainabilityDialog", () => {
   it("loads explainability when opened with a finding id", async () => {
     const sample: FindingExplainability = {
@@ -46,6 +50,7 @@ describe("FindingExplainabilityDialog", () => {
     });
 
     expect(screen.getByTestId("explainability-trace-tree")).toBeInTheDocument();
+    expect(screen.getByTestId("finding-evidence-graph")).toBeInTheDocument();
 
     expect(screen.getAllByText(/Narrative body\./)[0]).toBeInTheDocument();
     expect(screen.getByText("Structured evidence (deterministic)")).toBeInTheDocument();
