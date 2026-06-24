@@ -9,6 +9,7 @@ import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleto
 import { Button } from "@/components/ui/button";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
@@ -54,6 +55,12 @@ export function ReviewsNewPathSwitcher() {
   );
   const [activePath, setActivePath] = useState<ReviewsNewActivePath>("quick-review");
   const [ready, setReady] = useState(false);
+  const [showMoreIntakeOptions, setShowMoreIntakeOptions] = useState(false);
+  const commitContext = useCorePilotCommitPresentationContext();
+
+  const forceDetailedPath = baselineFirst;
+  const isFirstRunTenant = !commitContext.hasCommittedManifest;
+  const showPathSwitcher = forceDetailedPath || !isFirstRunTenant || showMoreIntakeOptions;
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -91,7 +98,7 @@ export function ReviewsNewPathSwitcher() {
       {invalidExampleTemplateId !== null ? (
         <ReviewIntakeInvalidTemplateCallout templateId={invalidExampleTemplateId} />
       ) : null}
-      {ready ? (
+      {ready && showPathSwitcher ? (
         <div
           className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
           role="tablist"
@@ -139,7 +146,25 @@ export function ReviewsNewPathSwitcher() {
           </Button>
         </div>
       ) : null}
-      {ready ? (
+      {ready && isFirstRunTenant && !showPathSwitcher ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40">
+          <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+            Streamlined first review — upload one diagram to start. Policy packs apply automatically.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setShowMoreIntakeOptions(true);
+            }}
+            data-testid="reviews-new-more-intake-options"
+          >
+            More intake options
+          </Button>
+        </div>
+      ) : null}
+      {ready && showPathSwitcher ? (
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
           {REVIEWS_NEW_PATH_HINTS[activePath]}
         </p>
@@ -147,7 +172,7 @@ export function ReviewsNewPathSwitcher() {
       {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
-      {!ready ? null : activePath === "quick-review" ? (
+      {!ready ? null : activePath === "quick-review" || (isFirstRunTenant && !showMoreIntakeOptions && !forceDetailedPath) ? (
         <FirstPilotIntakeWizard />
       ) : activePath === "guided-intake" ? (
         <SocraticIntakeWizard />

@@ -37,6 +37,7 @@ vi.mock("./QuickReviewWizardDeferredPanels", () => ({
 }));
 
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 
 import { FirstPilotIntakeWizard } from "./FirstPilotIntakeWizard";
 
@@ -47,6 +48,8 @@ describe("FirstPilotIntakeWizard", () => {
     render(<FirstPilotIntakeWizard />);
 
     expect(screen.getByText("Create review package")).toBeInTheDocument();
+    expect(screen.getByTestId("focused-pilot-policy-pack-applied-callout")).toBeTruthy();
+    expect(screen.getByTestId("first-run-intake-step-guide")).toBeTruthy();
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
       target: { value: "Retail API review" },
@@ -63,10 +66,15 @@ describe("FirstPilotIntakeWizard", () => {
       expect(createRun).toHaveBeenCalled();
     });
 
-    const body = createRun.mock.calls[0][0] as { description: string; systemName: string };
+    const body = createRun.mock.calls[0][0] as {
+      description: string;
+      systemName: string;
+      policyReferences: string[];
+    };
     expect(body.systemName).toBe("Retail API review");
     expect(body.description).toContain("network-topology.pdf");
     expect(body.description.length).toBeGreaterThanOrEqual(100);
+    expect(body.policyReferences).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
     expect(push).toHaveBeenCalledWith(buildReviewGenerationRedirect("first-pilot-run-1", "quick-review"));
   });
 
