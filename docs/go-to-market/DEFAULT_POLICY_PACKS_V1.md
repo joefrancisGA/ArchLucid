@@ -6,7 +6,7 @@
 
 **Objective:** Declare **24** first-party curated categories bundled with every net-new tenant provisioning (see `IDefaultPolicyPackSeeder` / embedded manifest `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`).
 
-> **Note:** Pack **#24 — ARC-AMPE Architecture Themes** is **designed and queued for V1** ([`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md)); JSON content is **not yet authored**. The manifest still ships **23** content files until the rule corpus lands; this row tracks scope so V1 GA copy and procurement responses are aligned.
+> **Note:** Pack **#24 — ARC-AMPE Architecture Themes** ships in the bundled manifest as `arc-ampe-architecture-themes.json` ([`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md)). The manifest ships **24** content files aligned with tenant provisioning.
 
 ## The "Brain" of the Governance Model
 
