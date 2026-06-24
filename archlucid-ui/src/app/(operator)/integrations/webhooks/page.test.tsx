@@ -1,8 +1,5 @@
 /**
  * Sanity checks for webhook settings UX wiring (validators + mocked alert-routing adapters).
- *
- * `@/components/WebhooksSettingsClient` depends on **`useOperateCapability`** and **`useNavCallerAuthorityRank`**;
- * we stub both so renders stay deterministic offline.
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -20,6 +17,7 @@ vi.mock("@/hooks/use-operate-capability", () => ({
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 2,
+  useNavCommittedArchitectureReview: () => true,
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -30,9 +28,9 @@ vi.mock("@/lib/api", () => ({
   toggleAlertRoutingSubscription: apiMocks.toggle,
 }));
 
-import WebhooksSettingsPage from "./page";
+import WebhooksIntegrationPage from "./page";
 
-describe("WebhooksSettingsPage", () => {
+describe("WebhooksIntegrationPage", () => {
   beforeEach(() => {
     apiMocks.list.mockReset();
     apiMocks.create.mockReset();
@@ -44,7 +42,7 @@ describe("WebhooksSettingsPage", () => {
   });
 
   it("submits webhook subscription payload with trimmed metadata", async () => {
-    render(<WebhooksSettingsPage />);
+    render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
       expect(apiMocks.list).toHaveBeenCalled();
@@ -64,7 +62,7 @@ describe("WebhooksSettingsPage", () => {
     });
 
     const callBody = apiMocks.create.mock.calls[0][0];
-    expect(callBody.channelType).toBe("TeamsWebhook");
+    expect(callBody.channelType).toBe("OnCallWebhook");
     expect(callBody.destination).toBe("https://listener.example/webhook");
 
     expect(typeof callBody.metadataJson).toBe("string");
@@ -105,7 +103,7 @@ describe("WebhooksSettingsPage", () => {
       responseBodyTruncated: false,
     });
 
-    render(<WebhooksSettingsPage />);
+    render(<WebhooksIntegrationPage />);
 
     await waitFor(() => {
       expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).toBeInTheDocument();

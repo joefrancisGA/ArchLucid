@@ -47,6 +47,7 @@ const OPTIONAL_PUBLISHING_KEYS = new Set<string>(["confluence", "digests_advisor
 const CONNECTOR_GROUP_BY_KEY: Record<string, ConnectorPurposeGroupId> = {
   teams: "notifications",
   slack: "notifications",
+  outbound_webhooks: "notifications",
   jira: "ticketing",
   servicenow: "ticketing",
   confluence: "publishing",
@@ -56,6 +57,7 @@ const CONNECTOR_GROUP_BY_KEY: Record<string, ConnectorPurposeGroupId> = {
 const CONNECTOR_CARD_TITLES: Record<string, string> = {
   teams: "Microsoft Teams",
   slack: "Slack",
+  outbound_webhooks: "Outbound HTTP webhooks",
   jira: "Jira ticketing",
   servicenow: "ServiceNow ticketing",
   confluence: "Confluence publishing",
@@ -134,6 +136,13 @@ export function resolveConnectorGuidance(connector: ConnectorSurfaceStatusDto, h
       }
 
       return "Add an enabled Slack webhook route to deliver alert notifications.";
+
+    case "outbound_webhooks":
+      if (humanStatus === "Ready") {
+        return "Outbound HTTPS webhook subscriptions are configured for this workspace scope.";
+      }
+
+      return "Register a webhook subscription to deliver ArchLucid events to a custom HTTPS endpoint.";
 
     case "jira":
       if (humanStatus === "Ready") {

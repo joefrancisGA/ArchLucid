@@ -147,6 +147,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
   connectorOperations: "Connector operations",
+  webhookSubscriptions: "Webhook subscriptions",
   systemHealth: "System health",
   digests: "Digests",
 } as const;

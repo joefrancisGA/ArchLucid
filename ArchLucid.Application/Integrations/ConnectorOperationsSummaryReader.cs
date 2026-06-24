@@ -85,6 +85,11 @@ public sealed class ConnectorOperationsSummaryReader(
         int slackRoutes = alertRoutes.Count(static r =>
             string.Equals(r.ChannelType, AlertRoutingChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase));
 
+        int outboundWebhookRoutes = alertRoutes.Count(static r =>
+            string.Equals(r.ChannelType, AlertRoutingChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(r.ChannelType, AlertRoutingChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(r.ChannelType, AlertRoutingChannelType.OnCallWebhook, StringComparison.OrdinalIgnoreCase));
+
         bool slackConfigured = slackRoutes > 0;
         string slackSmoke = slackConfigured ? "RouteConfigured" : "NotConfigured";
 
@@ -112,7 +117,18 @@ public sealed class ConnectorOperationsSummaryReader(
                 Summary = slackConfigured
                     ? $"{slackRoutes} enabled alert routing subscription(s) use Slack webhooks."
                     : "No enabled Slack webhook routes in this workspace scope.",
-                ConfigurationHref = "/alerts",
+                ConfigurationHref = "/alerts?tab=routing",
+            },
+            new()
+            {
+                ConnectorKey = "outbound_webhooks",
+                DisplayName = "Outbound HTTP webhooks",
+                IsConfigured = outboundWebhookRoutes > 0,
+                SmokeReadiness = outboundWebhookRoutes > 0 ? "RouteConfigured" : "NotConfigured",
+                Summary = outboundWebhookRoutes > 0
+                    ? $"{outboundWebhookRoutes} enabled outbound webhook subscription(s) deliver events over HTTPS."
+                    : "No enabled outbound webhook subscriptions in this workspace scope.",
+                ConfigurationHref = "/integrations/webhooks",
             },
             new()
             {

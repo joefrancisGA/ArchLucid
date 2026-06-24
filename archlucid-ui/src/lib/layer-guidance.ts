@@ -25,6 +25,7 @@ export type LayerGuidancePageKey =
   | "replay"
   | "graph"
   | "integrations-operations"
+  | "webhooks"
   | "governance-dashboard"
   | "governance-findings"
   | "governance-first-30-days"
@@ -91,6 +92,15 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Use this page to verify connector readiness before enabling notifications, ticket creation, publishing, or scheduled digests.",
     firstPilotNote:
       "These connectors are optional for first review value; full native Jira and ServiceNow operations are not required for Pilot proof.",
+    omitReviewPackageScopeHelp: true,
+  },
+  webhooks: {
+    layerBadge: "Integration configuration",
+    headline: "Configure outbound HTTPS webhook subscriptions for custom event delivery.",
+    useWhen:
+      "Use when you need ArchLucid to POST signed events to your own HTTPS collectors — not for standard Teams channel setup.",
+    firstPilotNote:
+      "Optional until you connect monitoring or automation; use Microsoft Teams notifications for guided Teams wiring.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-dashboard": {

@@ -12,6 +12,7 @@ import {
   Plug,
   ShieldCheck,
   Sparkles,
+  Webhook,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -76,6 +77,14 @@ export class OperateOperationsNavGroupBuilder extends NavGroupBuilderBase {
           icon: MessageSquare,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/integrations/webhooks",
+          label: OPERATOR_NAV_LINK_LABELS.webhookSubscriptions,
+          title: "Webhook subscriptions — outbound HTTPS event delivery to custom endpoints",
+          icon: Webhook,
+          tier: "advanced",
+          requiredAuthority: "ExecuteAuthority",
         },
         {
           href: "/health",

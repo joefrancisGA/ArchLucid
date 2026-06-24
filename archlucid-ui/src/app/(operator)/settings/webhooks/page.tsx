@@ -1,6 +1,6 @@
-import { WebhooksSettingsClient } from "./WebhooksSettingsClient";
+import { redirect } from "next/navigation";
 
-/** Operator settings hub for outbound HTTPS webhook integrations (URLs, secrets metadata, simulated delivery probes). */
-export default function WebhooksSettingsPage() {
-  return <WebhooksSettingsClient />;
+/** Legacy settings path — webhooks are integration configuration under Operate · operations. */
+export default function WebhooksSettingsRedirectPage() {
+  redirect("/integrations/webhooks");
 }

@@ -3,10 +3,12 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Contracts.Alerts.Delivery;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Security;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
@@ -58,6 +60,17 @@ public sealed class AlertRoutingSubscriptionsController(
         if (string.IsNullOrWhiteSpace(request.ChannelType) || string.IsNullOrWhiteSpace(request.Destination))
             return this.BadRequestProblem("ChannelType and Destination are required.", ProblemTypes.ValidationFailed);
 
+        string channelType = request.ChannelType.Trim();
+        string destination = request.Destination.Trim();
+
+        if (IsOutboundWebhookChannel(channelType))
+        {
+            string? destinationRejection = AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(destination);
+
+            if (destinationRejection is not null)
+                return this.BadRequestProblem(destinationRejection, ProblemTypes.ValidationFailed);
+        }
+
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
         AlertRoutingSubscription subscription = new()
@@ -67,8 +80,8 @@ public sealed class AlertRoutingSubscriptionsController(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             Name = string.IsNullOrWhiteSpace(request.Name) ? "Alert Routing Subscription" : request.Name.Trim(),
-            ChannelType = request.ChannelType.Trim(),
-            Destination = request.Destination.Trim(),
+            ChannelType = channelType,
+            Destination = destination,
             MinimumSeverity = string.IsNullOrWhiteSpace(request.MinimumSeverity)
                 ? AlertSeverity.Warning
                 : request.MinimumSeverity.Trim(),
@@ -182,5 +195,12 @@ public sealed class AlertRoutingSubscriptionsController(
         return subscription.TenantId == scope.TenantId &&
                subscription.WorkspaceId == scope.WorkspaceId &&
                subscription.ProjectId == scope.ProjectId;
+    }
+
+    private static bool IsOutboundWebhookChannel(string channelType)
+    {
+        return string.Equals(channelType, AlertRoutingChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(channelType, AlertRoutingChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(channelType, AlertRoutingChannelType.OnCallWebhook, StringComparison.OrdinalIgnoreCase);
     }
 }

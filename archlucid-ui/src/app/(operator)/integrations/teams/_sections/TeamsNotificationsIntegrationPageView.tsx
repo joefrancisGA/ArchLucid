@@ -38,7 +38,12 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Register the{" "}
           <strong>Key Vault secret name</strong> that holds your Teams incoming webhook URL. ArchLucid never stores the
-          webhook URL in SQL — Logic Apps or workers resolve the secret at delivery time. See{" "}
+          webhook URL in SQL — Logic Apps or workers resolve the secret at delivery time. For custom HTTPS webhook routes,
+          use{" "}
+          <Link className="text-blue-700 underline dark:text-blue-300" href="/integrations/webhooks">
+            Webhook subscriptions
+          </Link>
+          . See{" "}
           <Link
             className="text-blue-700 underline dark:text-blue-300"
             href="/help/troubleshooting"

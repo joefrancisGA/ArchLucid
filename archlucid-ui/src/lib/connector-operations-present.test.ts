@@ -59,11 +59,12 @@ describe("connector-operations-present", () => {
   it("groups connectors by purpose", () => {
     const grouped = groupConnectorsByPurpose([
       connector({ connectorKey: "teams" }),
+      connector({ connectorKey: "outbound_webhooks" }),
       connector({ connectorKey: "jira" }),
       connector({ connectorKey: "confluence" }),
     ]);
 
-    expect(grouped.get("notifications")?.map((row) => row.connectorKey)).toEqual(["teams"]);
+    expect(grouped.get("notifications")?.map((row) => row.connectorKey)).toEqual(["teams", "outbound_webhooks"]);
     expect(grouped.get("ticketing")?.map((row) => row.connectorKey)).toEqual(["jira"]);
     expect(grouped.get("publishing")?.map((row) => row.connectorKey)).toEqual(["confluence"]);
   });

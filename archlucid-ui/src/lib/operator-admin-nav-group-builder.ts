@@ -100,14 +100,6 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
-          href: "/settings/webhooks",
-          label: "Webhooks",
-          title: "Webhooks — outbound HTTPS subscriptions, secrets, and connectivity tests",
-          icon: Webhook,
-          tier: "extended",
-          requiredAuthority: "ExecuteAuthority",
-        },
-        {
           href: "/settings/cloud-connections",
           label: "Cloud connections",
           title: "Cloud connections — Tier 2 continuous ingestion setup",

@@ -131,8 +131,10 @@ describe("nav-config structure", () => {
       "/alerts",
     ]);
     expect(operationsHrefs).toContain("/integrations/teams");
+    expect(operationsHrefs).toContain("/integrations/webhooks");
     expect(operationsHrefs).toContain("/replay");
     expect(operationsHrefs).not.toContain("/portfolio");
     expect(governanceHrefs).not.toContain("/integrations/teams");
+    expect(governanceHrefs).not.toContain("/integrations/webhooks");
   });
 });
