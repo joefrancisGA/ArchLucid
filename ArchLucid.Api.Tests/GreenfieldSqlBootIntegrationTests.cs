@@ -15,6 +15,7 @@ namespace ArchLucid.Api.Tests;
 ///     surface.
 /// </summary>
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class GreenfieldSqlBootIntegrationTests

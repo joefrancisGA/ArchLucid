@@ -36,11 +36,37 @@ async function waitForGraphScreenshotSettled(page: Page, href: string): Promise<
 }
 
 function isAuditSearchProxyResponse(candidate: Response): boolean {
+  const url = candidate.url();
+
   return (
-    candidate.url().includes("/v1/audit/search") &&
+    url.includes("/v1/audit/search") &&
     candidate.request().method() === "GET" &&
     candidate.ok()
   );
+}
+
+async function auditScreenshotHasPopulatedResults(page: Page): Promise<boolean> {
+  if (await auditScreenshotSummaryShowsRows(page)) {
+    return true;
+  }
+
+  if (await auditScreenshotTimelineHasRows(page)) {
+    return true;
+  }
+
+  if ((await page.getByTestId("audit-buyer-sample-timeline-chip").count()) > 0) {
+    await page.getByTestId("audit-buyer-sample-timeline-chip").scrollIntoViewIfNeeded().catch(() => undefined);
+
+    if (await auditScreenshotTimelineHasRows(page)) {
+      return true;
+    }
+
+    if (await auditScreenshotSummaryShowsRows(page)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 async function auditScreenshotTimelineHasRows(page: Page): Promise<boolean> {
@@ -112,11 +138,7 @@ async function waitForAuditSearchSummaryNonEmpty(page: Page, href: string): Prom
   await expect
     .poll(
       async () => {
-        if (await auditScreenshotSummaryShowsRows(page)) {
-          return true;
-        }
-
-        if (await auditScreenshotTimelineHasRows(page)) {
+        if (await auditScreenshotHasPopulatedResults(page)) {
           return true;
         }
 

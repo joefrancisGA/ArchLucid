@@ -19,6 +19,7 @@ namespace ArchLucid.Api.Tests.Integrations;
 ///     <c>docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md</c> (integration-events HEC section).
 /// </remarks>
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 public sealed class InboundWebhookHmacSignatureIntegrationTests
 {
     private const string JiraSecret = "integration-test-jira-webhook-hmac-secret";

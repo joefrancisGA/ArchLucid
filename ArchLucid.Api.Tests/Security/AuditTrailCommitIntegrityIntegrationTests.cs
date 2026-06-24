@@ -18,6 +18,7 @@ namespace ArchLucid.Api.Tests.Security;
 ///     TB-290: commit path produces durable audit events queryable by run id with tenant isolation.
 /// </summary>
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class AuditTrailCommitIntegrityIntegrationTests
 {

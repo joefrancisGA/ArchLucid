@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
@@ -18,6 +18,14 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
  */
 const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open signed record|Signed review record|Review package|Finalized review package)$/i;
 
+/** Branded 404 marker is sr-only; assert visible recovery copy plus attached test id. */
+async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
+  await expect(
+    page.getByRole("heading", { name: /We could not find that ArchLucid artifact/i }),
+  ).toBeVisible();
+  await expect(page.getByTestId("branded-not-found")).toBeAttached();
+}
+
 /** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
 function showcaseDemoReviewDetailUrlPattern(): RegExp {
   return new RegExp(`/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}`);
@@ -31,7 +39,7 @@ function showcaseDemoReviewDetailUrlPattern(): RegExp {
 test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", () => {
   test("policy pack rejects literal undefined token route @demo-readiness", async ({ page }) => {
     await page.goto("/governance/policy-packs/undefined");
-    await expect(page.getByTestId("branded-not-found")).toBeVisible();
+    await expectBrandedNotFoundSurface(page);
   });
 
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
@@ -215,9 +223,9 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
   test("invalid manifest and run route tokens surface branded not-found @demo-readiness", async ({ page }) => {
     await page.goto("/manifests/undefined");
-    await expect(page.getByTestId("branded-not-found")).toBeVisible();
+    await expectBrandedNotFoundSurface(page);
 
     await page.goto("/reviews/undefined");
-    await expect(page.getByTestId("branded-not-found")).toBeVisible();
+    await expectBrandedNotFoundSurface(page);
   });
 });

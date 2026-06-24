@@ -77,6 +77,10 @@ export async function waitForExecutiveRoiExportResponse(page: Page): Promise<Exe
 
   await page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
 
+  // Portfolio layout mounts export fetch only after summary hydration on cold CI agents.
+  await page.getByText("Savings by environment").scrollIntoViewIfNeeded({ timeout: 30_000 }).catch(() => undefined);
+  await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 });
+
   try {
     const response = await exportResponsePromise;
 

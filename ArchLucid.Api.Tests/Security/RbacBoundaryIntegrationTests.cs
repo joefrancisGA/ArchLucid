@@ -23,6 +23,7 @@ namespace ArchLucid.Api.Tests.Security;
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
     : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
 {
