@@ -20,7 +20,7 @@ public sealed class AgentOutputQualityGateOptionsTests
 
         o.Mode.Should().Be(AgentOutputQualityGateMode.WarnOnly);
         o.PilotStrictMinStructuralCompleteness.Should().Be(0.90);
-        o.PilotStrictMinSemanticScore.Should().Be(0.50);
+        o.PilotStrictMinSemanticScore.Should().Be(0.55);
         o.PilotStrictMinEvidenceRefCount.Should().Be(2);
         o.PilotStrictMinFaithfulnessSupportRatio.Should().BeNull();
         o.PilotStrictMinAgentResultFaithfulnessSupportRatio.Should().BeNull();
@@ -29,7 +29,7 @@ public sealed class AgentOutputQualityGateOptionsTests
         o.StructuralWarnBelow.Should().Be(0.85);
         o.SemanticWarnBelow.Should().Be(0.65);
         o.StructuralRejectBelow.Should().Be(0.7);
-        o.SemanticRejectBelow.Should().Be(0.5);
+        o.SemanticRejectBelow.Should().Be(0.55);
         o.PerAgentTypeFloors.Should().BeEmpty();
         o.EnforceOnReject.Should().BeFalse();
         o.BlockRunOnReject.Should().BeFalse();

@@ -38,7 +38,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    } = 0.50;
+    } = 0.55;
 
     /// <summary>
     ///     When non-zero and mode is <see cref="AgentOutputQualityGateMode.PilotStrict"/>, the top-level JSON
@@ -132,7 +132,7 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    } = 0.5;
+    } = 0.55;
 
     /// <summary>
     ///     Optional per-agent overrides for warn/reject floors. Dictionary keys match

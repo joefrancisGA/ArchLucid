@@ -35,7 +35,7 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
 
         options.PerAgentTypeFloors.Should().ContainKey("Critic");
         options.PerAgentTypeFloors["Critic"].StructuralRejectBelow.Should().Be(0.65);
-        options.PerAgentTypeFloors["Critic"].SemanticRejectBelow.Should().Be(0.5);
+        options.PerAgentTypeFloors["Critic"].SemanticRejectBelow.Should().Be(0.55);
     }
 
     [SkippableFact]
@@ -58,11 +58,11 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
         options.BlockRunOnReject.Should().BeTrue();
         options.PilotStrictMinEvidenceRefCount.Should().Be(2);
         options.PilotStrictMinStructuralCompleteness.Should().Be(0.9);
-        options.PilotStrictMinSemanticScore.Should().Be(0.5);
-        options.PilotStrictMinFaithfulnessSupportRatio.Should().Be(0.6);
+        options.PilotStrictMinSemanticScore.Should().Be(0.55);
+        options.PilotStrictMinFaithfulnessSupportRatio.Should().Be(0.65);
         options.PilotStrictMinAgentResultFaithfulnessSupportRatio.Should().Be(0.7);
         options.StructuralRejectBelow.Should().Be(0.7);
-        options.SemanticRejectBelow.Should().Be(0.5);
+        options.SemanticRejectBelow.Should().Be(0.55);
         AssertLockedPerAgentRejectFloors(options);
     }
 

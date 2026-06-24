@@ -154,11 +154,14 @@ internal static class ConfigLintReportBuilder
         List<ConfigLintReportFinding> blocking,
         List<ConfigLintReportFinding> advisory)
     {
+        string[] promotedRuleNames =
+        [
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike,
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGatePilotStrictThresholdsTooLooseInProductionLike,
+        ];
+
         List<ConfigLintReportFinding> promoted = advisory
-            .Where(static f => string.Equals(
-                f.RuleName,
-                ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike,
-                StringComparison.Ordinal))
+            .Where(f => promotedRuleNames.Contains(f.RuleName, StringComparer.Ordinal))
             .Select(static f => new ConfigLintReportFinding
             {
                 RuleName = f.RuleName,
@@ -175,10 +178,7 @@ internal static class ConfigLintReportBuilder
         if (promoted.Count == 0)
             return;
 
-        advisory.RemoveAll(static f => string.Equals(
-            f.RuleName,
-            ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike,
-            StringComparison.Ordinal));
+        advisory.RemoveAll(f => promotedRuleNames.Contains(f.RuleName, StringComparer.Ordinal));
 
         blocking.AddRange(promoted);
     }

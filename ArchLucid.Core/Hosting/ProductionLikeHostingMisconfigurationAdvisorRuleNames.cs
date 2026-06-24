@@ -61,4 +61,11 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
     /// </summary>
     public const string QualityGateWarnOnlyInRealProductionLike =
         "quality_gate_warn_only_in_real_production_like";
+
+    /// <summary>
+    ///     PilotStrict semantic/faithfulness floors below hosted-pilot minimums on production-like hosting.
+    ///     Advisory in general lint; blocking under <c>production-like-hosted-pilot</c> profile.
+    /// </summary>
+    public const string QualityGatePilotStrictThresholdsTooLooseInProductionLike =
+        "quality_gate_pilot_strict_thresholds_too_loose_in_production_like";
 }

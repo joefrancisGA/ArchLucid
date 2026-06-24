@@ -69,4 +69,30 @@ public sealed class ConfigLintReportBuilderTests
             == ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike);
         document.AdvisoryFindings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Build_productionLikeHostedPilotProfile_promotes_pilot_strict_thresholds_to_blocking()
+    {
+        HostingMisconfigurationWarning warning = new(
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames
+                .QualityGatePilotStrictThresholdsTooLooseInProductionLike,
+            "PilotStrict thresholds too loose.");
+
+        OperatorConfigurationLintSnapshot snapshot = new(
+            Environments.Production,
+            [],
+            [warning]);
+
+        ConfigLintReportDocument document = ConfigLintReportBuilder.Build(
+            snapshot,
+            ConfigLintProfileNames.ProductionLikeHostedPilot);
+
+        document.Disposition.Should().Be("HOLD");
+        document.Ok.Should().BeFalse();
+        document.BlockingFindings.Should().ContainSingle(static f =>
+            f.RuleName
+            == ProductionLikeHostingMisconfigurationAdvisorRuleNames
+                .QualityGatePilotStrictThresholdsTooLooseInProductionLike);
+        document.AdvisoryFindings.Should().BeEmpty();
+    }
 }

@@ -90,6 +90,13 @@ internal static class ConfigLintFindingGuidance
                     "Set Mode=PilotStrict with faithfulness floors on production-like hosts, or stay on Simulator until PilotStrict is configured.",
                     "config-lint-production-like-hosted-pilot.json · go-no-go-summary.md"),
 
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGatePilotStrictThresholdsTooLooseInProductionLike =>
+                new Guidance(
+                    "PilotStrict on production-like hosting with loose semantic/faithfulness floors lets generic LLM output reach sponsor proof.",
+                    "ArchLucid:AgentOutput:QualityGate:Mode; ArchLucid:AgentOutput:QualityGate:SemanticRejectBelow; ArchLucid:AgentOutput:QualityGate:PilotStrictMinSemanticScore; ArchLucid:AgentOutput:QualityGate:PilotStrictMinFaithfulnessSupportRatio; ArchLucid:AgentOutput:QualityGate:PerAgentTypeFloors:Critic:SemanticRejectBelow; ArchLucid:AgentOutput:QualityGate:EnforceOnReject; ArchLucid:AgentOutput:QualityGate:BlockRunOnReject",
+                    "Match Staging/Production appsettings: SemanticRejectBelow≥0.55, PilotStrictMinSemanticScore≥0.55, PilotStrictMinFaithfulnessSupportRatio≥0.65, Critic semantic reject≥0.55, EnforceOnReject and BlockRunOnReject true.",
+                    "config-lint-production-like-hosted-pilot.json · go-no-go-summary.md"),
+
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.CorsAllowedOriginsEmptyProductionLikeHost =>
                 new Guidance(
                     "Browser clients on staging/production-like hosts need explicit CORS origins.",

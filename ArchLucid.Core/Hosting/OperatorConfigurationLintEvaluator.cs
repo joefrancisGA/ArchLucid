@@ -49,6 +49,14 @@ public static class OperatorConfigurationLintEvaluator
         if (qualityGateWarnOnly is not null)
             advisory.Add(qualityGateWarnOnly.Value);
 
+        HostingMisconfigurationWarning? pilotStrictThresholds =
+            QualityGatePilotStrictThresholdsProductionLikeConfigurationLint.TryDescribeAdvisoryFinding(
+                configuration,
+                trimmedEnv);
+
+        if (pilotStrictThresholds is not null)
+            advisory.Add(pilotStrictThresholds.Value);
+
         HostingMisconfigurationWarning? openAiConnectivity =
             AzureOpenAiEndpointConnectivityLintAdvisor.TryDescribeConnectivityFinding(
                 configuration,
