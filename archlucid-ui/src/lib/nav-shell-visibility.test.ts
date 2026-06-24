@@ -141,13 +141,13 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible).toEqual([]);
   });
 
-  it("shows system health for Admin rank when advanced and extended disclosure are on", () => {
-    const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
+  it("shows system health in System Administration for Admin rank when advanced and extended disclosure are on", () => {
+    const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
 
-    expect(admin).toBeDefined();
+    expect(systemAdmin).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
-      admin!.links,
+      systemAdmin!.links,
       true,
       true,
       AUTHORITY_RANK.AdminAuthority,
@@ -163,13 +163,13 @@ describe("filterNavLinksForOperatorShell", () => {
    * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
    * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
    */
-  it("hides Operations extended Execute link (/replay) until showExtended even for Admin rank", () => {
-    const operations = NAV_GROUPS.find((g) => g.id === "operate-operations");
+  it("hides System Administration extended Execute link (/replay) until showExtended even for Admin rank", () => {
+    const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
 
-    expect(operations).toBeDefined();
+    expect(systemAdmin).toBeDefined();
 
     const extendedOff = filterNavLinksForOperatorShell(
-      operations!.links,
+      systemAdmin!.links,
       false,
       false,
       AUTHORITY_RANK.AdminAuthority,
@@ -180,7 +180,7 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(extendedOff.some((l) => l.href === "/replay")).toBe(false);
 
     const extendedOn = filterNavLinksForOperatorShell(
-      operations!.links,
+      systemAdmin!.links,
       true,
       false,
       AUTHORITY_RANK.AdminAuthority,
@@ -432,7 +432,7 @@ describe("countSidebarLinksRevealedByShowAllFeatures", () => {
 
 describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
-  const operations = NAV_GROUPS.find((g) => g.id === "operate-operations");
+  const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
   const prevDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
   const prevStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
@@ -466,8 +466,8 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     expect(visible.some((l) => l.href === "/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/audit")).toBe(true);
 
-    const operationsVisible = filterNavLinksForOperatorShell(
-      operations!.links,
+    const systemAdminVisible = filterNavLinksForOperatorShell(
+      systemAdmin!.links,
       true,
       true,
       AUTHORITY_RANK.AdminAuthority,
@@ -475,7 +475,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(operationsVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+    expect(systemAdminVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
   it("keeps governance destinations visible when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true", () => {
@@ -495,8 +495,8 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     expect(visible.some((l) => l.href === "/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/audit")).toBe(true);
 
-    const operationsVisible = filterNavLinksForOperatorShell(
-      operations!.links,
+    const systemAdminVisible = filterNavLinksForOperatorShell(
+      systemAdmin!.links,
       true,
       true,
       AUTHORITY_RANK.AdminAuthority,
@@ -504,7 +504,7 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(operationsVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+    expect(systemAdminVisible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 
   it("keeps operator-admin links visible in buyer-polished demo builds", () => {
@@ -522,8 +522,8 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
     expect(visible.some((l) => l.href === "/admin/users")).toBe(true);
+    expect(visible.some((l) => l.href === "/settings/tenant")).toBe(true);
   });
 });
 
@@ -540,7 +540,7 @@ describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () =>
     );
 
     expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
-    expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/health")).toBe(true);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/users")).toBe(true);
     expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/pricing-quote-aging")).toBe(false);
   });
 });
@@ -578,12 +578,9 @@ describe("listNavGroupsVisibleInOperatorShell — system-admin surface", () => {
     );
 
     expect(visible.map((r) => r.group.id)).toEqual(["operator-system-admin"]);
-    expect(visible[0]!.visibleLinks.map((l) => l.href)).toEqual([
-      "/admin/pricing-quote-aging",
-      "/admin/trial-funnel",
-      "/admin/fleet-llm-cogs",
-      "/admin/tenant-health",
-    ]);
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/pricing-quote-aging");
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/admin/rag-health");
+    expect(visible[0]!.visibleLinks.map((l) => l.href)).toContain("/replay");
   });
 });
 
@@ -664,7 +661,7 @@ describe("buyer-polished shell nav narrowing", () => {
     const visible = filterNavLinksForOperatorShell(op!.links, true, true, AUTHORITY_RANK.AdminAuthority, false, true);
 
     expect(visible.map((l) => l.href)).toEqual(
-      expect.arrayContaining(["/ask", "/search", "/advisory"]),
+      expect.arrayContaining(["/ask", "/search", "/compare"]),
     );
 
     vi.unstubAllEnvs();

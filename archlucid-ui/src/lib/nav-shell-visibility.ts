@@ -6,7 +6,7 @@ import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committ
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   filterNavLinksByOperateUnlockPhase,
@@ -197,7 +197,7 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
-    if (group.surface === "system-admin" && !isArchLucidInternalOperatorShellEnv()) {
+    if (group.surface === "system-admin" && !isShowSystemAdministrationNavEnabled()) {
       continue;
     }
 

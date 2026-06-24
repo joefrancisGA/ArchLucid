@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 
-import { OperateOperationsNavGroupBuilder } from "@/lib/operate-operations-nav-group-builder";
+import { OperatorSystemAdminNavGroupBuilder } from "@/lib/operator-system-admin-nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
@@ -39,8 +39,8 @@ describe("PilotNavGroupBuilder", () => {
     expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
   });
 
-  it("includes recurrence schedules in the operations nav group for post-commit operating rhythm", () => {
-    const group = new OperateOperationsNavGroupBuilder().build();
+  it("includes recurrence schedules in the system administration nav group", () => {
+    const group = new OperatorSystemAdminNavGroupBuilder().build();
     const recurrenceLink = group.links.find((link) => link.href === "/governance/recurrence-schedules");
 
     expect(recurrenceLink).toBeDefined();

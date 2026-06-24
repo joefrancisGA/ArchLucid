@@ -12,23 +12,29 @@ describe("sidebar-nav-group-expansion-storage", () => {
     localStorage.clear();
   });
 
-  it("defaults all collapsible groups to collapsed for fresh users", () => {
+  it("defaults review work expanded and deeper groups collapsed for fresh users", () => {
     expect(readSidebarNavGroupExpansionState()).toEqual(SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION);
   });
 
   it("persists expanded groups in versioned storage", () => {
     writeSidebarNavGroupExpansionState({
+      pilot: true,
       "operate-analysis": true,
       "operate-governance": false,
-      "operate-operations": false,
+      "operate-reports": false,
+      "operate-integrations": false,
       "operator-admin": true,
+      "operator-system-admin": false,
     });
 
     expect(readSidebarNavGroupExpansionState()).toEqual({
+      pilot: true,
       "operate-analysis": true,
       "operate-governance": false,
-      "operate-operations": false,
+      "operate-reports": false,
+      "operate-integrations": false,
       "operator-admin": true,
+      "operator-system-admin": false,
     });
   });
 
@@ -47,7 +53,8 @@ describe("sidebar-nav-group-expansion-storage", () => {
 
     expect(state["operate-analysis"]).toBe(true);
     expect(state["operate-governance"]).toBe(true);
-    expect(state["operate-operations"]).toBe(true);
+    expect(state["operate-reports"]).toBe(true);
+    expect(state["operate-integrations"]).toBe(true);
   });
 
   it("ignores corrupt v2 JSON safely and falls back to defaults when no legacy keys exist", () => {

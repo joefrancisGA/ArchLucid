@@ -4,9 +4,11 @@ import { OPERATE_NAV_UNLOCK_STORAGE_KEY } from "@/lib/usability/operate-nav-prog
 export const SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY = "archlucid_nav_sidebar_groups.v2";
 
 export type SidebarCollapsibleNavGroupId =
+  | "pilot"
   | "operate-analysis"
   | "operate-governance"
-  | "operate-operations"
+  | "operate-reports"
+  | "operate-integrations"
   | "operator-admin"
   | "operator-system-admin";
 
@@ -19,9 +21,11 @@ const LEGACY_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
 const LEGACY_COLLAPSED_PILOT_EXPANDED_KEY = "archlucid-nav-collapsed-pilot-expanded";
 
 export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState = {
+  pilot: true,
   "operate-analysis": false,
   "operate-governance": false,
-  "operate-operations": false,
+  "operate-reports": false,
+  "operate-integrations": false,
   "operator-admin": false,
   "operator-system-admin": false,
 };
@@ -83,13 +87,16 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
     })();
 
   const analysisExpanded = showExtended || expandAll || collapsedPilotExpanded;
-  const operationsExpanded = analysisExpanded;
+  const reportsExpanded = analysisExpanded;
+  const integrationsExpanded = analysisExpanded;
   const governanceExpanded = showAdvanced || expandAll || governancePhase;
 
   return {
+    pilot: true,
     "operate-analysis": analysisExpanded,
     "operate-governance": governanceExpanded,
-    "operate-operations": operationsExpanded,
+    "operate-reports": reportsExpanded,
+    "operate-integrations": integrationsExpanded,
     "operator-admin": showAdministration,
     "operator-system-admin": false,
   };
@@ -104,11 +111,14 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
     }
 
     const record = parsed as Record<string, unknown>;
+    const legacyOperationsExpanded = record["operate-operations"] === true;
 
     return {
+      pilot: record.pilot !== false,
       "operate-analysis": record["operate-analysis"] === true,
       "operate-governance": record["operate-governance"] === true,
-      "operate-operations": record["operate-operations"] === true,
+      "operate-reports": record["operate-reports"] === true || legacyOperationsExpanded,
+      "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
       "operator-admin": record["operator-admin"] === true,
       "operator-system-admin": record["operator-system-admin"] === true,
     };
@@ -162,9 +172,11 @@ export function writeSidebarNavGroupExpansionState(state: SidebarNavGroupExpansi
 
 export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is SidebarCollapsibleNavGroupId {
   return (
+    groupId === "pilot" ||
     groupId === "operate-analysis" ||
     groupId === "operate-governance" ||
-    groupId === "operate-operations" ||
+    groupId === "operate-reports" ||
+    groupId === "operate-integrations" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"
   );

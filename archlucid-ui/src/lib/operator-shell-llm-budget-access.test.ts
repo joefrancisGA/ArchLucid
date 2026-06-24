@@ -9,6 +9,6 @@ describe("operator shell LLM budget access (TB-350)", () => {
     const costReporting = links.find((link) => link.href === "/settings/cost-reporting");
 
     expect(costReporting).toBeDefined();
-    expect(costReporting?.label).toBe("Cost reporting");
+    expect(costReporting?.label).toBe("Tenant cost");
   });
 });

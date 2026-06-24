@@ -6,11 +6,11 @@ import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("committed architecture review nav promotion", () => {
   const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
-  const operations = NAV_GROUPS.find((g) => g.id === "operate-operations");
+  const systemAdmin = NAV_GROUPS.find((g) => g.id === "operator-system-admin");
 
-  it("promotes Compare and Export to essential tier but keeps them out of the collapsed sidebar clusters", () => {
+  it("promotes Compare to essential tier but keeps it out of the collapsed sidebar clusters", () => {
     expect(analysis).toBeDefined();
-    expect(operations).toBeDefined();
+    expect(systemAdmin).toBeDefined();
 
     const collapsedAnalysis = filterNavLinksForOperatorShell(
       analysis!.links,
@@ -23,8 +23,8 @@ describe("committed architecture review nav promotion", () => {
 
     expect(collapsedAnalysis.some((l) => l.href === "/compare")).toBe(false);
 
-    const collapsedOperations = filterNavLinksForOperatorShell(
-      operations!.links,
+    const collapsedSystemAdmin = filterNavLinksForOperatorShell(
+      systemAdmin!.links,
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
@@ -32,7 +32,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(collapsedOperations.some((l) => l.href === "/value-report/pilot")).toBe(false);
+    expect(collapsedSystemAdmin.some((l) => l.href === "/value-report/pilot")).toBe(false);
 
     const expandedAnalysis = filterNavLinksForOperatorShell(
       analysis!.links,
@@ -45,8 +45,8 @@ describe("committed architecture review nav promotion", () => {
 
     expect(expandedAnalysis.some((l) => l.href === "/compare")).toBe(true);
 
-    const expandedOperations = filterNavLinksForOperatorShell(
-      operations!.links,
+    const expandedSystemAdmin = filterNavLinksForOperatorShell(
+      systemAdmin!.links,
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
@@ -54,7 +54,7 @@ describe("committed architecture review nav promotion", () => {
       true,
     );
 
-    expect(expandedOperations.some((l) => l.href === "/value-report/pilot")).toBe(true);
+    expect(expandedSystemAdmin.some((l) => l.href === "/value-report/pilot")).toBe(true);
   });
 
   it("keeps Compare hidden in collapsed sidebar before the first committed review", () => {

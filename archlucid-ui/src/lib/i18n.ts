@@ -106,6 +106,8 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Review work",
   analysis: "Analysis",
   governance: "Governance",
+  reports: "Reports",
+  integrations: "Integrations",
   operations: "Operations",
 } as const;
 
@@ -147,6 +149,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   pilotValueReport: BUYER_TERMINOLOGY.evaluationValueReport,
   roiReport: "ROI report",
   connectorOperations: "Connector operations",
+  cloudConnections: "Cloud connections",
   webhookSubscriptions: "Webhook subscriptions",
   systemHealth: "System health",
   digests: "Digests",

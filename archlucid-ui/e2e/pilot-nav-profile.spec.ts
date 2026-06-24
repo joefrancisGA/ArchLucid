@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
@@ -7,16 +7,6 @@ import { SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY } from "@/lib/sidebar-nav-group
 
 /** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */
 const TRIAL_WELCOME_HOME_REDIRECT_SESSION_KEY = "archlucid_trial_welcome_home_redirect_v1";
-
-/** Footer disclosure controls sit in the scrollable operator sidebar — scroll before click to avoid CI flake. */
-async function scrollOperatorSidebarFooterIntoView(page: Page): Promise<void> {
-  const sidebarNav = page.getByTestId("sidebar-nav");
-
-  await expect(sidebarNav).toBeVisible();
-  await sidebarNav.evaluate((element) => {
-    element.scrollTop = element.scrollHeight;
-  });
-}
 
 /** WelcomeModal (Radix Dialog overlay) and the home onboarding tour block sidebar pointer events in mock E2E. */
 async function dismissBlockingHomeModals(page: Page): Promise<void> {
@@ -103,8 +93,11 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
-    await scrollOperatorSidebarFooterIntoView(page);
-    await page.getByTestId("governance-mode-toggle").check();
+    await page.evaluate(() => {
+      localStorage.setItem("archlucid.operateNavUnlockPhase.v1", "2");
+      window.dispatchEvent(new Event("archlucid-operate-nav-unlock-changed"));
+    });
+
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
