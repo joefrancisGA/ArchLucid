@@ -3,11 +3,16 @@
  * sidebar section when the user deep-links (so diagnostics are not hidden behind a blind toggle).
  */
 export function pathnameTouchesPlatformAdminSurface(pathname: string): boolean {
-  if (pathname.startsWith("/admin")) {
-    return true;
+  if (
+    pathname.startsWith("/admin/pricing-quote-aging") ||
+    pathname.startsWith("/admin/trial-funnel") ||
+    pathname.startsWith("/admin/fleet-llm-cogs") ||
+    pathname.startsWith("/admin/tenant-health")
+  ) {
+    return false;
   }
 
-  if (pathname.startsWith("/settings/tenant-cost")) {
+  if (pathname.startsWith("/admin")) {
     return true;
   }
 

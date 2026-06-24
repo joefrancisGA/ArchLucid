@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import type { ReactElement } from "react";
 
+import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/finding-policy-evidence-citations";
@@ -74,35 +75,15 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
         </p>
       </div>
 
-      {model.pack !== null ? (
+      {hasPolicyContext ? (
         <div className="space-y-1">
           <p className={cn("m-0 font-medium text-neutral-600 dark:text-neutral-400", compact ? "text-[11px]" : "text-xs")}>
-            Policy pack
+            Policy pack and rule
           </p>
-          <ul className="m-0 list-none space-y-1.5 p-0">
-            <ProvenanceLink
-              href={model.pack.href}
-              label={model.pack.packName}
-              detail={model.pack.packId !== model.pack.packName ? model.pack.packId : null}
-              compact={compact}
-            />
-          </ul>
-        </div>
-      ) : null}
-
-      {model.policy !== null ? (
-        <div className="space-y-1">
-          <p className={cn("m-0 font-medium text-neutral-600 dark:text-neutral-400", compact ? "text-[11px]" : "text-xs")}>
-            Policy rule
+          <FindingPolicyTraceabilityBadges pack={model.pack} policy={model.policy} />
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", compact ? "text-[11px]" : "text-xs")}>
+            Select a badge to preview the rule text without leaving this review.
           </p>
-          <ul className="m-0 list-none space-y-1.5 p-0">
-            <ProvenanceLink
-              href={model.policy.href}
-              label={model.policy.ruleLabel}
-              detail={model.policy.ruleId !== model.policy.ruleLabel ? model.policy.ruleId : null}
-              compact={compact}
-            />
-          </ul>
         </div>
       ) : null}
 

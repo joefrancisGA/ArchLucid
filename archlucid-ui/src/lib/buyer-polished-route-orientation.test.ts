@@ -15,7 +15,7 @@ describe("buyerPolishedRouteOrientation", () => {
     const result = buyerPolishedRouteOrientation("/search");
 
     expect(result?.label).toBe("Search review evidence");
-    expect(result?.line).toContain("tenant-scoped");
+    expect(result?.line).toContain("across this workspace");
   });
 
   it("keeps executive summary orientation for the showcase run", () => {
@@ -53,5 +53,32 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(o?.label).toBe("Ask this review");
     expect(o?.line).toContain("signed review record");
     expect(o?.line).toContain("cite evidence");
+  });
+
+  it("orients the advisory route with recommendation copy", () => {
+    const o = buyerPolishedRouteOrientation("/advisory");
+
+    expect(o?.label).toBe("Architecture advisory");
+    expect(o?.line).toContain("Recommended changes");
+  });
+
+  it("orients advisory sub-routes (e.g. ?tab=schedules) consistently", () => {
+    const o = buyerPolishedRouteOrientation("/advisory?tab=schedules");
+
+    expect(o?.label).toBe("Architecture advisory");
+  });
+
+  it("orients the operator security-trust route for procurement reviewers", () => {
+    const o = buyerPolishedRouteOrientation("/workspace/security-trust");
+
+    expect(o?.label).toBe("Security & trust");
+    expect(o?.line).toContain("Procurement-facing security posture");
+  });
+
+  it("orients the sponsor value report route", () => {
+    const o = buyerPolishedRouteOrientation("/value-report");
+
+    expect(o?.label).toBe("Value report");
+    expect(o?.line).toContain("sponsor-ready summaries");
   });
 });

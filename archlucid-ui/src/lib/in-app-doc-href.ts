@@ -71,6 +71,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/go-to-market/order_form_template.md": "executive-summary",
   "docs/security/multi_tenant_rls.md": "audit-trail",
   "docs/security/caiq_lite_2026.md": "audit-trail",
+  "docs/security/soc2_self_assessment_2026.md": "audit-trail",
   "docs/security/sig_core_2026.md": "audit-trail",
   "docs/security/compliance_matrix.md": "audit-trail",
   "docs/go-to-market/dpa_template.md": "audit-trail",

@@ -1,22 +1,30 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerFacingReviewTerminology } from "./review-terminology-copy";
+import {
+  buyerFacingManifestTerminology,
+  buyerFacingReviewTerminology,
+} from "@/lib/review-terminology-copy";
+import { REVIEW_PACKAGE_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
-describe("buyerFacingReviewTerminology", () => {
-  it("maps create-runs API detail to review vocabulary", () => {
-    expect(buyerFacingReviewTerminology("Role cannot create runs")).toBe("Role cannot create reviews");
-  });
-
-  it("maps first-hour lane and sponsor copy fragments", () => {
-    expect(buyerFacingReviewTerminology("Run the assessment and track progress.")).toBe(
-      "execute the review and track progress.",
+describe("review terminology copy", () => {
+  it("maps run-primary phrases to review-first vocabulary", () => {
+    expect(buyerFacingReviewTerminology("Create runs from the wizard")).toBe(
+      "create reviews from the wizard",
     );
-    expect(
-      buyerFacingReviewTerminology("re-run on Real mode or label exports explicitly"),
-    ).toBe("re-execute in Real mode or label exports explicitly");
+    expect(buyerFacingReviewTerminology("Architecture run disposition")).toBe(
+      "architecture review disposition",
+    );
   });
 
-  it("preserves runId technical disclosures", () => {
-    expect(buyerFacingReviewTerminology("Review ID (API field: runId)")).toBe("Review ID (API field: runId)");
+  it("maps golden manifest jargon to signed review record vocabulary", () => {
+    expect(buyerFacingManifestTerminology("Golden manifest snapshot")).toBe(
+      `${SIGNED_MANIFEST_LABEL} snapshot`,
+    );
+    expect(buyerFacingManifestTerminology("Open manifest from compare")).toBe(
+      `open ${REVIEW_PACKAGE_LABEL.toLowerCase()} from compare`,
+    );
+    expect(buyerFacingReviewTerminology("Committed manifest and finding records")).toBe(
+      `committed ${REVIEW_PACKAGE_LABEL.toLowerCase()} and finding records`,
+    );
   });
 });

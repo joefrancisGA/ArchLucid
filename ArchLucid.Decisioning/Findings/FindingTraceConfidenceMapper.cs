@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Models;
@@ -33,6 +34,7 @@ public static class FindingTraceConfidenceMapper
                     MissingTraceFields = [.. score.MissingTraceFields],
                     EvaluationConfidenceScore = f.EvaluationConfidenceScore,
                     ConfidenceLevel = f.ConfidenceLevel,
+                    Classification = f.Classification ?? FindingClassification.DecisionGradeFinding,
                 });
         }
 

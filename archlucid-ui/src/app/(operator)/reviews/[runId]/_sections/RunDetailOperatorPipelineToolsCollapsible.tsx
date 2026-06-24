@@ -17,7 +17,7 @@ export function RunDetailOperatorPipelineToolsCollapsible(
     <CollapsibleSection title="Pipeline tools (operator)" defaultOpen={false}>
       <div className="flex flex-wrap gap-3">
         <Button variant="outline" size="sm" asChild>
-          <Link href={`/replay?runId=${encodeURIComponent(runId)}`}>Replay this review</Link>
+          <Link href={`/replay?runId=${encodeURIComponent(runId)}`}>Validate review package</Link>
         </Button>
       </div>
     </CollapsibleSection>

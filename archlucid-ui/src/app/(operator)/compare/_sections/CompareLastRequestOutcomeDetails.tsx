@@ -66,7 +66,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
           </span>
         </p>
         <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
-          <dt className="m-0 text-neutral-500 dark:text-neutral-400">Manifest comparison</dt>
+          <dt className="m-0 text-neutral-500 dark:text-neutral-400">Review comparison</dt>
           <dd className="m-0 text-neutral-800 dark:text-neutral-200">
             {outcomeLabel({
               hasValue: golden !== null,
@@ -74,7 +74,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
               malformed: goldenMalformed,
             })}
           </dd>
-          <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary review / manifest diff</dt>
+          <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary review / review package diff</dt>
           <dd className="m-0 text-neutral-800 dark:text-neutral-200">
             {outcomeLabel({
               hasValue: result !== null,

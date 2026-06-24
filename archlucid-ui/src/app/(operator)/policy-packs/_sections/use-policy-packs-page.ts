@@ -49,6 +49,10 @@ function pageTabFromQuery(raw: string | null): PolicyPacksPageTab {
     return "generator";
   }
 
+  if (raw === "author") {
+    return "author";
+  }
+
   return "my-packs";
 }
 
@@ -207,8 +211,16 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
     }
 
     setSelectedPackId(packIdFromUrl);
+
+    if (pageTabFromUrl === "author") {
+      setPageTab("author");
+      setAuthoringAdvancedOpen(false);
+
+      return;
+    }
+
     setPageTab("my-packs");
-  }, [packIdFromUrl, packs]);
+  }, [packIdFromUrl, packs, pageTabFromUrl]);
 
   useEffect(() => {
     if (!selectedPackId) {
@@ -445,8 +457,7 @@ export function usePolicyPacksPage(serverLoad: PolicyPacksPageServerLoad): Polic
 
   const openAuthoringWizardFromGenerator = useCallback(() => {
     setAuthoringWizardInputMode("visual");
-    setAuthoringAdvancedOpen(true);
-    setPageTab("my-packs");
+    setPageTab("author");
 
     window.setTimeout(() => {
       const wizard = globalThis.document.querySelector("[data-testid='policy-rule-authoring-wizard']");

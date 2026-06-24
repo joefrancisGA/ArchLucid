@@ -1,9 +1,12 @@
 using ArchLucid.Decisioning.Configuration;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Core.Findings;
 using ArchLucid.KnowledgeGraph.Models;
+
+using System.Text.Json;
 
 using FluentAssertions;
 
@@ -327,6 +330,60 @@ public sealed class FindingsOrchestratorTests
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
         snapshot.Findings.Single().Category.Should().Be("Requirement");
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_InvalidPayload_DropsFindingAndRecordsEngineFailure()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding invalid = new()
+        {
+            FindingId = "bad-payload",
+            FindingType = FindingTypes.RequirementFinding,
+            Category = "Requirement",
+            EngineType = "e1",
+            Title = "Missing payload",
+            Rationale = "r",
+            Severity = FindingSeverity.Info,
+            PayloadType = nameof(RequirementFindingPayload),
+            Payload = JsonSerializer.SerializeToElement(42),
+        };
+
+        Finding valid = new()
+        {
+            FindingId = "good-payload",
+            FindingType = FindingTypes.RequirementFinding,
+            Category = "Requirement",
+            EngineType = "e1",
+            Title = "CheckoutApiUnderSpecified",
+            Rationale = "CheckoutApiUnderSpecified",
+            Severity = FindingSeverity.Warning,
+            PayloadType = nameof(RequirementFindingPayload),
+            Payload = new RequirementFindingPayload
+            {
+                RequirementName = "CheckoutApiUnderSpecified",
+                RequirementText = "Complete",
+                IsMandatory = true,
+            },
+            Trace = new ExplainabilityTrace
+            {
+                Notes = ["evidence:doc:manifest.json#services"],
+            },
+        };
+
+        Mock<IFindingEngine> e1 = CreateEngine("e1", "Requirement", [invalid, valid]);
+        FindingsOrchestrator sut = new(
+            [e1.Object],
+            new FindingPayloadValidator(),
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        snapshot.Findings.Should().ContainSingle(f => f.FindingId == "good-payload");
+        snapshot.EngineFailures.Should().ContainSingle(f => f.ErrorMessage.Contains("bad-payload", StringComparison.Ordinal));
+        snapshot.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.PartiallyComplete);
     }
 
     [Fact]

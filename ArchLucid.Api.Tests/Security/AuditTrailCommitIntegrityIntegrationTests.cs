@@ -75,7 +75,10 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
         }
         catch (WarmupTimedOutException)
         {
-            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
+            // RecordAndReturnOnShardOverload instead of SkipShardOverload: throwing SkipException
+            // after an awaited operation causes vstest to re-queue the test indefinitely.
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
         }
     }
 
@@ -96,6 +99,8 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
                 // substitute for the warmup's 50-minute bootstrap budget.
                 await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
             }
+
+            GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
 
             await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
@@ -118,7 +123,8 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
         }
         catch (WarmupTimedOutException)
         {
-            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
         }
     }
 

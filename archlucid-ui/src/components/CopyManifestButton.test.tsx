@@ -30,12 +30,12 @@ describe("CopyManifestButton", () => {
   });
 
   it("surfaces fetch failures", async () => {
-    vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Manifest not found"));
+    vi.mocked(fetchManifestJsonText).mockRejectedValue(new Error("Review package not found"));
 
     render(<CopyManifestButton runId="missing-run" />);
 
     fireEvent.click(screen.getByTestId("copy-manifest-json-button"));
 
-    expect(await screen.findByTestId("copy-manifest-json-error")).toHaveTextContent("Manifest not found");
+    expect(await screen.findByTestId("copy-manifest-json-error")).toHaveTextContent("Review package not found");
   });
 });

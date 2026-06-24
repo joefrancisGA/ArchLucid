@@ -52,7 +52,7 @@ export function RunDetailSponsorModeExplanationCard(
   const basisLabel =
     citationCount > 0
       ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
-      : "committed manifest and finding records";
+      : "committed review package and finding records";
 
   return (
     <section

@@ -28,9 +28,9 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   {
     prefix: "/governance/findings",
     explanation: {
-      title: "Findings disposition",
-      summary: "Governance queue for open findings — accept, waive, defer, or assign owners before commit.",
-      nextAction: "Filter by severity, select rows, and apply a bulk disposition when several findings share the same decision.",
+      title: "Risk register",
+      summary: "Track architecture risks created from findings, waivers, and governance decisions.",
+      nextAction: "Open review packages or governance workflow to create risk records.",
     },
   },
   {

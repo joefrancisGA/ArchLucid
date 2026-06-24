@@ -7,6 +7,7 @@ export type FindingPolicyRuleBadgeProps = {
   readonly policyRuleId: string;
   readonly policyRuleLabel?: string | null;
   readonly className?: string;
+  readonly onPreviewClick?: () => void;
 };
 
 /** Visible proof that a finding maps to a curated policy-pack compliance rule key. */
@@ -28,6 +29,20 @@ export function FindingPolicyRuleBadge(props: FindingPolicyRuleBadgeProps): Reac
     labelSource !== null && labelSource !== ruleId
       ? `Rule ${ruleId}: ${labelSource}`
       : `Rule: ${ruleId}`;
+
+  if (props.onPreviewClick !== undefined) {
+    return (
+      <button
+        type="button"
+        className={props.className}
+        data-testid="finding-policy-rule-badge"
+        title={`Compliance rule key ${ruleId}`}
+        onClick={props.onPreviewClick}
+      >
+        <StatusTag kind="in-progress" label={statusLabel} />
+      </button>
+    );
+  }
 
   return (
     <Link

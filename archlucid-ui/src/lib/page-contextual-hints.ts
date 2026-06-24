@@ -13,7 +13,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/governance/findings",
     hint: {
       id: "governance-findings-queue",
-      message: "Filter by severity or stale status, then open a finding to jump to its evidence trail.",
+      message: "Filter stale risks or expiring waivers, then open a row to inspect evidence and linked decisions.",
       learnMoreHref: "/help/governance-approval",
     },
   },
@@ -23,14 +23,6 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
       id: "audit-trail",
       message: "Save named filter views for repeat investigations. Export CSV when you need an offline audit packet.",
       learnMoreHref: "/help/audit-trail",
-    },
-  },
-  {
-    prefix: "/compare",
-    hint: {
-      id: "compare-reviews",
-      message: "Pick two finalized review packages to see manifest diff and finding deltas.",
-      learnMoreHref: "/help/review-packages",
     },
   },
   {
@@ -53,7 +45,7 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
     prefix: "/replay",
     hint: {
       id: "replay-review",
-      message: "Validate stored pipeline output for a single review — not a visual diff.",
+      message: "Validate stored review output for a single review package — not a visual diff.",
       learnMoreHref: "/help/comparison-replay",
     },
   },

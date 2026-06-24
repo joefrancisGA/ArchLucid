@@ -15,7 +15,7 @@ type Props = {
 };
 
 /**
- * 59R planning bridge: bounded POST to `/v1/learning/planning/materialize` (ExecuteAuthority).
+ * Convert ranked pilot-feedback opportunities into draft improvement plans (59R).
  */
 export function PlanningBridgePanel(props: Props) {
   const [maxPlans, setMaxPlans] = useState(10);
@@ -55,23 +55,22 @@ export function PlanningBridgePanel(props: Props) {
   return (
     <section className="mb-7" aria-labelledby="pl-planning-bridge-heading">
       <h3 id="pl-planning-bridge-heading" className="text-[17px] mb-1">
-        Planning bridge (materialize drafts)
+        Create improvement plan drafts
       </h3>
       <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0 max-w-3xl">
-        Turn ranked pilot-feedback opportunities into deterministic improvement themes and plan stubs — same scope and{" "}
-        <strong>since</strong> window as the dashboard above. Requires ExecuteAuthority. Idempotent per theme key; zero
-        counters usually mean everything already materialized.
+        Convert recurring feedback themes into draft improvement plans for review. Uses the same scope and time range as
+        the dashboard above.
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-500 dark:text-neutral-400">Max plans to materialize (1–50)</span>
+          <span className="text-neutral-500 dark:text-neutral-400">Maximum drafts to create (1–50)</span>
           <input
             type="number"
             min={1}
             max={50}
             value={maxPlans}
             disabled={blocked}
-            aria-label="Maximum plans to materialize per request"
+            aria-label="Maximum draft plans to create per request"
             onChange={(e) => {
               const n = Number.parseInt(e.target.value, 10);
 
@@ -88,7 +87,7 @@ export function PlanningBridgePanel(props: Props) {
           disabled={blocked}
           onClick={() => void materialize()}
         >
-          {busy ? "Materializing…" : "Materialize planning drafts"}
+          {busy ? "Creating drafts…" : "Create draft plans"}
         </button>
         <Link href="/planning" className="text-sm text-blue-700 dark:text-blue-400">
           Open planning browse →
@@ -103,12 +102,12 @@ export function PlanningBridgePanel(props: Props) {
 
       {result !== null ? (
         <div className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/60" role="status">
-          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-100">Materialization result</p>
+          <p className="m-0 font-medium text-neutral-800 dark:text-neutral-100">Draft plans created</p>
           <ul className="mt-2 list-none space-y-1 p-0 text-neutral-700 dark:text-neutral-300">
-            <li>Themes inserted: {result.themesInserted ?? 0}</li>
-            <li>Plans inserted: {result.plansInserted ?? 0}</li>
-            <li>Skipped existing theme keys: {result.skippedExistingThemeKeys ?? 0}</li>
-            <li>Signal links inserted: {result.signalLinksInserted ?? 0}</li>
+            <li>Themes created: {result.themesInserted ?? 0}</li>
+            <li>Plans created: {result.plansInserted ?? 0}</li>
+            <li>Already existed (skipped): {result.skippedExistingThemeKeys ?? 0}</li>
+            <li>Feedback items linked: {result.signalLinksInserted ?? 0}</li>
           </ul>
         </div>
       ) : null}

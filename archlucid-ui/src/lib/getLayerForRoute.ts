@@ -35,19 +35,30 @@ const LAYER_GROUP_ORDER: ReadonlyArray<LayerId> = [
   "operator-admin",
 ];
 
+/** Nav groups that share the operate-analysis layer strip (advanced operations rhythm). */
+const NAV_GROUP_TO_LAYER: Readonly<Record<string, LayerId>> = {
+  pilot: "pilot",
+  "operate-analysis": "operate-analysis",
+  "operate-reports": "operate-analysis",
+  "operate-integrations": "operate-analysis",
+  "operate-governance": "operate-governance",
+  "operator-admin": "operator-admin",
+  "operator-system-admin": "operator-admin",
+};
+
 const NAV_PATH_MATCHES: ReadonlyArray<NavPathMatch> = (() => {
   const rows: NavPathMatch[] = [];
   for (const g of NAV_GROUPS) {
+    const layerId = NAV_GROUP_TO_LAYER[g.id];
+
+    if (layerId === undefined) {
+      continue;
+    }
+
     for (const link of g.links) {
       const p = hrefToPathname(link.href);
-      if (
-        g.id === "pilot"
-        || g.id === "operate-analysis"
-        || g.id === "operate-governance"
-        || g.id === "operator-admin"
-      ) {
-        rows.push({ groupId: g.id, path: p, pathLength: p.length });
-      }
+
+      rows.push({ groupId: layerId, path: p, pathLength: p.length });
     }
   }
 

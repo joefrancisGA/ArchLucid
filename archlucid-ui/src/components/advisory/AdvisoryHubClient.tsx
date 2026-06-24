@@ -13,8 +13,8 @@ import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 const TAB_PARAM = "tab";
 
 const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
-  scans: "Scans",
-  schedules: "Schedules",
+  scans: "Recommendation scans",
+  schedules: "Scheduled scans",
 };
 
 const SCHEDULES_TAB_READER_TITLE =

@@ -240,6 +240,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();
         services.AddScoped<IPolicyPackGovernanceDryRunService, PolicyPackGovernanceDryRunService>();
         services.AddSingleton<IPolicyPackSchemaKeysService, PolicyPackSchemaKeysService>();
+        services.AddScoped<IPolicyPackContentAuthoringValidationService, PolicyPackContentAuthoringValidationService>();
         services.AddSingleton<IPolicyPackRuleTemplatesService, PolicyPackRuleTemplatesService>();
         services.AddSingleton<IEvidencePackSourceProvider, EmbeddedResourceEvidencePackSourceProvider>();
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
@@ -345,6 +346,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
         services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
+        services.AddScoped<ICuratedRulesDocumentValidationService, CuratedRulesDocumentValidationService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();
         services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(

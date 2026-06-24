@@ -95,7 +95,7 @@ export function SidebarNavLayoutSettingsPanel(
                 <p className="text-xs text-neutral-600 dark:text-neutral-300">
                   <strong>Advanced Analysis:</strong> compare, replay, graph, architecture advisory, evaluation feedback,
                   recommendation tuning.{" "}
-                  <strong>Admin:</strong> tenant cost, baseline and tenant settings.{" "}
+                  <strong>Admin:</strong> baseline and tenant settings.{" "}
                   <strong>Enterprise Controls:</strong> policy packs, governance dashboard, governance resolution.
                 </p>
               </div>

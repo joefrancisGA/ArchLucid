@@ -41,7 +41,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Audit trail",
     definition:
-      "The append-only log of every action taken in this workspace — reviews created, manifests committed, governance decisions recorded.",
+      "The append-only log of every action taken in this workspace — reviews created, review packages finalized, governance decisions recorded.",
   },
   {
     term: "Risk exception",
@@ -61,12 +61,12 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Compare",
     definition:
-      "Side-by-side diff of two review packages — findings, manifest changes, and governance disposition deltas.",
+      "Side-by-side diff of two review packages — findings, review record changes, and governance disposition deltas.",
   },
   {
     term: "Proof packet",
     definition:
-      "The exportable evidence bundle (manifest hash, audit chain, findings summary) used for sponsor handoff and procurement diligence.",
+      "The exportable evidence bundle (review record hash, audit chain, findings summary) used for sponsor handoff and procurement diligence.",
   },
 ];
 

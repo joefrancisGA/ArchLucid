@@ -1,6 +1,6 @@
 > **Scope:** Generated skim for coding agents and contributors; not a buyer document. Regenerate after large project-tree changes. Does not replace **`V1_SCOPE.md`** or **`V1_DEFERRED.md`**.
 
-**Generated:** 2026-05-21 21:28 UTC (`python scripts/repo_digest/build_repo_digest.py`)
+**Generated:** 2026-06-23 19:33 UTC (`python scripts/repo_digest/build_repo_digest.py`)
 
 ## Root .NET projects
 
@@ -48,7 +48,9 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 | `ArchLucid.Jobs.Cli.Tests/` | `ArchLucid.Jobs.Cli.Tests/ArchLucid.Jobs.Cli.Tests.csproj` |
 | `ArchLucid.KnowledgeGraph/` | `ArchLucid.KnowledgeGraph/ArchLucid.KnowledgeGraph.csproj` |
 | `ArchLucid.KnowledgeGraph.Tests/` | `ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj` |
+| `ArchLucid.Mcp/` | `ArchLucid.Mcp/ArchLucid.Mcp.csproj` |
 | `ArchLucid.Notifications/` | `ArchLucid.Notifications/ArchLucid.Notifications.csproj` |
+| `ArchLucid.Notifications.Email.RazorLight/` | `ArchLucid.Notifications.Email.RazorLight/ArchLucid.Notifications.Email.RazorLight.csproj` |
 | `ArchLucid.Notifications.Tests/` | `ArchLucid.Notifications.Tests/ArchLucid.Notifications.Tests.csproj` |
 | `ArchLucid.Persistence/` | `ArchLucid.Persistence/ArchLucid.Persistence.csproj` |
 | `ArchLucid.Persistence.MigrateVerify/` | `ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj` |
@@ -68,7 +70,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 ## Architecture invariants (**INV-***)
 
 - **Catalog:** [`ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**`INV-001`** … **`INV-015`**).
-- **Rule pointer:** [`.cursor/rules/Architecture-Invariants.mdc`](ARCHITECTURE_INVARIANTS.md).
+- **Rule pointer:** [`.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc).
 - **ADR:** [`0035-architecture-invariant-catalog.md`](../architecture/adrs/0035-architecture-invariant-catalog.md).
 
 ## V1 headline / deferrals (read sources; do not treat this digest as canonical)
@@ -80,20 +82,20 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 ## Weighted readiness assessments (canonical vs archive)
 
 - **Evidence contract:** [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — ordered reads before broad scans; **`@Assessment-Scope-V1_1`** for **`(A)` / `(B)`** rules.
-- **Current score + backlog:** [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) only — **one** standing weighted pass.
+- **Current score + backlog:** [`../assessments/LATEST.md`](../assessments/LATEST.md) only — **one** standing weighted pass.
 - **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today's headline readiness (see **"One workflow"** in **`ASSESSMENT_INPUTS.md`**).
 
 ## HTTP / OpenAPI (refresh when changing wire shape)
 
 - **Canonical contract:** **`GET /openapi/v1.json`** ([`API_CONTRACTS.md`](API_CONTRACTS.md)).
 - **Snapshot:** `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
-- **Follow-through:** [`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`](../engineering/AGENTS.md).
+- **Follow-through:** [`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`](../../.cursor/rules/Http-Surface-Docs-And-Clients.mdc).
 
 ## Coverage & tests (anchors)
 
 - `coverage.runsettings` at repo root.
 - [`BUILD.md`](../engineering/BUILD.md), [`TEST_EXECUTION_MODEL.md`](TEST_EXECUTION_MODEL.md).
-- Coverage product-only rules: [`.cursor/rules/Code-Coverage-Product-Only.mdc`](REPO_DIGEST.md).
+- Coverage product-only rules: [`.cursor/rules/Code-Coverage-Product-Only.mdc`](../../.cursor/rules/Code-Coverage-Product-Only.mdc).
 
 ## Solution filters (**`*.slnf`**) at repo root
 

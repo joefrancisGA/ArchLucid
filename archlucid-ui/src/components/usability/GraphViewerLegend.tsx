@@ -1,7 +1,7 @@
 /** Legend for evidence graph node types and default layout hints. */
 export function GraphViewerLegend() {
   const rows = [
-    { color: "bg-teal-500", label: "Review / manifest node" },
+    { color: "bg-teal-500", label: "Review package node" },
     { color: "bg-amber-500", label: "Finding" },
     { color: "bg-neutral-500", label: "Evidence / artifact" },
     { color: "bg-violet-500", label: "Agent step" },

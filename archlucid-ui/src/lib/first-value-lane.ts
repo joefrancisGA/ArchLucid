@@ -40,7 +40,7 @@ export const FIRST_VALUE_LANE_PHASES: readonly FirstValueLanePhase[] = [
   {
     id: "commit-package",
     title: "Commit package",
-    summary: "Finalize on review detail to lock the manifest and unlock exports.",
+    summary: "Finalize on review detail to lock the signed review record and unlock exports.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open review detail",
   },

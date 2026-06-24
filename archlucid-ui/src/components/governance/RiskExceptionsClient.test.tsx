@@ -63,6 +63,25 @@ describe("RiskExceptionsClient", () => {
     render(<RiskExceptionsClient />);
 
     expect(await screen.findByText("No active risk exceptions")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Risk exceptions appear here when a finding is waived or deferred through governance/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open findings" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByRole("link", { name: "Open governance workflow" })).toHaveAttribute("href", "/governance");
+    expect(screen.getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
+  });
+
+  it("uses risk-exceptions layer guidance instead of governance workflow copy", async () => {
+    vi.mocked(governanceApi.listRiskExceptions).mockResolvedValue([]);
+
+    render(<RiskExceptionsClient />);
+
+    expect(
+      await screen.findByText("Track active waivers, expirations, owners, and linked governance decisions."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Submit finalized architecture outputs for governance review and promotion."),
+    ).not.toBeInTheDocument();
   });
 
   it("revokes after confirmation", async () => {

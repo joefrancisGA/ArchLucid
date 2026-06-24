@@ -26,7 +26,7 @@ export const SEARCH_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "search-empty-state",
   title: "No matches for that query",
   description:
-    "Try different wording, clear the optional review ID filter, or ensure your workspace has ingested retrievable text. The same embedding index backs Ask ArchLucid.",
+    "Try different wording, clear the review package filter, or ensure your workspace has committed review evidence indexed for search.",
   actions: [
     { label: "Open Ask", href: "/ask", variant: "outline" },
     { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
@@ -38,10 +38,10 @@ export const PLANNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "planning-empty-state",
   title: "No themes or plans in this scope yet",
   description:
-    "59R themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows operator defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
+    "Feedback themes and improvement plans show here when persisted for the current tenant / workspace / project. Scope follows operator defaults unless you set proxy overrides. Run a committed review first if this tenant is new.",
   actions: [
     { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
-    { label: "Product learning", href: "/product-learning", variant: "outline" },
+    { label: "Pilot feedback", href: "/product-learning", variant: "outline" },
   ],
 };
 
@@ -59,7 +59,8 @@ export const COMPARE_WAITING_COMPACT: EnterpriseCompactEmptyStateProps = {
 export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-zero-finalized-empty-state",
   title: "No finalized reviews available",
-  description: "Finalize at least two review packages to compare changes over time.",
+  description:
+    "You need at least two finalized review packages before ArchLucid can compare changes over time.",
   actions: [
     { label: "Start review", href: "/reviews/new", variant: "primary" },
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "outline" },
@@ -69,8 +70,8 @@ export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = 
 /** Compare page when fewer than two finalized review packages exist. */
 export const COMPARE_INSUFFICIENT_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "compare-insufficient-finalized-empty-state",
-  title: "Not enough finalized reviews",
-  description: "You need at least two finalized review packages to compare changes.",
+  title: "One finalized review available",
+  description: "Finalize one more review package to compare changes over time.",
   actions: [
     { label: "Open review packages", href: "/reviews?projectId=default", variant: "primary" },
     { label: "Start review", href: "/reviews/new", variant: "outline" },

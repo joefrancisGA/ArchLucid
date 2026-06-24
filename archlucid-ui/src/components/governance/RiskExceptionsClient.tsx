@@ -145,10 +145,10 @@ export default function RiskExceptionsClient() {
 
   return (
     <div className="w-full max-w-[1440px] space-y-4">
-      <LayerHeader pageKey="governance-workflow" />
+      <LayerHeader pageKey="risk-exceptions" />
       <OperatorPageHeader title="Risk exceptions" />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-        Active waivers across findings in this workspace. Renew before expiry or revoke when risk is accepted or remediated.
+        Track approved waivers for findings that are not immediately remediated.
       </p>
 
       {expiringSoonCount > 0 ? (
@@ -168,10 +168,11 @@ export default function RiskExceptionsClient() {
         <EnterpriseCompactEmptyState
           testId="risk-exceptions-empty-state"
           title="No active risk exceptions"
-          description="Waivers created from the finding inspector appear here when they are active in this scope."
+          description="Risk exceptions appear here when a finding is waived or deferred through governance. Use this page to track owner, expiration, evidence, and the linked decision record."
           actions={[
-            { label: "View findings", href: "/governance/findings", variant: "primary" },
-            { label: "Governance workflow", href: "/governance", variant: "outline" },
+            { label: "Open findings", href: "/governance/findings", variant: "primary" },
+            { label: "Open governance workflow", href: "/governance", variant: "outline" },
+            { label: "Start review", href: "/reviews/new", variant: "outline" },
           ]}
         />
       ) : (

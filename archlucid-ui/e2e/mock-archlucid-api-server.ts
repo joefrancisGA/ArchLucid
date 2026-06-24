@@ -197,7 +197,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
             nodes: [
               { id: "n1", label: "Request intake", type: "Context" },
               { id: "n2", label: "Policy evaluation", type: "Decision" },
-              { id: "n3", label: "Finalized manifest", type: "Manifest" },
+              { id: "n3", label: "Finalized review package", type: "Manifest" },
             ],
             edges: [
               { source: "n1", target: "n2", type: "derives" },
@@ -428,7 +428,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
           sendJson(res, 200, fixtureManifestSummaryEmptyArtifacts());
         } else {
-          sendJson(res, 404, { detail: "Manifest not found." });
+          sendJson(res, 404, { detail: "Review record not found." });
         }
 
         return;

@@ -14,6 +14,8 @@ type AzureExtractorUploadFailureCalloutProps = {
   fallbackMessage: string;
   problem: ApiProblemDetails | null;
   correlationId: string | null;
+  /** Override root test id (wizard baseline field uses wizard-azure-zip-error). */
+  rootTestId?: string;
 };
 
 /** Actionable extractor upload failure with validation guidance and support copy payload. */
@@ -25,6 +27,7 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
   );
   const copyText = JSON.stringify(presentation.copyPayload, null, 2);
   const [copied, setCopied] = useState(false);
+  const rootTestId = props.rootTestId ?? "extract-upload-failure-callout";
 
   const onCopyDetails = useCallback(async () => {
     try {
@@ -39,7 +42,7 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
   }, [copyText]);
 
   return (
-    <div data-testid="extract-upload-failure-callout">
+    <div data-testid={rootTestId}>
       <OperatorErrorCallout>
       <strong>{presentation.heading}</strong>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">

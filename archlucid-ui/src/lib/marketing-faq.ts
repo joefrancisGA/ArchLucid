@@ -60,6 +60,6 @@ export const MARKETING_FAQ_ITEMS: ReadonlyArray<MarketingFaqItem> = [
     id: "vs-chatgpt-copilot",
     question: "How is ArchLucid different from using ChatGPT or Copilot for architecture review?",
     answer:
-      "General LLM chat can draft advice, but it does not commit a golden manifest, typed audit ledger, optional pre-commit governance gate, or traversable evidence chain for your tenant. ArchLucid is built for repeatable, sponsor-exportable architecture proof — see the vs chat assistant section on /why.",
+      "General LLM chat can draft advice, but it does not commit a signed review record, typed audit ledger, optional pre-commit governance gate, or traversable evidence chain for your tenant. ArchLucid is built for repeatable, sponsor-exportable architecture proof — see the vs chat assistant section on /why.",
   },
 ] as const;

@@ -12,5 +12,5 @@ public static class PolicyPackRulePriority
 
     public const string AdvisoryDefaultsKey = "priorityFloor";
 
-    public const string UnsetFloorIncludesAllTiers = P2;
+    public const string UnsetFloorIncludesAllTiers = P1;
 }

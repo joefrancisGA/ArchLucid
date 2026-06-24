@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Models;
@@ -39,7 +40,8 @@ public static class RunRecordToArchitectureRunMapper
             RealModeFellBackToSimulator = record.RealModeFellBackToSimulator,
             StructuralExecutionMode = record.StructuralExecutionMode,
             PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot,
-            LastAgentExecutionFailure = AgentExecutionFailureSummaryJson.TryDeserialize(record.LastFailureReason)
+            LastAgentExecutionFailure = AgentExecutionFailureSummaryJson.TryDeserialize(record.LastFailureReason),
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(record)
         };
     }
 

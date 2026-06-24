@@ -49,7 +49,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Governance approval",
     shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
-      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a manifest or deliverable state advances—blocking unsafe silent changes.",
+      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review package or deliverable state advances—blocking unsafe silent changes.",
   },
   policy_pack: {
     displayLabel: "Policy pack",
@@ -59,7 +59,7 @@ export const GLOSSARY_DEFINITIONS = {
   },
   comparison: {
     displayLabel: "Comparison",
-    shortDefinition: "A structured diff between two finalized manifests or persisted comparison results.",
+    shortDefinition: "A structured diff between two finalized review packages or persisted comparison results.",
     longDefinition:
       "Comparison highlights field-level and semantic deltas across reviews or snapshots so teams see what changed in decisions, findings, and evidence without re-running agents.",
   },
@@ -67,7 +67,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Replay",
     shortDefinition: "Re-executing stored logic or outputs to reproduce deltas under current rules.",
     longDefinition:
-      "Replay recomputes comparison or governance views from saved manifests and traces—useful when policies change and you need a consistent historical baseline.",
+      "Replay recomputes comparison or governance views from saved review records and traces—useful when policies change and you need a consistent historical baseline.",
   },
 } as const satisfies Readonly<Record<string, GlossaryDefinitionEntry>>;
 

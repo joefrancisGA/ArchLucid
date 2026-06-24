@@ -8,6 +8,13 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: "Home" }]);
   });
 
+  it("maps recommendation tuning breadcrumb to the nav label", () => {
+    expect(getBreadcrumbs("/recommendation-learning")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Recommendation tuning" },
+    ]);
+  });
+
   it("uses New review on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
       { label: "Home", href: "/" },
@@ -44,8 +51,8 @@ describe("getBreadcrumbs", () => {
   it("maps showcase manifest detail trail", () => {
     expect(getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
       { label: "Home", href: "/" },
-      { label: "Manifests", href: "/manifests" },
-      { label: "Claims Intake package manifest" },
+      { label: "Signed review records", href: "/manifests" },
+      { label: "Claims Intake review package" },
     ]);
   });
 

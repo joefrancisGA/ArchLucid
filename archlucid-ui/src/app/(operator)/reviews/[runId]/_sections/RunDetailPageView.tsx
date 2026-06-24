@@ -16,7 +16,7 @@ import { ReviewPackagePlainSummary } from "@/components/usability/ReviewPackageP
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
-import { DemoReviewPolicyCallout } from "@/components/DemoReviewPolicyCallout";
+import { ReviewDetailPolicyPackImpactCallout } from "@/components/findings/ReviewDetailPolicyPackImpactCallout";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
@@ -31,7 +31,6 @@ import {
 } from "@/lib/review-buyer-disposition-line";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { isOperatorDemoReviewRun, OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME } from "@/lib/operator-demo-review";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
@@ -152,16 +151,13 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     m.usedStaticDemoRun,
   );
 
-  const operatorDemoReviewRun = isOperatorDemoReviewRun({
-    description: runSummaryForBadge.description,
-    displayName: runSummaryForBadge.displayName,
-    headline: m.headline,
-  });
-
-  const demoReviewPolicyPackName =
-    m.manifestSummaryForUi !== null
-      ? policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion)
-      : OPERATOR_DEMO_REVIEW_POLICY_PACK_DISPLAY_NAME;
+  const reviewPolicyPackCallout =
+    m.manifestSummaryForUi !== null && m.manifestId
+      ? {
+          ruleSetId: m.manifestSummaryForUi.ruleSetId,
+          ruleSetVersion: m.manifestSummaryForUi.ruleSetVersion,
+        }
+      : null;
 
   return (
     <div
@@ -199,18 +195,26 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
       />
 
-      {operatorDemoReviewRun ? (
-        <DemoReviewPolicyCallout policyPackName={demoReviewPolicyPackName} />
+      {reviewPolicyPackCallout !== null ? (
+        <ReviewDetailPolicyPackImpactCallout
+          ruleSetId={reviewPolicyPackCallout.ruleSetId}
+          ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
+          runId={m.resolvedDetail.run.runId}
+          totalFindingCount={m.findingCountDisplay}
+        />
       ) : null}
 
       {!m.manifestId ? (
         (() => {
           const legacyStatus = m.resolvedDetail.run.legacyRunStatus;
+          const isDeadLettered = m.resolvedDetail.run.isDeadLettered === true;
           const stalled = detectStalledReview(
             m.resolvedDetail.run.createdUtc,
             m.resolvedDetail.run.completedUtc != null
               || legacyStatus === "Completed"
               || legacyStatus === "Failed",
+            Date.now(),
+            isDeadLettered,
           );
 
           return stalled.isStalled ? (

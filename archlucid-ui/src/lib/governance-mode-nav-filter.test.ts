@@ -24,6 +24,7 @@ describe("governance-mode-nav-filter", () => {
     expect(hrefs).not.toContain("/audit");
     expect(hrefs).not.toContain("/policy-packs");
     expect(hrefs).not.toContain("/governance");
+    expect(hrefs).not.toContain("/integrations/operations");
     expect(filtered.some((row) => row.group.id === "operate-governance")).toBe(false);
   });
 

@@ -101,7 +101,6 @@ describe("WizardStepAzureContext", () => {
     const copied = String(writeTextMock.mock.calls[0]?.[0] ?? "");
 
     expect(copied).toContain(`-SubscriptionId '${DEV_SCOPE_TENANT_ID}'`);
-    expect(copied).toContain("-IncludeCost");
-    expect(copied).toContain("Get-ArchLucidAzurePackage.ps1");
+    expect(copied).toContain("Run-ArchLucidAzureExtractor.ps1");
   });
 });

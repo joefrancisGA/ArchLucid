@@ -2,6 +2,7 @@ import {
   BUYER_EXECUTIVE_SUMMARY_VOCABULARY,
   BUYER_SURFACE_VOCABULARY,
   BUYER_TERMINOLOGY,
+  PILOT_FEEDBACK_VOCABULARY,
 } from "@/lib/buyer-surface-vocabulary";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
@@ -157,7 +158,14 @@ export function buyerPolishedRouteOrientation(
 
     return {
       label: "Search review evidence",
-      line: "Find language across review summaries, signed review records, and linked metadata (tenant-scoped). Narrow with an optional run filter when you open Search from a review.",
+      line: "Find evidence, findings, decisions, and signed review records across this workspace.",
+    };
+  }
+
+  if (path === "/product-learning") {
+    return {
+      label: BUYER_TERMINOLOGY.evaluationFeedback,
+      line: PILOT_FEEDBACK_VOCABULARY.layerContextLine,
     };
   }
 
@@ -165,6 +173,48 @@ export function buyerPolishedRouteOrientation(
     return {
       label: "Compare reviews",
       line: "See what changed between finalized review packages.",
+    };
+  }
+
+  if (path.startsWith("/advisory")) {
+    return {
+      label: "Architecture advisory",
+      line: "Recommended changes based on committed review packages.",
+    };
+  }
+
+  if (path === "/workspace/security-trust") {
+    return {
+      label: "Security & trust",
+      line: "Procurement-facing security posture, trust center, and assessment materials.",
+    };
+  }
+
+  if (path === "/value-report") {
+    return {
+      label: "Value report",
+      line: "Generate sponsor-ready summaries of review outcomes, ROI, and governance progress.",
+    };
+  }
+
+  if (path.startsWith("/value-report/pilot")) {
+    return {
+      label: "Sponsor report",
+      line: "Pilot outcomes — metrics and governance signals from finalized reviews.",
+    };
+  }
+
+  if (path.startsWith("/value-report/roi")) {
+    return {
+      label: "Sponsor report",
+      line: "ROI summary — estimated hours saved from review findings.",
+    };
+  }
+
+  if (path.startsWith("/scorecard")) {
+    return {
+      label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardPageTitle,
+      line: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.scorecardLayerContextLine,
     };
   }
 

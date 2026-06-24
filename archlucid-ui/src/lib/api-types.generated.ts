@@ -29281,54 +29281,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/tenant/cost-estimate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["TenantCostEstimateResponse"];
-                        "text/json": components["schemas"]["TenantCostEstimateResponse"];
-                        "text/plain": components["schemas"]["TenantCostEstimateResponse"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/tenant/cost-settings": {
         parameters: {
             query?: never;
@@ -31941,6 +31893,7 @@ export interface components {
             /** Format: uuid */
             graphSnapshotId?: null | string;
             isPinned?: boolean;
+            isDeadLettered?: boolean;
             lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
             otelTraceId?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
@@ -32229,6 +32182,7 @@ export interface components {
             hasFindingsSnapshot?: boolean;
             hasGoldenManifest?: boolean;
             hasGraphSnapshot?: boolean;
+            isDeadLettered?: boolean;
             projectId?: string;
             runDegradedExecution?: boolean;
             /** Format: uuid */
@@ -33911,6 +33865,7 @@ export interface components {
             populatedFieldCount?: number;
         };
         FindingTraceConfidenceDto: {
+            classification?: null | components["schemas"]["FindingClassification"];
             confidenceLevel?: null | components["schemas"]["FindingConfidenceLevel"];
             /** Format: int32 */
             evaluationConfidenceScore?: null | number;
@@ -33957,6 +33912,8 @@ export interface components {
         GeneratePolicyPackResponse: {
             curatedRulesDocumentJson?: string;
             disclaimer?: string;
+            requiresHumanReview?: boolean;
+            validationWarnings?: string[];
         };
         GlobalSearchFindingResponse: {
             findingId?: string;
@@ -36834,6 +36791,7 @@ export interface components {
             hasGovernanceWarnings?: boolean;
             hasWarnings?: boolean;
             isDemoWelcomeRun?: boolean;
+            isDeadLettered?: boolean;
             isPinned?: boolean;
             isPublicShowcase?: boolean;
             isSample?: boolean;

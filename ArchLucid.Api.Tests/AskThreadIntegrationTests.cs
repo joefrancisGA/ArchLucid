@@ -13,7 +13,9 @@ namespace ArchLucid.Api.Tests;
 ///     End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer →
 ///     list conversations via <c>GET v1/conversations</c>.
 /// </summary>
-[Trait("Category", "Integration")]
+// CI #2268 / #2277: Ask host + IntegrationTestDeadline wedged tasks starve the thread pool when
+// co-scheduled with ~30 other integration classes in one dotnet test process; run on the Slow shard.
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class AskThreadIntegrationTests

@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386?398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382?385** Done; 2026-06-16 operator home **TB-345?353** (all Done). **~55 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386?398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382?385** Done; 2026-06-16 operator home **TB-345?353** (all Done). **~56 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | Deployability | 5 |
 | AI/Agent readiness | 3 |
 | Architectural integrity | 8 |
-| Adoption friction | 20 |
+| Adoption friction | 21 |
 | Commercial / marketability | 3 |
 | Data consistency | 4 |
 | Cutting-edge AI | 3 |
@@ -138,6 +138,10 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-386 ? TB-398** were added 2026-06-22 from a **Jira / ServiceNow integration-readiness** codebase assessment. **TB-063** already shipped one-click outbound + correlation storage + inbound webhook sync (marked Done 2026-06-01), but owner scope keeps first-party ITSM productization in **V1.1** per [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6. This cluster closes **integration seams** for V1 GA without building full native connectors: **TB-386?388** (P1) extend exports, gate native UI behind a feature flag, and audit correlation lifecycle changes; **TB-389?390** (P0/P1) harden multi-tenant correlation uniqueness and inbound snapshot scoping; **TB-391** (P2) adds ServiceNow copy-as-task and a `trackedExternally` projection; **TB-392?396** (V1.1) cover per-tenant credentials, settings write API/UI, durable async outbound, finding assignee/due-date fields, and disposition-aware inbound sync; **TB-397?398** (V2) introduce a plugin boundary and full enterprise connector scope (OAuth, field mapping UI, bidirectional workflow). Does not duplicate **TB-063** (one-click UI/API ? Done), **TB-016** (operator sandbox provisioning), or **Teams** connector work. Cross-ref [`API_CONTRACTS.md`](API_CONTRACTS.md) ITSM section, [`ITSM_BRIDGE_V1_RECIPES.md`](ITSM_BRIDGE_V1_RECIPES.md), `ItsmFindingCorrelations`, `copy-finding-as-work-item.ts`.
 
+**TB-400** was added 2026-06-23 as a **V1.1 follow-on** to the architecture advisory UX polish pass (advisory page review picker + strip label shipped in V1). The advisory recommendation cards currently surface `rationale`, `suggestedAction`, and `expectedImpact` from the API. What is missing is a **direct link from a recommendation to the source finding or manifest section** that generated it — clicking "API tier lacks circuit breaker" should deep-link into the finding record or evidence trail where the gap was observed. This requires: (a) a new `sourceEvidenceLinks: { kind: "finding" | "manifestSection", id: string }[]` field on `RecommendationRecord` (API + persistence); (b) rendering those links as navigable links in `AdvisoryScansContent` recommendation cards; (c) an integration test asserting at least one link is populated when a finding-backed recommendation is generated. **Out of scope:** changing the recommendation generation logic or the advisory-scan scheduling surface. **Cross-ref:** `AdvisoryScansContent.tsx`, `advisory-api.ts`, `types/advisory.ts`.
+
+**TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
+
 **TB-337 ? TB-344** were added 2026-06-15 from a **product-drift / onboarding narrative realignment** assessment (product-strategist + enterprise-architect + UX-architect review of the operator first-run experience). **Canonical write-up:** [`docs/architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md`](../architecture/PRODUCT_DRIFT_ONBOARDING_NARRATIVE_2026_06_15.md). **Finding:** the *positioning* (brand category "Architecture Proof Engine", `/welcome`, `/why`, `/get-started`, the quick-review brief-first wizard) is correctly framed as a multi-source **architecture review and governance platform**, but the highest-visibility *operator first-run spine* teaches an **Azure-assessment** mental model ? the empty-state component is literally named `OperatorHomeAzureExtractorEmptyState`, its step 1 is "Upload your Azure environment", and Core Pilot step 1 is "Upload Azure architecture context". The correction reframes intake around **"provide architecture evidence"** with Azure positioned as the **accelerated** (fastest-to-production-faithful) path, **not** the entry condition ? without weakening the Azure onboarding experience. **TB-337?339** (P0) are the copy/component-name reframes on the three highest-visibility surfaces; **TB-340** (P1, owner-confirm) makes `cloudProvider` optional so pre-deployment/paper/AWS-shop reviews are first-class at intake; **TB-341** (P1) surfaces a multi-source evidence picker with honest disabled "V1.1" badges; **TB-342** (P1) is the secondary-surface copy sweep; **TB-343** (P2) reconciles the "cloud providers" plural in cloud-connections with the Azure-only reality; **TB-344** (P2) adds a CI drift guard so the first-run spine cannot silently regress to Azure-only framing. **These do not build any non-Azure ingestion or multi-cloud target analysis** ? that remains **TB-214** (non-Azure evidence JSON, DEFERRED V1.1, owner-gated) and [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) / [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6n. They are framing/labeling/optionality + guard work using **only what ships in V1**. Do not duplicate **TB-169** (Pilot-vs-Operate progressive disclosure ? different axis), **TB-215** (evidence upload mechanic in wizard), or **TB-320/321/328** (KPI/route/severity drift guards ? same guard *pattern*, different surface). Honors [`POSITIONING.md`](../go-to-market/POSITIONING.md) ?7 (no claims of multi-cloud before V1.1), [`V1_SCOPE.md`](V1_SCOPE.md) ?2.19 (Azure-only `CloudProvider` enum + Azure-first extractor remain the shipped contract), and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Pending question PQ-DRIFT-01** (owner): confirm `cloudProvider` may be optional/`NotApplicable` at intake while V1 deep analysis stays Azure-only (TB-340).
 
 **TB-250 ? TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 ? authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 ? `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard ? partial-failure surfacing and sentinel exclusion were already shipped).
@@ -148,6 +152,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards: `sourceEvidenceLinks` field linking each recommendation to its source finding or manifest section; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
+| TB-399 | Buyer-facing route aliases — remove "manifest" from browser URLs (`/manifests` → `/signed-records`, `/reviews/{id}/manifest` → `/reviews/{id}/signed-record`); permanent redirects + internal link migration; API/persistence unchanged | Adoption friction P2 — **V1.1**; complements **TB-355** copy sweep | M |
 | TB-389 | Tenant-scope `ItsmFindingCorrelations` unique constraint — **Done (2026-06-22)** — `UNIQUE (TenantId, Provider, ExternalKey)`; migration + integration test | Data consistency P0 | XS |
 | TB-386 | ITSM-aware findings export — **Done (2026-06-22)** — CSV + list/inspect JSON external tracking fields via enrichment service | Interoperability P1 | S |
 | TB-387 | Native ITSM feature flag — **Done (2026-06-22)** — `Integrations:Itsm:NativeEnabled` (default false); gates outbound create API + one-click UI; copy-as-work-item + correlations always on | Adoption friction P1 | XS |
@@ -11537,3 +11543,55 @@ Enterprise buyers eventually expect OAuth consent flows, per-field mapping UI, c
 **Size estimate:** **L**
 
 **Cross-ref:** [`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15, [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md).
+
+---
+
+## TB-399 — Buyer-facing route aliases — remove "manifest" from browser URLs — **V1.1**
+
+**Source:** Manifest terminology copy sweep (2026-06-23). On-page UI strings no longer use "manifest" (global guard **TB-355** / CI **TB-366**). **URLs remain user-visible** in the address bar, bookmarks, shared links, and browser history.
+
+**Problem:**
+
+Buyers and operators still land on paths such as `/manifests/{uuid}` and `/reviews/{runId}/manifest` even though in-app copy uses **review package**, **signed review record**, and **evidence trail**. That undermines the terminology cleanup and reads as internal engineering jargon during demos and procurement walkthroughs.
+
+**V1 posture (already shipped):**
+
+- Replace user-visible strings only; keep `manifestId`, `GoldenManifest`, API routes, DB columns, component/file names, and `data-testid` values stable.
+- Demo showcase already uses a partial friendly rewrite (`/reviews/claims-intake-modernization/manifest` ? `/manifests/{uuid}` in `next.config.ts`).
+
+**V1.1 scope (this item):**
+
+1. **Canonical buyer-facing paths** (owner-pick one list segment name; recommended below):
+   - `/manifests` ? **`/signed-records`** (list of signed review records)
+   - `/manifests/{manifestId}` ? **`/signed-records/{manifestId}`** (detail; same RSC page implementation)
+   - `/reviews/{runId}/manifest` ? **`/reviews/{runId}/signed-record`** (run-scoped signed record deep link)
+2. **`next.config.ts` permanent redirects** (`permanent: true`) from every legacy path above to the canonical alias — mirror the existing `/runs` ? `/reviews` pattern.
+3. **Rewrites** (if needed) so App Router file paths under `app/(operator)/manifests/` need not move on disk in the first pass; aliases can rewrite to existing route handlers.
+4. **Internal link migration:** update `Link`/`href` builders (`breadcrumb-map.ts`, `buyer-safe-review-navigation.ts`, governance/findings evidence links, showcase quick nav, help deep links) to emit **canonical** paths; legacy paths still work via redirect.
+5. **Nav + contract drift guards:** extend `NAV_CONFIG_CONTRACT` / route registry tests and Playwright smoke paths to assert buyer-polished golden path uses alias URLs without "manifest" segment.
+6. **Docs:** operator tutorials and help registry excerpts that cite `/manifests/...` for **customers** should cite canonical paths; keep API contract docs on `/v1/authority/manifests/...`.
+
+**Explicitly out of scope:**
+
+- Renaming backend REST paths, OpenAPI operation paths, or SQL identifiers.
+- Renaming `DownloadManifestButton`, `ManifestDetailPageView`, or other internal module names.
+- Changing **`/manifest.webmanifest`** (browser PWA manifest — platform term, not product jargon).
+
+**Acceptance criteria:**
+
+- Navigating to any legacy manifest URL permanently redirects to the canonical alias (no duplicate content URLs).
+- Buyer-polished golden path E2E and terminology guard surfaces do not require users to see "manifest" in the address bar for primary flows (list, detail, compare, evidence graph entry from signed record).
+- Bookmarks to legacy URLs continue to work for at least one release window via 301/308 redirects.
+- API behavior, persistence, and review generation semantics unchanged.
+
+**Affected files / projects (initial):**
+
+- `archlucid-ui/next.config.ts` (redirects + rewrites)
+- `archlucid-ui/src/lib/breadcrumb-map.ts`, `buyer-safe-review-navigation.ts`, `buyer-polished-route-orientation.ts`
+- `archlucid-ui/e2e/**` (golden path URL assertions)
+- `docs/library/NAV_CONFIG` / `ROUTE_TIER_POLICY_NAV_MATRIX.md` (if route registry rows change)
+- `archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`, operator tutorials citing customer paths
+
+**Size estimate:** **M**
+
+**Cross-ref:** **TB-355**, **TB-366**, **TB-273** (BDA manifest terminology), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §9, [`V1_DEFERRED.md`](V1_DEFERRED.md) §4.

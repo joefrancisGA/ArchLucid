@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveAzureExtractorUploadError } from "@/lib/azure-extractor-upload-error-resolver";
-import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
+import { parseAzureExtractorUploadFailure, parseClientAzurePackageZipFailure } from "@/lib/azure-extractor-upload-failure";
 
 describe("resolveAzureExtractorUploadError", () => {
   it("maps unsupported schemaVersion to AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION", () => {
@@ -70,6 +70,24 @@ describe("resolveAzureExtractorUploadError", () => {
 
     expect(resolution.semanticCode).toBe("AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH");
     expect(resolution.docPath).toContain("AZURE_EXTRACTOR_INGEST.md");
+  });
+});
+
+describe("parseClientAzurePackageZipFailure", () => {
+  it("maps client-side ZIP validation messages to semantic codes and remediation guidance", () => {
+    const presentation = parseClientAzurePackageZipFailure("ZIP does not contain manifest.json.");
+
+    expect(presentation.errorCode).toBe("AZURE_EXTRACTOR_MISSING_MANIFEST");
+    expect(presentation.heading).toBe("Extractor manifest rejected");
+    expect(presentation.guidance).toContain("manifest.json");
+    expect(presentation.copyPayload.validationSurface).toBe("client");
+  });
+
+  it("maps corrupt ZIP client messages to invalid archive guidance", () => {
+    const presentation = parseClientAzurePackageZipFailure("Uploaded payload is not a valid ZIP archive.");
+
+    expect(presentation.errorCode).toBe("AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE");
+    expect(presentation.heading).toBe("Invalid ZIP archive");
   });
 });
 

@@ -33,7 +33,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         </p>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{canonicalPackLabel}</h1>
         <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          {buyerPolishedShell ? BUYER_POLICY_PACK_LEAD : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and Manifest surfaces.`}
+          {buyerPolishedShell ? BUYER_POLICY_PACK_LEAD : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and signed review record surfaces.`}
         </p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">Healthcare vertical</Badge>

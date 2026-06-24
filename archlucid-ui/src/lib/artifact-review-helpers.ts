@@ -50,12 +50,12 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   JsonBundle: {
     label: "Architecture decision record",
     description:
-      "Structured decisions bundle linked to the manifest — open in a JSON viewer or download.",
+      "Structured decisions bundle linked to the signed review record — open in a JSON viewer or download.",
   },
   MarkdownReport: {
     label: "Markdown report",
     description:
-      "Human-readable Markdown artifact derived from the reviewed manifest or synthesis pipeline.",
+      "Human-readable Markdown artifact derived from the finalized review package or synthesis pipeline.",
   },
   Diagram: {
     label: "Diagram",
@@ -205,7 +205,7 @@ export function sponsorArtifactAudienceLine(artifactType: string): string | null
     Diagram: "Used by architects — visual context for the reviewed architecture.",
     Inventory: "Used by architects — component and dependency inventory for delivery planning.",
     CostSummary: "Used by sponsor and architects — cost posture sanity check for the design.",
-    ComplianceMatrix: "Used for audit — control coverage versus the manifest posture.",
+    ComplianceMatrix: "Used for audit — control coverage versus the review package posture.",
     CoverageSummary: "Used for audit — coverage signals tied to requirements or controls.",
     EvidenceBundle: "Used for audit — traceability and evidence exports.",
     UnresolvedIssuesReport: "Used by sponsor — open checklist items before finalize.",

@@ -102,7 +102,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
             </CardHeader>
             <CardContent className="grid gap-1 text-sm">
               <div>
-                {p.sourceEnvironment} → <strong>{p.targetEnvironment}</strong> · manifest{" "}
+                {p.sourceEnvironment} → <strong>{p.targetEnvironment}</strong> · review record{" "}
                 <code className="text-xs">{p.manifestVersion}</code>
               </div>
               <div>By {p.promotedBy}</div>
@@ -144,7 +144,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
                     ? enterpriseMutationControlDisabledTitle
                     : !workflowActor.trim()
                       ? "Enter your name for the audit trail to enable activation."
-                      : "POST activation for this manifest on the promotion’s target environment."}
+                      : "POST activation for this review record on the promotion’s target environment."}
                 </TooltipContent>
               </Tooltip>
             </CardFooter>
@@ -184,7 +184,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
             </CardHeader>
             <CardContent className="grid gap-1 text-sm">
               <div>
-                Environment <strong>{a.environment}</strong> · manifest <code className="text-xs">{a.manifestVersion}</code>
+                Environment <strong>{a.environment}</strong> · review record <code className="text-xs">{a.manifestVersion}</code>
               </div>
               <div>Active: {a.isActive ? "yes" : "no"}</div>
             </CardContent>

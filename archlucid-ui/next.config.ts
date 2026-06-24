@@ -101,6 +101,7 @@ const nextConfig: NextConfig = {
       { source: "/composite-alert-rules", destination: "/alerts?tab=composite", permanent: false },
       { source: "/alert-simulation", destination: "/alerts?tab=simulation", permanent: false },
       { source: "/alert-tuning", destination: "/alerts?tab=simulation", permanent: false },
+      { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: false },
       // Demo/share: prefer human-readable manifest URL in the browser bar (rewrites still serve the same page).
       {
         source: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",

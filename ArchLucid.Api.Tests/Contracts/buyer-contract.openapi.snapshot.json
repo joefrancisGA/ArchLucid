@@ -3692,6 +3692,9 @@
           "isPinned": {
             "type": "boolean"
           },
+          "isDeadLettered": {
+            "type": "boolean"
+          },
           "lastAgentExecutionFailure": {
             "oneOf": [
               {
@@ -4641,6 +4644,9 @@
             "type": "boolean"
           },
           "hasGraphSnapshot": {
+            "type": "boolean"
+          },
+          "isDeadLettered": {
             "type": "boolean"
           },
           "projectId": {
@@ -10645,6 +10651,16 @@
       },
       "FindingTraceConfidenceDto": {
         "properties": {
+          "classification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "oneOf": [
               {
@@ -10807,6 +10823,15 @@
           },
           "disclaimer": {
             "type": "string"
+          },
+          "requiresHumanReview": {
+            "type": "boolean"
+          },
+          "validationWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -20386,6 +20411,9 @@
           "isDemoWelcomeRun": {
             "type": "boolean"
           },
+          "isDeadLettered": {
+            "type": "boolean"
+          },
           "isPinned": {
             "type": "boolean"
           },
@@ -25941,9 +25969,6 @@
     },
     {
       "name": "TenantBaseline"
-    },
-    {
-      "name": "TenantCostEstimate"
     },
     {
       "name": "TenantCostSettings"

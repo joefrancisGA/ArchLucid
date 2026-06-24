@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { POLICY_PACK_ID_QUERY_PARAM, POLICY_RULE_ID_QUERY_PARAM, policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import {
+  POLICY_PACK_ID_QUERY_PARAM,
+  POLICY_PACKS_TAB_QUERY_PARAM,
+  POLICY_RULE_ID_QUERY_PARAM,
+  policyPacksAuthorHref,
+  policyPacksEditHref,
+  policyPacksRuleHref,
+} from "@/lib/policy-packs-deep-link";
 
 describe("policy-packs-deep-link", () => {
   it("builds href with packId query param", () => {
@@ -12,6 +19,13 @@ describe("policy-packs-deep-link", () => {
 
   it("returns bare route when pack id is empty", () => {
     expect(policyPacksEditHref("   ")).toBe("/policy-packs");
+  });
+
+  it("builds author tab href with optional pack and rule focus", () => {
+    expect(policyPacksAuthorHref("healthcare-claims-v3", "sec-base-001")).toBe(
+      `/policy-packs?${POLICY_PACKS_TAB_QUERY_PARAM}=author&${POLICY_PACK_ID_QUERY_PARAM}=healthcare-claims-v3&${POLICY_RULE_ID_QUERY_PARAM}=sec-base-001`,
+    );
+    expect(policyPacksAuthorHref()).toBe(`/policy-packs?${POLICY_PACKS_TAB_QUERY_PARAM}=author`);
   });
 
   it("builds policy packs href with ruleId query param", () => {

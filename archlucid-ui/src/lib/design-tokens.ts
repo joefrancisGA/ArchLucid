@@ -92,6 +92,12 @@ export const OPERATOR_PAGE_CONTAINER = {
 /** Max shell width shared by operator top bar, sidebar row, and footer. */
 export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
 
+/** Primary sidebar column width — top-bar brand rail uses {@link OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS}. */
+export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15.5rem]";
+
+/** Sidebar width from the `lg` breakpoint — matches hidden sidebar below `lg`. */
+export const OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS = "lg:w-[15.5rem]";
+
 /**
  * Four-tier operator typography (home + governance surfaces).
  * Prefer these over ad-hoc `text-xs` / `text-[10px]` on composed pages.

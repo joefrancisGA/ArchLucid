@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="FluentValidation" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Konscious.Security.Cryptography.Argon2" />
     <PackageReference Include="DocumentFormat.OpenXml" />

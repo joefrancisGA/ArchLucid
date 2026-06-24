@@ -80,7 +80,7 @@ export function buildExecutiveRiskReviewMarkdown(
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     isDeterministicExplanationFallback(summary)
-      ? "Some narrative was deterministically aligned to the manifest when live synthesis was unavailable."
+      ? "Some narrative was deterministically aligned to the review package when live synthesis was unavailable."
       : null,
   ].filter((s): s is string => typeof s === "string" && s.length > 0);
 
@@ -92,7 +92,7 @@ export function buildExecutiveRiskReviewMarkdown(
         } surfaced in this review package.`
       : null,
     typeof summary.unresolvedIssueCount === "number" && Number.isFinite(summary.unresolvedIssueCount)
-      ? `${summary.unresolvedIssueCount} unresolved manifest issue${
+      ? `${summary.unresolvedIssueCount} unresolved review package issue${
           Math.trunc(summary.unresolvedIssueCount) === 1 ? "" : "s"
         }.`
       : null,

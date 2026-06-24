@@ -11,7 +11,8 @@ export const OPERATE_NAV_UNLOCK_CHANGED_EVENT = "archlucid-operate-nav-unlock-ch
 const OPERATE_NAV_GROUP_IDS = new Set<string>([
   "operate-analysis",
   "operate-governance",
-  "operate-operations",
+  "operate-reports",
+  "operate-integrations",
 ]);
 
 const LEGACY_SIDEBAR_PREFERENCE_KEYS = [
@@ -23,11 +24,10 @@ const LEGACY_SIDEBAR_PREFERENCE_KEYS = [
   "archlucid-nav-collapsed-pilot-expanded",
 ] as const;
 
-/** Hrefs hidden until phase 2 (governance cluster). Recurrence schedules stay in phase 1 — operating rhythm, not deep governance. */
+/** Hrefs hidden until phase 2 (governance cluster). */
 const GOVERNANCE_PHASE_HREFS = new Set<string>([
   "/alerts",
   "/policy-packs",
-  "/governance-resolution",
   "/governance",
   "/audit",
   "/governance/decision-register",

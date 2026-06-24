@@ -12,6 +12,7 @@
 | Bounded contexts | [`library/bounded-context-map.md`](library/bounded-context-map.md) |
 | Reference library | [`library/`](library/) |
 | ADRs | [`architecture/adrs/README.md`](architecture/adrs/README.md) |
+| UI routes (all pages + demo entry) | [`architecture/ui_routes.md`](architecture/ui_routes.md) |
 | Operator atlas | [`library/OPERATOR_ATLAS.md`](library/OPERATOR_ATLAS.md) |
 | V1 contract | [`library/V1_SCOPE.md`](library/V1_SCOPE.md) |
 

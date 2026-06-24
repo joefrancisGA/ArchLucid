@@ -55,7 +55,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
   } = props;
 
   const compareActionsDisabled = loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
-  const summarizeActionsDisabled = aiLoading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
+  const showSummarizeForSponsor = (pairAligned && !loading) || aiLoading;
   const showSelectionHelper = !leftTrim || !rightTrim;
 
   const pickerFields = (
@@ -125,18 +125,16 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           >
             {loading ? "Comparing…" : "Compare reviews"}
           </button>
-          <button
-            type="button"
-            className={
-              pairAligned && !loading
-                ? "rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-                : "rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-4 py-2.5 text-sm font-medium text-neutral-600 shadow-sm hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-400 dark:hover:bg-neutral-800/60"
-            }
-            onClick={() => void onSummarizeForSponsor()}
-            disabled={summarizeActionsDisabled}
-          >
-            {aiLoading ? "Summarizing…" : summarizeButtonLabel}
-          </button>
+          {showSummarizeForSponsor ? (
+            <button
+              type="button"
+              className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              onClick={() => void onSummarizeForSponsor()}
+              disabled={aiLoading}
+            >
+              {aiLoading ? "Summarizing…" : summarizeButtonLabel}
+            </button>
+          ) : null}
         </div>
         {showSelectionHelper ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

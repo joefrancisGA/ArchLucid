@@ -211,7 +211,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
           <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">Manifest ready</span>
+          <span className="w-36 text-sm font-medium">Signed review record ready</span>
           <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
         </li>
       </ul>

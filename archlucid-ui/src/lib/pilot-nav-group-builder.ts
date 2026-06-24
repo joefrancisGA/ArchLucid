@@ -14,8 +14,7 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-const PORTFOLIO_OVERVIEW_NAV_TITLE =
-  "Portfolio overview — sponsor-facing ROI snapshot and package overview";
+const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and governance posture";
 
 /** Pilot layer — default authenticated path; essentials omit `requiredAuthority` where invariant requires it. */
 export class PilotNavGroupBuilder extends NavGroupBuilderBase {
@@ -39,10 +38,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/reviews/new",
           label: OPERATOR_NAV_LINK_LABELS.capture,
-          title: this.shortcutTitle(
-            "Start review — Quick review, Guided intake, or full wizard",
-            "alt+n",
-          ),
+          title: this.shortcutTitle("Create an architecture review", "alt+n"),
           keyShortcut: "alt+n",
           icon: Rocket,
           tier: "essential",
@@ -51,10 +47,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/graph",
           label: OPERATOR_NAV_LINK_LABELS.evidenceTrail,
-          title: this.shortcutTitle(
-            `${OPERATOR_NAV_LINK_LABELS.evidenceTrail} — decision traceability graph for one review`,
-            "alt+y",
-          ),
+          title: this.shortcutTitle("Trace evidence, findings, and decisions", "alt+y"),
           keyShortcut: "alt+y",
           icon: GitGraph,
           tier: "essential",
@@ -63,10 +56,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/reviews?projectId=default",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
-          title: this.shortcutTitle(
-            "Review packages — open review detail, architecture package, artifacts, exports",
-            "alt+r",
-          ),
+          title: this.shortcutTitle("Browse finalized review packages", "alt+r"),
           keyShortcut: "alt+r",
           icon: ListOrdered,
           tier: "essential",

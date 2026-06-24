@@ -6,7 +6,7 @@ export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
-  title: "Replay review",
+  title: "Validate review package",
 };
 
 export default function ReplayLayout({ children }: { children: ReactNode }) {

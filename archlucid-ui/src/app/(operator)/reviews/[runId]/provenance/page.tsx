@@ -74,7 +74,7 @@ export default async function RunProvenancePage({
 
     const fallback =
       loadFailure?.message ??
-      "Provenance could not be loaded (review missing, broken manifest reference, or transport error).";
+      "Provenance could not be loaded (review missing, broken review record reference, or transport error).";
 
     return (
       <div className="w-full max-w-3xl p-4">

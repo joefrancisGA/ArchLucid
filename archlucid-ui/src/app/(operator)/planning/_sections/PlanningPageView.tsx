@@ -37,7 +37,7 @@ export function PlanningPageView(props: Props) {
     <div className="max-w-5xl">
       <OperatorPageHeader title="Planning" />
       <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
-        Improvement themes and prioritized plans derived from evaluation feedback (59R). This is a <strong>read-only</strong> browse view — use{" "}
+        Improvement themes and prioritized plans derived from evaluation feedback. This is a <strong>read-only</strong> browse view — use{" "}
         <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
           {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
         </Link>{" "}

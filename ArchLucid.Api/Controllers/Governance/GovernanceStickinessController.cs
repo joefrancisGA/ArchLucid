@@ -162,6 +162,60 @@ public sealed class GovernanceStickinessController(
         }
     }
 
+    [HttpPost("findings/bulk-disposition")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(RecordBulkFindingDispositionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
+    public async Task<IActionResult> RecordBulkDisposition(
+        [FromBody] RecordBulkFindingDispositionRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.FindingIds is null || request.FindingIds.Count == 0)
+            return this.BadRequestProblem("At least one FindingId must be provided.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actorId = actorContext.GetActorId();
+        
+        var updated = new List<string>();
+
+        foreach (string findingId in request.FindingIds)
+        {
+            RecordFindingDispositionRequest normalized = new()
+            {
+                FindingId = findingId,
+                RunId = Guid.Empty,
+                Disposition = request.Disposition,
+                Rationale = request.Rationale,
+                RevisitDueUtc = request.Disposition == ArchLucid.Contracts.Findings.FindingDisposition.Deferred && request.RevisitDueUtc == null 
+                    ? TimeProvider.System.GetUtcNow().AddDays(30) 
+                    : request.RevisitDueUtc
+            };
+
+            try
+            {
+                await findingDispositionService.RecordAsync(
+                    normalized,
+                    scope,
+                    actorId,
+                    cancellationToken);
+                updated.Add(findingId);
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+            {
+            }
+        }
+
+        return Ok(new RecordBulkFindingDispositionResponse 
+        { 
+            ProcessedCount = updated.Count, 
+            UpdatedFindingIds = updated 
+        });
+    }
+
     [HttpGet("findings/{findingId}/dispositions")]
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)

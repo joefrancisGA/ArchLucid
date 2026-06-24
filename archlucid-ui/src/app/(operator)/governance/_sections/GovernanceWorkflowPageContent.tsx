@@ -415,7 +415,7 @@ export function GovernanceWorkflowPageContent() {
         promotedBy: by,
         approvalRequestId: promoteFor.approvalRequestId ?? undefined,
       });
-      setToast({ kind: "ok", message: "Manifest promoted." });
+      setToast({ kind: "ok", message: "Review package promoted." });
       setPendingPromote(null);
       pendingPromoteRequestRef.current = null;
       await refreshIfActive();

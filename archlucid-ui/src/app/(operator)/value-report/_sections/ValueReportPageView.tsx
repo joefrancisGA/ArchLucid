@@ -9,14 +9,18 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import {
   BUYER_VALUE_REPORT_EXPORT_DISCLOSURE,
-  BUYER_VALUE_REPORT_OUTCOME_DETAILS,
   BUYER_VALUE_REPORT_OUTCOME_LEAD,
+  BUYER_VALUE_REPORT_PAGE_SUBTITLE,
+  BUYER_VALUE_REPORT_PAGE_TITLE,
+  BUYER_VALUE_REPORT_PERIOD_UTC_HELP,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
+import { ValueReportEmptyState } from "./ValueReportEmptyState";
+import { ValueReportPreviewSection } from "./ValueReportPreviewSection";
 
 type ValueReportPageViewProps = {
   model: UseValueReportPageModel;
@@ -26,11 +30,15 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   const {
     boardBusy,
     busy,
+    canDownload,
     canMutate,
     error,
     fromUtc,
+    hasReportData,
     onBoardPack,
     onGenerate,
+    previewBusy,
+    previewMetrics,
     setFromUtc,
     setToUtc,
     toUtc,
@@ -39,45 +47,54 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   const exportControls = (
-    <>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex flex-1 flex-col gap-1 text-sm">
-          <span>From (UTC)</span>
-          <input
-            className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-            type="datetime-local"
-            value={fromUtc}
-            onChange={(e) => setFromUtc(e.target.value)}
-          />
-        </label>
-        <label className="flex flex-1 flex-col gap-1 text-sm">
-          <span>To (UTC)</span>
-          <input
-            className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-            type="datetime-local"
-            value={toUtc}
-            onChange={(e) => setToUtc(e.target.value)}
-          />
-        </label>
-        <Button type="button" disabled={!canMutate || busy} onClick={() => void onGenerate()}>
-          {busy ? "Generating…" : "Download DOCX"}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!canMutate || boardBusy}
-          onClick={() => void onBoardPack()}
-          title="Uses the current UTC calendar quarter"
-        >
-          {boardBusy ? "Board pack…" : "Quarterly board pack (PDF)"}
-        </Button>
-      </div>
+    <div className="space-y-3">
+      <fieldset className="m-0 space-y-2 border-0 p-0">
+        <legend className="text-sm font-medium text-al-text-primary">Report period</legend>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{BUYER_VALUE_REPORT_PERIOD_UTC_HELP}</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="flex flex-1 flex-col gap-1 text-sm">
+            <span>From</span>
+            <input
+              className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+              type="datetime-local"
+              value={fromUtc}
+              onChange={(e) => setFromUtc(e.target.value)}
+            />
+          </label>
+          <label className="flex flex-1 flex-col gap-1 text-sm">
+            <span>To</span>
+            <input
+              className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+              type="datetime-local"
+              value={toUtc}
+              onChange={(e) => setToUtc(e.target.value)}
+            />
+          </label>
+          <Button type="button" disabled={!canDownload || busy} onClick={() => void onGenerate()}>
+            {busy ? "Generating…" : "Sponsor report (.docx)"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!canDownload || boardBusy}
+            onClick={() => void onBoardPack()}
+            title="Uses the current calendar quarter"
+          >
+            {boardBusy ? "Generating…" : "Board pack (.pdf)"}
+          </Button>
+        </div>
+      </fieldset>
       {!canMutate ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Operator or Administrator role required — the API enforces elevated permissions for this report.
+          Operator or Administrator role required to generate sponsor reports.
         </p>
       ) : null}
-    </>
+      {canMutate && !hasReportData && !previewBusy ? (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Finalize at least one review package in this period before downloading a sponsor report.
+        </p>
+      ) : null}
+    </div>
   );
 
   return (
@@ -85,22 +102,23 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
       <LayerHeader pageKey="value-report" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Value report</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
         {buyerPolishedShell ? (
           <div className={cn("space-y-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800", DESIGN_TOKENS.surface.card)}>
             <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
-            <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              {BUYER_VALUE_REPORT_OUTCOME_DETAILS}
-            </p>
           </div>
         ) : (
-          <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            Generates a stakeholder-grade DOCX from finalized reviews, governance and drift audit counts, and ROI_MODEL-aligned
-            estimates for the selected UTC window. Requires{" "}
-            <strong className="font-medium text-neutral-800 dark:text-neutral-200">Standard</strong> commercial tier on the
-            API.
-          </p>
+          <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">{BUYER_VALUE_REPORT_PAGE_SUBTITLE}</p>
         )}
+        {previewBusy ? (
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="status">
+            Loading report preview…
+          </p>
+        ) : null}
+        {!previewBusy && !hasReportData ? <ValueReportEmptyState /> : null}
+        {!previewBusy && hasReportData && previewMetrics !== null ? (
+          <ValueReportPreviewSection metrics={previewMetrics} />
+        ) : null}
         {buyerPolishedShell ? (
           <CollapsibleSection title={BUYER_VALUE_REPORT_EXPORT_DISCLOSURE} defaultOpen={false}>
             {exportControls}

@@ -47,14 +47,14 @@ const SEGMENT_LABELS: Record<string, string> = {
   new: "New request",
   graph: "Graph",
   compare: "Compare",
-  replay: "Replay",
+  replay: "Validate review package",
   ask: "Ask",
   search: "Search",
   advisory: "Advisory",
-  "recommendation-learning": "Learning",
+  "recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
   planning: "Planning",
-  "evolution-review": "Simulation review",
+  "evolution-review": "Change simulation",
   "advisory-scheduling": "Schedules",
   digests: "Digests",
   "digest-subscriptions": "Subscriptions",
@@ -70,7 +70,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   findings: "Findings",
   dashboard: "Dashboard",
   audit: "Audit trail",
-  manifests: "Manifests",
+  manifests: "Signed review records",
   provenance: "Evidence provenance",
   "value-report": "Value report",
   pilot: BUYER_TERMINOLOGY.evaluationValueReport,
@@ -83,7 +83,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   plans: "Plans",
   settings: "Settings",
   billing: "Billing & plans",
-  webhooks: "Webhooks",
+  integrations: "Integrations",
+  webhooks: "Webhook subscriptions",
 };
 
 /**
@@ -254,9 +255,9 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-run-001": "Claims Intake Modernization",
   "e2e-fixture-left-run": "Baseline architecture review (compare)",
   "e2e-fixture-right-run": "Target architecture review (compare)",
-  "f0000001-0000-4000-8000-000000000001": "Sample finalized manifest",
-  "f0000002-0000-4000-8000-000000000002": "Manifest (artifacts pending)",
-  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake package manifest",
+  "f0000001-0000-4000-8000-000000000001": "Sample finalized review package",
+  "f0000002-0000-4000-8000-000000000002": "Review package (artifacts pending)",
+  [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake review package",
   "claims-intake-modernization": "Claims Intake Modernization",
   "e2e-plan-001": "Demonstration plan",
   "e2e-finding-001": "Demonstration finding",
@@ -414,7 +415,7 @@ function labelForSegment(
     }
 
     if (prev === "manifests") {
-      return buyer ? SIGNED_MANIFEST_LABEL : "Manifest";
+      return SIGNED_MANIFEST_LABEL;
     }
 
     if (prev === "approval-requests") {

@@ -9,7 +9,7 @@ export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
-  title: "Manifest",
+  title: "Signed review record",
 };
 
 export default async function ManifestLayout({

@@ -16,7 +16,10 @@ import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import {
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+  OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
+} from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +28,7 @@ type OperatorShellTopBarProps = {
 };
 
 /**
- * Operator shell header: single primary rail (identity, search, session controls, help).
+ * Operator shell header: brand rail (sidebar width), content-aligned search, session controls.
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
@@ -39,21 +42,24 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
       data-testid="app-shell-topbar"
       className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "min-w-0 overflow-x-hidden px-4 py-2.5 lg:px-6")}>
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-          <div
-            data-testid="app-shell-topbar-primary"
-            className="flex min-w-0 items-center gap-3"
-          >
-            <MobileNavDrawer />
-            <h1 className="m-0">
-              <Button variant="ghost" className="h-auto p-0" asChild>
-                <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
-              </Button>
-            </h1>
-          </div>
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0 overflow-x-hidden")}>
+        <div
+          data-testid="app-shell-topbar-primary"
+          className={cn(
+            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2.5 lg:px-2",
+            OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
+          )}
+        >
+          <MobileNavDrawer />
+          <h1 className="m-0">
+            <Button variant="ghost" className="h-auto p-0" asChild>
+              <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
+            </Button>
+          </h1>
+        </div>
 
-          <div className="min-w-0 flex-1 basis-full sm:order-none sm:basis-auto sm:max-w-md lg:max-w-lg xl:max-w-xl">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5 lg:px-6">
+          <div className="min-w-0 flex-1 basis-full sm:basis-auto sm:max-w-md lg:max-w-lg xl:max-w-xl">
             <GlobalSearchBar />
           </div>
 

@@ -1,7 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -61,6 +60,7 @@ public sealed class PolicyPacksController(
     IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
     PolicyPackMarkdownExplainService policyPackMarkdownExplainService,
     IPolicyPackRuleTemplatesService policyPackRuleTemplatesService,
+    IPolicyPackContentAuthoringValidationService policyPackContentAuthoringValidationService,
     IAuditService auditService)
     : ControllerBase
 {
@@ -80,6 +80,11 @@ public sealed class PolicyPacksController(
 
     private readonly IPolicyPackRuleTemplatesService _policyPackRuleTemplatesService =
         policyPackRuleTemplatesService ?? throw new ArgumentNullException(nameof(policyPackRuleTemplatesService));
+
+    private readonly IPolicyPackContentAuthoringValidationService _policyPackContentAuthoringValidationService =
+        policyPackContentAuthoringValidationService
+        ?? throw new ArgumentNullException(nameof(policyPackContentAuthoringValidationService));
+
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
     // idempotency-posture: operator-documented-safe-retry
@@ -625,9 +630,9 @@ public sealed class PolicyPacksController(
     [HttpPost("validate")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [Produces("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PolicyPackContentValidationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
-    public IActionResult Validate([FromBody] JsonElement? body)
+    public async Task<IActionResult> Validate([FromBody] JsonElement? body, CancellationToken cancellationToken)
     {
         if (body is null || body.Value.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -653,21 +658,9 @@ public sealed class PolicyPacksController(
         if (document is null)
             return this.BadRequestProblem("Deserialized document is null.", ProblemTypes.ValidationFailed);
 
-        PolicyPackContentDocumentValidator validator = new();
-        FluentValidation.Results.ValidationResult validationResult = validator.Validate(document);
+        PolicyPackContentValidationResponse response =
+            await _policyPackContentAuthoringValidationService.ValidateAsync(document, cancellationToken);
 
-        if (!validationResult.IsValid)
-        {
-            string[] errors = validationResult.Errors
-                .Select(static error => error.ErrorMessage)
-                .ToArray();
-
-            return this.BadRequestProblem(
-                string.Join("; ", errors),
-                ProblemTypes.ValidationFailed,
-                extensions: new Dictionary<string, object?> { ["errors"] = errors });
-        }
-
-        return Ok();
+        return Ok(response);
     }
 }

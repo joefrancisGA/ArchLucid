@@ -1,0 +1,84 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  buildRetrievalHitActionLink,
+  resolveRetrievalHitRunId,
+  retrievalHitRelevanceTier,
+  retrievalHitSourceTypeLabel,
+} from "./retrieval-hit-display";
+import type { RetrievalHit } from "./retrieval-hit";
+
+const SAMPLE_RUN_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
+const SAMPLE_MANIFEST_ID = "b2d3e4f5-a6b7-8901-bcde-f12345678901";
+
+function hit(partial: Partial<RetrievalHit>): RetrievalHit {
+  return {
+    chunkId: "chunk-1",
+    documentId: "",
+    sourceType: "ManifestFinding",
+    sourceId: "phi-minimization-risk",
+    title: "PHI boundary",
+    text: "Sample snippet",
+    score: 0.82,
+    ...partial,
+  };
+}
+
+describe("retrievalHitSourceTypeLabel", () => {
+  it("maps manifest finding to Finding", () => {
+    expect(retrievalHitSourceTypeLabel("ManifestFinding")).toBe("Finding");
+  });
+});
+
+describe("retrievalHitRelevanceTier", () => {
+  it("classifies high scores", () => {
+    expect(retrievalHitRelevanceTier(0.85)).toBe("high");
+  });
+});
+
+describe("resolveRetrievalHitRunId", () => {
+  it("parses run id from manifest finding document id", () => {
+    const resolved = resolveRetrievalHitRunId(
+      hit({
+        documentId: `manifest-${SAMPLE_RUN_ID}-finding-phi-minimization-risk`,
+      }),
+    );
+
+    expect(resolved).toBe(SAMPLE_RUN_ID);
+  });
+
+  it("falls back to scoped run filter", () => {
+    expect(resolveRetrievalHitRunId(hit({ documentId: "" }), SAMPLE_RUN_ID)).toBe(SAMPLE_RUN_ID);
+  });
+});
+
+describe("buildRetrievalHitActionLink", () => {
+  it("links findings to inspect route", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        findingId: "phi-minimization-risk",
+        documentId: `manifest-${SAMPLE_RUN_ID}-finding-phi-minimization-risk`,
+      }),
+    );
+
+    expect(link).toEqual({
+      href: `/reviews/${SAMPLE_RUN_ID}/findings/phi-minimization-risk/inspect`,
+      label: "Open finding",
+    });
+  });
+
+  it("links signed manifest hits to manifest detail", () => {
+    const link = buildRetrievalHitActionLink(
+      hit({
+        sourceType: "Manifest",
+        sourceId: SAMPLE_MANIFEST_ID,
+        findingId: undefined,
+      }),
+    );
+
+    expect(link).toEqual({
+      href: `/manifests/${SAMPLE_MANIFEST_ID}`,
+      label: "Open signed review record",
+    });
+  });
+});

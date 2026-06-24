@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 
 import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer-golden-manifest-summary-highlights";
+import {
+  BUYER_COMPARE_STRUCTURED_HEADING,
+  BUYER_COMPARE_STRUCTURED_LEAD,
+} from "@/lib/buyer-polish-copy";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
@@ -27,7 +31,7 @@ function formatCostEstimateCell(value: unknown): string {
   }
 
   if (/^[\$\u00a3\u20ac]/.test(s)) {
-    return `${s}/mo — projected monthly run rate (from manifest pipeline cost model)`;
+    return `${s}/mo — projected monthly run rate (from review pipeline cost model)`;
   }
 
   if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
@@ -137,10 +141,9 @@ export function StructuredComparisonView(props: {
 
   return (
     <section id="compare-structured" className="mt-7">
-      <h3 className="mb-2">Manifest comparison</h3>
+      <h3 className="mb-2">{BUYER_COMPARE_STRUCTURED_HEADING}</h3>
       <p className="mb-3 max-w-3xl text-sm font-medium leading-relaxed text-neutral-800 dark:text-neutral-100">
-        Compare finalized manifests to understand what changed between reviews — each card below summarizes one category.
-        Prefer this narrative before supplementary diffs further down.
+        {BUYER_COMPARE_STRUCTURED_LEAD}
       </p>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
         <span>
@@ -337,7 +340,7 @@ export function StructuredComparisonView(props: {
                 </tbody>
               </table>
               <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
-                Projected monthly run rates are derived from the manifest pipeline cost model. Figures reflect the
+                Projected monthly run rates are derived from the review pipeline cost model. Figures reflect the
                 architecture as described; validate against your FinOps baseline before using in budget planning.
                 Use &ldquo;{props.buyerCompareUi === true ? "Summarize for leadership" : "Summarize for sponsor"}
                 &rdquo; to include this delta in an executive narrative.

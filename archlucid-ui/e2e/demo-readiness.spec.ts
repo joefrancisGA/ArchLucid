@@ -16,7 +16,7 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
  * Marketing showcase QuickNav (`ShowcaseQuickNav`) uses "Open manifest"; review-trail cards use "Manifest";
  * operator runs table still uses "Finalized manifest". Proof-chain tests accept any stable deep-link label.
  */
-const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open manifest|Manifest|Finalized manifest)$/i;
+const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open signed record|Signed review record|Review package|Finalized review package)$/i;
 
 /** Canonical run detail path is `/reviews/{runId}`; `/runs/*` permanently redirects (see `next.config.ts`). */
 function showcaseDemoReviewDetailUrlPattern(): RegExp {
@@ -61,7 +61,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
     const primaryMain = page.getByRole("main");
     await expect(primaryMain).toHaveCount(1);
-    await expect(primaryMain).not.toContainText(/manifest summary could not be loaded/i);
+    await expect(primaryMain).not.toContainText(/review record summary could not be loaded/i);
     await expect(primaryMain).not.toContainText(/request failed/i);
   });
 
@@ -107,7 +107,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       /\bAPI-gated\b/i,
       /\bAP-gated\b/i,
       /\br1\b/i,
-      /golden manifest/i,
+      /signed review record/i,
       /\blegacy\b/i,
       /Execute\+/,
       /Development workspace/i,

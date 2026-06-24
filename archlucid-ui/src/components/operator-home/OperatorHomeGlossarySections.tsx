@@ -45,8 +45,8 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     step: 3,
     stage: "Finalize",
     icon: Play,
-    label: "Finalize Manifest",
-    description: "Finalize the reviewed manifest and export artifacts.",
+    label: "Finalize review package",
+    description: "Finalize the signed review record and export artifacts.",
     href: "/reviews?projectId=default",
   },
   {

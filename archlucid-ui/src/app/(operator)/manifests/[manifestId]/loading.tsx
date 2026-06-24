@@ -30,9 +30,9 @@ export default function ManifestDetailLoading() {
         </Link>
       </nav>
       <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
-        {buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
+        {buyerPolishedLayout ? "Architecture review package" : "Finalized architecture review package"}
       </h1>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading manifest record…</p>
+      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading review record…</p>
     </div>
   );
 }

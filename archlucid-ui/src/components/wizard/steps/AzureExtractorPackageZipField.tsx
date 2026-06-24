@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
+import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
@@ -44,8 +46,8 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const successMessage =
     variant === "baseline"
-      ? "Extractor manifest applied — confirm system identity on the next step."
-      : "Extractor manifest applied — review identity and brief on earlier steps if needed.";
+      ? "Extractor package applied — confirm system identity on the next step."
+      : "Extractor package applied — review identity and brief on earlier steps if needed.";
 
   function applyManifestToWizard(manifest: ArchLucidAzurePackageManifest): void {
     const prefill = buildWizardPrefillFromArchLucidAzureManifest(manifest);
@@ -118,7 +120,11 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
               is parsed in the browser; upload the full ZIP to ingestion when your review is configured.
             </p>
             {variant === "baseline" ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
+                <AzureExtractorQuickStartCommandPanel
+                  testIdPrefix="wizard-baseline-extractor"
+                  description="Run from your ArchLucid checkout, then drop ./archlucid-azure-package.zip below — or try demo data first."
+                />
                 <AzureExtractorDemoScenarioPicker
                   selectedScenarioId={selectedDemoScenarioId}
                   onSelectScenario={setSelectedDemoScenarioId}
@@ -138,13 +144,16 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
             ) : null}
             {busy ? (
               <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="wizard-azure-zip-busy">
-                Reading manifest…
+                Reading extractor package…
               </p>
             ) : null}
             {localError !== null && localError.length > 0 ? (
-              <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert" data-testid="wizard-azure-zip-error">
-                {localError}
-              </p>
+              <AzureExtractorUploadFailureCallout
+                fallbackMessage={localError}
+                problem={null}
+                correlationId={null}
+                rootTestId="wizard-azure-zip-error"
+              />
             ) : null}
             {variant === "ingest" ? (
               <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

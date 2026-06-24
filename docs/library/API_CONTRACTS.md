@@ -358,6 +358,7 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `GET` | `/v1/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
 | `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
 | `GET` | `/v1/policy-packs/{policyPackId}/explain` | Returns **`text/markdown`**: plain-English summary of the pack’s **current** version **`ContentJson`** (LLM-assisted; **advisory only**). **ReadAuthority**; **`expensive`** rate limit. **404** when the pack is out of scope, or when the current version has no content. |
+| `POST` | `/v1/policy-packs/validate` | Validates raw **`PolicyPackContentDocument`** JSON in-process (no pack row, no audit row). Returns **`PolicyPackContentValidationResponse`** with **`valid`**, parsed **`summary`** counts, and **`issues`** (errors for structural violations; warnings for unknown `complianceRuleKeys`). **ReadAuthority**. |
 | `POST` | `/v1/policy-packs/simulate` | Typed façade over **`POST /v1/governance/policy-packs/dry-run`**: body **`runId`** + **`content`** (**`PolicyPackContentDocument`**) plus optional gate overrides. **ReadAuthority**; **`governancePolicyPackDryRun`** rate limit. **404** when the run is missing in scope. |
 | `GET` | `/v1/policy-packs/catalog` | Lists **promoted** platform catalog entries (snapshot metadata). **ReadAuthority**. |
 | `GET` | `/v1/policy-packs/catalog/{policyPackCatalogEntryId}` | One promoted entry including **snapshot JSON** for cloning. **ReadAuthority**. **404** when missing or not promoted. |
@@ -365,6 +366,8 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 | `POST` | `/v1/policy-packs/catalog/demote` | Sets **`IsPromoted`** false (row retained; hidden from catalog list). Body **`policyPackCatalogEntryId`**. **AdminAuthority**. **204** on success. **404** when the entry id does not exist. Emits **`PolicyPackCatalogDemoted`**. |
 
 **Policy pack catalog (hub):** Tenants **browse** promoted snapshots globally and **clone** into a **new tenant-owned pack** via existing create APIs; there is **no multi-tenant write sharing** of authoring state—only curated read-only snapshots.
+
+**Authoring validation (CLI + UI):** Operators can paste JSON on the Policy Packs **Author** tab (**Validate JSON**) or run `archlucid policy validate <file.json>` locally. Both paths use the same structural rules as create/publish and warn on unknown `complianceRuleKeys` relative to the GA file-based rule library (plus curated rule ids declared in the same document).
 
 **Validation:** Create / publish / assign bodies are validated with **FluentValidation**. **Promote** / **demote** catalog bodies are validated the same way. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
 

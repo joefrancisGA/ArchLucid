@@ -10,7 +10,7 @@ export const fetchCache = "force-no-store";
 export const metadata: Metadata = {
   title: BUYER_TERMINOLOGY.evaluationFeedback,
   description:
-    "Product learning dashboard: trusted vs rejected trends, revision patterns, improvement opportunities, triage queue (58R).",
+    "Track pilot feedback on review outputs, recurring issues, and improvement opportunities for the current workspace.",
 };
 
 export default function ProductLearningLayout({ children }: { children: ReactNode }) {

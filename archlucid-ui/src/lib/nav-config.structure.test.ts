@@ -30,16 +30,16 @@ describe("nav-config structure", () => {
 
   it("declares NavShellSurface on every nav group", () => {
     for (const group of NAV_GROUPS) {
-      expect(group.surface).toMatch(/^(review-workflow|platform-admin)$/);
+      expect(group.surface).toMatch(/^(review-workflow|platform-admin|system-admin)$/);
     }
   });
 
-  it("keeps AdminAuthority rows in the operator-admin (platform-admin) group only", () => {
+  it("keeps AdminAuthority rows in tenant or internal admin groups only", () => {
     for (const group of NAV_GROUPS) {
       for (const link of group.links) {
         if (link.requiredAuthority === "AdminAuthority") {
-          expect(group.id, link.href).toBe("operator-admin");
-          expect(group.surface).toBe("platform-admin");
+          expect(["operator-admin", "operator-system-admin"], link.href).toContain(group.id);
+          expect(["platform-admin", "system-admin"]).toContain(group.surface);
         }
       }
     }
@@ -65,10 +65,6 @@ describe("nav-config structure", () => {
     }
   });
 
-  /**
-   * Tier runs before authority in the shell: Execute-class destinations must not sit on **essential** tier or they
-   * could appear for first-pilot defaults before “Show more” regardless of rank story (see `nav-shell-visibility.test.ts`).
-   */
   it("keeps ExecuteAuthority Governance links off essential tier", () => {
     const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
@@ -83,10 +79,6 @@ describe("nav-config structure", () => {
     }
   });
 
-  /**
-   * Pilot essentials intentionally omit `requiredAuthority` so bootstrap / conservative ranks still see the
-   * default path (`docs/NAV_CONFIG_CONTRACT.md`). A stray Read/Execute label on Home or Reviews would regress first pilots.
-   */
   it("keeps requiredAuthority unset on Pilot essential-tier links", () => {
     const core = NAV_GROUPS.find((group) => group.id === "pilot");
 
@@ -99,11 +91,6 @@ describe("nav-config structure", () => {
     }
   });
 
-  /**
-   * Same structural rule as **Governance**: Execute-class **Analysis** links must not sit on
-   * `essential`, or they could appear before progressive disclosure even when rank allows Execute (`nav-shell-visibility`
-   * tier order).
-   */
   it("keeps ExecuteAuthority Analysis links off essential tier", () => {
     const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
@@ -117,22 +104,30 @@ describe("nav-config structure", () => {
   it("keeps buyer-polished operate group membership aligned", () => {
     const analysisHrefs = NAV_GROUPS.find((group) => group.id === "operate-analysis")!.links.map((link) => link.href);
     const governanceHrefs = NAV_GROUPS.find((group) => group.id === "operate-governance")!.links.map((link) => link.href);
-    const operationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-operations")!.links.map((link) => link.href);
+    const reportsHrefs = NAV_GROUPS.find((group) => group.id === "operate-reports")!.links.map((link) => link.href);
+    const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
+    const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
 
-    expect(analysisHrefs).toEqual(["/compare", "/ask", "/search", "/advisory"]);
+    expect(analysisHrefs).toEqual(["/ask", "/search", "/compare"]);
     expect(governanceHrefs).toEqual([
+      "/governance",
       "/governance/findings",
       "/governance/risk-exceptions",
       "/policy-packs",
-      "/governance-resolution",
-      "/governance",
-      "/audit",
       "/governance/decision-register",
+      "/audit",
       "/alerts",
     ]);
-    expect(operationsHrefs).toContain("/integrations/teams");
-    expect(operationsHrefs).toContain("/replay");
-    expect(operationsHrefs).not.toContain("/portfolio");
-    expect(governanceHrefs).not.toContain("/integrations/teams");
+    expect(reportsHrefs).toEqual(["/scorecard", "/value-report", "/governance/first-30-days"]);
+    expect(integrationsHrefs).toEqual([
+      "/integrations/operations",
+      "/settings/cloud-connections",
+      "/integrations/webhooks",
+      "/integrations/teams",
+    ]);
+    expect(systemAdminHrefs).toContain("/admin/rag-health");
+    expect(systemAdminHrefs).toContain("/replay");
+    expect(systemAdminHrefs).toContain("/advisory");
+    expect(systemAdminHrefs).not.toContain("/settings/tenant");
   });
 });

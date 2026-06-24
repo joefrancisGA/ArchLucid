@@ -25,11 +25,13 @@ export type LayerGuidancePageKey =
   | "replay"
   | "graph"
   | "integrations-operations"
+  | "webhooks"
   | "governance-dashboard"
   | "governance-findings"
   | "governance-first-30-days"
   | "governance-resolution"
   | "governance-workflow"
+  | "risk-exceptions"
   | "policy-packs"
   | "alert-rules"
   | "alert-routing"
@@ -58,6 +60,8 @@ export type LayerGuidanceBlock = {
    * See docs/OPERATOR_DECISION_GUIDE.md §2.
    */
   enterpriseFootnote?: string | null;
+  /** When true, omit the global review-package vocabulary strip (integration/admin surfaces). */
+  omitReviewPackageScopeHelp?: boolean;
 };
 
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
@@ -70,9 +74,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   replay: {
     layerBadge: "Advanced operations",
-    headline: "Answers: does stored pipeline output still validate for this review on replay?",
+    headline: "Answers: does stored review output still validate for this review package?",
     useWhen: "Use when you need drift or integrity checks on a single review, not a visual diff.",
-    firstPilotNote: "Typically after Pilot proof when you replay or validate chains.",
+    firstPilotNote: "Typically after Pilot proof when you validate stored review chains.",
   },
   graph: {
     layerBadge: "Evidence graph",
@@ -82,12 +86,22 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
   "integrations-operations": {
-    layerBadge: "Advanced operations",
-    headline: "Connector readiness across Teams, Slack, ITSM, Confluence, digests, and messaging buses.",
+    layerBadge: "Integration readiness",
+    headline: "Check whether notification, ticketing, publishing, and messaging integrations are configured for this workspace.",
     useWhen:
-      "Use when operators need a single read-only health view of wiring without storing connector secrets in this UI.",
+      "Use this page to verify connector readiness before enabling notifications, ticket creation, publishing, or scheduled digests.",
     firstPilotNote:
-      "After Pilot proof when integration footprint spans multiple channels and operators want a consolidated snapshot.",
+      "These connectors are optional for first review value; full native Jira and ServiceNow operations are not required for Pilot proof.",
+    omitReviewPackageScopeHelp: true,
+  },
+  webhooks: {
+    layerBadge: "Integration configuration",
+    headline: "Configure outbound HTTPS webhook subscriptions for custom event delivery.",
+    useWhen:
+      "Use when you need ArchLucid to POST signed events to your own HTTPS collectors — not for standard Teams channel setup.",
+    firstPilotNote:
+      "Optional until you connect monitoring or automation; use Microsoft Teams notifications for guided Teams wiring.",
+    omitReviewPackageScopeHelp: true,
   },
   "governance-dashboard": {
     layerBadge: "Governance",
@@ -99,7 +113,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-findings": {
     layerBadge: "Governance",
-    headline: "Architecture risk register — owned risks, dispositions, review cadence, and linked manifest decisions.",
+    headline: "Risk register — Track owned architecture risks, dispositions, waivers, and review decisions.",
     useWhen: "Answer what risks the organization owns now without opening each review; filter stale risks and expiring waivers.",
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
@@ -129,12 +143,12 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Search first; CSV export for auditors and admins.",
   },
   "security-trust": {
-    layerBadge: "Governance",
-    headline: "Procurement-facing security posture and NDA-gated pen-test summaries.",
-    useWhen: "Use when buyers need CAIQ/SIG pointers, Trust Center links, and the NDA path for redacted pen-test excerpts.",
-    firstPilotNote:
-      "Procurement/CCI, not Pilot scope. Redacted pen-test excerpts NDA-only; contact security@.",
-    enterpriseFootnote: "Read-oriented; Admin API may still emit SecurityAssessmentPublished for audit/SIEM without implying public publication.",
+    layerBadge: "Security & trust",
+    headline: "Security materials for procurement, vendor review, and enterprise trust.",
+    useWhen:
+      "Share procurement-ready security materials, trust-center links, and assessment status for this workspace.",
+    firstPilotNote: null,
+    omitReviewPackageScopeHelp: true,
   },
   "teams-notifications": {
     layerBadge: "Governance",
@@ -145,26 +159,29 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
   },
   "value-report-pilot": {
-    layerBadge: "Advanced operations",
-    headline: "Sponsor-ready proof snapshot without generating a DOCX.",
+    layerBadge: "Sponsor report",
+    headline: "Sponsor-ready proof snapshot from finalized reviews.",
     useWhen:
-      "After you commit a review, open sponsor proof here — totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
+      "After you finalize a review, open sponsor proof here — totals, severities, governance signals, and a Markdown handoff for the selected period.",
     firstPilotNote:
-      "First-use path: create review → execute analysis → commit → open sponsor proof on this page (or export from review detail).",
+      "First-use path: create review → execute analysis → finalize → open sponsor proof on this page (or export from review detail).",
+    omitReviewPackageScopeHelp: true,
   },
   "value-report-roi": {
-    layerBadge: "Advanced operations",
-    headline: "Sponsor-facing hours estimate from severities and pre-finalization blocks.",
+    layerBadge: "Sponsor report",
+    headline: "Estimated hours saved from review findings and governance blocks.",
     useWhen:
-      "When champions need a defensible hours story before negotiating loaded $/hour internally; pairs with Workspace health.",
-    firstPilotNote: "Read-tier data pulls; Admin-only optional USD line uses local browser override.",
+      "When champions need a defensible hours story before negotiating loaded cost internally; pairs with Workspace health.",
+    firstPilotNote: "Hours-first estimate from finalized reviews in the selected period.",
+    omitReviewPackageScopeHelp: true,
   },
   "value-report": {
-    layerBadge: "Governance",
-    headline: "Sponsor-facing value DOCX for a UTC window.",
-    useWhen: "After you have finalized reviews; pairs with ROI_MODEL for CFO-ready narrative.",
-    firstPilotNote: "After Pilot proof with Standard tier when sponsor DOCX is needed.",
-    enterpriseFootnote: "Execute + Standard tier on API; LLM line is estimated per ROI_MODEL when SQL token ledger absent.",
+    layerBadge: "Value report",
+    headline: "Create a sponsor-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
+    useWhen: "Generate sponsor and board-ready exports after you have finalized reviews in the selected period.",
+    firstPilotNote: "After Pilot proof when sponsors need a packaged value narrative.",
+    enterpriseFootnote: "Standard tier required; cost estimate is hours-first from review severities.",
+    omitReviewPackageScopeHelp: true,
   },
   "governance-resolution": {
     layerBadge: "Governance",
@@ -180,6 +197,16 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
+  },
+  "risk-exceptions": {
+    layerBadge: "Governance",
+    headline: "Track active waivers, expirations, owners, and linked governance decisions.",
+    useWhen:
+      "Use this page to track owner, expiration, evidence, and the linked decision record so exceptions do not become unmanaged risk.",
+    firstPilotNote:
+      "After Pilot proof when waivers from findings need portfolio-level expiry and renewal tracking.",
+    enterpriseFootnote:
+      "Risk exceptions are approved waivers for findings that are not immediately remediated.",
   },
   "policy-packs": {
     layerBadge: "Governance",

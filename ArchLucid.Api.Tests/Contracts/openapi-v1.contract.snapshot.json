@@ -3692,6 +3692,9 @@
           "isPinned": {
             "type": "boolean"
           },
+          "isDeadLettered": {
+            "type": "boolean"
+          },
           "lastAgentExecutionFailure": {
             "oneOf": [
               {
@@ -4641,6 +4644,9 @@
             "type": "boolean"
           },
           "hasGraphSnapshot": {
+            "type": "boolean"
+          },
+          "isDeadLettered": {
             "type": "boolean"
           },
           "projectId": {
@@ -10645,6 +10651,16 @@
       },
       "FindingTraceConfidenceDto": {
         "properties": {
+          "classification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingClassification"
+              }
+            ]
+          },
           "confidenceLevel": {
             "oneOf": [
               {
@@ -10807,6 +10823,15 @@
           },
           "disclaimer": {
             "type": "string"
+          },
+          "requiresHumanReview": {
+            "type": "boolean"
+          },
+          "validationWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -20384,6 +20409,9 @@
             "type": "boolean"
           },
           "isDemoWelcomeRun": {
+            "type": "boolean"
+          },
+          "isDeadLettered": {
             "type": "boolean"
           },
           "isPinned": {
@@ -64624,56 +64652,6 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/v1/tenant/cost-estimate": {
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Not Found"
-          }
-        },
-        "tags": [
-          "TenantCostEstimate"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
     "/v1/tenant/cost-settings": {
       "get": {
         "responses": {
@@ -67072,9 +67050,6 @@
     },
     {
       "name": "TenantBaseline"
-    },
-    {
-      "name": "TenantCostEstimate"
     },
     {
       "name": "TenantCostSettings"

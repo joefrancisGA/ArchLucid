@@ -32,7 +32,7 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
         </>
       ) : (
         <p className="m-0">
-          Answers use the review context you select (finalized manifest and findings when available; reviews in progress may omit
+          Answers use the review context you select (finalized review package and findings when available; reviews in progress may omit
           late-stage outputs until the pipeline completes).
         </p>
       )}

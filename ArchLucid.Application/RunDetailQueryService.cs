@@ -1,4 +1,5 @@
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -160,7 +161,8 @@ public sealed class RunDetailQueryService(
             CreatedUtc = r.CreatedUtc,
             CompletedUtc = r.CompletedUtc,
             CurrentManifestVersion = r.CurrentManifestVersion,
-            SystemName = r.ProjectId
+            SystemName = r.ProjectId,
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
         }).ToList();
     }
 
@@ -187,7 +189,8 @@ public sealed class RunDetailQueryService(
             CreatedUtc = r.CreatedUtc,
             CompletedUtc = r.CompletedUtc,
             CurrentManifestVersion = r.CurrentManifestVersion,
-            SystemName = r.ProjectId
+            SystemName = r.ProjectId,
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
         }).ToList();
         string? next = null;
         if (!page.HasMore || page.Items.Count <= 0)
@@ -217,7 +220,8 @@ public sealed class RunDetailQueryService(
             CreatedUtc = r.CreatedUtc,
             CompletedUtc = r.CompletedUtc,
             CurrentManifestVersion = r.CurrentManifestVersion,
-            SystemName = r.ProjectId
+            SystemName = r.ProjectId,
+            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r)
         }).ToList();
 
         return (items, page.HasMore);

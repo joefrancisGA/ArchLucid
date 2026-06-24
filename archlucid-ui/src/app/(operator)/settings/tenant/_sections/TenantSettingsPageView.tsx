@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { getIanaTimeZoneSelectOptions, normalizeIanaTimeZoneForSelect } from "@/lib/iana-time-zone-select";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
@@ -44,32 +45,6 @@ const HOUR_OF_DAY_OPTIONS = Array.from({ length: 24 }, (_, i) => ({
   label: formatHour(i),
 }));
 
-function getIanaTimeZones(): string[] {
-  try {
-    // Intl.supportedValuesOf is available in modern browsers and Node ≥ 18
-    return (Intl as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf?.("timeZone") ?? commonTimeZones();
-  } catch {
-    return commonTimeZones();
-  }
-}
-
-function commonTimeZones(): string[] {
-  return [
-    "Etc/UTC",
-    "America/New_York",
-    "America/Chicago",
-    "America/Denver",
-    "America/Los_Angeles",
-    "America/Phoenix",
-    "Europe/London",
-    "Europe/Paris",
-    "Europe/Berlin",
-    "Asia/Tokyo",
-    "Asia/Singapore",
-    "Australia/Sydney",
-  ];
-}
-
 const SELECT_CLASS =
   "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-600";
 
@@ -90,7 +65,7 @@ type Props = {
 export function TenantSettingsPageView(props: Props) {
   const m = props.model;
   const scope = getEffectiveBrowserProxyScopeHeaders();
-  const ianaTimeZones = getIanaTimeZones();
+  const ianaTimeZoneOptions = getIanaTimeZoneSelectOptions();
 
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
@@ -120,15 +95,11 @@ export function TenantSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Request scope (workspace / project)</CardTitle>
+          <CardTitle className="text-base">Workspace scope</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
           <p className="m-0">
-            Your active workspace and project are selected from the workspace switcher on the{" "}
-            <Link className="text-teal-800 underline dark:text-teal-300" href="/">
-              Home page
-            </Link>
-            . Change the workspace there to update what this session targets.
+            Your active workspace and project are selected from the workspace switcher.
           </p>
 
           <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
@@ -246,15 +217,15 @@ export function TenantSettingsPageView(props: Props) {
                   <select
                     id="tz"
                     className={SELECT_CLASS}
-                    value={m.form.ianaTimeZoneId}
+                    value={normalizeIanaTimeZoneForSelect(m.form.ianaTimeZoneId)}
                     onChange={(e) => {
                       m.setForm((f) => (f === null ? f : { ...f, ianaTimeZoneId: e.target.value }));
                     }}
                     disabled={!m.canEditDigest}
                   >
-                    {ianaTimeZones.map((tz) => (
-                      <option key={tz} value={tz}>
-                        {tz}
+                    {ianaTimeZoneOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
                       </option>
                     ))}
                   </select>

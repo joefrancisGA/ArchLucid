@@ -158,6 +158,18 @@ PACKS: list[dict] = [
         "themes": ["Ready", "Adopt", "Govern"],
     },
     {
+        "slug": "arc-ampe-architecture-themes",
+        "prefix": "arc-ampe",
+        "count": 80,
+        "existing_rules": False,
+        "displayName": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)",
+        "description": "Architecture-review themes mapped to ARC-AMPE Volumes I and II. Not CMS conformity assessment or SSPP authoring.",
+        "category": "Compliance",
+        "disclaimer": "ARC-AMPE references are thematic mapping only; not legal advice on ACA/Medicaid scope.",
+        "framework": "CMS ARC-AMPE Volume I v1.02",
+        "themes": ["Pillars", "Enterprise Risk Management", "US Data Residency", "NIST CSF Identify", "NIST CSF Protect", "NIST CSF Detect", "NIST CSF Respond", "NIST CSF Recover", "NIST Privacy Framework"],
+    },
+    {
         "slug": "gdpr-baseline",
         "prefix": "gdpr",
         "displayName": "GDPR Compliance Baseline",

@@ -19,11 +19,39 @@ export const BUYER_SURFACE_VOCABULARY = {
 
 /** Buyer-facing replacements for legacy pilot/internal product language. */
 export const BUYER_TERMINOLOGY = {
-  evaluationFeedback: "Evaluation feedback",
+  evaluationFeedback: "Pilot feedback",
   evaluationValueReport: "Evaluation value report",
   reviewScorecard: "Review scorecard",
   governanceDashboard: "Governance dashboard",
   portfolioOverview: "Portfolio overview",
+} as const;
+
+/** `/product-learning` — pilot feedback dashboard copy (58R/59R surfaces). */
+export const PILOT_FEEDBACK_VOCABULARY = {
+  pageLead:
+    "Track feedback on review outputs and identify recurring improvement opportunities.",
+  emptyStateTitle: "No feedback recorded yet",
+  emptyStateDescription:
+    "Feedback from pilots and review evaluations will appear here after users accept, reject, revise, or comment on review outputs.",
+  emptyStatePrimaryAction: "Open review packages",
+  emptyStateSecondaryAction: "Start review",
+  summaryKpiFeedbackSummaries: "Feedback summaries",
+  summaryKpiRepeatedIssues: "Repeated issues",
+  summaryKpiImprovementOpportunities: "Improvement opportunities",
+  summaryKpiItemsNeedingReview: "Items needing review",
+  summaryNotesHeading: "How to read these numbers",
+  feedbackByAreaHeading: "Feedback by review area",
+  feedbackByAreaLead:
+    "Counts per review area — trusted acceptance versus revisions, rejections, and follow-ups.",
+  topImprovementOpportunitiesHeading: "Top improvement opportunities",
+  itemsNeedingReviewHeading: "Items needing review",
+  itemsNeedingReviewLead:
+    "Ranked follow-ups from improvement opportunities and repeated feedback themes.",
+  exportSectionHeading: "Export",
+  exportSectionLead:
+    "Download a summary for architecture or product review. Raw comments are omitted.",
+  layerContextLine:
+    "Track pilot feedback, recurring issues, and improvement opportunities.",
 } as const;
 
 /**

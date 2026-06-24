@@ -121,7 +121,16 @@ public partial class FindingsOrchestrator(
                 if (string.IsNullOrWhiteSpace(finding.Category))
                     finding.Category = engine.Category;
 
-                validator.Validate(finding);
+                if (!TryAcceptValidatedFinding(
+                        validator,
+                        finding,
+                        engine,
+                        engineFailures,
+                        out string? rejectionReason))
+                {
+                    LogFindingPayloadRejected(runId, engine.EngineType, finding.FindingId, rejectionReason!);
+                    continue;
+                }
 
                 if (!string.Equals(finding.Category, engine.Category, StringComparison.OrdinalIgnoreCase))
 
@@ -180,6 +189,39 @@ public partial class FindingsOrchestrator(
 
         return snapshot;
     }
+
+    private bool TryAcceptValidatedFinding(
+        IFindingPayloadValidator validator,
+        Finding finding,
+        IFindingEngine engine,
+        List<FindingEngineFailure> engineFailures,
+        out string? rejectionReason)
+    {
+        if (FindingPayloadValidatorExtensions.TryValidate(validator, finding, out rejectionReason))
+            return true;
+
+        engineFailures.Add(
+            new FindingEngineFailure
+            {
+                EngineType = engine.EngineType,
+                Category = engine.Category,
+                ErrorMessage =
+                    $"Dropped finding '{finding.FindingId}' ({finding.FindingType}): {rejectionReason}",
+                ExceptionType = nameof(InvalidOperationException),
+                DurationMs = 0,
+                OccurredUtc = _clock.UtcNowDateTime(),
+            });
+
+        ArchLucidInstrumentation.RecordFindingEngineFailure(engine.EngineType, engine.Category);
+        return false;
+    }
+
+    [LoggerMessage(
+        EventId = 5,
+        Level = LogLevel.Warning,
+        Message =
+            "Finding payload rejected: RunId={RunId} EngineType={EngineType} FindingId={FindingId} Reason={Reason}")]
+    private partial void LogFindingPayloadRejected(Guid runId, string engineType, string findingId, string reason);
 
     [LoggerMessage(
         EventId = 1,

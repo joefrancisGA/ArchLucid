@@ -7,9 +7,9 @@ import {
 } from "./trust-evidence-display";
 
 describe("trust-evidence-display", () => {
-  it("uses signed review record label on buyer-polished proof chain step", () => {
+  it("uses signed review record label on proof chain step", () => {
     expect(trustEvidenceProofChainManifestStepLabel(true)).toBe("Signed review record");
-    expect(trustEvidenceProofChainManifestStepLabel(false)).toBe("Manifest");
+    expect(trustEvidenceProofChainManifestStepLabel(false)).toBe("Signed review record");
   });
 
   it("maps golden manifest snapshot titles for buyer-polished field rows", () => {
@@ -17,7 +17,7 @@ describe("trust-evidence-display", () => {
       "Signed review record",
     );
     expect(trustEvidenceGoldenManifestFieldTitle("Golden manifest snapshot", false)).toBe(
-      "Golden manifest snapshot",
+      "Signed review record",
     );
   });
 
@@ -26,7 +26,7 @@ describe("trust-evidence-display", () => {
       "Signed review record snapshot detail",
     );
     expect(trustEvidenceGoldenManifestFieldDetail("Golden manifest snapshot detail", false)).toBe(
-      "Golden manifest snapshot detail",
+      "Signed review record snapshot detail",
     );
   });
 });

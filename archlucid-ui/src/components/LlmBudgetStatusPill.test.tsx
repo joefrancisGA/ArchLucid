@@ -63,7 +63,7 @@ describe("LlmBudgetStatusPill", () => {
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
 
-    expect(pill).toHaveTextContent("Budget: 24%");
+    expect(pill).toHaveTextContent("AI budget: 24%");
     expect(pill.className).toMatch(/amber/);
     expect(pill.className).toMatch(/text-\[11px\]/);
   });
@@ -76,7 +76,11 @@ describe("LlmBudgetStatusPill", () => {
 
     expect(await screen.findByTestId("llm-budget-status-pill-popover")).toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-utilization-meter")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Manage budget" })).toHaveAttribute("href", "/settings/cost-reporting");
+    expect(screen.getByRole("link", { name: "View usage on Billing & plans" })).toHaveAttribute(
+      "href",
+      "/settings/billing#billing-usage",
+    );
+    expect(screen.getByRole("link", { name: "Cost reporting" })).toHaveAttribute("href", "/settings/cost-reporting");
   });
 
   it("renders nothing when monitoring is inactive", async () => {
@@ -142,6 +146,6 @@ describe("LlmBudgetStatusPill", () => {
 
     render(<LlmBudgetStatusPill />);
 
-    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("Budget: 0% — paused");
+    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("AI budget: 0% — paused");
   });
 });

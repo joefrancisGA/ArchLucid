@@ -34,7 +34,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
         </Link>
       </nav>
       <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
-        {props.buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
+        {props.buyerPolishedLayout ? "Architecture review package" : "Finalized architecture review package"}
       </h1>
       {props.children}
     </div>
@@ -71,7 +71,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
       <p className="m-0 text-sm font-semibold">
         {props.buyerPolishedLayout
           ? BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING
-          : "Manifest summary could not be loaded."}
+          : "Review record summary could not be loaded."}
       </p>
       <OperatorApiProblem
         problem={props.summaryFailure.problem}
@@ -96,7 +96,7 @@ export function ManifestDetailSummaryMalformedView(props: {
         <strong>
           {props.buyerPolishedLayout
             ? BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING
-            : "Manifest summary response was not usable."}
+            : "Review record summary response was not usable."}
         </strong>
         <p className="mt-2">{props.message}</p>
       </OperatorMalformedCallout>
@@ -113,7 +113,7 @@ export function ManifestDetailSummaryMissingView(props: { readonly buyerPolished
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
       <OperatorErrorCallout>
         <strong>
-          {props.buyerPolishedLayout ? BUYER_MANIFEST_SUMMARY_MISSING_HEADING : "Manifest summary missing."}
+          {props.buyerPolishedLayout ? BUYER_MANIFEST_SUMMARY_MISSING_HEADING : "Review record summary missing."}
         </strong>
         <p className="mt-2">
           The response did not include review record details. Try reloading once, or return from review detail instead of a

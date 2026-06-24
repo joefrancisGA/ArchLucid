@@ -59,29 +59,20 @@ export function LayerHeader({
         {block.layerBadge}
       </p>
       <p className="m-0 mt-0.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">{block.headline}</p>
-      <p
-        className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400"
-        data-testid="layer-header-review-vocabulary"
-        title={
-          buyerDemoShell
-            ? ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp
-            : ARCHITECTURE_REVIEW_VOCABULARY.reviewManifestTraceHelp
-        }
-      >
-        {buyerDemoShell ? (
+      {!block.omitReviewPackageScopeHelp ? (
+        <p
+          className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400"
+          data-testid="layer-header-review-vocabulary"
+          title={ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
+        >
           <>
             <span className="font-medium text-neutral-800 dark:text-neutral-200">
-              Review package · Evidence · Trace:
+              Review package and evidence trail:
             </span>{" "}
             {ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
           </>
-        ) : (
-          <>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Review · Manifest · Trace:</span>{" "}
-            {ARCHITECTURE_REVIEW_VOCABULARY.reviewManifestTraceHelp}
-          </>
-        )}
-      </p>
+        </p>
+      ) : null}
       <p
         className={cn(
           "m-0 mt-1 leading-snug",

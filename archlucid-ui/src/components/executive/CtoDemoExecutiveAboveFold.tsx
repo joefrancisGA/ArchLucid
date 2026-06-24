@@ -12,6 +12,7 @@ import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/finding-evidence-navigation";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
+import { decisionGradeExecutiveTraceRows } from "@/lib/executive-decision-grade-trace-rows";
 import { verdictTierFromRiskPosture, verdictTierLabel, verdictTierTone } from "@/lib/verdict-taxonomy";
 import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -158,8 +159,7 @@ export function traceRowsToCtoDemoTopRisks(
   traces: readonly FindingTraceConfidenceDto[],
   limit = 3,
 ): CtoDemoExecutiveTopRisk[] {
-  const ranked = traces
-    .filter((t) => (t.findingId ?? "").trim().length > 0)
+  const ranked = decisionGradeExecutiveTraceRows(traces)
     .map((t) => {
       const findingId = t.findingId.trim();
       const titleRaw = (t.findingTitle ?? findingId).trim();

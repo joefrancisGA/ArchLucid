@@ -67,7 +67,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
-            Median time to finalized manifest
+            Median time to finalized review package
           </dt>
           <dd
             data-testid="delta-top-median-time"

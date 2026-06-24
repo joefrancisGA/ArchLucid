@@ -15,7 +15,7 @@ describe("governanceModeVocabulary", () => {
     const vocabulary = governanceModeVocabulary(true);
 
     expect(vocabulary.reviewPlural).toBe("Runs");
-    expect(vocabulary.goldenManifestLabel).toBe("Golden manifest");
+    expect(vocabulary.goldenManifestLabel).toBe("Signed review record");
     expect(vocabulary.authorityChainLabel).toBe("Authority chain");
   });
 });

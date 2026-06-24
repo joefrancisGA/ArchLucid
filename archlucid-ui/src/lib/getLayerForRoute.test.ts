@@ -14,7 +14,6 @@ describe("getLayerForRoute", () => {
   });
 
   it("returns operator-admin for tenant admin nav paths", () => {
-    expect(getLayerForRoute("/settings/tenant-cost")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/billing")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/baseline")).toBe("pilot");
     expect(getLayerForRoute("/settings/cloud-connections")).toBe("operator-admin");
@@ -22,7 +21,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/settings/tenant/recycle-bin")).toBe("operator-admin");
     expect(getLayerForRoute("/admin/support")).toBe("operator-admin");
     expect(getLayerForRoute("/settings/roles")).toBe("operator-admin");
-    expect(getLayerForRoute("/settings/cost-reporting")).toBe("operator-admin");
+    expect(getLayerForRoute("/admin/ai-usage-cost")).toBe("operator-admin");
   });
 
   it("returns operate-governance for a known governance nav path and nested routes", () => {
@@ -40,6 +39,12 @@ describe("getLayerForRoute", () => {
 
   it("maps review detail under the Reviews list path", () => {
     expect(getLayerForRoute("/reviews/550e8400-e29b-41d4-a716-446655440000")).toBe("pilot");
+  });
+
+  it("returns operate-analysis for reports and system-admin nav paths", () => {
+    expect(getLayerForRoute("/scorecard")).toBe("operate-analysis");
+    expect(getLayerForRoute("/integrations/teams")).toBe("operate-analysis");
+    expect(getLayerForRoute("/product-learning")).toBe("operator-admin");
   });
 
   it("returns pilot for paths not in NAV_GROUPS", () => {

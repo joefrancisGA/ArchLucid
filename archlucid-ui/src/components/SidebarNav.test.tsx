@@ -92,12 +92,14 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.getByTestId("operate-features-unlock-panel")).toBeInTheDocument();
     expect(screen.queryByTestId("sidebar-group-toggle-operate-analysis")).toBeNull();
     expect(screen.queryByTestId("sidebar-group-toggle-operate-governance")).toBeNull();
-    expect(screen.queryByTestId("sidebar-group-toggle-operate-operations")).toBeNull();
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-reports")).toBeNull();
+    expect(screen.queryByTestId("sidebar-group-toggle-operate-integrations")).toBeNull();
     expect(screen.getByTestId("sidebar-group-toggle-operator-admin")).toHaveAttribute("aria-expanded", "false");
 
     expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
     expect(screen.queryByRole("navigation", { name: "Governance" })).toBeNull();
-    expect(screen.queryByRole("navigation", { name: "Operations" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Reports" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Integrations" })).toBeNull();
   });
 
   it("expands Analysis with a chevron disclosure after Operate features are unlocked", async () => {
@@ -184,7 +186,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
   it("keeps Review work expanded with Operate hidden until unlock", async () => {
     render(<SidebarNav />);
 
-    expect(screen.queryByRole("button", { name: /Review work/i })).toBeNull();
+    expect(screen.getByTestId("sidebar-group-toggle-pilot")).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByText("Review work")).toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "Review work" });

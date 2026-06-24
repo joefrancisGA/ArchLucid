@@ -519,7 +519,7 @@ Demo body.
     <p
       class="text-sm text-neutral-600 dark:text-neutral-400"
     >
-      Aggregate executive explanation persisted with the architecture review, with citations back to the manifest, findings, decision traces, and evidence bundles that the explainability trace was built from.
+      Aggregate executive explanation persisted with the architecture review, with citations back to the signed review record, findings, decision traces, and evidence bundles that the explainability trace was built from.
     </p>
     <div
       class="space-y-4"
@@ -642,7 +642,7 @@ Demo body.
             <span
               class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
             >
-              Manifest
+              Signed review record
             </span>
              
             <span>

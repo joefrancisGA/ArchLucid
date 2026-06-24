@@ -38,7 +38,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
           className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
           data-testid="run-detail-replay-review"
         >
-          Replay this review
+          Validate review package
         </Link>
       </div>
     </section>

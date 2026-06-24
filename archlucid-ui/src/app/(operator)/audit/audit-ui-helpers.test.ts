@@ -81,7 +81,7 @@ describe("auditEventLifecycleSortKey", () => {
 
 describe("audit lifecycle grouping", () => {
   it("maps PascalCase audit spine types into grouping headings via Contracts parity", () => {
-    expect(auditEventLifecycleStageLabel("ManifestGenerated")).toBe("Manifest finalized");
+    expect(auditEventLifecycleStageLabel("ManifestGenerated")).toBe("Review package finalized");
     expect(auditEventLifecycleStageLabel("GovernanceApprovalRequested")).toBe("Governance approval recorded");
     expect(auditEventLifecycleStageLabel("RunSubmitted")).toBe("Review started");
   });
@@ -119,7 +119,7 @@ describe("audit lifecycle grouping", () => {
       { eventType: "finalize.run" },
     ]);
 
-    expect(grouped.map((g) => g.stage)).toEqual(["Manifest finalized", "Governance approval recorded", "Artifacts bundled"]);
+    expect(grouped.map((g) => g.stage)).toEqual(["Review package finalized", "Governance approval recorded", "Artifacts bundled"]);
   });
 });
 

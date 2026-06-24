@@ -26,7 +26,8 @@ import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
+import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/finding-policy-evidence-citations";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
@@ -233,7 +234,9 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
               </Link>
               {row.recordKind === "finding" && row.policyRuleId ? (
                 <div className="mt-1">
-                  <FindingPolicyRuleBadge policyRuleId={row.policyRuleId} />
+                  <FindingPolicyTraceabilityBadges
+                    {...buildPolicyTraceabilityLinksFromRuleId(row.policyRuleId, row.category || row.policyRuleId)}
+                  />
                 </div>
               ) : row.category && row.recordKind === "finding" ? (
                 <div className="mt-0.5 text-[11px] font-normal text-al-text-secondary">

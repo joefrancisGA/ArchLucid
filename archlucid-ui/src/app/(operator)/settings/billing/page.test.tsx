@@ -9,6 +9,49 @@ vi.mock("@/lib/toast", () => ({
   showInfo: (...args: unknown[]) => showInfo(...args),
 }));
 
+vi.mock("@/hooks/use-tenant-trial-status-query", () => ({
+  useTenantTrialStatusQuery: () => ({ data: null }),
+}));
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isNextPublicDemoMode: () => false,
+}));
+
+vi.mock("@/lib/frictionless-trial-session", () => ({
+  readFrictionlessTrialSessionEnabled: () => false,
+}));
+
+vi.mock("@/lib/operator-scope-storage", () => ({
+  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT: "archlucid:operator-scope-changed",
+  readOperatorScopeFromStorage: () => ({
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    workspaceLabel: "Pilot workspace",
+    projectLabel: "Default",
+  }),
+}));
+
+vi.mock("@/lib/llm-monthly-budget-status", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/llm-monthly-budget-status")>();
+
+  return {
+    ...mod,
+    fetchLlmMonthlyDollarBudgetStatusCached: vi.fn(async () => ({
+      monthlyBudgetMonitoringActive: true,
+      blocksAdditionalLlmExecution: false,
+      utcMonth: "2026-06",
+      hardCutoffUsdPerUtcMonth: 100,
+      effectiveHardCapUsd: 100,
+      purchasedCapBumpUsd: null,
+      estimatedUsdPressure: 10,
+      assumedNextCallReservationUsd: null,
+      hardCapUtilizationFraction: 0.25,
+      warnFraction: 0.75,
+    })),
+  };
+});
+
 import BillingSettingsPage from "./page";
 
 const pricingFixture = {
@@ -64,7 +107,7 @@ describe("BillingSettingsPage", () => {
     showInfo.mockClear();
   });
 
-  it("loads tiers from pricing.json and shows Stripe pending toast when upgrading to Team", async () => {
+  it("loads tiers from pricing.json, shows current plan summary, and hides Stripe ids by default", async () => {
     const fetchMock = vi.fn(async (input: string | URL) => {
       const url = String(input);
 
@@ -92,12 +135,53 @@ describe("BillingSettingsPage", () => {
       expect(screen.getByTestId("billing-tier-team")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("billing-tier-professional")).toBeInTheDocument();
-    expect(screen.getByTestId("billing-tier-enterprise")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-current-plan")).toBeInTheDocument();
+    expect(screen.getByText(/does not have an active paid plan/i)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-usage-section")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-billing-payment-method")).toBeInTheDocument();
+    const stripeCustomerField = screen.queryByLabelText(/Stripe customer id/i);
+    expect(stripeCustomerField).toBeInTheDocument();
+    expect(stripeCustomerField).not.toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: /Upgrade to Team/i }));
 
     expect(showInfo).toHaveBeenCalledWith("Stripe Checkout Integration Pending");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("reveals Stripe ids inside advanced billing details", async () => {
+    const fetchMock = vi.fn(async (input: string | URL) => {
+      const url = String(input);
+
+      if (url.includes("/pricing.json")) {
+        return new Response(JSON.stringify(pricingFixture), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      if (url.includes("/api/proxy/v1/billing/wallet")) {
+        return new Response(JSON.stringify(walletFixture), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<BillingSettingsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("operator-billing-advanced-details")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Advanced billing details"));
+
+    expect(await screen.findByLabelText(/Stripe customer id/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Typical land range/i)).not.toBeInTheDocument();
 
     vi.unstubAllGlobals();
   });

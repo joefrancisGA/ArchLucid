@@ -230,12 +230,18 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   /**
-   * Pack content / lifecycle sits inside {@link AdvancedOptionsAccordion} (label: Authoring wizard and inspect tools);
-   * Radix keeps closed panel content out of the accessibility tree, so gates on Create pack etc. must open the accordion
-   * first (same pattern as governance tests).
+   * Rule authoring lives on the Author rules tab; inspect/lifecycle JSON stays in {@link AdvancedOptionsAccordion}.
    */
+  async function openPolicyPacksAuthorTab(): Promise<void> {
+    fireEvent.click(screen.getByTestId("policy-packs-tab-author"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("policy-packs-author-tab")).toBeInTheDocument();
+    });
+  }
+
   async function expandPolicyPacksAdvancedOptions(): Promise<void> {
-    const toggle = screen.getByRole("button", { name: /^Authoring wizard and inspect tools$/ });
+    const toggle = screen.getByRole("button", { name: /^Inspect tools and JSON lifecycle$/ });
 
     fireEvent.click(toggle);
 
@@ -246,6 +252,24 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       { timeout: 8000 },
     );
   }
+
+  it(
+    "Policy packs: Author rules tab surfaces the rule authoring wizard",
+    async () => {
+      mutateCapability.current = true;
+      const page = await PolicyPacksPage();
+      render(page);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("policy-packs-tab-author")).toBeInTheDocument();
+      });
+
+      await openPolicyPacksAuthorTab();
+
+      expect(screen.getByTestId("policy-rule-authoring-wizard")).toBeInTheDocument();
+    },
+    15_000,
+  );
 
   it(
     "Policy packs: Create pack stays disabled when mutation capability is false",

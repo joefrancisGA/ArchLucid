@@ -1,4 +1,5 @@
 import type { DemoProvenanceGraph, DemoProvenanceGraphEdge } from "@/types/demo-explain";
+import { provenanceGraphNodeTypeBuyerLabel } from "@/lib/citation-kind-buyer-label";
 
 type Props = {
   readonly graph: DemoProvenanceGraph;
@@ -51,7 +52,7 @@ export function DemoExplainProvenanceGraphPanel(props: Props) {
                 <p className="font-medium text-neutral-900 dark:text-neutral-100">
                   {node.label}{" "}
                   <span className="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-                    {node.type}
+                    {provenanceGraphNodeTypeBuyerLabel(node.type)}
                   </span>
                 </p>
                 <p className="mt-0.5 font-mono text-[11px] text-neutral-500">{node.id}</p>

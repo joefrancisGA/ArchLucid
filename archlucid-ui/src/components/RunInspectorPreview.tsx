@@ -245,7 +245,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>{buyerPolished ? "Package finalized" : "Manifest finalized"}</span>
+            <span>{buyerPolished ? "Package finalized" : "Review package finalized"}</span>
             <span aria-label={run.hasGoldenManifest ? `${SIGNED_MANIFEST_LABEL} present` : `${SIGNED_MANIFEST_LABEL} missing`}>
               {snapshotLabel(run.hasGoldenManifest)}
             </span>

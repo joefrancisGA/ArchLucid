@@ -18,7 +18,8 @@ namespace ArchLucid.Api.Tests;
 ///     Uses <see cref="AlertLifecycleWebAppFactory" /> (InMemory storage + <c>FakeEmbeddingService</c> +
 ///     <c>InMemoryVectorIndex</c>).
 /// </summary>
-[Trait("Category", "Integration")]
+// CI #2268: retrieval search hangs non-cancellably under shared-host fixture; isolate on Slow shard.
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeSharedHostFixture sharedHost)
     : IClassFixture<RetrievalQuerySmokeSharedHostFixture>

@@ -11,7 +11,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
 import { FindingPolicyProvenancePanel } from "@/components/findings/FindingPolicyProvenancePanel";
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
 import { Badge } from "@/components/ui/badge";
@@ -119,10 +119,11 @@ export function FindingDetailPageView(props: Props) {
                     ? findingDetailLeadSentence(inspectPayload)
                     : findingDetailLeadFallback(decodedFindingId)}
                 </p>
-                {policyRuleId !== null ? (
-                  <FindingPolicyRuleBadge
-                    policyRuleId={policyRuleId}
-                    policyRuleLabel={policyRuleLabel}
+                {policyProvenanceModel !== null &&
+                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                  <FindingPolicyTraceabilityBadges
+                    pack={policyProvenanceModel.pack}
+                    policy={policyProvenanceModel.policy}
                     className="inline-flex"
                   />
                 ) : null}
@@ -276,8 +277,12 @@ export function FindingDetailPageView(props: Props) {
                   Business impact: {labels.impactedAreaLabel}
                 </Badge>
               ) : null}
-              {policyRuleId !== null ? (
-                <FindingPolicyRuleBadge policyRuleId={policyRuleId} policyRuleLabel={policyRuleLabel} />
+              {policyProvenanceModel !== null &&
+              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                <FindingPolicyTraceabilityBadges
+                  pack={policyProvenanceModel.pack}
+                  policy={policyProvenanceModel.policy}
+                />
               ) : null}
             </div>
           ) : null}

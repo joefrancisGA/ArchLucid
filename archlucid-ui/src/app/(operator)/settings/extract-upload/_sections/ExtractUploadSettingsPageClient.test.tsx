@@ -112,7 +112,9 @@ describe("ExtractUploadSettingsPageClient", () => {
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     await waitFor(() => {
-      expect(screen.getByText(/Required schemaVersion is 1/i)).toBeInTheDocument();
+      expect(screen.getByTestId("extract-upload-error-code")).toHaveTextContent(
+        "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION",
+      );
     });
 
     expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("/v1/azure-extractor/upload"), expect.anything());

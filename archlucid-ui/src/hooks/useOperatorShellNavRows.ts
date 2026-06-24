@@ -4,13 +4,12 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
-import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
-import { filterNavGroupsForGovernanceMode } from "@/lib/governance-mode-nav-filter";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
@@ -31,12 +30,11 @@ type UseOperatorShellNavRowsResult = {
   readonly shellShowAdvanced: boolean;
 };
 
-/** Shared sidebar / mobile drawer nav composition with governance-mode filtering. */
+/** Shared sidebar / mobile drawer nav composition. */
 export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const pathname = usePathname();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const { isGovernanceModeEnabled } = useGovernanceMode();
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
@@ -61,40 +59,47 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   const omitAdminClusters = demoUi && !buyerPolishedShell;
 
   return useMemo(() => {
-    const reviewNavRows = filterNavGroupsForGovernanceMode(
-      listNavGroupsVisibleInOperatorShell(
-        NAV_GROUPS,
-        reviewNavExpanded,
-        reviewNavAdvanced,
-        callerAuthorityRank,
-        false,
-        "review-workflow",
-        navGateHasCommittedArchitectureReview,
-        operateNavUnlockPhase,
-      ),
-      isGovernanceModeEnabled,
+    const reviewNavRows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      reviewNavExpanded,
+      reviewNavAdvanced,
+      callerAuthorityRank,
+      false,
+      "review-workflow",
+      navGateHasCommittedArchitectureReview,
+      operateNavUnlockPhase,
     );
 
     const adminNavRows: NavGroupWithVisibleLinks[] =
       omitAdminClusters
         ? []
-        : filterNavGroupsForGovernanceMode(
-            listNavGroupsVisibleInOperatorShell(
-              NAV_GROUPS,
-              // Tenant settings links are extended-tier; keep Settings reachable during Core Pilot.
-              true,
-              navAdvanced,
-              callerAuthorityRank,
-              false,
-              "platform-admin",
-              navGateHasCommittedArchitectureReview,
-              operateNavUnlockPhase,
-            ),
-            isGovernanceModeEnabled,
+        : listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            true,
+            navAdvanced,
+            callerAuthorityRank,
+            false,
+            "platform-admin",
+            navGateHasCommittedArchitectureReview,
+            operateNavUnlockPhase,
+          );
+
+    const systemAdminNavRows: NavGroupWithVisibleLinks[] =
+      omitAdminClusters || !isShowSystemAdministrationNavEnabled()
+        ? []
+        : listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            true,
+            navAdvanced,
+            callerAuthorityRank,
+            false,
+            "system-admin",
+            navGateHasCommittedArchitectureReview,
+            operateNavUnlockPhase,
           );
 
     return {
-      allRows: [...reviewNavRows, ...adminNavRows],
+      allRows: [...reviewNavRows, ...adminNavRows, ...systemAdminNavRows],
       buyerPolishedShell,
       demoUi,
       effectiveHasCommittedArchitectureReview,
@@ -111,7 +116,6 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     demoUi,
     effectiveHasCommittedArchitectureReview,
     effectiveOperateUnlockPhase,
-    isGovernanceModeEnabled,
     navAdvanced,
     navExpanded,
     navGateHasCommittedArchitectureReview,

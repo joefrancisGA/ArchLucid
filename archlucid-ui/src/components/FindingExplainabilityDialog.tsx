@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ExplainabilityTraceTree } from "@/components/explainability/ExplainabilityTraceTree";
+import { FindingEvidenceGraph } from "@/components/findings/FindingEvidenceGraph";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -103,7 +104,7 @@ export function FindingExplainabilityDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+        className="max-h-[90vh] max-w-4xl overflow-y-auto"
         aria-labelledby="finding-explainability-dialog-title"
         aria-describedby="finding-explainability-dialog-desc"
       >
@@ -172,6 +173,21 @@ export function FindingExplainabilityDialog({
             </section>
 
             <ExplainabilityTraceTree data={data} />
+
+            {data.graphNodeIdsExamined.length > 0 ? (
+              <section
+                aria-labelledby="finding-evidence-graph-heading"
+                className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950/40"
+              >
+                <h3
+                  id="finding-evidence-graph-heading"
+                  className="m-0 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+                >
+                  Evidence graph
+                </h3>
+                <FindingEvidenceGraph runId={runId} graphNodeIdsExamined={data.graphNodeIdsExamined} />
+              </section>
+            ) : null}
 
             <details className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40">
               <summary className="cursor-pointer select-none rounded-md px-3 py-2 text-sm font-semibold text-neutral-900 marker:text-neutral-400 dark:text-neutral-100">

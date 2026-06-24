@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Decisioning.Models;
 
@@ -8,10 +9,11 @@ namespace ArchLucid.Decisioning.Findings.Factories;
 ///     Converts a <see cref="Finding.Payload" /> object to a strongly-typed payload DTO.
 /// </summary>
 /// <remarks>
-///     Three payload shapes are handled in priority order:
+///     Payload shapes are handled in priority order:
 ///     <list type="number">
 ///         <item>Already the target type — returned directly with no allocation.</item>
-///         <item><see cref="JsonElement" /> — deserialized using <see cref="CaseInsensitiveOptions" />.</item>
+///         <item><see cref="string" /> — markdown fences stripped, then parsed as JSON when possible.</item>
+///         <item><see cref="JsonElement" /> — string elements are unwrapped; objects deserialize with forgiving options.</item>
 ///         <item>Any other <see cref="object" /> — round-tripped through JSON.</item>
 ///     </list>
 /// </remarks>
@@ -19,10 +21,17 @@ public static class FindingPayloadConverter
 {
     /// <summary>
     ///     Shared JSON options used for payload deserialization.
-    ///     Case-insensitive matching is required to handle mixed-case keys returned by LLM engines.
+    ///     Case-insensitive matching handles mixed-case keys from LLM engines; trailing commas and
+    ///     numeric strings are tolerated because model output is not schema-validated upstream.
     /// </summary>
-    private static readonly JsonSerializerOptions CaseInsensitiveOptions =
-        new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+    private static readonly JsonSerializerOptions ForgivingOptions =
+        new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true,
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+        };
 
     /// <summary>
     ///     Converts <see cref="Finding.Payload" /> to <typeparamref name="T" />.
@@ -45,29 +54,84 @@ public static class FindingPayloadConverter
         if (finding.Payload is T typed)
             return typed;
 
-        if (finding.Payload is JsonElement jsonElement)
+        if (finding.Payload is string stringPayload)
+            return DeserializePayloadJson<T>(finding, NormalizeLlmJsonPayload(stringPayload));
 
-            try
-            {
-                return jsonElement.Deserialize<T>(CaseInsensitiveOptions);
-            }
-            catch (JsonException ex)
-            {
-                throw new InvalidOperationException(
-                    $"Finding payload cannot be deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).", ex);
-            }
+        if (finding.Payload is JsonElement jsonElement)
+            return DeserializeJsonElementPayload<T>(finding, jsonElement);
 
         try
         {
             string json = JsonSerializer.Serialize(finding.Payload);
-            return JsonSerializer.Deserialize<T>(json, CaseInsensitiveOptions);
+            return DeserializePayloadJson<T>(finding, json);
         }
         catch (JsonException ex)
         {
-            throw new InvalidOperationException(
-                $"Finding payload cannot be serialized/deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).",
-                ex);
+            throw CreateDeserializationFailure<T>(finding, ex);
         }
+    }
+
+    private static T? DeserializeJsonElementPayload<T>(Finding finding, JsonElement jsonElement)
+    {
+        if (jsonElement.ValueKind == JsonValueKind.String)
+        {
+            string? embeddedJson = jsonElement.GetString();
+
+            if (!string.IsNullOrWhiteSpace(embeddedJson))
+                return DeserializePayloadJson<T>(finding, NormalizeLlmJsonPayload(embeddedJson));
+        }
+
+        try
+        {
+            return jsonElement.Deserialize<T>(ForgivingOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw CreateDeserializationFailure<T>(finding, ex);
+        }
+    }
+
+    private static T? DeserializePayloadJson<T>(Finding finding, string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(json, ForgivingOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw CreateDeserializationFailure<T>(finding, ex);
+        }
+    }
+
+    /// <summary>
+    ///     LLM engines sometimes wrap JSON objects in markdown code fences; strip those before parsing.
+    /// </summary>
+    public static string NormalizeLlmJsonPayload(string raw)
+    {
+        string trimmed = raw.Trim();
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        int firstNewline = trimmed.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return trimmed;
+
+        int contentStart = firstNewline + 1;
+        int fenceEnd = trimmed.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (fenceEnd <= contentStart)
+            return trimmed;
+
+        return trimmed.Substring(contentStart, fenceEnd - contentStart).Trim();
+    }
+
+    private static InvalidOperationException CreateDeserializationFailure<T>(Finding finding, JsonException ex)
+    {
+        return new InvalidOperationException(
+            $"Finding payload cannot be deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).",
+            ex);
     }
 
     /// <summary>Converts the payload to <see cref="RequirementFindingPayload" />.</summary>

@@ -46,7 +46,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   { title: "Policy packs", summary: "Declarative policy bundles for review.", category: "Security", url: "/policy-packs" },
   {
     title: "Indexed search",
-    summary: "Search manifests, findings, and related records where enabled.",
+    summary: "Search review packages, findings, and related records where enabled.",
     category: "Operations",
     url: "/search",
   },

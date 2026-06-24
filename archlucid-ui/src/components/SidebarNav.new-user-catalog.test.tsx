@@ -36,7 +36,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
-// Reproduce a brand-new buyer tenant: Admin rank, but no committed architecture review yet.
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => 3,
   useNavCommittedArchitectureReview: (): boolean => false,
@@ -78,33 +77,23 @@ const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
 const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   {
     toggleTestId: "sidebar-group-toggle-operate-analysis",
-    hrefs: ["/compare", "/ask", "/search", "/advisory"],
+    hrefs: ["/compare", "/ask", "/search"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
     hrefs: ["/governance/findings", "/governance/risk-exceptions"],
   },
   {
-    toggleTestId: "sidebar-group-toggle-operate-operations",
-    hrefs: [
-      "/scorecard",
-      "/governance/recurrence-schedules",
-      "/recommendation-learning",
-      "/product-learning",
-      "/integrations/operations",
-      "/integrations/teams",
-      "/health",
-      "/replay",
-      "/workspace/security-trust",
-      "/governance/first-30-days",
-      "/value-report",
-      "/planning",
-      "/evolution-review",
-    ],
+    toggleTestId: "sidebar-group-toggle-operate-reports",
+    hrefs: ["/scorecard", "/governance/first-30-days"],
+  },
+  {
+    toggleTestId: "sidebar-group-toggle-operate-integrations",
+    hrefs: ["/integrations/operations", "/integrations/teams"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operator-admin",
-    hrefs: ["/settings/tenant", "/settings/tenant-cost", "/settings/billing", "/settings/tenant/recycle-bin"],
+    hrefs: ["/settings/tenant", "/settings/billing", "/admin/support"],
   },
 ];
 

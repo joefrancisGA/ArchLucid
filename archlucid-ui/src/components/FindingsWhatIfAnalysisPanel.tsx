@@ -14,9 +14,18 @@ export type FindingsWhatIfAnalysisPanelProps = {
   readonly isIllustrativePricing?: boolean;
 };
 
+type FindingWireCostData = {
+  projectedImpactUsd?: unknown;
+  payload?: {
+    projectedImpactUsdLowerBound?: unknown;
+    projectedImpactUsdUpperBound?: unknown;
+    confidenceReasoning?: unknown;
+  };
+};
+
 function readEstimatedUsdSavings(finding: QuickDecisionFinding): number {
   try {
-    const parsed = JSON.parse(finding.aiReasoning.wireJson) as { projectedImpactUsd?: unknown };
+    const parsed = JSON.parse(finding.aiReasoning.wireJson) as FindingWireCostData;
     const value = parsed.projectedImpactUsd;
 
     if (typeof value === "number" && Number.isFinite(value))
@@ -25,6 +34,25 @@ function readEstimatedUsdSavings(finding: QuickDecisionFinding): number {
     return 0;
   } catch {
     return 0;
+  }
+}
+
+function readConfidenceInterval(finding: QuickDecisionFinding) {
+  try {
+    const parsed = JSON.parse(finding.aiReasoning.wireJson) as FindingWireCostData;
+    const payload = parsed.payload;
+    if (!payload) return null;
+
+    const lower = typeof payload.projectedImpactUsdLowerBound === "number" ? payload.projectedImpactUsdLowerBound : null;
+    const upper = typeof payload.projectedImpactUsdUpperBound === "number" ? payload.projectedImpactUsdUpperBound : null;
+    const reasoning = typeof payload.confidenceReasoning === "string" ? payload.confidenceReasoning : null;
+
+    if (lower !== null || upper !== null) {
+      return { lower, upper, reasoning };
+    }
+    return null;
+  } catch {
+    return null;
   }
 }
 
@@ -38,6 +66,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
       props.findings.map((finding) => ({
         finding,
         savingsUsd: readEstimatedUsdSavings(finding),
+        interval: readConfidenceInterval(finding),
       })),
     [props.findings],
   );
@@ -136,8 +165,20 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                 <span className="min-w-0 flex-1">
                   <span className="font-medium">{row.finding.title}</span>
                   {row.savingsUsd > 0 ? (
-                    <span className="ml-2 text-xs text-neutral-500">−{formatUsd(row.savingsUsd)}</span>
+                    <span className="ml-2 text-xs text-neutral-500">
+                      −{formatUsd(row.savingsUsd)}
+                      {row.interval && (
+                        <span className="ml-1 opacity-75">
+                          (Range: {row.interval.lower !== null ? formatUsd(row.interval.lower) : "?"} - {row.interval.upper !== null ? formatUsd(row.interval.upper) : "?"})
+                        </span>
+                      )}
+                    </span>
                   ) : null}
+                  {row.interval?.reasoning && (
+                    <p className="m-0 mt-0.5 text-xs text-neutral-500 italic">
+                      {row.interval.reasoning}
+                    </p>
+                  )}
                 </span>
               </label>
             </li>

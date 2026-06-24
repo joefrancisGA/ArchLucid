@@ -536,11 +536,16 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         HttpClient client,
         string runId,
         CancellationToken cancellationToken = default,
-        int maxAttempts = 10)
+        int maxAttempts = 25)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+        await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
+            client,
+            runId,
+            cancellationToken);
 
         int delayMs = 250;
         HttpStatusCode? lastStatusCode = null;
@@ -548,6 +553,9 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
+            if (await GreenfieldCommittedRunReadinessPoll.TryReturnIfRunAlreadyCommittedAsync(client, runId, cancellationToken))
+                return;
+
             using CancellationTokenSource attemptBudget =
                 CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
@@ -578,6 +586,14 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                         $"POST /v1/architecture/run/{runId}/commit failed after {attempt + 1} attempt(s). "
                         + $"Status={(int)response.StatusCode}. Body={lastBody}");
                 }
+
+                if (GreenfieldCommittedRunReadinessPoll.IsManifestNotLoadedYetConflict(response.StatusCode, lastBody))
+                {
+                    await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
+                        client,
+                        runId,
+                        cancellationToken);
+                }
             }
             catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested
                                                   && IndicatesClientAbortedResponseBuffering(ex))
@@ -595,7 +611,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             }
 
             await Task.Delay(delayMs, cancellationToken);
-            delayMs = Math.Min(delayMs * 2, 4000);
+            delayMs = Math.Min(delayMs * 2, 8000);
         }
 
         throw new Xunit.Sdk.XunitException(

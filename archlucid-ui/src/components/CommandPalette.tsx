@@ -21,7 +21,6 @@ import {
 } from "@/lib/keyboard-shortcut-display";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
-import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
@@ -38,7 +37,7 @@ import {
   COMMAND_PALETTE_START_CTO_DEMO_LABEL,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { filterNavGroupsForGovernanceMode, isGovernanceModeHiddenNavHref } from "@/lib/governance-mode-nav-filter";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
 import { useOperateNavUnlockPhase } from "@/hooks/useOperateNavUnlockPhase";
@@ -215,7 +214,6 @@ function CommandPaletteNavGroups({
   hasCommittedArchitectureReview,
   buyerPolishedShell,
   operateNavUnlockPhase,
-  isGovernanceModeEnabled,
   onNavigate,
 }: {
   callerAuthorityRank: number;
@@ -224,39 +222,45 @@ function CommandPaletteNavGroups({
   hasCommittedArchitectureReview: boolean;
   buyerPolishedShell: boolean;
   operateNavUnlockPhase: ReturnType<typeof resolveOperateNavUnlockPhase>;
-  isGovernanceModeEnabled: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
   const showAdminPalette = search.trim().length > 0;
 
-  const reviewRows = filterNavGroupsForGovernanceMode(
-    listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      shellShowExtended,
-      shellShowAdvanced,
-      callerAuthorityRank,
-      false,
-      "review-workflow",
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
-    ),
-    isGovernanceModeEnabled,
+  const reviewRows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    shellShowExtended,
+    shellShowAdvanced,
+    callerAuthorityRank,
+    false,
+    "review-workflow",
+    hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
 
-  const adminRows = filterNavGroupsForGovernanceMode(
-    listNavGroupsVisibleInOperatorShell(
-      NAV_GROUPS,
-      shellShowExtended,
-      shellShowAdvanced,
-      callerAuthorityRank,
-      false,
-      "platform-admin",
-      hasCommittedArchitectureReview,
-      operateNavUnlockPhase,
-    ),
-    isGovernanceModeEnabled,
+  const adminRows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    shellShowExtended,
+    shellShowAdvanced,
+    callerAuthorityRank,
+    false,
+    "platform-admin",
+    hasCommittedArchitectureReview,
+    operateNavUnlockPhase,
   );
+
+  const systemAdminRows = isShowSystemAdministrationNavEnabled()
+    ? listNavGroupsVisibleInOperatorShell(
+        NAV_GROUPS,
+        shellShowExtended,
+        shellShowAdvanced,
+        callerAuthorityRank,
+        false,
+        "system-admin",
+        hasCommittedArchitectureReview,
+        operateNavUnlockPhase,
+      )
+    : [];
 
   return (
     <>
@@ -288,6 +292,23 @@ function CommandPaletteNavGroups({
                 <CommandItem
                   key={link.href}
                   value={`administration ${link.label} ${link.href}`}
+                  onSelect={() => {
+                    onNavigate(link.href);
+                  }}
+                >
+                  {link.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))
+        : null}
+      {showAdminPalette
+        ? systemAdminRows.map(({ group, visibleLinks }) => (
+            <CommandGroup key={`palette-${group.id}`} heading="System admin">
+              {visibleLinks.map((link) => (
+                <CommandItem
+                  key={link.href}
+                  value={`system admin ${link.label} ${link.href}`}
                   onSelect={() => {
                     onNavigate(link.href);
                   }}
@@ -383,7 +404,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
-  const { isGovernanceModeEnabled } = useGovernanceMode();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
@@ -400,26 +420,19 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const operateNavUnlockPhase = resolveOperateNavUnlockPhase(effectiveOperateUnlockPhase, operatorAdvancedModeOn);
 
   const visibleHrefs = useMemo(() => {
-    const hrefs = visibleOperatorShellHrefSet(
+    return visibleOperatorShellHrefSet(
       paletteExtended,
       paletteAdvanced,
       callerAuthorityRank,
       hasCommittedArchitectureReview,
       operateNavUnlockPhase,
     );
-
-    if (isGovernanceModeEnabled) {
-      return hrefs;
-    }
-
-    return new Set([...hrefs].filter((href) => !isGovernanceModeHiddenNavHref(href)));
   }, [
     paletteExtended,
     paletteAdvanced,
     callerAuthorityRank,
     hasCommittedArchitectureReview,
     operateNavUnlockPhase,
-    isGovernanceModeEnabled,
   ]);
 
   useEffect(() => {
@@ -474,11 +487,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/graph")) {
-      return "Jump to audit, manifest, governance, or type another destination…";
+      return "Jump to audit, signed review record, governance, or type another destination…";
     }
 
     if (path.startsWith("/ask")) {
-      return "Jump to executive summary, manifest, evidence trail, or governance…";
+      return "Jump to executive summary, signed review record, evidence trail, or governance…";
     }
 
     if (path.startsWith("/compare")) {
@@ -486,7 +499,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (path.startsWith("/audit")) {
-      return "Jump to executive summary, evidence graph, manifest — or type a destination…";
+      return "Jump to executive summary, evidence graph, signed review record — or type a destination…";
     }
 
     if (path.startsWith("/governance")) {
@@ -564,7 +577,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             buyerPolishedShell={buyerPolishedShell}
             operateNavUnlockPhase={operateNavUnlockPhase}
-            isGovernanceModeEnabled={isGovernanceModeEnabled}
             onNavigate={navigate}
           />
           {buyerPolishedShell ? null : (

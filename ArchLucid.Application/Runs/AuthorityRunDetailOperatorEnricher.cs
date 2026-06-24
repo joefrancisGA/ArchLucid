@@ -63,6 +63,8 @@ public sealed class AuthorityRunDetailOperatorEnricher(
         detail.LastAgentExecutionFailure =
             AgentExecutionFailureSummaryJson.TryDeserialize(detail.Run.LastFailureReason);
 
+        detail.Run.IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(detail.Run);
+
         await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
 
         detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder

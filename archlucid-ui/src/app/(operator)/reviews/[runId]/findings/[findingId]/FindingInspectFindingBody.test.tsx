@@ -41,19 +41,15 @@ describe("FindingInspectFindingBody", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
-    expect(screen.getByTestId("finding-policy-provenance-panel")).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: "Rule A" }).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("finding-evidence-collapsible")).toBeTruthy();
     expect(screen.queryByText("View AI Reasoning")).toBeNull();
     expect(screen.queryByText("AI Audit Inspection")).toBeNull();
     expect(screen.getByRole("heading", { name: "Audit record" })).toBeTruthy();
 
     const headings = screen.getAllByRole("heading").map((h) => h.textContent ?? "");
-    const evIdx = headings.indexOf("Evidence citations");
     const recIdx = headings.indexOf("Recommended action");
 
-    expect(evIdx).toBeGreaterThanOrEqual(0);
     expect(recIdx).toBeGreaterThanOrEqual(0);
-    expect(evIdx).toBeLessThan(recIdx);
   });
 
   it("executive surface omits operator audit linkage", () => {

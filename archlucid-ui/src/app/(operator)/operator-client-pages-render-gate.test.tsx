@@ -231,7 +231,7 @@ describe("operator client pages — render gate", () => {
   it("ProductLearningPage renders primary heading", async () => {
     const page = await ProductLearningPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Evaluation feedback" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Pilot feedback" })).toBeInTheDocument();
   });
 
   it("PlanningPage renders primary heading", async () => {
@@ -240,10 +240,22 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
   });
 
+  it("PlanningPage does not render internal codename '59R' in user-visible output", async () => {
+    const page = await PlanningPage();
+    render(page);
+    expect(document.body.textContent).not.toContain("59R");
+  });
+
   it("EvolutionReviewPage renders primary heading", async () => {
     const page = await EvolutionReviewPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Simulation review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Change simulation" })).toBeInTheDocument();
+  });
+
+  it("EvolutionReviewPage does not render internal codename '60R' in user-visible output", async () => {
+    const page = await EvolutionReviewPage();
+    render(page);
+    expect(document.body.textContent).not.toContain("60R");
   });
 
   it("Digests hub Browse tab content renders primary heading", () => {
@@ -271,7 +283,7 @@ describe("operator client pages — render gate", () => {
   it("SearchPage renders primary heading without heading-level contextual help", async () => {
     const page = await SearchPage();
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Search review evidence" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 

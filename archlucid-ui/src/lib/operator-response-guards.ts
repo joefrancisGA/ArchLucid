@@ -400,7 +400,7 @@ export function coerceManifestSummary(
 
   if (!parsed.success) {
     if (!isRecord(data)) {
-      return { ok: false, message: "Manifest summary was not a JSON object." };
+      return { ok: false, message: "Review record summary was not a JSON object." };
     }
 
     const stringKeys = [
@@ -415,7 +415,7 @@ export function coerceManifestSummary(
 
     for (const key of stringKeys) {
       if (typeof data[key] !== "string") {
-        return { ok: false, message: `Manifest summary is missing or invalid "${key}".` };
+        return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
       }
     }
 
@@ -423,15 +423,15 @@ export function coerceManifestSummary(
 
     for (const key of numberKeys) {
       if (typeof data[key] !== "number") {
-        return { ok: false, message: `Manifest summary is missing or invalid "${key}".` };
+        return { ok: false, message: `Review record summary is missing or invalid "${key}".` };
       }
     }
 
     if (data.operatorSummary !== undefined && typeof data.operatorSummary !== "string") {
-      return { ok: false, message: 'Manifest summary has invalid "operatorSummary" (expected string).' };
+      return { ok: false, message: 'Review record summary has invalid "operatorSummary" (expected string).' };
     }
 
-    return { ok: false, message: "Manifest summary was not a JSON object." };
+    return { ok: false, message: "Review record summary was not a JSON object." };
   }
 
   return { ok: true, value: parsed.data as ManifestSummary };

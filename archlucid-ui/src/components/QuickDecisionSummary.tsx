@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
-import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
+import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -46,7 +47,7 @@ import { findingEnforcementTierLabel } from "@/lib/finding-enforcement-tier";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/finding-policy-evidence-citations";
 import {
   groupQuickDecisionFindingsByPolicyPack,
-  summarizeQuickDecisionFindingsByPolicyPack,
+  summarizePolicyPackFindingImpact,
 } from "@/lib/group-findings-by-policy-pack";
 import {
   formatHiddenLowConfidenceHint,
@@ -108,11 +109,12 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     props.manifestRuleSetId,
     props.manifestRuleSetVersion,
   );
-  const policyPackSummary = summarizeQuickDecisionFindingsByPolicyPack(
+  const policyPackImpact = summarizePolicyPackFindingImpact(
     afterMuteFilter,
     props.manifestRuleSetId,
     props.manifestRuleSetVersion,
   );
+  const policyPackSummary = policyPackImpact.groups;
   const hasSourceFindings = props.findings.length > 0;
   const buyerPolishedShell = props.buyerPolishedShell === true;
   const headlineFindingCount = props.headlineFindingCount;
@@ -190,8 +192,8 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               {findingEnforcementTierLabel(f.enforcementTier)}
             </span>
           ) : null}
-          {f.policyRuleId !== null && f.policyRuleId !== undefined && f.policyRuleId.trim().length > 0 ? (
-            <FindingPolicyRuleBadge policyRuleId={f.policyRuleId} />
+          {citationModel.pack !== null || citationModel.policy !== null ? (
+            <FindingPolicyTraceabilityBadges pack={citationModel.pack} policy={citationModel.policy} />
           ) : null}
           {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
             <FindingConfidenceBadge level={f.confidenceLevel} />
@@ -307,7 +309,20 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           <p className="m-0 mb-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
             Work tracking
           </p>
-          <ItsmOutboundQuickActions findingId={f.findingId} compact />
+          <div className="flex flex-wrap items-center gap-2">
+            <CopyGovernanceQueueWorkItemButton
+              runId={props.runId}
+              findingId={f.findingId}
+              findingTitle={f.title}
+              severityLabel={
+                f.severityValue >= 3 ? "High" : f.severityValue === 2 ? "Medium" : f.severityValue === 1 ? "Low" : "Info"
+              }
+              recommendedAction={f.recommendation}
+              statusLabel="Open"
+              compact
+            />
+            <ItsmOutboundQuickActions findingId={f.findingId} compact />
+          </div>
         </div>
         {askFindingId === f.findingId ? (
           <div className="mt-3">
@@ -394,7 +409,12 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
           {hasSourceFindings && policyPackSummary.length > 0 ? (
-            <ReviewDetailPolicyPackFindingsBreakdown groups={policyPackSummary} />
+            <ReviewDetailPolicyPackFindingsBreakdown
+              groups={policyPackSummary}
+              manifestRuleSetId={props.manifestRuleSetId}
+              mappedFindingCount={policyPackImpact.mappedFindingCount}
+              unmappedFindingCount={policyPackImpact.unmappedFindingCount}
+            />
           ) : null}
           {props.usingExplanationFallback === true ? (
             <p

@@ -7,7 +7,7 @@ import {
   ONBOARDING_TOUR_DONE_LINK_HREF,
   ONBOARDING_TOUR_DONE_LINK_LABEL,
   ONBOARDING_TOUR_WELCOME_BODY,
-} from "@/lib/onboarding-secondary-surfaces";
+} from "@/lib/operator-onboarding-tour-steps";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",

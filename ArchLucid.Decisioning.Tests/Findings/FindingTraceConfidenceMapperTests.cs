@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
@@ -44,5 +45,32 @@ public sealed class FindingTraceConfidenceMapperTests
         rows[0].EvidenceRefCount.Should().Be(2);
         rows[0].EvaluationConfidenceScore.Should().Be(91);
         rows[0].ConfidenceLevel.Should().Be(FindingConfidenceLevel.High);
+        rows[0].Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+    }
+
+    [Fact]
+    public void FromSnapshot_maps_checklist_coverage_classification()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "check-1",
+                    FindingType = "t",
+                    Category = "c",
+                    EngineType = "e",
+                    Title = "Enable MFA",
+                    Rationale = "r",
+                    Classification = FindingClassification.ChecklistCoverage,
+                },
+            ],
+        };
+
+        List<FindingTraceConfidenceDto> rows = FindingTraceConfidenceMapper.FromSnapshot(snapshot);
+
+        rows.Should().ContainSingle();
+        rows[0].Classification.Should().Be(FindingClassification.ChecklistCoverage);
     }
 }

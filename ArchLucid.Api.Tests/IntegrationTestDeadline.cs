@@ -49,11 +49,54 @@ internal static class IntegrationTestDeadline
             Console.Error.WriteLine(
                 $"[IntegrationTestDeadline] TIMEOUT: test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
+            ObserveAbandonedRunTask(runTask, testName);
+
             throw new TimeoutException(
                 $"Integration test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s.");
         }
 
         await runTask.ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     The test body may keep running after the deadline; observe completion so faults are not unobserved and
+    ///     late finishes are visible when diagnosing thread-pool starvation on CI shards.
+    /// </summary>
+    private static void ObserveAbandonedRunTask(Task runTask, string testName)
+    {
+        ArgumentNullException.ThrowIfNull(runTask);
+        ArgumentException.ThrowIfNullOrWhiteSpace(testName);
+
+        _ = runTask.ContinueWith(
+            completed =>
+            {
+                if (completed.IsFaulted)
+                {
+                    _ = completed.Exception;
+
+                    return;
+                }
+
+                if (completed.IsCanceled)
+                {
+                    Console.Error.WriteLine(
+                        "[IntegrationTestDeadline] Abandoned run task was canceled after deadline for '"
+                        + testName
+                        + "'.");
+
+                    return;
+                }
+
+                Console.Error.WriteLine(
+                    "[IntegrationTestDeadline] Abandoned run task completed after deadline for '"
+                    + testName
+                    + "' at "
+                    + DateTime.UtcNow.ToString("HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture)
+                    + "Z");
+            },
+            CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
     }
 
     internal static CancellationTokenSource CreateLinkedRequestTimeoutSource(CancellationToken testDeadlineToken)

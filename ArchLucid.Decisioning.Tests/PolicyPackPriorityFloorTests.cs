@@ -22,11 +22,11 @@ public sealed class PolicyPackPriorityFloorTests
         };
 
     [Fact]
-    public void ResolveFloor_WhenUnset_ReturnsP2()
+    public void ResolveFloor_WhenUnset_ReturnsP1()
     {
         PolicyPackContentDocument effective = new();
 
-        PolicyPackPriorityFloor.ResolveFloor(effective).Should().Be(PolicyPackRulePriority.P2);
+        PolicyPackPriorityFloor.ResolveFloor(effective).Should().Be(PolicyPackRulePriority.P1);
     }
 
     [Fact]

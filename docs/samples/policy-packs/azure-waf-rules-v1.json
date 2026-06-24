@@ -298,7 +298,7 @@
     {
       "id": "waf-az-015",
       "title": "Idle and orphaned spend retirement policy",
-      "description": "Advisor cost and orphan-candidate rows in the extractor ZIP must map to an explicit retirement or exemption decision — not linger as unnamed technical debt.",
+      "description": "Advisor cost and orphan-candidate rows in the extractor ZIP must map to an explicit retirement or exemption decision \u2014 not linger as unnamed technical debt.",
       "severity": "Medium",
       "remediationGuidance": "Link orphan-candidates.json and advisor-cost.json entries to findings with owner and target retirement date; use governance.CostClassification to mark accepted carry cost.",
       "evidenceHints": [
@@ -318,7 +318,7 @@
     {
       "id": "waf-az-016",
       "title": "Generative AI endpoint rate and quota guardrails",
-      "description": "Architecture narratives that expose LLM or embedding endpoints must document per-tenant throttling, budget cutoffs, and abuse detection — not unbounded inference surfaces.",
+      "description": "Architecture narratives that expose LLM or embedding endpoints must document per-tenant throttling, budget cutoffs, and abuse detection \u2014 not unbounded inference surfaces.",
       "severity": "High",
       "remediationGuidance": "Record quota and budget policies on services[].Tags for Azure OpenAI / AI Search hosts; align with governance.PolicyConstraints for PilotStrict or production inference tiers.",
       "evidenceHints": [
@@ -338,7 +338,7 @@
     {
       "id": "waf-az-017",
       "title": "Hub-spoke peering and firewall inspection path",
-      "description": "Multi-subscription or hub-spoke designs must show which traffic paths are inspected by Azure Firewall or NVA — peering alone is not a security control.",
+      "description": "Multi-subscription or hub-spoke designs must show which traffic paths are inspected by Azure Firewall or NVA \u2014 peering alone is not a security control.",
       "severity": "High",
       "remediationGuidance": "Document inspection points in relationships[].relationshipType and governance.RequiredControls; correlate Microsoft.Network/virtualNetworks and firewall resources from resources.json.",
       "evidenceHints": [

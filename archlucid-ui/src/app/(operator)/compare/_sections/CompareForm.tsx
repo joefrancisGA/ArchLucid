@@ -30,6 +30,7 @@ import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/compare
 import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/compare/_sections/CompareLastRequestOutcomeDetails";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/compare/_sections/ComparePageIntro";
 import { CompareResultsPanel } from "@/app/(operator)/compare/_sections/CompareResultsPanel";
+import { CompareAdvancedDiagnosticsSection } from "@/app/(operator)/compare/_sections/CompareAdvancedDiagnosticsSection";
 import { CompareRunPickersSection } from "@/app/(operator)/compare/_sections/CompareRunPickersSection";
 import { useCompareFinalizedRunAvailability } from "@/app/(operator)/compare/_sections/useCompareFinalizedRunAvailability";
 import type { ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
@@ -525,6 +526,8 @@ export function CompareForm() {
       {showCompareWorkflow ? (
         <LayerHeader pageKey="compare" density="compact" collapsibleGuidance="How compare works" />
       ) : null}
+
+      {showCompareWorkflow ? <CompareAdvancedDiagnosticsSection /> : null}
     </div>
   );
 }

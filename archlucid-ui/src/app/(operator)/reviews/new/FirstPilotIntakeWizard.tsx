@@ -19,6 +19,8 @@ import {
   proofScopeToRequiredCapabilities,
   type QuickReviewProofScopeId,
 } from "@/components/usability/QuickReviewProofScopeField";
+import { FirstRunIntakeStepGuide } from "@/components/wizard/FirstRunIntakeStepGuide";
+import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
@@ -132,6 +134,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     !submitting &&
     !blocksLlmExecution;
 
+  const titleReady = runTitle.trim().length >= 2;
+  const evidenceReady = evidenceFiles.length > 0;
+
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
       showSuccess(message);
@@ -203,17 +208,21 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
       <div className="space-y-1" data-testid="first-pilot-intake-progress">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">First-pilot intake</p>
+        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Your first review package</p>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-          Name the review, attach architecture evidence, and start analysis. Advanced settings stay optional.
+          Upload one architecture diagram and add a short description if you want. Policy packs are applied automatically.
         </p>
       </div>
+
+      <FirstRunIntakeStepGuide titleReady={titleReady} evidenceReady={evidenceReady} />
+
+      <FocusedPilotPolicyPackAppliedCallout />
 
       <Card>
         <CardHeader>
           <CardTitle>Create review package</CardTitle>
           <CardDescription>
-            Add a title and at least one evidence file. You can add extra context if needed.
+            Start with a title and one architecture diagram. A brief description is optional when a file is attached.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -232,23 +241,23 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           </div>
 
           <WizardEvidenceUploadZone
-            title="Attach architecture evidence"
-            description="Upload at least one diagram, document, or architecture artifact. Files are tagged automatically as architecture evidence."
+            title="Upload one architecture diagram"
+            description="Required for your first review — a diagram, PDF export, or architecture document. Additional files are optional."
             onFilesSelected={(files) => {
               setEvidenceFiles(files);
             }}
           />
 
           <div className="space-y-2">
-            <Label htmlFor="first-pilot-brief">Architecture brief (optional when files are attached)</Label>
+            <Label htmlFor="first-pilot-brief">Short architecture description (optional)</Label>
             <Textarea
               id="first-pilot-brief"
               value={briefText}
               onChange={(event) => {
                 setBriefText(event.target.value);
               }}
-              className="min-h-[140px] text-sm"
-              placeholder="Optional goals, constraints, or context. If omitted, ArchLucid builds a brief from your uploaded file names."
+              className="min-h-[100px] text-sm"
+              placeholder="Optional: 2–3 sentences on goals, constraints, or what you want reviewed."
               data-testid="first-pilot-brief"
             />
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
@@ -260,6 +269,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <AdvancedOptionsAccordion triggerLabel="Advanced configuration (optional)">
             <div className="space-y-4">
+              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                Focused pilot policy packs are on by default. Turn off only if you need every enabled pack to contribute
+                findings.
+              </p>
               <PilotModePolicyPackToggle
                 enabled={focusedPilotModeEnabled}
                 onEnabledChange={setFocusedPilotModeEnabled}

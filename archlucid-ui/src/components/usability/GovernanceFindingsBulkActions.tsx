@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,12 +13,13 @@ type GovernanceFindingsBulkActionsProps = {
   readonly onApplied: () => void;
 };
 
-type BulkDisposition = "Accepted" | "Waived" | "Deferred";
+type BulkDisposition = "Accepted" | "RejectedAsNotApplicable" | "Deferred";
 
 /** Bulk accept / waive / defer for governance findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
   if (props.selectedFindingIds.length === 0) {
     return null;
@@ -28,19 +30,36 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
     if (trimmedReason.length === 0) {
       showError("Enter a shared reason before applying a bulk disposition.");
-
       return;
     }
 
     setBusy(true);
 
     try {
-      // Bulk disposition API wiring is tenant-scoped; UI records intent and refreshes the queue.
+      const response = await fetch("/api/proxy/v1/governance/findings/bulk-disposition", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          findingIds: props.selectedFindingIds,
+          disposition,
+          rationale: trimmedReason,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Bulk disposition failed: ${response.statusText}`);
+      }
+
       showSuccess(
-        `Marked ${props.selectedFindingIds.length} finding(s) as ${disposition.toLowerCase()} — refresh the queue to confirm.`,
+        `Marked ${props.selectedFindingIds.length} finding(s) as ${disposition === "RejectedAsNotApplicable" ? "waived" : disposition.toLowerCase()}.`,
       );
       props.onApplied();
       setReason("");
+      router.refresh();
+    } catch (err) {
+      showError(err instanceof Error ? err.message : "Failed to apply bulk disposition.");
     } finally {
       setBusy(false);
     }
@@ -67,7 +86,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       <Button type="button" size="sm" disabled={busy} onClick={() => void applyDisposition("Accepted")}>
         Accept all
       </Button>
-      <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void applyDisposition("Waived")}>
+      <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void applyDisposition("RejectedAsNotApplicable")}>
         Waive all
       </Button>
       <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void applyDisposition("Deferred")}>

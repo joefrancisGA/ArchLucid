@@ -32,6 +32,7 @@ public static class RunDetailBuyerMapper
                 HasFindingsSnapshot = run.FindingsSnapshotId.HasValue,
                 RunDegradedExecution = source.RunDegradedExecution,
                 DegradedExecutionAgents = source.DegradedExecutionAgents,
+                IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(run),
             },
             ExecutionFlavorBuyerSummary = source.ExecutionFlavorBuyerSummary,
             RunDegradedExecution = source.RunDegradedExecution,

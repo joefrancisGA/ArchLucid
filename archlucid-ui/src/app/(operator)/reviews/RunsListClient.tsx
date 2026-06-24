@@ -95,7 +95,7 @@ function runRowNumericCountsLine(run: RunSummary, buyerPolished: boolean): strin
 function runRowExplicitCountsLine(run: RunSummary, buyerPolished: boolean): string | null {
   if (isNextPublicDemoMode() && canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID) {
     const c = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
-    const pkgWord = buyerPolished ? "Package" : "manifest";
+    const pkgWord = "Package";
 
     return `${c.findingCount} findings · ${c.warningCount} ${buyerPolished ? "monitored risks" : "warnings"} · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
   }
@@ -103,7 +103,7 @@ function runRowExplicitCountsLine(run: RunSummary, buyerPolished: boolean): stri
   const numeric = runRowNumericCountsLine(run, buyerPolished);
 
   if (numeric !== null) {
-    const pkgWord = buyerPolished ? "Package" : "manifest";
+    const pkgWord = "Package";
 
     return `${numeric} · ${pkgWord} ${run.hasGoldenManifest ? "finalized" : "pending"}`;
   }
@@ -161,7 +161,7 @@ function runRowOutputReadinessLine(run: RunSummary): string {
   }
 
   if (run.hasGoldenManifest) {
-    tokens.push("Manifest finalized");
+    tokens.push("Review package finalized");
   }
 
   if (run.hasArtifactBundle) {

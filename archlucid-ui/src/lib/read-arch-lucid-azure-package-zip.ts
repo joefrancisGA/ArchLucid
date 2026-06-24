@@ -39,7 +39,7 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
   try {
     entries = unzipSync(bytes);
   } catch {
-    return { ok: false, message: "Could not read ZIP archive (file may be corrupt or not a ZIP)." };
+    return { ok: false, message: "Uploaded payload is not a valid ZIP archive." };
   }
 
   const entryName = findManifestEntryName(entries);
@@ -47,14 +47,17 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
   if (entryName === null) {
     return {
       ok: false,
-      message: "No manifest.json found — use the ZIP produced by Get-ArchLucidAzurePackage.ps1.",
+      message: "ZIP does not contain manifest.json.",
     };
   }
 
   const raw = entries[entryName];
 
   if (raw === undefined || raw.length === 0) {
-    return { ok: false, message: "manifest.json in the ZIP is empty." };
+    return {
+      ok: false,
+      message: "Missing or unsupported schemaVersion in manifest.json (required value: 1).",
+    };
   }
 
   let text: string;
@@ -62,7 +65,7 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
   try {
     text = strFromU8(raw, false);
   } catch {
-    return { ok: false, message: "Could not decode manifest.json as UTF-8." };
+    return { ok: false, message: "manifest.json is not valid JSON." };
   }
 
   let json: unknown;
@@ -76,7 +79,10 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
   const parsed = archLucidAzurePackageManifestSchema.safeParse(json);
 
   if (!parsed.success) {
-    return { ok: false, message: "manifest.json does not match the ArchLucid Azure packager shape." };
+    return {
+      ok: false,
+      message: "Missing or unsupported schemaVersion in manifest.json (required value: 1).",
+    };
   }
 
   if (parsed.data.schemaVersion !== ARCH_LUCID_AZURE_EXTRACTOR_SUPPORTED_SCHEMA_VERSION) {
@@ -95,7 +101,7 @@ export async function readArchLucidAzurePackageZipFromFile(file: File): Promise<
 
     return {
       ok: false,
-      message: `ZIP is too large (max ${maxMb} MB, same limit as server-side extractor upload).`,
+      message: `ZIP exceeds maximum size (${maxMb} MB). Reduce extractor scope or use chunked upload when enabled.`,
     };
   }
 

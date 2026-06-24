@@ -7,10 +7,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const OUTCOMES_TABS = [
-  { href: "/value-report", label: "Stakeholder report", match: (path: string) => path === "/value-report" },
+  { href: "/value-report", label: "Sponsor report", match: (path: string) => path === "/value-report" },
   { href: "/value-report/pilot", label: "Pilot outcomes", match: (path: string) => path.startsWith("/value-report/pilot") },
   { href: "/value-report/roi", label: "ROI summary", match: (path: string) => path.startsWith("/value-report/roi") },
-  { href: "/scorecard", label: "Scorecard", match: (path: string) => path.startsWith("/scorecard") },
+  { href: "/scorecard", label: "Executive scorecard", match: (path: string) => path.startsWith("/scorecard") },
 ] as const;
 
 /** Single hub navigation for pilot value surfaces — reduces scattered outcomes routes in the sidebar. */

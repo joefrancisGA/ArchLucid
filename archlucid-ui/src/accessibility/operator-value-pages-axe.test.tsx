@@ -33,6 +33,31 @@ vi.mock("@/lib/api", () => ({
   getPlanningPlanDetail: vi.fn().mockResolvedValue(null),
 }));
 
+vi.mock("@/lib/pilot-value-report-fetch", () => ({
+  getTenantPilotValueReportJson: vi.fn().mockResolvedValue({
+    tenantId: "tenant-1",
+    fromUtc: "2026-01-01T00:00:00.000Z",
+    toUtc: "2026-02-01T00:00:00.000Z",
+    totalRunsCommitted: 2,
+    runDetailsTruncated: false,
+    runDetailCap: 50,
+    totalFindings: 8,
+    findingsBySeverity: { critical: 0, high: 1, medium: 2, low: 3, info: 2 },
+    totalRecommendationsProduced: 4,
+    averagePipelineCompletionSeconds: 90,
+    governanceApprovals: 2,
+    governanceRejections: 0,
+    policyPackAssignments: 1,
+    comparisonOrDriftDetections: 0,
+    uniqueAgentTypes: [],
+    committedRunsTimeline: [],
+    governancePendingApprovalsNow: 1,
+    auditExportTruncated: false,
+  }),
+  fetchPilotValueReportJson: vi.fn(),
+  buildPilotValueReportQuery: vi.fn(),
+}));
+
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
   showSuccess: vi.fn(),
@@ -145,7 +170,31 @@ vi.mock("@/app/(operator)/planning/_sections/load-planning-page-data", () => {
 });
 
 vi.mock("@/app/(operator)/value-report/_sections/load-value-report-page-data", () => ({
-  loadValueReportPageData: () => Promise.resolve({}),
+  loadValueReportPageData: () =>
+    Promise.resolve({
+      initialFromUtc: "2026-01-01T00:00",
+      initialToUtc: "2026-02-01T00:00",
+      preview: {
+        tenantId: "tenant-1",
+        fromUtc: "2026-01-01T00:00:00.000Z",
+        toUtc: "2026-02-01T00:00:00.000Z",
+        totalRunsCommitted: 2,
+        runDetailsTruncated: false,
+        runDetailCap: 50,
+        totalFindings: 8,
+        findingsBySeverity: { critical: 0, high: 1, medium: 2, low: 3, info: 2 },
+        totalRecommendationsProduced: 4,
+        averagePipelineCompletionSeconds: 90,
+        governanceApprovals: 2,
+        governanceRejections: 0,
+        policyPackAssignments: 1,
+        comparisonOrDriftDetections: 0,
+        uniqueAgentTypes: [],
+        committedRunsTimeline: [],
+        governancePendingApprovalsNow: 1,
+        auditExportTruncated: false,
+      },
+    }),
 }));
 
 import ValueReportPage from "@/app/(operator)/value-report/page";

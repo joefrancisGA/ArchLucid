@@ -41,8 +41,8 @@ export default function RunDetailSegmentError({
           <strong className="text-base">Sample review unavailable</strong>
           <p className="mt-2 text-sm">
             {isBuyerPolished
-              ? "Open the manifest summary first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
-              : "Open the sample manifest or the public walkthrough below to explore the Claims Intake review outputs."}
+              ? "Open the signed review record first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
+              : "Open the sample review package or the public walkthrough below to explore the Claims Intake review outputs."}
           </p>
           {isDev ? (
             <pre
@@ -56,7 +56,7 @@ export default function RunDetailSegmentError({
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="primary" asChild>
             <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
-              {isBuyerPolished ? "Open sample review package" : "Open sample manifest"}
+              Open sample review package
             </Link>
           </Button>
           <Button type="button" variant="outline" asChild>

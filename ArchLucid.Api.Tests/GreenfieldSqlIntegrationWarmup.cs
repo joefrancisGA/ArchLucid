@@ -49,17 +49,23 @@ internal static class GreenfieldSqlIntegrationWarmup
         }
         catch (WarmupTimedOutException)
         {
-            SkipShardOverload();
+            // RecordAndReturnOnShardOverload signals the overload without throwing SkipException
+            // after an await. Throwing SkipException here would cause vstest to re-queue the test
+            // indefinitely. Callers that need to skip should call SkipIfShardWarmupAlreadyTimedOut()
+            // synchronously before their next await, or use RecordAndReturnOnShardOverload + return.
+            RecordAndReturnOnShardOverload();
         }
     }
 
     /// <summary>
-    ///     Unconditional skip for overloaded CI shards. Centralised so test-level catch blocks do not depend on
-    ///     <c>Skip.If(true, …)</c> predicate quirks when factory disposal throws a secondary exception.
+    ///     Records shard overload and signals the caller to <c>return</c> from the test method without
+    ///     asserting. Use this in <c>catch</c> blocks that execute after an <c>await</c>; never call
+    ///     <see cref="Skip.If" /> / <see cref="Skip.IfNot" /> there because throwing
+    ///     <see cref="SkipException" /> after an <c>await</c> causes an infinite vstest re-queue loop.
+    ///     Subsequent tests in the same process will skip via <see cref="SkipIfShardWarmupAlreadyTimedOut" />.
     /// </summary>
-    internal static void SkipShardOverload()
+    internal static void RecordAndReturnOnShardOverload()
     {
         RecordShardWarmupTimedOut();
-        Skip.IfNot(false, ShardOverloadSkipReason);
     }
 }

@@ -4,7 +4,7 @@ import type { RequiredAuthority } from "@/lib/nav-authority";
 import type { NavTier } from "@/lib/nav-tier";
 
 /** Shell composition: buyer review journey vs tenant/platform administration (see SidebarNav / CommandPalette). */
-export type NavShellSurface = "review-workflow" | "platform-admin";
+export type NavShellSurface = "review-workflow" | "platform-admin" | "system-admin";
 
 /**
  * One sidebar / palette / mobile-drawer row. Tier and authority interact per

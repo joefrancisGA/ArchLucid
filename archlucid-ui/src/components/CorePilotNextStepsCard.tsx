@@ -171,7 +171,7 @@ export function CorePilotNextStepsCard() {
             archlucid run-support-packet RUN
           </code>
           <p className="mb-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">
-            <code className="font-mono">run-support-packet</code> prints manifest/version/trace/context for escalation — pair with{" "}
+            <code className="font-mono">run-support-packet</code> prints review-record/version/trace/context for escalation — pair with{" "}
             <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" variant="text" />.
           </p>
         </div>

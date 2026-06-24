@@ -171,4 +171,14 @@ public sealed class ArchitectureRun
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.
+    ///     Derived from <c>LastFailureReason</c> at read time; not persisted as its own column.
+    /// </summary>
+    public bool IsDeadLettered
+    {
+        get;
+        set;
+    }
 }

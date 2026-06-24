@@ -9,6 +9,11 @@ export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
 
 export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
 
+export const BUYER_COMPARE_STRUCTURED_HEADING = "Review comparison";
+
+export const BUYER_COMPARE_STRUCTURED_LEAD =
+  "Compare finalized review packages to understand what changed between reviews — each card below summarizes one category. Prefer this narrative before supplementary diffs further down.";
+
 export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details";
 
 export const BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY = "Change compared reviews";
@@ -544,11 +549,24 @@ export const BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION =
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
   "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed review record, and audit record.";
 
-export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
-  "Shows review-cycle reduction, estimated effort saved, and governance-ready artifacts produced by committed reviews.";
+export const BUYER_VALUE_REPORT_PAGE_TITLE = "Sponsor value report";
+
+export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
+  "Create a sponsor-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.";
+
+export const BUYER_VALUE_REPORT_OUTCOME_LEAD = BUYER_VALUE_REPORT_PAGE_SUBTITLE;
 
 export const BUYER_VALUE_REPORT_OUTCOME_DETAILS =
-  "Use this report for sponsor updates and procurement diligence — configure the UTC window and export formats below when your tenant is connected.";
+  "Use this report for sponsor updates and procurement diligence — choose the report period and download formats below.";
+
+export const BUYER_VALUE_REPORT_PERIOD_UTC_HELP = "Times are in UTC for consistent reporting.";
+
+export const BUYER_VALUE_REPORT_EMPTY_TITLE = "No report data for this period";
+
+export const BUYER_VALUE_REPORT_EMPTY_DESCRIPTION =
+  "Finalize at least one review package to generate a meaningful sponsor value report.";
+
+export const BUYER_VALUE_REPORT_PREVIEW_TITLE = "Report preview";
 
 export const BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL = "Decision impact";
 

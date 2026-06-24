@@ -1,10 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Cli.Validation;
 using ArchLucid.Contracts.Governance;
-
-using FluentValidation;
 using FluentValidation.Results;
 
 namespace ArchLucid.Cli.Commands;
@@ -13,8 +10,6 @@ namespace ArchLucid.Cli.Commands;
 ///     <c>archlucid policy validate &lt;file.json&gt;</c> and <c>archlucid policy-pack validate &lt;file.json&gt;</c> —
 ///     deserializes a <see cref="PolicyPackContentDocument" />, runs FluentValidation, and reports structural issues (no YAML).
 /// </summary>
-[ExcludeFromCodeCoverage(
-    Justification = "Thin file I/O and JSON deserialization; exercised via CLI integration smoke if added.")]
 internal static class PolicyValidateCommand
 {
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
@@ -88,26 +83,44 @@ internal static class PolicyValidateCommand
             return Task.FromResult(CliExitCode.UsageError);
         }
 
+        List<PolicyPackContentValidationIssue> issues = [];
         ValidationResult fv = ContentValidator.Validate(doc);
 
-        if (!fv.IsValid)
+        foreach (ValidationFailure failure in fv.Errors)
         {
-            string detail = string.Join("; ", fv.Errors.Select(static e => e.ErrorMessage));
+            issues.Add(new PolicyPackContentValidationIssue
+            {
+                Kind = PolicyPackContentValidationIssueKind.Error,
+                Message = failure.ErrorMessage,
+                Path = string.IsNullOrWhiteSpace(failure.PropertyName) ? null : failure.PropertyName,
+            });
+        }
+
+        AppendUnknownRuleKeyWarnings(doc, issues);
+
+        bool valid = issues.All(static issue => issue.Kind != PolicyPackContentValidationIssueKind.Error);
+
+        if (!valid)
+        {
+            string detail = string.Join("; ", issues
+                .Where(static issue => issue.Kind == PolicyPackContentValidationIssueKind.Error)
+                .Select(static issue => issue.Message));
 
             WriteErr(commandLabel, CliExitCode.UsageError, detail);
 
             return Task.FromResult(CliExitCode.UsageError);
         }
 
+        PolicyPackContentValidationSummary summary = BuildSummary(doc);
+
         if (CliExecutionContext.JsonOutput)
         {
             Dictionary<string, object?> payload = new()
             {
                 ["ok"] = true,
-                ["complianceRuleIdCount"] = doc.ComplianceRuleIds.Count,
-                ["complianceRuleKeyCount"] = doc.ComplianceRuleKeys.Count,
-                ["alertRuleIdCount"] = doc.AlertRuleIds.Count,
-                ["compositeAlertRuleIdCount"] = doc.CompositeAlertRuleIds.Count
+                ["valid"] = true,
+                ["summary"] = summary,
+                ["issues"] = issues,
             };
 
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonOutCamel));
@@ -116,19 +129,69 @@ internal static class PolicyValidateCommand
         {
             Console.WriteLine(
                 $"Valid policy pack JSON: {path} " +
-                $"(rules: {doc.ComplianceRuleIds.Count + doc.ComplianceRuleKeys.Count}, alerts: {doc.AlertRuleIds.Count}).");
+                $"(compliance rules: {summary.ComplianceRuleIdCount + summary.ComplianceRuleKeyCount}, " +
+                $"alerts: {summary.AlertRuleIdCount + summary.CompositeAlertRuleIdCount}, " +
+                $"advisory defaults: {summary.AdvisoryDefaultCount}).");
+
+            foreach (PolicyPackContentValidationIssue warning in issues
+                         .Where(static issue => issue.Kind == PolicyPackContentValidationIssueKind.Warning))
+            {
+                Console.WriteLine($"[warning] {warning.Message}");
+            }
         }
 
         return Task.FromResult(CliExitCode.Success);
     }
 
+    private static void AppendUnknownRuleKeyWarnings(
+        PolicyPackContentDocument document,
+        List<PolicyPackContentValidationIssue> issues)
+    {
+        HashSet<string> knownRuleKeys = PolicyPackKnownRuleKeyResolver.TryLoadKnownRuleKeys();
+
+        foreach (string curatedRuleId in PolicyPackCuratedRuleKeyReader.ReadRuleIdsFromMetadata(document.Metadata))
+            knownRuleKeys.Add(curatedRuleId);
+
+        if (knownRuleKeys.Count == 0)
+            return;
+
+        foreach (string ruleKey in document.ComplianceRuleKeys)
+        {
+            if (string.IsNullOrWhiteSpace(ruleKey))
+                continue;
+
+            string trimmed = ruleKey.Trim();
+
+            if (knownRuleKeys.Contains(trimmed))
+                continue;
+
+            issues.Add(new PolicyPackContentValidationIssue
+            {
+                Kind = PolicyPackContentValidationIssueKind.Warning,
+                Path = "complianceRuleKeys",
+                Message =
+                    $"Unknown complianceRuleKey '{trimmed}' is not in the GA file-based rule library or curated rules in this document.",
+            });
+        }
+    }
+
+    private static PolicyPackContentValidationSummary BuildSummary(PolicyPackContentDocument document) =>
+        new()
+        {
+            ComplianceRuleIdCount = document.ComplianceRuleIds.Count,
+            ComplianceRuleKeyCount = document.ComplianceRuleKeys.Count,
+            AlertRuleIdCount = document.AlertRuleIds.Count,
+            CompositeAlertRuleIdCount = document.CompositeAlertRuleIds.Count,
+            AdvisoryDefaultCount = document.AdvisoryDefaults.Count,
+            MetadataEntryCount = document.Metadata.Count,
+            ElicitationQuestionCount = document.ElicitationQuestions.Count,
+        };
+
     private static void WriteErr(string commandLabel, int exitCode, string message)
     {
-        string bracketLabel = $"[{commandLabel}]";
-
         if (CliExecutionContext.JsonOutput)
             CliJson.WriteFailureLine(Console.Error, exitCode, "policy_pack_validate", message);
         else
-            Console.Error.WriteLine($"{bracketLabel} {message}");
+            Console.Error.WriteLine($"[{commandLabel}] {message}");
     }
 }

@@ -193,7 +193,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           <a className={`font-medium ${MARKETING_SURFACES.inlineLink}`} href="/demo/preview">
             public demo preview
           </a>{" "}
-          (manifest excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
+          (review package excerpt, explanation, citations, timeline) plus the citation-backed differentiation narrative table (five
           detailed rows with citations — not the symbol-only front-door grid below). If the download is not available in
           your environment, use the contact path on the getting started page.
         </p>
@@ -221,7 +221,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         {showDemoEmbed ? (
           <div className={`mt-4 overflow-hidden ${MARKETING_SURFACES.sectionPanel}`}>
             <iframe
-              title="ArchLucid demo manifest page preview"
+              title="ArchLucid demo review package page preview"
               src="/demo/preview"
               className="h-[min(70vh,520px)] w-full border-0"
               loading="lazy"

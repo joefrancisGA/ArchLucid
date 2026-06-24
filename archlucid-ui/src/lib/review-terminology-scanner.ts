@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import {
+  REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
   REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
 } from "@/lib/review-terminology-surfaces";
 
@@ -69,6 +70,58 @@ const LINE_SAFELIST_PATTERNS = [
   /SHOWCASE_STATIC_DEMO_RUN_ID/i,
   /sandbox-api-mocks/i,
   /architecture-runs\.ts/i,
+  /manifest\.json/i,
+  /manifestId/i,
+  /manifestVersion/i,
+  /manifestHash/i,
+  /manifestDiff/i,
+  /manifestComparison/i,
+  /goldenManifest/i,
+  /GoldenManifest/i,
+  /\/manifests\//i,
+  /\/manifest["'`]/i,
+  /manifest-summary/i,
+  /manifest-detail/i,
+  /manifest-review/i,
+  /manifest-key/i,
+  /manifest-buyer/i,
+  /manifest-json/i,
+  /manifest\.webmanifest/i,
+  /commit-manifest/i,
+  /compare-raw-manifest/i,
+  /manifestCommittedUtc/i,
+  /totalManifestsCreated/i,
+  /averageTimeToManifest/i,
+  /hasGoldenManifest/i,
+  /hasManifest/i,
+  /ManifestDetail/i,
+  /ManifestJson/i,
+  /ManifestTop/i,
+  /ManifestBuyer/i,
+  /ManifestDeliverable/i,
+  /ManifestCompare/i,
+  /ManifestBundle/i,
+  /ManifestDocument/i,
+  /ManifestSummary/i,
+  /ManifestComparison/i,
+  /manifest_/i,
+  /manifest-/i,
+  /#manifest/i,
+  /governed-manifest/i,
+  /golden-manifest/i,
+  /BUYER_.*MANIFEST/i,
+  /SIGNED_MANIFEST/i,
+  /SHOWCASE.*MANIFEST/i,
+  /FIXTURE.*MANIFEST/i,
+  /SCREENSHOT.*MANIFEST/i,
+  /MANIFEST_DETAIL/i,
+  /MANIFEST_ID/i,
+  /manifestishEvent/i,
+] as const;
+
+const ALL_BANNED_PATTERNS = [
+  ...REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS,
+  ...REVIEW_TERMINOLOGY_BANNED_MANIFEST_PATTERNS,
 ] as const;
 
 export type ReviewTerminologyViolation = {
@@ -178,7 +231,7 @@ export function scanBuyerFacingTerminology(
       continue;
     }
 
-    for (const pattern of REVIEW_TERMINOLOGY_BANNED_PRIMARY_RUN_PATTERNS) {
+    for (const pattern of ALL_BANNED_PATTERNS) {
       if (!patternMatchesLine(line, pattern)) {
         continue;
       }

@@ -736,7 +736,7 @@
     {
       "id": "sec-base-032",
       "title": "TLS minimum version and cipher policy at ingress",
-      "description": "Internet-facing endpoints must declare TLS 1.2+ minimum and modern cipher policies — legacy termination is not acceptable for regulated tiers.",
+      "description": "Internet-facing endpoints must declare TLS 1.2+ minimum and modern cipher policies \u2014 legacy termination is not acceptable for regulated tiers.",
       "severity": "High",
       "remediationGuidance": "Capture TLS policy on services[].Tags for App Gateway, Front Door, and API Management rows in resources.json.",
       "evidenceHints": [
@@ -774,7 +774,7 @@
     {
       "id": "sec-base-034",
       "title": "East-west micro-segmentation for tier-0 services",
-      "description": "Tier-0 services (identity, secrets, billing) require explicit east-west deny rules — flat network trust is insufficient.",
+      "description": "Tier-0 services (identity, secrets, billing) require explicit east-west deny rules \u2014 flat network trust is insufficient.",
       "severity": "High",
       "remediationGuidance": "Map NSG or Azure Firewall application rules to topology relationships; document exceptions in metadata.ChangeDescription.",
       "evidenceHints": [
@@ -794,7 +794,7 @@
     {
       "id": "sec-base-035",
       "title": "Immutable audit export for security-relevant mutations",
-      "description": "Security-relevant configuration changes must be reconstructable from append-only audit — reconstructing from logs alone is insufficient for tier-1 reviews.",
+      "description": "Security-relevant configuration changes must be reconstructable from append-only audit \u2014 reconstructing from logs alone is insufficient for tier-1 reviews.",
       "severity": "Medium",
       "remediationGuidance": "Reference audit event coverage and correlation IDs in governance.RequiredControls; align with pre-commit governance gate settings when enabled.",
       "evidenceHints": [

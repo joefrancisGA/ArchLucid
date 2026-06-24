@@ -16,7 +16,7 @@ param(
 
     [string]$RunSettingsPath = 'coverage.runsettings',
 
-    [int]$FilterChunkSize = 40,
+    [int]$FilterChunkSize = 8,
 
     [string]$BlameHangTimeout = '75min',
 
@@ -98,7 +98,7 @@ $filterChunks = @(Split-ApiIntegrationTestClassFilterChunks `
     -ChunkSize $FilterChunkSize)
 
 $diagLogPath = Join-Path $ResultsDirectory "vstest-api-integration-shard-$ShardIndex.diag.log"
-$failed = $false
+$shardFailed = $false
 $chunkNumber = 0
 
 foreach ($filter in $filterChunks) {
@@ -138,8 +138,12 @@ foreach ($filter in $filterChunks) {
             -ChunkTimeout $chunkTimeoutSpan
 
         if ($exitCode -ne 0) {
-            $failed = $true
+            $shardFailed = $true
         }
+    }
+    catch {
+        $shardFailed = $true
+        throw
     }
     finally {
         if ($inGitHubActions) {
@@ -148,7 +152,7 @@ foreach ($filter in $filterChunks) {
 
         # On failure or blame-hang dump: emit SQL Server diagnostics so the next hang shows which
         # sessions were active/blocked and how many catalogs had accumulated on the container.
-        if ($failed -and ($IsLinux -or $inGitHubActions)) {
+        if ($shardFailed -and ($IsLinux -or $inGitHubActions)) {
             Write-CiSqlServerHangDiagnostics
         }
 
@@ -157,7 +161,7 @@ foreach ($filter in $filterChunks) {
             $chunkNumber,
             $filterChunks.Count,
             (Get-Date -Format 'HH:mm:ss'),
-            $failed)
+            $shardFailed)
 
         if ($IsLinux -or $inGitHubActions) {
             # Kill orphaned testhost/dotnet processes that prevent the GitHub Actions step from finishing
@@ -168,7 +172,7 @@ foreach ($filter in $filterChunks) {
     }
 }
 
-if ($failed) {
+if ($shardFailed) {
     exit 1
 }
 

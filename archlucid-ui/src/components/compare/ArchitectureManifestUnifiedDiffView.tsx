@@ -42,12 +42,12 @@ export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestU
         className="max-h-[min(70vh,36rem)] overflow-auto overscroll-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
         tabIndex={0}
         role="region"
-        aria-label="Unified line diff of baseline and updated manifest JSON"
+        aria-label="Unified line diff of baseline and updated review record JSON"
       >
         <table className="w-full border-collapse text-left font-mono text-[12px] leading-snug">
           <caption className="sr-only">
-            Lines prefixed with minus were removed from the baseline manifest; lines prefixed with plus were added in
-            the updated manifest; blank prefix lines are unchanged context.
+            Lines prefixed with minus were removed from the baseline review record; lines prefixed with plus were added in
+            the updated review record; blank prefix lines are unchanged context.
           </caption>
           <tbody>
             {rows.map((line, index) => (

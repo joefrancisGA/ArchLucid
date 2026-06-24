@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { getExecDigestPreferences, saveExecDigestPreferences, tryGetTenantTrialStatus } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { normalizeIanaTimeZoneForSelect, toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 import { operateCapabilityFromRank } from "@/lib/operate-capability";
 import { showError, showSuccess } from "@/lib/toast";
 import type { ExecDigestPreferencesResponse, ExecDigestPreferencesUpsertRequest } from "@/types/exec-digest-preferences";
@@ -17,7 +18,7 @@ function buildDigestForm(d: ExecDigestPreferencesResponse): ExecDigestPreference
   return {
     emailEnabled: d.emailEnabled,
     recipientEmails: [...d.recipientEmails],
-    ianaTimeZoneId: d.ianaTimeZoneId,
+    ianaTimeZoneId: normalizeIanaTimeZoneForSelect(d.ianaTimeZoneId),
     dayOfWeek: d.dayOfWeek,
     hourOfDay: d.hourOfDay,
   };
@@ -80,9 +81,13 @@ export function useTenantSettingsPage(loaded: TenantSettingsVisibleLoad): Tenant
       setSaving(true);
 
       try {
-        const next = await saveExecDigestPreferences(form);
+        const next = await saveExecDigestPreferences({
+          ...form,
+          ianaTimeZoneId: toStoredIanaTimeZoneId(form.ianaTimeZoneId),
+        });
 
         setDigest(next);
+        setForm(buildDigestForm(next));
         showSuccess("Notification preferences saved.");
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

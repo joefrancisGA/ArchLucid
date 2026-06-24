@@ -6,6 +6,7 @@ import { applyCommittedArchitectureReviewNavPromotions } from "@/lib/nav-committ
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   filterNavLinksByOperateUnlockPhase,
@@ -43,18 +44,19 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/audit",
   "/integrations/teams",
   "/integrations/operations",
+  "/integrations/webhooks",
   "/digests",
   "/digest-subscriptions",
   "/settings/cloud-connections",
   "/settings/tenant",
   "/settings/tenant/recycle-bin",
   "/settings/baseline",
-  "/settings/tenant-cost",
   "/settings/exec-digest",
   "/settings/webhooks",
+  "/integrations/webhooks",
   "/settings/roles",
   "/settings/api-keys",
-  "/settings/cost-reporting",
+  "/admin/ai-usage-cost",
   "/value-report",
   "/value-report/pilot",
   "/value-report/roi",
@@ -195,6 +197,10 @@ export function listNavGroupsVisibleInOperatorShell(
       continue;
     }
 
+    if (group.surface === "system-admin" && !isShowSystemAdministrationNavEnabled()) {
+      continue;
+    }
+
     if (surfaceFilter !== "all" && group.surface !== surfaceFilter) {
       continue;
     }
@@ -300,7 +306,7 @@ export function countSidebarLinksHiddenByCollapsedPilot(
   let collapsed = 0;
 
   for (const group of groups) {
-    if (group.surface === "platform-admin") {
+    if (group.surface === "platform-admin" || group.surface === "system-admin") {
       continue;
     }
 

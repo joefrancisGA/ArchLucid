@@ -64,6 +64,16 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 **Acceptance:** Dev overlay no longer labels the stack “outdated” relative to npm latest; no regressions in operator shell smoke or screenshot baselines.
 
+## 9. Buyer-facing route aliases (manifest terminology in URLs)
+
+**Why deferred:** V1 manifest terminology work (**TB-355** / **TB-366**) scoped to **on-page copy** only — labels, help, compare strings, error headings — without changing App Router segments, API contracts, or persistence. Buyers still see `/manifests/` and `/reviews/{runId}/manifest` in the address bar, bookmarks, and shared links.
+
+**V1.1 intent (**[`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-399**):**
+
+- Add **canonical alias paths** (recommended: `/signed-records`, `/signed-records/{id}`, `/reviews/{runId}/signed-record`) with **permanent redirects** from legacy manifest segments — same pattern as `/runs` → `/reviews` in `next.config.ts`.
+- Migrate internal `Link`/`href` builders and golden-path E2E to emit canonical paths; keep rewrite/redirect compatibility for bookmarks.
+- **Do not** rename backend `/v1/authority/manifests/*`, `manifestId` fields, or internal component names; **do not** change `/manifest.webmanifest` (PWA platform file).
+
 ---
 
 **Related:** `archlucid-ui/AGENTS.md`, `docs/library/V1_SCOPE.md` §3 (UI E2E scope), `docs/library/API_CONTRACTS.md`.

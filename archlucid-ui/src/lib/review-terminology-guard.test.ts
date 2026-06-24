@@ -78,7 +78,7 @@ describe("review terminology guard", () => {
     expect(SIGNED_MANIFEST_LABEL).toBe("Signed review record");
   });
 
-  it("global buyer-facing surfaces avoid legacy run-primary labels (TB-355)", () => {
+  it("global buyer-facing surfaces avoid legacy run-primary and manifest jargon (TB-355)", () => {
     const violations = scanGlobalBuyerSurfaces();
 
     expect(

@@ -68,8 +68,7 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
       <CardHeader>
         <CardTitle className="text-base">Queue and partial-failure status</CardTitle>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-          Pending async work and dead-letter depths from{" "}
-          <span className="font-mono text-xs">GET /v1/admin/diagnostics/outboxes</span>.
+          Pending async work and dead-letter queue depths for authority pipeline and integration events.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">

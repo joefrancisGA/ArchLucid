@@ -34,14 +34,9 @@ describe("FindingPolicyProvenancePanel", () => {
     expect(screen.getByTestId("finding-policy-violation-tag")).toHaveTextContent(
       "Policy violation: Healthcare Claims Policy Pack v3",
     );
-    expect(screen.getByRole("link", { name: "Healthcare Claims Policy Pack v3" })).toHaveAttribute(
-      "href",
-      "/policy-packs?packId=healthcare-claims-v3",
-    );
-    expect(screen.getByRole("link", { name: "Security baseline ingress rule" })).toHaveAttribute(
-      "href",
-      "/policy-packs?ruleId=sec-base-001",
-    );
+    expect(screen.getByTestId("finding-policy-traceability-badges")).toBeTruthy();
+    expect(screen.getByTestId("finding-policy-pack-badge")).toBeTruthy();
+    expect(screen.getByTestId("finding-policy-rule-badge")).toBeTruthy();
     expect(screen.getByTestId("finding-policy-trace-excerpt")).toHaveTextContent("public ingress on port 443");
   });
 
