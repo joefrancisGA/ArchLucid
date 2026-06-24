@@ -60,7 +60,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/settings/webhooks": "advanced-only",
   "/settings/roles": "admin-only",
   "/settings/api-keys": "admin-only",
-  "/settings/cost-reporting": "admin-only",
+  "/admin/ai-usage-cost": "admin-only",
   /** Alias to Alert rules hub (`/alerts?tab=rules`) for settings-style bookmarks. */
   "/settings/alerts": "advanced-only",
 };
@@ -118,7 +118,7 @@ const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
   "/settings/webhooks",
   "/integrations/webhooks",
   "/settings/cloud-connections",
-  "/settings/cost-reporting",
+  "/admin/ai-usage-cost",
   "/settings/identity-providers",
   "/settings/identity/sso-wizard",
   "/settings/scim-provisioning",

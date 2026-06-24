@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarClock,
   ClipboardList,
+  Cpu,
   FileSearch,
   FileText,
   Fingerprint,
@@ -36,6 +37,14 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
       surface: "system-admin",
       caption: "Internal tools, diagnostics, experiments, and employee operations.",
       links: [
+        {
+          href: "/admin/ai-usage-cost",
+          label: "AI usage and cost",
+          title: "AI usage and cost — estimated LLM spend, token usage, monthly budget, and processing queue health",
+          icon: Cpu,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
         {
           href: "/admin/pricing-quote-aging",
           label: "Pricing quote follow-up",
