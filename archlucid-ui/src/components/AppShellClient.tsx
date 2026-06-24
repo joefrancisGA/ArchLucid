@@ -40,7 +40,10 @@ import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import {
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+  OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
@@ -410,7 +413,10 @@ function AppShellInner({ children }: AppShellClientProps) {
             <nav
               data-testid="sidebar-nav"
               aria-label="Primary navigation"
-              className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block"
+              className={cn(
+                "hidden shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block",
+                OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
+              )}
             >
               <SidebarNav />
             </nav>
