@@ -746,6 +746,16 @@ function Invoke-IntegrationTestHangDumpCapture {
                     -ChunkNumber $ChunkNumber `
                     -ResultsDirectory $ResultsDirectory
             }
+            else {
+                # Always capture dotnet-stack alongside the dump so human-readable thread stacks are
+                # available in CI without needing to download and load the .dmp binary locally.
+                Invoke-IntegrationTestHangStackReportCapture `
+                    -DotNetStackPath $dotnetStackPath `
+                    -ProcessId $targetProcessId `
+                    -ShardIndex $ShardIndex `
+                    -ChunkNumber $ChunkNumber `
+                    -ResultsDirectory $ResultsDirectory
+            }
         }
     }
     catch {

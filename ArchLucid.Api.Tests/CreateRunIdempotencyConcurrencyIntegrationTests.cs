@@ -137,7 +137,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
+            // RecordAndReturnOnShardOverload instead of SkipShardOverload: throwing SkipException
+            // after an awaited operation causes vstest to re-queue the test indefinitely.
+            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
+            return;
         }
 
         try
