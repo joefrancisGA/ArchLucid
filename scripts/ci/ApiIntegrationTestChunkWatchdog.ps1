@@ -396,20 +396,75 @@ function Get-DotNetDumpExecutablePath {
     return Resolve-DotNetGlobalToolExecutablePath -ToolName 'dotnet-dump'
 }
 
+function Write-DotNetGlobalToolInstallTranscript {
+    param(
+        [AllowNull()]
+        [object]$Output
+    )
+
+    if ($null -eq $Output) {
+        return
+    }
+
+    foreach ($line in @($Output)) {
+        if ($null -ne $line) {
+            Write-Host $line.ToString()
+        }
+    }
+}
+
+function Install-DotNetGlobalTool {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ToolName,
+
+        [Parameter(Mandatory)]
+        [string]$Version
+    )
+
+    # dotnet tool install writes to the success stream; if that leaks from Ensure-* callers,
+    # PowerShell binds [string] parameters to object[] and dump capture fails on CI.
+    $installOutput = & dotnet tool install -g $ToolName --version $Version 2>&1
+    Write-DotNetGlobalToolInstallTranscript -Output $installOutput
+
+    if ($LASTEXITCODE -ne 0) {
+        throw ("dotnet tool install -g {0} failed with exit code {1}." -f $ToolName, $LASTEXITCODE)
+    }
+}
+
+function ConvertTo-DotNetGlobalToolPath {
+    param(
+        [Parameter(Mandatory)]
+        [AllowNull()]
+        [object]$ResolvedPath,
+
+        [Parameter(Mandatory)]
+        [string]$ToolName
+    )
+
+    if ($ResolvedPath -is [System.Array]) {
+        $ResolvedPath = $ResolvedPath[-1]
+    }
+
+    $pathText = [string]$ResolvedPath
+
+    if ([string]::IsNullOrWhiteSpace($pathText)) {
+        throw ("{0} path could not be resolved to a non-empty string." -f $ToolName)
+    }
+
+    return $pathText
+}
+
 function Ensure-DotNetDumpTool {
     $existingPath = Get-DotNetDumpExecutablePath
 
     if ($null -ne $existingPath) {
         Write-Host ("dotnet-dump already available at {0}" -f $existingPath)
-        return [string]$existingPath
+        return (ConvertTo-DotNetGlobalToolPath -ResolvedPath $existingPath -ToolName 'dotnet-dump')
     }
 
     Write-Host ("Installing dotnet-dump global tool (version {0}) ..." -f $script:DotNetDumpToolVersion)
-    & dotnet tool install -g dotnet-dump --version $script:DotNetDumpToolVersion
-
-    if ($LASTEXITCODE -ne 0) {
-        throw "dotnet tool install -g dotnet-dump failed with exit code $LASTEXITCODE."
-    }
+    Install-DotNetGlobalTool -ToolName 'dotnet-dump' -Version $script:DotNetDumpToolVersion
 
     $installedPath = Get-DotNetDumpExecutablePath
 
@@ -418,7 +473,7 @@ function Ensure-DotNetDumpTool {
     }
 
     Write-Host ("dotnet-dump installed at {0}" -f $installedPath)
-    return [string]$installedPath
+    return (ConvertTo-DotNetGlobalToolPath -ResolvedPath $installedPath -ToolName 'dotnet-dump')
 }
 
 function Invoke-DotNetDumpCollectBounded {
@@ -503,15 +558,11 @@ function Ensure-DotNetStackTool {
 
     if ($null -ne $existingPath) {
         Write-Host ("dotnet-stack already available at {0}" -f $existingPath)
-        return [string]$existingPath
+        return (ConvertTo-DotNetGlobalToolPath -ResolvedPath $existingPath -ToolName 'dotnet-stack')
     }
 
     Write-Host ("Installing dotnet-stack global tool (version {0}) ..." -f $script:DotNetStackToolVersion)
-    & dotnet tool install -g dotnet-stack --version $script:DotNetStackToolVersion
-
-    if ($LASTEXITCODE -ne 0) {
-        throw "dotnet tool install -g dotnet-stack failed with exit code $LASTEXITCODE."
-    }
+    Install-DotNetGlobalTool -ToolName 'dotnet-stack' -Version $script:DotNetStackToolVersion
 
     $installedPath = Get-DotNetStackExecutablePath
 
@@ -520,7 +571,7 @@ function Ensure-DotNetStackTool {
     }
 
     Write-Host ("dotnet-stack installed at {0}" -f $installedPath)
-    return [string]$installedPath
+    return (ConvertTo-DotNetGlobalToolPath -ResolvedPath $installedPath -ToolName 'dotnet-stack')
 }
 
 function Invoke-DotNetStackReportBounded {
@@ -650,8 +701,8 @@ function Invoke-IntegrationTestHangDumpCapture {
         [string]$ResultsDirectory
     )
 
-    $dotnetDumpPath = Ensure-DotNetDumpTool
-    $dotnetStackPath = Ensure-DotNetStackTool
+    $dotnetDumpPath = ConvertTo-DotNetGlobalToolPath -ResolvedPath (Ensure-DotNetDumpTool) -ToolName 'dotnet-dump'
+    $dotnetStackPath = ConvertTo-DotNetGlobalToolPath -ResolvedPath (Ensure-DotNetStackTool) -ToolName 'dotnet-stack'
 
     try {
         $targetProcessIds = @(
