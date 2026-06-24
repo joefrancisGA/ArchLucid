@@ -20,6 +20,24 @@ const EmailRunToSponsorBanner = dynamic(
   },
 );
 
+const PilotRoiValidationHandoffClient = dynamic(
+  () =>
+    import("@/components/pilots/PilotRoiValidationHandoffCard").then(
+      (module) => module.PilotRoiValidationHandoffClient,
+    ),
+  {
+    loading: () => (
+      <div
+        className="rounded-md border border-neutral-200 p-4 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+        role="status"
+        aria-live="polite"
+      >
+        Loading ROI validation handoff…
+      </div>
+    ),
+  },
+);
+
 type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
   readonly manifestId: string;
@@ -33,6 +51,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
 
   const deliverables = (
     <>
+      <PilotRoiValidationHandoffClient runId={runId} curatedSampleRun={curatedSampleRun} className="mb-4" />
       <RunDetailAiReadinessGateCard runId={runId} manifestId={manifestId} />
       <EmailRunToSponsorBanner
         runId={runId}

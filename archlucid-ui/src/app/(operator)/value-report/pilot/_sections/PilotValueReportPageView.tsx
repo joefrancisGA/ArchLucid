@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 import { PilotValueReportMetricCard } from "./PilotValueReportMetricCard";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
+import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
 import type { PilotValueReportPilotPageViewModel } from "./pilot-value-report-pilot-page-view-model";
 
@@ -94,6 +95,10 @@ export function PilotValueReportPageView(props: Props) {
                 <p className="m-0">All committed reviews in the window are reflected in detail metrics (within product caps).</p>
               ) : null}
             </div>
+
+            {m.data.committedRunsTimeline[0]?.runId ? (
+              <PilotRoiValidationHandoffClient runId={m.data.committedRunsTimeline[0].runId} />
+            ) : null}
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <PilotValueReportMetricCard title="Committed reviews" value={m.data.totalRunsCommitted.toString()} />

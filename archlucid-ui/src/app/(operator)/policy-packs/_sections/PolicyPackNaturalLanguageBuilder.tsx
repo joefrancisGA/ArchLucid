@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [previewJson, setPreviewJson] = useState<string | null>(null);
+  const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
 
   return (
     <div
@@ -39,6 +41,16 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
         ArchLucid drafts a curated rules document you can refine in the visual builder before publish. Human review is
         required before activation.
       </p>
+      <div
+        className="mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100"
+        data-testid="policy-pack-nl-human-review-callout"
+      >
+        <strong>Generated packs require human review before publish.</strong>{" "}
+        <Link href="/policy-packs" className="font-medium underline underline-offset-2">
+          Open Policy Packs editor
+        </Link>{" "}
+        to refine rules before activation.
+      </div>
       <Textarea
         className="mt-3 font-sans text-sm"
         rows={6}
@@ -60,6 +72,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
               setFailure(null);
               setDisclaimer(null);
               setPreviewJson(null);
+              setValidationWarnings([]);
 
               try {
                 const response = await generatePolicyPackFromPrompt({ prompt: prompt.trim() });
@@ -77,6 +90,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
 
                 setDisclaimer(response.disclaimer);
                 setPreviewJson(response.curatedRulesDocumentJson);
+                setValidationWarnings(response.validationWarnings ?? []);
                 onGenerated(parsed);
               } catch (e: unknown) {
                 setFailure(toApiLoadFailure(e));
@@ -89,9 +103,28 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
           {busy ? "Generating…" : "Generate policy pack"}
         </Button>
       </div>
+      {validationWarnings.length > 0 ? (
+        <div
+          className="mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100"
+          data-testid="policy-pack-nl-validation-warnings"
+          role="status"
+        >
+          <p className="m-0 font-semibold">Validation warnings — review before publish</p>
+          <ul className="mb-0 mt-2 list-disc space-y-1 pl-5">
+            {validationWarnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {failure !== null ? (
         <div className="mt-3" role="alert">
           <OperatorApiProblem failure={failure} />
+          {failure.httpStatus === 422 ? (
+            <p className="m-0 mt-2 text-sm text-neutral-800 dark:text-neutral-100">
+              Revise your prompt and try again.
+            </p>
+          ) : null}
         </div>
       ) : null}
       {disclaimer !== null && previewJson !== null ? (

@@ -6,7 +6,9 @@ using ArchLucid.Core.Llm;
 
 namespace ArchLucid.Application.Governance;
 
-public sealed class PolicyPackGeneratorService(IAgentCompletionClient completionClient) : IPolicyPackGeneratorService
+public sealed class PolicyPackGeneratorService(
+    IAgentCompletionClient completionClient,
+    ICuratedRulesDocumentValidationService curatedRulesDocumentValidationService) : IPolicyPackGeneratorService
 {
     private const string CuratedRulesDocumentKind = "archlucid.policyPack.curatedRules.v1";
 
@@ -18,6 +20,10 @@ public sealed class PolicyPackGeneratorService(IAgentCompletionClient completion
 
     private readonly IAgentCompletionClient _completionClient = completionClient
                                                                 ?? throw new ArgumentNullException(nameof(completionClient));
+
+    private readonly ICuratedRulesDocumentValidationService _curatedRulesDocumentValidationService =
+        curatedRulesDocumentValidationService
+        ?? throw new ArgumentNullException(nameof(curatedRulesDocumentValidationService));
 
     public async Task<GeneratePolicyPackResponse> GenerateAsync(
         GeneratePolicyPackRequest input,
@@ -57,10 +63,17 @@ public sealed class PolicyPackGeneratorService(IAgentCompletionClient completion
 
         JsonObject document = ParseAndNormalize(responseJson.Trim(), prompt);
 
+        CuratedRulesDocumentValidationResult validation = _curatedRulesDocumentValidationService.Validate(document);
+
+        if (!validation.IsValid)
+            throw new CuratedRulesDocumentValidationException(validation.Errors.ToList());
+
         return new GeneratePolicyPackResponse
         {
             Disclaimer = DraftPolicyPackRuleResponse.DefaultDisclaimer,
             CuratedRulesDocumentJson = document.ToJsonString(JsonOptions),
+            ValidationWarnings = validation.Warnings.ToList(),
+            RequiresHumanReview = true,
         };
     }
 

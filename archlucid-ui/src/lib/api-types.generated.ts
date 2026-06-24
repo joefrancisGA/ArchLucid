@@ -33912,6 +33912,8 @@ export interface components {
         GeneratePolicyPackResponse: {
             curatedRulesDocumentJson?: string;
             disclaimer?: string;
+            requiresHumanReview?: boolean;
+            validationWarnings?: string[];
         };
         GlobalSearchFindingResponse: {
             findingId?: string;

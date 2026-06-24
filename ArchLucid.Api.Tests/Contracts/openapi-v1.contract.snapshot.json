@@ -10823,6 +10823,15 @@
           },
           "disclaimer": {
             "type": "string"
+          },
+          "requiresHumanReview": {
+            "type": "boolean"
+          },
+          "validationWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"

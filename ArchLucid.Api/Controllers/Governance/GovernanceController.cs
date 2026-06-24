@@ -790,6 +790,7 @@ public sealed class GovernanceController(
     [MutatingAuditExcluded("Generate endpoint is advisory-only and does not persist domain mutations.")]
     [ProducesResponseType(typeof(GeneratePolicyPackResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> GeneratePolicyPack(
         [FromBody] GeneratePolicyPackRequest? input,
         CancellationToken cancellationToken)
@@ -803,7 +804,16 @@ public sealed class GovernanceController(
         if (input.Prompt.Trim().Length < 20)
             return this.BadRequestProblem("Prompt must be at least 20 characters.", ProblemTypes.ValidationFailed);
 
-        GeneratePolicyPackResponse response = await policyPackGeneratorService.GenerateAsync(input, cancellationToken);
-        return Ok(response);
+        try
+        {
+            GeneratePolicyPackResponse response = await policyPackGeneratorService.GenerateAsync(input, cancellationToken);
+            return Ok(response);
+        }
+        catch (CuratedRulesDocumentValidationException ex)
+        {
+            string detail = ex.Errors.Count > 0 ? string.Join("; ", ex.Errors) : ex.Message;
+
+            return this.UnprocessableEntityProblem(detail, ProblemTypes.ValidationFailed);
+        }
     }
 }

@@ -346,6 +346,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGitTerraformContentFetcher, GitTerraformContentFetcher>();
         services.AddScoped<IConnectorIntakeParserService, ConnectorIntakeParserService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
+        services.AddScoped<ICuratedRulesDocumentValidationService, CuratedRulesDocumentValidationService>();
         services.AddScoped<IPolicyPackGeneratorService, PolicyPackGeneratorService>();
         services.AddScoped<IHolisticCriticService, HolisticCriticService>();
         services.Configure<GenerateRunSummaryOptions>(
