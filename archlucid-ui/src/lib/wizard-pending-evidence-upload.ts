@@ -29,8 +29,12 @@ function parseProblemDetail(bodyText: string): string | undefined {
 export async function uploadWizardPendingAzureEvidence(
   runId: string,
   file: File,
+  options?: { readonly onUploadProgress?: (percent: number) => void },
 ): Promise<WizardPendingEvidenceUploadResult> {
-  const result = await uploadAzureExtractorPackage(file, { runId });
+  const result = await uploadAzureExtractorPackage(file, {
+    runId,
+    onUploadProgress: options?.onUploadProgress,
+  });
 
   if (result.ok) {
     return { ok: true };

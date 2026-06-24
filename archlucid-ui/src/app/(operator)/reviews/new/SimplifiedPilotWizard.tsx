@@ -39,6 +39,7 @@ export type SimplifiedPilotWizardProps = {
   llmBudgetStatus: LlmMonthlyDollarBudgetStatus | null;
   blocksLlmExecution: boolean;
   onRunCreated: (runId: string) => void;
+  onPendingZipFileChange?: (file: File | null) => void;
 };
 
 /**
@@ -46,7 +47,7 @@ export type SimplifiedPilotWizardProps = {
  * Reuses the same `WizardFormValues` payload as the full seven-step wizard with preset defaults.
  */
 export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
-  const { onRunCreated, llmBudgetStatus, blocksLlmExecution } = props;
+  const { onRunCreated, llmBudgetStatus, blocksLlmExecution, onPendingZipFileChange } = props;
   const [pilotStep, setPilotStep] = useState(0);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -195,7 +196,9 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{PILOT_STEPS[pilotStep].description}</p>
       </div>
 
-      {pilotStep === 0 ? <WizardStepBaselineZip /> : null}
+      {pilotStep === 0 ? (
+        <WizardStepBaselineZip onPendingZipFileChange={onPendingZipFileChange} />
+      ) : null}
       {pilotStep === 1 ? (
         <div className="space-y-8">
           <PilotModePolicyPackToggle

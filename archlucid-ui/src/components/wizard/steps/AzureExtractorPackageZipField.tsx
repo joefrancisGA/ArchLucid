@@ -20,26 +20,41 @@ import {
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import { recordPilotBaselineZipApplied } from "@/lib/pilot-baseline-zip-signal";
-import {
-  readArchLucidAzurePackageZipFromFile,
-} from "@/lib/read-arch-lucid-azure-package-zip";
+import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 import { showError, showSuccess } from "@/lib/toast";
-import { applyBundledDemoPackageToWizard, ZERO_CONFIG_DEMO_TRY_DEMO_LABEL } from "@/lib/zero-config-demo-mode";
+import {
+  applyBundledDemoPackageToWizard,
+  ZERO_CONFIG_DEMO_TRY_DEMO_LABEL,
+} from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type AzureExtractorPackageZipFieldProps = {
   variant: "baseline" | "ingest";
+  /** Queues the validated ZIP for server upload after the review is created. */
+  onPendingZipFileChange?: (file: File | null) => void;
 };
+
+function BaselineStepHeading(props: { step: number; title: string; description: string }) {
+  return (
+    <div className="space-y-1" data-testid={`wizard-baseline-step-${props.step}-heading`}>
+      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+        Step {props.step} — {props.title}
+      </p>
+      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{props.description}</p>
+    </div>
+  );
+}
 
 /**
  * Client-side unpack of the read-only Azure packager ZIP to read `manifest.json` and prefill wizard fields
  * that map to the architecture review create payload (description, optional system name, topology hints).
  */
 export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFieldProps) {
-  const { variant } = props;
+  const { variant, onPendingZipFileChange } = props;
   const { setValue } = useFormContext<WizardFormValues>();
   const [busy, setBusy] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [acceptedFileLabel, setAcceptedFileLabel] = useState<string | null>(null);
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
     DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
@@ -64,8 +79,15 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
       setValue("topologyHints", prefill.topologyHints, { shouldValidate: true, shouldDirty: true });
     }
 
+    setValue("cloudProvider", "Azure", { shouldValidate: true, shouldDirty: true });
     recordPilotBaselineZipApplied();
     showSuccess(successMessage);
+  }
+
+  function markZipReady(file: File): void {
+    const sizeKb = Math.max(1, Math.round(file.size / 1024));
+    setAcceptedFileLabel(`${file.name} (${sizeKb} KB)`);
+    onPendingZipFileChange?.(file);
   }
 
   function loadDemoZip(): void {
@@ -73,11 +95,19 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
     setBusy(true);
 
     try {
-      const applied = applyBundledDemoPackageToWizard(selectedDemoScenarioId, setValue, (file) => {
-        if (file !== null) {
-          recordPilotBaselineZipApplied();
-        }
-      });
+      const applied = applyBundledDemoPackageToWizard(
+        selectedDemoScenarioId,
+        setValue,
+        (file) => {
+          if (file !== null) {
+            markZipReady(file);
+            recordPilotBaselineZipApplied();
+          } else {
+            onPendingZipFileChange?.(null);
+            setAcceptedFileLabel(null);
+          }
+        },
+      );
 
       if (!applied.ok) {
         setLocalError(applied.message);
@@ -86,6 +116,8 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         return;
       }
 
+      const scenarioLabel = selectedDemoScenarioId.replace(/-/g, " ");
+      setAcceptedFileLabel(`Bundled demo (${scenarioLabel})`);
       showSuccess(successMessage);
     } finally {
       setBusy(false);
@@ -93,86 +125,80 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <Label className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
           Azure packager ZIP
         </Label>
-        <InAppHelpLink
-          helpSlug="pilot-guide"
-          label="Open pilot guide"
-          className="h-5 w-5"
-        />
+        <InAppHelpLink helpSlug="pilot-guide" label="Open pilot guide" className="h-5 w-5" />
       </div>
+
+      {variant === "baseline" ? (
+        <div className="space-y-4">
+          <BaselineStepHeading
+            step={1}
+            title="Collect inventory locally"
+            description="Run the read-only extractor in your Azure tenant — ArchLucid never needs cloud credentials for this step."
+          />
+          <AzureExtractorQuickStartCommandPanel
+            testIdPrefix="wizard-baseline-extractor"
+            description="From your ArchLucid checkout: sign in to Azure when prompted, then upload ./archlucid-azure-package.zip in step 2."
+          />
+          <AzureExtractorDemoScenarioPicker
+            selectedScenarioId={selectedDemoScenarioId}
+            onSelectScenario={setSelectedDemoScenarioId}
+            testIdPrefix="wizard-baseline-demo"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={busy}
+            data-testid="wizard-azure-zip-try-demo"
+            onClick={loadDemoZip}
+          >
+            {ZERO_CONFIG_DEMO_TRY_DEMO_LABEL}
+          </Button>
+        </div>
+      ) : null}
+
+      {variant === "baseline" ? (
+        <BaselineStepHeading
+          step={2}
+          title="Upload the ZIP here"
+          description={`Drop the packager output (max ${maxMb} MB). We validate manifest.json locally, then upload it to your review after you submit.`}
+        />
+      ) : null}
+
       <AzureExtractorZipDropZone
         ariaLabel="Azure packager ZIP file"
         busy={busy}
+        busyLabel="Reading extractor package…"
         testId={variant === "baseline" ? "wizard-baseline-zip-field" : "wizard-azure-zip-field"}
+        onInvalidFile={(message) => {
+          setLocalError(message);
+          showError("Extractor ZIP", message);
+        }}
         hint={
-          <>
+          variant === "ingest" ? (
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
               Same artifact as{" "}
               <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
                 Get-ArchLucidAzurePackage.ps1
               </code>{" "}
               (read-only inventory). Maximum size {maxMb} MB (matches server upload limit). Only{" "}
-              <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">manifest.json</code>{" "}
+              <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
+                manifest.json
+              </code>{" "}
               is parsed in the browser; upload the full ZIP to ingestion when your review is configured.
             </p>
-            {variant === "baseline" ? (
-              <div className="space-y-3">
-                <AzureExtractorQuickStartCommandPanel
-                  testIdPrefix="wizard-baseline-extractor"
-                  description="Run from your ArchLucid checkout, then drop ./archlucid-azure-package.zip below — or try demo data first."
-                />
-                <AzureExtractorDemoScenarioPicker
-                  selectedScenarioId={selectedDemoScenarioId}
-                  onSelectScenario={setSelectedDemoScenarioId}
-                  testIdPrefix="wizard-baseline-demo"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={busy}
-                  data-testid="wizard-azure-zip-try-demo"
-                  onClick={loadDemoZip}
-                >
-                  {ZERO_CONFIG_DEMO_TRY_DEMO_LABEL}
-                </Button>
-              </div>
-            ) : null}
-            {busy ? (
-              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="wizard-azure-zip-busy">
-                Reading extractor package…
-              </p>
-            ) : null}
-            {localError !== null && localError.length > 0 ? (
-              <AzureExtractorUploadFailureCallout
-                fallbackMessage={localError}
-                problem={null}
-                correlationId={null}
-                rootTestId="wizard-azure-zip-error"
-              />
-            ) : null}
-            {variant === "ingest" ? (
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                Need the command?{" "}
-                <span className="font-mono text-[11px]">
-                  {buildGetArchLucidAzurePackageCommandLine().split(/\s+/).slice(0, 3).join(" ")}…
-                </span>{" "}
-                (full line copied from the block below). Or use the{" "}
-                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new?baseline=1">
-                  baseline-first wizard
-                </Link>{" "}
-                to lead with ZIP upload.
-              </p>
-            ) : null}
-          </>
+          ) : null
         }
         onZipSelected={async (file) => {
           setLocalError(null);
           setBusy(true);
+          onPendingZipFileChange?.(null);
+          setAcceptedFileLabel(null);
 
           try {
             if (file.size > 50 * 1024 * 1024) {
@@ -189,11 +215,64 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
             }
 
             applyManifestToWizard(result.manifest);
+            markZipReady(file);
           } finally {
             setBusy(false);
           }
         }}
       />
+
+      {variant === "ingest" ? (
+        <>
+          <AzureExtractorQuickStartCommandPanel testIdPrefix="wizard-ingest-extractor" />
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            Or use the{" "}
+            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new?baseline=1">
+              baseline-first wizard
+            </Link>{" "}
+            to lead with ZIP upload.
+          </p>
+        </>
+      ) : null}
+
+      {localError !== null && localError.length > 0 ? (
+        <AzureExtractorUploadFailureCallout
+          fallbackMessage={localError}
+          problem={null}
+          correlationId={null}
+          rootTestId="wizard-azure-zip-error"
+        />
+      ) : null}
+
+      {acceptedFileLabel !== null ? (
+        <div
+          className="rounded-md border border-teal-700/30 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-teal-800/40 dark:bg-neutral-900/60 dark:text-neutral-100"
+          data-testid="wizard-azure-zip-ready"
+        >
+          <p className="m-0 font-medium">Package ready</p>
+          <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            {acceptedFileLabel} — uploads automatically when you start the architecture review.
+          </p>
+        </div>
+      ) : null}
+
+      {variant === "baseline" && acceptedFileLabel !== null ? (
+        <BaselineStepHeading
+          step={3}
+          title="Continue to system identity"
+          description="Confirm the prefilled system name and brief on the next step, then submit to link this package to your review."
+        />
+      ) : null}
+
+      {variant === "ingest" ? (
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          Need the command?{" "}
+          <span className="font-mono text-[11px]">
+            {buildGetArchLucidAzurePackageCommandLine().split(/\s+/).slice(0, 3).join(" ")}…
+          </span>{" "}
+          (full line copied from the block above).
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -220,7 +220,10 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     await waitFor(() => {
       expect(uploadAzureExtractorPackageMock).toHaveBeenCalledWith(
         expect.objectContaining({ name: "evidence.zip" }),
-        { runId: "evidence-run-1" },
+        expect.objectContaining({
+          runId: "evidence-run-1",
+          onUploadProgress: expect.any(Function),
+        }),
       );
     });
 

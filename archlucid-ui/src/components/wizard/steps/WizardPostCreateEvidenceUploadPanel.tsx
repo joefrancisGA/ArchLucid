@@ -1,6 +1,7 @@
 "use client";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
+import { AzureExtractorUploadProgressBar } from "@/components/AzureExtractorUploadProgressBar";
 import { Button } from "@/components/ui/button";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
@@ -10,6 +11,7 @@ export type WizardPostCreateEvidenceUploadPanelProps = {
   pendingFile: File | null;
   pendingDocumentFileCount: number;
   uploadState: WizardEvidenceUploadTrackState;
+  uploadProgressPercent?: number | null;
   uploadError: {
     message: string;
     problem: ApiProblemDetails | null;
@@ -20,7 +22,14 @@ export type WizardPostCreateEvidenceUploadPanelProps = {
 
 /** Inline upload status on the pipeline step after review creation (TB-215). */
 export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvidenceUploadPanelProps) {
-  const { pendingFile, pendingDocumentFileCount, uploadState, uploadError, onRetry } = props;
+  const {
+    pendingFile,
+    pendingDocumentFileCount,
+    uploadState,
+    uploadProgressPercent,
+    uploadError,
+    onRetry,
+  } = props;
   const hasPendingUpload = pendingFile !== null || pendingDocumentFileCount > 0;
 
   if (!hasPendingUpload && uploadState !== "success" && uploadState !== "failed") {
@@ -40,9 +49,11 @@ export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvide
 
   if (uploadState === "uploading") {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="wizard-evidence-upload-uploading">
-        Uploading evidence…
-      </p>
+      <AzureExtractorUploadProgressBar
+        label="Uploading Azure extractor package to this review…"
+        percent={uploadProgressPercent}
+        testId="wizard-evidence-upload-uploading"
+      />
     );
   }
 

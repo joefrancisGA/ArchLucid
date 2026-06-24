@@ -25,15 +25,29 @@ test.describe("Azure extractor ZIP wizard field", () => {
       }),
     };
 
+    await expect(page.getByTestId("wizard-baseline-step-1-heading")).toBeVisible();
     await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(zipFile);
 
     await expect(page.getByTestId("wizard-azure-zip-error")).toHaveCount(0, { timeout: 15_000 });
     await expect(page.getByTestId("wizard-azure-zip-schema-warning")).toHaveCount(0);
+    await expect(page.getByTestId("wizard-azure-zip-ready")).toBeVisible({ timeout: 15_000 });
 
     await page.getByRole("button", { name: /^(Continue|Next)$/ }).click();
     await expect(page.getByRole("textbox", { name: "System name" })).toHaveValue("E2eMockRg", {
       timeout: 15_000,
     });
+  });
+
+  test("rejects non-zip file types", async ({ page }) => {
+    const textFile = {
+      name: "notes.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("not a zip"),
+    };
+
+    await page.getByTestId("wizard-baseline-zip-field-input").setInputFiles(textFile);
+
+    await expect(page.getByTestId("wizard-azure-zip-error")).toContainText(/\.zip/i, { timeout: 15_000 });
   });
 
   test("rejects ZIP without manifest.json", async ({ page }) => {

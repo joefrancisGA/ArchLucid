@@ -3,15 +3,19 @@
 import { UploadCloud } from "lucide-react";
 import { useId, useRef, useState, type ReactNode } from "react";
 
+import { AzureExtractorUploadProgressBar } from "@/components/AzureExtractorUploadProgressBar";
+import { AZURE_EXTRACTOR_ZIP_ONLY_MESSAGE, isAzureExtractorZipFile } from "@/lib/is-azure-extractor-zip-file";
 import { cn } from "@/lib/utils";
 
 export type AzureExtractorZipDropZoneProps = {
   ariaLabel: string;
   busy?: boolean;
+  busyLabel?: string;
   disabled?: boolean;
   hint?: ReactNode;
   testId?: string;
   onZipSelected: (file: File) => void | Promise<void>;
+  onInvalidFile?: (message: string) => void;
   /** When set, enables folder selection (webkitdirectory) for zip-less extractor uploads. */
   onFolderSelected?: (files: FileList) => void | Promise<void>;
 };
@@ -20,7 +24,17 @@ export type AzureExtractorZipDropZoneProps = {
  * Drag-and-drop surface for Tier 1 Azure extractor ZIP uploads (wizard + settings).
  */
 export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps) {
-  const { ariaLabel, busy = false, disabled = false, hint, testId, onZipSelected, onFolderSelected } = props;
+  const {
+    ariaLabel,
+    busy = false,
+    busyLabel = "Reading extractor package…",
+    disabled = false,
+    hint,
+    testId,
+    onZipSelected,
+    onInvalidFile,
+    onFolderSelected,
+  } = props;
   const inputId = useId();
   const folderInputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,6 +45,12 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
 
   async function handleFile(file: File | null | undefined): Promise<void> {
     if (file === null || file === undefined || isDisabled) {
+      return;
+    }
+
+    if (!isAzureExtractorZipFile(file)) {
+      onInvalidFile?.(AZURE_EXTRACTOR_ZIP_ONLY_MESSAGE);
+
       return;
     }
 
@@ -155,6 +175,12 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
             Select extractor folder instead of ZIP
           </button>
         </>
+      ) : null}
+      {busy ? (
+        <AzureExtractorUploadProgressBar
+          label={busyLabel}
+          testId={testId ? `${testId}-progress` : "azure-extractor-zip-drop-progress"}
+        />
       ) : null}
       {hint}
     </div>

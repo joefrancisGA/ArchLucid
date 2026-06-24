@@ -112,6 +112,8 @@ describe("SimplifiedPilotWizard", () => {
       expect(screen.queryByTestId("wizard-azure-zip-error")).not.toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("wizard-azure-zip-ready")).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {

@@ -232,6 +232,7 @@ export function NewRunWizardClient() {
   const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
   const [pendingDocumentFiles, setPendingDocumentFiles] = useState<File[]>([]);
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
+  const [evidenceUploadProgressPercent, setEvidenceUploadProgressPercent] = useState<number | null>(null);
   const [evidenceUploadError, setEvidenceUploadError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -498,12 +499,18 @@ export function NewRunWizardClient() {
 
     setEvidenceUploadState("uploading");
     setEvidenceUploadError(null);
+    setEvidenceUploadProgressPercent(null);
 
     if (hasAzure && azureFile !== null) {
-      const azureResult = await uploadWizardPendingAzureEvidence(runIdValue, azureFile);
+      const azureResult = await uploadWizardPendingAzureEvidence(runIdValue, azureFile, {
+        onUploadProgress: (percent) => {
+          setEvidenceUploadProgressPercent(percent);
+        },
+      });
 
       if (!azureResult.ok) {
         setEvidenceUploadState("failed");
+        setEvidenceUploadProgressPercent(null);
         setEvidenceUploadError({
           message: azureResult.message,
           problem: azureResult.problem,
@@ -534,6 +541,7 @@ export function NewRunWizardClient() {
     }
 
     setEvidenceUploadState("success");
+    setEvidenceUploadProgressPercent(null);
   }, [pendingDocumentFiles, pendingEvidenceFile]);
 
   const retryEvidenceUpload = useCallback(async () => {
@@ -547,6 +555,29 @@ export function NewRunWizardClient() {
 
     await uploadPendingEvidence(runId);
   }, [pendingDocumentFiles, pendingEvidenceFile, runId, uploadPendingEvidence]);
+
+  useEffect(() => {
+    if (runId === null || wizardMode !== "quick") {
+      return;
+    }
+
+    if (pendingEvidenceFile === null && pendingDocumentFiles.length === 0) {
+      return;
+    }
+
+    if (evidenceUploadState !== "idle") {
+      return;
+    }
+
+    void uploadPendingEvidence(runId);
+  }, [
+    evidenceUploadState,
+    pendingDocumentFiles,
+    pendingEvidenceFile,
+    runId,
+    uploadPendingEvidence,
+    wizardMode,
+  ]);
 
   const skipEvidenceAndAdvance = () => {
     setPendingEvidenceFile(null);
@@ -791,7 +822,19 @@ export function NewRunWizardClient() {
           ) : null}
 
           {wizardModeReady && wizardMode === "quick" && showQuickTrack && runId ? (
-            <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+            <>
+              <WizardPostCreateEvidenceUploadPanel
+                pendingFile={pendingEvidenceFile}
+                pendingDocumentFileCount={pendingDocumentFiles.length}
+                uploadState={evidenceUploadState}
+                uploadProgressPercent={evidenceUploadProgressPercent}
+                uploadError={evidenceUploadError}
+                onRetry={() => {
+                  void retryEvidenceUpload();
+                }}
+              />
+              <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+            </>
           ) : null}
 
           {wizardModeReady && showSimplifiedPilotWizard ? (
@@ -799,6 +842,7 @@ export function NewRunWizardClient() {
               key="simplified-pilot"
               blocksLlmExecution={blocksLlmExecution}
               llmBudgetStatus={llmBudgetStatus}
+              onPendingZipFileChange={handlePendingEvidenceFileChange}
               onRunCreated={(id) => {
                 setRunId(id);
               }}
@@ -916,7 +960,9 @@ export function NewRunWizardClient() {
               onSkipDemoData={skipEvidenceAndAdvance}
             />
           ) : null}
-          {stepIndex === 1 && baselineFirst ? <WizardStepBaselineZip /> : null}
+          {stepIndex === 1 && baselineFirst ? (
+            <WizardStepBaselineZip onPendingZipFileChange={handlePendingEvidenceFileChange} />
+          ) : null}
           {stepIndex === 2 ? (
             <div className="space-y-8">
               <PilotModePolicyPackToggle
@@ -952,6 +998,7 @@ export function NewRunWizardClient() {
                 pendingFile={pendingEvidenceFile}
                 pendingDocumentFileCount={pendingDocumentFiles.length}
                 uploadState={evidenceUploadState}
+                uploadProgressPercent={evidenceUploadProgressPercent}
                 uploadError={evidenceUploadError}
                 onRetry={() => {
                   void retryEvidenceUpload();
