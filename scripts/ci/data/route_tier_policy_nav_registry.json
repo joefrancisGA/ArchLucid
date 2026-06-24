@@ -89,7 +89,7 @@
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,
-      "nav_operator_href": "/settings/cost-reporting"
+      "nav_operator_href": "/admin/ai-usage-cost"
     },
     {
       "controller_file": "Admin/AdminLlmMonthlyDollarBudgetStatusController.cs",

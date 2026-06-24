@@ -118,7 +118,7 @@ test.describe("operator shell smoke — advanced surface path", () => {
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/replay");
-    await expect(page.getByRole("heading", { name: /^Replay$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Validate review package$/i })).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/search");

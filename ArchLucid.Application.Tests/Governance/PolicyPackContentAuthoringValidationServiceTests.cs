@@ -12,6 +12,8 @@ namespace ArchLucid.Application.Tests.Governance;
 /// <summary>
 ///     Unit coverage for <see cref="PolicyPackContentAuthoringValidationService" />.
 /// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class PolicyPackContentAuthoringValidationServiceTests
 {
     [Fact]

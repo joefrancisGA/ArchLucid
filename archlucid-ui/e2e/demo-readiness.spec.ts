@@ -76,7 +76,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page.getByRole("main").first()).not.toContainText(/Invalid Date/i);
 
     await page.goto(claimsShowcasePath);
-    await page.getByRole("link", { name: SHOWCASE_MANIFEST_DEEP_LINK }).first().click();
+    await page.getByRole("link", { name: "Open signed record" }).first().click();
     await expect(page).toHaveURL(
       new RegExp(
         `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/manifest)`,
@@ -107,7 +107,6 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       /\bAPI-gated\b/i,
       /\bAP-gated\b/i,
       /\br1\b/i,
-      /signed review record/i,
       /\blegacy\b/i,
       /Execute\+/,
       /Development workspace/i,

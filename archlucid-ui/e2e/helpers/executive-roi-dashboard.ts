@@ -77,6 +77,8 @@ export async function waitForExecutiveRoiExportResponse(page: Page): Promise<Exe
 
   await page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
 
+  await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 });
+
   try {
     const response = await exportResponsePromise;
 

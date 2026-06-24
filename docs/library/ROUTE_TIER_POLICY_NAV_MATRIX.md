@@ -80,7 +80,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AdminIdentityProviderDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminIntegrationsController.cs` | `/v1/admin/integrations` | none | AdminAuthority |  |  |
-| `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /settings/cost-reporting |  |
+| `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /admin/ai-usage-cost |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |

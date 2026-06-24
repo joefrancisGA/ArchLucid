@@ -55,8 +55,8 @@ test.describe("operator journey — compare query prefill and review order", () 
 
     if ((await reviewNav.count()) > 0) {
       await expect(reviewNav.getByText("Review order", { exact: true })).toBeVisible();
-      await expect(reviewNav.getByRole("link", { name: "Manifest comparison summary" })).toBeVisible();
-      await expect(reviewNav.getByRole("link", { name: "Manifest diff appendix" })).toBeVisible();
+      await expect(reviewNav.getByRole("link", { name: "Review comparison summary" })).toBeVisible();
+      await expect(reviewNav.getByRole("link", { name: "Review change details appendix" })).toBeVisible();
       await expect(reviewNav.getByRole("link", { name: "Technical details (supplementary diff)" })).toBeVisible();
     } else {
       await expect(page.getByTestId("compare-raw-manifest-diff")).toBeVisible();
@@ -68,8 +68,8 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(comparisonRequestOutcomeSummary(page)).toBeVisible();
     await expect(outcome).toContainText(FIXTURE_LEFT_RUN_ID);
     await expect(outcome).toContainText(FIXTURE_RIGHT_RUN_ID);
-    await expect(outcome.getByText("Manifest comparison")).toBeVisible();
-    await expect(outcome.getByText("Supplementary review / manifest diff")).toBeVisible();
+    await expect(outcome.getByText("Review comparison")).toBeVisible();
+    await expect(outcome.getByText("Supplementary review / review package diff")).toBeVisible();
     await expect(outcome.getByText("OK")).toHaveCount(2);
   });
 });

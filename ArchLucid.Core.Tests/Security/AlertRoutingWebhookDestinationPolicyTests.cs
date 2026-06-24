@@ -2,6 +2,8 @@ using ArchLucid.Core.Security;
 
 namespace ArchLucid.Core.Tests.Security;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class AlertRoutingWebhookDestinationPolicyTests
 {
     [Theory]
