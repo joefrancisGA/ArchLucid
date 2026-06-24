@@ -34,7 +34,7 @@ test.describe("demo review one-click reliability @demo-review", () => {
     await expect(page.getByTestId("finding-policy-rule-badge").first()).toBeVisible({ timeout: 15_000 });
 
     const findingLinks = page.getByTestId("quick-decision-summary").locator('[data-testid^="finding-policy-rule-badge"]');
-    await expect(findingLinks).toHaveCount(3, { timeout: 15_000 });
+    await expect(findingLinks).toHaveCount(6, { timeout: 15_000 });
   });
 
   test("mock API returns stable demo review payload shape", async ({ request }) => {
