@@ -84,5 +84,5 @@ Each verify call emits `RunExportLineageVerified` audit (run id, status, hashes 
 - [ADR 0039](../architecture/adrs/0039-commit-sealed-evidence-immutability.md)
 - [ADR 0045](../architecture/adrs/0045-committed-run-header-immutability.md)
 - `ArchLucid.Persistence/Migrations/247_CommitSealedEvidenceImmutability.sql`
-- `ArchLucid.Persistence/Migrations/250_SealCommittedRunHeader.sql`
+- `ArchLucid.Persistence/Migrations/259_SealCommittedRunHeader.sql`
 - `docs/security/MANAGED_IDENTITY_SQL_BLOB.md` — `[ArchLucidApp]` role setup

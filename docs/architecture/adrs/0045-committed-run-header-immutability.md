@@ -64,4 +64,4 @@ Regulated reviewers ask whether a committed run can repoint its evidence chain a
 - TB-310 in [`TECH_BACKLOG.md`](../../library/TECH_BACKLOG.md)
 - [`EVIDENCE_IMMUTABILITY.md`](../../library/EVIDENCE_IMMUTABILITY.md)
 - [ADR 0039](0039-commit-sealed-evidence-immutability.md)
-- Migration `250_SealCommittedRunHeader.sql`
+- Migration `259_SealCommittedRunHeader.sql`
