@@ -123,6 +123,28 @@ def _mean_ratio(rows: list[dict[str, object]]) -> float:
     return sum(float(row["ratio"]) for row in rows) / len(rows)
 
 
+def _write_json_summary(
+    path: Path,
+    *,
+    cases: list[dict[str, object]],
+    positive_mean: float,
+    negative_mean: float,
+    mean_ratio: float,
+    min_ratio: float,
+) -> None:
+    payload = {
+        "formatVersion": "1.0",
+        "casesEvaluated": len(cases),
+        "positiveReadinessSupportRatio": positive_mean,
+        "negativeControlSupportRatio": negative_mean,
+        "combinedDiagnosticSupportRatio": mean_ratio,
+        "floorMinSupportRatio": min_ratio,
+    }
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
 def _write_report(
     path: Path,
     *,
@@ -289,11 +311,18 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Override report output path (default: docs/quality/faithfulness-report.md).",
     )
+    parser.add_argument(
+        "--json-summary",
+        type=Path,
+        default=None,
+        help="Override JSON summary path (default: docs/quality/faithfulness-summary.json).",
+    )
     args = parser.parse_args(argv)
 
     root = _repo_root()
     cases_path = args.cases or (root / "tests" / "eval-datasets" / "faithfulness-golden" / "cases.json")
     report_path = args.report or (root / "docs" / "quality" / "faithfulness-report.md")
+    json_summary_path = args.json_summary or (root / "docs" / "quality" / "faithfulness-summary.json")
 
     if not cases_path.is_file():
         print(f"::error::Missing {cases_path}")
@@ -366,6 +395,10 @@ def main(argv: list[str] | None = None) -> int:
 
     mean_ratio = sum(ratios) / len(ratios)
     category_breakdown = _summarize_by_category(evaluated)
+    positive_cases = [row for row in evaluated if row.get("cohortKind") == "positive-readiness"]
+    negative_cases = [row for row in evaluated if row.get("cohortKind") == "negative-control"]
+    positive_mean = _mean_ratio(positive_cases)
+    negative_mean = _mean_ratio(negative_cases)
     _write_report(
         report_path,
         cases=evaluated,
@@ -373,13 +406,17 @@ def main(argv: list[str] | None = None) -> int:
         min_ratio=min_ratio,
         category_breakdown=category_breakdown,
     )
-
-    positive_cases = [row for row in evaluated if row.get("cohortKind") == "positive-readiness"]
-    negative_cases = [row for row in evaluated if row.get("cohortKind") == "negative-control"]
-    positive_mean = _mean_ratio(positive_cases)
-    negative_mean = _mean_ratio(negative_cases)
+    _write_json_summary(
+        json_summary_path,
+        cases=evaluated,
+        positive_mean=positive_mean,
+        negative_mean=negative_mean,
+        mean_ratio=mean_ratio,
+        min_ratio=min_ratio,
+    )
 
     print(f"Wrote {report_path}")
+    print(f"Wrote {json_summary_path}")
     print(f"Positive readiness support ratio: {positive_mean:.4f} (floor {min_positive_ratio:.4f})")
     print(f"Negative-control support ratio: {negative_mean:.4f} (ceiling {max_negative_ratio:.4f})")
     print(f"Combined diagnostic support ratio: {mean_ratio:.4f} (floor {min_ratio:.4f})")

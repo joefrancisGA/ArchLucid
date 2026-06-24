@@ -98,6 +98,38 @@ class EvalAgentCorpusPhaseBFaithfulnessTests(unittest.TestCase):
 
         self.assertEqual(failures, [])
 
+    def test_summarize_llm_faithfulness_builds_phase_b_rollup(self) -> None:
+        mod = _load_eval_agent_corpus()
+        rows = [
+            {
+                "id": "corpus-real-mode-smoke",
+                "expectedOutcome": None,
+                "quality": {
+                    "mode": "real",
+                    "llm_faithfulness_score": 0.72,
+                    "faithfulness_support_ratio": 0.91,
+                    "gate_outcome": "accepted",
+                },
+            },
+            {
+                "id": "corpus-adv-hallucination-detection",
+                "expectedOutcome": {"offline_quality_gate_expectation": "warned"},
+                "quality": {
+                    "mode": "simulator",
+                    "llm_faithfulness_score": 0.25,
+                    "faithfulness_support_ratio": 0.0,
+                    "gate_outcome": "warned",
+                },
+            },
+        ]
+
+        summary = mod.summarize_llm_faithfulness(rows)
+
+        self.assertEqual(summary["rubricVersion"], "faithfulness-judge-system.v1.0.0")
+        self.assertAlmostEqual(float(summary["p50"]), 0.72)
+        self.assertEqual(summary["positiveScenarioCount"], 1)
+        self.assertEqual(summary["adversarialScenarioCount"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

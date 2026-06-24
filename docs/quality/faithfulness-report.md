@@ -2,12 +2,12 @@
 
 # RAG faithfulness report
 
-- **Cases evaluated:** 25
+- **Cases evaluated:** 28
 - **Positive readiness cases:** 16
 - **Positive readiness support ratio:** 0.9688
-- **Negative-control cases:** 9
-- **Negative-control support ratio:** 0.0556
-- **Combined diagnostic support ratio:** 0.6400
+- **Negative-control cases:** 12
+- **Negative-control support ratio:** 0.0417
+- **Combined diagnostic support ratio:** 0.5714
 - **Floor (minSupportRatio):** 0.8000
 
 ## Interpretation
@@ -22,9 +22,10 @@
 | --- | ---: | ---: |
 | ai-governance | 3 | 0.8333 |
 | azure-saas-readiness | 5 | 1.0000 |
+| deferred-scope-claim | 2 | 0.0000 |
 | demo-vs-customer | 2 | 1.0000 |
 | healthcare-regulatory | 3 | 1.0000 |
-| missing-citation | 3 | 0.0000 |
+| missing-citation | 4 | 0.0000 |
 | roi-cost-supported | 3 | 1.0000 |
 | roi-cost-unsupported | 3 | 0.0000 |
 | wrong-corpus | 3 | 0.1667 |
@@ -58,3 +59,6 @@
 | healthcare-audit-retention-cited | positive-readiness | healthcare-regulatory | 1 | 1 | 1.0000 | - | - | - |
 | roi-cost-supported-multi-token | positive-readiness | roi-cost-supported | 2 | 2 | 1.0000 | - | - | - |
 | roi-cost-unsupported-annualized | negative-control | roi-cost-unsupported | 1 | 0 | 0.0000 | customer-review-hours | - | unsupported-roi-cost-claim |
+| deferred-scope-soc2-cpa-claim | negative-control | deferred-scope-claim | 1 | 0 | 0.0000 | soc2-roadmap-v1 | - | - |
+| deferred-scope-pen-test-claim | negative-control | deferred-scope-claim | 1 | 0 | 0.0000 | owner-pentest-2026q2 | - | - |
+| missing-evidence-ref-roi-headline | negative-control | missing-citation | 1 | 0 | 0.0000 | buyer-roi-baseline-id | - | missing-evidence-ref |

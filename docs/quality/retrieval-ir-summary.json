@@ -1,8 +1,9 @@
 {
-  "formatVersion": "1.0",
+  "formatVersion": "1.1",
   "casesEvaluated": 31,
   "meanRecallAt5": 1.0,
-  "meanMrr": 0.9220430107526881,
+  "meanMrr": 0.924731182795699,
+  "meanNdcgAt10": 0.9427362900247871,
   "floorRecallAt5": 0.85,
   "floorMrr": 0.75,
   "corpusBreakdown": [
@@ -10,19 +11,28 @@
       "corpusKind": "PlatformDoc",
       "caseCount": 7,
       "meanRecallAt5": 1.0,
-      "meanMrr": 1.0
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 1,
+      "meanOrderingSensitiveNdcgAt10": 1.0
     },
     {
       "corpusKind": "PolicyPack",
       "caseCount": 12,
       "meanRecallAt5": 1.0,
-      "meanMrr": 0.7986111111111112
+      "meanMrr": 0.8055555555555555,
+      "meanNdcgAt10": 0.8520687492306999,
+      "orderingSensitiveCaseCount": 3,
+      "meanOrderingSensitiveNdcgAt10": 0.5580581493495848
     },
     {
       "corpusKind": "PriorManifest",
       "caseCount": 12,
       "meanRecallAt5": 1.0,
-      "meanMrr": 1.0
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
     }
   ],
   "cases": [
@@ -30,187 +40,249 @@
       "id": "ir-pp-kv-01",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pp-kv-02",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pp-mi-01",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pp-mi-02",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 0.9197207891481876,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pp-pe-01",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pp-pe-02",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pp-dual-01",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 0.25
+      "mrr": 0.3333333333333333,
+      "ndcgAt10": 0.5271341073823443,
+      "orderingSensitive": true
     },
     {
       "id": "ir-pp-dual-02",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 0.3333333333333333
+      "mrr": 0.3333333333333333,
+      "ndcgAt10": 0.5271341073823443,
+      "orderingSensitive": true
     },
     {
       "id": "ir-pp-triple",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 0.5
+      "mrr": 0.5,
+      "ndcgAt10": 0.6199062332840657,
+      "orderingSensitive": true
     },
     {
       "id": "ir-pp-noise-guard",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-run-01",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-run-02",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-run-03",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-run-04",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-pair-01",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-pair-02",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-noise",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-cross-01",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-cross-02",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pm-cross-03",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-arch-01",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-arch-02",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-arch-03",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-pair-01",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": true
     },
     {
       "id": "ir-pd-pair-02",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-noise",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-tenant-only-pp",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 0.5
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "orderingSensitive": false
     },
     {
       "id": "ir-pd-tenant-only-pm",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-mixed-scope-01",
       "corpusKind": "PlatformDoc",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-mixed-scope-02",
       "corpusKind": "PolicyPack",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     },
     {
       "id": "ir-mixed-scope-03",
       "corpusKind": "PriorManifest",
       "recallAt5": 1.0,
-      "mrr": 1.0
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
     }
   ]
 }

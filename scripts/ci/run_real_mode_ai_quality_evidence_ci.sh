@@ -67,6 +67,19 @@ if [[ -f "${SCRIPT_DIR}/eval_retrieval_ir.py" ]]; then
   if [[ -f "${REPO_ROOT}/docs/quality/retrieval-ir-report.md" ]]; then
     cp "${REPO_ROOT}/docs/quality/retrieval-ir-report.md" "${OUTPUT_DIR}/retrieval-ir-report.md"
   fi
+  if [[ -f "${REPO_ROOT}/docs/quality/retrieval-ir-summary.json" ]]; then
+    cp "${REPO_ROOT}/docs/quality/retrieval-ir-summary.json" "${OUTPUT_DIR}/retrieval-ir-summary.json"
+  fi
+fi
+
+if [[ -f "${REPO_ROOT}/docs/quality/faithfulness-summary.json" ]]; then
+  cp "${REPO_ROOT}/docs/quality/faithfulness-summary.json" "${OUTPUT_DIR}/faithfulness-summary.json"
+fi
+
+if [[ -f "${SCRIPT_DIR}/assert_faithfulness_ir_floor_ratchet.py" ]]; then
+  "${PYTHON[@]}" "${SCRIPT_DIR}/assert_faithfulness_ir_floor_ratchet.py" \
+    --faithfulness-summary "${REPO_ROOT}/docs/quality/faithfulness-summary.json" \
+    --retrieval-summary "${REPO_ROOT}/docs/quality/retrieval-ir-summary.json"
 fi
 
 export REPO_ROOT

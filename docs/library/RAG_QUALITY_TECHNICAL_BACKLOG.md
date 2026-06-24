@@ -368,7 +368,7 @@
 - CI produces artifact with per-corpus recall@5 and MRR; regression on seeded fixture fails build when `--enforce`.
 - Documented distinction from **RAG-V1-005** (output citation faithfulness) in [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md).
 
-**P2 follow-on:** NDCG@10 for policy-pack ordering-sensitive scenarios.
+**P2 follow-on:** NDCG@10 for policy-pack ordering-sensitive scenarios — **Done (2026-06-24, faithfulness CI batch)** via `eval_retrieval_ir.py` + `corpusFloors.PolicyPack.minOrderingSensitiveNdcgAt10` + `assert_faithfulness_ir_floor_ratchet.py`.
 
 **Refs:** **RAG-V1-005**; `RetrievalFaithfulnessEvaluator.cs`; `RetrievalQuerySmokeIntegrationTests.cs`.
 

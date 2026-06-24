@@ -9,6 +9,8 @@ namespace ArchLucid.Retrieval.Reranking;
 /// </summary>
 public sealed class LexicalOverlapRetrievalReranker : IRetrievalReranker
 {
+    private const double PolicyPackCorpusBoost = 0.05;
+
     /// <inheritdoc />
     public Task<IReadOnlyList<RetrievalHit>> RerankAsync(
         string queryText,
@@ -48,7 +50,12 @@ public sealed class LexicalOverlapRetrievalReranker : IRetrievalReranker
 
         int overlap = queryTokens.Count(token => chunkTokens.Contains(token));
 
-        return overlap / (double)queryTokens.Count;
+        double score = overlap / (double)queryTokens.Count;
+
+        if (string.Equals(hit.CorpusKind, nameof(CorpusKind.PolicyPack), StringComparison.OrdinalIgnoreCase))
+            score += PolicyPackCorpusBoost;
+
+        return score;
     }
 
     private static HashSet<string> Tokenize(string text)
