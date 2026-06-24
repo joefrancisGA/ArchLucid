@@ -73,7 +73,7 @@ export function retrievalHitRelevanceLabel(tier: RetrievalHitRelevanceTier): str
   }
 }
 
-function normalizeGuid(value: string | undefined): string {
+function normalizeGuid(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 

@@ -229,7 +229,10 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
   if (loadState.status === "error") {
     return (
       <div className={className} data-testid="pilot-roi-validation-handoff-error">
-        <OperatorApiProblem fallbackMessage="Could not load pilot ROI validation signals for this review." />
+        <OperatorApiProblem
+          problem={null}
+          fallbackMessage="Could not load pilot ROI validation signals for this review."
+        />
       </div>
     );
   }
