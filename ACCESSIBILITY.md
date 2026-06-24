@@ -1,6 +1,6 @@
 # Accessibility
 
-Last reviewed: 2026-05-27
+Last reviewed: 2026-06-24
 
 ## Target compliance level
 
@@ -10,7 +10,7 @@ Playwright axe runs attach the **`wcag22aa`** ruleset bundle alongside **`wcag21
 
 ## Current status
 
-**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**81** URL patterns as of 2026-05-27, including the **16** high-traffic operator and marketing paths in the table below, plus legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**80** URL patterns as of 2026-06-24, including the **16** high-traffic operator and marketing paths in the table below, plus legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
 
 Automated axe evidence supports procurement disclosure but **does not imply** formal WCAG certification or participant assistive-technology (AT) lab testing unless separately performed and documented.
 
@@ -24,7 +24,7 @@ The following **16** routes are the **priority operator coverage** set (wizard, 
 
 | Page | Route | Status |
 | ---- | ----- | ------ |
-| Home | `/` | Scanned |
+| Overview | `/` | Scanned |
 | New review (wizard) | `/reviews/new` (alias `/runs/new`) | Scanned |
 | Reviews list | `/reviews?projectId=default` (alias `/runs?projectId=default`) | Scanned |
 | Review detail (fixture) | `/reviews/{runId}` (alias `/runs/{runId}`; see `e2e/fixtures/ids.ts`) | Scanned |
