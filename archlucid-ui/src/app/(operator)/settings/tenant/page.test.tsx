@@ -33,7 +33,7 @@ const hoisted = vi.hoisted(() => {
     isConfigured: true,
     emailEnabled: false,
     recipientEmails: ["a@example.com"],
-    ianaTimeZoneId: "Etc/UTC",
+    ianaTimeZoneId: "UTC",
     dayOfWeek: 1,
     hourOfDay: 9,
     updatedUtc: "2026-01-01T00:00:00Z",
@@ -99,12 +99,18 @@ describe("TenantSettingsPage", () => {
 
     render(page);
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
+    expect(await screen.findByText("Workspace scope")).toBeInTheDocument();
+    expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
+    expect(await screen.findByLabelText("Time zone")).toHaveValue("Etc/UTC");
+    expect(await screen.findByText("UTC")).toBeInTheDocument();
     expect(await screen.findByText(/Status:/i)).toBeInTheDocument();
     const save = await screen.findByTestId("tenant-digest-save");
     fireEvent.click(save);
 
     await waitFor(() => {
-      expect(hoisted.saveExecDigestMock).toHaveBeenCalled();
+      expect(hoisted.saveExecDigestMock).toHaveBeenCalledWith(
+        expect.objectContaining({ ianaTimeZoneId: "UTC" }),
+      );
     });
   });
 });

@@ -179,8 +179,7 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
       <CardHeader>
         <CardTitle className="text-base">Cost settings</CardTitle>
         <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-          Architect rate, incident cost, and EA discount multiplier drive USD savings on pilot review deltas and executive
-          ROI. Customize values below; 1.0 = retail list and lower applies EA-adjusted cost-category savings only.
+          These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable.
           {!isTenantConfigured ? " Showing platform defaults until you save." : null}
         </p>
       </CardHeader>
