@@ -3689,10 +3689,10 @@
               "string"
             ]
           },
-          "isPinned": {
+          "isDeadLettered": {
             "type": "boolean"
           },
-          "isDeadLettered": {
+          "isPinned": {
             "type": "boolean"
           },
           "lastAgentExecutionFailure": {
@@ -16077,6 +16077,76 @@
         ],
         "type": "object"
       },
+      "PolicyPackContentValidationIssue": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/PolicyPackContentValidationIssueKind"
+          },
+          "message": {
+            "type": "string"
+          },
+          "path": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackContentValidationIssueKind": {
+        "type": "integer"
+      },
+      "PolicyPackContentValidationResponse": {
+        "properties": {
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackContentValidationIssue"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/PolicyPackContentValidationSummary"
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackContentValidationSummary": {
+        "properties": {
+          "advisoryDefaultCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "alertRuleIdCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "complianceRuleIdCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "complianceRuleKeyCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "compositeAlertRuleIdCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "elicitationQuestionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "metadataEntryCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PolicyPackDryRunDeltaCounts": {
         "properties": {
           "evaluated": {
@@ -17769,6 +17839,53 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "RecordBulkFindingDispositionRequest": {
+        "properties": {
+          "disposition": {
+            "$ref": "#/components/schemas/FindingDisposition"
+          },
+          "findingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "revisitDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "disposition",
+          "findingIds",
+          "rationale"
+        ],
+        "type": "object"
+      },
+      "RecordBulkFindingDispositionResponse": {
+        "properties": {
+          "processedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "updatedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "updatedFindingIds"
+        ],
         "type": "object"
       },
       "RecordFindingDispositionRequest": {
@@ -20408,10 +20525,10 @@
           "hasWarnings": {
             "type": "boolean"
           },
-          "isDemoWelcomeRun": {
+          "isDeadLettered": {
             "type": "boolean"
           },
-          "isDeadLettered": {
+          "isDemoWelcomeRun": {
             "type": "boolean"
           },
           "isPinned": {
@@ -51745,6 +51862,96 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/governance/findings/bulk-disposition": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordBulkFindingDispositionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordBulkFindingDispositionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordBulkFindingDispositionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordBulkFindingDispositionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordBulkFindingDispositionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordBulkFindingDispositionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/governance/findings/{findingId}/dispositions": {
       "get": {
         "parameters": [
@@ -52314,6 +52521,26 @@
               }
             },
             "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
           },
           "429": {
             "content": {
@@ -60434,7 +60661,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackContentValidationResponse"
+                }
+              }
             },
             "description": "OK"
           },

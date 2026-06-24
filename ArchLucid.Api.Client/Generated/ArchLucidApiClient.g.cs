@@ -3044,6 +3044,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(RecordBulkFindingDispositionRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(RecordBulkFindingDispositionRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<FindingDispositionEventDto>> DispositionsAllAsync(string findingId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -3998,12 +4007,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ValidateAsync(JsonElement? body);
+        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ValidateAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -39075,6 +39084,98 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(RecordBulkFindingDispositionRequest? body)
+        {
+            return BulkDispositionAsync(body, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<RecordBulkFindingDispositionResponse> BulkDispositionAsync(RecordBulkFindingDispositionRequest? body, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/*+json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/governance/findings/bulk-disposition"
+                    urlBuilder_.Append("v1/governance/findings/bulk-disposition");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<RecordBulkFindingDispositionResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<FindingDispositionEventDto>> DispositionsAllAsync(string findingId)
         {
             return DispositionsAllAsync(findingId, System.Threading.CancellationToken.None);
@@ -39604,6 +39705,16 @@ namespace ArchLucid.Api.Client.Generated
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 422)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unprocessable Entity", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         if (status_ == 429)
@@ -50032,7 +50143,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ValidateAsync(JsonElement? body)
+        public virtual System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body)
         {
             return ValidateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -50040,7 +50151,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ValidateAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackContentValidationResponse> ValidateAsync(JsonElement? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -50085,7 +50196,12 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return;
+                            var objectResponse_ = await ReadObjectResponseAsync<PolicyPackContentValidationResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
                         }
                         else
                         if (status_ == 400)
@@ -61872,11 +61988,11 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
         public System.Guid? GraphSnapshotId { get; set; } = default!;
 
-        [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
-        public bool? IsPinned { get; set; } = default!;
-
         [System.Text.Json.Serialization.JsonPropertyName("isDeadLettered")]
         public bool? IsDeadLettered { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
+        public bool? IsPinned { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastAgentExecutionFailure")]
         public AgentExecutionFailureSummary? LastAgentExecutionFailure { get; set; } = default!;
@@ -69049,6 +69165,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("disclaimer")]
         public string? Disclaimer { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("requiresHumanReview")]
+        public bool? RequiresHumanReview { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("validationWarnings")]
+        public System.Collections.Generic.ICollection<string>? ValidationWarnings { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -74476,6 +74598,90 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PolicyPackContentValidationIssue
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("kind")]
+        public int? Kind { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("message")]
+        public string? Message { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("path")]
+        public string? Path { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PolicyPackContentValidationResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("issues")]
+        public System.Collections.Generic.ICollection<PolicyPackContentValidationIssue>? Issues { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("summary")]
+        public PolicyPackContentValidationSummary? Summary { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("valid")]
+        public bool? Valid { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PolicyPackContentValidationSummary
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("advisoryDefaultCount")]
+        public int? AdvisoryDefaultCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("alertRuleIdCount")]
+        public int? AlertRuleIdCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("complianceRuleIdCount")]
+        public int? ComplianceRuleIdCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("complianceRuleKeyCount")]
+        public int? ComplianceRuleKeyCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("compositeAlertRuleIdCount")]
+        public int? CompositeAlertRuleIdCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("elicitationQuestionCount")]
+        public int? ElicitationQuestionCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("metadataEntryCount")]
+        public int? MetadataEntryCount { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PolicyPackDryRunDeltaCounts
     {
 
@@ -76147,6 +76353,57 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
         public System.Guid? WorkspaceId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RecordBulkFindingDispositionRequest
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("disposition")]
+        public int Disposition { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingIds")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.Collections.Generic.ICollection<string> FindingIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
+
+        [System.Text.Json.Serialization.JsonPropertyName("rationale")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Rationale { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("revisitDueUtc")]
+        public System.DateTimeOffset? RevisitDueUtc { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RecordBulkFindingDispositionResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("processedCount")]
+        public int? ProcessedCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("updatedFindingIds")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.Collections.Generic.ICollection<string> UpdatedFindingIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -78611,11 +78868,11 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("hasWarnings")]
         public bool? HasWarnings { get; set; } = default!;
 
-        [System.Text.Json.Serialization.JsonPropertyName("isDemoWelcomeRun")]
-        public bool? IsDemoWelcomeRun { get; set; } = default!;
-
         [System.Text.Json.Serialization.JsonPropertyName("isDeadLettered")]
         public bool? IsDeadLettered { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("isDemoWelcomeRun")]
+        public bool? IsDemoWelcomeRun { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
         public bool? IsPinned { get; set; } = default!;
