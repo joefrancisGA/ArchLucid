@@ -49,7 +49,7 @@ describe("FindingInspectView", () => {
     expect(view.getByRole("heading", { name: "Rule A — evidence & trace" })).toBeTruthy();
     expect(view.getByText("Technical evidence trace")).toBeTruthy();
     expect(view.getByRole("heading", { name: "Why Rule A matters" })).toBeTruthy();
-    expect(view.getByRole("heading", { name: "Evidence citations" })).toBeTruthy();
+    expect(view.getByRole("heading", { name: "Customer policy & evidence" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Reasoning summary" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Recommended action" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Audit record" })).toBeTruthy();

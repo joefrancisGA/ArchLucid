@@ -98,7 +98,7 @@ describe("Demo preview marketing body", () => {
     expect(screen.getByTestId("demo-preview-pipeline-timeline")).toHaveTextContent("Review submitted");
     expect(screen.getByTestId("demo-preview-artifacts")).toHaveTextContent("Architecture brief");
     expect(screen.getByTestId("demo-preview-footer")).toHaveTextContent(
-      "Structured architecture review output — manifest, findings, and audit trail.",
+      "Structured architecture review output — review package, findings, and audit trail.",
     );
   });
 

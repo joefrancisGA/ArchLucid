@@ -289,7 +289,7 @@ describe("operator client pages — render gate", () => {
 
   it("AskPage renders primary heading without heading-level contextual help", () => {
     render(<AskPage />);
-    expect(screen.getByRole("heading", { level: 2, name: "Ask about a review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Ask this review" })).toBeInTheDocument();
     expect(document.querySelector("[data-help-tooltip-trigger]")).toBeNull();
   });
 
