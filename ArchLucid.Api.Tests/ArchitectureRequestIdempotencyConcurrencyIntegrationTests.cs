@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -12,7 +12,6 @@ namespace ArchLucid.Api.Tests;
 ///     id.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRequestIdempotencyConcurrencyIntegrationTests
 {

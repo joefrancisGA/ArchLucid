@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests.Security;
 /// <summary>
 ///     TB-287: ReadAuthority readers get trace summaries only; operator forensics routes require elevated role.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartitionSeedFixture seed)
     : IClassFixture<ForensicsTracePartitionSeedFixture>

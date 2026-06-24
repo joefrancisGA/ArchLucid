@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -22,7 +22,6 @@ namespace ArchLucid.Api.Tests;
 ///     Strict single-winner SQL behavior is covered by <c>SqlRunRepositoryArchiveByIdsConcurrencyTests</c>.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchivalConcurrencyIntegrationTests
 {

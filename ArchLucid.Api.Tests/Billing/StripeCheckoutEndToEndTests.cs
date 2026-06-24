@@ -22,7 +22,7 @@ namespace ArchLucid.Api.Tests.Billing;
 ///     the Stripe signature + activation path still exercises production <c>StripeBillingProvider</c> code in-process.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class StripeCheckoutEndToEndTests
 {

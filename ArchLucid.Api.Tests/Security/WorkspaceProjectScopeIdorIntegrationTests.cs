@@ -24,7 +24,7 @@ namespace ArchLucid.Api.Tests.Security;
 ///     </list>
 /// </remarks>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class WorkspaceProjectScopeIdorIntegrationTests(IdorSeedFixture seed)
     : IClassFixture<IdorSeedFixture>

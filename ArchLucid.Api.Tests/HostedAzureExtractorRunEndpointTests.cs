@@ -9,7 +9,6 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>HTTP coverage for <c>POST /v1/admin/azure-extractor/hosted/run</c>.</summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class HostedAzureExtractorRunEndpointTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
     : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>

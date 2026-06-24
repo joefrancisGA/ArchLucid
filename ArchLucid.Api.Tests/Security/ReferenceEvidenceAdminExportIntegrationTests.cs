@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests.Security;
 /// <summary>
 ///     TB-291: reference-evidence ZIP export content and tenant scope.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class ReferenceEvidenceAdminExportIntegrationTests
 {

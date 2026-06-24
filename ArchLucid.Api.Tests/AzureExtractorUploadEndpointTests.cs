@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>HTTP ingest for schema-versioned Azure extractor ZIPs (<c>POST /v1/azure-extractor/upload</c>).</summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>

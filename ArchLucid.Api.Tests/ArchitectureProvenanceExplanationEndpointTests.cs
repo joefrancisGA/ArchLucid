@@ -12,7 +12,6 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>Coordinator provenance node explanation: scoped run lookup plus buyer-safe <c>501</c> Problem+JSON (not published in OpenAPI).</summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureProvenanceExplanationEndpointTests
 {

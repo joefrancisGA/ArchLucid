@@ -16,7 +16,6 @@ namespace ArchLucid.Api.Tests;
 ///     Each test uses a dedicated <see cref="ArchLucidApiFactory" /> (ephemeral SQL database) so assignments and
 ///     effective-content merges do not leak across tests (see <c>ArchitectureControllerTests</c>).
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class PolicyPacksIntegrationTests
 {

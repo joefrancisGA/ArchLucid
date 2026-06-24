@@ -16,7 +16,6 @@ namespace ArchLucid.Api.Tests.Security;
 ///     TB-322: committed review proof is immutable at the API boundary — sealed evidence cannot be rewritten and
 ///     mutating endpoints reject post-commit agent-result injection.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

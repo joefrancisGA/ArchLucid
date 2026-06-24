@@ -14,7 +14,6 @@ namespace ArchLucid.Api.Tests;
 ///     INV-013: committing a replay must not mutate the original run's committed golden manifest payload; replay run id
 ///     is distinct.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

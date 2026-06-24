@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Metadata;
@@ -15,7 +15,6 @@ namespace ArchLucid.Api.Tests;
 ///     so this test requires five distinct <c>X-ArchLucid-ComparisonRecordId</c> values and five retrievable records.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ComparisonPersistConcurrencyIntegrationTests
 {

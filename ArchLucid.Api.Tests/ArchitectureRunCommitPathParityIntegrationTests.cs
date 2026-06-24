@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -20,7 +20,6 @@ namespace ArchLucid.Api.Tests;
 ///     <c>docs/evidence/phase3/pr-a2-cohort-parity.md</c>.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRunCommitPathParityIntegrationTests
 {

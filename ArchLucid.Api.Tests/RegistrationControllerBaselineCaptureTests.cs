@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {

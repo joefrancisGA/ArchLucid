@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Tests.Security;
 ///     <c>x-tenant-id</c> / workspace / project). Isolation is enforced by the API and repository query scope, not database RLS.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class TenantIsolationSmokeTests
 {

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,7 +16,6 @@ namespace ArchLucid.Api.Tests;
 ///     Pilot execute path: <c>X-ArchLucid-Pilot-Try-Real-Mode</c> headers drive first-real-value audit + counters.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class FirstRealValuePilotExecuteIntegrationTests
 {

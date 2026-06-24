@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 ///     core, no SQL) skips this class.
 /// </remarks>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {

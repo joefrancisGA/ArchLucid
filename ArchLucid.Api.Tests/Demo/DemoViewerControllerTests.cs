@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests.Demo;
 /// <summary>
 ///     Anonymous demo viewer read surface (<c>/v1/demo/viewer/*</c>) when <c>Demo:AnonymousViewer:Enabled</c> is set.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class DemoViewerControllerTests

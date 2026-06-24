@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.TestSupport;
 
@@ -14,7 +14,6 @@ namespace ArchLucid.Api.Tests;
 ///     Catches ordering bugs between DbUp and <c>SqlSchemaBootstrapper</c> that pre-migrated integration DBs would not
 ///     surface.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]

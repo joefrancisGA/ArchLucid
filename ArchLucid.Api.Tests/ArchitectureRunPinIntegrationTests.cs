@@ -10,7 +10,6 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRunPinIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

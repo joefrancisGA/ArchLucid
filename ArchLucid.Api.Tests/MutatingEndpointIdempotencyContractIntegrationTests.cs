@@ -10,7 +10,6 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     TB-323: strict idempotency contract verification for core mutating endpoints under retry semantics.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

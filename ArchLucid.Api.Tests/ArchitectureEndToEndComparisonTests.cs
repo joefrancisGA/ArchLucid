@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -11,7 +11,6 @@ namespace ArchLucid.Api.Tests;
 ///     Tests for Architecture End To End Comparison.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

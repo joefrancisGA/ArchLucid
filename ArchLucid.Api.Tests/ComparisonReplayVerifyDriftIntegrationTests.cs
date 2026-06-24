@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -20,7 +20,6 @@ namespace ArchLucid.Api.Tests;
 ///     Payload is read via GET, then mutated in the in-memory repository through
 ///     <see cref="InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest" />.
 /// </remarks>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)

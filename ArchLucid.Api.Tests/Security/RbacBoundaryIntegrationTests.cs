@@ -22,7 +22,6 @@ namespace ArchLucid.Api.Tests.Security;
 ///     development bypass disabled (<see cref="ApiKeyReaderAndAdminArchLucidApiFactory" />).
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
     : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>

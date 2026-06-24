@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 ///     <c>ArchLucid:StorageProvider=InMemory</c>, so authority-chain audit SQL assertions belong on
 ///     <see cref="GreenfieldSqlApiFactory" />.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class DemoSeedAuthorityChainAuditIntegrationTests

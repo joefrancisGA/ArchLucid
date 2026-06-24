@@ -17,7 +17,6 @@ namespace ArchLucid.Api.Tests;
 ///     End-to-end simulator path vs locked <c>cohort.json</c> expectations. Skips unless
 ///     <c>ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED=true</c> and SHAs in the cohort file are non-placeholder.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 [Trait("Suite", "GoldenCohort")]
 public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)

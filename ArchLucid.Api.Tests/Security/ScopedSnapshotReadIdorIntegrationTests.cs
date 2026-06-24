@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests.Security;
 ///     TB-073: tenant B must not read tenant A run-scoped API payloads (SingleCatalog IDOR regression guard).
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class ScopedSnapshotReadIdorIntegrationTests
 {

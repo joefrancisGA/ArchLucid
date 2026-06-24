@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
@@ -9,7 +9,6 @@ namespace ArchLucid.Api.Tests;
 ///     exporter).
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class PrometheusTrialFunnelMetricsSmokeTests
 {

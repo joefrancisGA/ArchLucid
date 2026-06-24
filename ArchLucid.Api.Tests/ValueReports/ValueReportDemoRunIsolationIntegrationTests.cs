@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests.ValueReports;
 /// <summary>
 ///     TB-294: sponsor/value artifacts for real tenant runs must not embed canonical showcase demo run ids.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class ValueReportDemoRunIsolationIntegrationTests
 {

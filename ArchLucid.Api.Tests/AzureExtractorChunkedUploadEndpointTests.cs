@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Chunk-staged ingest (<c>upload-sessions</c> + octet-stream chunks + <c>complete</c>).</summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class AzureExtractorChunkedUploadEndpointTests(GreenfieldSqlApiFactoryWithLocalArtifactBlob fixture)

@@ -18,7 +18,6 @@ namespace ArchLucid.Api.Tests.Integrations;
 ///     Payload bytes reuse the CloudEvents governance-approval example from
 ///     <c>docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md</c> (integration-events HEC section).
 /// </remarks>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class InboundWebhookHmacSignatureIntegrationTests
 {

@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Tests.Security;
 /// <summary>
 ///     TB-295: tenant B must not see tenant A audit rows via list or CSV export through the HTTP stack (SQL RLS).
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class AuditExportTenantIsolationIntegrationTests
 {

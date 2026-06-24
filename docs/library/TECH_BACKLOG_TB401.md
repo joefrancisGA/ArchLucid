@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — V1.1 backlog item TB-401 (progressive disclosure Batch 3, run-detail IA refactor).
+
 ## TB-401
 
 **Quality:** Adoption friction

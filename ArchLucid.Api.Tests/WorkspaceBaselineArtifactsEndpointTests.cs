@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Workspace baseline artifact presence (<c>GET /v1/tenant/workspace-baseline-artifacts</c>).</summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class WorkspaceBaselineArtifactsEndpointTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>

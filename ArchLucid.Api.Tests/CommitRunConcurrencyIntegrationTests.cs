@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +15,6 @@ namespace ArchLucid.Api.Tests;
 ///     manifest version for every parallel caller once the first commit wins.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class CommitRunConcurrencyIntegrationTests
 {

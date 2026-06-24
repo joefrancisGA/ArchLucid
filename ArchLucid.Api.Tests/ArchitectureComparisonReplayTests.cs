@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using FluentAssertions;
 
@@ -7,7 +7,6 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Tests for Architecture Comparison Replay.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

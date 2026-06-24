@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -11,7 +11,6 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Tests for Architecture Analysis Docx.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

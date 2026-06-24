@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -8,7 +8,6 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Tests for Architecture Consulting Docx Recommendation.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)

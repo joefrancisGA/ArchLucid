@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,7 +16,6 @@ namespace ArchLucid.Api.Tests;
 ///     the name. With in-memory storage, rules are not in <c>dbo.AlertRules</c> â€” the list API is the ground truth.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class AlertRuleConcurrencyIntegrationTests
 {

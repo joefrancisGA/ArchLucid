@@ -16,7 +16,6 @@ namespace ArchLucid.Api.Tests;
 ///     sponsor artifacts → audit/traceability exports. Asserts stable semantics, not wall-clock or generated prose.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class CorePilotPathGoldenCorrectnessIntegrationTests
 {

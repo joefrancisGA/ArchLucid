@@ -21,7 +21,7 @@ const SHOWCASE_MANIFEST_DEEP_LINK = /^(?:Open signed record|Signed review record
 /** Branded 404 marker is sr-only; assert visible recovery copy plus attached test id. */
 async function expectBrandedNotFoundSurface(page: Page): Promise<void> {
   await expect(
-    page.getByRole("heading", { name: /We could not find that ArchLucid artifact/i }),
+    page.getByText(/We could not find that ArchLucid artifact/i),
   ).toBeVisible();
   await expect(page.getByTestId("branded-not-found")).toBeAttached();
 }

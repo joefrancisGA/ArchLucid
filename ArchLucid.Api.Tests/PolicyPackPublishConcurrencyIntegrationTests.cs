@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -13,7 +13,6 @@ namespace ArchLucid.Api.Tests;
 ///     <see cref="PolicyPackVersionResponse" />.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class PolicyPackPublishConcurrencyIntegrationTests
 {

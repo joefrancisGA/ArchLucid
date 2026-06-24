@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -10,7 +10,6 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Tests for Architecture Analysis Export.
 /// </summary>
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

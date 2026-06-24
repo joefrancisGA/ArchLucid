@@ -10,7 +10,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class MarketingPricingQuoteAgingAdminControllerIntegrationTests(GreenfieldSqlApiFactory fixture)
     : IClassFixture<GreenfieldSqlApiFactory>

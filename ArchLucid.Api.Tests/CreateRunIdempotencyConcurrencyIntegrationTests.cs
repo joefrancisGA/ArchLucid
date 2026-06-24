@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -16,7 +16,6 @@ namespace ArchLucid.Api.Tests;
 ///     authority run (SQL storage).
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests

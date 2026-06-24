@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -20,7 +20,6 @@ namespace ArchLucid.Api.Tests;
 ///     <c>UQ_GoldenManifests_RunId_Active</c>; see <c>dbo.sp_FinalizeManifest</c>).
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureControllerTests
 {

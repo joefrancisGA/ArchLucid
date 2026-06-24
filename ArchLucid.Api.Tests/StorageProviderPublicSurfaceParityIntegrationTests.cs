@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using ArchLucid.TestSupport;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 ///     <see cref="GreenfieldSqlApiFactory" /> (Sql + DbUp) expose the same anonymous public HTTP surface
 ///     for health and OpenAPI â€” catches wiring regressions that break only one storage path.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class StorageProviderPublicSurfaceParityIntegrationTests

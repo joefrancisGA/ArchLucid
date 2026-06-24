@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 
 using FluentAssertions;
@@ -9,7 +9,6 @@ namespace ArchLucid.Api.Tests;
 ///     Tests for Policy Pack Request Validation.
 /// </summary>
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
-[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Collection("ArchLucidEnvMutation")]
 public sealed class RoiBulletinAdminControllerIntegrationTests(GreenfieldSqlApiFactory fixture) : IClassFixture<GreenfieldSqlApiFactory>
 {
