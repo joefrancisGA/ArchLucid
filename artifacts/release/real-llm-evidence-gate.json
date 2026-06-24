@@ -1,6 +1,6 @@
 {
     "schema":  "archlucid.real-llm-evidence-gate.v2",
-    "generatedUtc":  "2026-06-22T09:33:58.3857935Z",
+    "generatedUtc":  "2026-06-24T06:24:40.0287206Z",
     "disposition":  "PASS",
     "overallOutcome":  "PASS",
     "executionMode":  "real",
@@ -62,7 +62,7 @@
                        "name":  "Topology smoke token/cost"
                    },
                    {
-                       "detail":  "topology-only: substance=10 claims=1 findings=1 topologyItems=8",
+                       "detail":  "topology-only: substance=9 claims=1 findings=1 topologyItems=7",
                        "result":  "Passed",
                        "name":  "Topology smoke structural smoke"
                    },
@@ -97,7 +97,7 @@
                        "name":  "Full pipeline token/cost"
                    },
                    {
-                       "detail":  "services=2 decisionTraces=29 claims=5",
+                       "detail":  "services=2 decisionTraces=27 claims=4",
                        "result":  "Passed",
                        "name":  "Full pipeline merge completeness"
                    },
@@ -118,7 +118,7 @@
                             "parseAttempts":  1,
                             "parseFailures":  0,
                             "mergeSuccess":  true,
-                            "manifestServiceCount":  3,
+                            "manifestServiceCount":  2,
                             "decisionsCount":  0,
                             "totalClaims":  1,
                             "inputTokensTotal":  0,
@@ -135,12 +135,12 @@
                                 "mergeSuccess":  true,
                                 "manifestServiceCount":  2,
                                 "decisionsCount":  0,
-                                "totalClaims":  5,
+                                "totalClaims":  4,
                                 "inputTokensTotal":  0,
                                 "outputTokensTotal":  0,
                                 "estimatedCostUsd":  null,
                                 "evidenceRefsObserved":  true,
                                 "durableSqlPersistenceExercised":  false
                             },
-    "gitCommitSha":  "f455b842c7d192b1169b177d283d767b2efa6996"
+    "gitCommitSha":  "07af5f3f0ff7eee23d9fa5bb30e117112b5d06bd"
 }

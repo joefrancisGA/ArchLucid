@@ -1,6 +1,6 @@
 # Real LLM evidence gate (generated)
 
-Generated (UTC): **2026-06-22T09:33:58.3857935Z**
+Generated (UTC): **2026-06-24T06:24:40.0287206Z**
 
 **Overall disposition:** `PASS`
 
@@ -21,14 +21,14 @@ Buyer index: [docs/go-to-market/AI_EVIDENCE_APPENDIX.md](../docs/go-to-market/AI
 | Topology smoke parse failures | **Passed** | parseFailures=0 (attempts=1) |
 | Topology smoke evidence refs | **Passed** | evidenceRefsObserved=true |
 | Topology smoke token/cost | **Not captured** | Provider returned zero token usage |
-| Topology smoke structural smoke | **Passed** | topology-only: substance=10 claims=1 findings=1 topologyItems=8 |
+| Topology smoke structural smoke | **Passed** | topology-only: substance=9 claims=1 findings=1 topologyItems=7 |
 | Topology smoke trace persistence | **Not captured** | Gate uses in-memory trace recorder only |
 | Full pipeline run executed | **Passed** | dotnet test exit 0 |
 | Full pipeline metrics captured | **Passed** | profile=full-pipeline deployment=gpt-4o |
 | Full pipeline parse failures | **Passed** | parseFailures=0 (attempts=3) |
 | Full pipeline evidence refs | **Passed** | evidenceRefsObserved=true |
 | Full pipeline token/cost | **Not captured** | Provider returned zero token usage |
-| Full pipeline merge completeness | **Passed** | services=2 decisionTraces=29 claims=5 |
+| Full pipeline merge completeness | **Passed** | services=2 decisionTraces=27 claims=4 |
 | Full pipeline trace persistence | **Not captured** | Gate uses in-memory trace recorder only |
 | Semantic score | **Not captured** | Reference evaluation / golden cohort scoring not wired for this gate |
 
@@ -38,13 +38,13 @@ Buyer index: [docs/go-to-market/AI_EVIDENCE_APPENDIX.md](../docs/go-to-market/AI
 
 
 
-- **Passed** — positive signal for the row.
+- **Passed** â€” positive signal for the row.
 
-- **Failed** — failing assertion, merge/schema failure, or non-zero test exit when a live run was attempted.
+- **Failed** â€” failing assertion, merge/schema failure, or non-zero test exit when a live run was attempted.
 
-- **Skipped** — prerequisite missing (typically credentials); not an execution failure.
+- **Skipped** â€” prerequisite missing (typically credentials); not an execution failure.
 
-- **Not captured** — no data for this dimension on this machine, or durable/host-only evidence.
+- **Not captured** â€” no data for this dimension on this machine, or durable/host-only evidence.
 
 
 
@@ -52,9 +52,9 @@ Buyer index: [docs/go-to-market/AI_EVIDENCE_APPENDIX.md](../docs/go-to-market/AI
 
 
 
-- **Topology smoke** — Azure OpenAI completion path, JSON parsing, and evidence-reference emission for one Topology agent. Does **not** prove full multi-agent merge or sponsor-safe manifest completeness.
+- **Topology smoke** â€” Azure OpenAI completion path, JSON parsing, and evidence-reference emission for one Topology agent. Does **not** prove full multi-agent merge or sponsor-safe manifest completeness.
 
-- **Full pipeline** — Topology + Compliance + Cost + Critic execution with decision merge, manifest service count, and decision count. Required before claiming full real-LLM validation.
+- **Full pipeline** â€” Topology + Compliance + Cost + Critic execution with decision merge, manifest service count, and decision count. Required before claiming full real-LLM validation.
 
 
 
