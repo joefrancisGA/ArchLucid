@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -48,6 +49,8 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
     public async Task TryEvaluateAsync_parses_faithfulness_score_when_enabled()
     {
         Mock<IAgentCompletionClient> client = new();
+        string? capturedSystem = null;
+        string? capturedUser = null;
         client
             .Setup(c => c.CompleteJsonAsync(
                 It.IsAny<string>(),
@@ -55,6 +58,11 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
                 It.IsAny<int?>(),
                 It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()))
+            .Callback<string, string, int?, float?, CancellationToken>((sys, user, _, _, _) =>
+            {
+                capturedSystem = sys;
+                capturedUser = user;
+            })
             .ReturnsAsync("""{"faithfulnessScore":0.82,"rationale":"grounded"}""");
 
         AgentOutputFaithfulnessEvaluator sut = CreateEvaluator(
@@ -69,6 +77,21 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
             CancellationToken.None);
 
         score.Should().BeApproximately(0.82, 0.001);
+        capturedSystem.Should().Contain("FAITHFULNESS DEFINITION");
+        capturedSystem.Should().Contain("RUBRIC");
+        capturedUser.Should().Contain("traceId:trace-2");
+        capturedUser.Should().Contain("Blob storage");
+    }
+
+    [Fact]
+    public void FaithfulnessJudgePromptResolver_exposes_catalog_metadata()
+    {
+        ResolvedSystemPrompt resolved = FaithfulnessJudgePromptResolver.Resolve();
+
+        resolved.TemplateId.Should().Be(FaithfulnessJudgeSystemPromptTemplate.TemplateId);
+        resolved.TemplateVersion.Should().Be(FaithfulnessJudgeSystemPromptTemplate.Version);
+        resolved.Text.Should().Contain("1.0 (Perfect)");
+        resolved.ContentSha256Hex.Should().NotBeNullOrWhiteSpace();
     }
 
     private static AgentOutputFaithfulnessEvaluator CreateEvaluator(

@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -108,17 +110,20 @@ public sealed class AgentOutputFaithfulnessEvaluator(
         string evidenceText = TrimForJudge(index.FullBlob, opts.MaxEvidenceCharacters);
         string agentJson = TrimForJudge(parsedResultJson, opts.MaxInputCharacters);
 
-        string systemPrompt =
-            "You are a strict faithfulness rater for enterprise architecture agent JSON.\n"
-            + "Compare the agent JSON against ONLY the supplied evidence text.\n"
-            + "Penalize claims and findings that introduce facts, services, costs, or controls not supported by the evidence.\n"
-            + "Reward outputs that stay grounded in the evidence and cite plausible details.\n"
-            + "Return a single JSON object with keys: faithfulnessScore (number 0..1), rationale (short string, max 400 chars).";
+        ResolvedSystemPrompt systemResolved = FaithfulnessJudgePromptResolver.Resolve();
+        AgentPromptActivityTags.Apply(systemResolved);
 
-        string userPrompt =
-            "traceId:" + traceId +
-            "\n\nevidence:\n" + evidenceText +
-            "\n\nagentJson:\n" + agentJson;
+        string systemPrompt = systemResolved.Text;
+        string userPrompt = FaithfulnessJudgeUserPromptBuilder.Build(traceId, evidenceText, agentJson);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug(
+                "LLM faithfulness judge prompt TemplateId={TemplateId} Version={TemplateVersion} TraceId={TraceId}",
+                systemResolved.TemplateId,
+                systemResolved.TemplateVersion,
+                traceId);
+        }
 
         using CancellationTokenSource linked =
             CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
