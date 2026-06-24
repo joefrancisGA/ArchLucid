@@ -1,4 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+import { OPERATE_NAV_UNLOCK_STORAGE_KEY } from "@/lib/usability/operate-nav-progressive-unlock";
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
@@ -37,8 +39,10 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         hasSeenOnboardingKey: string;
         onboardingTourCompletedKey: string;
         sidebarGroupExpansionKey: string;
+        operateNavUnlockStorageKey: string;
       }) => {
         localStorage.removeItem(keys.sidebarGroupExpansionKey);
+        localStorage.setItem(keys.operateNavUnlockStorageKey, "0");
         localStorage.setItem("archlucid-nav-expanded", "false");
         localStorage.setItem("archlucid_nav_show_extended", "false");
         localStorage.setItem("archlucid_nav_show_advanced", "false");
@@ -51,6 +55,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         hasSeenOnboardingKey: HAS_SEEN_ONBOARDING_STORAGE_KEY,
         onboardingTourCompletedKey: ONBOARDING_TOUR_COMPLETED_KEY,
         sidebarGroupExpansionKey: SIDEBAR_NAV_GROUP_EXPANSION_STORAGE_KEY,
+        operateNavUnlockStorageKey: OPERATE_NAV_UNLOCK_STORAGE_KEY,
       },
     );
     await page.addInitScript(
@@ -93,20 +98,22 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
-    await page.evaluate(() => {
-      localStorage.setItem("archlucid.operateNavUnlockPhase.v1", "2");
+    await page.evaluate((storageKey) => {
+      localStorage.setItem(storageKey, "2");
       window.dispatchEvent(new Event("archlucid-operate-nav-unlock-changed"));
-    });
+    }, OPERATE_NAV_UNLOCK_STORAGE_KEY);
 
     await expect(page.getByTestId("sidebar-group-toggle-operate-governance")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("sidebar-group-toggle-operate-governance").click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
+    const riskRegisterLink = governanceNav.getByRole("link", { name: /Risk register/i });
+    const governanceWorkflowLink = governanceNav.getByRole("link", { name: /Governance workflow/i });
 
     await expect(governanceNav).toBeVisible({ timeout: 15_000 });
-    await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveAttribute(
-      "href",
-      "/governance",
-    );
+    // Pilot profile keeps advanced-tier workflow routes hidden until extended+advanced disclosure is on.
+    await expect(riskRegisterLink).toBeVisible();
+    await expect(riskRegisterLink).toHaveAttribute("href", "/governance/findings");
+    await expect(governanceWorkflowLink).toHaveCount(0);
   });
 });

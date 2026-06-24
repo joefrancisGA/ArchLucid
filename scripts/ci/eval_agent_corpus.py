@@ -440,6 +440,61 @@ def enforce_llm_faithfulness_floors(
     return failures
 
 
+def summarize_llm_faithfulness(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Phase B rollup for markdown artifacts (faithfulness-judge-system v1.0.0 scores)."""
+
+    positive_rows: list[dict[str, Any]] = []
+    adversarial_rows: list[dict[str, Any]] = []
+    positive_scores: list[float] = []
+
+    for row in rows:
+        quality = row.get("quality")
+
+        if not isinstance(quality, dict) or quality.get("skipped") or quality.get("error"):
+            continue
+
+        scenario_id = str(row.get("id") or "unknown")
+        is_adversarial = _is_adversarial_eval_row(row)
+        mode = str(quality.get("mode") or "")
+        llm_score_raw = quality.get("llm_faithfulness_score")
+        support_ratio = quality.get("faithfulness_support_ratio")
+        detail = {
+            "scenarioId": scenario_id,
+            "mode": mode,
+            "llmFaithfulnessScore": float(llm_score_raw) if llm_score_raw is not None else None,
+            "supportRatio": float(support_ratio) if support_ratio is not None else None,
+            "gateOutcome": str(quality.get("gate_outcome") or ""),
+            "cohort": "adversarial" if is_adversarial else "positive-readiness",
+        }
+
+        if is_adversarial:
+            adversarial_rows.append(detail)
+            continue
+
+        if mode != "real":
+            continue
+
+        positive_rows.append(detail)
+
+        if llm_score_raw is not None:
+            positive_scores.append(float(llm_score_raw))
+
+    p50 = _compute_p50(positive_scores) if positive_scores else None
+
+    return {
+        "rubricVersion": "faithfulness-judge-system.v1.0.0",
+        "p50": p50,
+        "p50Floor": _resolve_llm_faithfulness_p50_floor(),
+        "absoluteFloor": _resolve_llm_faithfulness_absolute_floor(),
+        "adversarialCeiling": _resolve_llm_faithfulness_adversarial_ceiling(),
+        "positiveScenarioCount": len(positive_rows),
+        "positiveScoredCount": len(positive_scores),
+        "adversarialScenarioCount": len(adversarial_rows),
+        "positiveRows": positive_rows,
+        "adversarialRows": adversarial_rows,
+    }
+
+
 def _is_baseline_eligible_quality(quality: Mapping[str, Any] | None) -> bool:
     if not isinstance(quality, dict):
         return False
@@ -1020,9 +1075,63 @@ def render_markdown_report(
                     f"{'**FAIL**' if gate_snapshot.get('baseline_failed') else 'PASS'} | "
                     "Aggregate drop >3.0 or single dimension drop >5.0 vs committed baselines. |"
                 ),
+                (
+                    "| Phase B LLM faithfulness (`faithfulness-judge-system` v1.0.0) | "
+                    f"{'yes (`--enforce-llm-faithfulness`)' if gate_snapshot.get('enforce_llm_faithfulness') else 'no'} | "
+                    f"{_tri(bool(gate_snapshot.get('enforce_llm_faithfulness')), bool(gate_snapshot.get('llm_faithfulness_failed')))} | "
+                    f"p50 {gate_snapshot.get('llm_faithfulness_p50_label', '—')} vs floor "
+                    f"{float(gate_snapshot.get('llm_faithfulness_p50_floor') or _LLM_FAITHFULNESS_P50_FLOOR_DEFAULT):.2f}; "
+                    f"adversarial ceiling {float(gate_snapshot.get('llm_faithfulness_adversarial_ceiling') or _LLM_FAITHFULNESS_ADVERSARIAL_CEILING_DEFAULT):.2f}. |"
+                ),
                 "",
             ]
         )
+
+        llm_summary = gate_snapshot.get("llm_faithfulness_summary")
+
+        if isinstance(llm_summary, dict):
+            p50 = llm_summary.get("p50")
+            p50_label = f"{float(p50):.4f}" if p50 is not None else "n/a"
+            lines.extend(
+                [
+                    "### Phase B LLM faithfulness (committed exemplars)",
+                    "",
+                    "_Uses versioned `faithfulness-judge-system` v1.0.0 scores embedded in committed "
+                    "real-mode `semanticScore.llmFaithfulnessScore`. Deterministic Phase A citation overlap "
+                    "remains merge-blocking via `eval_agent_faithfulness.py`; PilotStrict also rejects "
+                    "`HasCheckableContent=false` outputs in .NET._",
+                    "",
+                    "| Metric | Value | Floor / ceiling |",
+                    "|--------|------:|----------------:|",
+                    f"| Positive-readiness p50 | {p50_label} | ≥ {float(llm_summary.get('p50Floor') or 0):.2f} |",
+                    f"| Per-scenario absolute floor | — | ≥ {float(llm_summary.get('absoluteFloor') or 0):.2f} |",
+                    f"| Adversarial ceiling | — | ≤ {float(llm_summary.get('adversarialCeiling') or 0):.2f} |",
+                    f"| Real-mode positive scenarios | {int(llm_summary.get('positiveScenarioCount') or 0)} | scored {int(llm_summary.get('positiveScoredCount') or 0)} |",
+                    f"| Adversarial scenarios | {int(llm_summary.get('adversarialScenarioCount') or 0)} | hallucination resistance |",
+                    "",
+                    "| Scenario | Cohort | Mode | LLM score | Support ratio | Gate |",
+                    "|----------|--------|------|-----------|---------------|------|",
+                ],
+            )
+
+            combined_rows = list(llm_summary.get("positiveRows") or []) + list(
+                llm_summary.get("adversarialRows") or []
+            )
+
+            for detail in combined_rows:
+                if not isinstance(detail, dict):
+                    continue
+
+                llm_val = detail.get("llmFaithfulnessScore")
+                llm_label = f"{float(llm_val):.4f}" if llm_val is not None else "—"
+                support_val = detail.get("supportRatio")
+                support_label = f"{float(support_val):.4f}" if support_val is not None else "—"
+                lines.append(
+                    f"| `{detail.get('scenarioId')}` | {detail.get('cohort')} | {detail.get('mode')} | "
+                    f"{llm_label} | {support_label} | {detail.get('gateOutcome')} |",
+                )
+
+            lines.append("")
 
     if baseline_comparisons is not None:
         failed_n = sum(1 for row in baseline_comparisons if row.get("failed"))
@@ -1542,8 +1651,10 @@ def main() -> int:
 
     enforce_llm_faithfulness = bool(args.enforce_llm_faithfulness or args.enforce)
     llm_faithfulness_failures: list[str] = []
+    llm_faithfulness_summary: dict[str, Any] | None = None
 
     if enforce_llm_faithfulness:
+        llm_faithfulness_summary = summarize_llm_faithfulness(rows)
         llm_faithfulness_failures = enforce_llm_faithfulness_floors(
             rows,
             p50_floor=_resolve_llm_faithfulness_p50_floor(),
@@ -1557,6 +1668,10 @@ def main() -> int:
 
         if llm_faithfulness_failures:
             would_fail_exit = True
+
+    llm_p50_label = "n/a"
+    if isinstance(llm_faithfulness_summary, dict) and llm_faithfulness_summary.get("p50") is not None:
+        llm_p50_label = f"{float(llm_faithfulness_summary['p50']):.4f}"
 
     gate_snapshot: dict[str, Any] = {
         "enforce_recall": bool(args.enforce),
@@ -1578,6 +1693,10 @@ def main() -> int:
         "enforce_llm_faithfulness": enforce_llm_faithfulness,
         "llm_faithfulness_failed": len(llm_faithfulness_failures) > 0,
         "llm_faithfulness_failure_count": len(llm_faithfulness_failures),
+        "llm_faithfulness_summary": llm_faithfulness_summary,
+        "llm_faithfulness_p50_label": llm_p50_label,
+        "llm_faithfulness_p50_floor": _resolve_llm_faithfulness_p50_floor(),
+        "llm_faithfulness_adversarial_ceiling": _resolve_llm_faithfulness_adversarial_ceiling(),
     }
 
     md = render_markdown_report(

@@ -4,7 +4,8 @@
 Mirrors ``InMemoryVectorIndex`` cosine search with tenant scope filters. Reads
 ``tests/eval-datasets/retrieval-golden/cases.json`` and writes
 ``docs/quality/retrieval-ir-report.md`` and ``docs/quality/retrieval-ir-summary.json``. Exit 0 by default; use ``--enforce`` to fail
-when mean recall@5 or MRR drops below configured floors.
+when mean recall@5 or MRR drops below configured floors, or when per-corpus
+``corpusFloors`` (PolicyPack MRR and ordering-sensitive NDCG@10) regress.
 """
 
 from __future__ import annotations
@@ -110,6 +111,53 @@ def _mrr(retrieved: list[str], expected: list[str]) -> float:
     return 0.0
 
 
+def _relevance_map(expected_ids: list[str], *, ordering_sensitive: bool) -> dict[str, float]:
+    if not expected_ids:
+        return {}
+
+    if not ordering_sensitive:
+        return {chunk_id: 1.0 for chunk_id in expected_ids}
+
+    size = len(expected_ids)
+
+    return {chunk_id: float(size - index) for index, chunk_id in enumerate(expected_ids)}
+
+
+def _dcg_at_k(retrieved: list[str], relevance: dict[str, float], k: int) -> float:
+    dcg = 0.0
+
+    for rank, chunk_id in enumerate(retrieved[:k], start=1):
+        rel = relevance.get(chunk_id, 0.0)
+
+        if rel <= 0.0:
+            continue
+
+        dcg += rel / math.log2(rank + 1.0)
+
+    return dcg
+
+
+def _ndcg_at_k(
+    retrieved: list[str],
+    expected_ids: list[str],
+    k: int,
+    *,
+    ordering_sensitive: bool,
+) -> float:
+    if not expected_ids:
+        return 1.0
+
+    relevance = _relevance_map(expected_ids, ordering_sensitive=ordering_sensitive)
+    dcg = _dcg_at_k(retrieved, relevance, k)
+    ideal_order = sorted(expected_ids, key=lambda chunk_id: relevance.get(chunk_id, 0.0), reverse=True)
+    idcg = _dcg_at_k(ideal_order, relevance, k)
+
+    if idcg <= 0.0:
+        return 0.0
+
+    return dcg / idcg
+
+
 def _summarize_by_corpus(rows: list[dict[str, object]]) -> list[dict[str, object]]:
     grouped: dict[str, list[dict[str, object]]] = {}
 
@@ -123,12 +171,20 @@ def _summarize_by_corpus(rows: list[dict[str, object]]) -> list[dict[str, object
         bucket = grouped[corpus_kind]
         recalls = [float(row["recallAt5"]) for row in bucket]
         mrr_values = [float(row["mrr"]) for row in bucket]
+        ndcg_values = [float(row["ndcgAt10"]) for row in bucket]
+        ordering_rows = [row for row in bucket if row.get("orderingSensitive")]
+        ordering_ndcg = [float(row["ndcgAt10"]) for row in ordering_rows]
         summaries.append(
             {
                 "corpusKind": corpus_kind,
                 "caseCount": len(bucket),
                 "meanRecallAt5": sum(recalls) / len(recalls),
                 "meanMrr": sum(mrr_values) / len(mrr_values),
+                "meanNdcgAt10": sum(ndcg_values) / len(ndcg_values),
+                "orderingSensitiveCaseCount": len(ordering_rows),
+                "meanOrderingSensitiveNdcgAt10": (
+                    sum(ordering_ndcg) / len(ordering_ndcg) if ordering_ndcg else None
+                ),
             }
         )
 
@@ -141,15 +197,17 @@ def _write_json_summary(
     rows: list[dict[str, object]],
     mean_recall: float,
     mean_mrr: float,
+    mean_ndcg: float,
     min_recall: float,
     min_mrr: float,
     corpus_breakdown: list[dict[str, object]],
 ) -> None:
     payload = {
-        "formatVersion": "1.0",
+        "formatVersion": "1.1",
         "casesEvaluated": len(rows),
         "meanRecallAt5": mean_recall,
         "meanMrr": mean_mrr,
+        "meanNdcgAt10": mean_ndcg,
         "floorRecallAt5": min_recall,
         "floorMrr": min_mrr,
         "corpusBreakdown": corpus_breakdown,
@@ -159,6 +217,8 @@ def _write_json_summary(
                 "corpusKind": row.get("corpusKind"),
                 "recallAt5": row["recallAt5"],
                 "mrr": row["mrr"],
+                "ndcgAt10": row["ndcgAt10"],
+                "orderingSensitive": bool(row.get("orderingSensitive")),
             }
             for row in rows
         ],
@@ -174,6 +234,7 @@ def _write_report(
     rows: list[dict[str, object]],
     mean_recall: float,
     mean_mrr: float,
+    mean_ndcg: float,
     min_recall: float,
     min_mrr: float,
 ) -> None:
@@ -185,18 +246,22 @@ def _write_report(
         f"- **Cases evaluated:** {len(rows)}",
         f"- **Mean recall@5:** {mean_recall:.4f}",
         f"- **Mean MRR:** {mean_mrr:.4f}",
+        f"- **Mean NDCG@10:** {mean_ndcg:.4f}",
         f"- **Floor recall@5:** {min_recall:.4f}",
         f"- **Floor MRR:** {min_mrr:.4f}",
         "",
         "## Per-corpus breakdown",
         "",
-        "| Corpus | Cases | Mean recall@5 | Mean MRR |",
-        "| --- | ---: | ---: | ---: |",
+        "| Corpus | Cases | Mean recall@5 | Mean MRR | Mean NDCG@10 | Ordering-sensitive NDCG@10 |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
     ]
 
     for bucket in _summarize_by_corpus(rows):
+        ordering_ndcg = bucket.get("meanOrderingSensitiveNdcgAt10")
+        ordering_label = f"{float(ordering_ndcg):.4f}" if ordering_ndcg is not None else "—"
         lines.append(
-            f"| {bucket['corpusKind']} | {bucket['caseCount']} | {float(bucket['meanRecallAt5']):.4f} | {float(bucket['meanMrr']):.4f} |"
+            f"| {bucket['corpusKind']} | {bucket['caseCount']} | {float(bucket['meanRecallAt5']):.4f} | "
+            f"{float(bucket['meanMrr']):.4f} | {float(bucket['meanNdcgAt10']):.4f} | {ordering_label} |"
         )
 
     lines.extend(
@@ -204,14 +269,16 @@ def _write_report(
         "",
         "## Per-case results",
         "",
-        "| Case | Corpus | recall@5 | MRR |",
-        "|------|--------|----------|-----|",
+        "| Case | Corpus | recall@5 | MRR | NDCG@10 | Ordering-sensitive |",
+        "|------|--------|----------|-----|---------|--------------------|",
         ]
     )
 
     for row in rows:
+        ordering = "yes" if row.get("orderingSensitive") else "no"
         lines.append(
-            f"| {row['id']} | {row.get('corpusKind', '')} | {float(row['recallAt5']):.4f} | {float(row['mrr']):.4f} |"
+            f"| {row['id']} | {row.get('corpusKind', '')} | {float(row['recallAt5']):.4f} | "
+            f"{float(row['mrr']):.4f} | {float(row['ndcgAt10']):.4f} | {ordering} |"
         )
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -269,9 +336,22 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     corpus: list[dict[str, object]] = [c for c in raw_corpus if isinstance(c, dict)]
+    corpus_floors_raw = payload.get("corpusFloors")
+    corpus_floors: dict[str, dict[str, float]] = {}
+
+    if isinstance(corpus_floors_raw, dict):
+        for corpus_kind, floor_spec in corpus_floors_raw.items():
+            if isinstance(floor_spec, dict):
+                corpus_floors[str(corpus_kind)] = {
+                    key: float(value)
+                    for key, value in floor_spec.items()
+                    if isinstance(value, (int, float))
+                }
+
     evaluated: list[dict[str, object]] = []
     recalls: list[float] = []
     mrrs: list[float] = []
+    ndcgs: list[float] = []
 
     for entry in raw_cases:
         if not isinstance(entry, dict):
@@ -282,6 +362,7 @@ def main(argv: list[str] | None = None) -> int:
         query_embedding = entry.get("queryEmbedding")
         expected = entry.get("expectedChunkIds")
         top_k = int(entry.get("topK") or 5)
+        ordering_sensitive = bool(entry.get("orderingSensitive"))
 
         if not isinstance(query_embedding, list) or not query_embedding:
             print(f"::error::case {case_id}: queryEmbedding must be a non-empty array")
@@ -292,32 +373,46 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
         expected_ids = [str(x) for x in expected if str(x).strip()]
-        retrieved = _search(corpus, entry, [float(x) for x in query_embedding], top_k)
+        retrieved = _search(corpus, entry, [float(x) for x in query_embedding], max(top_k, 10))
         recall = _recall_at_k(retrieved, expected_ids, 5)
         mrr = _mrr(retrieved, expected_ids)
+        ndcg = _ndcg_at_k(
+            retrieved,
+            expected_ids,
+            10,
+            ordering_sensitive=ordering_sensitive,
+        )
 
         recalls.append(recall)
         mrrs.append(mrr)
+        ndcgs.append(ndcg)
         evaluated.append(
             {
                 "id": case_id,
                 "corpusKind": entry.get("corpusKind"),
                 "recallAt5": recall,
                 "mrr": mrr,
-                "retrievedTop5": retrieved,
+                "ndcgAt10": ndcg,
+                "orderingSensitive": ordering_sensitive,
+                "retrievedTop10": retrieved[:10],
             }
         )
 
-        print(f"retrieval-ir case={case_id} recall@5={recall:.4f} mrr={mrr:.4f}")
+        print(
+            f"retrieval-ir case={case_id} recall@5={recall:.4f} mrr={mrr:.4f} "
+            f"ndcg@10={ndcg:.4f} ordering_sensitive={ordering_sensitive}",
+        )
 
     mean_recall = sum(recalls) / len(recalls)
     mean_mrr = sum(mrrs) / len(mrrs)
+    mean_ndcg = sum(ndcgs) / len(ndcgs)
     corpus_breakdown = _summarize_by_corpus(evaluated)
     _write_report(
         report_path,
         rows=evaluated,
         mean_recall=mean_recall,
         mean_mrr=mean_mrr,
+        mean_ndcg=mean_ndcg,
         min_recall=min_recall,
         min_mrr=min_mrr,
     )
@@ -326,6 +421,7 @@ def main(argv: list[str] | None = None) -> int:
         rows=evaluated,
         mean_recall=mean_recall,
         mean_mrr=mean_mrr,
+        mean_ndcg=mean_ndcg,
         min_recall=min_recall,
         min_mrr=min_mrr,
         corpus_breakdown=corpus_breakdown,
@@ -335,13 +431,51 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Wrote {json_summary_path}")
     print(f"Mean recall@5: {mean_recall:.4f} (floor {min_recall:.4f})")
     print(f"Mean MRR: {mean_mrr:.4f} (floor {min_mrr:.4f})")
+    print(f"Mean NDCG@10: {mean_ndcg:.4f}")
 
-    if args.enforce and (mean_recall < min_recall or mean_mrr < min_mrr):
-        print(
-            f"::error::Retrieval IR below floor (recall@5={mean_recall:.4f}, mrr={mean_mrr:.4f})",
-            file=sys.stderr,
-        )
-        return 1
+    if args.enforce:
+        failures: list[str] = []
+
+        if mean_recall < min_recall:
+            failures.append(
+                f"combined recall@5 {mean_recall:.4f} is below floor {min_recall:.4f}",
+            )
+
+        if mean_mrr < min_mrr:
+            failures.append(f"combined MRR {mean_mrr:.4f} is below floor {min_mrr:.4f}")
+
+        for bucket in corpus_breakdown:
+            corpus_kind = str(bucket.get("corpusKind") or "")
+            floors = corpus_floors.get(corpus_kind)
+
+            if not floors:
+                continue
+
+            min_corpus_mrr = floors.get("minMrr")
+            if min_corpus_mrr is not None and float(bucket["meanMrr"]) < min_corpus_mrr:
+                failures.append(
+                    f"{corpus_kind} mean MRR {float(bucket['meanMrr']):.4f} "
+                    f"is below corpus floor {min_corpus_mrr:.4f}",
+                )
+
+            min_ordering_ndcg = floors.get("minOrderingSensitiveNdcgAt10")
+            ordering_ndcg = bucket.get("meanOrderingSensitiveNdcgAt10")
+
+            if (
+                min_ordering_ndcg is not None
+                and ordering_ndcg is not None
+                and float(ordering_ndcg) < min_ordering_ndcg
+            ):
+                failures.append(
+                    f"{corpus_kind} ordering-sensitive NDCG@10 {float(ordering_ndcg):.4f} "
+                    f"is below corpus floor {min_ordering_ndcg:.4f}",
+                )
+
+        if failures:
+            for failure in failures:
+                print(f"::error::{failure}", file=sys.stderr)
+
+            return 1
 
     return 0
 
