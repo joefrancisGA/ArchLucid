@@ -7,6 +7,7 @@ import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryBut
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type OperatorBrandedTransientFailureProps = {
   readonly failure?: ApiLoadFailureState | null;
@@ -62,7 +63,7 @@ export function OperatorBrandedTransientFailure({
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <OperatorSectionRetryButton label={retryLabel} />
         <Link className="text-sm font-medium text-teal-900 underline dark:text-teal-300" href="/">
-          Home
+          {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         <Link
           className="text-sm font-medium text-teal-900 underline dark:text-teal-300"

@@ -51,7 +51,7 @@ describe("PilotNavGroupBuilder", () => {
     const group = new PilotNavGroupBuilder().build();
 
     expect(group.links.map((link) => link.label)).toEqual([
-      "Home",
+      "Overview",
       "Start review",
       "Evidence graph",
       "Review packages",

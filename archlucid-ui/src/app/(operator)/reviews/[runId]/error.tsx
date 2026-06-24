@@ -12,6 +12,7 @@ import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Segment error boundary for `/reviews/[runId]` so review detail client failures show buyer-safe recovery
@@ -110,7 +111,7 @@ export default function RunDetailSegmentError({
           Retry
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/">Home</Link>
+          <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

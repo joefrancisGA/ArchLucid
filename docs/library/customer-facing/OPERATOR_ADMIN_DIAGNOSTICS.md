@@ -7,8 +7,8 @@ Use these checks when an operator symptom points to platform health rather than 
 ## Start here
 
 1. Open **System status** (`/health`) in the operator shell — live/ready checks and version identity.
-2. On Home, expand **Workspace readiness** — per-area status and next actions.
-3. Open **Assistant readiness diagnostics** on Home when LLM or assistant features fail.
+2. On Overview, expand **Workspace readiness** — per-area status and next actions.
+3. Open **Assistant readiness diagnostics** on Overview when LLM or assistant features fail.
 
 ## What each signal means
 
@@ -17,7 +17,7 @@ Use these checks when an operator symptom points to platform health rather than 
 | API readiness | Ready | Open System status; capture correlation id from any failed call |
 | SQL / storage | Configured | Check readiness row for database or blob configuration |
 | Search index | Ready when enabled | Degraded search may block global search — note scope |
-| Assistant / LLM | Within budget | Trial or budget banners on Home explain limits |
+| Assistant / LLM | Within budget | Trial or budget banners on Overview explain limits |
 
 ## Related Help topics
 

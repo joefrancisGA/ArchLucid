@@ -10,7 +10,7 @@ Use this checklist when a PR touches `archlucid-ui/src/app/(operator)/`, shared 
 
 | Route | Keyboard | Focus | 200% zoom | Reduced motion | Screen-reader spot check | Evidence notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| Home `/` | Required | Required | Required | Required | Recommended | First-pilot command center, operating rail, and trial widgets. Automated: `operator-first-pilot-routes-axe.test.tsx`, `operator-shell-components-axe.test.tsx`. |
+| Overview `/` | Required | Required | Required | Required | Recommended | First-pilot command center, operating rail, and trial widgets. Automated: `operator-first-pilot-routes-axe.test.tsx`, `operator-shell-components-axe.test.tsx`. |
 | New review `/reviews/new` | Required | Required | Required | Required | Recommended | Wizard labels, validation messages, and action order. |
 | Reviews list `/reviews?projectId=default` | Required | Required | Required | Required | Recommended | Filters, featured package row, and empty/error states. |
 | Review detail `/reviews/{runId}` | Required | Required | Required | Required | Recommended | Rationale, findings, exports, dialogs, and forensic panels. |
@@ -40,7 +40,7 @@ This example is a template-quality record, not certification:
 | --- | --- |
 | Date | 2026-05-28 |
 | Tester | Product owner |
-| Route | Home `/` |
+| Route | Overview `/` |
 | Browser / viewport | Edge, 1440 x 900 and 200% zoom |
 | Automated evidence | `operator-first-pilot-routes-axe.test.tsx`, `operator-shell-components-axe.test.tsx`; live route list remains in `live-api-accessibility.spec.ts` when enabled. |
 | Keyboard result | Pass: first-pilot command center links and operating rail are reachable in logical order. |

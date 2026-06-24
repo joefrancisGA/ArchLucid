@@ -8,6 +8,7 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Segment error boundary for `/runs` so list/split layout failures stay scoped and surface a recovery path
@@ -65,7 +66,7 @@ export default function RunsSegmentError({
           <Link href="/reviews?projectId=default">Back to reviews</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/">Home</Link>
+          <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

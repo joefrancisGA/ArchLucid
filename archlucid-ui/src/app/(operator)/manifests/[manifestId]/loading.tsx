@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Short-lived navigation state only — structured page chrome (not a generic skeleton) so screenshots and
@@ -22,7 +23,7 @@ export default function ManifestDetailLoading() {
     >
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
-          Home
+          {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         {" · "}
         <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">

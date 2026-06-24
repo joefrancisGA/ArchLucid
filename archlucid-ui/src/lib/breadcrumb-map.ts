@@ -19,7 +19,7 @@ export type GetBreadcrumbsOptions = {
   readonly buyerPolishedShell?: boolean;
   /**
    * When set (e.g. `runId` on graph, audit, ask, search, `/governance`, or `/governance/findings`),
-   * buyer-polished shell can insert the active review package title after **Home**.
+   * buyer-polished shell can insert the active review package title after **Overview**.
    */
   readonly queryRunId?: string;
   /** Persisted reviews list href (filters) for return navigation from detail pages. */
@@ -95,25 +95,25 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   const normalized = pathname === "" ? "/" : pathname.startsWith("/") ? pathname : `/${pathname}`;
 
   if (normalized === "/") {
-    return [{ label: "Home" }];
+    return [{ label: OPERATOR_NAV_LINK_LABELS.home }];
   }
 
   if (normalized === "/dashboard") {
     return [
-      { label: "Home", href: "/" },
+      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: OPERATOR_NAV_LINK_LABELS.portfolioOverview },
     ];
   }
 
-  // Product path: skip the intermediate "Architecture reviews" crumb so first workflow reads Home / New request.
+  // Product path: skip the intermediate "Architecture reviews" crumb so first workflow reads Overview / New request.
   if (normalized === "/reviews/new") {
     return [
-      { label: "Home", href: "/" },
+      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) },
     ];
   }
 
-  const items: BreadcrumbItem[] = [{ label: "Home", href: "/" }];
+  const items: BreadcrumbItem[] = [{ label: OPERATOR_NAV_LINK_LABELS.home, href: "/" }];
   const rawSegments = normalized.split("/").filter(Boolean);
 
   if (rawSegments.length === 0) {
@@ -316,7 +316,7 @@ function injectBuyerShowcaseReviewPackageCrumb(
   const rawSegments = normalizedPath.split("/").filter(Boolean);
 
   if (BUYER_GOVERNANCE_RUN_SCOPED_PATHS.has(normalizedNoTrailing)) {
-    if (items.length < 2 || items[0]?.label !== "Home") {
+    if (items.length < 2 || items[0]?.label !== OPERATOR_NAV_LINK_LABELS.home) {
       return items;
     }
 
@@ -339,7 +339,7 @@ function injectBuyerShowcaseReviewPackageCrumb(
     return items;
   }
 
-  if (items.length < 2 || items[0]?.label !== "Home") {
+  if (items.length < 2 || items[0]?.label !== OPERATOR_NAV_LINK_LABELS.home) {
     return items;
   }
 

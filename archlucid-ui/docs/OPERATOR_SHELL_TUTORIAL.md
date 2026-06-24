@@ -434,7 +434,7 @@ The order matters: **error → malformed → empty → data**. This is determini
 
 ## 11. Route-by-route walkthrough
 
-### `/` — Home
+### `/` — Overview
 
 **File:** `app/page.tsx` (server component)  
 **What it does:** Static landing page with quick links. No API calls.  

@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { ToolbarHelpTooltip } from "@/components/ToolbarHelpTooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OPERATOR_HELP_ARIA_KEYSHORTCUTS, OPERATOR_HELP_ARIA_LABEL, OPERATOR_HELP_TOOLTIP } from "@/lib/keyboard-shortcut-display";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
   OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
@@ -308,7 +309,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
                       <h1 className="m-0">
                         <Button variant="ghost" className="h-auto p-0" asChild>
-                          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
+                          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to workspace overview" variant="operator" />
                         </Button>
                       </h1>
                       <Link
@@ -321,7 +322,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                         href="/"
                         className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300"
                       >
-                        Home
+                        {OPERATOR_NAV_LINK_LABELS.home}
                       </Link>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">

@@ -71,9 +71,9 @@ The default experience is the **Pilot** path — four steps from an empty worksp
 New run (wizard) → pipeline runs → Commit → Artifacts
 ```
 
-**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The **Core Pilot guide** (`/help/core-pilot`) and **Onboarding** cover the V1 pilot path; a resumable step dialog remains available when opened from Help or explicit CTAs (progress stored under `archlucid.corePilotWizard.v1`). The sidebar **Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard). **Value realization, recommended next steps, and stickiness tiles** on Home appear only after the tenant has a finalized (committed) review package — same gate as operational metrics.
+**First-time operators:** open **Overview** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The **Core Pilot guide** (`/help/core-pilot`) and **Onboarding** cover the V1 pilot path; a resumable step dialog remains available when opened from Help or explicit CTAs (progress stored under `archlucid.corePilotWizard.v1`). The sidebar **Review work** group shows **Overview**, **Start review**, **Evidence graph**, **Review packages**, **Portfolio overview**, and **Onboarding** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard). **Value realization, recommended next steps, and stickiness tiles** on Overview appear only after the tenant has a finalized (committed) review package — same gate as operational metrics.
 
-**End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** (enable via **Show analysis & investigation tools**).
+**End-to-end path:** Overview → **New review** or **Review packages** → **Open review** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two reviews** / **Validate review package** / **Graph** (enable via **Show analysis & investigation tools**).
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
@@ -225,7 +225,7 @@ For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screens
 
 | Path | Purpose |
 |------|---------|
-| `/` | Home — start here, workflow links |
+| `/` | Overview — start here, workflow links |
 | `/runs?projectId=...` | List runs |
 | `/runs/[runId]` | Run detail, manifest summary, artifacts, compare/replay shortcuts, downloads |
 | `/manifests/[manifestId]` | Manifest summary, artifact list, bundle download |

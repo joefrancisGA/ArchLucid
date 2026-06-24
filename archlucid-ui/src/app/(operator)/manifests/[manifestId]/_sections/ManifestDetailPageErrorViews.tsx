@@ -14,6 +14,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 type ManifestDetailPageErrorFrameProps = {
   readonly buyerPolishedLayout: boolean;
@@ -26,7 +27,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
-          Home
+          {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         {" · "}
         <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
@@ -44,7 +45,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
 function ManifestDetailPageErrorFooterLinks() {
   return (
     <p className="text-sm">
-      <Link href="/">Home</Link>
+      <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
       {" · "}
       <Link href="/reviews?projectId=default">Reviews</Link>
     </p>

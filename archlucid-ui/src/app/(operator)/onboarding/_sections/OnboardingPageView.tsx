@@ -6,6 +6,7 @@ import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSect
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
@@ -41,9 +42,9 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
           </Button>
         </div>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          For the full home overview, go to{" "}
+          For the full workspace overview, go to{" "}
           <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/">
-            Home
+            {OPERATOR_NAV_LINK_LABELS.home}
           </Link>
           .
         </p>

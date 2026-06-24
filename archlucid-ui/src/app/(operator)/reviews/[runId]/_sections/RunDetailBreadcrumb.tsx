@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 type RunDetailBreadcrumbProps = {
   readonly headline: string;
@@ -15,7 +16,7 @@ export function RunDetailBreadcrumb(props: RunDetailBreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
       <Link className="text-teal-800 underline dark:text-teal-300" href="/">
-        Home
+        {OPERATOR_NAV_LINK_LABELS.home}
       </Link>
       {" · "}
       <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">

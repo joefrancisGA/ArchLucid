@@ -402,7 +402,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             <Link href="/onboarding" className="font-medium text-teal-800 underline dark:text-teal-300">
               Getting started
             </Link>{" "}
-            (first-review checklist on Home)
+            (first-review checklist on Overview)
           </p>
         </div>
       </DialogContent>

@@ -44,6 +44,7 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
   BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -709,7 +710,7 @@ export default function GovernanceFindingsQueueClient() {
       {buyerPolishedShell ? (
         <nav aria-label="Breadcrumb" className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           <Link className="text-teal-800 underline dark:text-teal-300" href="/">
-            Home
+            {OPERATOR_NAV_LINK_LABELS.home}
           </Link>
           {" · "}
           <Link className="text-teal-800 underline dark:text-teal-300" href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>

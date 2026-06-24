@@ -23,7 +23,7 @@ import {
  * finding routes against the real demo catalog.
  */
 const PAGES = [
-  { name: "Home", path: "/" },
+  { name: "Overview", path: "/" },
   { name: "Welcome marketing", path: "/welcome" },
   { name: "Why ArchLucid marketing", path: "/why" },
   { name: "Compliance journey marketing", path: "/compliance-journey" },
@@ -140,7 +140,7 @@ const LIVE_A11Y_PR_SLICE_LEN = 28;
 
 /** Golden-path operator surfaces — always in the PR-visible subset (assessment backlog item 18). */
 const GOLDEN_PATH_OPERATOR_A11Y_PAGES = [
-  { name: "Home", path: "/" },
+  { name: "Overview", path: "/" },
   { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
   { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },
   { name: "Manifest detail", path: `/manifests/${FIXTURE_MANIFEST_ID}` },

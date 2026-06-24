@@ -24,12 +24,12 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Home → Start review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
+        "Buyer-first path: Overview → Start review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
       links: [
         {
           href: "/",
           label: OPERATOR_NAV_LINK_LABELS.home,
-          title: this.shortcutTitle("Home — V1 checklist and quick links", "alt+h"),
+          title: this.shortcutTitle("Overview — start here and track workspace activity", "alt+h"),
           keyShortcut: "alt+h",
           icon: Home,
           tier: "essential",

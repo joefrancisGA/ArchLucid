@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
-  PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
   PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK,
   PILOT_PATH_PREVIEW_STEPS,
+  resolveOperatorHomeHeroHeading,
 } from "@/lib/buyer-polish-copy";
 import {
   OPERATOR_CARD,
@@ -32,6 +33,9 @@ const optionalSetupLinkClass = cn(
  * Single next-action command center for first-run operator home — compact hero with one primary CTA.
  */
 export function PilotCommandCenterCard(): React.JSX.Element {
+  const hasWorkspaceActivity = useNavCommittedArchitectureReview();
+  const heroHeading = resolveOperatorHomeHeroHeading(hasWorkspaceActivity);
+
   return (
     <section
       aria-labelledby="pilot-command-center-heading"
@@ -41,7 +45,7 @@ export function PilotCommandCenterCard(): React.JSX.Element {
       <div className="heroHeader flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0 flex-1 space-y-1">
           <h2 id="pilot-command-center-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
-            {PILOT_COMMAND_CENTER_HEADING}
+            {heroHeading}
           </h2>
           <p
             className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}

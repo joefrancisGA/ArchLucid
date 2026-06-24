@@ -83,7 +83,7 @@ describe("SidebarNav (primary navigation)", () => {
 
     const reviewNav = screen.getByRole("navigation", { name: "Review work" });
     expect(reviewNav).toBeInTheDocument();
-    expect(within(reviewNav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    expect(within(reviewNav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(reviewNav).getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(reviewNav).getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
     expect(within(reviewNav).queryByRole("link", { name: "Risk register" })).toBeNull();
@@ -190,7 +190,7 @@ describe("SidebarNav buyer-polished desktop shell", () => {
     expect(screen.getByText("Review work")).toBeInTheDocument();
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
-    expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: "Start review" })).toHaveAttribute("href", "/reviews/new");
     expect(within(nav).getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph");
 

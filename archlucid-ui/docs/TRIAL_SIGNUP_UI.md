@@ -14,11 +14,11 @@ Deliver a **public, unauthenticated** marketing and signup surface that calls **
 
 | Path | Layout | Purpose |
 |------|--------|---------|
-| `/` | `(operator)` | Operator home; **JWT mode** redirects anonymous users to `/welcome` via `OperatorHomeGate`. |
+| `/` | `(operator)` | Workspace overview; **JWT mode** redirects anonymous users to `/welcome` via `OperatorHomeGate`. |
 | `/welcome` | `(marketing)` | Hero + pillars + pricing cards (JSON from `/pricing.json`). |
 | `/signup` | `(marketing)` | Zod + RHF signup form. |
 | `/signup/verify` | `(marketing)` | Email / Entra verification handoff + CTA to onboarding. |
-| `/onboarding` | `(operator)` | Core Pilot checklist (same as Home) + optional **trial** card; use **`?source=registration`** right after verify. |
+| `/onboarding` | `(operator)` | Core Pilot checklist (same as Overview) + optional **trial** card; use **`?source=registration`** right after verify. |
 | `/getting-started` | `(operator)` | **Redirect** to `/onboarding` (query preserved). |
 | `/onboarding/start` | `(operator)` | **Redirect** to `/onboarding` (query preserved). |
 

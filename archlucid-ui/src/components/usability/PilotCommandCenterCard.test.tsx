@@ -1,14 +1,44 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import {
+  OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
+  PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_LEAD,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: vi.fn(() => false),
+}));
+
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+
 describe("PilotCommandCenterCard", () => {
+  it("shows first-review hero copy before committed workspace activity", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
+    render(<PilotCommandCenterCard />);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: PILOT_COMMAND_CENTER_HEADING }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows workspace overview hero copy after committed workspace activity", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+
+    render(<PilotCommandCenterCard />);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING }),
+    ).toBeInTheDocument();
+  });
+
   it("leads with design-first body copy and evidence-optional workflow steps", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_COMMAND_CENTER_LEAD);
@@ -26,6 +56,8 @@ describe("PilotCommandCenterCard", () => {
   });
 
   it("keeps Start review as the primary action in the header action row", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveTextContent("Start review");
@@ -34,6 +66,8 @@ describe("PilotCommandCenterCard", () => {
   });
 
   it("places workflow steps below the header row and optional setup as a muted footer", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
     render(<PilotCommandCenterCard />);
 
     const card = screen.getByTestId("pilot-command-center-card");

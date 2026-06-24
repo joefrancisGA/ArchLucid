@@ -6,7 +6,7 @@ Start with the symptom that matches what you see. Each entry lists a first check
 
 ## Most common issues
 
-### Home page or workspace readiness looks empty
+### Overview page or workspace readiness looks empty
 
 | | |
 |---|---|
@@ -19,9 +19,9 @@ Start with the symptom that matches what you see. Each entry lists a first check
 
 | | |
 |---|---|
-| **What you see** | No sample review on Home or the reviews list |
+| **What you see** | No sample review on Overview or the reviews list |
 | **Likely cause** | Demo seed not applied or wrong workspace scope |
-| **First check** | Confirm you are in the intended workspace; refresh Home |
+| **First check** | Confirm you are in the intended workspace; refresh Overview |
 | **Next step** | Follow **Getting started** in Help, then **Full operating path** |
 
 ### Review package does not open
@@ -37,7 +37,7 @@ Start with the symptom that matches what you see. Each entry lists a first check
 
 | | |
 |---|---|
-| **What you see** | Findings on Home or in the package do not match expectations |
+| **What you see** | Findings on Overview or in the package do not match expectations |
 | **Likely cause** | Filters, stale list, or review still in progress |
 | **First check** | Open the review package and confirm pipeline status is complete |
 | **Next step** | Compare with the evidence trail and manifest summary |

@@ -8,6 +8,7 @@ import "./globals.css";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Replaces the entire root layout when layout.tsx fails. Must define html/body.
@@ -53,7 +54,7 @@ export default function GlobalError({
             Retry
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/">Home</Link>
+            <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link href="/help">Help</Link>

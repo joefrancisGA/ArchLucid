@@ -302,7 +302,7 @@ export function CorePilotWizardLauncher() {
               </label>
             ) : (
               <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                Close anytime — progress saves in this browser. Reopen from Help, Onboarding, or the Core Pilot checklist on Home.
+                Close anytime — progress saves in this browser. Reopen from Help, Onboarding, or the Core Pilot checklist on Overview.
               </span>
             )}
             <div className="flex flex-col gap-2 sm:flex-row">

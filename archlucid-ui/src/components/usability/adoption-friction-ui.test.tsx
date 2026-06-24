@@ -11,6 +11,10 @@ import {
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
 
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: vi.fn(() => false),
+}));
+
 describe("PilotCommandCenterCard", () => {
   it("renders primary start review CTA, design-first lead, path preview, and sample-data link", () => {
     render(<PilotCommandCenterCard />);

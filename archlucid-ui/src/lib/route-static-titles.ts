@@ -1,10 +1,10 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
-import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
 /** Static pathname → announcement title mappings for documented top-level routes. */
 export const ROUTE_TITLES: Record<string, string> = {
-  "/": "Home",
+  "/": OPERATOR_NAV_LINK_LABELS.home,
   "/reviews": RUNS_LIST_PAGE_TITLES.buyerPolished,
   "/reviews/new": "New review",
   "/alerts": "Alerts",

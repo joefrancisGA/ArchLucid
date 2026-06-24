@@ -37,7 +37,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 | **Alt+G** | Governance findings | `/governance/findings` |
 | **Alt+Y** | Graph | `/graph` |
 | **Alt+L** | Alerts | `/alerts` |
-| **Alt+H** | Home | `/` |
+| **Alt+H** | Overview | `/` |
 | **Shift+?** | Open / close help (Escape closes) | *(dialog only)* |
 
 Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SHORTCUTS`). Help dialog also lists **Alerts page** combos from `ALERTS_PAGE_SHORTCUTS`.

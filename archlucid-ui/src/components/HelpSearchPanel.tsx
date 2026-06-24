@@ -89,7 +89,7 @@ const CURATED_START_HERE = [
   {
     id: "troubleshooting",
     label: "Troubleshoot common issues",
-    description: "Home not loading, reviews missing, exports unavailable.",
+    description: "Overview not loading, reviews missing, exports unavailable.",
     href: "/help/troubleshooting",
     helpSlug: "troubleshooting",
     category: "Troubleshooting",

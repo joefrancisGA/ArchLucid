@@ -165,7 +165,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "troubleshooting",
     title: "Troubleshooting",
     summary:
-      "Symptom-first operator triage: common Home and review-package issues, first checks, and the first-pilot decision tree.",
+      "Symptom-first operator triage: common Overview and review-package issues, first checks, and the first-pilot decision tree.",
     audience: "operator",
     sourcePaths: [
       "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",

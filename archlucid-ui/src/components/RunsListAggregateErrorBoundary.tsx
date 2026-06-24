@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { RunSummary } from "@/types/authority";
 
 function runListPrimaryTitle(run: RunSummary): string {
@@ -135,7 +136,7 @@ export class RunsListAggregateErrorBoundary extends Component<
           <p className="m-0 font-mono text-xs opacity-95">{this.state.message}</p>
         ) : (
           <p className="m-0 text-sm opacity-95">
-            This review list hit an unexpected error. You can retry or return to Home for a fresh start.
+            This review list hit an unexpected error. You can retry or return to {OPERATOR_NAV_LINK_LABELS.home} for a fresh start.
           </p>
         )}
         <div className="flex flex-wrap gap-2">

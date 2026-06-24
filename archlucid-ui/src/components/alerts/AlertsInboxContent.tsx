@@ -59,7 +59,7 @@ import {
   fetchAlertActionLoop,
   listAlertsPaged,
 } from "@/lib/api";
-import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
+import { ALERTS_INBOX_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
@@ -382,7 +382,7 @@ export function AlertsInboxContent() {
             Confirm the API and proxy are up, then click <strong>Refresh</strong>. Alerts come from scheduled scans—if
             the list should not be empty, check worker schedules and{" "}
             <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/">
-              Home
+              {OPERATOR_NAV_LINK_LABELS.home}
             </Link>{" "}
             for environment guidance.
           </OperatorTryNext>

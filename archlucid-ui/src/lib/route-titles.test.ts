@@ -4,7 +4,7 @@ import { getRouteTitle } from "./route-titles";
 
 describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
-    expect(getRouteTitle("/")).toBe("Home");
+    expect(getRouteTitle("/")).toBe("Overview");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
     expect(getRouteTitle("/reviews/new")).toBe("New review");
   });

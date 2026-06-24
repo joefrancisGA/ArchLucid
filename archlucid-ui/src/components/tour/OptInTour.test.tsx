@@ -100,7 +100,7 @@ describe("OptInTour rendering (controlled)", () => {
     }
 
     const step5 = screen.getByTestId("opt-in-tour-step-5");
-    expect(step5.textContent).toContain("How it works button on Home re-opens this tour anytime");
+    expect(step5.textContent).toContain("How it works button on Overview re-opens this tour anytime");
   });
 
   it("renders approved title and body for all six steps (no pending-approval placeholders)", () => {

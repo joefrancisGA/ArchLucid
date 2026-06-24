@@ -10,7 +10,7 @@ export type CuratedPaletteTask = {
 };
 
 export const COMMAND_PALETTE_CURATED_TASKS: CuratedPaletteTask[] = [
-  { label: "Operator home", href: "/", searchValue: "task I want home start" },
+  { label: "Overview", href: "/", searchValue: "task I want overview home start workspace" },
   { label: "Onboarding checklist", href: "/onboarding", searchValue: "task I want onboarding first run checklist" },
   { label: "New architecture review", href: "/reviews/new", searchValue: "task I want new review wizard" },
   { label: "Reviews list", href: "/reviews?projectId=default", searchValue: "task I want reviews list projects" },

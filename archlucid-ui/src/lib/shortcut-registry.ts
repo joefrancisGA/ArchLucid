@@ -63,9 +63,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+h",
-    label: "Home",
+    label: "Overview",
     route: "/",
-    description: "Open home",
+    description: "Open workspace overview",
   },
   {
     key: "shift+?",

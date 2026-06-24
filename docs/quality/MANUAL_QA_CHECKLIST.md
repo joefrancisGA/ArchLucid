@@ -131,7 +131,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 | 10 | **Governance → findings** | **Monitored risks** section; CTAs **View finding and evidence** / **View evidence trail** |
 | 11 | **Audit** | Intro **Recorded timeline for this review package**; **Audit trail complete** when story complete; **Download governance evidence package** |
 | 12 | **Reviews list** | Featured row **Claims Intake Modernization**; tabs **Approved** / **Approved with monitoring** / **Needs attention** make sense for demo data |
-| 13 | Home `/` | Sample package subtitle/lead matches review list story; no contradictory “zero reviews” if static fallback applied |
+| 13 | Overview `/` | Sample package subtitle/lead matches review list story; no contradictory “zero reviews” if static fallback applied |
 
 **Justification:** This is the primary **2026 buyer-polish** pilot path; automation checks links, not whether a sponsor would sign the story.
 
@@ -141,7 +141,7 @@ Use these stable tokens for a **single** walkthrough session (aligned with `src/
 
 Surfaces show **bridge copy**, **primary action**, and **operate deferral** when the user has not committed a first package (see `first-week-route-guidance.ts`).
 
-- [ ] **Home** — defers Graph/Compare/governance until first committed package; primary **Start new review**.
+- [ ] **Overview** — defers Graph/Compare/governance until first committed package; primary **Start new review**.
 - [ ] **Onboarding** (if enabled in your build) — four-step path before Operate lanes.
 - [ ] **Reviews list** — bridge explains one review package per row; Compare called optional.
 - [ ] **Review detail (in-progress)** — anchor `#run-actions` / finalize guidance; deferral note present.
@@ -279,7 +279,7 @@ Use when capturing **API-not-running** or **empty DB** evidence. Pick **one** sc
 
 | Block | Routes | Capture focus |
 |-------|--------|---------------|
-| 10.1 Home vs reviews | `/`, `/reviews?projectId=default` | Empty vs Claims Intake row; drawer if present |
+| 10.1 Overview vs reviews | `/`, `/reviews?projectId=default` | Empty vs Claims Intake row; drawer if present |
 | 10.2 Review package | `/reviews/claims-intake-modernization`, `/provenance`, finding, `/inspect`, optional `/executive/reviews/...` | Same `runId` throughout |
 | 10.3 Manifest / marketing | `/manifests/{id}`, `/see-it`, `/showcase/claims-intake-modernization` | Story without API |
 | 10.4 Graph | `/graph` provenance + architecture loads | Canvas visible |
@@ -739,7 +739,7 @@ Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
 | Page | Route | Click-through from `/` |
 |------|-------|------------------------|
 | Executive reviews list | `/executive/reviews` | **Ctrl+K** → “Executive reviews”, or executive mode switcher if enabled in your build. |
-| Executive review summary | `/executive/reviews/{runId}` | **Home → Sample package → Open executive summary** (fastest for Claims Intake). |
+| Executive review summary | `/executive/reviews/{runId}` | **Overview → Sample package → Open executive summary** (fastest for Claims Intake). |
 | Executive finding | `/executive/reviews/{runId}/findings/{findingId}` | Executive review → finding row. |
 | Executive scorecard | `/executive/scorecard` | **Ctrl+K** → “Executive scorecard”. |
 
@@ -832,7 +832,7 @@ These items need **human cross-surface comparison** on the Claims Intake showcas
 | **E.5** | Executive summary · manifest · governance · audit · review detail | **UTC timestamps** shown without **buyer-local or tenant-timezone** conversion. | Spot-check 3–5 prominent dates (approval, commit, audit events). Display should use clear locale (e.g. “Jan 14, 2026, 5:05 PM EST”) or labeled UTC only when intentional. | Date formatting helpers across review/governance/audit components |
 | **E.6** | Evidence trail / graph (`/graph`) | **Graph node and edge labels** may still use internal names; need **normalized buyer-friendly names** per `BUYER_SURFACE_VOCABULARY`. | Load Claims Intake graph; selected node panel and legend use “finding”, “policy basis”, “approval path” language — not raw agent or pipeline tokens. | `GraphViewer.tsx`, `graph-mapper.ts`, `graph-buyer-node-detail.ts`, `ProvenanceGraphDiagram.tsx` |
 | **E.7** | Provenance route · nav · breadcrumbs | **`/reviews/{runId}/provenance`** is **raw technical/debug-shaped** data. It should be **hidden from buyer-polished primary navigation** unless opened deliberately as a **technical appendix** (operator shell or explicit link). | With buyer-default shell (no `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`): provenance not in sidebar/top nav. Deep link still works for engineers; page chrome warns or defers to “technical appendix” if exposed. | `provenance/page.tsx`, nav config / `breadcrumb-map.ts`, `layer-guidance.ts`, buyer nav visibility |
-| **E.8** | Home · reviews list · executive summary · manifest · governance · audit | **Finding counts, risk posture, and residual-risk summaries** lack a **single source of truth** — numbers drift between surfaces. | Same session: write down finding count, monitored-risk count, and “approved with monitoring” wording on Home, Reviews, Executive, Manifest summary, Governance findings, Audit intro. All must match **E.1** spine or live API truth. | `showcase-static-demo.ts`, `SampleFirstReviewPackageCard.tsx`, `RunsDashboardPanel.tsx`, `ManifestDetailSummaryPanel.tsx`, `AuditBuyerHeaderMetrics.tsx` |
+| **E.8** | Overview · reviews list · executive summary · manifest · governance · audit | **Finding counts, risk posture, and residual-risk summaries** lack a **single source of truth** — numbers drift between surfaces. | Same session: write down finding count, monitored-risk count, and “approved with monitoring” wording on Overview, Reviews, Executive, Manifest summary, Governance findings, Audit intro. All must match **E.1** spine or live API truth. | `showcase-static-demo.ts`, `SampleFirstReviewPackageCard.tsx`, `RunsDashboardPanel.tsx`, `ManifestDetailSummaryPanel.tsx`, `AuditBuyerHeaderMetrics.tsx` |
 | **E.9** | All buyer-polished routes | **Raw identifiers** (run UUIDs, manifest ids, policy pack slugs, pipeline phase tokens) shown by default instead of **friendly display names**. | Scope chrome and tables show **Claims Intake Modernization Review** (or workspace title), not `claims-intake-modernization-run` unless user expands technical details. | `buyer-safe-review-navigation.ts`, `ScopeSwitcher.tsx`, run/manifest display mappers |
 | **E.10** | Scope chrome (header) | **“Sample workspace”** badge may be **environment-driven**; confirm it is **intentional in buyer mode** (demo/pilot), not leaking into production buyer tenants by mistake. | With buyer-polished shell + demo flags: badge reads **Sample workspace** with tooltip explaining demonstration data. Without demo: confirm product intent (hide vs show for sandboxes). | `ScopeSwitcher.tsx`, `BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL`, `demo-ui-env.ts` |
 
@@ -840,7 +840,7 @@ These items need **human cross-surface comparison** on the Claims Intake showcas
 
 Use after **[A.2](#a2-claims-intake-showcase-spine-end-to-end-25-minutes)** or when triaging sponsor feedback:
 
-1. **E.1 + E.8** — Record findings / monitored risk on Home → Reviews → Executive → Manifest → Governance → Audit; fail if any disagree with **9 / 1**.
+1. **E.1 + E.8** — Record findings / monitored risk on Overview → Reviews → Executive → Manifest → Governance → Audit; fail if any disagree with **9 / 1**.
 2. **E.2** — Executive recommended action reads as Claims Intake, not a stray template.
 3. **E.3** — No contradictory pending vs finalized badges on the same row without explanation.
 4. **E.7** — Buyer nav does not advertise Provenance as a primary lane.

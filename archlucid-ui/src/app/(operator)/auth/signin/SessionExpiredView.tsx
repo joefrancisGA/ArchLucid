@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 export type SessionExpiredViewProps = {
   readonly onSignIn: () => void;
@@ -34,7 +35,7 @@ export function SessionExpiredView({ onSignIn }: SessionExpiredViewProps) {
           Sign in
         </Button>
         <Link href="/" className="text-sm text-teal-800 underline dark:text-teal-300">
-          Home
+          {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
       </div>
     </div>

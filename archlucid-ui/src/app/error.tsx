@@ -8,6 +8,7 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Catches errors in route segments below the root layout (pages, nested layouts).
@@ -35,7 +36,7 @@ export default function AppError({
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "This page hit an unexpected error. You can try again, go home, or open Help for guidance."}
+            : "This page hit an unexpected error. You can try again, return to Overview, or open Help for guidance."}
         </p>
         {isDev ? (
           <pre
@@ -63,7 +64,7 @@ export default function AppError({
           Retry
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/">Home</Link>
+          <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

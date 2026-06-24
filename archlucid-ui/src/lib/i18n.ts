@@ -113,7 +113,8 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 
 /** Primary sidebar link labels — adapt terminology here without editing each nav builder. */
 export const OPERATOR_NAV_LINK_LABELS = {
-  home: "Home",
+  /** Operator workspace landing (`/`) — left nav label; logo also routes here. */
+  home: "Overview",
   /** Operator-shell ROI dashboard — distinct from the executive route group. */
   portfolioOverview: "Portfolio overview",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,

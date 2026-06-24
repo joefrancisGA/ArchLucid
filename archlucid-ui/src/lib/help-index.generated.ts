@@ -29,9 +29,9 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
     "docTitle": "Operator troubleshooting",
-    "sectionSlug": "home-page-or-workspace-readiness-looks-empty",
-    "sectionHeading": "Home page or workspace readiness looks empty",
-    "excerpt": "Home page or workspace readiness looks empty"
+    "sectionSlug": "overview-page-or-workspace-readiness-looks-empty",
+    "sectionHeading": "Overview page or workspace readiness looks empty",
+    "excerpt": "Overview page or workspace readiness looks empty"
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
@@ -178,7 +178,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Admin diagnostics",
     "sectionSlug": "start-here",
     "sectionHeading": "Start here",
-    "excerpt": "1. Open System status (`/health`) in the operator shell — live/ready checks and version identity. 2. On Home, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Home when LLM or assistant features fail."
+    "excerpt": "1. Open System status (`/health`) in the operator shell — live/ready checks and version identity. 2. On Overview, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Overview when LLM or assistant features fail."
   },
   {
     "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
@@ -248,7 +248,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "artifact-list-empty-or-download-404",
     "sectionHeading": "Artifact list empty or download 404",
-    "excerpt": "- An empty artifact list (`[]`) can be valid: review package exists but no synthesized files yet or none stored for that package. - Bundle ZIP 404 can mean “no bundle” vs “review package not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
+    "excerpt": "- An empty artifact list (`[]`) can be valid: manifest exists but no synthesized files yet or none stored for that manifest. - Bundle ZIP 404 can mean “no bundle” vs “manifest not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
@@ -284,6 +284,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "public-marketing-site-archlucid-ui-build-time",
     "sectionHeading": "Public marketing site (`archlucid-ui`, build-time)",
     "excerpt": "These keys are not in `ConfigurationKeyCatalog` (Next.js `NEXT_PUBLIC_*` only). They apply to the `(marketing)` subtree and signup funnel — see TB-019 / TB-020 and [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md)."
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "itsm-integration-posture-tb-387",
+    "sectionHeading": "ITSM integration posture (TB-387)",
+    "excerpt": "Outbound vendor credentials remain under *`Integrations:ItsmOutbound:` and `Integrations:ItsmInbound:`* (unchanged)."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
