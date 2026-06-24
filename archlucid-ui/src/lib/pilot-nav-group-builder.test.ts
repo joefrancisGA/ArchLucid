@@ -14,7 +14,7 @@ describe("PilotNavGroupBuilder", () => {
     const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
 
     expect(dashboardLink).toBeDefined();
-    expect(dashboardLink?.title).toContain("Portfolio overview");
+    expect(dashboardLink?.title).toContain("Track ROI");
     expect(dashboardLink?.title?.toLowerCase()).not.toContain("illustrative");
     expect(dashboardLink?.title?.toLowerCase()).not.toContain("until api lands");
   });

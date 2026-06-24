@@ -22,6 +22,13 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+vi.mock("@/lib/use-core-pilot-commit-presentation-context", () => ({
+  useCorePilotCommitPresentationContext: () => ({
+    hasCommittedManifest: true,
+    latestCommittedRunId: "run-committed-1",
+  }),
+}));
+
 vi.mock("./NewRunWizardClient", () => ({
   NewRunWizardClient: () => <div data-testid="detailed-wizard-stub">Detailed wizard stub</div>,
 }));

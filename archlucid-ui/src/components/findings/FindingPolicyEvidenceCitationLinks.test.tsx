@@ -26,10 +26,8 @@ describe("FindingPolicyEvidenceCitationLinks", () => {
     );
 
     expect(screen.getByTestId("finding-policy-provenance-panel")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Security baseline ingress rule" })).toHaveAttribute(
-      "href",
-      "/policy-packs?ruleId=sec-base-001",
-    );
+    expect(screen.getByTestId("finding-policy-rule-badge")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Security baseline ingress rule/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Network security group rule" })).toHaveAttribute(
       "href",
       "/reviews/run-1/findings/f-1/inspect",

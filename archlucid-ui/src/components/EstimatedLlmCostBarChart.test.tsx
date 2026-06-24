@@ -6,7 +6,7 @@ import { EstimatedLlmCostBarChart } from "./EstimatedLlmCostBarChart";
 describe("EstimatedLlmCostBarChart", () => {
   it("renders empty message when no points", () => {
     render(<EstimatedLlmCostBarChart daily={[]} currencyCode="USD" />);
-    expect(screen.getByText(/No cost data/i)).toBeInTheDocument();
+    expect(screen.getByText(/No AI usage recorded in the last 30 days/i)).toBeInTheDocument();
   });
 
   it("renders bars for daily buckets", () => {

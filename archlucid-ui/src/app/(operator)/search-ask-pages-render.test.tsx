@@ -19,6 +19,19 @@ vi.mock("@/lib/conversation-api", () => ({
   listConversationThreads: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("@/hooks/useAskReviewAvailability", () => ({
+  useAskReviewAvailability: () => ({
+    loading: false,
+    hasSelectableReviews: true,
+  }),
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({
+    activeRunId: "demo-run-1",
+  }),
+}));
+
 describe("SearchPage (operator shell)", () => {
   it("renders heading, query field, and search control", async () => {
     const page = await SearchPage();
@@ -38,7 +51,7 @@ describe("AskPage (operator shell)", () => {
       </Suspense>,
     );
 
-    expect(screen.getByRole("heading", { name: /ask about a review/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Ask this review/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^question$/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ask this review/i })).toBeInTheDocument();
   });

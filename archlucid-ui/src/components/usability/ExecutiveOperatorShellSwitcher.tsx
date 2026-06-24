@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { PERSONA_SHELL_LABELS } from "@/lib/persona-shell-vocabulary";
 import { cn } from "@/lib/utils";
 
 /** Toggle between operator and executive shell views. */
@@ -16,7 +17,7 @@ export function ExecutiveOperatorShellSwitcher() {
       className="inline-flex items-center rounded-md border border-neutral-200 p-0.5 dark:border-neutral-700"
       data-testid="executive-operator-shell-switcher"
       role="group"
-      aria-label="Switch shell view"
+      aria-label={PERSONA_SHELL_LABELS.switchGroupAriaLabel}
     >
       <Button
         type="button"
@@ -26,7 +27,7 @@ export function ExecutiveOperatorShellSwitcher() {
         asChild
       >
         <Link href="/" aria-current={inExecutive ? undefined : "page"}>
-          Operator
+          {PERSONA_SHELL_LABELS.architect}
         </Link>
       </Button>
       <Button
@@ -37,7 +38,7 @@ export function ExecutiveOperatorShellSwitcher() {
         asChild
       >
         <Link href="/executive/dashboard" aria-current={inExecutive ? "page" : undefined}>
-          Executive
+          {PERSONA_SHELL_LABELS.executive}
         </Link>
       </Button>
     </div>

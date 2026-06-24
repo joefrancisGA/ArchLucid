@@ -24,8 +24,8 @@ describe("core-pilot-steps", () => {
       expect(step.shortBody.toLowerCase()).not.toContain("manifest");
     }
 
-    expect(CORE_PILOT_STEPS.filter((s) => (s.detail ?? "").toLowerCase().includes("manifest")).length).toBeGreaterThan(
-      0,
-    );
+    expect(
+      CORE_PILOT_STEPS.filter((s) => (s.detail ?? "").toLowerCase().includes("signed review")).length,
+    ).toBeGreaterThan(0);
   });
 });
