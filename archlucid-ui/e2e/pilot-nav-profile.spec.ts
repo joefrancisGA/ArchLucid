@@ -87,9 +87,12 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Analysis" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
 
-    await expect(page.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
+    const analysisToggle = page.getByTestId("sidebar-group-toggle-operate-analysis");
 
-    await page.getByTestId("sidebar-group-toggle-operate-analysis").click();
+    await expect(analysisToggle).toBeVisible({ timeout: 15_000 });
+    await expect(analysisToggle).toHaveAttribute("aria-expanded", "false");
+
+    await analysisToggle.click();
 
     const analysisNav = page.getByRole("navigation", { name: "Analysis" });
 
