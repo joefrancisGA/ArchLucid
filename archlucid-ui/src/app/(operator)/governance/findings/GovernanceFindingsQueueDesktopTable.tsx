@@ -33,7 +33,6 @@ import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions"
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
-import { cn } from "@/lib/utils";
 
 import {
   formatGovernanceQueueRecordKind,
