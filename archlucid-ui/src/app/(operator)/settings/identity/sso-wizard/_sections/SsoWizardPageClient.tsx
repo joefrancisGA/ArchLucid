@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   ARCHLUCID_ROLES,
@@ -247,16 +249,20 @@ export function SsoWizardPageClient() {
   return (
     <div className="w-full max-w-3xl space-y-6">
       <div>
-        <p className="m-0 text-sm">
-          <Link href="/settings/identity-providers" className="text-teal-700 underline-offset-2 hover:underline">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <Link href="/settings/identity-providers" className={OPERATOR_LINK.nav}>
             ← Identity providers
           </Link>
         </p>
-        <h1 className="mt-2 text-xl font-semibold text-neutral-900 dark:text-neutral-50">SSO configuration wizard</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={cn("mt-2", OPERATOR_TYPOGRAPHY.pageTitle)}>SSO configuration wizard</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Guided setup for OIDC or SAML 2.0. Saves a tenant-scoped row in{" "}
-          <code className="text-xs">dbo.TenantIdentityProviderConfigurations</code> — host{" "}
-          <code className="text-xs">ArchLucidAuth</code> startup wiring is unchanged.
+          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+            dbo.TenantIdentityProviderConfigurations
+          </code>{" "}
+          — host{" "}
+          <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>ArchLucidAuth</code> startup
+          wiring is unchanged.
         </p>
       </div>
 
@@ -266,7 +272,7 @@ export function SsoWizardPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{SSO_WIZARD_STEPS[step]?.label}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SSO_WIZARD_STEPS[step]?.label}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {step === 0 ? (
@@ -305,7 +311,12 @@ export function SsoWizardPageClient() {
                 Fetch metadata
               </Button>
               {state.issuerUri ? (
-                <div className="rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-700">
+                <div
+                  className={cn(
+                    "rounded-md border border-neutral-200 p-3 dark:border-neutral-700",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                >
                   <p className="m-0">
                     <strong>Issuer:</strong> {state.issuerUri}
                   </p>
@@ -346,9 +357,9 @@ export function SsoWizardPageClient() {
                   ))}
                 </datalist>
               </div>
-              <table className="w-full text-left text-sm" data-testid="sso-role-mapping-table">
+              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="sso-role-mapping-table">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
                     <th className="py-2 pr-2">IdP value</th>
                     <th className="py-2">ArchLucid role</th>
                   </tr>
@@ -374,7 +385,10 @@ export function SsoWizardPageClient() {
                       </td>
                       <td className="py-2">
                         <select
-                          className="w-full rounded-md border border-neutral-300 bg-white px-2 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900"
+                          className={cn(
+                            "w-full rounded-md border border-neutral-300 bg-white px-2 py-2 dark:border-neutral-600 dark:bg-neutral-900",
+                            OPERATOR_TYPOGRAPHY.body,
+                          )}
                           value={row.archLucidRole}
                           onChange={(e) => {
                             const value = e.target.value;
@@ -421,7 +435,10 @@ export function SsoWizardPageClient() {
                 <Label htmlFor="sample-claims">Sample IdP claim values (comma or newline separated)</Label>
                 <textarea
                   id="sample-claims"
-                  className="min-h-[5rem] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900"
+                  className={cn(
+                    "min-h-[5rem] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
                   value={state.sampleClaimValues}
                   onChange={(e) => setState((prev) => ({ ...prev, sampleClaimValues: e.target.value }))}
                   data-testid="sso-sample-claims"
@@ -431,7 +448,10 @@ export function SsoWizardPageClient() {
                 Run sandbox test login
               </Button>
               {state.testLoginSummary ? (
-                <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300" data-testid="sso-test-login-summary">
+                <p
+                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="sso-test-login-summary"
+                >
                   {state.testLoginSummary}
                   {state.mappedRoles.length > 0 ? ` Roles: ${state.mappedRoles.join(", ")}.` : ""}
                 </p>
@@ -441,10 +461,12 @@ export function SsoWizardPageClient() {
 
           {step === 4 ? (
             <div className="space-y-3">
-              <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 Review and activate. Activation writes the tenant row and emits{" "}
-                <code className="text-xs">Identity.SsoConfigurationActivated</code> audit event. Host configuration
-                keys in SECURITY.md remain authoritative for runtime auth.
+                <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                  Identity.SsoConfigurationActivated
+                </code>{" "}
+                audit event. Host configuration keys in SECURITY.md remain authoritative for runtime auth.
               </p>
               <div>
                 <Label htmlFor="kv-secret">Key Vault secret name (optional reference)</Label>
@@ -455,7 +477,7 @@ export function SsoWizardPageClient() {
                   placeholder="archlucid-sso-signing-cert"
                 />
               </div>
-              <ul className="m-0 list-disc space-y-1 pl-5 text-sm">
+              <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
                 <li>Protocol: {state.protocol}</li>
                 <li>Issuer: {state.issuerUri}</li>
                 <li>Mapped roles (test): {state.mappedRoles.join(", ") || "—"}</li>
