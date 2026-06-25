@@ -5,7 +5,9 @@ import { useCallback, useEffect, useState } from "react";
 import type { components } from "@/lib/api-types.generated";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { cn } from "@/lib/utils";
 
 type AdminApiKeySettingsResponse = components["schemas"]["AdminApiKeySettingsResponse"];
 type AdminApiKeyRotateResponse = components["schemas"]["AdminApiKeyRotateResponse"];
@@ -28,18 +30,25 @@ function ApiKeySlotPanel(props: { label: string; slot: ApiKeySlotStatusDto | und
 
   return (
     <>
-      <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{props.label}</p>
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.label}</p>
       {segments.length === 0 ? (
-        <p className="m-0 text-sm text-neutral-500">Not configured</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Not configured</p>
       ) : (
-        <ul className="m-0 list-inside list-disc font-mono text-xs text-neutral-800 dark:text-neutral-200">
+        <ul
+          className={cn(
+            "m-0 list-inside list-disc font-mono text-al-text-primary",
+            OPERATOR_TYPOGRAPHY.micro,
+          )}
+        >
           {segments.map((segment) => (
             <li key={segment}>{segment}</li>
           ))}
         </ul>
       )}
       {props.slot?.expiresAtUtc ? (
-        <p className="m-0 text-xs text-neutral-500">Expires (UTC): {props.slot.expiresAtUtc}</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+          Expires (UTC): {props.slot.expiresAtUtc}
+        </p>
       ) : null}
     </>
   );
@@ -116,17 +125,22 @@ export function ApiKeysSettingsPageClient() {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="api-keys-settings-page">
       <header>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">API keys</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Host authentication keys under <span className="font-mono text-xs">Authentication:ApiKey</span>. This UI never
-          stores raw keys — copy new material once and update Key Vault or app settings. For zero-downtime overlap, append
-          the suffix to your existing config value (comma-separated segments).
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>API keys</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Host authentication keys under{" "}
+          <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+            Authentication:ApiKey
+          </span>
+          . This UI never stores raw keys — copy new material once and update Key Vault or app settings. For
+          zero-downtime overlap, append the suffix to your existing config value (comma-separated segments).
         </p>
       </header>
 
-      {state.status === "loading" ? <p className="text-sm text-neutral-500">Loading API key status…</p> : null}
+      {state.status === "loading" ? (
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading API key status…</p>
+      ) : null}
       {state.status === "blocked" ? (
-        <p className="text-sm text-rose-800 dark:text-rose-200" role="alert">
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-rose-800 dark:text-rose-200")} role="alert">
           {state.note}
         </p>
       ) : null}
@@ -134,20 +148,24 @@ export function ApiKeysSettingsPageClient() {
       {state.status === "ready" ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Current status</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Current status</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm">
+          <CardContent className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
             <dl className="m-0 grid grid-cols-[minmax(0,200px)_1fr] gap-2">
-              <dt className="text-neutral-500">Authentication:ApiKey:Enabled</dt>
-              <dd className="font-mono text-neutral-900 dark:text-neutral-100">{String(state.settings.enabled)}</dd>
-              <dt className="text-neutral-500">DevelopmentBypassAll</dt>
-              <dd className="font-mono text-neutral-900 dark:text-neutral-100">
+              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Authentication:ApiKey:Enabled
+              </dt>
+              <dd className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                {String(state.settings.enabled)}
+              </dd>
+              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>DevelopmentBypassAll</dt>
+              <dd className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {String(state.settings.developmentBypassAll)}
               </dd>
             </dl>
 
             {state.settings.developmentBypassAll ? (
-              <p className="m-0 text-amber-900 dark:text-amber-100" role="status">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "text-amber-900 dark:text-amber-100")} role="status">
                 Development bypass is enabled on this host — do not use in production.
               </p>
             ) : null}
@@ -191,20 +209,25 @@ export function ApiKeysSettingsPageClient() {
       {rotateReveal ? (
         <Card data-testid="api-key-rotate-reveal">
           <CardHeader>
-            <CardTitle className="text-base">Copy new key material</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Copy new key material</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <p className="m-0 text-rose-900 dark:text-rose-100" role="alert">
+          <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
+            <p className={cn("m-0 text-rose-900 dark:text-rose-100", OPERATOR_TYPOGRAPHY.body)} role="alert">
               Shown once. It will not appear again after you dismiss this panel.
             </p>
             <p className="m-0">
               Config path:{" "}
-              <span className="font-mono text-xs">{rotateReveal.response.configPath ?? "—"}</span>
+              <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                {rotateReveal.response.configPath ?? "—"}
+              </span>
             </p>
             <label className="block space-y-1">
-              <span className="text-neutral-600 dark:text-neutral-400">New key</span>
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>New key</span>
               <textarea
-                className="w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono text-xs dark:border-neutral-600 dark:bg-neutral-900"
+                className={cn(
+                  "w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono dark:border-neutral-600 dark:bg-neutral-900",
+                  OPERATOR_TYPOGRAPHY.micro,
+                )}
                 readOnly
                 rows={2}
                 value={rotateReveal.response.plaintextKey ?? ""}
@@ -213,9 +236,12 @@ export function ApiKeysSettingsPageClient() {
             </label>
             {rotateReveal.response.deploymentAction === "Replace" ? (
               <label className="block space-y-1">
-                <span className="text-neutral-600 dark:text-neutral-400">Set config value to</span>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>Set config value to</span>
                 <textarea
-                  className="w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono text-xs dark:border-neutral-600 dark:bg-neutral-900"
+                  className={cn(
+                    "w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono dark:border-neutral-600 dark:bg-neutral-900",
+                    OPERATOR_TYPOGRAPHY.micro,
+                  )}
                   readOnly
                   rows={2}
                   value={rotateReveal.response.replaceConfigValue ?? ""}
@@ -223,9 +249,14 @@ export function ApiKeysSettingsPageClient() {
               </label>
             ) : (
               <label className="block space-y-1">
-                <span className="text-neutral-600 dark:text-neutral-400">Append to existing config value</span>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
+                  Append to existing config value
+                </span>
                 <textarea
-                  className="w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono text-xs dark:border-neutral-600 dark:bg-neutral-900"
+                  className={cn(
+                    "w-full rounded-md border border-neutral-300 bg-neutral-50 p-2 font-mono dark:border-neutral-600 dark:bg-neutral-900",
+                    OPERATOR_TYPOGRAPHY.micro,
+                  )}
                   readOnly
                   rows={1}
                   value={rotateReveal.response.appendConfigSuffix ?? ""}
@@ -241,4 +272,3 @@ export function ApiKeysSettingsPageClient() {
     </div>
   );
 }
-
