@@ -82,6 +82,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddHostedAzureExtractorIntegrationServices(configuration);
+        services.AddCloudInventoryExtractorIngestServices();
         services.AddScoped<ITier2ConnectionService, Tier2ConnectionService>();
         services.AddScoped<IPatternInsightsService, PatternInsightsService>();
         services.AddScoped<RetrievalTools>();

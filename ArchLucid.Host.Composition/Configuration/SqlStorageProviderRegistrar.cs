@@ -433,6 +433,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IArchitectureDecisionRegisterQuery, ArchitectureDecisionRegisterReader>();
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
+        services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
         services.AddScoped<ITenantNotificationChannelPreferencesRepository, DapperTenantNotificationChannelPreferencesRepository>();
         services.AddScoped<IOperatorSavedViewRepository, DapperOperatorSavedViewRepository>();
         services.AddScoped<IUserSettingsRepository, DapperUserSettingsRepository>();

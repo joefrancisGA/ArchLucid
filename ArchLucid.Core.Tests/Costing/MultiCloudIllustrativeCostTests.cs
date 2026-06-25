@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Costing;
 
 using FluentAssertions;
@@ -56,4 +57,44 @@ public sealed class MultiCloudIllustrativeCostTests
     [InlineData(RuntimePlatform.AppService, "Azure App Service")]
     public void FormatIllustrativeProduct_returns_cloud_aware_labels(RuntimePlatform platform, string expected) =>
         IllustrativeInfrastructureCostFallback.FormatIllustrativeProduct(platform).Should().Be(expected);
+
+    [Fact]
+    public async Task EstimateNodesAsync_aws_inventory_rows_use_aws_product_labels()
+    {
+        List<InfrastructureCostQueryNode> nodes = ManifestInfrastructureCostNodes.FromAwsExtractorInventory([
+            new AzureExtractorInventoryResourceLine("web", "AWS::EC2::Instance", "us-east-1", "t3.micro"),
+        ]);
+
+        InfrastructureMonthlyUsdCostEstimator estimator = new(null);
+        InfrastructureCostEstimateTotals totals = await estimator.EstimateNodesAsync(
+            nodes,
+            attemptRetailPricing: false,
+            retailPrices: null,
+            CancellationToken.None);
+
+        totals.Lines.Should().ContainSingle();
+        totals.Lines[0].AzureProductLabel.Should().StartWith("Amazon");
+    }
+
+    [Fact]
+    public async Task EstimateNodesAsync_gcp_inventory_rows_use_gcp_product_labels()
+    {
+        List<InfrastructureCostQueryNode> nodes = ManifestInfrastructureCostNodes.FromGcpExtractorInventory([
+            new AzureExtractorInventoryResourceLine(
+                "vm",
+                "compute.googleapis.com/Instance",
+                "us-central1",
+                "e2-medium"),
+        ]);
+
+        InfrastructureMonthlyUsdCostEstimator estimator = new(null);
+        InfrastructureCostEstimateTotals totals = await estimator.EstimateNodesAsync(
+            nodes,
+            attemptRetailPricing: false,
+            retailPrices: null,
+            CancellationToken.None);
+
+        totals.Lines.Should().ContainSingle();
+        totals.Lines[0].AzureProductLabel.Should().StartWith("Google");
+    }
 }

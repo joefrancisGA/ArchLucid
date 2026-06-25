@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.GcpExtractor;
 
 namespace ArchLucid.Core.Costing;
 
@@ -61,6 +63,20 @@ public static class ManifestInfrastructureCostNodes
         return nodes;
     }
 
+    /// <summary>Produces nodes from AWS inventory <c>resources.json</c> entries when resource types match known mappings.</summary>
+    public static List<InfrastructureCostQueryNode> FromAwsExtractorInventory(
+        IReadOnlyList<AzureExtractorInventoryResourceLine>? resources)
+    {
+        return FromCloudInventoryLines(resources, AwsInventoryResourceCostMapper.TryInferPlatform, "AwsResource", "(aws resource)");
+    }
+
+    /// <summary>Produces nodes from GCP inventory <c>resources.json</c> entries when resource types match known mappings.</summary>
+    public static List<InfrastructureCostQueryNode> FromGcpExtractorInventory(
+        IReadOnlyList<AzureExtractorInventoryResourceLine>? resources)
+    {
+        return FromCloudInventoryLines(resources, GcpInventoryResourceCostMapper.TryInferPlatform, "GcpResource", "(gcp resource)");
+    }
+
     /// <summary>Produces nodes from Terraform canonical rows that carry billable <see cref="RuntimePlatform"/> mappings.</summary>
     public static List<InfrastructureCostQueryNode> FromTerraformResourceRows(
         IReadOnlyList<TerraformInfrastructureCostResourceRow> resources)
@@ -83,6 +99,38 @@ public static class ManifestInfrastructureCostNodes
                 platform,
                 NormalizeRegion(row.Region),
                 null,
+                1));
+        }
+
+        return nodes;
+    }
+
+    private static List<InfrastructureCostQueryNode> FromCloudInventoryLines(
+        IReadOnlyList<AzureExtractorInventoryResourceLine>? resources,
+        Func<string?, RuntimePlatform?> inferPlatform,
+        string nodeKind,
+        string unnamedLabel)
+    {
+        List<InfrastructureCostQueryNode> nodes = [];
+
+        if (resources is null || resources.Count == 0)
+            return nodes;
+
+        foreach (AzureExtractorInventoryResourceLine line in resources)
+        {
+            RuntimePlatform? platform = inferPlatform(line.ResourceType);
+
+            if (!platform.HasValue)
+                continue;
+
+            string resourceLabel = string.IsNullOrWhiteSpace(line.Name) ? unnamedLabel : line.Name;
+
+            nodes.Add(new InfrastructureCostQueryNode(
+                nodeKind,
+                resourceLabel,
+                platform.Value,
+                NormalizeRegion(line.Location),
+                NormalizeSkuHint(line.SkuName),
                 1));
         }
 

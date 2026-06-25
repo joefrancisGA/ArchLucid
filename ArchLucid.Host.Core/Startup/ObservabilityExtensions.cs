@@ -136,7 +136,8 @@ public static class ObservabilityExtensions
                     ArchLucidInstrumentation.IntegrationEventOutbox.Name,
                     ArchLucidInstrumentation.DataArchival.Name,
                     ArchLucidInstrumentation.EvidenceZipExpansion.Name,
-                    ArchLucidInstrumentation.AzureExtractorUpload.Name);
+                    ArchLucidInstrumentation.AzureExtractorUpload.Name,
+                    ArchLucidInstrumentation.CloudInventoryExtractorUpload.Name);
 
                 if (consoleExporterEnabled)
                     tracing.AddConsoleExporter();

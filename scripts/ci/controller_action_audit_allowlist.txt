@@ -48,6 +48,8 @@ ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.UploadAsync
 ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.UploadChunkAsync
 # Durable audit: AzureExtractorIngestService.IngestZipBytesAsync (same LogAsync sequence as UploadAsync).
 ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.CompleteChunkUploadAsync
+ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController.UploadAwsAsync
+ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController.UploadGcpAsync
 ArchLucid.Api.Controllers.Authority.RunComparisonController.CompareRunsEndToEndSummary
 ArchLucid.Api.Controllers.Authority.RunsController.CommitRun
 ArchLucid.Api.Controllers.Authority.RunsController.CreateRun

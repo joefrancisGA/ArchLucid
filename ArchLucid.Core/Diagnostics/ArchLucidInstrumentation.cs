@@ -146,6 +146,10 @@ public static class ArchLucidInstrumentation
     /// <summary>Azure extractor package upload ingest (<c>AzureExtractorIngestService</c>).</summary>
     public static ActivitySource AzureExtractorUpload => ArchLucidActivitySources.AzureExtractorUpload;
 
+    /// <summary>AWS/GCP inventory package upload ingest (<c>CloudInventoryExtractorIngestService</c>).</summary>
+    public static ActivitySource CloudInventoryExtractorUpload =>
+        ArchLucidActivitySources.CloudInventoryExtractorUpload;
+
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded =
         AppMeter.CreateCounter<long>("archlucid_digest_delivery_succeeded");

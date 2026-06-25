@@ -169,6 +169,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IArchitectureDecisionRegisterQuery, NoOpArchitectureDecisionRegisterQuery>();
         services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<IAzureExtractorPackageRepository, NoOpAzureExtractorPackageRepository>();
+        services.AddSingleton<ICloudInventoryExtractorPackageRepository, NoOpCloudInventoryExtractorPackageRepository>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
         services.AddSingleton<IRunTelemetryRepository, InMemoryRunTelemetryRepository>();
         services.AddSingleton<IManifestFinalizationSqlRepository, InMemoryManifestFinalizationSqlRepository>();

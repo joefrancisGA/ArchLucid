@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 87.94%`
+`ArchLucid Assessment – (A) Headline Readiness: 88.48%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis is in V1 GA scope** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)); Phases 2–4 engineering may still be in flight. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -26,18 +26,18 @@
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 91 | 13 | 11.83 | 1.17 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
-| 4 | Correctness & Evidence Integrity | 91 | 12 | 10.92 | 1.08 |
+| 4 | Correctness & Evidence Integrity | 92 | 12 | 11.04 | 0.96 |
 | 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
-| 6 | Time-to-Value | 86 | 10 | 8.60 | 1.40 |
-| 7 | Proof-of-ROI Readiness | 91 | 9 | 8.19 | 0.81 |
+| 6 | Time-to-Value | 87 | 10 | 8.70 | 1.30 |
+| 7 | Proof-of-ROI Readiness | 92 | 9 | 8.28 | 0.72 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
 | 9 | Runtime & First-Review Reliability | 91 | 7 | 6.37 | 0.63 |
-| 10 | Adoption Friction | 65 | 5 | 3.25 | 1.75 |
-| **Total** | | | **100** | **87.94%** | **12.06%** |
+| 10 | Adoption Friction | 67 | 5 | 3.35 | 1.65 |
+| **Total** | | | **100** | **88.48%** | **11.52%** |
 
-*(A) Headline Readiness: 87.94%*
+*(A) Headline Readiness: 88.48%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 87.94%. AWS/GCP Phase 2 ships Terraform classification mappers, cloud-aware illustrative cost labels, and golden-corpus fixtures — multi-cloud RFP credibility improves while Phases 3–4 remain engineering.
+- **(A) Overall headline readiness:** 88.48%. AWS/GCP Phase 3 ships customer-controlled inventory ZIP scripts (`Get-ArchLucidAwsPackage.ps1`, `Get-ArchLucidGcpPackage.ps1`), ingest routes (`POST /v1/extractor/aws|gcp/upload`), durable audit events, and inventory-backed cost nodes — Tier-1 multi-cloud parity with Azure extractor posture; Phase 4 (live pricing + agent prompts) remains engineering.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -82,7 +82,7 @@
 
 - **MCP Membrane (V1.1):** Integrations currently require HTTP/REST. Missing MCP in V1 is safe because most enterprises are not yet running local MCP ecosystems at scale, but V1.1 delivery is essential for agentic future-proofing.
 - **ServiceNow/Jira First-Party Connectors (V1.1 Buyer Surfacing):** V1 provides an outbound create mechanism via REST; this is sufficient for pilots but full bidirectional sync and Confluence publishing will be required to satisfy sticky ITSM integrations long-term.
-- **AWS/GCP analyze Phases 2–4 (V1 GA contract):** Enum + wizard ship today; Terraform classification, inventory ZIP upload, live pricing, and cloud-aware agent prompts remain engineering deliverables under **§2.19** — score as V1 product gap when assessing full multi-cloud parity, not as deferred V1.1 uncertainty.
+- **AWS/GCP analyze Phase 4 (V1 GA contract):** Phases 1–3 ship (enum, Terraform mappers, inventory ZIP ingest); live AWS/GCP pricing adapters and cloud-aware agent prompts remain engineering under **§2.19**.
 
 ---
 
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 65 · **Weight:** 5 · **Contribution:** 3.25 · **Deficiency:** 1.75
-- **Justification:** Enterprise pilot setup still requires Auth, SQL, and Azure OpenAI wiring, but Tier-2 hosted auto-pull now retries ARM 429/503, holds per-subscription locks, and logs pass summaries without stranding the leader loop.
+- **Score:** 67 · **Weight:** 5 · **Contribution:** 3.35 · **Deficiency:** 1.65
+- **Justification:** AWS/GCP Tier-1 inventory ZIP scripts and upload endpoints mirror Azure extractor posture — operators can collect and upload without vendor cloud credentials; wizard copy for platform-specific commands remains a follow-on.
 - **Recommendations:** Build guided CLI interactive pre-flight checks beyond `config check` to accelerate time-to-first-review during assisted pilot setups.
 - **Class:** V1 ready (but remains a sales-engineer drag).
 
@@ -105,23 +105,23 @@
 - **Class:** V1 ready.
 
 ### 4. Differentiability / Defensibility vs Frontier AI
-- **Score:** 91 · **Weight:** 13 · **Contribution:** 11.83 · **Deficiency:** 1.17
-- **Justification:** Multi-cloud analyze Phase 2 closes the largest post-enum credibility gap: Terraform `aws_*` / `google_*` resources map to cloud-specific costing arms, not Azure-by-default labels.
+- **Score:** 92 · **Weight:** 13 · **Contribution:** 11.96 · **Deficiency:** 1.04
+- **Justification:** Phase 3 closes the Tier-1 inventory gap: AWS/GCP ZIP packages use the same `manifest.json` + `resources.json` citation contract as Azure extractor, with scoped ingest audit events.
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
-- **Score:** 86 · **Weight:** 10 · **Contribution:** 8.60 · **Deficiency:** 1.40
-- **Justification:** Once configured, first value arrives quickly; Tier-2 auto-pull with subscription cooldown reduces manual ZIP re-upload cadence for continuous monitoring pilots.
+- **Score:** 87 · **Weight:** 10 · **Contribution:** 8.70 · **Deficiency:** 1.30
+- **Justification:** Customer-run AWS/GCP inventory scripts produce upload-ready ZIPs with `collectionTimestamp` citations; ingest persists packages and emits proof-point audit rows without SE intervention.
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
-- **Score:** 91 · **Weight:** 12 · **Contribution:** 10.92 · **Deficiency:** 1.08
-- **Justification:** Terraform ingest enriches `runtimePlatform` on canonical rows; cost summaries distinguish AWS/GCP illustrative labels from Azure Retail.
+- **Score:** 92 · **Weight:** 12 · **Contribution:** 11.04 · **Deficiency:** 0.96
+- **Justification:** Inventory ingest validates schema v1 manifests (`accountId` / `projectId`), persists scoped packages, and maps `resources.json` rows to AWS/GCP costing platforms via `FromAwsExtractorInventory` / `FromGcpExtractorInventory`.
 - **Class:** V1 ready.
 
 ### 7. Proof-of-ROI Readiness
-- **Score:** 91 · **Weight:** 9 · **Contribution:** 8.19 · **Deficiency:** 0.81
-- **Justification:** Cost-summary artifacts for AWS/GCP Terraform fixtures show human-readable service labels and illustrative USD without mislabeling Azure Retail.
+- **Score:** 92 · **Weight:** 9 · **Contribution:** 8.28 · **Deficiency:** 0.72
+- **Justification:** AWS/GCP inventory packages feed illustrative cost nodes with cloud-native product labels; ingest success audit rows include `collectionTimestamp` citation proof points aligned with Azure extractor doctrine.
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
@@ -145,7 +145,7 @@
 
 1. **Adoption Friction (Configuration Complexity):** Requires heavy lifting to wire OIDC, SQL, and Azure OpenAI. *Fix:* Invest in deeper automated pre-flight diagnostics for SEs. (Market uncertainty). Tier-2 auto-pull hardening shipped; manual Tier-1 ZIP remains the first-review path.
 2. **Threat of Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Ensure the ArchLucid review workflow integrates seamlessly into CI/CD so the architect doesn't feel double-taxed.
-3. **AWS/GCP Analyze Phases 3–4 Still Engineering:** Phase 2 (Terraform mappers + illustrative AWS/GCP cost labels) ships; inventory ZIP upload, live pricing adapters, and cloud-aware agent prompts remain open under **§2.19**. *Fix:* Execute [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) Phases 3–4.
+3. **AWS/GCP Analyze Phase 4 Still Engineering:** Phases 1–3 ship (Terraform + inventory ZIP ingest); live pricing adapters and cloud-aware agent prompts remain open under **§2.19**. *Fix:* Execute [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) Phase 4.
 4. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology. 
 5. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
 6. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
@@ -248,18 +248,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 17. Top Improvement Opportunities
 
 **Tier 1 – Must Fix**
-
-- **Title:** AWS/GCP Analyze Phase 3 — Inventory ZIP Scripts + Ingest Contract
-- **Tier:** Tier 1 – Must Fix
-- **Why it matters:** Multi-cloud parity requires customer-controlled inventory export parity with Tier-1 Azure PowerShell — not just enum labels.
-- **Expected impact:** Operators can upload AWS/GCP inventory ZIPs with the same citation/`manifest.json` contract as Azure extractor packages.
-- **Affected qualities:** Correctness & Evidence Integrity, Adoption Friction, Time-to-Value.
-- **Evidence:** `MULTI_CLOUD_ANALYSIS_V1_1.md` Phase 3; `Get-ArchLucidAwsPackage` / `Get-ArchLucidGcpPackage` specified but not present.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 6
-- **Market Uncertainty Reduced:** 7
-- **Classification:** V1 GA
-- **Cursor Prompt:** Add `scripts/Get-ArchLucidAwsPackage.ps1` and `scripts/Get-ArchLucidGcpPackage.ps1` producing `resources.json` + `manifest.json` aligned with §2.16 citation rules. Extend ingest to accept AWS/GCP ZIP shapes, emit audit events, and add integration tests asserting `collectionTimestamp` citations on findings.
 
 - **Title:** Guided Interactive Pilot Pre-Flight (`archlucid pilot init`)
 - **Tier:** Tier 1 – Must Fix
@@ -376,7 +364,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 1 multi-cloud — AWS/GCP Phase 3 per [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) (V1 GA §2.19).
+1. **Batch 1:** Tier 1 multi-cloud — AWS/GCP Phase 4 (live pricing + agent prompts) per [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) (V1 GA §2.19).
 2. **Batch 2:** Tier 1 adoption — `archlucid pilot init` pre-flight, then Tier-1 extractor first-review operator path.
 3. **Batch 3:** Tier 2 trust + traceability — TB-402 zero GitHub seams, then finding-level evidence deep-links.
 4. **Batch 4:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.

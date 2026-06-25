@@ -672,6 +672,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/CloudInventoryExtractorUploadController.cs",
+      "class_name": "CloudInventoryExtractorUploadController",
+      "route_template": "v{version:apiVersion}/extractor",
+      "normalized_prefix": "/v1/extractor",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/DocxExportController.cs",
       "class_name": "DocxExportController",
       "route_template": "v{version:apiVersion}/docx",

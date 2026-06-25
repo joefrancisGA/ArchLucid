@@ -36,4 +36,7 @@ internal static class ArchLucidActivitySources
 
     public static readonly ActivitySource AzureExtractorUpload =
         new(ArchLucidMeterNames.AzureExtractorUploadActivitySource, "1.0.0");
+
+    public static readonly ActivitySource CloudInventoryExtractorUpload =
+        new(ArchLucidMeterNames.CloudInventoryExtractorUploadActivitySource, "1.0.0");
 }

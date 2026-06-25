@@ -42,4 +42,7 @@ public static class ArchLucidMeterNames
 
     public static string AzureExtractorUploadActivitySource =>
         string.Concat("ArchLucid", ".AzureExtractor", ".Upload");
+
+    public static string CloudInventoryExtractorUploadActivitySource =>
+        string.Concat("ArchLucid", ".CloudInventoryExtractor", ".Upload");
 }

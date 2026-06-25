@@ -277,6 +277,32 @@ public static class AuditEventTypes
     public const string AzureExtractorPackageIngestSucceeded = "AzureExtractorPackage.IngestSucceeded";
 
     /// <summary>
+    ///     Multipart ZIP accepted for AWS/GCP inventory ingest (
+    ///     <c>POST /v1/extractor/{provider}/upload</c>).
+    /// </summary>
+    public const string CloudInventoryExtractorPackageUploaded = "CloudInventoryExtractorPackage.Uploaded";
+
+    /// <summary>
+    ///     AWS/GCP inventory ZIP failed manifest or archive parsing after upload.
+    /// </summary>
+    public const string CloudInventoryExtractorPackageParseFailed = "CloudInventoryExtractorPackage.ParseFailed";
+
+    /// <summary>
+    ///     AWS/GCP inventory <c>manifest.json</c> schema version is not supported.
+    /// </summary>
+    public const string CloudInventoryExtractorPackageSchemaRejected = "CloudInventoryExtractorPackage.SchemaRejected";
+
+    /// <summary>
+    ///     AWS/GCP inventory ZIP persisted after successful schema validation.
+    /// </summary>
+    public const string CloudInventoryExtractorPackageIngestSucceeded = "CloudInventoryExtractorPackage.IngestSucceeded";
+
+    /// <summary>
+    ///     AWS/GCP inventory ZIP download (<c>GET /v1/extractor/{provider}/packages/{packageId}</c>).
+    /// </summary>
+    public const string CloudInventoryExtractorPackageDownloaded = "Export.CloudInventoryExtractorPackageDownloaded";
+
+    /// <summary>
     ///     Chunked Azure extractor ingest session created (
     ///     <c>POST /v1/azure-extractor/upload-sessions</c>); payload lists <c>sessionId</c>, declared chunk counts, and caps
     ///     only.
