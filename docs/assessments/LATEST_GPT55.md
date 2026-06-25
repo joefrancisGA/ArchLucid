@@ -2,11 +2,11 @@
 
 # 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 87.99%**
+**ArchLucid Assessment – (A) Headline Readiness: 88.53%**
 
 This readiness score excludes explicitly deferred V1.1, V1.x, and V2 items (except Advanced RAG Graph-RAG and Agentic Retrieval, now shipped in V1), as well as procurement realism factors (B). The reasoning engine evaluated assumes the platform-provisioned Azure OpenAI (real mode) and deterministic simulator mode for CI.
 
-**Timestamp:** 2026-06-24 (post Advanced RAG implementation rescore)
+**Timestamp:** 2026-06-25 (post real-mode evidence gate PASS + claim gate PASS)
 **Source Materials Inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, `CONFIGURATION_REFERENCE.md`, `DEFAULT_POLICY_PACKS_V1.md`, `AUDIT_COVERAGE_MATRIX.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
 # 2. Scorecard
@@ -14,8 +14,8 @@ This readiness score excludes explicitly deferred V1.1, V1.x, and V2 items (exce
 | # | Quality | Score | Weight | Wtd Contribution | Wtd Deficiency |
 |---|---------|---:|---:|---:|---:|
 | 1 | Decision-Changing Insight Density | 88 | 13 | 11.44 | 156 |
-| 2 | AI / Agent Readiness | 90 | 10 | 9.00 | 100 |
-| 3 | Correctness & Evidence Integrity | 85 | 12 | 10.20 | 180 |
+| 2 | AI / Agent Readiness | 93 | 10 | 9.30 | 70 |
+| 3 | Correctness & Evidence Integrity | 87 | 12 | 10.44 | 156 |
 | 4 | Differentiability / Defensibility vs Frontier AI | 88 | 13 | 11.44 | 156 |
 | 5 | Executive / Operator Comprehension | 85 | 8 | 6.80 | 120 |
 | 6 | Time-to-Value | 88 | 10 | 8.80 | 120 |
@@ -23,7 +23,7 @@ This readiness score excludes explicitly deferred V1.1, V1.x, and V2 items (exce
 | 8 | Governed Review Integrity | 92 | 13 | 11.96 | 104 |
 | 9 | Proof-of-ROI Readiness | 90 | 9 | 8.10 | 90 |
 | 10 | Adoption Friction | 86 | 5 | 4.30 | 70 |
-| **Total** | | | **100** | **87.99%** | |
+| **Total** | | | **100** | **88.53%** | |
 
 # 3. Diagnostic Scores (non-headline)
 
@@ -45,7 +45,7 @@ This readiness score excludes explicitly deferred V1.1, V1.x, and V2 items (exce
 
 # 5. Executive Summary
 
-**`(A)` Overall headline readiness:** ArchLucid is highly ready for V1 GA (87.99%). Advanced RAG (Graph-RAG node indexing, 1-hop neighbor expansion, query rewrite, HyDE, and cross-encoder/semantic reranking) now ships in the retrieval pipeline. The core architecture review lifecycle, governed by 23 bundled policy packs and a robust 78-event audit trail, provides a compelling and repeatable enterprise solution. Residual `(A)` gap: online fine-tuning (`RAG-V2-003`) remains deferred and real-mode CI evidence is still owner-ops-dependent.
+**`(A)` Overall headline readiness:** ArchLucid is highly ready for V1 GA (88.53%). Advanced RAG (Graph-RAG node indexing, 1-hop neighbor expansion, query rewrite, HyDE, and cross-encoder/semantic reranking) now ships in the retrieval pipeline. Fresh real-mode quad-agent evidence (`real-llm-evidence-gate.json` v2, PASS, 2026-06-25) validates live AOAI output quality on Topology, Cost, Compliance, and Critic paths; the release claim gate reports `full-real-mode`. Residual `(A)` gap: online fine-tuning (`RAG-V2-003`) remains deferred; Phase B LLM faithfulness enforce still pending baseline soak.
 
 **`(B)` Procurement / market realism:** Procurement friction remains due to the deferred SOC 2 Type I/II CPA attestation and third-party pen-test publication. However, the transparent Trust Center, SOC 2 self-assessment, and owner-conducted pen-test provide a strong interim posture. The lack of first-party ITSM connectors (Jira/ServiceNow) in V1 may cause minor friction, but the existing REST/CLI/SCIM surfaces are sufficient for early pilots.
 
@@ -73,15 +73,15 @@ The following items are explicitly deferred and do not penalize the `(A)` headli
 *   **Classification:** V1 (shipped).
 
 **2. AI / Agent Readiness**
-*   **Score:** 90 · **Weight:** 10 · **Wtd Contribution:** 9.00 · **Wtd Deficiency:** 100
-*   **Justification:** Retrieval pipeline now includes agentic expansion, Graph-RAG, Azure AI Search semantic reranker (with lexical fallback), and TB-021 foundation corpora. Real-mode quad-agent output quality is still owner-ops-dependent for CI.
-*   **Tradeoffs:** Advanced retrieval increases operational surface area (embedding spend, graph snapshot reads).
-*   **Recommendations:** Complete Phase B LLM faithfulness enforcement; seed real-mode CI evidence artifact.
+*   **Score:** 93 · **Weight:** 10 · **Wtd Contribution:** 9.30 · **Wtd Deficiency:** 70
+*   **Justification:** Retrieval pipeline includes agentic expansion, Graph-RAG, Azure AI Search semantic reranker (with lexical fallback), and TB-021 foundation corpora. Owner real-mode gate (2026-06-25) PASS on all four agent paths with `executionMode=real`; release claim gate disposition `full-real-mode`.
+*   **Tradeoffs:** Advanced retrieval increases operational surface area (embedding spend, graph snapshot reads); real-mode runs consume AOAI budget.
+*   **Recommendations:** Complete Phase B LLM faithfulness enforcement; maintain ≥5 consecutive green nightly golden-cohort runs before Phase B promotion.
 *   **Classification:** V1 (partial — online fine-tuning deferred).
 
 **3. Correctness & Evidence Integrity**
-*   **Score:** 85 · **Weight:** 12 · **Wtd Contribution:** 10.20 · **Wtd Deficiency:** 180
-*   **Justification:** Strong citation contracts and golden manifest immutability. The primary gap is the need for continuous validation of LLM-generated claims against the evidence base.
+*   **Score:** 87 · **Weight:** 12 · **Wtd Contribution:** 10.44 · **Wtd Deficiency:** 156
+*   **Justification:** Strong citation contracts and golden manifest immutability. Fresh real-mode evidence gate reduces the blind spot on live LLM output quality; Phase B semantic faithfulness still in soak.
 *   **Tradeoffs:** Strict citation rules may occasionally reject valid but poorly formatted LLM outputs.
 *   **Recommendations:** Maintain strict enforcement of the citation contract in CI.
 *   **Classification:** V1.
@@ -219,35 +219,31 @@ ArchLucid successfully transforms commoditizing AI analysis into a durable, gove
 
 1.  **Stop worrying about the lack of a CPA SOC 2 report for V1.** The self-assessment and Trust Center are sufficient for early pilots.
 2.  **Stop expanding the "Show more" operate-layer UI.** Focus on simplifying the core pilot path and reducing cognitive load.
-3.  **Stop deferring real-mode CI evidence seeding.** Owner ops should prioritize `real-llm-evidence-gate.json` over net-new AI features.
-
 **ITSM special attention:** The V1 outbound slice (stable `FindingId`, `ItsmFindingCorrelations`) is sufficient for pilots. Do not pull forward the full bidirectional Jira/ServiceNow sync from V1.1; focus on core review reliability first.
 
 # 17. Top Improvement Opportunities
 
 **Tier 1 – Must Fix**
 
-*   **Title:** Enable Real-Mode CI Evidence Artifact
-*   **Tier:** 1
-*   **Why it matters:** Real-mode quad-agent output quality is currently owner-ops-dependent, leaving a blind spot in CI validation for the core AI value proposition.
-*   **Expected impact:** AI/Agent Readiness (+3), Correctness (+2).
-*   **Affected qualities:** AI/Agent Readiness, Correctness, Trustworthiness.
-*   **Evidence:** `GOLDEN_COHORT_REAL_LLM_GATE.md` requires owner ops to seed `real-llm-evidence-gate.json`.
-*   **Actionability:** High (owner action required).
-*   **Uncertainty Reduced:** Design (2), Market (5).
-*   **Classification:** V1 (blocked on owner input).
-
-**Tier 2 – High Leverage**
-
 *   **Title:** Complete Phase B LLM Faithfulness Enforcement
-*   **Tier:** 2
+*   **Tier:** 1
 *   **Why it matters:** Ensures LLM-generated narratives are strictly grounded in evidence, preventing hallucinations that cause architect dismissal.
 *   **Expected impact:** Correctness (+3), Trustworthiness (+2).
 *   **Affected qualities:** Correctness, Trustworthiness, AI/Agent Readiness.
-*   **Evidence:** Phase A deterministic faithfulness is merge-blocking; Phase B LLM-graded is pending baseline soak.
+*   **Evidence:** Phase A deterministic faithfulness is merge-blocking; Phase B LLM-graded is pending baseline soak (≥5 consecutive green nightly runs).
 *   **Actionability:** High.
 *   **Uncertainty Reduced:** Design (4), Market (2).
 *   **Classification:** V1.
+
+**Tier 2 – High Leverage**
+
+*   **Title:** Real-mode evidence cadence (completed 2026-06-25)
+*   **Tier:** 2 (done)
+*   **Why it mattered:** Real-mode quad-agent output quality was owner-ops-dependent; now seeded locally with PASS on all four paths.
+*   **Evidence:** `artifacts/release/real-llm-evidence-gate.json` (`schema=archlucid.real-llm-evidence-gate.v2`, `overallOutcome=PASS`, `generatedUtc=2026-06-25T06:54:30Z`); `Invoke-ReleaseRealModeClaimGate.ps1` → `full-real-mode`.
+*   **Classification:** V1 (shipped — maintain on RC cuts).
+
+**Tier 2 – High Leverage (continued)**
 
 **Cursor Prompt for Phase B Faithfulness Enforcement:**
 ```text
@@ -284,7 +280,7 @@ Non-Goals: Do not rewrite the LLM grader prompt itself unless it is currently fa
 # 20. Pending Questions For Later
 
 *   **Blocks V1:** None.
-*   **Blocks V1.1:** When will the owner execute the real-mode CI evidence artifact generation? When will the commerce un-hold (Stripe live keys) be executed?
+*   **Blocks V1.1:** When will the commerce un-hold (Stripe live keys) be executed? When will Phase B faithfulness promote after nightly soak?
 
 ---
 

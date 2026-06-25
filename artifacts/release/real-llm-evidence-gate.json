@@ -1,6 +1,6 @@
 {
     "schema":  "archlucid.real-llm-evidence-gate.v2",
-    "generatedUtc":  "2026-06-24T06:24:40.0287206Z",
+    "generatedUtc":  "2026-06-25T06:54:30.3165305Z",
     "disposition":  "PASS",
     "overallOutcome":  "PASS",
     "executionMode":  "real",
@@ -62,7 +62,7 @@
                        "name":  "Topology smoke token/cost"
                    },
                    {
-                       "detail":  "topology-only: substance=9 claims=1 findings=1 topologyItems=7",
+                       "detail":  "topology-only: substance=10 claims=0 findings=1 topologyItems=9",
                        "result":  "Passed",
                        "name":  "Topology smoke structural smoke"
                    },
@@ -120,7 +120,7 @@
                             "mergeSuccess":  true,
                             "manifestServiceCount":  2,
                             "decisionsCount":  0,
-                            "totalClaims":  1,
+                            "totalClaims":  0,
                             "inputTokensTotal":  0,
                             "outputTokensTotal":  0,
                             "estimatedCostUsd":  null,
@@ -142,5 +142,5 @@
                                 "evidenceRefsObserved":  true,
                                 "durableSqlPersistenceExercised":  false
                             },
-    "gitCommitSha":  "07af5f3f0ff7eee23d9fa5bb30e117112b5d06bd"
+    "gitCommitSha":  "c3d90fea2a7e69b7051745dc7364b81ff3a6dbf0"
 }

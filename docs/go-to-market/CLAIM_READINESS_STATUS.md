@@ -4,7 +4,7 @@
 
 **Current authorized stage:** Stage 0 — Controlled pilots
 
-**Last reviewed:** 2026-06-24
+**Last reviewed:** 2026-06-25
 
 ## Gate table
 
@@ -14,7 +14,7 @@
 | **G2** | ROI source integrity | **PASS** | [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md), proof-packet ROI table | — | — |
 | **G3** | Tenant isolation provable | **PASS** | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); TB-071/072/073 in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) | — | — |
 | **G4** | Repeatable proof packet | **HOLD** | [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | 0 of 3 qualifying real runs logged | Founder/operator — run `collect-first-pilot-proof.ps1` per real pilot |
-| **G5** | Live AI evidence | **PASS** | [`artifacts/release/real-llm-evidence-gate.json`](../../artifacts/release/real-llm-evidence-gate.json) (PASS, 2026-06-24, commit `6f61fc47f`) | RC bundle attach (**G-REAL-08**) before external full-real-mode claim on a cut | **Owner** — attach gate to next RC per [`RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md) |
+| **G5** | Live AI evidence | **PASS** | [`artifacts/release/real-llm-evidence-gate.json`](../../artifacts/release/real-llm-evidence-gate.json) (PASS, 2026-06-25, v2 schema, 4/4 agent paths, `executionMode=real`) | RC bundle attach (**G-REAL-08**) before external full-real-mode claim on a cut | **Owner** — attach gate to next RC per [`RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md) |
 | **G6** | Procurement posture honest | **PASS** | `python scripts/build_procurement_pack.py --dry-run --deal-ready`; deferred items stated in trust pack | — | — |
 
 ## Stage exit criteria
@@ -33,7 +33,7 @@
 
 ## G5 release-evidence workflow
 
-`G5` stays **HOLD** until an owner-approved real-mode run produces a current `real-llm-evidence-gate.json` with `overallOutcome=PASS`, `executionMode=real`, and Topology, Cost, Compliance, and Critic agent paths.
+`G5` is **PASS** when a current `real-llm-evidence-gate.json` reports `overallOutcome=PASS`, `executionMode=real`, and Topology, Cost, Compliance, and Critic agent paths. Last owner run: **2026-06-25** (`Invoke-RealLlmEvidenceGate.ps1` + `Invoke-ReleaseRealModeClaimGate.ps1` → `full-real-mode`). Re-run before each RC cut if the artifact is stale.
 
 1. Generate real-mode evidence when approved credentials are available:
 

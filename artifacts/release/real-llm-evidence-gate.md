@@ -1,6 +1,6 @@
 # Real LLM evidence gate (generated)
 
-Generated (UTC): **2026-06-24T06:24:40.0287206Z**
+Generated (UTC): **2026-06-25T06:54:30.3165305Z**
 
 **Overall disposition:** `PASS`
 
@@ -21,7 +21,7 @@ Buyer index: [docs/go-to-market/AI_EVIDENCE_APPENDIX.md](../docs/go-to-market/AI
 | Topology smoke parse failures | **Passed** | parseFailures=0 (attempts=1) |
 | Topology smoke evidence refs | **Passed** | evidenceRefsObserved=true |
 | Topology smoke token/cost | **Not captured** | Provider returned zero token usage |
-| Topology smoke structural smoke | **Passed** | topology-only: substance=9 claims=1 findings=1 topologyItems=7 |
+| Topology smoke structural smoke | **Passed** | topology-only: substance=10 claims=0 findings=1 topologyItems=9 |
 | Topology smoke trace persistence | **Not captured** | Gate uses in-memory trace recorder only |
 | Full pipeline run executed | **Passed** | dotnet test exit 0 |
 | Full pipeline metrics captured | **Passed** | profile=full-pipeline deployment=gpt-4o |
