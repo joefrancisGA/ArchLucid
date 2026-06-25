@@ -9,7 +9,8 @@ public enum CorpusKind
     PolicyPack,
     PlatformDoc,
     ReferenceArchitecture,
-    AzureRetailPrice
+    AzureRetailPrice,
+    KnowledgeGraphNode
 }
 
 /// <summary>Platform-scoped corpus sentinel values.</summary>

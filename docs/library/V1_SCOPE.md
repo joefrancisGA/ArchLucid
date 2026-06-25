@@ -220,6 +220,14 @@ Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / S
 
 **V1 GA posture:** **`CloudProvider.None`** for evidence-only reviews (brief, documents, diagrams, IaC) and **`CloudProvider.Azure`** for Azure-target or Azure-extractor evidence; AWS/GCP enum values and analysis remain **V1.1** ([§2.19](#219-multi-cloud-architecture-analysis-aws-and-gcp-targets-azure-hosted-product)). AWS/GCP-primary buyers are a **V1.1** fit, not a V1 GA gap for headline readiness assessments once **§2.19** is authoritative (*owner scope 2026-05-19*).
 
+#### 2.20 Advanced RAG (Graph-RAG, Agentic Retrieval, Fine-Tuning)
+
+**In scope for V1 GA** — Advanced retrieval and learning mechanisms pulled forward from the V2 backlog to maximize insight density and agent readiness.
+
+- **Graph-RAG over knowledge/provenance graph (`RAG-V2-001`)**: Querying the stable schema (ADR 0036) to extract relational context beyond standard vector similarity.
+- **Agentic retrieval (`RAG-V2-002`)**: Multi-hop retrieval techniques including Hypothetical Document Embeddings (HyDE), query rewriting, and cross-encoder reranking to overcome single-hop limitations.
+- **Online fine-tuning (`RAG-V2-003`)**: Continuous learning on accepted manifests (requires explicit DPA and owner ADR).
+
 ---
 
 ## 3. Out of scope for V1 (explicit non-goals or V1.1+)

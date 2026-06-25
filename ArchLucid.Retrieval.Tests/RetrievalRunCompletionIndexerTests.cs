@@ -110,6 +110,7 @@ public sealed class RetrievalRunCompletionIndexerTests
             [],
             new DecisionProvenanceGraph(),
             null,
+            null,
             CancellationToken.None);
 
         indexedDocuments.Should().Contain(d =>

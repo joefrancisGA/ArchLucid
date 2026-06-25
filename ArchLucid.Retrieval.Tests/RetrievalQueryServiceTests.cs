@@ -5,6 +5,8 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.PolicyPacks;
+using ArchLucid.Retrieval.Agentic;
+using ArchLucid.Retrieval.Graph;
 using ArchLucid.Retrieval.Queries;
 using ArchLucid.Retrieval.Reranking;
 using ArchLucid.Retrieval.Summarization;
@@ -246,6 +248,12 @@ public sealed class RetrievalQueryServiceTests
             new MockOptionsMonitor<RetrievalRerankingOptions>(new RetrievalRerankingOptions { Enabled = false });
 
         PassThroughRetrievalReranker passThrough = new();
+        HeuristicAgenticRetrievalCompletionClient completionClient = new();
+        AgenticRetrievalQueryExpander queryExpander = new(
+            completionClient,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<AgenticRetrievalQueryExpander>>());
+        NullGraphRagNeighborExpander graphExpander = new();
 
         return new RetrievalQueryService(
             embeddingService,
@@ -253,8 +261,11 @@ public sealed class RetrievalQueryServiceTests
             passThrough,
             assignedResolver,
             new NoOpManifestChunkSummarizer(),
+            queryExpander,
+            graphExpander,
             telemetryOptions,
-            rerankingOptions);
+            rerankingOptions,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }));
     }
 
     private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)

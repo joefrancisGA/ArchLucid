@@ -387,13 +387,15 @@
 
 ---
 
-## V2 — advanced ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6q)
+## V1 — Advanced RAG (Pulled forward from V2)
 
-| ID | Title | Trigger to reconsider |
-|----|-------|------------------------|
-| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Schema stable as of 2026-05-26 (ADR 0036); promote to V2 implementation only after V1 RAG foundation + reranker + faithfulness harness fail to hit faithfulness floor on two consecutive golden-cohort weeks |
-| **RAG-V2-002** | Agentic retrieval (HyDE, query rewrite, cross-encoder rerank) | V1 eval shows single-hop retrieval insufficient; budget for extra LLM hops approved |
-| **RAG-V2-003** | Online fine-tuning on accepted manifests | Explicit DPA + owner ADR; separate from retrieval |
+**Objective:** Implement advanced multi-hop retrieval, graph-based RAG, and online fine-tuning as part of the V1 GA contract to maximize insight density and agent readiness.
+
+| ID | Title | Notes |
+|----|-------|-------|
+| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Pulled forward to V1. Requires stable schema (ADR 0036). |
+| **RAG-V2-002** | Agentic retrieval (HyDE, query rewrite, cross-encoder rerank) | Pulled forward to V1. Required to overcome single-hop retrieval limitations. |
+| **RAG-V2-003** | Online fine-tuning on accepted manifests | Pulled forward to V1. Requires explicit DPA + owner ADR. |
 
 ### Reranking — V1 decision (2026-05-26)
 

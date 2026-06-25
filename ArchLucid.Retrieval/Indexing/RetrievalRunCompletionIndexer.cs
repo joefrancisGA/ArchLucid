@@ -8,6 +8,9 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Models;
 
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Retrieval.Graph;
+
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
@@ -36,6 +39,7 @@ public sealed class RetrievalRunCompletionIndexer(
         IReadOnlyList<SynthesizedArtifact> artifacts,
         DecisionProvenanceGraph provenanceGraph,
         FindingsSnapshot? findingsSnapshot,
+        GraphSnapshot? graphSnapshot,
         CancellationToken ct)
     {
         using Activity? indexActivity = ArchLucidInstrumentation.RetrievalIndex.StartActivity();
@@ -93,6 +97,16 @@ public sealed class RetrievalRunCompletionIndexer(
                 manifest.ManifestId,
                 findingsSnapshot.Findings,
                 findingsSnapshot.CreatedUtc));
+        }
+
+        if (graphSnapshot is not null)
+        {
+            retrievalDocuments.AddRange(
+                KnowledgeGraphRetrievalDocumentBuilder.BuildFromGraphSnapshot(
+                    graphSnapshot,
+                    tenantId,
+                    workspaceId,
+                    projectId));
         }
 
         await indexingService.IndexDocumentsAsync(retrievalDocuments, ct);

@@ -14,7 +14,8 @@ using ArchLucid.Retrieval.Summarization;
 namespace ArchLucid.Retrieval.Queries;
 
 /// <summary>
-///     <see cref="IRetrievalQueryService" /> implementation: embed query text, delegate to <see cref="IVectorIndex" />.
+///     <see cref="IRetrievalQueryService" /> implementation: agentic query expansion, embed, vector search, rerank,
+///     and optional Graph-RAG neighbor expansion.
 /// </summary>
 public sealed class RetrievalQueryService(
     IEmbeddingService embeddingService,
@@ -22,8 +23,11 @@ public sealed class RetrievalQueryService(
     IRetrievalReranker retrievalReranker,
     AssignedPolicyPackRulePackIdResolver assignedPolicyPackRulePackIdResolver,
     IManifestChunkSummarizer manifestChunkSummarizer,
+    IAgenticRetrievalQueryExpander agenticRetrievalQueryExpander,
+    IGraphRagNeighborExpander graphRagNeighborExpander,
     IOptionsMonitor<RetrievalTelemetryOptions> retrievalTelemetryOptions,
-    IOptionsMonitor<RetrievalRerankingOptions> rerankingOptions) : IRetrievalQueryService
+    IOptionsMonitor<RetrievalRerankingOptions> rerankingOptions,
+    IOptionsMonitor<AdvancedRetrievalOptions> advancedRetrievalOptions) : IRetrievalQueryService
 {
     private readonly IRetrievalReranker _retrievalReranker =
         retrievalReranker ?? throw new ArgumentNullException(nameof(retrievalReranker));
@@ -34,11 +38,20 @@ public sealed class RetrievalQueryService(
     private readonly IManifestChunkSummarizer _manifestChunkSummarizer =
         manifestChunkSummarizer ?? throw new ArgumentNullException(nameof(manifestChunkSummarizer));
 
+    private readonly IAgenticRetrievalQueryExpander _agenticRetrievalQueryExpander =
+        agenticRetrievalQueryExpander ?? throw new ArgumentNullException(nameof(agenticRetrievalQueryExpander));
+
+    private readonly IGraphRagNeighborExpander _graphRagNeighborExpander =
+        graphRagNeighborExpander ?? throw new ArgumentNullException(nameof(graphRagNeighborExpander));
+
     private readonly IOptionsMonitor<RetrievalTelemetryOptions> _retrievalTelemetryOptions =
         retrievalTelemetryOptions ?? throw new ArgumentNullException(nameof(retrievalTelemetryOptions));
 
     private readonly IOptionsMonitor<RetrievalRerankingOptions> _rerankingOptions =
         rerankingOptions ?? throw new ArgumentNullException(nameof(rerankingOptions));
+
+    private readonly IOptionsMonitor<AdvancedRetrievalOptions> _advancedRetrievalOptions =
+        advancedRetrievalOptions ?? throw new ArgumentNullException(nameof(advancedRetrievalOptions));
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<RetrievalHit>> SearchAsync(RetrievalQuery query, CancellationToken ct)
@@ -60,6 +73,10 @@ public sealed class RetrievalQueryService(
 
         long startTicks = Stopwatch.GetTimestamp();
 
+        AgenticRetrievalQueryPlan queryPlan = await _agenticRetrievalQueryExpander
+            .ExpandAsync(query.QueryText, ct)
+            .ConfigureAwait(false);
+
         int finalTopK = Math.Clamp(query.TopK, 1, 25);
         RetrievalRerankingOptions rerankOptions = _rerankingOptions.CurrentValue;
         int candidateTopK = rerankOptions.Enabled
@@ -68,13 +85,15 @@ public sealed class RetrievalQueryService(
 
         RetrievalQuery searchQuery = CloneWithTopK(query, candidateTopK);
 
-        float[] embedding = await embeddingService.EmbedAsync(query.QueryText, ct);
+        float[] embedding = await embeddingService.EmbedAsync(queryPlan.EmbedText, ct);
         IReadOnlyList<RetrievalHit> hits = await vectorIndex.SearchAsync(searchQuery, embedding, ct).ConfigureAwait(false);
+
+        string rerankQueryText = queryPlan.RerankQueryText;
 
         if (rerankOptions.Enabled && hits.Count > 0)
         {
             hits = await _retrievalReranker
-                .RerankAsync(query.QueryText, hits, finalTopK, ct)
+                .RerankAsync(rerankQueryText, hits, finalTopK, ct)
                 .ConfigureAwait(false);
         }
         else if (hits.Count > finalTopK)
@@ -83,6 +102,23 @@ public sealed class RetrievalQueryService(
                 .OrderByDescending(static hit => hit.Score)
                 .Take(finalTopK)
                 .ToList();
+        }
+
+        AdvancedRetrievalOptions advancedOptions = _advancedRetrievalOptions.CurrentValue;
+
+        if (advancedOptions.Enabled && advancedOptions.EnableGraphRag && hits.Count > 0)
+        {
+            hits = await _graphRagNeighborExpander
+                .ExpandAsync(query, hits, ct)
+                .ConfigureAwait(false);
+
+            if (hits.Count > finalTopK)
+            {
+                hits = hits
+                    .OrderByDescending(static hit => hit.Score)
+                    .Take(finalTopK)
+                    .ToList();
+            }
         }
 
         hits = await _manifestChunkSummarizer.MaybeSummarizeAsync(hits, ct).ConfigureAwait(false);

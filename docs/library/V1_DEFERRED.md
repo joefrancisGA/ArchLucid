@@ -407,12 +407,15 @@ Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous
 
 **V1 GA posture:** Retrieval infrastructure **ships** (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox). **V1 quality improvements** (corpus seam, policy-pack indexing, tenant prior-manifest chunks, Retail structured lookup, platform docs, faithfulness eval) are **engineering backlog** — **[`TECH_BACKLOG.md`](TECH_BACKLOG.md) TB-021** and **[`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) RAG-V1-*** — schedulable from assessments; **not** separate V1 GA product-contract rows unless promoted via [`V1_SCOPE.md`](V1_SCOPE.md) change control.
 
-**V1 shipped (2026-05-30 pull-forward from V1.1 backlog):**
+**V1 shipped / V1 scope (pull-forward from V1.1/V2 backlog):**
 
-| ID | Title | V1 scope | V1.1 remainder |
+| ID | Title | V1 scope | V1.1/V2 remainder |
 |----|-------|----------|----------------|
 | **RAG-V1.1-001** | Reference-architecture exemplar retrieval | Exemplar indexer + Topology agent style-prior injection (fail-open) | Owner-curated exemplar library; fingerprint-based matching |
 | **RAG-V1.1-002** | MCP read-only retrieval tools (3 tools) | HTTP bridge at `/v1/mcp/retrieval/*` (non-GA) | Streamable HTTP MCP membrane; **not** the seven governance tools in MCP §5.1 (**CPB-D02**) |
+| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | Pulled forward to V1 scope | None |
+| **RAG-V2-002** | Agentic retrieval (HyDE, rerank, query rewrite) | Pulled forward to V1 scope | None |
+| **RAG-V2-003** | Online fine-tuning on accepted manifests | Pulled forward to V1 scope | None |
 
 **Deferred to V1.1:**
 
@@ -421,17 +424,10 @@ Canonical detail: [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) (Automated continuous
 | **RAG-V1.1-003** | Pilot-feedback retrieval for planning materialize | [`PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md) §4 |
 | **RAG-V1.1-004** | Cross-tenant pattern library (ADR 0031) | k-anon aggregates — **not** embedding-RAG |
 
-**Deferred to V2:**
-
-| ID | Title | Notes |
-|----|-------|-------|
-| **RAG-V2-001** | Graph-RAG over knowledge / provenance graph | After graph surface stabilises |
-| **RAG-V2-002** | Agentic retrieval (HyDE, rerank, query rewrite) | Extra LLM hops; budget + eval gate |
-| **RAG-V2-003** | Online fine-tuning on accepted manifests | DPA + owner ADR required |
-
 **Rules:**
 
-- **`(A)` V1 assessments** **must not** deduct headline readiness solely for absence of **RAG-V1.1-*** / **RAG-V2-*** items.
+- **`(A)` V1 assessments** **must** deduct headline readiness for absence of **RAG-V2-*** items, as they have been pulled forward into the V1 scope.
+- **`(A)` V1 assessments** **must not** deduct headline readiness solely for absence of **RAG-V1.1-*** items.
 - **`(A)` assessments** **may** schedule **TB-021 / RAG-V1-*** when scoring **AI/Agent Readiness** faithfulness gaps — these are in-scope quality work, not scope creep.
 - Cross-tenant **text** retrieval remains forbidden outside ADR 0031 materialised aggregates.
 

@@ -135,6 +135,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
             artifacts,
             graph,
             findings,
+            graphSnapshot,
             ct);
 
         await outbox.MarkProcessedAsync(entry.OutboxId, ct);

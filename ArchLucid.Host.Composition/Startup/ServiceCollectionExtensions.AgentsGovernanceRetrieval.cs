@@ -51,9 +51,11 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Core.Admin;
 using ArchLucid.Retrieval.Admin;
+using ArchLucid.Retrieval.Agentic;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Citations;
 using ArchLucid.Retrieval.Embedding;
+using ArchLucid.Retrieval.Graph;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.PolicyPacks;
@@ -871,6 +873,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<RetrievalEmbeddingModelOptions>(
             configuration.GetSection(RetrievalEmbeddingModelOptions.SectionName));
         services.Configure<RetrievalRerankingOptions>(configuration.GetSection(RetrievalRerankingOptions.SectionPath));
+        services.Configure<AdvancedRetrievalOptions>(configuration.GetSection(AdvancedRetrievalOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
         services.Configure<ManifestChunkSummarizationOptions>(
             configuration.GetSection(ManifestChunkSummarizationOptions.SectionPath));
@@ -891,6 +894,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IRetrievalCitationFormatter, RetrievalCitationFormatter>();
         services.AddScoped<IManifestChunkSummaryCompletionClient, ManifestChunkSummaryCompletionClient>();
         services.AddScoped<IManifestChunkSummarizer, ManifestChunkSummarizer>();
+        services.AddScoped<IAgenticRetrievalCompletionClient, AgenticRetrievalCompletionClient>();
+        services.AddScoped<IAgenticRetrievalQueryExpander, AgenticRetrievalQueryExpander>();
+        services.AddScoped<IGraphRagNeighborExpander, GraphRagNeighborExpander>();
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 

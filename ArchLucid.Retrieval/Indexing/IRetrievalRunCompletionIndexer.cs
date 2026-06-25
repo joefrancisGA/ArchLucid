@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Provenance;
 
@@ -25,6 +26,7 @@ public interface IRetrievalRunCompletionIndexer
     /// <param name="artifacts">Synthesized artifacts for the run (may be empty).</param>
     /// <param name="provenanceGraph">Decision provenance graph for the run.</param>
     /// <param name="findingsSnapshot">Committed findings snapshot for per-finding prior-manifest chunks (optional).</param>
+    /// <param name="graphSnapshot">Knowledge graph snapshot for Graph-RAG node indexing (optional).</param>
     /// <param name="ct">Cancellation token.</param>
     Task IndexAuthorityRunAsync(
         Guid tenantId,
@@ -34,5 +36,6 @@ public interface IRetrievalRunCompletionIndexer
         IReadOnlyList<SynthesizedArtifact> artifacts,
         DecisionProvenanceGraph provenanceGraph,
         FindingsSnapshot? findingsSnapshot,
+        GraphSnapshot? graphSnapshot,
         CancellationToken ct);
 }
