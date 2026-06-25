@@ -46,6 +46,8 @@ Evidence links: [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDE
 5. **Attach decision-change addendum** when sponsor handoff includes material decision delta — [`validation/DECISION_CHANGE_ADDENDUM.md`](validation/DECISION_CHANGE_ADDENDUM.md).
 6. **Compare** to a generic copilot session: ArchLucid adds manifest, audit, governance, labeled ROI, and repeatable sponsor export.
 
+**Policy-pack moat demo (same run, different gate):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](POLICY_PACK_DELTA_DEMO_SCRIPT.md) · automation: `scripts/demo-policy-pack-delta.ps1` · in-app help: `/help/policy-pack-delta-demo`.
+
 Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-proof-packets/README.md)
 
 ---

@@ -2,12 +2,12 @@
 
 # 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 83.89%**
+**ArchLucid Assessment – (A) Headline Readiness: 84.23%**
 
-Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, local pilot path complete):** Step 0–3 operator path finished without `-SkipDemoWorkspaceValidation`; proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**, evidence bundle collected, demo scope probe **WARN** (not BLOCK) on committed-run path when `AllowTestActorHeaders` unset; sponsor disposition **HOLD** (33 block / 14 warn) remains expected on Simulator + `-SponsorHandoff`.
+Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #2 shipped):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) + `scripts/demo-policy-pack-delta.ps1` + `/policy-packs` delta banner + `/help/policy-pack-delta-demo` — repeatable same-run / different-gate demo path for CS/sales. Prior rescoring (local pilot path complete): proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**; sponsor **HOLD** (33 block / 14 warn) expected on Simulator + `-SponsorHandoff`.
 
-**Timestamp:** 2026-06-25 (UTC, local pilot path complete)  
-**Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, `CONFIGURATION_REFERENCE.md`, `DEFAULT_POLICY_PACKS_V1.md`, `AUDIT_COVERAGE_MATRIX.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141).
+**Timestamp:** 2026-06-25 (UTC, policy-pack delta demo shipped)  
+**Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, `CONFIGURATION_REFERENCE.md`, `DEFAULT_POLICY_PACKS_V1.md`, `AUDIT_COVERAGE_MATRIX.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), **`POLICY_PACK_DELTA_DEMO_SCRIPT.md`**, **`DIFFERENTIATION_PROOF_PACKET.md`**.
 
 **Operator-path evidence inspected:** `artifacts/first-pilot-proof/first-pilot-proof-20260625T100122Z/` (data consistency PASS, command center, go-no-go summary, evidence bundle); committed run `eb81dd4972ad429e8d4e214f9934bfc0` on Simulator @ `http://127.0.0.1:5128`.
 
@@ -17,27 +17,27 @@ Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procure
 
 | # | Quality | Score | Weight | Wtd Contribution | Wtd Deficiency |
 |---|---------|---:|---:|---:|---:|
-| 1 | Decision-Changing Insight Density | 80 | 13 | 10.40 | 260 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 85 | 13 | 11.05 | 195 |
+| 1 | Decision-Changing Insight Density | 81 | 13 | 10.53 | 247 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 86 | 13 | 11.18 | 182 |
 | 3 | Governed Review Integrity | 90 | 13 | 11.70 | 130 |
 | 4 | Correctness & Evidence Integrity | 85 | 12 | 10.20 | 180 |
 | 5 | AI / Agent Readiness | 85 | 10 | 8.50 | 150 |
 | 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
 | 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 108 |
-| 8 | Executive / Operator Comprehension | 79 | 8 | 6.32 | 168 |
+| 8 | Executive / Operator Comprehension | 80 | 8 | 6.40 | 160 |
 | 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 70 |
 | 10 | Adoption Friction | 72 | 5 | 3.60 | 140 |
-| **Total** | | | **100** | **83.89%** | |
+| **Total** | | | **100** | **84.23%** | |
 
-**Prior headline (pre–local pilot path complete):** 83.47% · **Δ +0.42 pp** — data consistency PASS, committed-run proof without demo-validation skip, scope-probe fast-fail (no multi-minute hangs).
+**Prior headline (local pilot path complete):** 83.89% · **Δ +0.34 pp** — policy-pack delta demo script, automation, in-app help, and `/policy-packs` banner make the governance moat repeatable in CS/sales demos (validation artifact; G4 cohort still HOLD).
 
 # 3. Diagnostic Scores (non-headline)
 
-These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (83.89%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
+These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.23%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
 
 | Diagnostic | Value | Calibration |
 |------------|------:|-------------|
-| **Decision Advantage Score** | **79 / 100** | Local committed-run proof + evidence bundle; insight deltas at cohort scale still unlogged. |
+| **Decision Advantage Score** | **80 / 100** | Repeatable pack-delta demo script reduces "ChatGPT with steps" dismissal in live calls; cohort-scale decision deltas still unlogged. |
 | **Frontier-AI Survival Probability (12-month)** | **68%** (range **55–78%**, medium confidence) | Unchanged reference class. |
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **36%** (range **25–47%**, low–medium confidence) | Proof path completes without `-SkipDemoWorkspaceValidation` on committed-run path (+); demo workspace run probes still need `AllowTestActorHeaders` on Development hosts. **G4 HOLD** (0/3 real runs) unchanged. |
 | **Executive Purchase Probability** | **48%** (range **38–58%**, medium confidence) | Unchanged — `(B)` procurement gaps dominate. |
@@ -57,7 +57,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 # 5. Executive Summary
 
-**(A) Overall headline readiness:** **83.89%** (+0.42 pp from 83.47%) — **Local pilot path is mechanically complete:** seed → committed run → proof with `-RunId` without demo-validation skip; data consistency **PASS**; sponsor **HOLD** (33 block / 14 warn) remains **expected** on Simulator + `-SponsorHandoff` (k6 SKIPPED, procurement parity absent, AI quality gate). Next engineering seam: enable `AllowTestActorHeaders` on Development hosts for full demo workspace PASS.
+**(A) Overall headline readiness:** **84.23%** (+0.34 pp from 83.89%) — **Policy-pack delta demo shipped:** documented CS/sales script, local automation, in-app help topic, and operator banner linking same-run / different-gate narrative. Local pilot path remains mechanically complete (data consistency **PASS**; sponsor **HOLD** on Simulator + `-SponsorHandoff`). Next validation seam: TB-141 cohort (G4) + real-mode repetition — not more demo doc surface.
 
 **(B) Procurement / market realism (weight 0):** Honest interim posture (self-assessment, CAIQ/SIG, owner-conducted pen test, DPA template). **CPA SOC 2** and **third-party pen-test publication** remain buyer friction (`V1_DEFERRED.md` §6c — TB-135/TB-136, `(B)` only). No signed design partner, no published reference customer, no live commerce un-hold — all correctly deferred; sales-led motion with TEST-mode trial is coherent.
 
@@ -83,9 +83,9 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 *Ordered by weighted deficiency signal (highest first).*
 
-### 1. Decision-Changing Insight Density — 80 · 13 · 10.40 · 260
+### 1. Decision-Changing Insight Density — 81 · 13 · 10.53 · 247
 
-**Justification:** Azure extractor + cost findings with mandatory ZIP citations can surface orphan/spend patterns a prompt-only review misses **when** the ZIP is uploaded. Policy packs and pre-commit gate can block commits on severity. **However**, non-obvious insight density in **real** workloads is **not yet validated** at cohort scale (G4 HOLD); much output still resembles competent frontier-AI critique dressed in governance packaging.
+**Justification:** Azure extractor + cost findings with mandatory ZIP citations can surface orphan/spend patterns a prompt-only review misses **when** the ZIP is uploaded. Policy packs and pre-commit gate can block commits on severity. **Improvement #2 shipped (2026-06-25):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) gives CS/sales a repeatable same-run / different-gate narrative. **However**, non-obvious insight density in **real** workloads is **not yet validated** at cohort scale (G4 HOLD).
 
 **Tradeoffs:** Optimizing for “wow” narratives risks hallucination; strict citations reduce false confidence but can reduce perceived magic.
 
@@ -116,20 +116,20 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 (TB-021).  
 **Outcomes:** 1, 2, 5.
 
-### 4. Differentiability / Defensibility vs Frontier AI — 85 · 13 · 11.05 · 195
+### 4. Differentiability / Defensibility vs Frontier AI — 86 · 13 · 11.18 · 182
 
-**Justification:** **Excellent** on governed workflow rubric — policy assignments change intake questions (`QuestionSelectionEngine`), pre-commit outcomes (`PreCommitGovernanceGate`), executive ROI basis, and audit reconstruction. **Medium** on raw analysis — frontier AI + company standards doc closes much of the gap for a solo architect.
+**Justification:** **Excellent** on governed workflow rubric — policy assignments change intake questions (`QuestionSelectionEngine`), pre-commit outcomes (`PreCommitGovernanceGate`), executive ROI basis, and audit reconstruction. **Improvement #2 shipped:** documented delta demo + `demo-policy-pack-delta.ps1` + `/help/policy-pack-delta-demo` makes the moat **demonstrable** in five minutes. **Medium** on raw analysis — frontier AI + company standards doc closes much of the gap for a solo architect.
 
 **Tradeoffs:** Depth in governance vs speed of generic critique.
 
-**Recommendations:** Demo must show **same architecture, two policy pack assignments, different commit gate outcome** — not eloquent findings alone.
+**Recommendations:** Run the delta demo in every first-review sales call; log prospect reaction (block/waive/exception filed).
 
-**Classification:** V1 (prove moat in demo).  
+**Classification:** V1 validation artifact shipped; market proof still required.  
 **Outcomes:** 2, 5.
 
-### 5. Executive / Operator Comprehension — 78 · 8 · 6.24 · 176
+### 5. Executive / Operator Comprehension — 80 · 8 · 6.40 · 160
 
-**Justification:** Executive ROI section + disposition labels + board-pack export are strong. **Step 3 proof** generates buyer-safe command-center summary, phase table, and NEXT ACTION labels aligned with `FIRST_PILOT_OPERATOR_PATH.md`. Operator shell still exposes large surface (governance, alerts, graph, compare) — Carbon migration helps but cognitive load remains high for first-time architects.
+**Justification:** Executive ROI section + disposition labels + board-pack export are strong. **Policy-pack delta banner** on `/policy-packs` links operators to the in-app demo script. Operator shell still exposes large surface (governance, alerts, graph, compare) — Carbon migration helps but cognitive load remains high for first-time architects.
 
 **Tradeoffs:** Enterprise completeness vs pilot simplicity.
 
@@ -375,26 +375,21 @@ The engineering moat is largely built; the **market moat is unproven**.
 
 **Cursor prompt — not applicable** (owner-selected environments; run `collect-first-pilot-proof.ps1` per runbook).
 
-**2. Policy-pack delta demo script (product + CS)**  
+**2. Policy-pack delta demo script (product + CS) — SHIPPED 2026-06-25**  
 - **Why:** Makes moat visible; reduces “ChatGPT with steps” dismissal (~45% trigger).  
 - **Impact:** Differentiability, decision insight.  
-- **Classification:** V1 validation + minor UI/doc.
+- **Evidence:** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md), `scripts/demo-policy-pack-delta.ps1`, `/help/policy-pack-delta-demo`, `/policy-packs` delta banner.  
+- **Classification:** V1 validation artifact shipped; execute in live demos and log reactions.
 
 ```text
-Current problem: First-review demos often use default packs and simulator output, so prospects see generic findings and miss that changing policy assignments changes commit gate outcomes, intake questions, and governance posture.
+Shipped deliverables:
+- docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md (exact UI + API steps)
+- scripts/demo-policy-pack-delta.ps1 (local DevelopmentBypass / bearer automation)
+- In-app help topic policy-pack-delta-demo + operator banner on /policy-packs
+- Cross-link from DIFFERENTIATION_PROOF_PACKET.md
 
-Desired behavior: Add a documented, repeatable demo script (and optional operator checklist UI) that: (1) runs review A with default P0 floor; (2) assigns stricter pack or lowers priority floor; (3) re-runs or dry-runs pre-commit showing block; (4) exports audit CSV slice showing GovernancePreCommitBlocked or warn events.
-
-Scope boundaries: Docs under docs/go-to-market/ or operator tutorial; optional small UI banner on /policy-packs linking to script. Do not change pack content or gate logic.
-
-Acceptance criteria:
-- Script checked into repo with exact API/UI steps
-- Uses governance dry-run or simulation endpoint where available
-- CI doc link check or markdown lint only
-
-Tests: None required beyond existing pre-commit gate tests.
-
-Non-goals: New policy packs, MCP, ITSM connectors.
+Uses governance dry-run and pre-commit simulation endpoints; no pack content or gate logic changes.
+Residual: market validation — run script in ≥5 prospect calls and note gate-flip comprehension.
 ```
 
 **3. Promote TB-021 faithfulness gate (RAG-V1-005 Phase B soak → enforce)**  

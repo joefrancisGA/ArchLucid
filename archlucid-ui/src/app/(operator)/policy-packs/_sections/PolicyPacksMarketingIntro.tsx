@@ -3,6 +3,7 @@ import Link from "next/link";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import {
+  policyPacksDeltaDemoBannerLine,
   policyPacksOutcomeBannerLine,
   policyPacksPageLeadOperator,
   policyPacksPageLeadOperatorBuyerPolished,
@@ -26,6 +27,21 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
           data-testid="policy-packs-outcome-banner"
         >
           {policyPacksOutcomeBannerLine}
+        </p>
+      ) : null}
+      {!buyerPolishedShell ? (
+        <p
+          className="mb-3 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-neutral-200"
+          data-testid="policy-packs-delta-demo-banner"
+        >
+          {policyPacksDeltaDemoBannerLine}{" "}
+          <Link
+            href="/help/policy-pack-delta-demo"
+            className="font-medium text-teal-800 underline dark:text-teal-300"
+          >
+            Open demo script
+          </Link>
+          .
         </p>
       ) : null}
       {buyerPolishedShell ? (

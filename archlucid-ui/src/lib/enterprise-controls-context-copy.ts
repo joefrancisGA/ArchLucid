@@ -386,6 +386,10 @@ export const policyPacksPageLeadReaderBuyerPolished =
 export const policyPacksOutcomeBannerLine =
   "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization—not from this page alone.";
 
+/** Policy packs — delta demo checklist link (improvement #2, assessment LATEST_GPT55). */
+export const policyPacksDeltaDemoBannerLine =
+  "Demo the policy moat: same committed review, stricter pack enforcement, different pre-commit gate outcome — see the policy-pack delta demo script in product documentation.";
+
 /** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";
 

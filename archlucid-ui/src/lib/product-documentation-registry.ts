@@ -167,9 +167,9 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "enterprise-onboarding",
-    title: "Hosted SaaS enterprise onboarding checklist",
+    title: "Enterprise onboarding checklist",
     summary:
-      "Checklist for configuring an ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+      "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
     audience: "buyer",
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
   },
@@ -301,6 +301,14 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
       "After the first committed review: compare, replay, governance dry-runs, and second-review proof checklist.",
     audience: "operator",
     sourcePaths: ["docs/library/REPEAT_REVIEW_LOOP.md"],
+  },
+  {
+    slug: "policy-pack-delta-demo",
+    title: "Policy-pack delta demo",
+    summary:
+      "Repeatable demo: same committed review, stricter pack enforcement, different pre-commit gate outcome — dry-run, simulation, and audit slice.",
+    audience: "operator",
+    sourcePaths: ["docs/go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md"],
   },
   {
     slug: "knowledge-graph",
