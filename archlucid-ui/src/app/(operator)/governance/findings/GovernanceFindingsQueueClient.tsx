@@ -46,7 +46,7 @@ import {
   BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -450,9 +450,9 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
       aria-label={rowIsDecision ? `Open decision: ${row.title}` : undefined}
     >
       <CardHeader className="space-y-1 pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
           <Link
-            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            className={OPERATOR_LINK.inline}
             href={inspectHref(row.runId, row.findingId)}
           >
             {row.title}
@@ -465,10 +465,10 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
           />
         ) : null}
       </CardHeader>
-      <CardContent className="grid gap-3 pt-0 text-sm">
+      <CardContent className={cn("grid gap-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
         <div>
-          <div className="font-medium text-neutral-700 dark:text-neutral-300">Record type</div>
-          <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
+          <div className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Record type</div>
+          <p className="m-0 mt-0.5 text-al-text-secondary">
             {governanceBuyerRecordTypePrimary(row)}
             {governanceBuyerRecordTypeSecondary(row) !== null ? (
               <>
@@ -479,24 +479,24 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
           </p>
         </div>
         <div>
-          <div className="font-medium text-neutral-700 dark:text-neutral-300">Status</div>
-          <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
+          <div className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</div>
+          <p className="m-0 mt-0.5 text-al-text-secondary">{row.status}</p>
           {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-            <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{row.humanReviewStatusLabel}</p>
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.humanReviewStatusLabel}</p>
           ) : null}
           {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-            <p className="m-0 mt-0.5 font-mono text-xs text-neutral-500 dark:text-neutral-500">
+            <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
               ITSM: {row.itsmLinkedTicketsSummary}
             </p>
           ) : null}
         </div>
         <div>
-          <div className="font-medium text-neutral-700 dark:text-neutral-300">Recommended action</div>
-          <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
+          <div className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Recommended action</div>
+          <p className="m-0 mt-0.5 text-al-text-secondary">{row.recommended}</p>
         </div>
         {row.recordKind === "finding" ? (
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400">
-            <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-300">
+          <details className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-2 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}>
+            <summary className={cn("cursor-pointer select-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               Severity, confidence, and review
             </summary>
             <p className="m-0 mt-2">
@@ -515,7 +515,7 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
             <p className="m-0 mt-2">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Review</span>{" "}
               <Link
-                className="text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
                 href={`/reviews/${encodeURIComponent(row.runId)}`}
               >
                 {row.runLabel}
@@ -539,7 +539,7 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
         {graphHref !== null ? (
           <p className="m-0">
             <Link
-              className="text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              className={OPERATOR_LINK.inline}
               href={graphHref}
             >
               {BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}
@@ -709,16 +709,16 @@ export default function GovernanceFindingsQueueClient() {
     <>
       <LayerHeader pageKey="governance-findings" density="compact" />
       {buyerPolishedShell ? (
-        <nav aria-label="Breadcrumb" className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+        <nav aria-label="Breadcrumb" className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <Link className={OPERATOR_LINK.inline} href="/">
             {OPERATOR_NAV_LINK_LABELS.home}
           </Link>
           {" · "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
+          <Link className={OPERATOR_LINK.inline} href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
             Governance approval
           </Link>
           {" · "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
+          <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} aria-current="page">
             Review records and dispositions
           </span>
         </nav>
@@ -728,12 +728,12 @@ export default function GovernanceFindingsQueueClient() {
       />
 
         <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
-        <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? (
             <>
               {BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD}{" "}
               <Link
-                className="font-medium text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
                 href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
               >
                 Governance approval
@@ -777,7 +777,7 @@ export default function GovernanceFindingsQueueClient() {
                   type="button"
                   size="sm"
                   variant="ghost"
-                  className="h-7 gap-1 text-xs text-neutral-500 dark:text-neutral-400"
+                  className={cn("h-7 gap-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   title="Save this filter as a named preset for quick access"
                   onClick={saveCurrentFilterAsPreset}
                 >
@@ -822,13 +822,13 @@ export default function GovernanceFindingsQueueClient() {
 
             {savedPresets.length > 0 ? (
               <div className="flex flex-wrap items-center gap-1.5" aria-label="Saved filter presets">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <span className={OPERATOR_NAV_GROUP_LABEL}>
                   Presets:
                 </span>
                 {savedPresets.map((preset) => (
                   <span
                     key={preset.id}
-                    className="inline-flex items-center gap-1 rounded border border-neutral-200 bg-white px-2 py-0.5 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                    className={cn("inline-flex items-center gap-1 rounded border border-neutral-200 bg-white px-2 py-0.5 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
                   >
                     <button
                       type="button"
@@ -853,11 +853,11 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {loading ? (
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading findings…</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading findings…</p>
         ) : null}
 
         {!loading && rows.length > 0 && displayedRows.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             No risks match the selected filter. Try All risks or adjust waiver/stale criteria.
           </p>
         ) : null}
@@ -869,7 +869,7 @@ export default function GovernanceFindingsQueueClient() {
                 <section className="space-y-3" aria-labelledby="governance-findings-risks">
                   <h2
                     id="governance-findings-risks"
-                    className="m-0 text-sm font-semibold text-al-text-primary"
+                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
                   >
                     {BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE}
                   </h2>
@@ -884,7 +884,7 @@ export default function GovernanceFindingsQueueClient() {
                 <section className="space-y-3" aria-labelledby="governance-findings-decisions">
                   <h2
                     id="governance-findings-decisions"
-                    className="m-0 text-sm font-semibold text-al-text-primary"
+                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
                   >
                     Recorded decisions
                   </h2>
@@ -924,15 +924,15 @@ export default function GovernanceFindingsQueueClient() {
                 className="border border-neutral-200 shadow-sm dark:border-neutral-800"
               >
                 <CardHeader className="space-y-1 pb-2">
-                  <CardTitle className="text-sm font-semibold text-al-text-primary">
+                  <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
                     <Link
-                      className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                      className={OPERATOR_LINK.inline}
                       href={inspectHref(row.runId, row.findingId)}
                     >
                       {row.title}
                     </Link>
                   </CardTitle>
-                  <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {buyerPolishedShell ? (
                       row.runLabel
                     ) : (
@@ -942,13 +942,13 @@ export default function GovernanceFindingsQueueClient() {
                       </span>
                     )}
                   </p>
-                  <div className="mt-2 grid gap-3 border-t border-neutral-100 pt-2 text-xs sm:grid-cols-3 dark:border-neutral-800">
+                  <div className={cn("mt-2 grid gap-3 border-t border-neutral-100 pt-2 sm:grid-cols-3 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>
                     {buyerPolishedShell ? null : (
                       <div>
-                        <div className="font-medium text-neutral-600 dark:text-neutral-400">{SIGNED_MANIFEST_LABEL}</div>
+                        <div className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SIGNED_MANIFEST_LABEL}</div>
                         <div className="mt-0.5">
                           <Link
-                            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                            className={OPERATOR_LINK.inline}
                             href={manifestRecordHref(row.runId, row.manifestId)}
                           >
                             Open signed record
@@ -957,10 +957,10 @@ export default function GovernanceFindingsQueueClient() {
                       </div>
                     )}
                     <div className={buyerPolishedShell ? "sm:col-span-1" : undefined}>
-                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Review</div>
+                      <div className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review</div>
                       <div className="mt-0.5">
                         <Link
-                          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                          className={OPERATOR_LINK.inline}
                           href={`/reviews/${encodeURIComponent(row.runId)}`}
                         >
                           {row.runLabel}
@@ -968,23 +968,23 @@ export default function GovernanceFindingsQueueClient() {
                       </div>
                     </div>
                     <div className="sm:col-span-1">
-                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Recommended action</div>
-                      <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
+                      <div className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Recommended action</div>
+                      <p className="m-0 mt-0.5 text-al-text-secondary">{row.recommended}</p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="grid gap-2 pt-0 text-sm sm:grid-cols-2">
+                <CardContent className={cn("grid gap-2 pt-0 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
                   <div>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                    <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                       {buyerPolishedShell ? "Record" : "Record kind"}
                     </span>
-                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
+                    <p className="m-0 mt-0.5 text-al-text-secondary">
                       {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
                     </p>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Severity</span>
-                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">
+                    <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Severity</span>
+                    <p className="m-0 mt-0.5 text-al-text-secondary">
                       {buyerPolishedShell && row.recordKind === "decision" ? (
                         <>
                           <span aria-hidden="true">—</span>
@@ -997,7 +997,7 @@ export default function GovernanceFindingsQueueClient() {
                   </div>
                   {buyerPolishedShell && row.recordKind === "finding" ? (
                     <div>
-                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Confidence</span>
+                      <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Confidence</span>
                       <div className="mt-0.5">
                         {row.traceConfidenceLevel === "High" ||
                         row.traceConfidenceLevel === "Medium" ||
@@ -1011,7 +1011,7 @@ export default function GovernanceFindingsQueueClient() {
                   ) : null}
                   {buyerPolishedShell ? null : (
                     <div>
-                      <span className="font-medium text-neutral-700 dark:text-neutral-300">Category</span>
+                      <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Category</span>
                       {row.recordKind === "finding" && row.policyRuleId ? (
                         <div className="mt-0.5">
                           <FindingPolicyTraceabilityBadges
@@ -1019,20 +1019,20 @@ export default function GovernanceFindingsQueueClient() {
                           />
                         </div>
                       ) : (
-                        <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.category}</p>
+                        <p className="m-0 mt-0.5 text-al-text-secondary">{row.category}</p>
                       )}
                     </div>
                   )}
                   <div>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Status</span>
-                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
+                    <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>
+                    <p className="m-0 mt-0.5 text-al-text-secondary">{row.status}</p>
                     {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-                      <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         {row.humanReviewStatusLabel}
                       </p>
                     ) : null}
                     {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-                      <p className="m-0 mt-0.5 font-mono text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                         ITSM: {row.itsmLinkedTicketsSummary}
                       </p>
                     ) : null}
@@ -1103,10 +1103,10 @@ export default function GovernanceFindingsQueueClient() {
 
         {!loading && rows.length === 0 && !buyerPolishedShell ? (
           <details className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/60">
-            <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               What the risk register contains
             </summary>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {ARCHITECTURE_RISK_REGISTER_EMPTY_FLOW} Each row links back to its source review package and signed
               review record — not a separate risk subsystem.
             </p>

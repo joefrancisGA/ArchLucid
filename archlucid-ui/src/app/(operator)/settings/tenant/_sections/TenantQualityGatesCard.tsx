@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { agentOutputQualityGateConfigPaths, selectAgentOutputQualityGateRows } from "@/lib/quality-gate-config-summary";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
 type AdminQualityGateDiagnosticsResponse = components["schemas"]["AdminQualityGateDiagnosticsResponse"];
@@ -72,12 +74,12 @@ function QualityGateModeControlsSection(
 
   return (
     <div className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" data-testid="quality-gate-mode-controls">
-      <p className="m-0 text-neutral-800 dark:text-neutral-100">
+      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         Effective mode: <span className="font-mono">{mode.effectiveMode}</span>
         {usingOverride ? (
-          <span className="text-neutral-500"> (tenant override)</span>
+          <span className="text-al-text-secondary"> (tenant override)</span>
         ) : (
-          <span className="text-neutral-500"> (host default: {mode.hostDefaultMode})</span>
+          <span className="text-al-text-secondary"> (host default: {mode.hostDefaultMode})</span>
         )}
       </p>
       <div className="flex flex-wrap items-center gap-2">
@@ -240,21 +242,21 @@ export function TenantQualityGatesCard() {
   return (
     <Card data-testid="tenant-quality-gates-card">
       <CardHeader>
-        <CardTitle className="text-base">Quality gates</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Quality gates</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 text-sm text-neutral-600 dark:text-neutral-300">
+      <CardContent className={cn("space-y-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">
           Tenant override for{" "}
-          <span className="font-mono text-xs text-neutral-800 dark:text-neutral-200">{agentOutputQualityGateConfigPaths.mode}</span>{" "}
+          <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{agentOutputQualityGateConfigPaths.mode}</span>{" "}
           (<code>WarnOnly</code> vs <code>PilotStrict</code>). Warn floors below remain host-configured via{" "}
-          <span className="font-mono text-xs">GET /v1/admin/config-summary</span>. Effective reject floors and PilotStrict
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/admin/config-summary</span>. Effective reject floors and PilotStrict
           thresholds come from{" "}
-          <span className="font-mono text-xs">GET /v1/admin/diagnostics/quality-gates</span>.
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/admin/diagnostics/quality-gates</span>.
         </p>
 
-        {state.status === "loading" ? <p className="m-0 text-neutral-500">Loading quality gate settings…</p> : null}
+        {state.status === "loading" ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading quality gate settings…</p> : null}
         {state.status === "blocked" ? (
-          <p className="m-0 text-rose-800 dark:text-rose-200" role="alert">
+          <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
             {state.note}
           </p>
         ) : null}
@@ -266,7 +268,7 @@ export function TenantQualityGatesCard() {
               onSelectMode={applyMode}
               onClearOverride={clearOverride}
             />
-            <dl className="m-0 grid grid-cols-[minmax(0,220px)_1fr] gap-x-3 gap-y-2 rounded-md border border-neutral-200 p-3 font-mono text-xs dark:border-neutral-700">
+            <dl className={cn("m-0 grid grid-cols-[minmax(0,220px)_1fr] gap-x-3 gap-y-2 rounded-md border border-neutral-200 p-3 font-mono dark:border-neutral-700", OPERATOR_TYPOGRAPHY.micro)}>
               {state.rows.map((slot) => {
                 const detail = slot.row;
                 const value =
@@ -295,13 +297,13 @@ export function TenantQualityGatesCard() {
               })}
             </dl>
             {state.diagnosticsNote ? (
-              <p className="m-0 text-xs text-amber-900 dark:text-amber-100" data-testid="quality-gate-diagnostics-note">
+              <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)} data-testid="quality-gate-diagnostics-note">
                 {state.diagnosticsNote}
               </p>
             ) : null}
             {state.diagnostics ? (
               <dl
-                className="m-0 grid grid-cols-[minmax(0,220px)_1fr] gap-x-3 gap-y-2 rounded-md border border-neutral-200 p-3 font-mono text-xs dark:border-neutral-700"
+                className={cn("m-0 grid grid-cols-[minmax(0,220px)_1fr] gap-x-3 gap-y-2 rounded-md border border-neutral-200 p-3 font-mono dark:border-neutral-700", OPERATOR_TYPOGRAPHY.micro)}
                 data-testid="quality-gate-diagnostics-panel"
               >
                 <dt className="m-0 text-neutral-500">StructuralRejectBelow</dt>

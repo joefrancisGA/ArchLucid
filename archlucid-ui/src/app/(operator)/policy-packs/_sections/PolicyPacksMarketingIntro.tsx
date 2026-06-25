@@ -10,6 +10,8 @@ import {
   policyPacksPageLeadReader,
   policyPacksPageLeadReaderBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type PolicyPacksMarketingIntroProps = {
   buyerPolishedShell: boolean;
@@ -23,7 +25,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
     <>
       {!buyerPolishedShell ? (
         <p
-          className="mb-3 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+          className={cn("mb-3 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
           data-testid="policy-packs-outcome-banner"
         >
           {policyPacksOutcomeBannerLine}
@@ -31,13 +33,13 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
       ) : null}
       {!buyerPolishedShell ? (
         <p
-          className="mb-3 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-neutral-200"
+          className={cn("mb-3 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-al-text-primary dark:border-teal-900/50 dark:bg-teal-950/30", OPERATOR_TYPOGRAPHY.body)}
           data-testid="policy-packs-delta-demo-banner"
         >
           {policyPacksDeltaDemoBannerLine}{" "}
           <Link
             href="/help/policy-pack-delta-demo"
-            className="font-medium text-teal-800 underline dark:text-teal-300"
+            className={OPERATOR_LINK.inline}
           >
             Open demo script
           </Link>
@@ -45,14 +47,14 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
         </p>
       ) : null}
       {buyerPolishedShell ? (
-        <p className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-3 max-w-prose px-3 py-2 text-sm">
+        <p className={cn("mb-3 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
           <strong className="font-semibold">Healthcare Claims sample pack</strong> enforces PHI minimization expectations in
           review outputs, aligns advisory defaults with claims-intake patterns, and keeps alert posture consistent with the
           governed review story in this workspace.
         </p>
       ) : null}
       {buyerPolishedShell ? null : (
-        <p className="mb-3 max-w-prose text-xs text-neutral-600 dark:text-neutral-400" data-testid="policy-packs-bundled-defaults-note">
+        <p className={cn("mb-3 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-packs-bundled-defaults-note">
           New tenants receive two seeded governance bundles labeled{" "}
           <strong className="font-semibold">Bundled default (platform)</strong> in Policy packs (
           <span className="whitespace-nowrap">AI Governance / Responsible AI</span>{" "}
@@ -61,19 +63,19 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
         </p>
       )}
       {buyerPolishedShell ? null : (
-        <p className="mb-3 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mb-3 max-w-prose leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Policy packs are <strong>versioned governance bundles</strong>: they pin compliance rule references, advisory
           defaults, and alert posture for a tenant, workspace, or project so every architecture review evaluates against
           the same explicit bar as your team scales.
         </p>
       )}
-      <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {buyerPolishedShell ? (
           <>
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> defines which compliance checks apply
             to reviews in this workspace —{" "}
             {canMutatePacks ? policyPacksPageLeadOperatorBuyerPolished : policyPacksPageLeadReaderBuyerPolished}{" "}
-            <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
+            <Link href="/governance-resolution" className={OPERATOR_LINK.inline}>
               How conflicts are resolved
             </Link>
             .
@@ -82,7 +84,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
           <>
             A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> bundles versioned controls and
             advisory defaults for your scope — {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
-            <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
+            <Link href="/governance-resolution" className={OPERATOR_LINK.inline}>
               Governance resolution
             </Link>
             .
