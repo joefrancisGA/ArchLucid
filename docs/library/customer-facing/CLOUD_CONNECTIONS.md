@@ -79,5 +79,5 @@ Do **not** assign Owner, Contributor, User Access Administrator, or broad direct
 ## Related topics {#related-topics}
 
 - **[Security and trust](/help/security-trust)** — assurance ladder, data handling, and diligence materials.
-- **[Enterprise onboarding checklist](/help/enterprise-onboarding)** — full hosted deployment checklist for tenant administrators (SSO, governance, procurement).
+- **[Hosted SaaS enterprise onboarding checklist](/help/enterprise-onboarding)** — enterprise tenant configuration for administrators (SSO, governance, procurement).
 - **[Procurement FAQ](/help/procurement)** — buyer-safe answers for InfoSec and resilience questionnaires.

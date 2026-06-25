@@ -1,18 +1,18 @@
 import { ExternalLink } from "@/components/ui/external-link";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { buildGithubBlobHref } from "@/lib/docs-public-base";
+import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 type HelpTopicSourceFooterProps = {
   entry: ProductDocumentationEntry;
 };
 
-/** Optional GitHub source link for full-operator / developer help contexts only (TB-148). */
+/** Optional GitHub source link for internal operator shells only (TB-148). */
 export function HelpTopicSourceFooter(props: HelpTopicSourceFooterProps): React.ReactElement | null {
   const { entry } = props;
 
-  if (isBuyerPolishedOperatorShellEnv() && entry.audience !== "developer") {
+  if (!isArchLucidInternalOperatorShellEnv()) {
     return null;
   }
 

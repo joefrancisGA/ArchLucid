@@ -47,6 +47,23 @@ function slugifyHeading(heading) {
 }
 
 /**
+ * @param {string} rawTitle
+ * @returns {{ title: string, explicitAnchor: string | null }}
+ */
+function parseHeadingAnchor(rawTitle) {
+  const match = rawTitle.match(/\s*\{#([^}]+)\}\s*$/);
+
+  if (match) {
+    return {
+      title: rawTitle.replace(/\s*\{#([^}]+)\}\s*$/, "").trim(),
+      explicitAnchor: match[1].trim().toLowerCase(),
+    };
+  }
+
+  return { title: rawTitle.trim(), explicitAnchor: null };
+}
+
+/**
  * @param {string} raw
  */
 function stripLeadingScopeBlock(raw) {
@@ -184,8 +201,9 @@ function parseMarkdownDoc(docPath, raw) {
 
     if (hx) {
       const headingRaw = hx[2].trim();
-      const sectionHeading = stripInlineMarkdown(headingRaw);
-      const baseSlug = slugifyHeading(headingRaw);
+      const { title: headingText, explicitAnchor } = parseHeadingAnchor(headingRaw);
+      const sectionHeading = stripInlineMarkdown(headingText);
+      const baseSlug = explicitAnchor ?? slugifyHeading(headingText);
       const sectionSlug = allocateSlug(baseSlug);
 
       const excerpt = collectFirstParagraph(lines, i + 1);

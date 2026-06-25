@@ -80,9 +80,9 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
     summary: "Assign Admin, Architect, Reader, and Auditor roles; map IdP groups to ArchLucid authority.",
   },
   "enterprise-onboarding": {
-    title: "Enterprise onboarding checklist",
+    title: "Hosted SaaS enterprise onboarding checklist",
     summary:
-      "Full hosted deployment checklist for tenant administrators — SSO, governance, procurement, and optional Azure evidence.",
+      "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
   },
 };
 

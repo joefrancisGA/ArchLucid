@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
-import { createHelpHeadingSlugAllocator } from "@/lib/help-heading-slug";
+import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -316,8 +316,8 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     }
 
     if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim();
-      const sectionId = allocateSectionSlug(title);
+      const rawTitle = line.slice(3).trim();
+      const { id: sectionId, title } = resolveHelpHeadingId(rawTitle, allocateSectionSlug);
       blocks.push(
         <h2
           key={`h2-${key}`}
@@ -351,8 +351,8 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     }
 
     if (line.startsWith("### ")) {
-      const title = line.slice(4).trim();
-      const sectionId = allocateSectionSlug(title);
+      const rawTitle = line.slice(4).trim();
+      const { id: sectionId, title } = resolveHelpHeadingId(rawTitle, allocateSectionSlug);
       blocks.push(
         <h3
           key={`h3-${key}`}

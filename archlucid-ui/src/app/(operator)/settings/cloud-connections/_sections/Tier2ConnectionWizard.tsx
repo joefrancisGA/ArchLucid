@@ -216,12 +216,12 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
               >
                 trust center
               </Link>
-              . For the full hosted deployment checklist, see{" "}
+              . For the full enterprise tenant onboarding checklist, see{" "}
               <Link
                 href={TIER2_WIZARD_HELP_HREFS.hostedEnterpriseOnboarding}
                 className="text-teal-700 underline dark:text-teal-400"
               >
-                Enterprise onboarding checklist
+                Hosted SaaS enterprise onboarding checklist
               </Link>
               .
             </p>

@@ -52,7 +52,7 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
             href={inAppHelpHref("enterprise-onboarding", "saml-claim-mapping-reference")}
             className="text-teal-700 underline-offset-2 hover:underline"
           >
-            hosted Enterprise onboarding checklist §2.1
+            SAML claim-mapping reference in the hosted SaaS enterprise onboarding checklist
           </Link>
           .
         </p>

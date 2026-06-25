@@ -136,4 +136,21 @@ describe("MarketingAccessibilityMarkdownFragment help presentation", () => {
     expect(screen.getByTestId("mermaid-diagram")).toHaveTextContent("flowchart LR");
     expect(screen.queryByRole("button", { name: /copy code/i })).toBeNull();
   });
+
+  it("strips explicit markdown heading anchors from visible help headings", () => {
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={`## Workforce SSO {#workforce-sso}
+
+Body copy.`}
+        tableCaption="Test table"
+        presentation="help"
+      />,
+    );
+
+    const heading = screen.getByRole("heading", { level: 2, name: "Workforce SSO" });
+
+    expect(heading).toHaveAttribute("id", "workforce-sso");
+    expect(screen.queryByText(/\{#workforce-sso\}/i)).toBeNull();
+  });
 });

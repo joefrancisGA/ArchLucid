@@ -167,9 +167,9 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "enterprise-onboarding",
-    title: "Enterprise onboarding checklist",
+    title: "Hosted SaaS enterprise onboarding checklist",
     summary:
-      "Deployment checklist for hosted Enterprise tenants — SSO, roles, governance, procurement, and optional Azure cloud evidence.",
+      "Checklist for configuring an ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
     audience: "buyer",
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
   },

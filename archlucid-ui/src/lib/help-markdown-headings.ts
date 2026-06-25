@@ -1,4 +1,4 @@
-import { createHelpHeadingSlugAllocator } from "@/lib/help-heading-slug";
+import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 
 export type HelpMarkdownHeading = {
   readonly level: 2 | 3;
@@ -18,20 +18,22 @@ export function extractHelpMarkdownHeadings(markdown: string): readonly HelpMark
 
   for (const line of lines) {
     if (line.startsWith("## ") && !line.startsWith("###")) {
-      const title = line.slice(3).trim();
+      const rawTitle = line.slice(3).trim();
+      const resolved = resolveHelpHeadingId(rawTitle, allocateSectionSlug);
 
-      if (title.length > 0) {
-        headings.push({ level: 2, id: allocateSectionSlug(title), title });
+      if (resolved.title.length > 0) {
+        headings.push({ level: 2, id: resolved.id, title: resolved.title });
       }
 
       continue;
     }
 
     if (line.startsWith("### ")) {
-      const title = line.slice(4).trim();
+      const rawTitle = line.slice(4).trim();
+      const resolved = resolveHelpHeadingId(rawTitle, allocateSectionSlug);
 
-      if (title.length > 0) {
-        headings.push({ level: 3, id: allocateSectionSlug(title), title });
+      if (resolved.title.length > 0) {
+        headings.push({ level: 3, id: resolved.id, title: resolved.title });
       }
     }
   }
