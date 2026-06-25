@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE } from "@/lib/buyer-polish-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
@@ -160,13 +162,13 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Cost settings</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Cost settings</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE}
           </p>
-          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             In a connected tenant, tenant administrators configure architect rates and ROI inputs here.
           </p>
         </CardContent>
@@ -177,21 +179,21 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
   return (
     <Card data-testid="tenant-cost-settings-card">
       <CardHeader>
-        <CardTitle className="text-base">Cost settings</CardTitle>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Cost settings</CardTitle>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           These values are used to estimate review savings and executive ROI when actual cost evidence is unavailable.
           {!isTenantConfigured ? " Showing platform defaults until you save." : null}
         </p>
       </CardHeader>
       <CardContent>
         {loadFailure !== null ? (
-          <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert">
+          <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
             {loadFailure}
           </p>
         ) : null}
 
         {loading ? (
-          <p className="m-0 text-sm text-neutral-500">Loading cost settings…</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading cost settings…</p>
         ) : (
           <form onSubmit={(e) => void onSave(e)} className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -229,13 +231,13 @@ export function TenantCostSettingsCard({ canEdit }: TenantCostSettingsCardProps)
                 readOnly={!canEdit}
                 data-testid="tenant-cost-ea-percentage"
               />
-              <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 0 = list pricing. 15 applies EffectivePrice = RetailPrice × 0.85 to Cost-category ROI savings.
               </p>
             </div>
 
             {!canEdit ? (
-              <p className="m-0 text-xs text-neutral-500">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Editing requires operator rank (Execute) on the API; your session is read-only for these controls.
               </p>
             ) : null}

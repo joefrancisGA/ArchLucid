@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getIanaTimeZoneSelectOptions, normalizeIanaTimeZoneForSelect } from "@/lib/iana-time-zone-select";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { cn } from "@/lib/utils";
@@ -99,39 +99,39 @@ export function TenantSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Workspace scope</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Workspace scope</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+        <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
             Your active workspace and project are selected from the workspace switcher.
           </p>
 
           <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
-            <p className="m-0 text-sm">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your
               current selection.
             </p>
-            <p className="m-0 mt-2 text-sm">
-              <Link className="text-teal-800 underline dark:text-teal-300" href="/settings/tenant/recycle-bin">
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              <Link className={OPERATOR_LINK.inline} href="/settings/tenant/recycle-bin">
                 Open projects recycle bin
               </Link>{" "}
               to review or restore soft-deleted architecture projects.
             </p>
-            <ul className="m-0 mt-2 list-inside list-disc">
+            <ul className={cn("m-0 mt-2 list-inside list-disc", OPERATOR_TYPOGRAPHY.body)}>
               <li>
-                Tenant: <span className="font-mono text-xs">{scope["x-tenant-id"]}</span>
+                Tenant: <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scope["x-tenant-id"]}</span>
               </li>
               <li>
-                Workspace: <span className="font-mono text-xs">{scope["x-workspace-id"]}</span>
+                Workspace: <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scope["x-workspace-id"]}</span>
               </li>
               <li>
-                Project: <span className="font-mono text-xs">{scope["x-project-id"]}</span>
+                Project: <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scope["x-project-id"]}</span>
               </li>
             </ul>
-            <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               Hosted deployments with more than one API instance should use a shared projection cache —{" "}
               <a
-                className="text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
                 href={toDocsBlobUrl("/docs/operations/PROJECTION_CACHE_AND_REPLICAS.md")}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -148,10 +148,10 @@ export function TenantSettingsPageView(props: Props) {
       {m.trial != null && m.trial.status != null && m.trial.status !== "None" ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Pilot / trial</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Pilot / trial</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               <span className="font-medium">Status:</span> {m.trial.status}
               {typeof m.trial.daysRemaining === "number" ? (
                 <span>
@@ -170,24 +170,24 @@ export function TenantSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Executive digest (email)</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Executive digest (email)</CardTitle>
         </CardHeader>
         <CardContent>
           {m.digestLoadFailure !== null ? (
-            <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert">
+            <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {m.digestLoadFailure}
             </p>
           ) : null}
           {m.digest == null || m.form == null ? (
-            <p className="m-0 text-sm text-neutral-500">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               Preferences will load when the notification API is available.
             </p>
           ) : (
             <form onSubmit={(e) => void m.onSaveDigest(e)} className="space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-100">Email enabled</p>
-                  <p className="m-0 text-xs text-neutral-500">
+                  <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Email enabled</p>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Sends a weekly roll-up to the listed addresses (API-enforced on save).
                   </p>
                 </div>
@@ -276,7 +276,7 @@ export function TenantSettingsPageView(props: Props) {
                 </div>
               </div>
               {!m.canEditDigest ? (
-                <p className="m-0 text-xs text-neutral-500">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Editing requires operator rank (Execute) on the API; your session is read-only for these controls.
                 </p>
               ) : null}
@@ -294,9 +294,9 @@ export function TenantSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Support bundle</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Support bundle</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+        <CardContent className={cn("space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">Download a redacted diagnostics ZIP when opening a support ticket.</p>
           <SupportBundleDownloadButton />
         </CardContent>
@@ -307,7 +307,7 @@ export function TenantSettingsPageView(props: Props) {
         defaultOpen={false}
         sectionTestId="tenant-advanced-section"
       >
-        <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Configure how strictly ArchLucid evaluates generated review output before it is accepted. These settings affect
           AI spend and review pipeline behaviour — leave at host defaults unless directed by support.
         </p>

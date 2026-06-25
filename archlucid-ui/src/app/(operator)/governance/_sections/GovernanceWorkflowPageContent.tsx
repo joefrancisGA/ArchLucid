@@ -38,6 +38,7 @@ import {
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   isStaticDemoPayloadFallbackEnabled,
@@ -492,7 +493,7 @@ export function GovernanceWorkflowPageContent() {
         }
         metadata={
           buyerPolishedShell && !showBuyerApprovalStory ? (
-            <span className="text-xs text-neutral-500 dark:text-neutral-500">
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Production deployments and change-managed releases follow your enterprise process—this page does not configure
               releases.
             </span>
@@ -502,7 +503,7 @@ export function GovernanceWorkflowPageContent() {
       />
       {buyerPolishedShell && !showBuyerApprovalStory ? (
         <p
-          className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
+          className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-buyer-why-matters"
         >
           This confirms the review package has passed the required approval sequence before being used for architecture
@@ -512,7 +513,7 @@ export function GovernanceWorkflowPageContent() {
       {showBuyerApprovalStory ? (
         <>
           <p
-            className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 max-w-prose px-4 py-3 text-sm font-semibold leading-snug shadow-sm"
+            className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 font-semibold leading-snug shadow-sm dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
             data-testid="governance-buyer-approval-record-lead"
           >
             {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
@@ -526,7 +527,7 @@ export function GovernanceWorkflowPageContent() {
       ) : null}
       {!showBuyerApprovalStory ? (
         <p
-          className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+          className={cn("mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-workflow-outcome-banner"
         >
           {governanceWorkflowOutcomeBannerLine}
@@ -544,15 +545,15 @@ export function GovernanceWorkflowPageContent() {
       )}
 
       {buyerPolishedShell && !showBuyerApprovalStory ? (
-        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm">
+        <div className={cn("mb-6 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">{BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO}</p>
-          <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">{BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES}</p>
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES}</p>
         </div>
       ) : null}
       {!buyerPolishedShell &&
       (isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) &&
       !showBuyerApprovalStory ? (
-        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm">
+        <div className={cn("mb-6 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
           <strong>Approval workflow reference</strong>
           {" — "}
           In production, authorized roles submit requests, complete approval, release approved packages to each environment,
@@ -564,10 +565,11 @@ export function GovernanceWorkflowPageContent() {
         <div
           role="status"
           className={cn(
-            "fixed bottom-6 right-6 z-50 max-w-sm rounded-lg px-4 py-3 text-sm shadow-lg",
+            "fixed bottom-6 right-6 z-50 max-w-sm rounded-lg px-4 py-3 shadow-lg",
+            OPERATOR_TYPOGRAPHY.body,
             toast.kind === "ok"
-              ? "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 border"
-              : "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 border",
+              ? "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-emerald-800/50 border"
+              : "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 border",
           )}
         >
           {toast.message}

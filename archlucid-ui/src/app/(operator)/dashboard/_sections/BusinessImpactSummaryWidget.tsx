@@ -12,6 +12,12 @@ import {
   formatRoiCostEvidenceFreshnessWarning,
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
+import {
+  OPERATOR_KPI_CARD_DESCRIPTION,
+  OPERATOR_KPI_CARD_TITLE,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
 function formatUsd(value: number | undefined): string {
@@ -111,16 +117,16 @@ export function BusinessImpactSummaryWidget({
   return (
     <section aria-labelledby="business-impact-heading" className="space-y-4">
       <div className="space-y-1">
-        <h2 id="business-impact-heading" className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+        <h2 id="business-impact-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
           Business impact summary
         </h2>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {executiveSurface
             ? "Theme counts from committed reviews in this workspace."
             : (
               <>
                 Live signals from committed reviews via{" "}
-                <span className="font-mono text-xs">GET /v1/roi/executive-summary</span>.
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary</span>.
               </>
             )}
           {!hasCommittedRuns && !isLoading ? " Commit a review to populate these cards." : null}
@@ -129,7 +135,7 @@ export function BusinessImpactSummaryWidget({
 
       {shouldShowRoiCostEvidenceFreshnessWarning(data?.costEvidenceFreshnessStatus) ? (
         <p
-          className="m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-xs text-al-text-primary dark:border-amber-700/50"
+          className={cn("m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.helper)}
           role="alert"
           data-testid="business-impact-cost-evidence-warning"
         >
@@ -145,7 +151,7 @@ export function BusinessImpactSummaryWidget({
         {!executiveSurface ? (
         <Card className="sm:col-span-2 lg:col-span-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               Estimated savings
             </CardTitle>
             <DollarSign className="h-4 w-4 text-neutral-500" />
@@ -155,11 +161,11 @@ export function BusinessImpactSummaryWidget({
               <div className="h-8 w-24 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
             ) : (
               <>
-                <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+                <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
                   {formatUsd(data?.totalEstimatedUsdSavings)}
                 </p>
                 {data ? (
-                  <CardDescription className="mt-2 text-xs">
+                  <CardDescription className={cn("mt-2", OPERATOR_KPI_CARD_DESCRIPTION)}>
                     {formatExecutiveRoiPricingBasisLabel(data.savingsPricingBasis, data.eaDiscountMultiplier)}
                   </CardDescription>
                 ) : null}
@@ -175,7 +181,7 @@ export function BusinessImpactSummaryWidget({
           return (
             <Card key={card.key}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
                   {card.label}
                 </CardTitle>
                 <Icon className="h-4 w-4 text-neutral-500" />
@@ -184,7 +190,7 @@ export function BusinessImpactSummaryWidget({
                 {isLoading ? (
                   <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
                 ) : (
-                  <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+                  <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
                     {hasCommittedRuns ? card.value : "—"}
                   </p>
                 )}
