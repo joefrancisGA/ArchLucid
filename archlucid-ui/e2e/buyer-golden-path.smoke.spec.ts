@@ -12,6 +12,7 @@ import {
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
   expectBuyerGoldenJourneyStepper,
   expectNoGenericErrorBoundary,
+  showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
 import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 
@@ -38,7 +39,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
 
     // Step 2 — Signed manifest (friendly URL; rewrites to manifest detail implementation)
     await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
-    await expect(page).toHaveURL(/\/reviews\/claims-intake-modernization\/manifest/);
+    await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible();

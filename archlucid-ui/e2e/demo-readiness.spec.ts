@@ -8,6 +8,10 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
+import {
+  isShowcaseSignedManifestBrowserPath,
+  showcaseSignedManifestBrowserUrlPattern,
+} from "./helpers/buyer-golden-path";
 import { expectGraphPageReadySurface } from "./helpers/operator-journey";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
@@ -85,11 +89,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     await page.goto(claimsShowcasePath);
     await page.getByRole("link", { name: "Open signed record" }).first().click();
-    await expect(page).toHaveURL(
-      new RegExp(
-        `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/manifest)`,
-      ),
-    );
+    await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();
   });
 
@@ -156,11 +156,11 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       .getByTestId(`runs-row-primary-explore-${SHOWCASE_DEMO_RUN_ID}`)
       .click();
     const afterListClickUrl = new RegExp(
-      `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/manifest|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
+      `(?:/manifests/${escapeRegExpSource(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}|/reviews/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)}/(?:manifest|architecture)|/(?:reviews|runs)/${escapeRegExpSource(SHOWCASE_DEMO_RUN_ID)})`,
     );
     await expect(page).toHaveURL(afterListClickUrl);
 
-    if (page.url().includes("/manifests/") || page.url().includes("/manifest")) {
+    if (isShowcaseSignedManifestBrowserPath(new URL(page.url()).pathname)) {
       await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);
       await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
     }

@@ -10,18 +10,15 @@ import { expect, test } from "@playwright/test";
 import {
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
   SHOWCASE_DEMO_RUN_ID,
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "../e2e/fixtures";
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "../e2e/fixtures/runs-list-heading";
 import {
   BUYER_GOLDEN_PATH_HREFS,
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
+  showcaseSignedManifestBrowserUrlPattern,
 } from "../e2e/helpers/buyer-golden-path";
 
 const SHOWCASE_RUN_URL_PATTERN = new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`);
-const MANIFEST_URL_PATTERN = new RegExp(
-  `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}/manifest)`,
-);
 
 test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
   test("home hint, new request, reviews list, finalized review package, manifest roundtrip", async ({ page }) => {
@@ -64,7 +61,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
 
-    await expect(page).toHaveURL(MANIFEST_URL_PATTERN);
+    await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });
