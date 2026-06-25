@@ -2,9 +2,19 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
-import { OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA } from "@/lib/buyer-polish-copy";
+import {
+  OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA,
+} from "@/lib/buyer-polish-copy";
 import { SHOWCASE_HOME_SAMPLE_FINDINGS } from "@/lib/showcase-home-sample-findings";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSampleReviewPackageHref,
+} from "@/lib/showcase-sample-review-registry";
+import {
+  OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
+  reviewIntakeExampleTemplateHref,
+} from "@/lib/operator-home-example-request";
 
 const committedReviewMock = vi.hoisted(() => ({ value: false }));
 
@@ -13,7 +23,7 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 }));
 
 describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
-  it("renders sample findings with open-full CTA for first-run tenants", () => {
+  it("renders sample findings with run and open-completed CTAs for first-run tenants", () => {
     committedReviewMock.value = false;
 
     render(<OperatorHomeSampleReviewPreview />);
@@ -26,12 +36,16 @@ describe("OperatorHomeSampleReviewPreview (TB-353)", () => {
       expect(screen.getByText(finding.title)).toBeInTheDocument();
     }
 
-    expect(screen.getByTestId("operator-home-sample-review-open-full")).toHaveAttribute(
+    expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(
       "href",
-      `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+      reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID),
     );
+    expect(screen.getByTestId("operator-home-sample-review-open")).toHaveAttribute(
+      "href",
+      showcaseSampleReviewPackageHref(SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId),
+    );
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review sample findings" })).toBeInTheDocument();
   });
 
   it("hides once the tenant has a committed architecture review", () => {

@@ -29,15 +29,14 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
-export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Preview sample findings";
+export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = "Try a sample review";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD =
-  "Review three representative findings before opening the full package.";
+  "See how ArchLucid turns an architecture request into findings, evidence, governance actions, and a completed review package.";
 
-export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Review sample findings";
+export const OPERATOR_HOME_REVIEW_SAMPLE_FINDINGS_CTA = "Run sample review";
 
-
-export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open full example review";
+export const OPERATOR_HOME_OPEN_FULL_EXAMPLE_REVIEW_CTA = "Open completed sample";
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
   "Demo-derived sample only — labels execution mode and evidence basis on the full review package.";
@@ -78,8 +77,6 @@ export const PILOT_COMMAND_CENTER_LEAD =
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
-export const PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK = "Try sample review";
-
 export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What ArchLucid discovers";
 
 export const PILOT_COMMAND_CENTER_OUTCOMES = [
@@ -105,7 +102,7 @@ export const PILOT_PATH_PREVIEW_STEPS = [
   { id: "commit", label: "Commit review package" },
 ] as const;
 
-export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Advanced guidance";
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Setup and walkthroughs";
 
 export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
   "Checklists, operating path, walkthroughs, and optional setup.";
@@ -315,7 +312,7 @@ export const BUYER_HOME_WELCOME_LEAD =
   "Start with the executive view, then the signed review record, audit trail, and prioritized findings.";
 
 /** Canonical home reviews zone heading — both operator shells (TB-347). */
-export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";
+export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Workspace activity";
 
 export const BUYER_HOME_REVIEWS_SECTION_HEADING = OPERATOR_HOME_RECENT_REVIEWS_HEADING;
 

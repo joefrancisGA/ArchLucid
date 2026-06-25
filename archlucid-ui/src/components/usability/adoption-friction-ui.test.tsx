@@ -16,15 +16,12 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 }));
 
 describe("PilotCommandCenterCard", () => {
-  it("renders primary start review CTA, design-first lead, path preview, and sample-data link", () => {
+  it("renders primary start review CTA, design-first lead, and path preview without a duplicate sample link", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveAttribute(
-      "href",
-      "/reviews/new?zeroConfig=1",
-    );
+    expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_COMMAND_CENTER_LEAD);
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();

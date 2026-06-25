@@ -1,6 +1,7 @@
 import {
   ArchiveRestore,
   Building2,
+  CalendarClock,
   CreditCard,
   LifeBuoy,
   Shield,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
@@ -67,6 +69,14 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: LifeBuoy,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/governance/recurrence-schedules",
+          label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
+          title: "Recurrence schedules — automated follow-up architecture reviews after commit",
+          icon: CalendarClock,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
         },
       ],
     };

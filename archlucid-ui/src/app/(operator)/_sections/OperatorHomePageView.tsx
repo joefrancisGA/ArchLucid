@@ -3,7 +3,6 @@ import {
   OperatorHomeDeferredOnboarding,
   OperatorHomeFirstValueCallout,
 } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
-import { OperatorHomeExampleRequestPanel } from "@/components/operator-home/OperatorHomeExampleRequestPanel";
 import { OperatorHomeSampleReviewPreview } from "@/components/operator-home/OperatorHomeSampleReviewPreview";
 import {
   OperatorHomeRunsPanel,
@@ -36,7 +35,6 @@ function BuyerPolishedHomePageBody() {
     <>
       <BuyerPolishedHomeHeroSection />
 
-      <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
@@ -59,7 +57,6 @@ function OperatorHomePageBody() {
       <PilotCommandCenterCard />
       <OperatorHomeFirstValueCallout />
 
-      <OperatorHomeExampleRequestPanel />
       <OperatorHomeSampleReviewPreview />
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>

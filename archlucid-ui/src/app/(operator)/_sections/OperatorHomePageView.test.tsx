@@ -15,10 +15,6 @@ vi.mock("@/components/operator-home/OperatorHomeDeferredPanels", () => ({
   OperatorHomeWorkspaceStatusPanel: () => <div data-testid="home-block-workspace-status" />,
 }));
 
-vi.mock("@/components/operator-home/OperatorHomeExampleRequestPanel", () => ({
-  OperatorHomeExampleRequestPanel: () => <div data-testid="home-block-example-request" />,
-}));
-
 vi.mock("@/components/operator-home/OperatorHomeSampleReviewPreview", () => ({
   OperatorHomeSampleReviewPreview: () => <div data-testid="home-block-sample-review-preview" />,
 }));
@@ -62,7 +58,7 @@ import { OPERATOR_HOME_PRIMARY_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator-home-recent-reviews-heading";
 
 describe("OperatorHomePageView", () => {
-  it("renders an elevated Recent reviews section heading in buyer-polished home (TB-347)", () => {
+  it("renders an elevated Workspace activity section heading in buyer-polished home (TB-347)", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
 
     const heading = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING });
@@ -72,54 +68,50 @@ describe("OperatorHomePageView", () => {
     expect(OPERATOR_HOME_PRIMARY_SECTION_HEADING).toContain("font-bold");
   });
 
-  it("renders the same Recent reviews heading in full operator home (TB-347)", () => {
+  it("renders the same Workspace activity heading in full operator home (TB-347)", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
 
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
-  it("orders buyer-polished home as hero, first-value sample surfaces, reviews, then collapsed advanced guidance", () => {
+  it("orders buyer-polished home as hero, merged sample tour card, reviews, then collapsed setup section", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
 
     expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-example-request")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
     expect(screen.queryByTestId("home-block-workspace-status")).toBeNull();
+    expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
     const heroSection = screen.getByTestId("operator-home-hero-section");
-    const exampleRequest = screen.getByTestId("home-block-example-request");
     const sampleReviewPreview = screen.getByTestId("home-block-sample-review-preview");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
-    expect(heroSection.compareDocumentPosition(exampleRequest) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(exampleRequest.compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(heroSection.compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(sampleReviewPreview.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("keeps operator shell hero, first-value sample surfaces, reviews, workspace context, and advanced guidance in order", () => {
+  it("keeps operator shell hero, merged sample tour card, reviews, workspace context, and setup section in order", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
 
     expect(screen.getByTestId("home-block-pilot-command-center")).toBeInTheDocument();
-    expect(screen.getByTestId("home-block-example-request")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-workspace-context")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-workspace-status")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-advanced-guidance")).toBeInTheDocument();
+    expect(screen.queryByTestId("home-block-example-request")).toBeNull();
 
     const hero = screen.getByTestId("home-block-pilot-command-center");
-    const exampleRequest = screen.getByTestId("home-block-example-request");
     const sampleReviewPreview = screen.getByTestId("home-block-sample-review-preview");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const workspaceContext = screen.getByTestId("home-block-workspace-context");
     const advancedGuidance = screen.getByTestId("home-block-advanced-guidance");
 
-    expect(hero.compareDocumentPosition(exampleRequest) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(exampleRequest.compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hero.compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(sampleReviewPreview.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(workspaceContext) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspaceContext.compareDocumentPosition(advancedGuidance) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

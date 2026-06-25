@@ -127,7 +127,7 @@ describe("HomePage — buyer-polished shell", () => {
     vi.unstubAllEnvs();
   });
 
-  it("keeps the home launchpad focused on hero, reviews, and collapsed advanced guidance", async () => {
+  it("keeps the home launchpad focused on hero, merged sample tour card, reviews, and collapsed setup section", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
 
     renderWithOperatorQuery(<HomePage />);
@@ -136,14 +136,14 @@ describe("HomePage — buyer-polished shell", () => {
     expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("design brief");
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.queryByText("What you'll get")).toBeNull();
-    expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
-    const recentReviewsHeading = screen.getByRole("heading", { name: "Recent reviews" });
-    expect(recentReviewsHeading).toBeInTheDocument();
+    const workspaceActivityHeading = screen.getByRole("heading", { name: "Workspace activity" });
+    expect(workspaceActivityHeading).toBeInTheDocument();
 
-    const exampleRequestPanel = screen.getByTestId("operator-home-example-request-panel");
-    expect(screen.getByTestId("pilot-command-center-card").compareDocumentPosition(exampleRequestPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(exampleRequestPanel.compareDocumentPosition(recentReviewsHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const sampleReviewPreview = screen.getByTestId("operator-home-sample-review-preview");
+    expect(screen.getByTestId("pilot-command-center-card").compareDocumentPosition(sampleReviewPreview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(sampleReviewPreview.compareDocumentPosition(workspaceActivityHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     await waitFor(() => {
       expect(screen.getByTestId("operator-home-advanced-guidance")).toBeInTheDocument();
     });
@@ -162,24 +162,25 @@ describe("HomePage — buyer-polished shell", () => {
 describe("HomePage (55R smoke — landing)", () => {
   useOperatorQueryTestLifecycle();
 
-  it("renders compact hero, reviews panel, and collapsed advanced guidance", async () => {
+  it("renders compact hero, merged sample tour card, reviews panel, and collapsed setup section", async () => {
     renderWithOperatorQuery(<HomePage />);
 
-    expect(screen.getByRole("heading", { name: "Recent reviews" })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveAttribute(
+    expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
+    expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(
       "href",
-      "/reviews/new?zeroConfig=1",
+      "/reviews/new?template=claims-intake-modernization",
     );
     expect(screen.getByTestId("operator-home-sample-review-open")).toHaveAttribute(
       "href",
-      "/reviews/claims-intake-modernization/findings/phi-minimization-risk",
+      "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Review sample findings" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open full example review" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open completed sample" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
@@ -191,7 +192,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
   });
 
-  it("exposes create-first-request CTA from runs empty state", async () => {
+  it("exposes create-first-request CTA from sample tour card", async () => {
     renderWithOperatorQuery(<HomePage />);
 
     const runsLinks = screen
@@ -199,9 +200,7 @@ describe("HomePage (55R smoke — landing)", () => {
       .filter((el) => el.getAttribute("href") === "/reviews?projectId=default");
     expect(runsLinks.length).toBeGreaterThan(0);
 
-    await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Start from this example" })).toBeInTheDocument();
-    });
+    expect(screen.getByRole("link", { name: "Run sample review" })).toBeInTheDocument();
   });
 
   it("exposes primary workflow destinations matching shell review paths", async () => {

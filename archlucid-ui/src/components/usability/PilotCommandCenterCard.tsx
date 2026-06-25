@@ -11,7 +11,6 @@ import {
   PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
-  PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK,
   PILOT_PATH_PREVIEW_STEPS,
   resolveOperatorHomeHeroHeading,
 } from "@/lib/buyer-polish-copy";
@@ -21,7 +20,6 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import { ZERO_CONFIG_DEMO_WIZARD_HREF } from "@/lib/zero-config-demo-mode";
 import { cn } from "@/lib/utils";
 
 const optionalSetupLinkClass = cn(
@@ -62,11 +60,6 @@ export function PilotCommandCenterCard(): React.JSX.Element {
           <Button asChild variant="primary" size="sm" className="h-8">
             <Link href="/reviews/new" data-testid="pilot-command-center-primary">
               {PILOT_COMMAND_CENTER_PRIMARY_CTA}
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href={ZERO_CONFIG_DEMO_WIZARD_HREF} data-testid="pilot-command-center-try-sample">
-              {PILOT_COMMAND_CENTER_TRY_SAMPLE_LINK}
             </Link>
           </Button>
         </div>

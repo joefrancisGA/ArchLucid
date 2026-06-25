@@ -55,13 +55,13 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
   });
 
-  it("keeps Start review as the primary action in the header action row", () => {
+  it("keeps Start review as the sole primary action in the header action row", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveTextContent("Start review");
-    expect(screen.getByTestId("pilot-command-center-try-sample")).toHaveTextContent("Try sample review");
+    expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
   });
 

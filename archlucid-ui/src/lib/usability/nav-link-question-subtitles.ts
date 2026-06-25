@@ -7,6 +7,10 @@ export type NavLinkQuestionSubtitle = {
   readonly subtitle: string;
 };
 
+/**
+ * Subtitles only for items whose label alone doesn't convey scope — omit obvious labels
+ * (Start review, Review packages, Portfolio view) so the sidebar stays compact.
+ */
 export const NAV_LINK_QUESTION_SUBTITLES: readonly NavLinkQuestionSubtitle[] = [
   { href: "/compare", subtitle: "What changed between two reviews?" },
   { href: "/replay", subtitle: "Does stored output still validate?" },
@@ -20,9 +24,6 @@ export const NAV_LINK_QUESTION_SUBTITLES: readonly NavLinkQuestionSubtitle[] = [
   { href: "/alerts", subtitle: "What needs attention right now?" },
   { href: "/policy-packs", subtitle: "Which rules drive findings?" },
   { href: "/value-report", subtitle: "What value did reviews deliver?" },
-  { href: "/reviews/new", subtitle: "Start a new architecture review" },
-  { href: "/reviews", subtitle: "Browse committed architecture reviews" },
-  { href: "/dashboard", subtitle: "Portfolio ROI and compliance drift for sponsors" },
 ] as const;
 
 export function navLinkQuestionSubtitle(href: string): string | null {
