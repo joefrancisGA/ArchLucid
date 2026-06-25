@@ -27,6 +27,7 @@ const emptyCommitContext: CorePilotCommitContext = {
   latestRunId: null,
   firstCommittedRunId: null,
   secondCommittedRunId: null,
+  latestRunReadyToFinalize: false,
 };
 
 function mapLaneStatusToEnterpriseKind(status: FirstValueLanePhaseStatus): EnterpriseStatusKind {

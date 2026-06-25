@@ -7,7 +7,6 @@ import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
-  PILOT_COMMAND_CENTER_LEAD,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer-polish-copy";
 
@@ -19,11 +18,13 @@ describe("PilotCommandCenterCard", () => {
   it("renders primary start review CTA, design-first lead, and path preview without a duplicate sample link", () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute("href", "/reviews/new");
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-help")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_COMMAND_CENTER_LEAD);
+    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(
+      "Each architecture review is tracked as one review package from capture through signed review record and export.",
+    );
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();

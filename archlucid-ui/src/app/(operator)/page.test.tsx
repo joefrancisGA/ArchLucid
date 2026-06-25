@@ -133,7 +133,7 @@ describe("HomePage — buyer-polished shell", () => {
     renderWithOperatorQuery(<HomePage />);
 
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("design brief");
+    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("review package");
     expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
     expect(screen.queryByText("What you'll get")).toBeNull();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
@@ -168,7 +168,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByRole("heading", { name: "Workspace activity" })).toBeInTheDocument();
     expect(screen.queryByTestId("operator-home-example-request-panel")).toBeNull();
     expect(screen.getByTestId("operator-home-sample-review-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute("href", "/reviews/new");
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
     expect(screen.getByTestId("operator-home-sample-review-run")).toHaveAttribute(

@@ -17,6 +17,7 @@ import {
 } from "@/lib/executive-time-range";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function sumDriftChanges(points: { changeCount: number }[]): number {
   return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
