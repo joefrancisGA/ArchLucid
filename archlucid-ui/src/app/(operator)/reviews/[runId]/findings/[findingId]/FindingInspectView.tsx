@@ -20,6 +20,8 @@ import {
   buildFindingPolicyEvidenceCitationsFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
@@ -58,7 +60,7 @@ export function FindingInspectView({
   if (failure || !payload) {
     return (
       <div className="w-full max-w-[1440px] space-y-4 p-6">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
+        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Technical inspection</h1>
         <OperatorApiProblem
           problem={failure?.problem ?? null}
           fallbackMessage={failure?.message ?? "Finding inspector unavailable."}
@@ -71,7 +73,7 @@ export function FindingInspectView({
   if (!sameAuthorityRunId(payload.runId, runId)) {
     return (
       <div className="w-full max-w-[1440px] space-y-4 p-6">
-        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? "This finding belongs to a different review package than the one in this URL."
             : (
@@ -84,7 +86,7 @@ export function FindingInspectView({
         </p>
         <Link
           href={`/reviews/${encodeURIComponent(payload.runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
-          className="text-sky-700 underline dark:text-sky-300"
+          className={OPERATOR_LINK.nav}
         >
           Open the correct inspector
         </Link>
@@ -95,14 +97,14 @@ export function FindingInspectView({
   if (!findingIdsAlignForInspectRoute(decodedFindingId, payload.findingId)) {
     return (
       <div className="w-full max-w-[1440px] space-y-4 p-6">
-        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           This inspection payload corresponds to finding{" "}
           <span className="font-mono">{payload.findingId}</span>, not{" "}
           <span className="font-mono">{decodedFindingId}</span>.
         </p>
         <Link
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(payload.findingId)}/inspect`}
-          className="text-sky-700 underline dark:text-sky-300"
+          className={OPERATOR_LINK.nav}
         >
           Open the inspector for finding {payload.findingId}
         </Link>
@@ -118,8 +120,8 @@ export function FindingInspectView({
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
       {buyerPolishedShell ? (
-        <div className="flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
-          <span className="rounded-sm bg-neutral-200 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">
+        <div className={cn("flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}>
+          <span className={cn("rounded-sm bg-neutral-200 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
             Appendix
           </span>
           <span>
@@ -136,14 +138,14 @@ export function FindingInspectView({
             : "space-y-3"
         }
       >
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
+        <p className={cn("m-0 text-violet-900 dark:text-violet-200", OPERATOR_NAV_GROUP_LABEL)}>
           {findingInspectPageEyebrow(payload)}
         </p>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{inspectHeroTitle}</h1>
-        <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>{inspectHeroTitle}</h1>
+        <p className={cn("m-0 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {findingDetailLeadSentence(payload)}
         </p>
-        <ul className="m-0 list-disc space-y-1.5 py-1 pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <ul className={cn("m-0 list-disc space-y-1.5 py-1 pl-5 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           <li>
             <strong className="font-medium text-neutral-900 dark:text-neutral-100">Source evidence:</strong> citations,
             snapshots, and structured payload fields persisted with this finding.
@@ -158,9 +160,9 @@ export function FindingInspectView({
           </li>
         </ul>
         {!buyerPolishedShell ? (
-          <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Finding <span className="font-mono text-xs">{decodedFindingId}</span> — review record{" "}
-            <span className="font-mono text-xs">{payload.manifestVersion ?? "—"}</span>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Finding <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{decodedFindingId}</span> — review record{" "}
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{payload.manifestVersion ?? "—"}</span>
           </p>
         ) : null}
       </header>

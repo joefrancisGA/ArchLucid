@@ -17,6 +17,8 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const DISPOSITION_OPTIONS: FindingDispositionKind[] = [
   "Accepted",
@@ -177,14 +179,14 @@ export function FindingInspectGovernanceStickinessPanel({
   return (
     <Card className="border-neutral-200 dark:border-neutral-800">
       <CardHeader>
-        <CardTitle className="text-base">Governance disposition &amp; waiver</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Governance disposition &amp; waiver</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 text-sm">
+      <CardContent className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
         {statusMessage ? <p className="m-0 text-teal-800 dark:text-teal-300">{statusMessage}</p> : null}
         {errorMessage ? <p className="m-0 text-red-700 dark:text-red-400">{errorMessage}</p> : null}
 
         <section className="space-y-3">
-          <h3 className="m-0 text-sm font-semibold">Record disposition</h3>
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Record disposition</h3>
           <div className="flex gap-2 pb-2">
             <Button 
               type="button" 
@@ -246,7 +248,7 @@ export function FindingInspectGovernanceStickinessPanel({
         </section>
 
         <section className="space-y-3">
-          <h3 className="m-0 text-sm font-semibold">Risk exception (waiver)</h3>
+          <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Risk exception (waiver)</h3>
           {activeWaiver ? (
             <p className="m-0 text-neutral-700 dark:text-neutral-300">
               Active waiver expires {activeWaiver.expiresAtUtc} — owner {activeWaiver.ownerUserId}
@@ -301,7 +303,7 @@ export function FindingInspectGovernanceStickinessPanel({
 
         {history.length > 0 ? (
           <section className="space-y-2">
-            <h3 className="m-0 text-sm font-semibold">Disposition history</h3>
+            <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Disposition history</h3>
             <ul className="m-0 list-disc space-y-1 pl-5">
               {history.map((event) => (
                 <li key={event.eventId}>

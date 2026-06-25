@@ -3,6 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { useItsmNativeCreateEnabled } from "@/lib/use-itsm-native-create-enabled";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type FindingInspectItsmWorkflowPanelProps = {
   readonly findingId: string;
@@ -23,23 +25,23 @@ export function FindingInspectItsmWorkflowPanel({
   return (
     <Card className="border-teal-200 dark:border-teal-900">
       <CardHeader>
-        <CardTitle className="text-base">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {nativeCreateEnabled ? "Sync to Jira or ServiceNow" : "External ticket linkage"}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
         {humanReviewStatusLabel ? (
-          <p className="text-al-text-secondary">
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Inbound sync human review: <span className="font-medium text-al-text-primary">{humanReviewStatusLabel}</span>
           </p>
         ) : null}
         {nativeCreateEnabled ? (
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-al-text-secondary">
             Create a linked Jira issue or ServiceNow incident from this finding in one click. Duplicate creation per
             provider is blocked when a correlation already exists.
           </p>
         ) : (
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-al-text-secondary">
             One-click ticket creation is disabled in this environment. Use copy-as-work-item or register external
             tracking manually.
           </p>

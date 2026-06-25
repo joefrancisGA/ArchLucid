@@ -17,6 +17,7 @@ import {
   type PolicyRulePreview,
 } from "@/lib/policy-rule-preview-lookup";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type FindingInspectPolicyRuleCalloutProps = {
@@ -89,18 +90,18 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag kind="needs-attention" label={violationLabel} data-testid="finding-inspect-policy-violation-tag" />
-        <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Customer policy rule</p>
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Customer policy rule</p>
       </div>
 
       <div className="mt-3 space-y-3">
         <FindingPolicyTraceabilityBadges pack={pack} policy={policy} />
 
         <div>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
             Rule ID
           </p>
           <p
-            className="m-0 mt-1 font-mono text-sm font-medium text-neutral-900 dark:text-neutral-100"
+            className={cn("m-0 mt-1 font-mono font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="finding-inspect-policy-rule-id"
           >
             {preview.ruleId}
@@ -108,38 +109,38 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
         </div>
 
         <div>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
             Rule text
           </p>
           <p
-            className="m-0 mt-1 text-sm font-medium leading-relaxed text-neutral-900 dark:text-neutral-100"
+            className={cn("m-0 mt-1 font-medium leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="finding-inspect-policy-rule-text"
           >
             {preview.description}
           </p>
           {preview.remediationGuidance.trim().length > 0 ? (
-            <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">Remediation: </span>
+            <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              <span className="font-medium text-al-text-primary">Remediation: </span>
               {preview.remediationGuidance}
             </p>
           ) : null}
         </div>
 
         {loading ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="status">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
             Loading policy pack rule text…
           </p>
         ) : null}
 
         {loadError !== null ? (
-          <p className="m-0 text-xs text-rose-700 dark:text-rose-300" role="alert">
+          <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
             {loadError}
           </p>
         ) : null}
 
         <Link
           href={policyPacksRuleHref(preview.ruleId)}
-          className="inline-block text-xs font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+          className={cn("inline-block", OPERATOR_LINK.optional)}
         >
           Open full rule in Policy Packs
         </Link>
