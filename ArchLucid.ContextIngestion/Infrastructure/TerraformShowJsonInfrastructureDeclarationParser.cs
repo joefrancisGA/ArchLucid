@@ -91,6 +91,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             return;
 
         string tfType = typeEl.GetString() ?? string.Empty;
+
         if (string.IsNullOrWhiteSpace(tfType))
             return;
 
@@ -98,6 +99,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
             return;
 
         string name = nameEl.GetString() ?? string.Empty;
+
         if (string.IsNullOrWhiteSpace(name))
             return;
 
@@ -108,6 +110,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         if (res.TryGetProperty("provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
         {
             string? p = prov.GetString();
+
             if (!string.IsNullOrWhiteSpace(p))
                 properties["providerName"] = p;
         }
@@ -115,6 +118,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         if (res.TryGetProperty("mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
         {
             string? m = mode.GetString();
+
             if (!string.IsNullOrWhiteSpace(m))
                 properties["mode"] = m;
         }
@@ -127,6 +131,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                     break;
 
                 string key = SanitizePropertyKey(prop.Name);
+
                 if (string.IsNullOrEmpty(key))
                     continue;
 
@@ -160,6 +165,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                     continue;
 
                 string? r = dep.GetString();
+
                 if (!string.IsNullOrWhiteSpace(r))
                     refs.Add(r.Trim());
             }

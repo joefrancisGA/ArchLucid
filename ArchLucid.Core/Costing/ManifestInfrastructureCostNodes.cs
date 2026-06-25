@@ -40,6 +40,7 @@ public static class ManifestInfrastructureCostNodes
             return nodes;
 
         // ReSharper disable once LoopCanBeConvertedToQuery
+
         foreach (AzureExtractorInventoryResourceLine line in resources)
         {
             RuntimePlatform? platform = AzureArmResourceCostMapper.TryInferPlatform(line.ResourceType);
