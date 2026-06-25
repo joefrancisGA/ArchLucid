@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type ScimTokenSummary = {
   id: string;
@@ -173,15 +175,16 @@ export function ScimProvisioningSettingsPageClient() {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="scim-provisioning-settings-page">
       <header>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">SCIM provisioning</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Issue inbound SCIM bearer tokens for your identity provider and verify connectivity before saving IdP configuration.
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>SCIM provisioning</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Issue inbound SCIM bearer tokens for your identity provider and verify connectivity before saving IdP
+          configuration.
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Issue token</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Issue token</CardTitle>
           <CardDescription>Plaintext tokens are shown once. Store them in your IdP SCIM provisioning app.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -189,9 +192,21 @@ export function ScimProvisioningSettingsPageClient() {
             {issuing ? "Issuing…" : "Issue new SCIM token"}
           </Button>
           {issuedToken !== null ? (
-            <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm">
-              <p className="m-0 font-medium text-amber-950 dark:text-amber-100">Copy this token now — it will not be shown again.</p>
-              <code className="mt-2 block break-all rounded bg-white/80 p-2 font-mono text-xs dark:bg-neutral-900/80">
+            <div
+              className={cn(
+                "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 text-al-text-primary dark:border-amber-700/50",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            >
+              <p className={cn("m-0 font-medium text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+                Copy this token now — it will not be shown again.
+              </p>
+              <code
+                className={cn(
+                  "mt-2 block break-all rounded bg-white/80 p-2 font-mono dark:bg-neutral-900/80",
+                  OPERATOR_TYPOGRAPHY.micro,
+                )}
+              >
                 {issuedToken.plaintextToken}
               </code>
             </div>
@@ -201,7 +216,7 @@ export function ScimProvisioningSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Verify connection</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Verify connection</CardTitle>
           <CardDescription>Calls <code>GET /scim/v2/ServiceProviderConfig</code> with the bearer token you plan to configure.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -223,7 +238,10 @@ export function ScimProvisioningSettingsPageClient() {
             {verifyState.status === "checking" ? "Verifying…" : "Verify connection"}
           </Button>
           {verifyState.status === "ok" ? (
-            <p className="m-0 text-sm font-medium text-emerald-800 dark:text-emerald-300" data-testid="scim-verify-success">
+            <p
+              className={cn("m-0 font-medium text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="scim-verify-success"
+            >
               {verifyState.detail}
             </p>
           ) : null}
@@ -235,23 +253,25 @@ export function ScimProvisioningSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Active tokens</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Active tokens</CardTitle>
           <CardDescription>Revoke tokens when rotating IdP provisioning credentials.</CardDescription>
         </CardHeader>
         <CardContent>
           {state.status === "loading" || state.status === "idle" ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading tokens…</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading tokens…</p>
           ) : null}
           {state.status === "blocked" ? <OperatorApiProblem fallbackMessage={state.message} problem={null} /> : null}
           {state.status === "ready" && state.tokens.length === 0 ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No SCIM tokens issued yet.</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No SCIM tokens issued yet.</p>
           ) : null}
           {state.status === "ready" && state.tokens.length > 0 ? (
             <ul className="m-0 space-y-3">
               {state.tokens.map((token) => (
                 <li key={token.id} className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-                  <p className="m-0 font-mono text-xs">{token.publicLookupKey}</p>
-                  <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                    {token.publicLookupKey}
+                  </p>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                     Created {token.createdUtc}
                     {token.revokedUtc ? ` · Revoked ${token.revokedUtc}` : ""}
                   </p>
