@@ -239,12 +239,17 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
                   />
                 </div>
               ) : row.category && row.recordKind === "finding" ? (
-                <div className="mt-0.5 text-[11px] font-normal text-al-text-secondary">
+                <div className={cn("mt-0.5 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                   Policy area: {row.category}
                 </div>
               ) : null}
               {buyerPolishedShell ? null : (
-                <div className="mt-0.5 flex flex-wrap items-center gap-1 font-mono text-[11px] font-normal text-al-text-secondary">
+                <div
+                  className={cn(
+                    "mt-0.5 flex flex-wrap items-center gap-1 font-mono font-normal text-al-text-secondary",
+                    OPERATOR_TYPOGRAPHY.micro,
+                  )}
+                >
                   <span>{row.findingId}</span>
                   <CopyIdButton value={row.findingId} aria-label="Copy finding ID" />
                 </div>
@@ -279,15 +284,22 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
             <EnterpriseTableCell>
               <div>{row.status}</div>
               {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
-                <div className="mt-0.5 text-[11px] text-al-text-secondary">{row.humanReviewStatusLabel}</div>
+                <div className={cn("mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                  {row.humanReviewStatusLabel}
+                </div>
               ) : null}
               {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
-                <div className="mt-0.5 font-mono text-[11px] text-al-text-secondary">
+                <div className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                   ITSM: {row.itsmLinkedTicketsSummary}
                 </div>
               ) : null}
               {row.isStale ? (
-                <span className="ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 text-[10px] font-semibold uppercase text-al-text-primary dark:border-amber-700/50">
+                <span
+                  className={cn(
+                    "ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 font-semibold uppercase text-al-text-primary dark:border-amber-700/50",
+                    OPERATOR_TYPOGRAPHY.badge,
+                  )}
+                >
                   Stale
                 </span>
               ) : null}
@@ -440,11 +452,17 @@ export function GovernanceFindingsQueueDesktopTable(
         </p>
       ) : (
         <p className={cn("mb-2 text-neutral-500", DESIGN_TOKENS.table.cellSecondary)} aria-hidden="true">
-          <kbd className="rounded border border-neutral-300 px-1 font-mono text-[10px] dark:border-neutral-600">j</kbd>
+          <kbd className={cn("rounded border border-neutral-300 px-1 font-mono dark:border-neutral-600", OPERATOR_TYPOGRAPHY.micro)}>
+            j
+          </kbd>
           /
-          <kbd className="rounded border border-neutral-300 px-1 font-mono text-[10px] dark:border-neutral-600">k</kbd>
+          <kbd className={cn("rounded border border-neutral-300 px-1 font-mono dark:border-neutral-600", OPERATOR_TYPOGRAPHY.micro)}>
+            k
+          </kbd>
           {" move rows · "}
-          <kbd className="rounded border border-neutral-300 px-1 font-mono text-[10px] dark:border-neutral-600">Enter</kbd>
+          <kbd className={cn("rounded border border-neutral-300 px-1 font-mono dark:border-neutral-600", OPERATOR_TYPOGRAPHY.micro)}>
+            Enter
+          </kbd>
           {" open finding"}
         </p>
       )}
