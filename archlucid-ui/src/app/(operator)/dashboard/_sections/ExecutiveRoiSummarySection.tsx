@@ -41,7 +41,8 @@ import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summar
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   resolveExecutiveHeadlineScopeLabel,
@@ -206,10 +207,10 @@ export function ExecutiveRoiSummarySection({
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{executiveRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="alert">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
             {summaryErrorProp}
           </p>
         </CardContent>
@@ -221,7 +222,7 @@ export function ExecutiveRoiSummarySection({
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{executiveRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
           <OperatorApiProblem failure={failure} />
@@ -237,10 +238,10 @@ export function ExecutiveRoiSummarySection({
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{executiveRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="exec-roi-summary-loading">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="exec-roi-summary-loading">
             Loading portfolio ROI…
           </p>
         </CardContent>
@@ -263,7 +264,7 @@ export function ExecutiveRoiSummarySection({
     <Card>
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{executiveRoiSummaryCardTitle()}</CardTitle>
           <Button
             type="button"
             size="sm"
@@ -293,7 +294,7 @@ export function ExecutiveRoiSummarySection({
             {boardPackBusy ? "Board pack…" : "Download board pack (Markdown)"}
           </Button>
         </div>
-        <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+        <label className={cn("flex items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           <input
             type="checkbox"
             checked={includeBoardPackNarrative}
@@ -304,13 +305,13 @@ export function ExecutiveRoiSummarySection({
             ? "Include an AI-generated executive summary."
             : "Include AI executive summary (uses 1 fast LLM call when enabled in API config)"}
         </label>
-        <CardDescription className="text-xs">
+        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           {isBuyerPolishedOperatorShellEnv() || executiveSurface ? (
             <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
           ) : (
             <>
               {resolveExecutiveHeadlineScopeLabel(displayData)} {resolveExecutiveSystemRowScopeLabel(displayData)} Data from{" "}
-              <span className="font-mono">GET /v1/roi/executive-summary</span>.
+              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary</span>.
             </>
           )}
         </CardDescription>
@@ -328,13 +329,13 @@ export function ExecutiveRoiSummarySection({
         />
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Systems reviewed</div>
+            <div className={OPERATOR_KPI_CARD_TITLE}>Systems reviewed</div>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {displayData.systemCount}
             </div>
           </div>
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Latest reviews included</div>
+            <div className={OPERATOR_KPI_CARD_TITLE}>Latest reviews included</div>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {displayData.latestRunCount}
             </div>
@@ -343,8 +344,8 @@ export function ExecutiveRoiSummarySection({
 
         {displayData.topSystemicIssues.length > 0 ? (
           <div>
-            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Top systemic issues</h3>
-            <ul className="mt-2 space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
+            <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Top systemic issues</h3>
+            <ul className={cn("mt-2 space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {displayData.topSystemicIssues.map((issue) => (
                 <li key={`${issue.category}-${issue.severity}`}>
                   <span className="font-medium">{issue.category}</span> · {issue.severity} · {issue.count}
@@ -353,7 +354,7 @@ export function ExecutiveRoiSummarySection({
             </ul>
           </div>
         ) : (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {executiveSurface
               ? "Run or commit a review to populate portfolio findings and savings estimates."
               : "No committed reviews with findings yet — load the sample workspace or run an architecture review to populate this summary."}
@@ -362,7 +363,7 @@ export function ExecutiveRoiSummarySection({
 
         {(displayData.historicalTrends?.length ?? 0) > 0 ? (
           <div>
-            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Systemic issue trends (last 6 months)
             </h3>
             <div className="mt-3">

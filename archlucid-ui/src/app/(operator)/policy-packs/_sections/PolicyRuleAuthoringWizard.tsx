@@ -29,6 +29,8 @@ import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import type { components } from "@/lib/openapi-schemas";
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 import { showSuccess } from "@/lib/toast";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
@@ -366,10 +368,10 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
       aria-labelledby="policy-rule-authoring-wizard-heading"
       data-testid="policy-rule-authoring-wizard"
     >
-      <h3 id="policy-rule-authoring-wizard-heading" className="mt-0">
+      <h3 id="policy-rule-authoring-wizard-heading" className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         Rule authoring workspace
       </h3>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
+      <p className={cn("max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Design custom policy content and evaluate it against a committed architecture review on one surface, then create
         or publish through the same durable policy-pack versioning as platform defaults.
       </p>
@@ -423,13 +425,13 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
           {inputMode === "guided" ? (
             <div className="grid gap-3">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Map compliance rule keys and optional alert hooks; metadata lines use{" "}
                 <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">key=value</code> per line. Policy JSON
                 stays in sync as you edit.
               </p>
               <div className="space-y-1">
-                <label htmlFor="wizard-guided-keys" className="text-sm font-medium">
+                <label htmlFor="wizard-guided-keys" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   Compliance rule keys
                 </label>
                 <Textarea
@@ -439,12 +441,12 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                     setGuidedFields((f) => ({ ...f, complianceRuleKeysText: e.target.value }))
                   }
                   rows={5}
-                  className="font-mono text-xs"
+                  className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
                   placeholder={"pci.segmentation.boundary-enforced"}
                 />
               </div>
               <div className="space-y-1">
-                <label htmlFor="wizard-guided-alerts" className="text-sm font-medium">
+                <label htmlFor="wizard-guided-alerts" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   Alert rule ids (optional)
                 </label>
                 <Textarea
@@ -454,11 +456,11 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                     setGuidedFields((f) => ({ ...f, alertRuleIdsText: e.target.value }))
                   }
                   rows={2}
-                  className="font-mono text-xs"
+                  className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
                 />
               </div>
               <div className="space-y-1">
-                <label htmlFor="wizard-guided-composite" className="text-sm font-medium">
+                <label htmlFor="wizard-guided-composite" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   Composite alert rule ids (optional)
                 </label>
                 <Textarea
@@ -468,11 +470,11 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                     setGuidedFields((f) => ({ ...f, compositeAlertRuleIdsText: e.target.value }))
                   }
                   rows={2}
-                  className="font-mono text-xs"
+                  className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
                 />
               </div>
               <div className="space-y-1">
-                <label htmlFor="wizard-guided-meta" className="text-sm font-medium">
+                <label htmlFor="wizard-guided-meta" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   Metadata (optional)
                 </label>
                 <Textarea
@@ -482,7 +484,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                     setGuidedFields((f) => ({ ...f, metadataLinesText: e.target.value }))
                   }
                   rows={2}
-                  className="font-mono text-xs"
+                  className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
                   placeholder={"vertical=healthcare"}
                 />
               </div>
@@ -499,9 +501,9 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               {authoringErrors.length > 0 ? (
                 <div
                   role="alert"
-                  className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-2 text-xs"
+                  className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised p-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.helper)}
                 >
-                  <p className="font-medium m-0 mb-1">Fix before testing or publish</p>
+                  <p className={cn("m-0 mb-1 font-medium", OPERATOR_TYPOGRAPHY.body)}>Fix before testing or publish</p>
                   <ul className="list-disc ml-4 m-0">
                     {authoringErrors.map((e) => (
                       <li key={e}>{e}</li>
@@ -529,7 +531,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
             />
             {!canMutatePacks ? (
-              <p className="text-xs text-neutral-500">Reader tier: JSON edits are disabled.</p>
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Reader tier: JSON edits are disabled.</p>
             ) : null}
             <Button type="button" size="sm" variant="secondary" onClick={() => syncGuidedFromCurrentJson()}>
               Load guided fields from current JSON
@@ -541,20 +543,20 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30"
           data-testid="policy-rule-wizard-step-test"
         >
-          <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Test on review</h4>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Test on review</h4>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Dry-run this policy content against a committed architecture snapshot without leaving the authoring surface.
           </p>
 
           {parsedDocumentForSimulate === null ? (
-            <p className="text-sm text-amber-800 dark:text-amber-200" role="status">
+            <p className={cn("text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)} role="status">
               Fix invalid policy JSON or guided-field validation errors before running a test.
             </p>
           ) : null}
 
           <div className="flex flex-wrap gap-2 items-end">
             <div className="space-y-1">
-              <label htmlFor="wizard-run-id" className="text-sm font-medium">
+              <label htmlFor="wizard-run-id" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 Review ID
               </label>
               <Input
@@ -562,7 +564,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                 data-testid="policy-rule-wizard-run-id"
                 value={simulateRunId}
                 onChange={(e) => setSimulateRunId(e.target.value)}
-                className="w-full max-w-xs font-mono text-xs"
+                className={cn("w-full max-w-xs font-mono", OPERATOR_TYPOGRAPHY.micro)}
               />
             </div>
             <Button type="button" size="sm" variant="secondary" onClick={() => void loadRecentRuns()}>
@@ -571,14 +573,14 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           </div>
 
           {runsLoadError !== null ? (
-            <p className="text-xs text-amber-800 dark:text-amber-200">{runsLoadError}</p>
+            <p className={cn("text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>{runsLoadError}</p>
           ) : null}
 
           {recentRuns.length > 0 ? (
-            <label className="block text-sm">
+            <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
               Pick a recent review
               <select
-                className="block mt-1 p-2 w-full max-w-xl"
+                className={cn("mt-1 block w-full max-w-xl p-2", OPERATOR_TYPOGRAPHY.body)}
                 value=""
                 onChange={(e) => setSimulateRunId(e.target.value)}
               >
@@ -594,7 +596,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             </label>
           ) : null}
 
-          <label className="flex items-center gap-2 text-sm">
+          <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
             <input
               type="checkbox"
               checked={blockOnCritical}
@@ -634,13 +636,13 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
         className="mt-6 space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
         data-testid="policy-rule-wizard-step-publish"
       >
-        <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Create or publish</h4>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 m-0">
+        <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Create or publish</h4>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Custom packs use the same versioned storage as bundled defaults (tenant-owned rows). Publish requires pack
           admin authority.
         </p>
 
-        <label className="flex items-start gap-2 text-sm max-w-prose">
+        <label className={cn("flex max-w-prose items-start gap-2", OPERATOR_TYPOGRAPHY.body)}>
           <input
             type="checkbox"
             checked={allowPublishWithoutTest}
@@ -654,7 +656,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
 
         <div className="grid gap-2 max-w-xl sm:grid-cols-2">
           <div className="space-y-1">
-            <label htmlFor="wizard-publish-name" className="text-sm font-medium">
+            <label htmlFor="wizard-publish-name" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Pack name (create)
             </label>
             <Input
@@ -666,7 +668,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="wizard-publish-desc" className="text-sm font-medium">
+            <label htmlFor="wizard-publish-desc" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Description
             </label>
             <Input
@@ -677,7 +679,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
             />
           </div>
-          <label className="sm:col-span-2">
+          <label className={cn("sm:col-span-2", OPERATOR_TYPOGRAPHY.body)}>
             Pack type
             <select
               value={packType}
@@ -694,7 +696,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             </select>
           </label>
           <div className="space-y-1 sm:col-span-2">
-            <label htmlFor="wizard-publish-version" className="text-sm font-medium">
+            <label htmlFor="wizard-publish-version" className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Version label (publish)
             </label>
             <Input
