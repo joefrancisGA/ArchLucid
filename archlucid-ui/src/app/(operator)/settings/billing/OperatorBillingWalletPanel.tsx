@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { showError, showInfo } from "@/lib/toast";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type WalletResponse = {
   balanceUsd: number;
@@ -86,7 +88,7 @@ export function OperatorBillingWalletPanel() {
   };
 
   if (loading) {
-    return <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading AI usage credits…</p>;
+    return <p className={OPERATOR_TYPOGRAPHY.helper}>Loading AI usage credits…</p>;
   }
 
   if (!wallet) {
@@ -96,24 +98,24 @@ export function OperatorBillingWalletPanel() {
   return (
     <div id="billing-ai-credits" className="scroll-mt-24 space-y-4" data-testid="operator-billing-wallet-panel">
       <div>
-        <h2 className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <h2 className={OPERATOR_NAV_GROUP_LABEL}>
           AI usage credits
         </h2>
-        <p className="mt-1 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-1 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
           Credits cover AI usage beyond your plan&apos;s included monthly allocation.
         </p>
       </div>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Credit balance</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Credit balance</CardTitle>
           <CardDescription>
             Non-expiring credits for review overages. Auto-replenish adds ${wallet.refillIncrementUsd} when balance
             drops below ${wallet.refillTriggerThresholdUsd}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <dl className="grid gap-2 text-sm sm:grid-cols-2">
+          <dl className={cn("grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Balance</dt>
               <dd className="font-medium tabular-nums">${wallet.balanceUsd.toFixed(2)}</dd>
@@ -141,10 +143,10 @@ export function OperatorBillingWalletPanel() {
               value={monthlyCapUsd}
               onChange={(e) => setMonthlyCapUsd(Number(e.target.value))}
             />
-            <p className="text-sm tabular-nums">${monthlyCapUsd} / month max auto-replenish</p>
+            <p className={cn("tabular-nums", OPERATOR_TYPOGRAPHY.body)}>${monthlyCapUsd} / month max auto-replenish</p>
           </div>
 
-          <label className="flex items-center gap-2 text-sm">
+          <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
             <input
               type="checkbox"
               checked={autoReplenish}
@@ -161,11 +163,11 @@ export function OperatorBillingWalletPanel() {
 
       <Card data-testid="operator-billing-payment-method">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Payment method</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Payment method</CardTitle>
           <CardDescription>Used for plan checkout and AI usage credit auto-replenish.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-0">
-          <p className="m-0 text-sm text-al-text-primary">
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {wallet.hasPaymentMethod ? "Payment method on file." : "No payment method on file."}
           </p>
           <Button type="button" variant="outline" onClick={onAddPaymentMethod}>
@@ -176,7 +178,7 @@ export function OperatorBillingWalletPanel() {
 
       <CollapsibleSection title="Advanced billing details" sectionTestId="operator-billing-advanced-details">
         <div className="space-y-4">
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
             Integration identifiers for staging and support. These fields are not shown in normal buyer-facing flows once
             Stripe Elements checkout ships.
           </p>
@@ -198,7 +200,7 @@ export function OperatorBillingWalletPanel() {
               placeholder="pm_…"
             />
             {wallet.stripePublishableKey ? (
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className={OPERATOR_TYPOGRAPHY.helper}>
                 Publishable key configured for this environment.
               </p>
             ) : null}

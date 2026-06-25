@@ -8,6 +8,8 @@ import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/finding-policy-evidence-citations";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -37,22 +39,22 @@ export function FindingInspectWhyMattersSection({
 
   return (
     <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{whyHeading}</h2>
+      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{whyHeading}</h2>
       {whyThisMattersNarrative ? (
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {whyThisMattersNarrative}
         </p>
       ) : demoFillGaps ? (
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           Sensitive fields (PHI) are carried through the intake path into downstream services. The finalized review
           package documents where patient identifiers stop and how monitoring validates ongoing minimization.
         </p>
       ) : (
-        <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           — (no dedicated rationale on file; see primary rule and evidence below.)
         </p>
       )}
-      <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
+      <dl className={cn("mt-3 space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {(policyRuleLabel ?? policyRuleId) ? (
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
@@ -60,7 +62,7 @@ export function FindingInspectWhyMattersSection({
               {policyRuleId !== null ? (
                 <Link
                   href={policyPacksRuleHref(policyRuleId)}
-                  className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+                  className={OPERATOR_LINK.nav}
                 >
                   {policyRuleLabel ?? policyRuleId}
                 </Link>
@@ -80,7 +82,7 @@ export function FindingInspectWhyMattersSection({
         <div className="mt-3">
           <CollapsibleSection title="Technical rule identifier" defaultOpen={variant === "inspect"}>
             <div className="flex flex-wrap items-center gap-2">
-              <code className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-xs dark:bg-neutral-800">
+              <code className={cn("rounded bg-neutral-100 px-1.5 py-0.5 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
                 {payload.decisionRuleId}
               </code>
               <CopyIdButton value={payload.decisionRuleId} aria-label="Copy rule identifier" />

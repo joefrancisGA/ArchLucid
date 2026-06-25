@@ -28,8 +28,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accelerator-wizard-presets";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 import { applyWizardPreset } from "@/lib/wizard-presets";
 import {
   parseWizardPresetDeeplinkToken,
@@ -744,15 +746,18 @@ export function NewRunWizardClient() {
       <WizardAiSuggestedFieldsProvider>
       <OperatorPageContainer ref={wizardReadyRef} variant="workflow" className="space-y-4 pb-36">
           {!wizardModeReady ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
+            <p className={OPERATOR_TYPOGRAPHY.helper}>Loading wizard…</p>
           ) : null}
           {followUpSourceRunId !== null ? (
             <p
-              className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
+              className={cn(
+                "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="new-run-follow-up-source-run-id"
             >
               Follow-up review for prior review package{" "}
-              <span className="font-mono text-xs">{followUpSourceRunId}</span>. Source context is stored for a
+              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{followUpSourceRunId}</span>. Source context is stored for a
               future wizard prefill.
             </p>
           ) : null}
@@ -766,15 +771,18 @@ export function NewRunWizardClient() {
               aria-label="Steps inside full guided review"
               data-testid="new-run-wizard-mode-toggle"
             >
-              <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              <span className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 Inside full guided review
               </span>
               <button
                 type="button"
                 className={
                   wizardMode === "quick"
-                    ? "rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white"
-                    : "rounded-md px-3 py-1.5 text-sm text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800"
+                    ? cn("rounded-md bg-teal-600 px-3 py-1.5 text-white", OPERATOR_TYPOGRAPHY.button)
+                    : cn(
+                        "rounded-md px-3 py-1.5 text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800",
+                        OPERATOR_TYPOGRAPHY.body,
+                      )
                 }
                 aria-pressed={wizardMode === "quick"}
                 onClick={() => persistWizardMode("quick")}
@@ -785,8 +793,11 @@ export function NewRunWizardClient() {
                 type="button"
                 className={
                   wizardMode === "full"
-                    ? "rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white"
-                    : "rounded-md px-3 py-1.5 text-sm text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800"
+                    ? cn("rounded-md bg-teal-600 px-3 py-1.5 text-white", OPERATOR_TYPOGRAPHY.button)
+                    : cn(
+                        "rounded-md px-3 py-1.5 text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800",
+                        OPERATOR_TYPOGRAPHY.body,
+                      )
                 }
                 aria-pressed={wizardMode === "full"}
                 onClick={() => persistWizardMode("full")}
@@ -799,13 +810,16 @@ export function NewRunWizardClient() {
                 className="rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
                 data-testid="new-run-wizard-advanced-opt-in"
               >
-                <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+                <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   <span className="font-medium text-neutral-900 dark:text-neutral-100">Quick start (3 steps)</span>
                   {" — recommended for your first review package. Constraints, Azure context, and advanced fields use safe defaults."}
                 </p>
                 <button
                   type="button"
-                  className="mt-2 rounded-md px-3 py-1.5 text-sm font-medium text-teal-900 underline decoration-teal-700/40 underline-offset-2 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-950/40"
+                  className={cn(
+                    "mt-2 rounded-md px-3 py-1.5 text-teal-900 underline decoration-teal-700/40 underline-offset-2 hover:bg-teal-50 dark:text-teal-200 dark:hover:bg-teal-950/40",
+                    OPERATOR_TYPOGRAPHY.button,
+                  )}
                   onClick={() => {
                     setAdvancedConfigurationOptIn(true);
                     persistWizardMode("full");
@@ -864,7 +878,10 @@ export function NewRunWizardClient() {
 
           {wizardModeReady && showFullWizardShell && presetDeeplinkPresetId !== null ? (
             <p
-              className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-sm dark:border-neutral-800"
+              className={cn(
+                "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="wizard-preset-deeplink-active"
               data-preset-id={presetDeeplinkPresetId}
             >
@@ -885,7 +902,7 @@ export function NewRunWizardClient() {
               {MACRO_WIZARD_STEP_DEFINITIONS[macroStep].label}
             </p>
             <p
-              className="m-0 text-sm text-neutral-500 dark:text-neutral-400"
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="new-run-wizard-step-line"
             >
               Step {stepIndex + 1}: {stepDefinitions[stepIndex].label}
@@ -904,7 +921,10 @@ export function NewRunWizardClient() {
 
           {stepIndex >= 2 && stepIndex <= reviewStepIndex && !(baselineFirst && stepIndex === 1) ? (
             <div
-              className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
+              className={cn(
+                "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="new-run-wizard-step-recap"
             >
               <strong className="font-semibold">Request so far:</strong>{" "}
@@ -1053,7 +1073,7 @@ export function NewRunWizardClient() {
           ) : null}
 
           {stepIndex === trackStepIndex && !runId ? (
-            <p className="text-sm text-red-600">Review id missing; cannot track pipeline.</p>
+            <p className={cn("text-red-600", OPERATOR_TYPOGRAPHY.body)}>Review id missing; cannot track pipeline.</p>
           ) : null}
 
             </>

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { truncateForList } from "@/lib/truncate-for-list";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 
 export type EvidenceTrailBuyerTraceTableProps = {
@@ -15,8 +17,10 @@ export type EvidenceTrailBuyerTraceTableProps = {
   onOpenGraphView?: () => void;
 };
 
-const rowGridClass =
-  "grid w-full min-w-[42rem] grid-cols-[minmax(11rem,1.5fr)_minmax(6rem,1fr)_minmax(6rem,1fr)_minmax(7rem,1fr)_minmax(8rem,1fr)] gap-x-3 border-b border-neutral-100 px-2 py-2.5 text-sm last:border-b-0 dark:border-neutral-800";
+const rowGridClass = cn(
+  "grid w-full min-w-[42rem] grid-cols-[minmax(11rem,1.5fr)_minmax(6rem,1fr)_minmax(6rem,1fr)_minmax(7rem,1fr)_minmax(8rem,1fr)] gap-x-3 border-b border-neutral-100 px-2 py-2.5 last:border-b-0 dark:border-neutral-800",
+  OPERATOR_TYPOGRAPHY.body,
+);
 
 /** Audit-oriented finding → evidence → policy → review step → package trace rows. */
 export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTableProps) {
@@ -27,11 +31,14 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
   if (rows.length === 0) {
     return (
       <div
-        className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900/40"
+        className={cn(
+          "rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         data-testid="evidence-trail-trace-empty"
       >
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">No trace rows yet</p>
-        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Trace rows appear after findings are committed with explainability metadata. Switch to graph view to explore
           linked evidence visually.
         </p>
@@ -50,7 +57,7 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
       data-testid="evidence-trail-trace-table"
     >
       <div
-        className={`${rowGridClass} sticky top-0 z-[1] bg-neutral-100 font-semibold text-neutral-800 dark:bg-neutral-900/95 dark:text-neutral-200`}
+        className={cn(rowGridClass, "sticky top-0 z-[1] bg-neutral-100 font-semibold text-al-text-primary dark:bg-neutral-900/95")}
       >
         <div>Finding</div>
         <div>Evidence</div>
@@ -76,33 +83,33 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
           <div key={row.findingId} className={`${rowGridClass} items-start bg-white dark:bg-neutral-900/30`}>
             <div className="min-w-0">
               <div
-                className="text-xs leading-snug text-neutral-800 dark:text-neutral-200"
+                className={cn("leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}
                 title={titleFull}
               >
                 {truncateForList(titleFull, 120)}
               </div>
-              <Button type="button" variant="ghost" size="sm" className="mt-1 h-7 px-2 text-xs" asChild>
+              <Button type="button" variant="ghost" size="sm" className={cn("mt-1 h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} asChild>
                 <Link href={`/reviews/${encodeURIComponent(runTrim)}/findings/${encodeURIComponent(row.findingId)}/inspect`}>
                   Open finding
                 </Link>
               </Button>
             </div>
-            <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">
+            <div className={cn("min-w-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {explainGraphHref !== null ? (
                 <FindingEvidenceLinkChip href={explainGraphHref} evidenceRefCount={row.evidenceRefCount} />
               ) : (
                 "—"
               )}
             </div>
-            <div className="min-w-0 break-words text-xs text-neutral-700 dark:text-neutral-300">
+            <div className={cn("min-w-0 break-words text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "—"}
             </div>
-            <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">
+            <div className={cn("min-w-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {row.traceConfidenceLabel && row.traceConfidenceLabel.trim().length > 0
                 ? row.traceConfidenceLabel
                 : "—"}
             </div>
-            <div className="flex min-w-0 flex-col gap-1 text-xs">
+            <div className={cn("flex min-w-0 flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className="underline" href={reviewPackageHref}>
                 Review package
               </Link>

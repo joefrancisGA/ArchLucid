@@ -81,24 +81,45 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
   await expect(page.getByText(v.pageLead).or(page.getByText(v.portfolioPageLead))).toBeVisible();
 }
 
+/** Register summary + export proxy listeners before navigation to avoid hydration races. */
+export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
+  readonly summaryResponse: Promise<Response>;
+  readonly exportPayload: Promise<ExecutiveRoiExportPayload>;
+} {
+  const summaryResponse = page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 90_000 });
+  // Operator legacy `/dashboard` fires export on mount; portfolio `/executive/dashboard` defers until summary hydrates.
+  const earlyExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
+  const exportPayload = summaryResponse.then(async () => {
+    await page
+      .getByText("Savings by environment")
+      .scrollIntoViewIfNeeded({ timeout: 30_000 })
+      .catch(() => undefined);
+    await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 }).catch(() => undefined);
+
+    const lateExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
+    const response = await Promise.race([earlyExportResponse, lateExportResponse]);
+
+    return (await response.json()) as ExecutiveRoiExportPayload;
+  });
+
+  return { summaryResponse, exportPayload };
+}
+
 /** Call before `page.goto` so summary/export proxy responses are not missed during hydration. */
 export async function waitForExecutiveRoiExportResponse(page: Page): Promise<ExecutiveRoiExportPayload> {
-  // Portfolio layout fetches executive summary on mount; register listeners before navigation.
-  await page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
+  const { summaryResponse, exportPayload } = prepareExecutiveRoiDashboardProxyWaits(page);
+
+  await summaryResponse;
 
   await expect(page.getByTestId("executive-primary-decisions-needed"))
     .toBeVisible({ timeout: 30_000 })
     .catch(() => undefined);
 
-  const exportResponsePromise = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 });
-
   await page.getByText("Savings by environment").scrollIntoViewIfNeeded({ timeout: 30_000 }).catch(() => undefined);
   await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 }).catch(() => undefined);
 
   try {
-    const response = await exportResponsePromise;
-
-    return (await response.json()) as ExecutiveRoiExportPayload;
+    return await exportPayload;
   } catch {
     await page.getByText("Savings by environment").scrollIntoViewIfNeeded({ timeout: 15_000 }).catch(() => undefined);
 

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GraphArchitectureNoteBannerProps = {
   graphMainColumnMaxClass: string;
@@ -11,7 +12,8 @@ export function GraphArchitectureNoteBanner(props: GraphArchitectureNoteBannerPr
   return (
     <div
       className={cn(
-        "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mb-4 px-4 py-3 text-sm",
+        "mb-4 rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
         graphMainColumnMaxClass,
       )}
       role="status"

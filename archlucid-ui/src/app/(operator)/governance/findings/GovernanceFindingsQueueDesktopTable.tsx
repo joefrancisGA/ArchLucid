@@ -22,7 +22,8 @@ import {
 import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -32,7 +33,6 @@ import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions"
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { groupGovernanceFindingQueueRows } from "@/lib/group-governance-finding-queue-rows";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
-import { cn } from "@/lib/utils";
 
 import {
   formatGovernanceQueueRecordKind,
@@ -227,7 +227,7 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
             </EnterpriseTableCell>
             <EnterpriseTableCell className="font-medium text-al-text-primary">
               <Link
-                className="font-medium text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
                 href={inspectHref(row.runId, row.findingId)}
               >
                 {row.title}
@@ -260,16 +260,16 @@ function GovernanceFindingsQueueTableBody(props: GovernanceFindingsQueueTableBod
             </EnterpriseTableCell>
             <EnterpriseTableCell>
               <Link
-                className="font-medium text-teal-800 underline dark:text-teal-300"
+                className={OPERATOR_LINK.inline}
                 href={`/reviews/${encodeURIComponent(row.runId)}`}
               >
                 {row.runLabel}
               </Link>
             </EnterpriseTableCell>
             {buyerPolishedShell ? null : (
-              <EnterpriseTableCell className="font-mono text-xs">
+              <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                 <Link
-                  className="font-sans font-medium text-teal-800 underline dark:text-teal-300"
+                  className={cn("font-sans", OPERATOR_LINK.inline)}
                   href={manifestRecordHref(row.runId, row.manifestId)}
                 >
                   Open signed record

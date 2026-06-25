@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer-polish-copy";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type RunDetailExecutiveSummaryCtaCardProps = {
   readonly runId: string;
@@ -15,10 +17,10 @@ export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummar
   return (
     <Card className="rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Executive summary
         </CardTitle>
-        <CardDescription>
+        <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
           Board-ready risk posture, evidence basis, and governance status. Start here before the signed review record and
           deliverables.
         </CardDescription>
@@ -30,7 +32,7 @@ export function RunDetailExecutiveSummaryCtaCard(props: RunDetailExecutiveSummar
         <p className="m-0">
           <Link
             href="#manifest-summary"
-            className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+            className={OPERATOR_LINK.nav}
           >
             {BUYER_OPEN_SIGNED_RECORD_CTA} →
           </Link>

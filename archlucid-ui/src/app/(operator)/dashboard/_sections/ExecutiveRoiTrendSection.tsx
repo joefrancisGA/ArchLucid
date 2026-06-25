@@ -11,7 +11,9 @@ import {
 } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { cn } from "@/lib/utils";
 
 import { ExecutiveRoiSavingsTrendSvgChart } from "./ExecutiveRoiSavingsTrendSvgChart";
 
@@ -133,27 +135,27 @@ export function ExecutiveRoiTrendSection({
       <CardHeader className="pb-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <CardTitle className="text-base">ROI trend ({trendRangeLabel(timeRange)})</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>ROI trend ({trendRangeLabel(timeRange)})</CardTitle>
+            <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
               {buyerPolished
                 ? `Estimated USD savings and critical security findings over time. ${BUYER_EXECUTIVE_DATA_SOURCE_NOTE}`
                 : (
                     <>
                       Estimated USD savings and critical security findings over time from{" "}
-                      <span className="font-mono">GET /v1/roi/executive-summary/history</span>.
+                      <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary/history</span>.
                     </>
                   )}
             </CardDescription>
           </div>
           {showTimeRangeSelector ? (
             <div className="shrink-0">
-              <label htmlFor="exec-roi-trend-range" className="mb-1 block text-xs font-medium text-neutral-700 dark:text-neutral-300">
+              <label htmlFor="exec-roi-trend-range" className={cn("mb-1 block font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                 Time range
               </label>
               <select
                 id="exec-roi-trend-range"
                 data-testid="exec-roi-trend-time-range"
-                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+                className={cn("rounded-md border border-neutral-300 bg-white px-2 py-1 text-al-text-primary dark:border-neutral-600 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.helper)}
                 value={timeRange}
                 onChange={(event) => setTimeRange(event.target.value as ExecutiveTimeRange)}
               >
@@ -168,15 +170,15 @@ export function ExecutiveRoiTrendSection({
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading ROI trend…</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI trend…</p>
         ) : null}
         {!loading && error ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="alert">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
             ROI trend is unavailable right now.
           </p>
         ) : null}
         {!loading && !error && points.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Commit architecture reviews to populate longitudinal ROI trends.
           </p>
         ) : null}
@@ -189,7 +191,7 @@ export function ExecutiveRoiTrendSection({
               }))}
             />
             <div>
-              <div className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">Critical security findings</div>
+              <div className={cn("mb-2 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Critical security findings</div>
               <div className="flex items-end gap-2">
                 {points.map((point) => (
                   <div key={`critical-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
@@ -206,14 +208,14 @@ export function ExecutiveRoiTrendSection({
                       style={{ height: `${Math.max(8, Math.round((point.criticalSecurityFindings / maxCritical) * 120))}px` }}
                       title={buildCriticalBarTitle(point, buyerPolished)}
                     />
-                    <span className="text-[10px] text-neutral-500">{formatMonth(point.snapshotUtc)}</span>
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.navHelper)}>{formatMonth(point.snapshotUtc)}</span>
                   </div>
                 ))}
               </div>
             </div>
             {showMixedModeFootnote && !buyerPolished ? (
               <p
-                className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="exec-roi-trend-mixed-mode-footnote"
               >
                 Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings.

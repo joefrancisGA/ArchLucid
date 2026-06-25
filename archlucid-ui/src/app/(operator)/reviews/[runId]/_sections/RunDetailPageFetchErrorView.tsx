@@ -5,6 +5,8 @@ import { OperatorBrandedTransientFailure } from "@/components/OperatorBrandedTra
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export function RunDetailPageFetchErrorView(props: {
   readonly runId: string;
@@ -16,7 +18,7 @@ export function RunDetailPageFetchErrorView(props: {
   if (props.fromGeneration || isApiNotFoundFailure(props.loadFailure)) {
     return (
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
           {props.fromGeneration
             ? "Review generation — Could not open generated package"
             : "Review detail — Could not load review package"}
@@ -35,7 +37,7 @@ export function RunDetailPageFetchErrorView(props: {
   if (props.loadFailure !== null && isApiTransientLoadFailure(props.loadFailure)) {
     return (
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
+        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
         <OperatorBrandedTransientFailure failure={props.loadFailure} retryLabel="Retry loading review" />
       </div>
     );
@@ -43,14 +45,14 @@ export function RunDetailPageFetchErrorView(props: {
 
   return (
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-      <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
+      <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
       <OperatorApiProblem
         problem={props.loadFailure?.problem ?? null}
         fallbackMessage={props.fallbackMessage}
         correlationId={props.loadFailure?.correlationId ?? null}
       />
       <p>
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           ← Back to reviews
         </Link>
       </p>

@@ -7,12 +7,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
   tabindex="-1"
 >
   <h1
-    class="text-xl font-semibold leading-snug tracking-tight text-al-text-primary"
+    class="text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
   >
     Why ArchLucid
   </h1>
   <p
-    class="mt-3 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
+    class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
     data-testid="why-brand-category-paragraph"
   >
     ArchLucid is an Architecture Proof Engine: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.
@@ -114,24 +114,24 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-10 rounded-xl border border-neutral-200 border-l-4 border-l-[var(--al-accent-interactive)] bg-al-surface-raised px-5 py-4 shadow-sm dark:border-neutral-800"
   >
     <p
-      class="text-xs font-normal leading-snug text-al-text-secondary font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
     >
       First-principles outcome
     </p>
     <h2
-      class="mt-2 text-sm font-semibold leading-snug text-al-text-primary"
+      class="mt-2 text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-hero-outcome-heading"
     >
       One buyer problem, one proof package
     </h2>
     <p
-      class="mt-3 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
+      class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
       data-testid="why-outcome-led-value-proposition"
     >
       Cut architecture review cycle time with an evidence-backed proof package — signed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
     </p>
     <p
-      class="mt-3 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
+      class="mt-3 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
     >
       Multi-agent execution sits behind those outcomes so teams move faster without losing the governed record CFOs and regulators expect.
     </p>
@@ -142,13 +142,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     data-testid="why-vs-chat-assistant"
   >
     <h2
-      class="text-sm font-semibold leading-snug text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-vs-chat-assistant-heading"
     >
       vs a chat assistant (ChatGPT, Copilot, Claude)
     </h2>
     <p
-      class="mt-2 max-w-3xl text-xs font-normal leading-snug text-al-text-secondary"
+      class="mt-2 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
     >
       Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it persists a committed review package, governance gate, and audit trail a session cannot replace.
     </p>
@@ -320,7 +320,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12"
   >
     <h2
-      class="text-sm font-semibold leading-snug text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-market-landscape-heading"
     >
       Where ArchLucid fits (adjacent tooling)
@@ -472,12 +472,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="rounded-md border border-neutral-200 bg-neutral-100/80 dark:border-neutral-800 dark:bg-neutral-900/50 p-4"
   >
     <h2
-      class="text-sm font-semibold leading-snug text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
     >
       Side-by-side audit evidence package
     </h2>
     <p
-      class="mt-2 max-w-3xl text-[13px] font-normal leading-relaxed text-al-text-primary text-al-text-secondary"
+      class="mt-2 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary text-al-text-secondary"
     >
       Download a single PDF that bundles the same read-only sample output as the
        
@@ -508,13 +508,13 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-10"
   >
     <h2
-      class="text-sm font-semibold leading-snug text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-demo-heading"
     >
       See a finalized sample review page
     </h2>
     <p
-      class="mt-2 max-w-3xl text-xs font-normal leading-snug text-al-text-secondary"
+      class="mt-2 max-w-3xl text-xs font-normal leading-[18px] text-al-text-secondary"
     >
       Anonymous read-only preview of an illustrative sample review record — same layout as the product workspace, not a live customer outcome; no sign-in required.
     </p>
@@ -549,7 +549,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     class="mt-12"
   >
     <h2
-      class="text-sm font-semibold leading-snug text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-hard-compare-heading"
     >
       Governance capability comparison

@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
@@ -75,29 +77,29 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base" data-testid="executive-exports-heading">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle} data-testid="executive-exports-heading">
           {executiveSurface
             ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsTitle
             : "Sponsor exports"}
         </CardTitle>
-        <CardDescription className="text-xs">
+        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           {executiveSurface
             ? BUYER_EXECUTIVE_SUMMARY_VOCABULARY.executiveExportsDescription
             : "Open executive-ready views used in sponsor updates and pilot value readouts."}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ul className="m-0 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+        <ul className={cn("m-0 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {sponsorDocx !== null ? (
             <li>
               <a
                 href={getArtifactDownloadUrl(sponsorDocx.manifestId, "architecture-review-board")}
-                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                className={OPERATOR_LINK.inline}
                 data-testid="sponsor-exports-docx-download"
               >
                 {executiveSurface ? "Download executive review (DOCX)" : "Download sponsor review (DOCX)"}
               </a>
-              <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Board-ready architecture review from your latest committed review record.
               </p>
             </li>
@@ -105,33 +107,33 @@ export function SponsorExportsSection({ surface = "operator" }: SponsorExportsSe
           <li>
             <Link
               href="/executive/scorecard"
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_LINK.inline}
             >
               Executive scorecard
             </Link>
-            <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Board-ready rollup of estimated savings and systemic issues.
             </p>
           </li>
           <li>
             <Link
               href="/value-report/pilot"
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_LINK.inline}
             >
               Pilot value report
             </Link>
-            <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Pilot-period narrative for sponsors evaluating ROI.
             </p>
           </li>
           <li>
             <Link
               href="/value-report/roi"
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_LINK.inline}
             >
               ROI methodology help
             </Link>
-            <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               How directional savings estimates are calculated.
             </p>
           </li>

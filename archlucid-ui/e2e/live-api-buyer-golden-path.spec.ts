@@ -11,6 +11,7 @@ import {
   BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN,
   expectBuyerGoldenJourneyStepper,
   expectNoGenericErrorBoundary,
+  showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
 import { askPageMainHeading, comparePageMainHeading, expectGraphPageReadySurface, governancePageMainHeading } from "./helpers/operator-journey";
 import { liveApiBase } from "./helpers/live-api-client";
@@ -47,7 +48,7 @@ test.describe("live-api-buyer-golden-path", () => {
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.signedManifestFriendly);
-    await expect(page).toHaveURL(/\/reviews\/claims-intake-modernization\/manifest/);
+    await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
     ).toBeVisible({ timeout: 60_000 });

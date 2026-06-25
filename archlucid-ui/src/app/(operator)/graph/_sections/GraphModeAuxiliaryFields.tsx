@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 
 export type GraphModeAuxiliaryFieldsProps = {
@@ -35,7 +36,7 @@ export function GraphModeAuxiliaryFields(props: GraphModeAuxiliaryFieldsProps) {
           value={decisionId}
           onChange={(e) => onDecisionIdChange(e.target.value)}
           placeholder="e.g. claims.intake.boundary"
-          className="mt-1.5 max-w-xl font-mono text-sm"
+          className={cn("mt-1.5 max-w-xl font-mono", OPERATOR_TYPOGRAPHY.body)}
         />
       </div>
     );
@@ -51,7 +52,7 @@ export function GraphModeAuxiliaryFields(props: GraphModeAuxiliaryFieldsProps) {
             value={nodeId}
             onChange={(e) => onNodeIdChange(e.target.value)}
             placeholder="Graph node identifier"
-            className="mt-1.5 font-mono text-sm"
+            className={cn("mt-1.5 font-mono", OPERATOR_TYPOGRAPHY.body)}
           />
         </div>
         <div>

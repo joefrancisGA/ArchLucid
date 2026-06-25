@@ -24,7 +24,7 @@ import {
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
 import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION, BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL, BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
@@ -88,10 +88,10 @@ export function FindingDetailPageView(props: Props) {
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
-      <nav className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+      <nav className={cn("flex flex-wrap items-center gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <Link
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
-          className="text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
+          className={OPERATOR_LINK.nav}
         >
           {buyerPolishedShell ? "Open evidence trace" : "Technical inspection trail"}
         </Link>
@@ -102,7 +102,7 @@ export function FindingDetailPageView(props: Props) {
           <div className="border-b border-teal-100 bg-gradient-to-br from-teal-50 via-white to-amber-50 p-6 dark:border-teal-950 dark:from-teal-950/50 dark:via-neutral-950 dark:to-amber-950/20">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="max-w-3xl space-y-3">
-                <p className="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-teal-800 dark:text-teal-200">
+                <p className={cn("m-0 text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
                   {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
                 </p>
                 <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
@@ -115,7 +115,7 @@ export function FindingDetailPageView(props: Props) {
                     traceExcerpt={policyTraceExcerpt}
                   />
                 ) : null}
-                <p className="m-0 max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300">
+                <p className={cn("m-0 max-w-2xl leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {inspectPayload !== null
                     ? findingDetailLeadSentence(inspectPayload)
                     : findingDetailLeadFallback(decodedFindingId)}
@@ -123,49 +123,49 @@ export function FindingDetailPageView(props: Props) {
               </div>
 
               <div className="rounded-xl border border-white/70 bg-white/90 p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/80">
-                <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>
                   Related decision
                 </p>
                 {linkedManifestHref !== null ? (
                   <Link
-                    className="mt-1 inline-flex text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+                    className={cn("mt-1 inline-flex font-semibold", OPERATOR_LINK.nav)}
                     href={linkedManifestHref}
                   >
                     Open signed decision record
                   </Link>
                 ) : (
-                  <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">Signed review record link unavailable</p>
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Signed review record link unavailable</p>
                 )}
               </div>
             </div>
 
             <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Severity</p>
-                <p className="m-0 mt-1 text-sm font-semibold text-neutral-950 dark:text-neutral-100">{severityHeadline}</p>
+                <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>Severity</p>
+                <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{severityHeadline}</p>
                 {severityRationale.length > 0 ? (
-                  <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">{severityRationale}</p>
+                  <p className={cn("m-0 mt-2 leading-snug text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>{severityRationale}</p>
                 ) : null}
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>
                   {BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL}
                 </p>
-                <p className="m-0 mt-1 text-sm font-semibold text-neutral-950 dark:text-neutral-100">
+                <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {buyerFindingDecisionImpactCopy(inspectPayload, decodedFindingId)}
                 </p>
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence basis</p>
-                <p className="m-0 mt-1 text-sm font-semibold text-neutral-950 dark:text-neutral-100">
+                <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>Evidence basis</p>
+                <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {summarizeEvidenceBasis(inspectPayload)}
                 </p>
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white/85 p-3 dark:border-neutral-800 dark:bg-neutral-950/70">
-                <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0", OPERATOR_KPI_CARD_TITLE)}>
                   {BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL}
                 </p>
-                <p className="m-0 mt-1 text-sm font-semibold text-neutral-950 dark:text-neutral-100">
+                <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {buyerFindingNextStepCopy(inspectPayload, decodedFindingId)}
                 </p>
               </div>
@@ -176,12 +176,12 @@ export function FindingDetailPageView(props: Props) {
                 {confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
                   <>
                     <FindingConfidenceBadge level={confidenceLevel} />
-                    <p className="m-0 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0 leading-snug text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
                       {BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION}
                     </p>
                   </>
                 ) : (
-                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                     Confidence not available for this finding.
                   </p>
                 )}
@@ -213,39 +213,39 @@ export function FindingDetailPageView(props: Props) {
 
           <div className="grid gap-4 p-6 lg:grid-cols-3">
             <div className={cn("p-4", operatorSemanticSurface("warn"))}>
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Business impact</h2>
-              <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+              <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Business impact</h2>
+              <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {findingIsPhi
                   ? "If PHI slips outside minimization boundaries at intake, breach notification scope, audit findings, and downstream processing obligations expand. Documented ingress classification and weekly exception monitoring keep this risk within accepted limits."
                   : "This finding is recorded in the finalized governance package with evidence trail linkage."}
               </p>
             </div>
             <div className={cn("p-4", DESIGN_TOKENS.surface.card)}>
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Required monitoring</h2>
-              <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+              <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Required monitoring</h2>
+              <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {mitigationPosture(inspectPayload, decodedFindingId)}
               </p>
             </div>
             <div className={cn("p-4", operatorSemanticSurface("info"))}>
-              <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Decision</h2>
-              <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+              <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Decision</h2>
+              <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {buyerFindingDecisionPanelCopy(inspectPayload, decodedFindingId)}
               </p>
             </div>
           </div>
 
           <CollapsibleSection title="Acceptance record" defaultOpen={buyerPolishedShell}>
-            <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {validationRequirement(inspectPayload, decodedFindingId)}
             </p>
           </CollapsibleSection>
 
           {findingIsPhi ? (
             <div className="border-t border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900/40">
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
                 Focused finding narrative
               </p>
-              <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+              <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {phiMinimizationBuyerConsequenceNarrative()}
               </p>
             </div>
@@ -253,7 +253,7 @@ export function FindingDetailPageView(props: Props) {
         </section>
       ) : (
         <header className="space-y-3">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
             Finding detail
           </p>
           <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
@@ -293,7 +293,7 @@ export function FindingDetailPageView(props: Props) {
             <div className="flex flex-wrap items-center gap-2">
               <FindingConfidenceBadge level={confidenceLevel} />
               {evaluationScore !== null && Number.isFinite(evaluationScore) ? (
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Score {evaluationScore.toFixed(2)}
                 </span>
               ) : null}
@@ -301,13 +301,13 @@ export function FindingDetailPageView(props: Props) {
           ) : null}
 
           {inspectPayload !== null && severityRationale.length > 0 ? (
-            <p className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">{severityRationale}</p>
+            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{severityRationale}</p>
           ) : null}
 
           {graphEvidenceHref !== null ? (
             <p className="m-0">
               <Link
-                className="text-sm font-semibold text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+                className={cn("font-semibold", OPERATOR_LINK.nav)}
                 href={graphEvidenceHref}
               >
                 View evidence trail
@@ -316,7 +316,7 @@ export function FindingDetailPageView(props: Props) {
           ) : null}
 
           {inspectPayload !== null ? (
-            <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {findingDetailLeadSentence(inspectPayload)}
             </p>
           ) : null}
@@ -370,13 +370,13 @@ export function FindingDetailPageView(props: Props) {
 
       {inspectPayload !== null && !buyerPolishedShell ? (
         <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
-          <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
+          <dl className={cn("m-0 grid gap-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
                 Finding id
               </dt>
               <dd className="m-0 mt-1 flex flex-wrap items-center gap-2">
-                <code className="max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-xs dark:bg-neutral-800">
+                <code className={cn("max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
                   {decodedFindingId}
                 </code>
                 <CopyIdButton value={decodedFindingId} aria-label="Copy finding ID" />
@@ -384,10 +384,10 @@ export function FindingDetailPageView(props: Props) {
             </div>
             {inspectPayload.manifestVersion ? (
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
                   Review record version
                 </dt>
-                <dd className="m-0 mt-1 font-mono text-xs">{inspectPayload.manifestVersion}</dd>
+                <dd className={cn("m-0 mt-1 font-mono", OPERATOR_TYPOGRAPHY.micro)}>{inspectPayload.manifestVersion}</dd>
               </div>
             ) : null}
           </dl>

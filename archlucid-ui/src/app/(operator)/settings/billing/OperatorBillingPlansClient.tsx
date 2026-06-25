@@ -8,12 +8,14 @@ import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
 import { buildOperatorBillingPricingLines } from "@/lib/operator-billing-pricing-lines";
 import type { PricingDoc, PricingPackage } from "@/lib/pricing-types";
 import { showInfo } from "@/lib/toast";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function PricingLines(props: { pricing: PricingDoc; pkg: PricingPackage }) {
   const lines = buildOperatorBillingPricingLines(props.pricing, props.pkg);
 
   return (
-    <dl className="space-y-1 border-t border-neutral-200 pt-4 text-sm text-neutral-800 dark:border-neutral-700 dark:text-neutral-200">
+    <dl className={cn("space-y-1 border-t border-neutral-200 pt-4 text-neutral-800 dark:border-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
       {lines.map((line) => (
         <div key={line.label} className="flex justify-between gap-2">
           <dt>{line.label}</dt>
@@ -67,13 +69,13 @@ export function OperatorBillingPlansClient() {
   return (
     <div className="space-y-4">
       {pricingError ? (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
           Pricing data failed to load. Retry later or visit the public pricing page.
         </p>
       ) : null}
 
       {!pricing && !pricingError ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading plans…</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading plans…</p>
       ) : null}
 
       {pricing !== null && !pricingError ? (
@@ -84,7 +86,7 @@ export function OperatorBillingPlansClient() {
             return (
               <Card key={pkg.id} className="flex flex-col" data-testid={`billing-tier-${pkg.id}`}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xl">{pkg.title}</CardTitle>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.pageTitle}>{pkg.title}</CardTitle>
                   <CardDescription>
                     {pkg.id === "enterprise"
                       ? "Annual contract for high-volume reviews, custom policy packs, and enterprise support."
@@ -94,15 +96,15 @@ export function OperatorBillingPlansClient() {
                 <CardContent className="flex flex-1 flex-col gap-4 pt-0">
                   <PricingLines pricing={pricing} pkg={pkg} />
                   {pkg.id === "enterprise" ? (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    <p className={OPERATOR_TYPOGRAPHY.helper}>
                       Contact sales for volume, retention, and support options tailored to your organization.
                     </p>
                   ) : null}
                   <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                    <p className={cn("mb-2", OPERATOR_NAV_GROUP_LABEL)}>
                       Highlights
                     </p>
-                    <ul className="list-disc space-y-1.5 pl-4 text-sm text-neutral-700 dark:text-neutral-300">
+                    <ul className={cn("list-disc space-y-1.5 pl-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                       {bullets.map((line) => (
                         <li key={line}>{line}</li>
                       ))}
@@ -118,7 +120,7 @@ export function OperatorBillingPlansClient() {
                   >
                     {tierPrimaryActionLabel(pkg)}
                   </Button>
-                  <p className="text-center text-[11px] text-neutral-500 dark:text-neutral-500">
+                  <p className={cn("text-center", OPERATOR_TYPOGRAPHY.micro)}>
                     Effective {pricing.effectiveDate} · {pricing.currency}
                   </p>
                 </CardFooter>

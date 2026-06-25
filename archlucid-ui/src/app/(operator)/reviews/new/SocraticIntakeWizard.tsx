@@ -31,7 +31,9 @@ import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigatio
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 import {
   normalizeActorSetForAdmission,
 } from "@/lib/draft-intake-actor-suggestions";
@@ -326,7 +328,7 @@ export function SocraticIntakeWizard() {
 
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">
-      <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="socratic-intake-progress">
+      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="socratic-intake-progress">
         {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
       </p>
       <DraftIntakeClaimLabel surface="structural-admission" />
@@ -347,7 +349,7 @@ export function SocraticIntakeWizard() {
       {parentDraftId !== null ? (
         <Card className="border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40">
           <CardHeader>
-            <CardTitle className="text-base">What-if branch</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>What-if branch</CardTitle>
             <CardDescription>
               Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate review, then Compare.
               {parentSpawnedRunId !== null ? (
@@ -397,7 +399,7 @@ export function SocraticIntakeWizard() {
                 placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
                 data-testid="socratic-intent"
               />
-              <p className="text-xs text-neutral-500">Minimum {MIN_INTENT_CHARS} characters.</p>
+              <p className={OPERATOR_TYPOGRAPHY.helper}>Minimum {MIN_INTENT_CHARS} characters.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="socratic-system-name">System name (optional)</Label>
@@ -502,7 +504,7 @@ export function SocraticIntakeWizard() {
 
             {otherPendingQuestions.length > 0 ? (
               <div className="space-y-3" data-testid="socratic-other-clarifications">
-                <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.tab)}>
                   Other clarifications
                 </p>
                 {otherPendingQuestions.map((question, index) => (
@@ -533,13 +535,13 @@ export function SocraticIntakeWizard() {
               </div>
             ) : null}
 
-            <p className="m-0 text-sm text-neutral-500" data-testid="socratic-clarification-helper">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-clarification-helper">
               Answer or skip each clarification. You can review everything before starting the architecture review.
             </p>
 
             <div className="space-y-2">
               {!allClarificationsHandled ? (
-                <p className="m-0 text-sm text-neutral-500" data-testid="socratic-review-answers-hint">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-review-answers-hint">
                   Handle all required clarifications first.
                 </p>
               ) : null}
@@ -589,7 +591,7 @@ export function SocraticIntakeWizard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+            <ul className={cn("list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               <li>Intent: {freeTextIntent.trim().slice(0, 120)}{freeTextIntent.trim().length > 120 ? "…" : ""}</li>
               <li>Outcome: {businessOutcome.trim()}</li>
               {systemName.trim() ? <li>System: {systemName.trim()}</li> : null}

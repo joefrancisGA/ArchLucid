@@ -1,7 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
+import { cn } from "@/lib/utils";
 
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
@@ -33,15 +35,15 @@ function HealthProbeRow(props: { label: string; probe: AdminIdentityProviderHeal
   return (
     <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700" data-testid={`identity-provider-health-${label.toLowerCase()}`}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{label}</span>
+        <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{label}</span>
         <span
-          className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(status)}`}
+          className={cn("inline-flex rounded-full border px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge, statusBadgeClass(status))}
           data-testid={`identity-provider-health-status-${label.toLowerCase()}`}
         >
           {status}
         </span>
       </div>
-      <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">{summary}</p>
+      <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{summary}</p>
     </div>
   );
 }
@@ -56,10 +58,10 @@ export function IdentityProviderHealthStrip(props: IdentityProviderHealthStripPr
   return (
     <Card data-testid="identity-provider-health-card">
       <CardHeader>
-        <CardTitle className="text-base">Identity provider health</CardTitle>
-        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Identity provider health</CardTitle>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
           Cached probes from{" "}
-          <span className="font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
+          <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
             GET /v1/admin/diagnostics/identity-providers
           </span>{" "}
           (Admin session). Read-only — does not alter authentication behaviour.
@@ -67,7 +69,7 @@ export function IdentityProviderHealthStrip(props: IdentityProviderHealthStripPr
       </CardHeader>
       <CardContent className="space-y-3">
         {fetchNote ? (
-          <p className="m-0 text-sm text-amber-900 dark:text-amber-100" data-testid="identity-provider-health-fetch-note">
+          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-provider-health-fetch-note">
             {fetchNote}
           </p>
         ) : null}

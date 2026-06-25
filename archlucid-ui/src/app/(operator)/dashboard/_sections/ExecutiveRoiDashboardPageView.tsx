@@ -16,6 +16,7 @@ import {
   isExecutiveDashboardEmpty,
   isExecutiveSampleWorkspaceData,
 } from "@/lib/executive-dashboard-workspace-state";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
 import { ExecutiveDashboardBaselineWarningBanner } from "./ExecutiveDashboardBaselineWarningBanner";
@@ -158,7 +159,7 @@ function ExecutiveRoiDashboardPortfolioSections({
 
       {hasCommittedReviews ? (
         <section aria-labelledby="executive-findings-heading" className="space-y-4">
-          <h2 id="executive-findings-heading" className="m-0 text-base font-semibold text-al-text-primary">
+          <h2 id="executive-findings-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
             {v.latestFindingsSectionTitle}
           </h2>
           <BusinessImpactSummaryWidget summary={summary} loading={summaryLoading} surface={surface} />

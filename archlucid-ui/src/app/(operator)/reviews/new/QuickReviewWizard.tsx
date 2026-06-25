@@ -34,7 +34,9 @@ import type { CtoDemoReviewExecutionMode } from "@/components/cto-demo/CtoDemoRe
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
+import { cn } from "@/lib/utils";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator-home-example-request";
 import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
@@ -357,7 +359,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick review — step {step + 1} of {QUICK_REVIEW_STEPS.length}: {QUICK_REVIEW_STEPS[step].label}
         </p>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{QUICK_REVIEW_STEPS[step].description}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{QUICK_REVIEW_STEPS[step].description}</p>
       </div>
 
       {step === 0 ? (
@@ -395,16 +397,16 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                   setBriefText(e.target.value);
                   setActiveSampleBriefId(null);
                 }}
-                className="min-h-[220px] font-mono text-sm"
+                className={cn("min-h-[220px] font-mono", OPERATOR_TYPOGRAPHY.body)}
                 placeholder="Example: Document the target architecture for a customer-facing retail API — containerized services behind an API gateway, relational store for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
                 aria-describedby="quick-review-brief-hint"
                 autoComplete="off"
               />
-              <p id="quick-review-brief-hint" className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+              <p id="quick-review-brief-hint" className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
                 {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum ({ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} max). Paste an executive summary or detailed
                 brief — it becomes the review description sent to the API.
                 {activeSampleBriefId !== null ? (
-                  <span className="mt-1 block text-xs text-neutral-500 dark:text-neutral-400">
+                  <span className={cn("mt-1 block", OPERATOR_TYPOGRAPHY.helper)}>
                     {QUICK_REVIEW_SAMPLE_BRIEF_CAPTION}
                   </span>
                 ) : null}
@@ -448,7 +450,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 placeholder="Short name for this review (maps to system name)"
                 autoComplete="off"
               />
-              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 If empty, the review uses “{displaySystemName}” as the system name.
               </p>
             </div>
@@ -460,7 +462,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
               open={advancedConfigExpanded}
               onOpenChange={setAdvancedConfigExpanded}
             >
-              <dl className="m-0 grid gap-2 text-sm">
+              <dl className={cn("m-0 grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
                 <div>
                   <dt className="text-neutral-500 dark:text-neutral-400">Tenant</dt>
                   <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeTenant}</dd>
@@ -485,7 +487,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             <CardTitle>Confirm and start architecture review</CardTitle>
             <CardDescription>This starts a new architecture review with your pasted brief.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+          <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
             <ReviewPathTimeEstimateBanner pathId="quick-review" />
             {showDemoModeCallout ? (
               <QuickReviewAdvancedConfigAccordion

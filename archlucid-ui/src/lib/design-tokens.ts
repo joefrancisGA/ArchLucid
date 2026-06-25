@@ -181,6 +181,7 @@ export const OPERATOR_TYPOGRAPHY = {
   navHelper: OPERATOR_TYPE_SCALE.navHelper,
   button: OPERATOR_TYPE_SCALE.button,
   tab: OPERATOR_TYPE_SCALE.tab,
+  micro: OPERATOR_TYPE_SCALE.micro,
   /** Status chips (11px). Do not use arbitrary `text-[10px]` on operator surfaces. */
   badge: "text-[11px] font-medium leading-none",
   dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,

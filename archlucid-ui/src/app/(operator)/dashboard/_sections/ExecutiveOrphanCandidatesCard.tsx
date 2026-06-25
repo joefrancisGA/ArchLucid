@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function formatUsd(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -68,10 +70,10 @@ export function ExecutiveOrphanCandidatesCard({ surface = "operator" }: Executiv
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {orphanTitle}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {orphanDescription}
           </CardDescription>
         </CardHeader>
@@ -86,15 +88,15 @@ export function ExecutiveOrphanCandidatesCard({ surface = "operator" }: Executiv
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {orphanTitle}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {orphanDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-xs text-neutral-500">Loading...</p>
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Loading...</p>
         </CardContent>
       </Card>
     );
@@ -103,10 +105,10 @@ export function ExecutiveOrphanCandidatesCard({ surface = "operator" }: Executiv
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+        <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
           {orphanTitle}
         </CardTitle>
-        <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           {orphanDescription}
         </CardDescription>
       </CardHeader>
@@ -115,12 +117,12 @@ export function ExecutiveOrphanCandidatesCard({ surface = "operator" }: Executiv
           href={EXECUTIVE_KPI_DRILL_THROUGH.orphanCandidates}
           testId="kpi-tile-orphan-candidates-link"
         >
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+          <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
             {data.count}
           </p>
         </KpiTileDrillThroughLink>
         {data.count > 0 ? (
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Estimated savings: {formatUsd(data.savings)}/yr
           </p>
         ) : null}

@@ -53,17 +53,32 @@ public sealed class HostedAzureExtractorRunService(
         if (configuration is null)
             return HostedAzureExtractorRunResult.CreateNotConfigured();
 
-        HostedAzureExtractorCollectionResult collection = await _hostedClient
-            .CollectZipAsync(
-                new HostedAzureExtractorCollectionRequest
-                {
-                    CustomerTenantId = configuration.CustomerTenantId,
-                    CustomerAppId = configuration.CustomerAppId,
-                    SubscriptionId = configuration.SubscriptionId,
-                    IncludeCost = configuration.IncludeCost
-                },
-                cancellationToken)
-            .ConfigureAwait(false);
+        HostedAzureExtractorCollectionResult collection;
+
+        try
+        {
+            collection = await _hostedClient
+                .CollectZipAsync(
+                    new HostedAzureExtractorCollectionRequest
+                    {
+                        CustomerTenantId = configuration.CustomerTenantId,
+                        CustomerAppId = configuration.CustomerAppId,
+                        SubscriptionId = configuration.SubscriptionId,
+                        IncludeCost = configuration.IncludeCost
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (HostedAzureExtractorHttpFailureClassifier.IsArmThrottled(ex))
+        {
+            return HostedAzureExtractorRunResult.CreateThrottled(
+                HostedAzureExtractorHttpFailureClassifier.Describe(ex));
+        }
+        catch (HttpRequestException ex)
+        {
+            return HostedAzureExtractorRunResult.CreateCollectionFailed(
+                HostedAzureExtractorHttpFailureClassifier.Describe(ex));
+        }
 
         AzureExtractorIngestResult ingestResult = await _ingestService
             .IngestZipBytesAsync(

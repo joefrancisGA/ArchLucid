@@ -44,6 +44,22 @@ public sealed class HostedAzureExtractorRunResult
             FailureDetail = detail,
             FailureKind = HostedAzureExtractorRunFailureKind.IngestFailed
         };
+
+    public static HostedAzureExtractorRunResult CreateThrottled(string detail) =>
+        new()
+        {
+            Succeeded = false,
+            FailureDetail = detail,
+            FailureKind = HostedAzureExtractorRunFailureKind.Throttled
+        };
+
+    public static HostedAzureExtractorRunResult CreateCollectionFailed(string detail) =>
+        new()
+        {
+            Succeeded = false,
+            FailureDetail = detail,
+            FailureKind = HostedAzureExtractorRunFailureKind.CollectionFailed
+        };
 }
 
 public enum HostedAzureExtractorRunFailureKind
@@ -51,5 +67,7 @@ public enum HostedAzureExtractorRunFailureKind
     None = 0,
     FeatureDisabled = 1,
     NotConfigured = 2,
-    IngestFailed = 3
+    IngestFailed = 3,
+    Throttled = 4,
+    CollectionFailed = 5
 }

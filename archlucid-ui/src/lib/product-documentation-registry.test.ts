@@ -47,9 +47,7 @@ describe("product-documentation-registry", () => {
     expect(inAppHelpHref("pilot-guide")).toBe("/help/pilot-guide");
     expect(getProductDocumentationEntry("troubleshooting")?.title).toBe("Troubleshooting");
     expect(getProductDocumentationEntry("cloud-connections/azure")?.title).toBe("Connect Azure securely");
-    expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe(
-      "Hosted SaaS enterprise onboarding checklist",
-    );
+    expect(getProductDocumentationEntry("enterprise-onboarding")?.title).toBe("Enterprise onboarding checklist");
     expect(inAppHelpHref("enterprise-onboarding")).toBe("/help/enterprise-onboarding");
   });
 

@@ -23,6 +23,7 @@ import {
   type CuratedRuleSeverity,
   serializeCuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type CuratedRulesAuthoringSectionProps = {
@@ -152,7 +153,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
   return (
     <div className="space-y-3 rounded-md border border-neutral-200 dark:border-neutral-700 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium m-0">Tenant curated compliance rules (v1)</p>
+        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Tenant curated compliance rules (v1)</p>
         <Button
           type="button"
           size="sm"
@@ -164,7 +165,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
           Add rule
         </Button>
       </div>
-      <p className="text-xs text-neutral-500 dark:text-neutral-400 m-0">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Form-based rows round-trip to metadata <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">pack.curatedRules.v1</code> and
         extend <span className="font-mono">complianceRuleKeys</span> on merge.
       </p>
@@ -176,12 +177,12 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
       />
 
       {curatedDoc.rules.length === 0 ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 m-0">No curated rules yet.</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No curated rules yet.</p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-700 text-left">
+              <tr className={cn("border-b border-neutral-200 text-left dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
                 <th className="py-2 pr-2 font-medium">Id</th>
                 <th className="py-2 pr-2 font-medium">Title</th>
                 <th className="py-2 pr-2 font-medium">Severity</th>
@@ -202,7 +203,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
                       : undefined,
                   )}
                 >
-                  <td className="py-1 pr-2 font-mono text-xs align-top">{r.id}</td>
+                  <td className={cn("py-1 pr-2 align-top font-mono", OPERATOR_TYPOGRAPHY.micro)}>{r.id}</td>
                   <td className="py-1 pr-2 align-top">{r.title}</td>
                   <td className="py-1 pr-2 align-top">{r.severity}</td>
                   <td className="py-1 pr-2 align-top text-right whitespace-nowrap">
@@ -236,7 +237,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
       )}
 
       <div className="space-y-1">
-        <label htmlFor="curated-rules-json-preview" className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+        <label htmlFor="curated-rules-json-preview" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Read-only curated-rules JSON preview
         </label>
         <Textarea
@@ -245,7 +246,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
           value={previewJson}
           readOnly
           rows={10}
-          className="font-mono text-xs bg-neutral-50 dark:bg-neutral-900"
+          className={cn("bg-neutral-50 font-mono dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}
         />
       </div>
 
@@ -256,24 +257,24 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
           </DialogHeader>
           <div className="grid gap-2">
             <div className="space-y-1">
-              <label htmlFor="curated-edit-id" className="text-xs font-medium">
+              <label htmlFor="curated-edit-id" className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
                 Rule id
               </label>
               <Input
                 id="curated-edit-id"
                 value={draft.id}
                 onChange={(e) => setDraft({ ...draft, id: e.target.value })}
-                className="font-mono text-xs"
+                className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="curated-edit-title" className="text-xs font-medium">
+              <label htmlFor="curated-edit-title" className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
                 Title
               </label>
               <Input id="curated-edit-title" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
             </div>
             <div className="space-y-1">
-              <label htmlFor="curated-edit-desc" className="text-xs font-medium">
+              <label htmlFor="curated-edit-desc" className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
                 Description
               </label>
               <Textarea
@@ -281,18 +282,18 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
                 value={draft.description}
                 onChange={(e) => setDraft({ ...draft, description: e.target.value })}
                 rows={3}
-                className="text-xs"
+                className={OPERATOR_TYPOGRAPHY.micro}
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="curated-edit-severity" className="text-xs font-medium">
+              <label htmlFor="curated-edit-severity" className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
                 Severity
               </label>
               <select
                 id="curated-edit-severity"
                 value={draft.severity}
                 onChange={(e) => setDraft({ ...draft, severity: e.target.value as CuratedRuleSeverity })}
-                className="block w-full p-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-950"
+                className={cn("block w-full rounded-md border border-neutral-200 bg-white p-2 dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}
               >
                 {CURATED_RULE_SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -302,7 +303,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
               </select>
             </div>
             <div className="space-y-1">
-              <label htmlFor="curated-edit-remediation" className="text-xs font-medium">
+              <label htmlFor="curated-edit-remediation" className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
                 Remediation guidance
               </label>
               <Textarea
@@ -310,18 +311,18 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
                 value={draft.remediationGuidance}
                 onChange={(e) => setDraft({ ...draft, remediationGuidance: e.target.value })}
                 rows={2}
-                className="text-xs"
+                className={OPERATOR_TYPOGRAPHY.micro}
               />
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-medium">Evidence hints</span>
+              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Evidence hints</span>
               <div className="flex flex-col gap-1">
                 {draft.evidenceHints.map((hint, idx) => (
                   <div key={`h-${idx}`} className="flex gap-1">
                     <Input
                       value={hint}
                       onChange={(e) => setDraftEvidenceHint(idx, e.target.value)}
-                      className="font-mono text-xs"
+                      className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
                     />
                     <Button type="button" size="sm" variant="secondary" onClick={() => removeEvidenceHintRow(idx)}>
                       Remove
@@ -334,7 +335,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-xs font-medium">Framework mappings</span>
+              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Framework mappings</span>
               <div className="flex flex-col gap-2">
                 {draft.frameworkMappings.map((m, idx) => (
                   <div key={`m-${idx}`} className="grid gap-1 sm:grid-cols-3 rounded border border-neutral-100 dark:border-neutral-800 p-2">
@@ -342,20 +343,20 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
                       placeholder="Framework"
                       value={m.framework}
                       onChange={(e) => setDraftFrameworkRow(idx, { framework: e.target.value })}
-                      className="text-xs"
+                      className={OPERATOR_TYPOGRAPHY.micro}
                     />
                     <Input
                       placeholder="Control (optional)"
                       value={m.control ?? ""}
                       onChange={(e) => setDraftFrameworkRow(idx, { control: e.target.value })}
-                      className="text-xs"
+                      className={OPERATOR_TYPOGRAPHY.micro}
                     />
                     <div className="flex gap-1 items-center">
                       <Input
                         placeholder="Requirement (optional)"
                         value={m.requirement ?? ""}
                         onChange={(e) => setDraftFrameworkRow(idx, { requirement: e.target.value })}
-                        className="text-xs"
+                        className={OPERATOR_TYPOGRAPHY.micro}
                       />
                       <Button type="button" size="sm" variant="secondary" onClick={() => removeFrameworkRow(idx)}>
                         Remove

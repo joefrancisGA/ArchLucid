@@ -63,6 +63,7 @@ const EMPTY_COMMIT_CONTEXT: CorePilotCommitContext = {
   latestRunId: null,
   firstCommittedRunId: null,
   secondCommittedRunId: null,
+  latestRunReadyToFinalize: false,
 };
 
 type ReadinessStatusCounts = {

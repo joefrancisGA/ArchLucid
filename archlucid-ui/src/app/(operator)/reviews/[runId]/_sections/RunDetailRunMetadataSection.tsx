@@ -4,6 +4,8 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import type { RunDetail } from "@/types/authority";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -27,7 +29,7 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
             <GlossaryTooltip termKey="golden_manifest">signed review record</GlossaryTooltip> (after finalization).
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+        <CardContent className={cn("space-y-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           <RunTraceViewerLink traceId={runDetailTraceId} />
           {run.otelTraceId ? (
             <p className="m-0">

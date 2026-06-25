@@ -2,6 +2,8 @@ import type { ReactElement } from "react";
 
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly reasoningTrace: string | null | undefined;
@@ -20,16 +22,16 @@ export function FindingInspectReasoningPayloadDetails({
   return (
     <>
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40">
-        <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <summary className={cn("cursor-pointer select-none px-4 py-3 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           {rationaleLabel}
         </summary>
         <div className="border-t border-neutral-200 px-4 pb-4 pt-2 dark:border-neutral-700">
           {reasoningTrace ? (
-            <p className="m-0 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            <p className={cn("m-0 whitespace-pre-wrap leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {reasoningTrace}
             </p>
           ) : (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               No rationale trace available for this finding.
             </p>
           )}
@@ -37,7 +39,7 @@ export function FindingInspectReasoningPayloadDetails({
       </details>
 
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40">
-        <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <summary className={cn("cursor-pointer select-none px-4 py-3 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           {evaluationLabel}
         </summary>
         <div className="border-t border-neutral-200 px-4 pb-4 pt-2 dark:border-neutral-700">

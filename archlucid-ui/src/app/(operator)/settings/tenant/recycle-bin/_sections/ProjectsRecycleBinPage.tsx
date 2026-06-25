@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/enterprise-table";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
@@ -279,8 +281,8 @@ export function ProjectsRecycleBinPage() {
     <div className="w-full max-w-3xl space-y-6" data-testid="projects-recycle-bin-page">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Projects recycle bin</h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{PAGE_DESCRIPTION}</p>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Projects recycle bin</h1>
+          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{PAGE_DESCRIPTION}</p>
         </div>
         <Button
           type="button"
@@ -297,20 +299,20 @@ export function ProjectsRecycleBinPage() {
       </div>
 
       {!isAuthorityLoading && !canRestoreExecute ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this signed-in principal.
         </p>
       ) : null}
 
       {error !== null ? (
-        <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="projects-recycle-bin-error">
+        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="projects-recycle-bin-error">
           {error}
         </p>
       ) : null}
 
       {restoreMessage !== null ? (
         <p
-          className="m-0 text-sm text-neutral-700 dark:text-neutral-200"
+          className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
           role="status"
           data-testid="projects-recycle-bin-restore-message"
         >
@@ -318,15 +320,15 @@ export function ProjectsRecycleBinPage() {
         </p>
       ) : null}
 
-      {loading && rows.length === 0 ? <p className="m-0 text-sm text-neutral-500">Loading…</p> : null}
+      {loading && rows.length === 0 ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
 
       {!loading && rows.length === 0 && error === null ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">No deleted projects</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>No deleted projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">{EMPTY_STATE_BODY}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{EMPTY_STATE_BODY}</p>
           </CardContent>
         </Card>
       ) : null}

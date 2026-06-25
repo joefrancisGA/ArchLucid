@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { ComplianceDriftOpenResolvedChart } from "@/components/ComplianceDriftOpenResolvedChart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getComplianceDriftTrend } from "@/lib/api";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 function rollingBounds30Days(): { fromUtc: string; toUtc: string } {
@@ -73,27 +75,27 @@ export function ExecutiveComplianceDriftTrendSection({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Compliance drift (last 30 days)</CardTitle>
-        <CardDescription className="text-xs">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Compliance drift (last 30 days)</CardTitle>
+        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           Daily trend of findings opened when reviews capture snapshots vs resolved through human review. Data from{" "}
-          <span className="font-mono">GET /v1/governance/compliance-drift-trend</span>.
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/governance/compliance-drift-trend</span>.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {loading ? (
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="exec-compliance-drift-loading">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="exec-compliance-drift-loading">
             Loading compliance drift…
           </p>
         ) : null}
         {!loading && error ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="alert">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
             Compliance drift trend is unavailable right now.
           </p>
         ) : null}
         {!loading && !error ? (
           points.length === 0 ? (
             <div className="flex h-32 w-full items-center justify-center rounded-md border border-dashed border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/50">
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+              <p className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 Data gathering in progress. Commit a review to see trends.
               </p>
             </div>
@@ -101,8 +103,8 @@ export function ExecutiveComplianceDriftTrendSection({
             <ComplianceDriftOpenResolvedChart points={points} />
           )
         ) : null}
-        <p className="m-0 text-sm">
-          <Link href="/governance/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <Link href="/governance/dashboard" className={OPERATOR_LINK.inline}>
             Open executive workspace health
           </Link>
         </p>

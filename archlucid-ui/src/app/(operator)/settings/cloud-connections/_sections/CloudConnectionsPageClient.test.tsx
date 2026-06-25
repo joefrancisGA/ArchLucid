@@ -56,7 +56,7 @@ describe("CloudConnectionsPageClient", () => {
       "href",
       "/help/cloud-connections/azure",
     );
-    expect(screen.getByRole("link", { name: "Hosted SaaS enterprise onboarding checklist" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Enterprise onboarding checklist" })).toHaveAttribute(
       "href",
       "/help/enterprise-onboarding",
     );

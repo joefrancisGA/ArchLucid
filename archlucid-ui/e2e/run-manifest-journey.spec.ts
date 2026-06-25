@@ -10,6 +10,7 @@ import {
   SHOWCASE_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
+import { showcaseSignedManifestBrowserUrlPattern } from "./helpers/buyer-golden-path";
 
 const SHOWCASE_RUN_DETAIL_HEADING = /Claims Intake Modernization/i;
 
@@ -39,12 +40,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     // Buyer-polished shell may canonicalize `/manifests/{uuid}` → `/reviews/{runId}/manifest` after navigation.
     await page.goto(manifestHref);
 
-    await expect(page).toHaveURL(
-      new RegExp(
-        `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}/manifest)`,
-      ),
-      { timeout: 60_000 },
-    );
+    await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern(), { timeout: 60_000 });
     await expect(page.getByText(/Fetching manifest summary/i)).toHaveCount(0, { timeout: 60_000 });
     await expect(
       page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),

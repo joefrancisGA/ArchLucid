@@ -2,6 +2,7 @@
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { PolicyPackCatalogListItem } from "@/types/policy-packs";
 
@@ -27,11 +28,12 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
   return (
     <section className="flex flex-col gap-4" aria-label="Policy pack catalog">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Catalog</h2>
+        <h2 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Catalog</h2>
         <button
           type="button"
           className={cn(
-            "rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium hover:bg-accent",
+            "rounded-md border border-input bg-background px-3 py-1.5 hover:bg-accent",
+            OPERATOR_TYPOGRAPHY.tab,
             props.loading && "pointer-events-none opacity-60",
           )}
           onClick={() => {
@@ -45,7 +47,8 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
         <button
           type="button"
           className={cn(
-            "rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90",
+            "rounded-md bg-primary px-3 py-1.5 text-primary-foreground hover:opacity-90",
+            OPERATOR_TYPOGRAPHY.tab,
             (!props.canMutatePacks || !selected || props.loading) && "pointer-events-none opacity-50",
           )}
           onClick={() => {
@@ -59,7 +62,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
         </button>
       </div>
 
-      <p className="text-sm text-muted-foreground">
+      <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>
         Browse platform-curated snapshots. Cloning copies snapshot content into a new pack you own — nothing is shared
         back to other tenants.
       </p>
@@ -75,7 +78,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
       ) : null}
 
       {props.items.length === 0 && !props.loading ? (
-        <p className="text-sm text-muted-foreground">No promoted catalog entries yet.</p>
+        <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>No promoted catalog entries yet.</p>
       ) : null}
 
       <ul className="divide-y rounded-md border">
@@ -98,7 +101,8 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
                     : `${row.displayName}, version ${row.snapshotVersion}`
                 }
                 className={cn(
-                  "flex w-full flex-col items-start gap-1 px-3 py-2 text-left text-sm hover:bg-accent",
+                  "flex w-full flex-col items-start gap-1 px-3 py-2 text-left hover:bg-accent",
+                  OPERATOR_TYPOGRAPHY.body,
                   active && "bg-accent",
                 )}
                 onClick={() => {
@@ -106,11 +110,11 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
                 }}
               >
                 <span className="font-medium">{row.displayName}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.packType} · v{row.snapshotVersion}
                 </span>
                 {row.description ? (
-                  <span className="text-xs text-muted-foreground">{row.description}</span>
+                  <span className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>{row.description}</span>
                 ) : null}
               </button>
             </li>

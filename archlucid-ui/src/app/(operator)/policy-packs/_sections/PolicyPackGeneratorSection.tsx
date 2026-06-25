@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { CuratedRulesDocument } from "@/lib/policy-pack-curated-rules-v1";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { PACK_TYPES } from "./policy-packs-page-constants";
@@ -57,10 +58,10 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
       data-testid="policy-pack-generator-section"
     >
       <div>
-        <h2 id="policy-pack-generator-heading" className="m-0 text-base font-semibold text-al-text-primary">
+        <h2 id="policy-pack-generator-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Policy pack generator
         </h2>
-        <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Describe governance intent in plain language. ArchLucid drafts a curated rules document you can refine,
           simulate against a committed review, and publish — without writing JSON or YAML by hand.
         </p>
@@ -70,7 +71,10 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
 
       {validationErrors.length > 0 ? (
         <div
-          className="rounded-md border border-amber-600/40 bg-amber-50/70 p-3 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-amber-50/70 p-3 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           role="alert"
           data-testid="policy-pack-generator-validation"
         >
@@ -88,15 +92,15 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
           className="space-y-4 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
           data-testid="policy-pack-generator-draft"
         >
-          <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold text-al-text-primary">{generatedRuleCount}</span>
             {" "}
             {generatedRuleCount === 1 ? "rule" : "rules"} ready for tenant-owned pack{" "}
-            <span className="font-mono text-xs text-neutral-500">v{publishVersion}</span>
+            <span className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>v{publishVersion}</span>
           </p>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="space-y-1 text-sm">
+            <label className={cn("space-y-1", OPERATOR_TYPOGRAPHY.body)}>
               <span className="font-medium text-al-text-primary">Pack name</span>
               <Input
                 value={name}
@@ -106,14 +110,17 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
                 data-testid="policy-pack-generator-name"
               />
             </label>
-            <label className="space-y-1 text-sm">
+            <label className={cn("space-y-1", OPERATOR_TYPOGRAPHY.body)}>
               <span className="font-medium text-al-text-primary">Pack type</span>
               <select
                 value={packType}
                 onChange={(event) => onPackTypeChange(event.target.value)}
                 disabled={!canMutatePacks}
                 title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                className="block w-full rounded-md border border-neutral-300 bg-white p-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+                className={cn(
+                  "block w-full rounded-md border border-neutral-300 bg-white p-2 dark:border-neutral-700 dark:bg-neutral-950",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
                 data-testid="policy-pack-generator-pack-type"
               >
                 {PACK_TYPES.map((entry) => (
@@ -125,7 +132,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
             </label>
           </div>
 
-          <label className="block space-y-1 text-sm">
+          <label className={cn("block space-y-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium text-al-text-primary">Description</span>
             <Input
               value={description}
@@ -162,7 +169,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
           </div>
 
           {createAttempted && name.trim().length === 0 ? (
-            <p className="m-0 text-xs text-amber-800 dark:text-amber-200" role="alert">
+            <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)} role="alert">
               Enter a pack name before creating.
             </p>
           ) : null}
@@ -170,7 +177,7 @@ export function PolicyPackGeneratorSection(props: PolicyPackGeneratorSectionProp
       ) : null}
 
       {!canMutatePacks ? (
-        <p className={cn("text-sm text-neutral-600 dark:text-neutral-400")}>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Pack generation is read-only in this workspace context. Switch to an execute-capable operator scope to create
           tenant-owned packs.
         </p>

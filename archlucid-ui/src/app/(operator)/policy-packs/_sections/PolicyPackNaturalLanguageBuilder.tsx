@@ -13,6 +13,8 @@ import {
   tryParseCuratedRulesDocumentJson,
   type CuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type PolicyPackNaturalLanguageBuilderProps = {
   readonly canMutatePacks: boolean;
@@ -34,25 +36,25 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
       className="rounded-md border border-dashed border-neutral-300 bg-al-surface-raised p-4 dark:border-neutral-700"
       data-testid="policy-pack-nl-builder"
     >
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Policy pack generator
       </p>
-      <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         ArchLucid drafts a curated rules document you can refine in the visual builder before publish. Human review is
         required before activation.
       </p>
       <div
-        className="mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100"
+        className={cn("mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
         data-testid="policy-pack-nl-human-review-callout"
       >
         <strong>Generated packs require human review before publish.</strong>{" "}
-        <Link href="/policy-packs" className="font-medium underline underline-offset-2">
+        <Link href="/policy-packs" className={OPERATOR_LINK.inline}>
           Open Policy Packs editor
         </Link>{" "}
         to refine rules before activation.
       </div>
       <Textarea
-        className="mt-3 font-sans text-sm"
+        className={cn("mt-3 font-sans", OPERATOR_TYPOGRAPHY.body)}
         rows={6}
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
@@ -105,11 +107,11 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
       </div>
       {validationWarnings.length > 0 ? (
         <div
-          className="mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-amber-50/80 px-3 py-2 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
           data-testid="policy-pack-nl-validation-warnings"
           role="status"
         >
-          <p className="m-0 font-semibold">Validation warnings — review before publish</p>
+          <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>Validation warnings — review before publish</p>
           <ul className="mb-0 mt-2 list-disc space-y-1 pl-5">
             {validationWarnings.map((warning) => (
               <li key={warning}>{warning}</li>
@@ -121,7 +123,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
         <div className="mt-3" role="alert">
           <OperatorApiProblem failure={failure} />
           {failure.httpStatus === 422 ? (
-            <p className="m-0 mt-2 text-sm text-neutral-800 dark:text-neutral-100">
+            <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Revise your prompt and try again.
             </p>
           ) : null}
@@ -129,11 +131,11 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
       ) : null}
       {disclaimer !== null && previewJson !== null ? (
         <div className="mt-4 space-y-2">
-          <p className="m-0 text-xs text-amber-900 dark:text-amber-100">{disclaimer}</p>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>{disclaimer}</p>
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
             Generated document preview
           </p>
-          <pre className="max-h-64 overflow-auto rounded-md border border-amber-600/40 bg-white p-3 text-xs dark:border-amber-700/50 dark:bg-neutral-950">
+          <pre className={cn("max-h-64 overflow-auto rounded-md border border-amber-600/40 bg-white p-3 dark:border-amber-700/50 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.micro)}>
             {previewJson}
           </pre>
         </div>

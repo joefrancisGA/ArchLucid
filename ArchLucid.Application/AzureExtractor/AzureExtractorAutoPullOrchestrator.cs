@@ -1,9 +1,11 @@
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Concurrency;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.AzureExtractor;
 
@@ -18,6 +20,7 @@ public sealed class AzureExtractorAutoPullOrchestrator(
     ITenantHostedExtractorConfigurationRepository configurationRepository,
     IHostedAzureExtractorRunService runService,
     IDistributedCreateRunIdempotencyLock distributedLock,
+    IOptionsMonitor<AzureExtractorAutoPullOptions> autoPullOptionsMonitor,
     ILogger<AzureExtractorAutoPullOrchestrator> logger) : IAzureExtractorAutoPullOrchestrator
 {
     private const string SystemActor = "hosted:azure-extractor-auto-pull";
@@ -36,12 +39,27 @@ public sealed class AzureExtractorAutoPullOrchestrator(
     private readonly IDistributedCreateRunIdempotencyLock _distributedLock =
         distributedLock ?? throw new ArgumentNullException(nameof(distributedLock));
 
+    private readonly IOptionsMonitor<AzureExtractorAutoPullOptions> _autoPullOptionsMonitor =
+        autoPullOptionsMonitor ?? throw new ArgumentNullException(nameof(autoPullOptionsMonitor));
+
     private readonly ILogger<AzureExtractorAutoPullOrchestrator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task RunScheduledPullAsync(CancellationToken cancellationToken)
     {
+        int attempted = 0;
+        int succeeded = 0;
+        int failed = 0;
+        int throttled = 0;
+        int skippedLocked = 0;
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Azure extractor auto-pull pass starting.");
+        }
+
         IReadOnlyList<TenantRecord> tenants = await _tenantRepository.ListAsync(cancellationToken);
+        TimeSpan subscriptionCooldown = ResolveSubscriptionCooldown();
 
         foreach (TenantRecord tenant in tenants)
         {
@@ -84,6 +102,8 @@ public sealed class AzureExtractorAutoPullOrchestrator(
                     }
                     catch (TimeoutException)
                     {
+                        skippedLocked++;
+
                         if (_logger.IsEnabled(LogLevel.Debug))
                         {
                             _logger.LogDebug(
@@ -97,36 +117,106 @@ public sealed class AzureExtractorAutoPullOrchestrator(
 
                     await using (runLock)
                     {
-                        HostedAzureExtractorRunResult result = await _runService
-                            .RunAsync(
-                                tenant.Id,
-                                config.SubscriptionId,
-                                runId: null,
-                                SystemActor,
-                                correlationId: null,
-                                cancellationToken)
-                            .ConfigureAwait(false);
+                        attempted++;
 
-                        if (_logger.IsEnabled(LogLevel.Information) && result.Succeeded)
+                        try
                         {
-                            _logger.LogInformation(
-                                "Azure extractor auto-pull succeeded for tenant {TenantId} subscription {SubscriptionId} ({ResourceCount} resources).",
-                                tenant.Id,
-                                config.SubscriptionId,
-                                result.ResourceCount);
-                        }
+                            HostedAzureExtractorRunResult result = await _runService
+                                .RunAsync(
+                                    tenant.Id,
+                                    config.SubscriptionId,
+                                    runId: null,
+                                    SystemActor,
+                                    correlationId: null,
+                                    cancellationToken)
+                                .ConfigureAwait(false);
 
-                        if (!result.Succeeded && _logger.IsEnabled(LogLevel.Warning))
-                        {
-                            _logger.LogWarning(
-                                "Azure extractor auto-pull failed for tenant {TenantId} subscription {SubscriptionId}: {Detail}",
-                                tenant.Id,
-                                config.SubscriptionId,
-                                result.FailureDetail ?? result.FailureKind.ToString());
+                            if (result.Succeeded)
+                            {
+                                succeeded++;
+
+                                if (_logger.IsEnabled(LogLevel.Information))
+                                {
+                                    _logger.LogInformation(
+                                        "Azure extractor auto-pull succeeded for tenant {TenantId} subscription {SubscriptionId} ({ResourceCount} resources).",
+                                        tenant.Id,
+                                        config.SubscriptionId,
+                                        result.ResourceCount);
+                                }
+
+                                continue;
+                            }
+
+                            failed++;
+
+                            if (result.FailureKind == HostedAzureExtractorRunFailureKind.Throttled)
+                            {
+                                throttled++;
+
+                                if (_logger.IsEnabled(LogLevel.Warning))
+                                {
+                                    _logger.LogWarning(
+                                        "Azure extractor auto-pull throttled for tenant {TenantId} subscription {SubscriptionId} after ARM retries; continuing pass. Detail: {Detail}",
+                                        tenant.Id,
+                                        config.SubscriptionId,
+                                        result.FailureDetail ?? result.FailureKind.ToString());
+                                }
+
+                                continue;
+                            }
+
+                            if (_logger.IsEnabled(LogLevel.Warning))
+                            {
+                                _logger.LogWarning(
+                                    "Azure extractor auto-pull failed for tenant {TenantId} subscription {SubscriptionId}: {Detail}",
+                                    tenant.Id,
+                                    config.SubscriptionId,
+                                    result.FailureDetail ?? result.FailureKind.ToString());
+                            }
                         }
+                        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            failed++;
+
+                            if (_logger.IsEnabled(LogLevel.Warning))
+                            {
+                                _logger.LogWarning(
+                                    ex,
+                                    "Azure extractor auto-pull unexpected fault for tenant {TenantId} subscription {SubscriptionId}; continuing pass.",
+                                    tenant.Id,
+                                    config.SubscriptionId);
+                            }
+                        }
+                    }
+
+                    if (subscriptionCooldown > TimeSpan.Zero)
+                    {
+                        await Task.Delay(subscriptionCooldown, cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
         }
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "Azure extractor auto-pull pass completed. Attempted={Attempted}, Succeeded={Succeeded}, Failed={Failed}, Throttled={Throttled}, SkippedLocked={SkippedLocked}.",
+                attempted,
+                succeeded,
+                failed,
+                throttled,
+                skippedLocked);
+        }
+    }
+
+    private TimeSpan ResolveSubscriptionCooldown()
+    {
+        int seconds = Math.Clamp(_autoPullOptionsMonitor.CurrentValue.SubscriptionCooldownSeconds, 0, 60);
+
+        return TimeSpan.FromSeconds(seconds);
     }
 }

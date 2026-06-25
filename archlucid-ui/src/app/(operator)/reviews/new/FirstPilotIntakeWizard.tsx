@@ -28,7 +28,9 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture-request-limits";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { cn } from "@/lib/utils";
 import {
   buildEvidenceBackedIntakeBrief,
   FIRST_PILOT_MIN_BRIEF_CHARS,
@@ -210,7 +212,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       <div className="space-y-1" data-testid="first-pilot-intake-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Your first review package</p>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead}
         </p>
       </div>
@@ -257,11 +259,11 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               onChange={(event) => {
                 setBriefText(event.target.value);
               }}
-              className="min-h-[100px] text-sm"
+              className={cn("min-h-[100px]", OPERATOR_TYPOGRAPHY.body)}
               placeholder="Optional: 2–3 sentences on goals, constraints, or what you want reviewed."
               data-testid="first-pilot-brief"
             />
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               {evidenceFiles.length > 0
                 ? `${evidenceFiles.length} file${evidenceFiles.length === 1 ? "" : "s"} attached — brief optional.`
                 : `Without files, brief must be at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters.`}
@@ -270,7 +272,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <AdvancedOptionsAccordion triggerLabel="Advanced configuration (optional)">
             <div className="space-y-4">
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
                 {CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
               </p>
               <PilotModePolicyPackToggle

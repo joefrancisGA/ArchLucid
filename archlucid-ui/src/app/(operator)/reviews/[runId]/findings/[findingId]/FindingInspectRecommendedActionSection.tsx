@@ -5,6 +5,8 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type FindingInspectRecommendedActionSectionProps = {
   readonly tone: "detail" | "inspect";
@@ -31,39 +33,39 @@ export function FindingInspectRecommendedActionSection({
 
   return (
     <section className={panelCls}>
-      <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
+      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Recommended action</h2>
       {structuredActions.length > 1 ? (
-        <ol className="mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+        <ol className={cn("mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {structuredActions.map((action, idx) => (
             <li key={idx}>{action}</li>
           ))}
         </ol>
       ) : (
-        <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
+        <p className={cn("m-0 mt-2 whitespace-pre-line text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {recommendedActionParagraph.trim()}
         </p>
       )}
       {showOwnerCadence ? (
-        <dl className="m-0 mt-3 grid gap-2 border-t border-teal-200/80 pt-3 text-sm sm:grid-cols-3 dark:border-teal-900/70">
+        <dl className={cn("m-0 mt-3 grid gap-2 border-t border-teal-200/80 pt-3 sm:grid-cols-3 dark:border-teal-900/70", OPERATOR_TYPOGRAPHY.body)}>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Risk owner
             </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Monitoring cadence
             </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+            <dd className="m-0 mt-0.5 text-al-text-primary">
               {BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Next review
             </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}</dd>
           </div>
         </dl>
       ) : null}

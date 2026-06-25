@@ -4,13 +4,15 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunDetailAiReadinessGateCard } from "@/components/RunDetailAiReadinessGateCard";
 import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer-polish-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const EmailRunToSponsorBanner = dynamic(
   () => import("@/components/EmailRunToSponsorBanner").then((module) => module.EmailRunToSponsorBanner),
   {
     loading: () => (
       <div
-        className="rounded-md border border-neutral-200 p-4 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+        className={cn("rounded-md border border-neutral-200 p-4 text-al-text-secondary dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
         role="status"
         aria-live="polite"
       >
@@ -28,7 +30,7 @@ const PilotRoiValidationHandoffClient = dynamic(
   {
     loading: () => (
       <div
-        className="rounded-md border border-neutral-200 p-4 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+        className={cn("rounded-md border border-neutral-200 p-4 text-al-text-secondary dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
         role="status"
         aria-live="polite"
       >

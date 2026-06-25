@@ -22,6 +22,8 @@ import {
   BUYER_RUNS_LIST_GLOSSARY_LEAD,
 } from "@/lib/buyer-polish-copy";
 import { RUNS_LIST_PAGE_SUBTITLE, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { RunsPageModel } from "./runs-page-model";
 
@@ -83,7 +85,7 @@ export function RunsPageView(props: Props) {
               </Link>
             </Button>
             {isBuyerPolishedOperatorShellEnv() ? null : (
-              <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
+              <ShortcutHint shortcut="Alt+N" className={OPERATOR_TYPOGRAPHY.helper} />
             )}
           </div>
         ) : null}
@@ -124,7 +126,7 @@ export function RunsPageView(props: Props) {
           <OperatorMalformedCallout>
             <strong>Reviews list response was not usable.</strong>
             <p className="mt-2">{malformedMessage}</p>
-            <p className="mt-2 text-sm">
+            <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
               The HTTP call may have succeeded, but the JSON did not match the expected paged review summary shape. This is distinct from
               an empty project (zero reviews).
             </p>

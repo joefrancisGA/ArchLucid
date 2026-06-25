@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/RunDetailRunGovernanceDispositionActions";
 
@@ -68,8 +70,8 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
               </Button>
             ) : null}
           </div>
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="#agent-forensics">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            <Link className={cn("font-medium", OPERATOR_LINK.nav)} href="#agent-forensics">
               Pipeline diagnostics
             </Link>
             {" — "}

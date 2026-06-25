@@ -13,7 +13,9 @@ import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
 import { PLANNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 import type { PlanningPageViewModel } from "./planning-page-view-model";
 
@@ -36,7 +38,7 @@ export function PlanningPageView(props: Props) {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader title="Planning" />
-      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
+      <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Improvement themes and prioritized plans derived from evaluation feedback. This is a <strong>read-only</strong> browse view — use{" "}
         <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
           {OPERATOR_NAV_LINK_LABELS.pilotFeedback}
@@ -59,14 +61,14 @@ export function PlanningPageView(props: Props) {
       {m.loading && m.summary === null ? (
         <OperatorLoadingNotice>
           <strong>Loading planning data.</strong>
-          <p className="mt-2 text-sm">Fetching summary, themes, and plans from the API…</p>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching summary, themes, and plans from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
       {m.loading && m.summary !== null ? (
         <OperatorLoadingNotice>
           <strong>Refreshing planning data.</strong>
-          <p className="mt-2 text-sm">Re-fetching summary, themes, and plans from the API…</p>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Re-fetching summary, themes, and plans from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
@@ -105,10 +107,10 @@ export function PlanningPageView(props: Props) {
           <PlanningSummarySection summary={m.summary} generatedUtc={m.generatedUtc} />
 
           <section className="mb-7" aria-labelledby="planning-themes-heading">
-            <h3 id="planning-themes-heading" className="text-[17px] mb-1">
+            <h3 id="planning-themes-heading" className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               Top improvement themes
             </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
+            <p className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               Ordered by evidence signal count, then distinct runs. Use <strong>Plans</strong> to narrow the plan list to one theme.
             </p>
             <PlanningThemesTable
@@ -120,16 +122,19 @@ export function PlanningPageView(props: Props) {
           </section>
 
           <section className="mb-6" aria-labelledby="planning-plans-heading">
-            <h3 id="planning-plans-heading" className="text-[17px] mb-1">
+            <h3 id="planning-plans-heading" className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               Prioritized improvement plans
             </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
+            <p className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               Ordered by priority score (highest first). Open a row for action steps and link-level evidence counts.
             </p>
 
             {m.selectedThemeId !== null ? (
               <div
-                className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 flex flex-wrap items-center gap-3 py-2.5 px-3 mb-3 text-sm"
+                className={cn(
+                  "mb-3 flex flex-wrap items-center gap-3 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2.5 dark:border-neutral-800",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
                 role="status"
               >
                 <span>

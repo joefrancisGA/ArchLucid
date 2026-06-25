@@ -16,6 +16,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
@@ -73,7 +74,8 @@ export function PolicyPacksPageView(props: Props) {
           <button
             type="button"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
+              "rounded-md px-3 py-1.5",
+              OPERATOR_TYPOGRAPHY.tab,
               surfaceTab === "my-packs"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/60",
@@ -89,7 +91,8 @@ export function PolicyPacksPageView(props: Props) {
           <button
             type="button"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium",
+              "rounded-md px-3 py-1.5",
+              OPERATOR_TYPOGRAPHY.tab,
               surfaceTab === "catalog"
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/60",

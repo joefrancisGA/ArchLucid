@@ -3,6 +3,8 @@ import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type PolicyPacksRefreshToolbarProps = {
   buyerPolishedShell: boolean;
@@ -20,7 +22,7 @@ export function PolicyPacksRefreshToolbar(props: PolicyPacksRefreshToolbarProps)
         {loading ? "Loading…" : "Refresh"}
       </Button>
       {!canMutatePacks ? (
-        <span className="max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+        <span className={cn("max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {buyerPolishedShell ? policyPacksRefreshAssistReaderLineBuyerPolished : policyPacksRefreshAssistReaderLine}
         </span>
       ) : null}

@@ -36,6 +36,7 @@ const emptyCommitContext: CorePilotCommitContext = {
   latestRunId: null,
   firstCommittedRunId: null,
   secondCommittedRunId: null,
+  latestRunReadyToFinalize: false,
 };
 
 const showcaseCommitContext: CorePilotCommitContext = {
@@ -44,6 +45,7 @@ const showcaseCommitContext: CorePilotCommitContext = {
   latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   secondCommittedRunId: null,
+  latestRunReadyToFinalize: false,
 };
 
 const corePilotSteps = CORE_PILOT_STEPS;

@@ -2,7 +2,11 @@ import type { ChatIntakeArchitectureRequest } from "@/lib/api/architecture-chat-
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function normalizeCloudProvider(value: ChatIntakeArchitectureRequest["cloudProvider"]): WizardFormValues["cloudProvider"] {
-  return value === "Azure" ? "Azure" : "None";
+  if (value === "Azure" || value === "Aws" || value === "Gcp") {
+    return value;
+  }
+
+  return "None";
 }
 
 /** Applies parsed chat-intake fields onto existing wizard state (preserves requestId and empty advanced lists). */

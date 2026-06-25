@@ -2,7 +2,16 @@
 
 # V1 Magic Guardrails
 
-ArchLucid should feel impressive in V1, but the magic must come from **grounded experience design**, not unsupported autonomy.
+ArchLucid should feel impressive in V1, but the magic must come from **grounded experience design**, not unsupported autonomy. **Note:** These guardrails apply to **buyer-facing magic claims**, not code deletion. Advanced retrieval code can exist under the hood, but we do not over-promise its autonomy to users.
+
+## Shipped Advanced Retrieval (Under-the-hood)
+
+The following advanced retrieval techniques are active in the codebase to improve baseline retrieval quality. They are allowed, provided we do not make unbounded autonomous "magic" claims to buyers about these capabilities:
+
+| Pattern | Guardrail |
+| --- | --- |
+| Graph-RAG over the provenance graph | Code exists (e.g., `GraphRagNeighborExpander`) and is active. Do not claim it acts as an autonomous agent. |
+| Agentic retrieval (HyDE, query rewrite, multi-hop) | Code exists (e.g., `AgenticRetrievalQueryExpander`) and is active. Do not claim it acts as an autonomous agent. |
 
 ## Allowed V1 Magic
 
@@ -23,8 +32,6 @@ Do not pull these into V1 without a scope update:
 | Future pattern | Boundary |
 | --- | --- |
 | Open-ended autonomous planning | V1 agents are orchestrated and bounded; they do not self-direct broad implementation plans. |
-| Graph-RAG over the provenance graph | V2 candidate after V1 retrieval quality proves insufficient. |
-| Agentic retrieval such as HyDE, query rewrite, or multi-hop retrieval | V2 candidate unless explicitly promoted. |
 | MCP tool membrane | V1.1 candidate; not required for V1 pilot value. |
 | Live third-party tool orchestration | V1.1+ connector work; V1 handoff remains REST, CLI, operator UI, SCIM, and GitHub/Azure DevOps attachment patterns. |
 | Unsourced ROI or compliance claims | Never acceptable. ROI and assurance language must carry evidence, estimate, or deferred labels. |

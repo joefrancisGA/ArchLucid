@@ -8,6 +8,8 @@ import {
   feasibilityVerdictTone,
 } from "@/lib/feasibility-verdict-display";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -39,11 +41,11 @@ export function RunDetailFeasibilityVerdictSection(
     <section id="feasibility-verdict" className="scroll-mt-24" data-testid="run-detail-feasibility-verdict">
       <div className={`rounded-lg border p-4 ${toneClassName(tone)}`}>
         <h4 className={`${runDetailSectionHeadingClass} mb-2`}>Feasibility verdict</h4>
-        <p className="m-0 text-sm font-semibold">{feasibilityVerdictKindLabel(verdict.kind)}</p>
-        <p className="mt-2 text-sm leading-relaxed">{verdict.summary}</p>
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{feasibilityVerdictKindLabel(verdict.kind)}</p>
+        <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{verdict.summary}</p>
 
         {verdict.softEnvelope !== undefined && verdict.softEnvelope !== null ? (
-          <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4">
+          <dl className={cn("mt-4 grid gap-2 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4", OPERATOR_TYPOGRAPHY.body)}>
             <dt className="font-medium">Confidence band</dt>
             <dd className="m-0 tabular-nums">
               {verdict.softEnvelope.confidenceLow}–{verdict.softEnvelope.confidenceHigh}
@@ -56,7 +58,7 @@ export function RunDetailFeasibilityVerdictSection(
         ) : null}
 
         {verdict.unsatCoreInvariantKeys !== undefined && verdict.unsatCoreInvariantKeys.length > 0 ? (
-          <p className="mt-3 text-sm">
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
             Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
           </p>
         ) : null}
@@ -76,7 +78,7 @@ export function RunDetailFeasibilityVerdictSection(
 
       {trail !== undefined ? (
         <CollapsibleSection title="Transparency trail" defaultOpen={false}>
-          <div className="space-y-4 text-sm">
+          <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
             {trail.asserted.length > 0 ? (
               <div>
                 <p className="m-0 font-medium">Asserted ({trail.asserted.length})</p>

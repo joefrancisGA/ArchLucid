@@ -4,6 +4,8 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type RunDetailManifestSummaryAlertsProps = {
   readonly manifestSummaryFailure: ApiLoadFailureState | null;
@@ -23,7 +25,7 @@ export function RunDetailManifestSummaryAlerts(
     <>
       {manifestSummaryFailure ? (
         <div className="space-y-2">
-          <p className="m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             Review record summary could not be loaded.
           </p>
           <OperatorApiProblem
@@ -32,7 +34,7 @@ export function RunDetailManifestSummaryAlerts(
             correlationId={manifestSummaryFailure.correlationId}
             variant="warning"
           />
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             This is a failed request (HTTP / transport / 404), not a malformed JSON body.
           </p>
           <OperatorSectionRetryButton label="Retry loading review record summary" />

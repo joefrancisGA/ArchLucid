@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type EnvironmentSlice = {
   environment: string;
@@ -52,15 +54,16 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Savings by environment</CardTitle>
-        <CardDescription className="text-xs">
-          Aggregated from deduplicated findings via <span className="font-mono">GET /v1/roi/executive-summary/export</span>.
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Savings by environment</CardTitle>
+        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
+          Aggregated from deduplicated findings via{" "}
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/roi/executive-summary/export</span>.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {loading ? <p className="m-0 text-sm text-neutral-500">Loading environment breakdown…</p> : null}
+        {loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading environment breakdown…</p> : null}
         {!loading && slices.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No tagged environment savings yet.</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No tagged environment savings yet.</p>
         ) : null}
         {!loading && slices.length > 0 ? (
           <div className="space-y-3" data-testid="exec-roi-environment-pie">
@@ -76,7 +79,7 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
                 />
               ))}
             </div>
-            <ul className="m-0 space-y-1 p-0 text-sm">
+            <ul className={cn("m-0 space-y-1 p-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {slices.map((slice, index) => (
                 <li key={slice.environment} className="flex items-center justify-between gap-3">
                   <span className="inline-flex items-center gap-2">

@@ -19,7 +19,9 @@ import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budge
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { cn } from "@/lib/utils";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
 import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
@@ -193,7 +195,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Pilot wizard — step {pilotStep + 1} of {PILOT_STEPS.length}: {PILOT_STEPS[pilotStep].label}
         </p>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{PILOT_STEPS[pilotStep].description}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{PILOT_STEPS[pilotStep].description}</p>
       </div>
 
       {pilotStep === 0 ? (
