@@ -43,6 +43,19 @@ function sumDriftChanges(points: { changeCount: number }[]): number {
   return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
 }
 
+function buildFallbackNarrativeFromSummary(summary: ExecutiveRoiSummary): string {
+  const reviewsCount = summary.latestRunCount ?? summary.systemCount ?? 0;
+
+  return buildExecutiveValueNarrative({
+    reviewsCount,
+    findingsCount: 0,
+    estimatedHoursSaved: reviewsCount * AVERAGE_MANUAL_REVIEW_HOURS,
+    estimatedUsdSavings: summary.totalEstimatedUsdSavings ?? null,
+    topRecommendedAction: null,
+    qualifyEstimatedHours: isBuyerPolishedOperatorShellEnv(),
+  });
+}
+
 export type ExecutiveValueNarrativeBannerProps = {
   readonly timeRange: ExecutiveTimeRange;
   readonly roiSummary?: ExecutiveRoiSummary | null;
@@ -51,9 +64,12 @@ export type ExecutiveValueNarrativeBannerProps = {
 /** Deterministic executive story line (TB-268). */
 export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: ExecutiveValueNarrativeBannerProps) {
   const [narrative, setNarrative] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async (selected: ExecutiveTimeRange) => {
     const { fromUtc, toUtc } = windowForExecutiveRange(selected);
+
+    setLoading(true);
 
     try {
       const report = await fetchPilotValueReportJson(fromUtc, toUtc);
@@ -97,7 +113,13 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
         }),
       );
     } catch {
-      setNarrative(null);
+      if (roiSummary !== undefined && roiSummary !== null) {
+        setNarrative(buildFallbackNarrativeFromSummary(roiSummary));
+      } else {
+        setNarrative(null);
+      }
+    } finally {
+      setLoading(false);
     }
   }, [roiSummary]);
 
@@ -105,7 +127,9 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
     void load(timeRange);
   }, [load, timeRange]);
 
-  if (narrative === null) {
+  const displayText = narrative ?? (loading ? "Preparing executive narrative…" : null);
+
+  if (displayText === null) {
     return null;
   }
 
@@ -114,8 +138,9 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
       className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200"
       data-testid="executive-value-narrative"
       role="status"
+      aria-busy={loading ? "true" : undefined}
     >
-      {narrative}
+      {displayText}
     </p>
   );
 }

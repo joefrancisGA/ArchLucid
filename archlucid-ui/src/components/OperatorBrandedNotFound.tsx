@@ -29,7 +29,8 @@ export function OperatorBrandedNotFound({
   showSampleReviewLink = true,
 }: OperatorBrandedNotFoundProps = {}) {
   return (
-    <OperatorEmptyState title="We could not find that ArchLucid artifact">
+    <div data-testid="branded-not-found">
+      <OperatorEmptyState title="We could not find that ArchLucid artifact">
       <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         The link may be mistyped, expired, or pointed to a review package, evidence item, finding, or workspace item
         that is not available in the current workspace.
@@ -73,9 +74,8 @@ export function OperatorBrandedNotFound({
       <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-800 dark:text-neutral-300">
         ArchLucid · 404
       </p>
-      <span data-testid="branded-not-found" className="sr-only">
-        Page not found
-      </span>
+      <span className="sr-only">Page not found</span>
     </OperatorEmptyState>
+    </div>
   );
 }

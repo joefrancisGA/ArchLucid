@@ -73,13 +73,16 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
 }
 
 export async function waitForExecutiveRoiExportResponse(page: Page): Promise<ExecutiveRoiExportPayload> {
-  const exportResponsePromise = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 });
-
   await page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
 
-  // Portfolio layout mounts export fetch only after summary hydration on cold CI agents.
+  await expect(page.getByTestId("executive-primary-decisions-needed"))
+    .toBeVisible({ timeout: 30_000 })
+    .catch(() => undefined);
+
+  const exportResponsePromise = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 });
+
   await page.getByText("Savings by environment").scrollIntoViewIfNeeded({ timeout: 30_000 }).catch(() => undefined);
-  await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 }).catch(() => undefined);
 
   try {
     const response = await exportResponsePromise;

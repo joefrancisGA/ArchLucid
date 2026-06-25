@@ -52,7 +52,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     ctoDemoNavExpandedEnv: isCtoDemoNavExpandedEnv(),
     runtimeCtoDemoTourActive: false,
   });
-  const operatorAdvancedModeOn = showExtended && showAdvanced;
+  const operatorAdvancedModeOn =
+    (navExpanded && navAdvanced) || (shellShowExtended && shellShowAdvanced);
   const operateNavUnlockPhase = resolveOperateNavUnlockPhase(effectiveOperateUnlockPhase, operatorAdvancedModeOn);
   const reviewNavExpanded = operateNavUnlockPhase >= 1 || navExpanded;
   const reviewNavAdvanced = operateNavUnlockPhase >= 1 || navAdvanced;
