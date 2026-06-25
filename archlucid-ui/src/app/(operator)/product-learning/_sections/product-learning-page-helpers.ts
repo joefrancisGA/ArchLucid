@@ -1,4 +1,5 @@
-import { normalizeFindingSeverity, severityTagClass } from "@/lib/design-tokens";
+import { normalizeFindingSeverity, OPERATOR_TYPOGRAPHY, severityTagClass } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ProductLearningTimeRangeKey } from "./product-learning-types";
 
@@ -26,7 +27,7 @@ export function severityBadgeClass(severity: string): string {
   return severityTagClass(normalizeFindingSeverity(severity));
 }
 
-export const productLearningTableClass = "w-full border-collapse text-sm mt-2";
+export const productLearningTableClass = cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body);
 
 export const productLearningThTdClass =
   "border border-neutral-200 dark:border-neutral-700 px-2.5 py-2 text-left align-top";

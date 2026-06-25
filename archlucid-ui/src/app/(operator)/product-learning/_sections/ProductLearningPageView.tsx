@@ -10,6 +10,12 @@ import {
   buildProductLearningReportJsonUrl,
 } from "@/lib/product-learning-report-urls";
 import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import {
+  OPERATOR_KPI_CARD_TITLE,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   formatUtc,
@@ -38,17 +44,17 @@ export function ProductLearningPageView(props: Props) {
   return (
     <div className="max-w-5xl">
       <h2 className="mt-0">{BUYER_TERMINOLOGY.evaluationFeedback}</h2>
-      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
+      <p className={cn("max-w-3xl leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
         {PILOT_FEEDBACK_VOCABULARY.pageLead} This view is separate from{" "}
-        <Link href="/recommendation-learning" className="text-blue-700 dark:text-blue-400">
+        <Link href="/recommendation-learning" className={OPERATOR_LINK.inline}>
           Recommendation tuning
         </Link>{" "}
         (advisory acceptance weights).
       </p>
 
       <div className="flex flex-wrap gap-3 items-center mb-5 mt-4">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-neutral-500 dark:text-neutral-400">Time range</span>
+        <label className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
+          <span className={OPERATOR_TYPOGRAPHY.helper}>Time range</span>
           <select
             value={m.range}
             onChange={(e) => {
@@ -69,13 +75,13 @@ export function ProductLearningPageView(props: Props) {
 
       {showPopulatedSections ? (
         <section className="mb-[22px]" aria-labelledby="pl-export-heading">
-          <h3 id="pl-export-heading" className="text-[15px] mb-1.5 text-neutral-700 dark:text-neutral-300">
+          <h3 id="pl-export-heading" className={cn("mb-1.5", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {PILOT_FEEDBACK_VOCABULARY.exportSectionHeading}
           </h3>
-          <p className="m-0 text-[13px] text-neutral-500 dark:text-neutral-400 max-w-3xl">
+          <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
             {PILOT_FEEDBACK_VOCABULARY.exportSectionLead} Uses the same scope and time range as the dashboard above.
           </p>
-          <p className="mt-2.5 text-sm">
+          <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
             <a href={buildProductLearningReportFileUrl("markdown", sinceIsoForRange(m.range))} download>
               Download Markdown
             </a>
@@ -94,12 +100,12 @@ export function ProductLearningPageView(props: Props) {
       {m.loading && m.bundle === null ? (
         <OperatorLoadingNotice>
           <strong>Loading dashboard.</strong>
-          <p className="mt-2 text-sm">Fetching feedback summaries, trends, opportunities, and review items…</p>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching feedback summaries, trends, opportunities, and review items…</p>
         </OperatorLoadingNotice>
       ) : null}
 
       {m.loading && m.bundle !== null ? (
-        <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mb-4" role="status">
+        <p className={cn("mb-4", OPERATOR_TYPOGRAPHY.helper)} role="status">
           Updating…
         </p>
       ) : null}
@@ -129,44 +135,44 @@ export function ProductLearningPageView(props: Props) {
       {showPopulatedSections ? (
         <>
           <section className="mb-7" aria-labelledby="pl-kpis-heading">
-            <h3 id="pl-kpis-heading" className="text-[17px] mb-2">
+            <h3 id="pl-kpis-heading" className={cn("mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               Summary
             </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
+            <p className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>
               Generated {formatUtc(m.bundle!.summary.generatedUtc)} · {m.bundle!.summary.totalSignalsInScope} feedback
               item(s) · {m.bundle!.summary.distinctRunsTouched} review(s) with feedback
             </p>
             <ul className="flex flex-wrap gap-2.5 list-none p-0 mt-3">
               <li className="border border-neutral-200 dark:border-neutral-700 rounded-lg px-3.5 py-2.5 min-w-[140px]">
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className={OPERATOR_KPI_CARD_TITLE}>
                   {PILOT_FEEDBACK_VOCABULARY.summaryKpiFeedbackSummaries}
                 </div>
-                <div className="text-xl font-semibold">{m.bundle!.summary.topAggregateCount}</div>
+                <div className={OPERATOR_TYPOGRAPHY.pageTitle}>{m.bundle!.summary.topAggregateCount}</div>
               </li>
               <li className="border border-neutral-200 dark:border-neutral-700 rounded-lg px-3.5 py-2.5 min-w-[140px]">
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className={OPERATOR_KPI_CARD_TITLE}>
                   {PILOT_FEEDBACK_VOCABULARY.summaryKpiRepeatedIssues}
                 </div>
-                <div className="text-xl font-semibold">{m.bundle!.summary.artifactTrendCount}</div>
+                <div className={OPERATOR_TYPOGRAPHY.pageTitle}>{m.bundle!.summary.artifactTrendCount}</div>
               </li>
               <li className="border border-neutral-200 dark:border-neutral-700 rounded-lg px-3.5 py-2.5 min-w-[140px]">
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className={OPERATOR_KPI_CARD_TITLE}>
                   {PILOT_FEEDBACK_VOCABULARY.summaryKpiImprovementOpportunities}
                 </div>
-                <div className="text-xl font-semibold">{m.bundle!.summary.improvementOpportunityCount}</div>
+                <div className={OPERATOR_TYPOGRAPHY.pageTitle}>{m.bundle!.summary.improvementOpportunityCount}</div>
               </li>
               <li className="border border-neutral-200 dark:border-neutral-700 rounded-lg px-3.5 py-2.5 min-w-[140px]">
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className={OPERATOR_KPI_CARD_TITLE}>
                   {PILOT_FEEDBACK_VOCABULARY.summaryKpiItemsNeedingReview}
                 </div>
-                <div className="text-xl font-semibold">{m.bundle!.summary.triageQueueItemCount}</div>
+                <div className={OPERATOR_TYPOGRAPHY.pageTitle}>{m.bundle!.summary.triageQueueItemCount}</div>
               </li>
             </ul>
             <details className="mt-4">
-              <summary className="cursor-pointer text-neutral-700 dark:text-neutral-300 text-sm">
+              <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                 {PILOT_FEEDBACK_VOCABULARY.summaryNotesHeading}
               </summary>
-              <ul className="text-neutral-600 dark:text-neutral-400 text-[13px] leading-normal">
+              <ul className={cn("leading-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                 {m.bundle!.summary.summaryNotes.map((note, i) => (
                   <li key={i}>{note}</li>
                 ))}
@@ -175,14 +181,14 @@ export function ProductLearningPageView(props: Props) {
           </section>
 
           <section className="mb-7" aria-labelledby="pl-trends-heading">
-            <h3 id="pl-trends-heading" className="text-[17px] mb-1">
+            <h3 id="pl-trends-heading" className={cn("mb-1", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               {PILOT_FEEDBACK_VOCABULARY.feedbackByAreaHeading}
             </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
+            <p className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>
               {PILOT_FEEDBACK_VOCABULARY.feedbackByAreaLead}
             </p>
             {m.bundle!.trends.trends.length === 0 ? (
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm" role="status">
+              <p className={cn(OPERATOR_TYPOGRAPHY.helper)} role="status">
                 No feedback rows for this time range.
               </p>
             ) : (
@@ -205,7 +211,7 @@ export function ProductLearningPageView(props: Props) {
                         <td className={productLearningThTdClass}>
                           <div>{row.artifactTypeOrHint || "—"}</div>
                           {row.windowLabel ? (
-                            <div className="text-xs text-neutral-500 dark:text-neutral-400">{row.windowLabel}</div>
+                            <div className={OPERATOR_TYPOGRAPHY.helper}>{row.windowLabel}</div>
                           ) : null}
                         </td>
                         <td className={productLearningNumericCellClass}>{row.acceptedOrTrustedCount}</td>
@@ -213,7 +219,7 @@ export function ProductLearningPageView(props: Props) {
                         <td className={productLearningNumericCellClass}>{row.rejectionCount}</td>
                         <td className={productLearningNumericCellClass}>{row.needsFollowUpCount}</td>
                         <td className={productLearningNumericCellClass}>{row.distinctRunCount}</td>
-                        <td className={`${productLearningThTdClass} text-[13px]`}>
+                        <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>
                           {row.repeatedThemeIndicator ?? "—"}
                         </td>
                       </tr>
@@ -225,14 +231,14 @@ export function ProductLearningPageView(props: Props) {
           </section>
 
           <section className="mb-7" aria-labelledby="pl-opps-heading">
-            <h3 id="pl-opps-heading" className="text-[17px] mb-1">
+            <h3 id="pl-opps-heading" className={cn("mb-1", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               {PILOT_FEEDBACK_VOCABULARY.topImprovementOpportunitiesHeading}
             </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
+            <p className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>
               Ranked candidates for product review (not auto-filed work items).
             </p>
             {m.bundle!.opportunities.opportunities.length === 0 ? (
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm" role="status">
+              <p className={cn(OPERATOR_TYPOGRAPHY.helper)} role="status">
                 No improvement opportunities matched the current thresholds.
               </p>
             ) : (
@@ -242,14 +248,14 @@ export function ProductLearningPageView(props: Props) {
                     <div className="flex flex-wrap items-baseline gap-2">
                       <strong>{o.title}</strong>
                       <span className={severityBadgeClass(o.severity)}>{o.severity}</span>
-                      <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                      <span className={OPERATOR_TYPOGRAPHY.helper}>
                         {o.affectedArtifactTypeOrWorkflowArea} · {o.evidenceSignalCount} feedback item(s) ·{" "}
                         {o.distinctRunCount} review(s)
                       </span>
                     </div>
-                    <p className="mt-1.5 text-sm">{o.summary}</p>
+                    <p className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>{o.summary}</p>
                     {o.repeatedThemeSnippet ? (
-                      <p className="mt-1.5 text-[13px] text-neutral-600 dark:text-neutral-400">
+                      <p className={cn("mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                         <em>Repeated theme:</em> {o.repeatedThemeSnippet}
                       </p>
                     ) : null}
@@ -262,14 +268,14 @@ export function ProductLearningPageView(props: Props) {
           <PlanningBridgePanel since={sinceIsoForRange(m.range)} disabled={m.loading} />
 
           <section className="mb-6" aria-labelledby="pl-triage-heading">
-            <h3 id="pl-triage-heading" className="text-[17px] mb-1">
+            <h3 id="pl-triage-heading" className={cn("mb-1", OPERATOR_TYPOGRAPHY.sectionTitle)}>
               {PILOT_FEEDBACK_VOCABULARY.itemsNeedingReviewHeading}
             </h3>
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
+            <p className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>
               {PILOT_FEEDBACK_VOCABULARY.itemsNeedingReviewLead}
             </p>
             {m.bundle!.triage.items.length === 0 ? (
-              <p className="text-neutral-500 dark:text-neutral-400 text-sm" role="status">
+              <p className={cn(OPERATOR_TYPOGRAPHY.helper)} role="status">
                 No items need review for this scope and time range.
               </p>
             ) : (
@@ -294,8 +300,8 @@ export function ProductLearningPageView(props: Props) {
                           <span className={severityBadgeClass(item.severity)}>{item.severity}</span>
                         </td>
                         <td className={productLearningThTdClass}>{item.affectedArtifactTypeOrWorkflowArea}</td>
-                        <td className={`${productLearningThTdClass} text-[13px] max-w-[280px]`}>{item.detailSummary}</td>
-                        <td className={`${productLearningThTdClass} text-[13px]`}>{item.suggestedNextAction ?? "—"}</td>
+                        <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body, "max-w-[280px]")}>{item.detailSummary}</td>
+                        <td className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>{item.suggestedNextAction ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -304,7 +310,7 @@ export function ProductLearningPageView(props: Props) {
             )}
           </section>
 
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">
+          <p className={cn(OPERATOR_TYPOGRAPHY.micro, "text-neutral-400 dark:text-neutral-500")}>
             Panel timestamps may differ slightly between calls; use <strong>Refresh</strong> after changing time range to
             reload all sections together.
           </p>
