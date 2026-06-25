@@ -76,6 +76,14 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
       Open review packages
     </a>
   </div>
+  <p
+    aria-busy="true"
+    class="m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200"
+    data-testid="executive-value-narrative"
+    role="status"
+  >
+    Preparing executive narrative…
+  </p>
   <div
     class="grid gap-4 sm:grid-cols-2"
   >

@@ -13,7 +13,7 @@ import {
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 import { cn } from "@/lib/utils";
 
 type Phase = "loading" | "ready";
@@ -46,7 +46,7 @@ function buyerHintBody(
           href="/reviews/new"
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
         >
-          {OPERATOR_NAV_LINK_LABELS.capture}
+          {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL}
         </Link>
         .
       </>

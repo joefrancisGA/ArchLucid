@@ -1,8 +1,8 @@
 import { applyBuyerDemoVocabulary } from "@/lib/buyer-demo-vocabulary";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
-/** Buyer-polished shell label for `/reviews/new` — same verb as default shell for calm first-run nav. */
-export const BUYER_NEW_REVIEW_NAV_LABEL = "Start review";
+/** Buyer-polished shell left-nav label for `/reviews/new` — navigation destination, not the hero CTA. */
+export const BUYER_NEW_REVIEW_NAV_LABEL = "New review";
 
 /** Operator quick-action label for `/reviews/new` — keep the outcome verb in default shell chrome. */
 export const OPERATOR_START_REVIEW_QUICK_ACTION_LABEL = "Start review";
@@ -17,10 +17,10 @@ export function resolveNewReviewNavLinkLabel(buyerPolishedShell: boolean): strin
 
 export function resolveNewReviewNavLinkTitle(buyerPolishedShell: boolean): string {
   if (buyerPolishedShell) {
-    return "Start review — Quick review, Guided intake, or full wizard (Alt+N)";
+    return "New review — Quick review, Guided intake, or full wizard (Alt+N)";
   }
 
-  return "Start review — Quick review, Guided intake, or full wizard (Alt+N)";
+  return "New review — Quick review, Guided intake, or full wizard (Alt+N)";
 }
 
 type NavLinkPresentationSource = {
@@ -52,7 +52,7 @@ export function resolveNavLinkPresentation(
   return applyBuyerNavVocabulary(link);
 }
 
-/** Quick actions use Start review; buyer shell may still prefer New review. */
+/** Quick actions and hero CTAs use Start review; left nav uses New review. */
 export function resolveQuickActionNavLinkPresentation(
   link: NavLinkPresentationSource,
 ): NavLinkPresentationSource {

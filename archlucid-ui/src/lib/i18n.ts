@@ -120,7 +120,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
   reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-  capture: "Start review",
+  /** Left nav destination for `/reviews/new` — distinct from hero/quick-action "Start review". */
+  capture: "New review",
   onboarding: "Onboarding",
   findings: "Risk register",
   riskExceptions: "Risk exceptions",

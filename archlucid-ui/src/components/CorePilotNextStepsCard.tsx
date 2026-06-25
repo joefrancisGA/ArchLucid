@@ -14,6 +14,7 @@ import {
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
@@ -278,7 +279,7 @@ export function CorePilotNextStepsCard() {
             className="font-medium text-blue-700 underline dark:text-blue-400"
             data-testid="pilot-active-step-link"
           >
-            {OPERATOR_NAV_LINK_LABELS.capture} — create architecture request
+            {OPERATOR_START_REVIEW_QUICK_ACTION_LABEL} — create architecture request
           </Link>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">

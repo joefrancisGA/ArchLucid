@@ -24,7 +24,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Overview → Start review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
+        "Buyer-first path: Overview → New review → Evidence graph → Review packages → Portfolio overview; then onboarding and governance follow-up.",
       links: [
         {
           href: "/",
