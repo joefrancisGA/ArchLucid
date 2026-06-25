@@ -1,5 +1,5 @@
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
@@ -110,6 +110,15 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     return [
       { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) },
+    ];
+  }
+
+  // Cloud connections lives under Integrations nav — not Settings admin chrome.
+  if (normalized === "/settings/cloud-connections") {
+    return [
+      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
+      { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/operations" },
+      { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
     ];
   }
 

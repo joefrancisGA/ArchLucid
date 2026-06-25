@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
-import { FORTHCOMING_CLOUD_PROVIDER_ROWS } from "@/lib/forthcoming-cloud-provider-rows";
 
 import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
 
@@ -57,51 +56,37 @@ export function CloudConnectionsPageClient() {
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cloud connections</h1>
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Optional continuous ingestion from Azure when you want production-faithful evidence. Brief, documents, diagrams,
-          and IaC reviews do not require a cloud connection.
+          Cloud connections are optional. They help ArchLucid use production-faithful evidence when available, but reviews
+          can also be created from briefs, diagrams, documents, and uploaded evidence.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect Azure (Tier 2)</CardTitle>
-          <CardDescription>
-            Guided setup for continuous Azure ingestion using Workload Identity Federation. Saved connections are stored
-            in the hosted extractor configuration used by Tier 2 pull jobs — no client secrets are stored.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tier2ConnectionWizard onSaved={handleSaved} />
-        </CardContent>
-      </Card>
+      <section className="space-y-4" aria-labelledby="cloud-connections-available-heading">
+        <h2
+          id="cloud-connections-available-heading"
+          className="text-base font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Available connections
+        </h2>
 
-      <Card data-testid="cloud-connections-forthcoming-providers">
-        <CardHeader>
-          <CardTitle>More providers (V1.1)</CardTitle>
-          <CardDescription>
-            Azure is the only continuous-ingestion connector in V1. Additional providers are on the roadmap and appear here
-            as disabled placeholders.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {FORTHCOMING_CLOUD_PROVIDER_ROWS.map((provider) => (
-            <div
-              key={provider.id}
-              className="rounded-md border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm dark:border-neutral-800 dark:bg-neutral-950"
-              data-testid={`cloud-provider-row-${provider.id}`}
-              aria-disabled="true"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="m-0 font-semibold text-neutral-800 dark:text-neutral-100">{provider.name}</p>
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-                  V1.1
-                </span>
-              </div>
-              <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{provider.description}</p>
+        <Card data-testid="cloud-connections-available-azure">
+          <CardHeader>
+            <div className="flex flex-wrap items-center gap-2">
+              <CardTitle>Connect Azure</CardTitle>
+              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                Evidence tier: Cloud-connected
+              </span>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+            <CardDescription>
+              Use workload identity federation to connect selected Azure subscriptions with read-only access. ArchLucid
+              stores connection metadata only; no client secrets are stored.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tier2ConnectionWizard onSaved={handleSaved} />
+          </CardContent>
+        </Card>
+      </section>
 
       {loadError ? (
         <p className="text-sm text-red-600 dark:text-red-400" role="alert">

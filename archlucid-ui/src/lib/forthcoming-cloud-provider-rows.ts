@@ -4,7 +4,7 @@ export type ForthcomingCloudProviderRow = {
   readonly description: string;
 };
 
-/** Honest V1.1 roadmap rows — disabled in UI until connectors ship (TB-343). */
+/** V1.1 roadmap rows for admin/diagnostics surfaces only — not shown on the customer Cloud connections page (TB-343). */
 export const FORTHCOMING_CLOUD_PROVIDER_ROWS: readonly ForthcomingCloudProviderRow[] = [
   {
     id: "aws",

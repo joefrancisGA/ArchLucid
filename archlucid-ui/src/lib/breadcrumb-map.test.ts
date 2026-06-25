@@ -100,6 +100,14 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("maps cloud connections under Integrations (not Settings)", () => {
+    expect(getBreadcrumbs("/settings/cloud-connections")).toEqual([
+      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
+      { label: "Integrations", href: "/integrations/operations" },
+      { label: "Cloud connections" },
+    ]);
+  });
+
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
       { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },

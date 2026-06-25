@@ -45,16 +45,24 @@ describe("CloudConnectionsPageClient", () => {
     });
 
     expect(screen.getByText("Security review checklist")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connections-forthcoming-providers")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-provider-row-aws")).toHaveTextContent("V1.1");
-    expect(screen.getByTestId("cloud-provider-row-gcp")).toHaveTextContent("V1.1");
+    expect(screen.getByText("Connect Azure")).toBeInTheDocument();
+    expect(screen.getByText("Available connections")).toBeInTheDocument();
+    expect(screen.getByText("Evidence tier: Cloud-connected")).toBeInTheDocument();
+    expect(screen.getByText("Create Azure identity")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-available-azure")).toBeInTheDocument();
     expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();
 
     const intro = screen.getByTestId("cloud-connections-page").textContent ?? "";
-    expect(intro).toMatch(/Optional continuous ingestion from Azure/i);
+    expect(intro).toMatch(/Cloud connections are optional/i);
+    expect(intro).toMatch(/production-faithful evidence when available/i);
+    expect(intro).not.toMatch(/Amazon Web Services/i);
+    expect(intro).not.toMatch(/Google Cloud Platform/i);
+    expect(intro).not.toMatch(/More providers/i);
     expect(intro).not.toMatch(/cloud providers/i);
     expect(intro).not.toMatch(/Configure continuous ingestion from your/i);
-    expect(screen.getByText(/More providers \(V1\.1\)/i)).toBeInTheDocument();
+    expect(intro).not.toMatch(/Connect Azure \(Tier 2\)/i);
+    expect(intro).not.toMatch(/hosted extractor configuration/i);
+    expect(intro).not.toMatch(/planned for V1\.1/i);
   });
 
   it("surfaces misconfigured tenant and client GUID validation on the connection step", async () => {

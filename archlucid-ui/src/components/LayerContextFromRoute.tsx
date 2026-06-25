@@ -56,7 +56,9 @@ export function LayerContextFromRoute() {
     pathname === "/" ||
     pathname === "/reviews/new" ||
     pathname === "/why-archlucid" ||
-    pathname.startsWith("/help")
+    pathname.startsWith("/help") ||
+    pathname === "/settings/cloud-connections" ||
+    pathname.startsWith("/settings/cloud-connections/")
   ) {
     return null;
   }
