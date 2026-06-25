@@ -1,15 +1,17 @@
 import Link from "next/link";
 
 import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Review detail not-found — stale or unknown review id. */
 export default function ReviewDetailNotFound() {
   return (
     <div className="w-full max-w-[1200px] px-1 py-6 sm:px-0">
       <OperatorBrandedNotFound showProcessingHint retryLabel="Refresh" />
-      <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.helper)}>
         Return to your{" "}
-        <Link href="/reviews?projectId=default" className="font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href="/reviews?projectId=default" className={OPERATOR_LINK.nav}>
           review packages list
         </Link>{" "}
         to pick an active architecture review.

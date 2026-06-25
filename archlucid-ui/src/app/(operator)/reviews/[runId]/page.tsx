@@ -4,6 +4,8 @@ import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { isFromGenerationSearchParam } from "@/lib/review-generation-handoff";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { loadRunDetailPageModel } from "./_sections/load-run-detail-page-model";
 import { RunDetailPageFetchErrorView } from "./_sections/RunDetailPageFetchErrorView";
@@ -33,7 +35,7 @@ export default async function RunDetailPage({
     if (fromGeneration || result.reason === "workspace-mismatch") {
       return (
         <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
-          <h1 className="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <h1 className={cn("mb-4", OPERATOR_TYPOGRAPHY.pageTitle)}>
             Review generation — Could not open generated package
           </h1>
           <ReviewPackageLoadFailureView

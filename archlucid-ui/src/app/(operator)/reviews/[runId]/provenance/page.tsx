@@ -11,6 +11,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/api";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
@@ -78,13 +80,13 @@ export default async function RunProvenancePage({
 
     return (
       <div className="w-full max-w-3xl p-4">
-        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Provenance</h2>
+        <h2 className={OPERATOR_TYPOGRAPHY.pageTitle}>Provenance</h2>
         <OperatorApiProblem
           problem={loadFailure?.problem ?? null}
           fallbackMessage={fallback}
           correlationId={loadFailure?.correlationId ?? null}
         />
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>
           Open the <Link href="/graph">architecture graph</Link> for this review for an interactive trail, or use the
           public sample walkthrough when this coordinator view is unavailable.
         </p>
@@ -104,10 +106,10 @@ export default async function RunProvenancePage({
   return (
     <div className="w-full p-4 print:w-full">
       <DocumentLayout tocItems={tocItems}>
-        <h2 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Provenance</h2>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Provenance</h2>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           Review{" "}
-          <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{graph.runId}</code> —{" "}
+          <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>{graph.runId}</code> —{" "}
           {graph.nodes.length} nodes, {graph.edges.length} edges, {graph.timeline.length} timeline events.
         </p>
         <div className="mb-4">
@@ -118,12 +120,15 @@ export default async function RunProvenancePage({
           <section
             id="trace-gaps"
             aria-labelledby="trace-gaps-heading"
-            className="mb-5 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3"
+            className={cn(
+              "mb-5 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-3",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
           >
-            <h3 id="trace-gaps-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+            <h3 id="trace-gaps-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Traceability gaps
             </h3>
-            <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+            <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {graph.traceabilityGaps.map((g) => (
                 <li key={g}>{g}</li>
               ))}
@@ -134,14 +139,14 @@ export default async function RunProvenancePage({
         <ProvenanceGraphDiagram nodes={graph.nodes} edges={graph.edges} />
 
         <section id="prov-timeline" aria-labelledby="prov-timeline-heading" className="mt-6">
-          <h3 id="prov-timeline-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+          <h3 id="prov-timeline-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Trace timeline
           </h3>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
             Ordered events from review lifecycle and finalized decisions.
           </p>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
               <thead>
                 <tr className="border-b border-neutral-200 dark:border-neutral-700">
                   <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Time (UTC)</th>
@@ -169,11 +174,11 @@ export default async function RunProvenancePage({
         </section>
 
         <section id="prov-nodes" aria-labelledby="prov-nodes-heading" className="mt-6">
-          <h3 id="prov-nodes-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+          <h3 id="prov-nodes-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Nodes
           </h3>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
               <thead>
                 <tr className="border-b border-neutral-200 dark:border-neutral-700">
                   <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Type</th>
@@ -201,11 +206,11 @@ export default async function RunProvenancePage({
         </section>
 
         <section id="prov-edges" aria-labelledby="prov-edges-heading" className="mt-6">
-          <h3 id="prov-edges-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+          <h3 id="prov-edges-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Edges
           </h3>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
               <thead>
                 <tr className="border-b border-neutral-200 dark:border-neutral-700">
                   <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Type</th>
