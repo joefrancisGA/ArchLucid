@@ -25,7 +25,7 @@ export default function NewRunPage() {
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>New Architecture Review</h2>
         <InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />
       </div>
-      <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
         Use Quick start when you already have an architecture brief or evidence file. Use Guided intake when you want
         ArchLucid to walk you through the context.
       </p>

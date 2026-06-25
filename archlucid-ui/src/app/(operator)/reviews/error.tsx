@@ -7,8 +7,10 @@ import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiRefere
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 /**
  * Segment error boundary for `/runs` so list/split layout failures stay scoped and surface a recovery path
@@ -31,15 +33,18 @@ export default function RunsSegmentError({
   return (
     <div className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
-        <strong className="text-base">Reviews could not load</strong>
-        <p className="mt-2 text-sm">
+        <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviews could not load</strong>
+        <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {isDev
             ? "Development build — technical details appear below."
             : "This reviews view hit an unexpected error. You can retry, return to reviews, go home, or open Help."}
         </p>
         {isDev ? (
           <pre
-            className="mt-3 max-h-40 overflow-auto rounded border border-neutral-200 bg-neutral-50 p-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+            className={cn(
+              "mt-3 max-h-40 overflow-auto rounded border border-neutral-200 bg-neutral-50 p-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+              OPERATOR_TYPOGRAPHY.micro,
+            )}
             style={{ whiteSpace: "pre-wrap" }}
           >
             {error.message}
@@ -48,7 +53,7 @@ export default function RunsSegmentError({
         <OperatorErrorUiReferenceLine />
         {digest.length > 0 ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-[11px] text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1", OPERATOR_TYPOGRAPHY.micro)}>
               <span className="shrink-0 font-semibold">Need support?</span>
               <span className="shrink-0">Provide error digest</span>
               <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{digest}</code>

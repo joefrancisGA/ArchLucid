@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
+import { cn } from "@/lib/utils";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
 import { ReviewIntakeInvalidTemplateCallout } from "@/components/review-intake/ReviewIntakeInvalidTemplateCallout";
@@ -149,7 +151,7 @@ export function ReviewsNewPathSwitcher() {
       ) : null}
       {ready && isFirstRunTenant && !showPathSwitcher ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900/40">
-          <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
             {CORE_PILOT_PATH_STREAMLINED_LABELS.streamlinedFirstReviewBanner}
           </p>
           <Button
@@ -166,12 +168,12 @@ export function ReviewsNewPathSwitcher() {
         </div>
       ) : null}
       {ready && showPathSwitcher ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-new-path-hint">
           {REVIEWS_NEW_PATH_HINTS[activePath]}
         </p>
       ) : null}
       {ready ? null : (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p>
       )}
       {!ready ? null : activePath === "quick-review" || (isFirstRunTenant && !showMoreIntakeOptions && !forceDetailedPath) ? (
         <FirstPilotIntakeWizard />

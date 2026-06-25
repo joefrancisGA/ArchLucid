@@ -17,7 +17,9 @@ import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "
 import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
@@ -209,7 +211,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick start — step {quickStep + 1} of {QUICK_STEPS.length}: {QUICK_STEPS[quickStep].label}
         </p>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{QUICK_STEPS[quickStep].description}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{QUICK_STEPS[quickStep].description}</p>
       </div>
 
       {quickStep === 0 ? (
@@ -237,7 +239,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
             </CardContent>
           </Card>
           {selectedPreset ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="quick-start-preset-caption">
+            <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")} data-testid="quick-start-preset-caption">
               Using preset: <strong>{selectedPreset.label}</strong>
             </p>
           ) : null}
@@ -269,10 +271,13 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
                     onClick={() => {
                       applyReviewTemplate(t.id);
                     }}
-                    className="flex flex-col items-start gap-1 rounded-lg border border-neutral-200/80 bg-white p-3 text-left text-sm shadow-sm transition hover:border-teal-600/45 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950/40 dark:hover:border-teal-500/40 dark:hover:bg-neutral-900/60"
+                    className={cn(
+                      "flex flex-col items-start gap-1 rounded-lg border border-neutral-200/80 bg-white p-3 text-left shadow-sm transition hover:border-teal-600/45 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950/40 dark:hover:border-teal-500/40 dark:hover:bg-neutral-900/60",
+                      OPERATOR_TYPOGRAPHY.body,
+                    )}
                   >
                     <span className="font-medium text-neutral-900 dark:text-neutral-100">{t.name}</span>
-                    <span className="text-xs text-neutral-600 dark:text-neutral-400">{t.description}</span>
+                    <span className={OPERATOR_TYPOGRAPHY.helper}>{t.description}</span>
                   </button>
                 ))}
               </div>

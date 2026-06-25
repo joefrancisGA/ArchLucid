@@ -7,8 +7,10 @@ import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiRefere
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 /**
  * Catches errors in route segments below the root layout (pages, nested layouts).
@@ -32,15 +34,18 @@ export default function AppError({
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
-        <strong className="text-base">Something went wrong</strong>
-        <p className="mt-2 text-sm">
+        <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Something went wrong</strong>
+        <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {isDev
             ? "Development build — technical details appear below."
             : "This page hit an unexpected error. You can try again, return to Overview, or open Help for guidance."}
         </p>
         {isDev ? (
           <pre
-            className="mt-3 max-h-40 overflow-auto rounded border border-neutral-200 bg-neutral-50 p-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+            className={cn(
+              "mt-3 max-h-40 overflow-auto rounded border border-neutral-200 bg-neutral-50 p-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+              OPERATOR_TYPOGRAPHY.micro,
+            )}
             style={{ whiteSpace: "pre-wrap" }}
           >
             {error.message}
@@ -49,7 +54,7 @@ export default function AppError({
         <OperatorErrorUiReferenceLine />
         {digest.length > 0 ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-[11px] text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1", OPERATOR_TYPOGRAPHY.micro)}>
               <span className="shrink-0 font-semibold">Need support?</span>
               <span className="shrink-0">Provide error digest</span>
               <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{digest}</code>
