@@ -221,13 +221,19 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         return tail.ToString().ToLowerInvariant() switch
         {
             "azurerm_key_vault" or "azurerm_firewall" or "azurerm_network_security_group"
-                or "azurerm_key_vault_access_policy" =>
+                or "azurerm_key_vault_access_policy"
+                or "aws_security_group" or "aws_network_acl" or "aws_wafv2_web_acl"
+                or "google_compute_firewall" =>
                 "SecurityBaseline",
             "azurerm_policy_assignment" or "azurerm_policy_definition" => "PolicyControl",
             // Common Azure topology nodes (explicit for assessor traceability; still TopologyResource-shaped)
             "azurerm_resource_group" or "azurerm_app_service" or "azurerm_linux_web_app"
                 or "azurerm_windows_web_app" or "azurerm_sql_server" or "azurerm_mssql_server"
-                or "azurerm_storage_account" or "azurerm_virtual_network" or "azurerm_subnet" =>
+                or "azurerm_storage_account" or "azurerm_virtual_network" or "azurerm_subnet"
+                or "aws_instance" or "aws_lambda_function" or "aws_eks_cluster" or "aws_db_instance"
+                or "aws_rds_cluster" or "aws_s3_bucket" or "aws_vpc" or "aws_subnet"
+                or "google_compute_instance" or "google_container_cluster" or "google_sql_database_instance"
+                or "google_storage_bucket" or "google_compute_network" or "google_compute_subnetwork" =>
                 "TopologyResource",
             _ => "TopologyResource"
         };

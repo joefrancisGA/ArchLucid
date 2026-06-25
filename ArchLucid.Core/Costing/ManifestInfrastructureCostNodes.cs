@@ -61,6 +61,34 @@ public static class ManifestInfrastructureCostNodes
         return nodes;
     }
 
+    /// <summary>Produces nodes from Terraform canonical rows that carry billable <see cref="RuntimePlatform"/> mappings.</summary>
+    public static List<InfrastructureCostQueryNode> FromTerraformResourceRows(
+        IReadOnlyList<TerraformInfrastructureCostResourceRow> resources)
+    {
+        List<InfrastructureCostQueryNode> nodes = [];
+
+        if (resources is null || resources.Count == 0)
+            return nodes;
+
+        foreach (TerraformInfrastructureCostResourceRow row in resources)
+        {
+            if (!TerraformResourceCostMapper.TryInferPlatformFromTerraformType(row.TerraformType, out RuntimePlatform platform))
+                continue;
+
+            string label = string.IsNullOrWhiteSpace(row.DisplayName) ? row.TerraformType : row.DisplayName;
+
+            nodes.Add(new InfrastructureCostQueryNode(
+                "TerraformResource",
+                label,
+                platform,
+                NormalizeRegion(row.Region),
+                null,
+                1));
+        }
+
+        return nodes;
+    }
+
     internal static string? NormalizeSkuHint(string? value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     internal static string? NormalizeRegion(string? value)

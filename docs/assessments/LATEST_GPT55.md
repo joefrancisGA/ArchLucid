@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 87.47%`
+`ArchLucid Assessment – (A) Headline Readiness: 87.94%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis is in V1 GA scope** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)); Phases 2–4 engineering may still be in flight. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -25,19 +25,19 @@
 
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
-| 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 1.95 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 90 | 13 | 11.70 | 1.30 |
+| 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 91 | 13 | 11.83 | 1.17 |
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
-| 4 | Correctness & Evidence Integrity | 90 | 12 | 10.80 | 1.20 |
+| 4 | Correctness & Evidence Integrity | 91 | 12 | 10.92 | 1.08 |
 | 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
 | 6 | Time-to-Value | 86 | 10 | 8.60 | 1.40 |
-| 7 | Proof-of-ROI Readiness | 90 | 9 | 8.10 | 0.90 |
+| 7 | Proof-of-ROI Readiness | 91 | 9 | 8.19 | 0.81 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
 | 9 | Runtime & First-Review Reliability | 91 | 7 | 6.37 | 0.63 |
 | 10 | Adoption Friction | 65 | 5 | 3.25 | 1.75 |
-| **Total** | | | **100** | **87.47%** | **12.53%** |
+| **Total** | | | **100** | **87.94%** | **12.06%** |
 
-*(A) Headline Readiness: 87.47%*
+*(A) Headline Readiness: 87.94%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 87.47%. ArchLucid is structurally complete for V1 GA. Manifest chunk summarization on `SafeTokenLimit` and Tier-2 auto-pull hardening (ARM retry + per-subscription locks + pass-level ops logs) reduce first-review and continuous-monitoring friction.
+- **(A) Overall headline readiness:** 87.94%. AWS/GCP Phase 2 ships Terraform classification mappers, cloud-aware illustrative cost labels, and golden-corpus fixtures — multi-cloud RFP credibility improves while Phases 3–4 remain engineering.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -89,9 +89,8 @@
 # 7. Weighted Quality Assessment (detail)
 
 ### 1. Decision-Changing Insight Density
-- **Score:** 85 · **Weight:** 13 · **Contribution:** 11.05 · **Deficiency:** 1.95
-- **Justification:** ArchLucid forces findings into the context of configured policy packs and cost extractors. 
-- **Tradeoffs:** Might feel "noisy" compared to a concise chat interface.
+- **Score:** 86 · **Weight:** 13 · **Contribution:** 11.18 · **Deficiency:** 1.82
+- **Justification:** AWS/GCP Terraform rows classify to cloud-native `RuntimePlatform` values with illustrative cost tables — multi-cloud pilots can compare spend without Azure-only labels.
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
@@ -106,8 +105,8 @@
 - **Class:** V1 ready.
 
 ### 4. Differentiability / Defensibility vs Frontier AI
-- **Score:** 90 · **Weight:** 13 · **Contribution:** 11.70 · **Deficiency:** 1.30
-- **Justification:** Rated "Excellent" on the rubric. The system maps findings strictly to policy, outputs traceable artifacts, and executes within a governed workflow.
+- **Score:** 91 · **Weight:** 13 · **Contribution:** 11.83 · **Deficiency:** 1.17
+- **Justification:** Multi-cloud analyze Phase 2 closes the largest post-enum credibility gap: Terraform `aws_*` / `google_*` resources map to cloud-specific costing arms, not Azure-by-default labels.
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
@@ -116,13 +115,13 @@
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
-- **Score:** 90 · **Weight:** 12 · **Contribution:** 10.80 · **Deficiency:** 1.20
-- **Justification:** Deeply integrated citation constraints. Costs require `manifest.json` timestamps.
+- **Score:** 91 · **Weight:** 12 · **Contribution:** 10.92 · **Deficiency:** 1.08
+- **Justification:** Terraform ingest enriches `runtimePlatform` on canonical rows; cost summaries distinguish AWS/GCP illustrative labels from Azure Retail.
 - **Class:** V1 ready.
 
 ### 7. Proof-of-ROI Readiness
-- **Score:** 90 · **Weight:** 9 · **Contribution:** 8.10 · **Deficiency:** 0.90
-- **Justification:** The `GET /v1/roi/executive-summary` route deduplicates findings and reports disposition-aware totals. This is highly credible for CFOs.
+- **Score:** 91 · **Weight:** 9 · **Contribution:** 8.19 · **Deficiency:** 0.81
+- **Justification:** Cost-summary artifacts for AWS/GCP Terraform fixtures show human-readable service labels and illustrative USD without mislabeling Azure Retail.
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
@@ -146,7 +145,7 @@
 
 1. **Adoption Friction (Configuration Complexity):** Requires heavy lifting to wire OIDC, SQL, and Azure OpenAI. *Fix:* Invest in deeper automated pre-flight diagnostics for SEs. (Market uncertainty). Tier-2 auto-pull hardening shipped; manual Tier-1 ZIP remains the first-review path.
 2. **Threat of Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Ensure the ArchLucid review workflow integrates seamlessly into CI/CD so the architect doesn't feel double-taxed.
-3. **AWS/GCP Analyze Phases 2–4 Still Engineering:** Enum and wizard are live, but Terraform classification, inventory ZIP, live pricing, and cloud-aware agents remain open under **§2.19**. *Fix:* Execute [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) Phases 2–4.
+3. **AWS/GCP Analyze Phases 3–4 Still Engineering:** Phase 2 (Terraform mappers + illustrative AWS/GCP cost labels) ships; inventory ZIP upload, live pricing adapters, and cloud-aware agent prompts remain open under **§2.19**. *Fix:* Execute [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) Phases 3–4.
 4. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology. 
 5. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
 6. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
@@ -248,6 +247,118 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 ## 17. Top Improvement Opportunities
 
+**Tier 1 – Must Fix**
+
+- **Title:** AWS/GCP Analyze Phase 3 — Inventory ZIP Scripts + Ingest Contract
+- **Tier:** Tier 1 – Must Fix
+- **Why it matters:** Multi-cloud parity requires customer-controlled inventory export parity with Tier-1 Azure PowerShell — not just enum labels.
+- **Expected impact:** Operators can upload AWS/GCP inventory ZIPs with the same citation/`manifest.json` contract as Azure extractor packages.
+- **Affected qualities:** Correctness & Evidence Integrity, Adoption Friction, Time-to-Value.
+- **Evidence:** `MULTI_CLOUD_ANALYSIS_V1_1.md` Phase 3; `Get-ArchLucidAwsPackage` / `Get-ArchLucidGcpPackage` specified but not present.
+- **Actionability:** Medium.
+- **Design Uncertainty Reduced:** 6
+- **Market Uncertainty Reduced:** 7
+- **Classification:** V1 GA
+- **Cursor Prompt:** Add `scripts/Get-ArchLucidAwsPackage.ps1` and `scripts/Get-ArchLucidGcpPackage.ps1` producing `resources.json` + `manifest.json` aligned with §2.16 citation rules. Extend ingest to accept AWS/GCP ZIP shapes, emit audit events, and add integration tests asserting `collectionTimestamp` citations on findings.
+
+- **Title:** Guided Interactive Pilot Pre-Flight (`archlucid pilot init`)
+- **Tier:** Tier 1 – Must Fix
+- **Why it matters:** Adoption friction remains the headline drag; `config lint` is powerful but not conversational — SEs still manually chain checks during assisted setup.
+- **Expected impact:** Cuts time-to-first-review by walking operators through SQL, auth, Azure OpenAI, and production-like profile checks with fix hints in one session.
+- **Affected qualities:** Adoption Friction, Time-to-Value, Runtime & First-Review Reliability.
+- **Evidence:** Assessment §7 Adoption Friction recommendation; `CONFIGURATION_REFERENCE.md` pilot profiles; `PILOT_MISCONFIGURATION_GUARDS.md`.
+- **Actionability:** High.
+- **Design Uncertainty Reduced:** 3
+- **Market Uncertainty Reduced:** 6
+- **Classification:** V1
+- **Cursor Prompt:** Add `archlucid pilot init` interactive CLI that runs: health/ready probe, `config lint --profile production-like-hosted-pilot`, token diagnostic (`auth test-token`), and optional Azure OpenAI smoke. Print PASS/HOLD with numbered fix steps and write `pilot-preflight-report.json`. Reuse existing services — no duplicate lint logic.
+
+- **Title:** Tier-1 Extractor First-Review Operator Path
+- **Tier:** Tier 1 – Must Fix
+- **Why it matters:** Manual Azure Extractor ZIP upload is still the top enterprise adoption blocker; Tier-2 auto-pull is opt-in and post-setup.
+- **Expected impact:** First review completes without SE hand-holding: copy script command, validate ZIP schema, surface upload errors inline.
+- **Affected qualities:** Adoption Friction, Time-to-Value, 30-Day Voluntary Usage.
+- **Evidence:** Assessment §14 top blocker; `WizardStepEvidenceUpload`; [FIRST_RUN_EVIDENCE_CHECKLIST.md](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md).
+- **Actionability:** High.
+- **Design Uncertainty Reduced:** 2
+- **Market Uncertainty Reduced:** 7
+- **Classification:** V1
+- **Cursor Prompt:** Enhance `WizardStepEvidenceUpload` and home readiness cockpit: show platform-specific extractor command (Azure default; Aws/Gcp when Phase 3 ships), client-side ZIP pre-validation (manifest + resources presence), and structured error copy linking to `/help/cloud-connections`. Add Playwright coverage for the happy-path upload.
+
+**Tier 2 – High Leverage**
+
+- **Title:** Zero GitHub Seams in Product UI (TB-402)
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Buyers on procurement review still hit GitHub blob links and "on GitHub" copy in operator/marketing surfaces — undermines hosted-SaaS trust posture.
+- **Expected impact:** All curated docs route through in-app `/help/{topic}`; drift guard allowlist shrinks to zero.
+- **Affected qualities:** Executive / Operator Comprehension, Governed Review Integrity (procurement realism).
+- **Evidence:** `TECH_BACKLOG.md` TB-402; deleted `HelpTopicSourceFooter`; `customer-facing-github-blob-guard.test.ts` allowlist.
+- **Actionability:** High.
+- **Design Uncertainty Reduced:** 1
+- **Market Uncertainty Reduced:** 5
+- **Classification:** V1
+- **Cursor Prompt:** Migrate remaining allowlisted GitHub blob surfaces (`privacy-policy-marketing.ts`, `trust-center-marketing.ts`, `security-trust-content.ts`, wizard/help copy) to in-app `/help` routes. Remove allowlist entries until `customer-facing-github-blob-guard.test.ts` passes with zero exceptions. Retire `buildGithubBlobHref` from rendered UI paths.
+
+- **Title:** Finding-Level Evidence Traceability Deep-Links
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Principal architects dismiss the product if they cannot click from a finding to the manifest section or artifact line that proves it — the primary hallucination dismissal trigger.
+- **Expected impact:** Every finding row exposes navigable evidence anchors; reduces "wrapper" perception and supports audit walkthroughs.
+- **Affected qualities:** Correctness & Evidence Integrity, Decision-Changing Insight Density, Differentiability.
+- **Evidence:** Assessment §11 dismissal trigger; `PRODUCT_DOCUMENTATION_PRESENTATION.md`.
+- **Actionability:** Medium.
+- **Design Uncertainty Reduced:** 4
+- **Market Uncertainty Reduced:** 6
+- **Classification:** V1
+- **Cursor Prompt:** On review findings table and inspect panel, render `sourceEvidenceLinks` (or equivalent provenance fields from OpenAPI) as deep links into architecture/evidence views. Add Vitest + Playwright tests asserting at least one finding links to a manifest section on the golden-cohort fixture.
+
+- **Title:** Graph-RAG Retrieval Quality Telemetry + Pilot Floor
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Graph-RAG is in V1 scope but field-tuned quality is unproven — pilots may silently degrade when neighbor expansion adds noise.
+- **Expected impact:** Operators see Graph-RAG hit rate, neighbor count, and token contribution; config lint warns when Graph-RAG is enabled without Azure Search on production-like hosts.
+- **Affected qualities:** AI / Agent Readiness, Runtime & First-Review Reliability.
+- **Evidence:** `V1_SCOPE.md` §2.20; `GraphRagNeighborExpander`; assessment weakness #5.
+- **Actionability:** Medium.
+- **Design Uncertainty Reduced:** 7
+- **Market Uncertainty Reduced:** 4
+- **Classification:** V1 (validation)
+- **Cursor Prompt:** Instrument `RetrievalQueryService` / `GraphRagNeighborExpander` with counters (`graph_rag_neighbors_added_total`, expansion latency). Surface a retrieval diagnostics strip on run detail (behind disclosure). Add `config lint` advisory when `Retrieval:EnableGraphRag=true` without production-like Search posture. Unit tests for metric emission.
+
+- **Title:** CI/CD Governance Gate Reference Pipeline
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Principal architects bypass formal review when CI does not enforce it — "double tax" vs IDE chat.
+- **Expected impact:** Sample GitHub Actions / Azure DevOps pipeline blocks merge on governance pre-commit failure and surfaces ArchLucid review URL in PR checks.
+- **Affected qualities:** Adoption Friction, Governed Review Integrity, Differentiability.
+- **Evidence:** Assessment weakness #2; `ARCHITECTURE_FLOWS.md` commit gate.
+- **Actionability:** Medium.
+- **Design Uncertainty Reduced:** 3
+- **Market Uncertainty Reduced:** 6
+- **Classification:** V1.x
+- **Cursor Prompt:** Add `examples/ci/archlucid-governance-gate.yml` and `examples/ci/archlucid-governance-gate-ado.yml` that: create/submit architecture request from repo context, poll run status, fail on `GovernanceBlockResult` or PilotStrict HOLD. Document in `docs/runbooks/CI_GOVERNANCE_GATE.md` with API key / OIDC auth options. No new API surface required.
+
+- **Title:** ITSM Tenant Connector Onboarding Wizard (TB-404 slice)
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Outbound ITSM create works, but per-tenant connector setup still requires admin/API knowledge — friction for Jira-heavy pilots.
+- **Expected impact:** System Administration wizard for Jira/ServiceNow: tenant settings write, connection test, masked credential storage.
+- **Affected qualities:** Adoption Friction, Governed Review Integrity.
+- **Evidence:** `TECH_BACKLOG.md` TB-404; assessment weakness #7.
+- **Actionability:** Medium.
+- **Design Uncertainty Reduced:** 4
+- **Market Uncertainty Reduced:** 5
+- **Classification:** V1 GA
+- **Cursor Prompt:** Ship System Administration wizard for Jira/ServiceNow: tenant settings write, connection test, masked credential storage — per `TECH_BACKLOG.md` TB-404. Gate on `Integrations:Itsm:NativeEnabled`.
+
+- **Title:** Residual "Manifest" / Technical Copy Sweep in Help Topics
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** TB-399 redirects ship, but help catalog and generated index may still use legacy "manifest" / "run" language — inconsistent with product vocabulary.
+- **Expected impact:** Help topics align with product language (*review package*, *signed record*, *evidence trail*) and TB-399 route posture.
+- **Affected qualities:** Executive / Operator Comprehension, Adoption Friction.
+- **Evidence:** Assessment weakness #9; `help-index.generated.ts`; `help-markdown-presentation.test.tsx`.
+- **Actionability:** High.
+- **Design Uncertainty Reduced:** 1
+- **Market Uncertainty Reduced:** 3
+- **Classification:** V1
+- **Cursor Prompt:** Grep help catalog + generated index for "manifest", "run/job", and legacy URL paths; align with product language and TB-399 redirects. Extend `help-markdown-presentation.test.tsx` drift guards.
+
 **Tier 3 – Hold For Reassessment**
 
 - **Title:** MCP Membrane
@@ -265,9 +376,11 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** AWS/GCP analyze Phases 2–4 per [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) (V1 GA §2.19).
-2. **Batch 2:** Refine evidence traceability rendering in the UI.
-3. **Batch 3:** Guided CLI pre-flight beyond `config check` for assisted pilot setup.
+1. **Batch 1:** Tier 1 multi-cloud — AWS/GCP Phase 3 per [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) (V1 GA §2.19).
+2. **Batch 2:** Tier 1 adoption — `archlucid pilot init` pre-flight, then Tier-1 extractor first-review operator path.
+3. **Batch 3:** Tier 2 trust + traceability — TB-402 zero GitHub seams, then finding-level evidence deep-links.
+4. **Batch 4:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
+5. **Batch 5:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
 
 ## 19. Model Usage Guidance
 

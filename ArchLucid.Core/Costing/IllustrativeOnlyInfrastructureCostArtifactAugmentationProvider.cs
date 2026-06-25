@@ -23,14 +23,6 @@ public sealed class IllustrativeOnlyInfrastructureCostArtifactAugmentationProvid
         return new InfrastructureCostArtifactAugmentation(decimal.Round(totals.TotalUsdPerMonth,
                 2),
             totals.Lines,
-            ComposeNote(totals));
-
-        static string ComposeNote(InfrastructureCostEstimateTotals t)
-            =>
-                t.TotalUsdPerMonth <= 0m
-                    ?
-                    "No billable topology rows surfaced for illustrative costing."
-                    :
-                    "Illustrative infrastructure USD/month (Retail API probing disabled).";
+            InfrastructureCostSummaryNotes.ComposeIllustrativeOnlyNote(totals));
     }
 }

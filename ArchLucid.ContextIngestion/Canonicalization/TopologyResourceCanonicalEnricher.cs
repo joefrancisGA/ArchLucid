@@ -31,20 +31,34 @@ public sealed class TopologyResourceCanonicalEnricher : ICanonicalObjectTypeEnri
             string t = terraformType.ToLowerInvariant();
 
             if (t.Contains("virtual_network", StringComparison.OrdinalIgnoreCase) ||
-                t.Contains("subnet", StringComparison.OrdinalIgnoreCase))
+                t.Contains("subnet", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_vpc", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_subnet", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("google_compute_network", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("google_compute_subnetwork", StringComparison.OrdinalIgnoreCase))
                 return "network";
 
-            if (t.Contains("storage", StringComparison.OrdinalIgnoreCase))
+            if (t.Contains("storage", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_s3", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("google_storage", StringComparison.OrdinalIgnoreCase))
                 return "storage";
 
             if (t.Contains("web_app", StringComparison.OrdinalIgnoreCase) ||
                 t.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase) ||
-                t.Contains("container", StringComparison.OrdinalIgnoreCase))
+                t.Contains("container", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_instance", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_lambda", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_eks", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("google_compute_instance", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("google_container_cluster", StringComparison.OrdinalIgnoreCase))
                 return "compute";
 
             if (t.Contains("sql", StringComparison.OrdinalIgnoreCase) ||
                 t.Contains("postgres", StringComparison.OrdinalIgnoreCase) ||
-                t.Contains("database", StringComparison.OrdinalIgnoreCase))
+                t.Contains("database", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_db", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("aws_rds", StringComparison.OrdinalIgnoreCase) ||
+                t.Contains("google_sql", StringComparison.OrdinalIgnoreCase))
                 return "data";
         }
 

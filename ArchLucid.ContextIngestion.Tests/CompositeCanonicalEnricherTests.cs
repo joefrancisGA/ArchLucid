@@ -15,6 +15,7 @@ public sealed class CompositeCanonicalEnricherTests
     [
         new TopologyResourceCanonicalEnricher(),
         new SecurityBaselineCanonicalEnricher(),
+        new TerraformRuntimePlatformCanonicalEnricher(),
     ]);
 
     [Fact]
@@ -74,5 +75,29 @@ public sealed class CompositeCanonicalEnricherTests
 
         enriched[0].Properties["category"].Should().Be("network");
         enriched[1].Properties["status"].Should().Be("declared");
+    }
+
+    [Fact]
+    public void Enrich_sets_runtime_platform_for_aws_terraform_resource()
+    {
+        List<CanonicalObject> items =
+        [
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "web",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "aws-id",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["terraformType"] = "aws_instance",
+                },
+            },
+        ];
+
+        IReadOnlyList<CanonicalObject> enriched = _sut.Enrich(items);
+
+        enriched[0].Properties["runtimePlatform"].Should().Be("Ec2");
+        enriched[0].Properties["category"].Should().Be("compute");
     }
 }

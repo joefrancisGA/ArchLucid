@@ -59,7 +59,10 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 
         if (normalized.Contains("key_vault", StringComparison.Ordinal) ||
             normalized.Contains("firewall", StringComparison.Ordinal) ||
-            normalized.Contains("network_security_group", StringComparison.Ordinal))
+            normalized.Contains("network_security_group", StringComparison.Ordinal) ||
+            normalized.Contains("aws_security_group", StringComparison.Ordinal) ||
+            normalized.Contains("aws_network_acl", StringComparison.Ordinal) ||
+            normalized.Contains("google_compute_firewall", StringComparison.Ordinal))
 
             return "SecurityBaseline";
 

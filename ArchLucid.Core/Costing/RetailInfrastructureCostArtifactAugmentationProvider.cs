@@ -34,27 +34,12 @@ public sealed class RetailInfrastructureCostArtifactAugmentationProvider(
                 _retailCatalog,
                 cancellationToken).ConfigureAwait(false);
 
-        string summary = totals.TotalUsdPerMonth <= 0m
-
-            ?
-            "No billable topology rows surfaced for sizing."
-            :
-
-            totals.AllRetailPricing
-
-                ?
-
-                "Azure Retail Prices API sizing (consumption assumptions; see line-level price sources)."
-                :
-
-                "Blend of Retail API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).";
-
         return new InfrastructureCostArtifactAugmentation(decimal.Round(totals.TotalUsdPerMonth,
 
                 2),
 
             totals.Lines,
-            summary);
+            InfrastructureCostSummaryNotes.ComposeRetailBlendNote(totals));
 
     }
 

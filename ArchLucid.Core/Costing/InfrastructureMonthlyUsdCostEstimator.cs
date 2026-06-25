@@ -156,7 +156,7 @@ public sealed class InfrastructureMonthlyUsdCostEstimator
         =>
             new InfrastructureCostLine(node.LineKind, node.DisplayName, node.Platform,
 
-                IllustrativeInfrastructureCostFallback.FormatIllustrativeAzureProduct(node.Platform),
+                IllustrativeInfrastructureCostFallback.FormatIllustrativeProduct(node.Platform),
 
                 retailUsdRounded, InfrastructureCostPriceSource.RetailApi);
 
