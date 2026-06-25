@@ -51,8 +51,8 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
 
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
-    await expectExecutiveRoiExecutiveSurface(page);
     await exportReady;
+    await expectExecutiveRoiExecutiveSurface(page);
     await expect(page.getByTestId("exec-roi-identified-vs-realized-panel")).toBeVisible({ timeout: 30_000 });
 
     await expect(page.getByTestId("exec-roi-environment-pie")).toBeVisible();
@@ -62,7 +62,9 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
     const exportReady = waitForExecutiveRoiExportResponse(page);
 
+    await expectExecutiveRoiDashboardShell(page);
+    const exportPayload = await exportReady;
     await expectExecutiveRoiExecutiveSurface(page);
-    await expectExecutiveRoiFindingDeduplication(page, await exportReady);
+    await expectExecutiveRoiFindingDeduplication(page, exportPayload);
   });
 });
