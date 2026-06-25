@@ -16,6 +16,8 @@ import {
   readOperatorScopeFromStorage,
 } from "@/lib/operator-scope-storage";
 import { resolveOperatorBillingCurrentPlan } from "@/lib/operator-billing-current-plan";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function readWorkspaceLabelFromStorage(): string | null {
   const scope = readOperatorScopeFromStorage();
@@ -86,11 +88,11 @@ export function OperatorBillingCurrentPlanSummary() {
   return (
     <Card data-testid="operator-billing-current-plan">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Current plan</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Current plan</CardTitle>
         <CardDescription>{view.supportingLine}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 pt-0">
-        <dl className="grid gap-3 text-sm sm:grid-cols-2">
+        <dl className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
             <dd className="font-medium text-al-text-primary">{view.headline}</dd>
@@ -102,7 +104,7 @@ export function OperatorBillingCurrentPlanSummary() {
                 {view.aiBudgetRemainingPercent}% remaining{" "}
                 <Link
                   href="#billing-usage"
-                  className="text-xs font-normal text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                  className={cn(OPERATOR_TYPOGRAPHY.micro, OPERATOR_LINK.nav)}
                 >
                   View usage
                 </Link>
@@ -111,11 +113,8 @@ export function OperatorBillingCurrentPlanSummary() {
           ) : null}
         </dl>
         {!view.hasPaidPlan ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            <Link
-              href="#billing-plans"
-              className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            >
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link href="#billing-plans" className={OPERATOR_LINK.nav}>
               Choose a plan
             </Link>{" "}
             to activate paid packaging for this workspace.
