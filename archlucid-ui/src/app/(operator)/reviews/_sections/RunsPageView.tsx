@@ -85,7 +85,7 @@ export function RunsPageView(props: Props) {
               </Link>
             </Button>
             {isBuyerPolishedOperatorShellEnv() ? null : (
-              <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
+              <ShortcutHint shortcut="Alt+N" className={OPERATOR_TYPOGRAPHY.helper} />
             )}
           </div>
         ) : null}

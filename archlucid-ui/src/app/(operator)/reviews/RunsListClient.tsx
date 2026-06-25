@@ -39,6 +39,7 @@ import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBu
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
 import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { runsListPageFilterStatusLine } from "@/lib/runs-list-filter-status-line";
@@ -387,7 +388,7 @@ export function RunsListClient({
 
   const inspectorBody =
     selectedRun === null ? (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="run-inspector-empty">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="run-inspector-empty">
         {buyerPolished
           ? "Select a review to preview key outputs here."
           : "Select a review to preview details here."}
@@ -439,7 +440,10 @@ export function RunsListClient({
         onChange={(event) => {
           setSortOrder(event.target.value as SortOrder);
         }}
-        className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+        className={cn(
+          "rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         aria-label="Sort reviews by created date"
       >
         <option value="createdDesc">Newest first</option>
@@ -466,7 +470,8 @@ export function RunsListClient({
           setFilterText(event.target.value);
         }}
         className={cn(
-          "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+          "rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+          OPERATOR_TYPOGRAPHY.body,
           buyerPolished && "w-full max-w-none",
         )}
         autoComplete="off"
@@ -488,7 +493,7 @@ export function RunsListClient({
       id="runs-list-filter-status"
       role="status"
       className={cn(
-        "text-sm text-neutral-600 dark:text-neutral-400",
+        OPERATOR_TYPOGRAPHY.helper,
         buyerPolished && "sm:max-w-[min(100%,20rem)] sm:text-right",
       )}
       aria-live="polite"
@@ -503,15 +508,18 @@ export function RunsListClient({
     <div className="mt-4 space-y-4">
       {listContextFilter === "orphan-candidates" ? (
         <div
-          className="rounded-lg border border-teal-200 bg-teal-50/80 px-4 py-3 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+          className={cn(
+            "rounded-lg border border-teal-200 bg-teal-50/80 px-4 py-3 text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           role="status"
           data-testid="runs-list-orphan-candidates-filter-banner"
         >
           <p className="m-0 font-medium">Orphan candidates</p>
           <p className="m-0 mt-1 leading-snug">
             Showing reviews in context for orphan-candidate ROI evidence. Open a committed review&apos;s artifacts for{" "}
-            <span className="font-mono text-xs">orphan-candidates.json</span>, or return to the{" "}
-            <Link href="/dashboard" className="font-medium underline">
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>orphan-candidates.json</span>, or return to the{" "}
+            <Link href="/dashboard" className={OPERATOR_LINK.nav}>
               executive dashboard
             </Link>{" "}
             KPI tile.
@@ -521,13 +529,13 @@ export function RunsListClient({
       {buyerPolished && totalCount <= 1 ? null : buyerPolished ? (
         buyerCollapseFilters ? (
           <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
-            <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {buyerPolished ? "Filter review packages" : "Filter reviews"}
             </summary>
             <div className="mt-3 space-y-3">
               {runsFilterControl}
               <fieldset className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                <legend className={cn("mb-1.5", OPERATOR_NAV_GROUP_LABEL)}>
                   Show
                 </legend>
                 <div className="flex flex-wrap gap-2">
@@ -576,7 +584,7 @@ export function RunsListClient({
           <div className="space-y-3">
             {runsFilterControl}
             <fieldset className="m-0 min-w-0 border-0 p-0">
-              <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <legend className={cn("mb-1.5", OPERATOR_NAV_GROUP_LABEL)}>
                 Show
               </legend>
               <div className="flex flex-wrap gap-2">
@@ -641,7 +649,7 @@ export function RunsListClient({
             {showBuyerPackageCards ? (
               <div className="space-y-2">
                 {filteredSorted.every((r) => r.hasGoldenManifest === true) ? (
-                  <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  <h3 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                     Finalized architecture reviews
                   </h3>
                 ) : null}
@@ -679,7 +687,7 @@ export function RunsListClient({
                 <section key={section.groupId} aria-labelledby={headingId} className="space-y-2">
                   <h3
                     id={headingId}
-                    className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+                    className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}
                   >
                     {workQueueSectionHeading(section.groupId, buyerPolished)}
                   </h3>
@@ -747,7 +755,7 @@ export function RunsListClient({
                                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                                     {/* Status badge leads the row so ARB scanners see state before reading the title */}
                                     <RunStatusBadge run={run} />
-                                    <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                                    <span className={cn("min-w-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                                       {title}
                                     </span>
                                   </div>
@@ -758,21 +766,21 @@ export function RunsListClient({
 
                                     return (
                                       <div className="mt-1.5 space-y-0.5">
-                                        <p className="m-0 text-[11px] font-medium text-neutral-800 dark:text-neutral-200">
+                                        <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
                                           {meta.decisionSummary}
                                         </p>
-                                        <p className="m-0 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.micro)}>
                                           Authority: {meta.approvalAuthority}
                                         </p>
                                       </div>
                                     );
                                   })() : (
-                                    <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                    <code className={cn("mt-1 block break-all font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
                                       {run.runId}
                                     </code>
                                   )}
                                   {run.projectId !== projectId ? (
-                                    <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                    <p className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.helper)}>
                                       Project{" "}
                                       <span className="font-mono">{formatOperatorProjectIdDisplay(run.projectId)}</span>
                                     </p>
@@ -782,21 +790,21 @@ export function RunsListClient({
                                   </div>
                                   {countsLine !== null ? (
                                     <p
-                                      className="m-0 mt-1 text-[11px] font-medium text-neutral-700 dark:text-neutral-300"
+                                      className={cn("m-0 mt-1 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}
                                       data-testid={`runs-row-counts-${run.runId}`}
                                     >
                                       {countsLine}
                                     </p>
                                   ) : null}
                                   <p
-                                    className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400"
+                                    className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.micro)}
                                     data-testid={`runs-row-readiness-${run.runId}`}
                                   >
                                     {buyerPolished ? runRowOutputReadinessLineBuyer(run) : runRowOutputReadinessLine(run)}
                                   </p>
                                 </EnterpriseTableCell>
                                 <EnterpriseTableCell
-                                  className="whitespace-nowrap text-xs text-al-text-secondary"
+                                  className={cn("whitespace-nowrap text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                                   title={createdLabel}
                                 >
                                   {displayRelativeCreated(run)}
@@ -806,7 +814,7 @@ export function RunsListClient({
                                     <Link
                                       href={primaryExplore.href}
                                       data-testid={`runs-row-primary-explore-${run.runId}`}
-                                      className="font-medium text-teal-800 underline dark:text-teal-300"
+                                      className={OPERATOR_LINK.nav}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                       }}
@@ -816,7 +824,7 @@ export function RunsListClient({
                                     {!buyerPolished && signedManifestExplore !== null ? (
                                       <Link
                                         href={signedManifestExplore.href}
-                                        className="font-medium text-teal-800 underline dark:text-teal-300"
+                                        className={OPERATOR_LINK.nav}
                                         onClick={(e) => {
                                           e.stopPropagation();
                                         }}
@@ -844,18 +852,18 @@ export function RunsListClient({
             {paginationAnnouncement}
           </div>
           {showBuyerPackageCards ? null : buyerPolished && pages === 1 && totalCount === 1 ? (
-            <p className="m-0 mt-5 text-sm text-neutral-600 dark:text-neutral-400">1 review on this page</p>
+            <p className={cn("m-0 mt-5", OPERATOR_TYPOGRAPHY.helper)}>1 review on this page</p>
           ) : (
             <nav
-              className="mt-5 flex flex-wrap items-center gap-4 text-sm"
+              className={cn("mt-5 flex flex-wrap items-center gap-4", OPERATOR_TYPOGRAPHY.body)}
               aria-label="Reviews pagination"
             >
-              <span className="text-neutral-600 dark:text-neutral-400">
+              <span className={OPERATOR_TYPOGRAPHY.helper}>
                 Page {page} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
               </span>
               {page > 1 ? (
                 <Link
-                  className="font-semibold text-teal-800 underline dark:text-teal-300"
+                  className={cn("font-semibold", OPERATOR_LINK.nav)}
                   href={previousHref}
                   aria-label={page === 2 ? "Previous page" : "First page (keyset pagination)"}
                 >
@@ -874,7 +882,7 @@ export function RunsListClient({
               )}
               {page < pages ? (
                 <Link
-                  className="font-semibold text-teal-800 underline dark:text-teal-300"
+                  className={cn("font-semibold", OPERATOR_LINK.nav)}
                   href={nextHref}
                 >
                   Next
