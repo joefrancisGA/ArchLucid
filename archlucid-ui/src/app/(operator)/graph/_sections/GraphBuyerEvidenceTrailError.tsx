@@ -17,6 +17,8 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type GraphBuyerEvidenceTrailErrorProps = {
   failure: ApiLoadFailureState;
@@ -48,7 +50,7 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
     <OperatorErrorCallout>
       <strong>{heading}</strong>
       <p className="mt-2">{body}</p>
-      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{tryNext}</p>
+      <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{tryNext}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" disabled={loading} onClick={onRetry}>
           Retry
@@ -63,11 +65,11 @@ export function GraphBuyerEvidenceTrailError(props: GraphBuyerEvidenceTrailError
           <Link href="/health">System health</Link>
         </Button>
       </div>
-      <details className="mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/50">
-        <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
+      <details className={cn("mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.micro)}>
+        <summary className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           Technical details
         </summary>
-        <dl className="m-0 mt-2 space-y-1.5 text-neutral-600 dark:text-neutral-400">
+        <dl className={cn("m-0 mt-2 space-y-1.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {httpStatus !== null ? (
             <div>
               <dt className="inline font-semibold">HTTP </dt>

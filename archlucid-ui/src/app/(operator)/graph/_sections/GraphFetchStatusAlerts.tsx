@@ -2,6 +2,8 @@ import { OperatorLoadingNotice, OperatorMalformedCallout } from "@/components/Op
 import { GraphBuyerEvidenceTrailError } from "@/app/(operator)/graph/_sections/GraphBuyerEvidenceTrailError";
 import { BUYER_GRAPH_LOAD_ERROR } from "@/lib/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type GraphFetchStatusAlertsProps = {
   loading: boolean;
@@ -29,7 +31,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
       {loading && (
         <OperatorLoadingNotice>
           <strong>{buyerPolishedShell ? "Loading evidence graph" : "Loading graph"}</strong>
-          <p className="mt-2 text-sm">
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
             {buyerPolishedShell
               ? "Collecting provenance links for this review package — rich evidence may take a few extra seconds."
               : "Preparing the graph view — reviews with rich evidence may take a few extra seconds."}
@@ -53,7 +55,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
           <strong>{buyerPolishedShell ? "Workspace data unavailable" : "Unexpected graph response shape."}</strong>
           <p className="mt-2">{buyerPolishedShell ? BUYER_GRAPH_LOAD_ERROR : malformedMessage}</p>
           {buyerPolishedShell ? null : (
-            <p className="mt-2 text-sm">
+            <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
               The call succeeded but the payload did not match the expected GraphViewModel (nodes and edges arrays).
               Check API version alignment.
             </p>

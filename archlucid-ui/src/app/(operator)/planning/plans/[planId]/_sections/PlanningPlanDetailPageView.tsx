@@ -4,6 +4,8 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";
@@ -21,7 +23,7 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
         <OperatorBrandedRouteLoadFailure failure={failure} retryLabel="Retry loading plan" />
       ) : (
         <>
-          <h2 className="mt-0">Improvement plan</h2>
+          <h2 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Improvement plan</h2>
 
           {!planId.trim() ? (
             <p role="alert" className="text-red-700 dark:text-red-400">
@@ -32,7 +34,7 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
           {loading && plan === null && planId.trim().length > 0 ? (
             <OperatorLoadingNotice>
               <strong>Loading plan.</strong>
-              <p className="mt-2 text-sm">Fetching plan detail from the API…</p>
+              <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching plan detail from the API…</p>
             </OperatorLoadingNotice>
           ) : null}
 

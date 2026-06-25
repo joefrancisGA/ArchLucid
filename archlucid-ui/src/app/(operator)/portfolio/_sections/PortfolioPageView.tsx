@@ -126,7 +126,7 @@ function PortfolioRoiBaselineSetupCard(): React.JSX.Element {
   return (
     <Card data-testid="portfolio-roi-baseline-setup-card">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">ROI baseline not configured</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>ROI baseline not configured</CardTitle>
         <CardDescription>
           Add baseline assumptions to calculate estimated savings and sponsor ROI.
         </CardDescription>
@@ -183,7 +183,7 @@ export function PortfolioPageView() {
           <CardHeader className="pb-2">
             <div className="flex items-start gap-2">
               <Info className="mt-0.5 size-5 shrink-0 text-teal-800 dark:text-teal-200" aria-hidden />
-              <CardTitle className="text-base text-teal-950 dark:text-teal-100">
+              <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-teal-950 dark:text-teal-100")}>
                 {state.title ?? "Portfolio directory key not configured"}
               </CardTitle>
             </div>
