@@ -19,7 +19,7 @@ export default function HelpPage() {
         <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Help</h1>
         <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Start with the product guide. Open the Documentation tab for searchable reference links (including repo paths).
+          Start with the product guide for review workflows and cloud connections. Open the Documentation tab for searchable reference links.
         </p>
         </div>
         <HelpTourTrigger />

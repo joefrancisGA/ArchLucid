@@ -133,6 +133,49 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
   return nodes;
 }
 
+function parseDetailsSummary(openingLine: string, nextLine: string | undefined): { summary: string; contentStartOffset: number } {
+  const attributeMatch = openingLine.match(/<details[^>]*\ssummary="([^"]*)"/i);
+
+  if (attributeMatch?.[1] !== undefined) {
+    return { summary: attributeMatch[1], contentStartOffset: 0 };
+  }
+
+  const summaryLine = nextLine?.trim() ?? "";
+  const inlineSummaryMatch = summaryLine.match(/^<summary>([\s\S]*?)<\/summary>$/i);
+
+  if (inlineSummaryMatch?.[1] !== undefined) {
+    return { summary: inlineSummaryMatch[1].trim(), contentStartOffset: 1 };
+  }
+
+  return { summary: "Advanced", contentStartOffset: 0 };
+}
+
+function isMarkdownBlockStart(line: string): boolean {
+  const trimmed = line.trim();
+
+  if (trimmed.startsWith("<details")) {
+    return true;
+  }
+
+  if ((line.startsWith("## ") && !line.startsWith("###")) || (line.startsWith("# ") && !line.startsWith("##"))) {
+    return true;
+  }
+
+  if (line.startsWith("### ") || trimmed.startsWith(">") || isTableRow(line) || trimmed.startsWith("- ")) {
+    return true;
+  }
+
+  if (/^\d+\.\s+/.test(trimmed)) {
+    return true;
+  }
+
+  if (trimmed.startsWith("```")) {
+    return true;
+  }
+
+  return false;
+}
+
 function isTableRow(line: string): boolean {
   const t = line.trim();
   return t.startsWith("|") && t.endsWith("|");
@@ -187,6 +230,54 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     if (line.trim().length === 0) {
       i++;
+      continue;
+    }
+
+    if (line.trim().startsWith("<details")) {
+      const { summary, contentStartOffset } = parseDetailsSummary(line, lines[i + 1]);
+      i++;
+
+      if (contentStartOffset > 0) {
+        i++;
+      }
+
+      const innerLines: string[] = [];
+
+      while (i < lines.length) {
+        const innerLine = lines[i] ?? "";
+
+        if (innerLine.trim().toLowerCase() === "</details>") {
+          i++;
+          break;
+        }
+
+        innerLines.push(innerLine);
+        i++;
+      }
+
+      const innerMarkdown = innerLines.join("\n").trim();
+
+      blocks.push(
+        <details
+          key={`details-${key}`}
+          className="my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
+        >
+          <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            {summary}
+          </summary>
+          <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+            {innerMarkdown.length > 0 ? (
+              <MarketingAccessibilityMarkdownFragment
+                markdownBody={innerMarkdown}
+                tableCaption={props.tableCaption}
+                presentation={props.presentation}
+                sourceDocPath={props.sourceDocPath}
+              />
+            ) : null}
+          </div>
+        </details>,
+      );
+      key++;
       continue;
     }
 
@@ -428,13 +519,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       }
 
       if (
-        (l.startsWith("## ") && !l.startsWith("###")) ||
-        (l.startsWith("# ") && !l.startsWith("##")) ||
-        l.startsWith("### ") ||
-        l.trimStart().startsWith(">") ||
-        isTableRow(l) ||
-        l.trimStart().startsWith("- ") ||
-        /^\d+\.\s+/.test(l.trimStart())
+        isMarkdownBlockStart(l)
       ) {
         break;
       }

@@ -8,9 +8,11 @@ export type HelpMarkdownHeading = {
 
 /**
  * Extracts `##` / `###` headings for in-page TOC (slug rules match help search index + markdown renderer).
+ * Headings inside `<details>` blocks are excluded so advanced sections stay out of the sidebar TOC.
  */
 export function extractHelpMarkdownHeadings(markdown: string): readonly HelpMarkdownHeading[] {
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const withoutDetails = markdown.replace(/<details[\s\S]*?<\/details>/gi, "");
+  const lines = withoutDetails.replace(/\r\n/g, "\n").split("\n");
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
   const headings: HelpMarkdownHeading[] = [];
 

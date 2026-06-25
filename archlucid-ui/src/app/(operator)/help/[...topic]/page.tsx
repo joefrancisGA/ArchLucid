@@ -3,19 +3,31 @@ import { notFound } from "next/navigation";
 
 import { HelpTopicMarkdownView } from "../HelpTopicMarkdownView";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { listProductDocumentationEntries } from "@/lib/product-documentation-registry";
+import {
+  HELP_TOPIC_SLUG_ALIASES,
+  listProductDocumentationEntries,
+} from "@/lib/product-documentation-registry";
 
 type HelpTopicPageProps = {
-  params: Promise<{ topic: string }>;
+  params: Promise<{ topic: string[] }>;
 };
 
-export async function generateStaticParams(): Promise<Array<{ topic: string }>> {
-  return listProductDocumentationEntries().map((entry) => ({ topic: entry.slug }));
+function helpSlugFromTopicSegments(topic: string[]): string {
+  return topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/");
+}
+
+export async function generateStaticParams(): Promise<Array<{ topic: string[] }>> {
+  const registryParams = listProductDocumentationEntries().map((entry) => ({ topic: [entry.slug] }));
+  const aliasParams = Object.keys(HELP_TOPIC_SLUG_ALIASES).map((alias) => ({
+    topic: alias.split("/"),
+  }));
+
+  return [...registryParams, ...aliasParams];
 }
 
 export async function generateMetadata(props: HelpTopicPageProps): Promise<Metadata> {
   const { topic } = await props.params;
-  const loaded = tryLoadProductDocumentation(topic);
+  const loaded = tryLoadProductDocumentation(helpSlugFromTopicSegments(topic));
 
   if (loaded === null) {
     return { title: "Help topic not found" };
@@ -29,7 +41,7 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
 export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<React.ReactElement> {
   const { topic } = await props.params;
-  const loaded = tryLoadProductDocumentation(topic);
+  const loaded = tryLoadProductDocumentation(helpSlugFromTopicSegments(topic));
 
   if (loaded === null) {
     notFound();

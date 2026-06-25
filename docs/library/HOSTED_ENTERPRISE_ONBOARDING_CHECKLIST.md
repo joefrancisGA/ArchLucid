@@ -1,47 +1,69 @@
-> **Scope:** Buyer — Hosted Enterprise onboarding — ArchLucid-operated SaaS only (not self-hosted).
+> **Scope:** Buyer — Enterprise onboarding checklist — ArchLucid-operated SaaS only (not self-hosted).
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+# Enterprise onboarding checklist
 
-# Hosted Enterprise onboarding checklist
+**Audience:** Tenant administrators, implementation engineers, and customer success preparing a **hosted ArchLucid Enterprise** deployment.
 
-**Audience:** Implementation engineers, customer success, and sales engineering onboarding **ArchLucid-hosted SaaS Enterprise** tenants.
+**Hosting model:** This checklist applies to **ArchLucid-operated multi-tenant SaaS**. **Self-hosted Enterprise** (customer VNet, customer-operated Kubernetes/SQL) is **V2** — do not use this checklist for self-hosted deals.
 
-**Hosting model:** This checklist applies to **ArchLucid-operated multi-tenant SaaS**. **Self-hosted Enterprise** (customer VNet, customer-operated Kubernetes/SQL) is **V2** per [`V1_DEFERRED.md`](V1_DEFERRED.md) §6t — do not use this checklist for self-hosted deals.
-
-**Related:** [`CUSTOMER_ONBOARDING_PLAYBOOK.md`](../go-to-market/CUSTOMER_ONBOARDING_PLAYBOOK.md) · [`PROCUREMENT_FAQ.md`](../go-to-market/PROCUREMENT_FAQ.md) · [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md)
+> **Quick links**
+>
+> This checklist is for tenant administrators preparing a hosted ArchLucid deployment.
+>
+> - For **Azure cloud evidence setup only**, see **[Connect Azure securely](/help/cloud-connections/azure)**.
+> - For **SSO setup only**, see **[§2 Workforce SSO](#2-workforce-sso-saml-sp-or-oidc)**.
+> - For **procurement and trust review**, see **[Security and trust](/help/security-trust)** and **[Procurement FAQ](/help/procurement)**.
 
 ---
 
-## 1. Tenant provisioning
+## Onboarding hub {#onboarding-hub}
+
+Use this checklist to track a full hosted deployment. For task-specific guidance, open:
+
+- **[Configure SSO](#2-workforce-sso-saml-sp-or-oidc)**
+- **[Map roles and groups](#saml-claim-mapping-reference)** · **[Users and roles](/help/operator-auth-roles)**
+- **[Assign policy packs](#4-default-policy-pack-assignments)**
+- **[Enable governance workflow](#5-governance-enablement)**
+- **[Configure audit export](#6-audit-export-path)**
+- **[Connect Azure securely](/help/cloud-connections/azure)**
+- **[Validate first review package](/help/pilot-guide)**
+- **[Prepare procurement/trust review](/help/procurement)** · **[Security and trust](/help/security-trust)**
+
+---
+
+## 1. Tenant provisioning {#1-tenant-provisioning}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Create tenant row in ArchLucid SaaS (`dbo.Tenants`) | ArchLucid ops | Tenant GUID confirmed; commercial tier = **Enterprise** |
-| Set negotiated **`DataRegion`** residency key | ArchLucid ops | Region matches order form; blob URI map configured when not `default` |
+| Create tenant row in ArchLucid SaaS | ArchLucid ops | Tenant GUID confirmed; commercial tier = **Enterprise** |
+| Set negotiated **DataRegion** residency key | ArchLucid ops | Region matches order form; blob URI map configured when not `default` |
 | Create default workspace + project | ArchLucid ops | Scope headers resolve for first admin login |
 | Record CSM + technical owner contacts | ArchLucid CSM | Contacts stored in CRM / runbook |
 
 ---
 
-## 2. Workforce SSO (SAML SP or OIDC)
+## 2. Workforce SSO (SAML SP or OIDC) {#2-workforce-sso-saml-sp-or-oidc}
 
-Choose **one** primary workforce path (many customers run SAML SP; OIDC `JwtBearer` is equally supported in V1 GA).
+Choose **one** primary workforce path (many customers run SAML SP; OIDC JwtBearer is equally supported in V1 GA).
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
 | Decide IdP path: **SAML 2.0 SP** or **OIDC JwtBearer** | Joint | Documented in tenant runbook |
-| Pre-flight SAML metadata + claim mapping (if SAML) | Customer IT + ArchLucid | `archlucid auth validate-saml --metadata <idp.xml> --claim-mapping <mapping.json>` passes with zero failures |
-| Configure ArchLucid auth mode + endpoints | ArchLucid ops | Keys documented in [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) / [`SECURITY.md`](SECURITY.md) |
+| Pre-flight SAML metadata + claim mapping (if SAML) | Customer IT + ArchLucid | SAML validation passes with zero failures |
+| Configure ArchLucid auth mode + endpoints | ArchLucid ops | Keys documented for your tenant runbook |
 | Map IdP groups → ArchLucid roles (Admin, Operator, Reader, Auditor) | Joint | At least one Admin can sign in — see **[§2.1 SAML claim-mapping reference](#saml-claim-mapping-reference)** |
 | Smoke test: Admin + Operator login | Customer | Both roles reach expected UI surfaces |
 
-**SAML helpers:** `archlucid auth sso-preflight` (offline merged appsettings) · `archlucid saml test-config` (live appsettings) · `archlucid auth validate-saml` (offline metadata + mapping files)
-
-**Operator UI:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard). Claim-mapping tables below are the V1 contract.
+**Operator UI:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard).
 
 ### 2.1 SAML claim-mapping reference {#saml-claim-mapping-reference}
 
-ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader`**, or **`Auditor`** role strings after assertion processing (see [`SECURITY.md`](SECURITY.md) RBAC table). Persist mapping in **`ClaimMappingJson`** on the tenant identity-provider row (SSO wizard or ops tooling) using this JSON shape:
+ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader`**, or **`Auditor`** role strings after assertion processing. Persist mapping in **`ClaimMappingJson`** on the tenant identity-provider row (SSO wizard or ops tooling).
+
+**Validate before go-live:** run SAML metadata and claim-mapping validation before production cutover. Procurement FAQ Q4 cross-links this checklist anchor for buyer questionnaires.
+
+<details>
+<summary>Show role mapping JSON</summary>
 
 ```json
 {
@@ -53,7 +75,10 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 }
 ```
 
-**Validate before go-live:** `archlucid auth validate-saml --metadata ./idp-metadata.xml --claim-mapping ./claim-mapping.json` (Improvement archived **#4**). Procurement FAQ Q4 cross-links this checklist anchor for buyer questionnaires.
+</details>
+
+<details>
+<summary>Show SAML assertion examples</summary>
 
 #### Microsoft Entra ID (SAML SP)
 
@@ -62,7 +87,7 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 | Entra **Security group** display name | `ArchLucid-Admins` | `Admin` | Prefer stable group **object IDs** in `idpValue` when display names churn |
 | Entra security group | `ArchLucid-Operators` | `Operator` | |
 | Entra security group | `ArchLucid-Readers` | `Reader` | |
-| Entra security group | `ArchLucid-Auditors` | `Auditor` | Required for **`GET /v1/audit/export`** without Admin |
+| Entra security group | `ArchLucid-Auditors` | `Auditor` | Required for audit export without Admin |
 | Entra **App role** assignment | `Admin` | `Admin` | When using enterprise app roles instead of groups |
 
 **Suggested `roleClaimName` values (pick one that matches your assertion):**
@@ -87,7 +112,7 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 }
 ```
 
-**OIDC alternative:** Many Entra customers use **`JwtBearer`** instead of SAML — map **`roles`** or group overage claims per [`GENERIC_OIDC_SETUP.md`](../runbooks/GENERIC_OIDC_SETUP.md) and [`appsettings.Entra.sample.json`](../../ArchLucid.Api/appsettings.Entra.sample.json).
+**OIDC alternative:** Many Entra customers use **`JwtBearer`** instead of SAML — map **`roles`** or group overage claims per your IdP runbook.
 
 #### Okta (SAML SP)
 
@@ -118,8 +143,6 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
   ]
 }
 ```
-
-**OIDC alternative:** See [`SSO_OKTA_CONFIGURATION.md`](../integrations/SSO_OKTA_CONFIGURATION.md) §2.3–§2.4 for **`roles`** claim mapping on access tokens.
 
 #### Ping Identity (PingFederate / PingOne — SAML SP)
 
@@ -153,13 +176,24 @@ ArchLucid workforce authorization expects **`Admin`**, **`Operator`**, **`Reader
 }
 ```
 
-Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to match a stable prefix — validate with `archlucid auth validate-saml` before production cutover.
+Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to match a stable prefix — validate before production cutover.
+
+</details>
+
+<details>
+<summary>Show advanced configuration keys</summary>
+
+**SAML helpers (engineering):** `archlucid auth sso-preflight` (offline merged appsettings) · `archlucid saml test-config` (live appsettings) · `archlucid auth validate-saml` (offline metadata + mapping files)
+
+**Validate before go-live:** `archlucid auth validate-saml --metadata ./idp-metadata.xml --claim-mapping ./claim-mapping.json`
+
+</details>
 
 **SCIM alignment:** When SCIM provisions users (§3), directory **group display names** should match the **`idpValue`** strings above so deprovisioning and SSO role resolution stay consistent.
 
 ---
 
-## 3. SCIM provisioning (Enterprise)
+## 3. SCIM provisioning (Enterprise) {#3-scim-provisioning-enterprise}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
@@ -170,77 +204,79 @@ Use **`customGroupClaimRegex`** only when Ping emits full DNs but you prefer to 
 
 ---
 
-## 4. Default policy pack assignments
+## 4. Default policy pack assignments {#4-default-policy-pack-assignments}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Review bundled packs in [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md) | Joint | Customer selects baseline packs for pilot systems |
+| Review bundled baseline policy packs | Joint | Customer selects baseline packs for pilot systems |
 | Assign packs to workspace/project scope | Customer Admin (guided) | Governance UI shows active packs |
 | Run one committed manifest with packs enabled | Joint | Findings reference expected policy rules |
-| Escalate custom-pack gaps to PS SKU if needed | ArchLucid CSM | [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) §4.2 |
+| Escalate custom-pack gaps to PS SKU if needed | ArchLucid CSM | Professional services scope agreed when needed |
 
 ---
 
-## 5. Governance enablement
+## 5. Governance enablement {#5-governance-enablement}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
 | Enable approval workflows | Customer Admin | At least one workflow template active |
 | Enable pre-commit governance gate (if contracted) | Customer Admin | Block/warn behavior matches order form |
 | Segregation-of-duties review | Customer security | Approver ≠ sole committer for production paths |
-| Complete one end-to-end approval + commit | Joint | Audit trail shows approval + `ManifestFinalized` |
+| Complete one end-to-end approval + commit | Joint | Audit trail shows approval and finalized review package |
 
 ---
 
-## 6. Audit export path
+## 6. Audit export path {#6-audit-export-path}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Confirm tier retention defaults | Joint | Team 90d · Professional 1y · Enterprise custom — see [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) |
-| Document extended retention (if purchased) | ArchLucid ops | [`AUDIT_RETENTION_EXTENSION.md`](AUDIT_RETENTION_EXTENSION.md) attached to order |
-| Schedule periodic CSV export to customer blob (if required) | Customer ops | `GET /v1/audit/export` automation documented in [`AUDIT_RETENTION_POLICY.md`](AUDIT_RETENTION_POLICY.md) |
+| Confirm tier retention defaults | Joint | Team 90d · Professional 1y · Enterprise custom |
+| Document extended retention (if purchased) | ArchLucid ops | Extended retention attached to order |
+| Schedule periodic CSV export to customer blob (if required) | Customer ops | Audit export automation documented |
 | Auditor spot-check: sample export opens in Excel | Customer | CSV header + row cap understood |
 
 ---
 
-## 7. Pilot success criteria
+## 7. Pilot success criteria {#7-pilot-success-criteria}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Agree minimum / target / stretch metrics | Joint | [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) §2 completed |
-| Baseline hours + ROI model inputs captured | Customer champion | [`ROI_MODEL.md`](../go-to-market/ROI_MODEL.md) populated |
-| Executive ROI dashboard reviewed | Customer sponsor | `GET /v1/roi/executive-summary` or Home panel validated |
+| Agree minimum / target / stretch metrics | Joint | Pilot scorecard completed |
+| Baseline hours + ROI model inputs captured | Customer champion | ROI model populated |
+| Executive ROI dashboard reviewed | Customer sponsor | Executive summary or Home panel validated |
 | Go/no-go review scheduled (week 6) | ArchLucid CSM | Calendar hold with economic buyer |
 
 ---
 
-## 8. Integration bridges (optional Enterprise)
+## 8. Integration bridges (optional Enterprise) {#8-integration-bridges-optional-enterprise}
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Configure outbound webhooks / Service Bus | Joint | Test payload delivered: `archlucid integration simulate-webhook --event-type RunCommitted --target-url <url>` |
-| Document dead-letter recovery runbook | ArchLucid ops | `archlucid integration retry-dead-letter` + monitoring dashboard |
+| Configure outbound webhooks / Service Bus | Joint | Test payload delivered on one committed review |
+| Document dead-letter recovery runbook | ArchLucid ops | Retry path and monitoring dashboard documented |
 | ITSM / Jira correlation (if contracted) | Joint | Finding ↔ ticket linkage verified on one finding |
 
 ---
 
-## 9. Tier 2 Azure continuous ingestion (optional Enterprise)
+## 9. Azure cloud evidence connection (optional Enterprise) {#azure-cloud-evidence-connection}
 
-Use when the customer opts into **hosted Tier 2** Workload Identity Federation pull (on-demand `POST /v1/admin/azure-extractor/hosted/run` and future auto-pull). Tier 1 PowerShell ZIP upload remains the default V1 GA path.
+Use when the customer opts into **cloud-connected** Azure evidence (hosted workload identity federation pull). Brief, diagram, document, and upload-based reviews remain the default path.
+
+**Evidence tier:** cloud-connected (optional).
 
 | Step | Owner | Definition of done |
 |------|-------|--------------------|
-| Complete in-product Tier 2 wizard (`Settings → Cloud connections`) | Customer Admin + ArchLucid CSM | RBAC checklist signed off; Reader + Cost Management Reader only; no client secrets stored in ArchLucid |
-| Provision customer SP + federated credential (CLI, Terraform, or Bicep) | Customer IT | `customer_app_id` + `customer_tenant_id` recorded; federation trusts ArchLucid published MI |
-| Save connection identifiers in ArchLucid | Customer Admin | `POST /v1/azure-extractor/connections` succeeds; audit `Integration.HostedAzureExtractorConfigured` |
-| Run hosted validation pull | Customer Admin or ArchLucid ops | `POST /v1/admin/azure-extractor/hosted/run` returns **202** for first subscription scope |
-| Document security review evidence | Customer security | [`PROCUREMENT_FAQ.md`](../go-to-market/PROCUREMENT_FAQ.md) + [`trust-center.md`](../go-to-market/trust-center.md) + [`AZURE_EXTRACTOR.md`](AZURE_EXTRACTOR.md) attached to tenant runbook |
+| Complete in-product wizard (`Settings → Cloud connections`) | Customer Admin + ArchLucid CSM | RBAC checklist signed off; Reader + Cost Management Reader only; no client secrets stored in ArchLucid |
+| Provision customer SP + federated credential (CLI, Terraform, or Bicep) | Customer IT | Application and tenant IDs recorded; federation trusts ArchLucid published managed identity |
+| Save connection identifiers in ArchLucid | Customer Admin | Connection save succeeds; audit event recorded |
+| Run hosted validation pull | Customer Admin or ArchLucid ops | Validation pull accepted for first subscription scope |
+| Document security review evidence | Customer security | **[Connect Azure securely](/help/cloud-connections/azure)** · **[Procurement FAQ](/help/procurement)** · **[Security and trust](/help/security-trust)** attached to tenant runbook |
 
-**UI entry:** `/settings/cloud-connections` guided wizard (Improvement #17).
+**UI entry:** [`/settings/cloud-connections`](/settings/cloud-connections) guided wizard.
 
 ---
 
-## Sign-off
+## Sign-off {#sign-off}
 
 | Role | Name | Date | Signature |
 |------|------|------|-----------|

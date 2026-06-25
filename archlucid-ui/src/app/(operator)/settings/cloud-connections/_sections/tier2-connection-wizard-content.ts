@@ -29,9 +29,11 @@ export const TIER2_RBAC_CHECKLIST_ITEMS: Tier2RbacChecklistItem[] = [
   },
   {
     id: "review",
-    label: "Security review completed against the hosted Enterprise onboarding checklist and procurement FAQ.",
+    label: "Security review completed against Connect Azure securely and procurement FAQ.",
   },
 ];
+
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const TIER2_WIZARD_DOC_PATHS = {
   hostedEnterpriseChecklist: "/docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md",
@@ -39,6 +41,15 @@ export const TIER2_WIZARD_DOC_PATHS = {
   trustCenter: "/docs/go-to-market/trust-center.md",
   azureExtractor: "/docs/library/AZURE_EXTRACTOR.md",
   customerTrustAndAccess: "/docs/library/CUSTOMER_TRUST_AND_ACCESS.md",
+} as const;
+
+/** In-app help and workspace routes for cloud-connection contextual links. */
+export const TIER2_WIZARD_HELP_HREFS = {
+  hostedEnterpriseOnboarding: inAppHelpHref("enterprise-onboarding"),
+  procurementFaq: inAppHelpHref("procurement"),
+  trustCenter: "/workspace/security-trust",
+  connectAzureSecurely: "/help/cloud-connections/azure",
+  securityTrust: inAppHelpHref("security-trust"),
 } as const;
 
 export function buildTier2AzureSetupScript(subscriptionIdPlaceholder = "YOUR_SUBSCRIPTION_ID"): string {

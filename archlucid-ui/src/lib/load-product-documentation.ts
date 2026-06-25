@@ -10,6 +10,7 @@ import {
   stripInternalEngineeringBatchLabels,
   stripLeadingContributorScopeBlockquote,
 } from "@/lib/help-markdown-presentation";
+import { extractMarkdownSectionsByAnchor } from "@/lib/help-markdown-sections";
 
 export type LoadedProductDocumentation = {
   entry: ProductDocumentationEntry;
@@ -70,8 +71,18 @@ export function tryLoadProductDocumentation(slug: string): LoadedProductDocument
     return null;
   }
 
+  let markdown = chunks.join("\n\n---\n\n");
+
+  if (entry.sectionAnchors !== undefined && entry.sectionAnchors.length > 0) {
+    markdown = extractMarkdownSectionsByAnchor(
+      markdown,
+      entry.sectionAnchors,
+      entry.includeIntroWithSections === true,
+    );
+  }
+
   return {
     entry,
-    markdown: chunks.join("\n\n---\n\n"),
+    markdown,
   };
 }

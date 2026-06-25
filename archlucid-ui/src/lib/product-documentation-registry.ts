@@ -11,22 +11,44 @@ export type ProductDocumentationEntry = {
   audience: ProductDocumentationAudience;
   /** Repo-relative markdown path(s); first entry is primary body. */
   sourcePaths: readonly string[];
+  /** When set, only these `{#anchor}` H2 sections (plus optional intro) are rendered. */
+  sectionAnchors?: readonly string[];
+  /** Include markdown before the first `##` when `sectionAnchors` is set. */
+  includeIntroWithSections?: boolean;
 };
+
+/** Slug aliases for contextual deep links (`/help/{slug}`). */
+export const HELP_TOPIC_SLUG_ALIASES: Readonly<Record<string, string>> = {
+  "cloud-connections/azure": "cloud-connections-azure",
+  "security/workload-identity-federation": "workload-identity-federation",
+  "security/azure-permissions": "azure-permissions",
+  "users-and-roles": "operator-auth-roles",
+};
+
+export function normalizeHelpTopicSlug(slug: string): string {
+  const trimmed = slug.trim().toLowerCase();
+
+  if (trimmed.length === 0) {
+    return trimmed;
+  }
+
+  return HELP_TOPIC_SLUG_ALIASES[trimmed] ?? trimmed;
+}
 
 export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] = [
   {
     slug: "first-hour-operator-path",
-    title: "First-hour operator path",
+    title: "First-hour architect path",
     summary:
-      "Four-step golden path for new operators — request, execute, commit, and review artifacts before opening Operate depth.",
+      "Four-step golden path for new users — request, execute, commit, and review artifacts before opening advanced workspace tools.",
     audience: "operator",
     sourcePaths: ["docs/library/FIRST_HOUR_OPERATOR_PATH.md"],
   },
   {
     slug: "first-pilot-path",
-    title: "Full operating path",
+    title: "Complete review workflow",
     summary:
-      "Six-step operator path from setup verification to a finalized review package — what to do, when to defer Operate surfaces, and how to recover.",
+      "Six-step path from setup verification to a finalized review package — what to do, when to defer advanced surfaces, and how to recover.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },
@@ -47,15 +69,22 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "evidence-intake",
-    title: "Evidence intake",
-    summary: "How evidence enters the review package and what operators should verify before finalize.",
+    title: "Start a review",
+    summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
   },
   {
     slug: "review-packages",
     title: "Review packages",
-    summary: "Browse, inspect, and export governed review packages in the operator shell.",
+    summary: "Browse, inspect, and export governed review packages in the architect workspace.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
+  },
+  {
+    slug: "findings",
+    title: "Findings",
+    summary: "Severity, business impact, evidence citations, and recommended monitoring or remediation actions.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
   },
@@ -75,7 +104,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "governance-approval",
-    title: "Governance approval",
+    title: "Governance workflow",
     summary: "Submit, review, approve, and promote manifests when governance workflows are enabled.",
     audience: "operator",
     sourcePaths: [
@@ -96,6 +125,67 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     summary: "Data flow, tenant isolation, audit trail, and portability — factual security posture for CTO diligence.",
     audience: "buyer",
     sourcePaths: ["docs/library/customer-facing/HOW_IT_WORKS.md"],
+  },
+  {
+    slug: "security-trust",
+    title: "Security and trust",
+    summary: "Assurance ladder, data handling, subprocessors, and diligence materials for procurement reviewers.",
+    audience: "buyer",
+    sourcePaths: ["docs/go-to-market/trust-center.md", "docs/library/customer-facing/HOW_IT_WORKS.md"],
+  },
+  {
+    slug: "cloud-connections",
+    title: "Cloud connections",
+    summary: "Optional Azure connections for production-faithful evidence — scope, federation, and validation.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+  },
+  {
+    slug: "cloud-connections-azure",
+    title: "Connect Azure securely",
+    summary:
+      "Workload identity federation, read-only Azure roles, subscription scope, and connection validation — without long-lived secrets.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["connect-azure-securely"],
+  },
+  {
+    slug: "workload-identity-federation",
+    title: "Workload identity federation",
+    summary: "How ArchLucid-hosted Azure ingestion authenticates without storing client secrets.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["workload-identity-federation"],
+  },
+  {
+    slug: "azure-permissions",
+    title: "Azure permissions for cloud connections",
+    summary: "Reader and Cost Management Reader scope — what ArchLucid requires and what to avoid.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/CLOUD_CONNECTIONS.md"],
+    sectionAnchors: ["azure-permissions"],
+  },
+  {
+    slug: "enterprise-onboarding",
+    title: "Enterprise onboarding checklist",
+    summary:
+      "Deployment checklist for hosted Enterprise tenants — SSO, roles, governance, procurement, and optional Azure cloud evidence.",
+    audience: "buyer",
+    sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
+  },
+  {
+    slug: "procurement",
+    title: "Procurement FAQ",
+    summary: "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.",
+    audience: "buyer",
+    sourcePaths: ["docs/go-to-market/PROCUREMENT_FAQ.md"],
+  },
+  {
+    slug: "billing-and-plans",
+    title: "Billing and plans",
+    summary: "Team, Professional, and Enterprise packaging — plans, limits, and upgrade paths.",
+    audience: "operator",
+    sourcePaths: ["docs/library/PRODUCT_PACKAGING.md"],
   },
   {
     slug: "core-pilot",
@@ -156,8 +246,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "operator-auth-roles",
-    title: "Operator authentication and roles",
-    summary: "JWT bearer role mapping, Entra app roles, and least-privilege role expectations.",
+    title: "Users and roles",
+    summary: "JWT bearer role mapping, Entra app roles, and least-privilege role expectations for tenant admins.",
     audience: "developer",
     sourcePaths: ["docs/library/contributor-reference/SECURITY.md"],
   },
@@ -165,7 +255,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     slug: "troubleshooting",
     title: "Troubleshooting",
     summary:
-      "Symptom-first operator triage: common Overview and review-package issues, first checks, and the first-pilot decision tree.",
+      "If something fails: refresh, check session and workspace, download a support bundle, then contact your tenant admin or ArchLucid support.",
     audience: "operator",
     sourcePaths: [
       "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
@@ -221,8 +311,8 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   },
   {
     slug: "operator-shell",
-    title: "Operator shell map",
-    summary: "UI routes, API seams, and progressive Pilot vs Operate disclosure.",
+    title: "Architect workspace map",
+    summary: "UI routes, review workflows, and progressive disclosure for pilot vs advanced surfaces.",
     audience: "operator",
     sourcePaths: ["docs/library/operator-shell.md"],
   },
@@ -273,7 +363,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
 const bySlug = new Map(PRODUCT_DOCUMENTATION_REGISTRY.map((entry) => [entry.slug, entry]));
 
 export function getProductDocumentationEntry(slug: string): ProductDocumentationEntry | null {
-  const normalized = slug.trim().toLowerCase();
+  const normalized = normalizeHelpTopicSlug(slug);
 
   if (normalized.length === 0) {
     return null;

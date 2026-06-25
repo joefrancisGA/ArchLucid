@@ -1,19 +1,53 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useMemo, useState } from "react";
+
+import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer-polish-copy";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
-import { inAppHelpHref, listProductDocumentationEntries } from "@/lib/product-documentation-registry";
+import {
+  filterHelpCenterTopicsByQuery,
+  getHelpCenterDisplay,
+  getHelpCenterTier,
+  HELP_CENTER_FEATURED_SLUGS,
+  listHelpCenterAdvancedTopics,
+  listHelpCenterTopics,
+} from "@/lib/help-center-catalog";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 /**
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
  */
 export function HelpProductGuide() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { callerAuthorityRank } = useOperatorNavAuthority();
+  const isAdmin = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [topicQuery, setTopicQuery] = useState("");
+
+  const topicFilters = useMemo(
+    () => ({
+      showAdvanced,
+      isAdmin,
+    }),
+    [isAdmin, showAdvanced],
+  );
+
+  const visibleTopics = useMemo(() => listHelpCenterTopics(topicFilters), [topicFilters]);
+  const filteredTopics = useMemo(
+    () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery),
+    [topicQuery, visibleTopics],
+  );
+  const advancedTopics = useMemo(() => listHelpCenterAdvancedTopics(topicFilters), [topicFilters]);
+
+  const featuredTopics = filteredTopics.filter((entry) => HELP_CENTER_FEATURED_SLUGS.includes(entry.slug));
+  const expandedAdvancedTopics = filteredTopics.filter((entry) => advancedTopics.some((advanced) => advanced.slug === entry.slug));
 
   return (
     <div className={OPERATOR_LAYOUT.sectionStack} aria-labelledby="help-product-guide-heading">
@@ -26,7 +60,40 @@ export function HelpProductGuide() {
 
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-base">Your first review package</CardTitle>
+          <CardTitle className="text-base">Getting started</CardTitle>
+        </CardHeader>
+        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
+          <ol className="m-0 list-decimal space-y-2 pl-5">
+            <li>
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
+                Start a review
+              </Link>{" "}
+              from a brief, diagram, document, or cloud evidence.
+            </li>
+            <li>Review findings and missing evidence.</li>
+            <li>Commit the review package.</li>
+            <li>
+              Open the <strong>evidence trail</strong>, <strong>audit trail</strong>, and{" "}
+              <strong>signed review record</strong>.
+            </li>
+            <li>
+              Share the{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
+                executive summary
+              </Link>{" "}
+              or{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/value-report">
+                value report
+              </Link>
+              .
+            </li>
+          </ol>
+        </CardContent>
+      </Card>
+
+      <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
+        <CardHeader>
+          <CardTitle className="text-base">Working with a completed review package</CardTitle>
         </CardHeader>
         <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
           <ol className="m-0 list-decimal space-y-2 pl-5">
@@ -40,10 +107,22 @@ export function HelpProductGuide() {
               Open the <strong>signed review record</strong> — the governed decision record for this review package.
             </li>
             <li>
-              Follow the <strong>evidence trail</strong> to see how findings tie to decisions and artifacts.
+              Follow the{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={inAppHelpHref("evidence-trail")}>
+                evidence trail
+              </Link>{" "}
+              to see how findings tie to decisions and artifacts.
             </li>
             <li>
-              Review <strong>governance approval</strong> and the <strong>audit trail</strong> for accountability.
+              Review{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={inAppHelpHref("governance-approval")}>
+                governance approval
+              </Link>{" "}
+              and the{" "}
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={inAppHelpHref("audit-trail")}>
+                audit trail
+              </Link>{" "}
+              for accountability.
             </li>
             <li>
               Use{" "}
@@ -61,94 +140,130 @@ export function HelpProductGuide() {
         trail you can export for diligence.
       </p>
 
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader>
-            <CardTitle className="text-base">Review packages</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
-            Each review package consolidates outcomes, findings, evidence, governance approval, and audit history in one
-            place.
-          </CardContent>
-        </Card>
-
-        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader>
-            <CardTitle className="text-base">Signed review records</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
-            The signed review record is the governed architecture decision record — versioned, hash-verified, and ready for
-            export.
-          </CardContent>
-        </Card>
-
-        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader>
-            <CardTitle className="text-base">Findings</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
-            Findings include severity, business impact, evidence citations, and recommended monitoring or remediation
-            actions.
-          </CardContent>
-        </Card>
-
-        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader>
-            <CardTitle className="text-base">Evidence and audit trail</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-neutral-800 dark:text-neutral-200">
-            The evidence trail links artifacts, findings, and decisions. The audit trail records who acted and when for
-            compliance review.
-          </CardContent>
-        </Card>
-
-        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
-          <CardHeader>
-            <CardTitle className="text-base">Troubleshooting</CardTitle>
-          </CardHeader>
-          <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
-            <p className="m-0">
-              If a page fails to load, refresh once; for sign-in issues, return to{" "}
+      <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
+        <CardHeader>
+          <CardTitle className="text-base">Troubleshooting</CardTitle>
+        </CardHeader>
+        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
+          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">If something fails:</p>
+          <ol className="m-0 list-decimal space-y-2 pl-5">
+            <li>Refresh once.</li>
+            <li>Check whether your session expired — return to{" "}
               <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
                 Sign in
-              </Link>
-              .
-            </p>
-            {!buyerPolishedShell ? <SupportBundleDownloadButton /> : null}
-          </CardContent>
-        </Card>
-      </div>
+              </Link>{" "}
+              if needed.
+            </li>
+            <li>Confirm the selected workspace.</li>
+            <li>Download a support bundle (below).</li>
+            <li>Contact your tenant admin or ArchLucid support.</li>
+          </ol>
+          <SupportBundleDownloadButton showAdminLink={isAdmin} />
+          <p className="m-0">
+            <Link className="text-teal-700 underline dark:text-teal-300" href={inAppHelpHref("troubleshooting")}>
+              Open full troubleshooting guide
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
 
       <section aria-labelledby="help-in-app-topics" className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h3 id="help-in-app-topics" className="m-0 text-sm font-semibold text-al-text-primary">
-          In-app guides
-        </h3>
-        <ul className="m-0 grid gap-2 sm:grid-cols-2">
-          {listProductDocumentationEntries().map((topic) => (
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h3 id="help-in-app-topics" className="m-0 text-sm font-semibold text-al-text-primary">
+              In-app guides
+            </h3>
+            <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+              Start with common tasks. Expand for admin, integration, and system-administration topics.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-expanded={showAdvanced}
+            onClick={() => {
+              setShowAdvanced((current) => !current);
+            }}
+          >
+            {showAdvanced ? "Hide advanced topics" : "Show advanced topics"}
+          </Button>
+        </div>
+
+        <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="help-topic-search">
+          Search guides
+        </label>
+        <input
+          id="help-topic-search"
+          type="search"
+          value={topicQuery}
+          onChange={(event) => {
+            setTopicQuery(event.target.value);
+          }}
+          placeholder="Filter guides by title or summary"
+          className="w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950"
+          autoComplete="off"
+        />
+
+        <HelpTopicGrid topics={featuredTopics} heading="Start here" />
+
+        {showAdvanced && expandedAdvancedTopics.length > 0 ? (
+          <>
+            <HelpTopicGrid
+              topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "admin")}
+              heading="Admin and integration"
+            />
+            <HelpTopicGrid
+              topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "internal")}
+              heading="System administration and engineering"
+            />
+            <HelpTopicGrid
+              topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "product")}
+              heading="More product guides"
+            />
+          </>
+        ) : null}
+
+        {filteredTopics.length === 0 ? (
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No guides match your search.</p>
+        ) : null}
+      </section>
+    </div>
+  );
+}
+
+type HelpTopicGridProps = {
+  topics: readonly ProductDocumentationEntry[];
+  heading: string;
+};
+
+function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
+  if (topics.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
+      <h4 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        {heading}
+      </h4>
+      <ul className="m-0 grid gap-2 sm:grid-cols-2">
+        {topics.map((topic) => {
+          const display = getHelpCenterDisplay(topic);
+
+          return (
             <li key={topic.slug}>
               <Link
                 href={inAppHelpHref(topic.slug)}
                 className="block rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm hover:border-teal-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-teal-800"
               >
-                <span className="font-medium text-teal-800 dark:text-teal-300">{topic.title}</span>
-                <span className="mt-1 block text-neutral-600 dark:text-neutral-400">{topic.summary}</span>
+                <span className="font-medium text-teal-800 dark:text-teal-300">{display.title}</span>
+                <span className="mt-1 block text-neutral-600 dark:text-neutral-400">{display.summary}</span>
               </Link>
             </li>
-          ))}
-        </ul>
-      </section>
-
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>Start here:</strong> open the{" "}
-        <Link className="text-teal-700 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
-          executive summary
-        </Link>{" "}
-        or browse{" "}
-        <Link className="text-teal-700 underline dark:text-teal-300" href="/reviews?projectId=default">
-          review packages
-        </Link>{" "}
-        to explore the Claims Intake Modernization Review.
-      </p>
+          );
+        })}
+      </ul>
     </div>
   );
 }

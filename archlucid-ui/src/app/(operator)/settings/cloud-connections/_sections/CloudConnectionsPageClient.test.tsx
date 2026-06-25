@@ -52,6 +52,17 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByTestId("cloud-connections-available-azure")).toBeInTheDocument();
     expect(screen.getByLabelText(/Only Reader and Cost Management Reader/i)).toBeInTheDocument();
 
+    expect(screen.getByRole("link", { name: "Connect Azure securely" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/azure",
+    );
+    expect(screen.getByRole("link", { name: "Enterprise onboarding checklist" })).toHaveAttribute(
+      "href",
+      "/help/enterprise-onboarding",
+    );
+    expect(screen.getByRole("link", { name: "procurement FAQ" })).toHaveAttribute("href", "/help/procurement");
+    expect(screen.getByRole("link", { name: "trust center" })).toHaveAttribute("href", "/workspace/security-trust");
+
     const intro = screen.getByTestId("cloud-connections-page").textContent ?? "";
     expect(intro).toMatch(/Cloud connections are optional/i);
     expect(intro).toMatch(/production-faithful evidence when available/i);

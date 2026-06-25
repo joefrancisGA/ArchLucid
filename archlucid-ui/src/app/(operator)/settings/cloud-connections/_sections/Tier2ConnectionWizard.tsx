@@ -15,7 +15,6 @@ import {
   type Tier2ConnectionResponse,
 } from "@/lib/api/cloud-connections-api";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { showError, showSuccess } from "@/lib/toast";
 
 import {
@@ -28,7 +27,7 @@ import {
   buildTier2AzureSetupScript,
   TIER2_CONNECTION_WIZARD_STEPS,
   TIER2_RBAC_CHECKLIST_ITEMS,
-  TIER2_WIZARD_DOC_PATHS,
+  TIER2_WIZARD_HELP_HREFS,
 } from "./tier2-connection-wizard-content";
 
 export type Tier2ConnectionWizardProps = {
@@ -132,7 +131,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
 
       setSavedConnection(saved);
       await onSaved([saved]);
-      showSuccess("Your Tier 2 continuous Azure ingestion setup has been saved.");
+      showSuccess("Your Azure cloud evidence connection has been saved.");
     } catch (error) {
       console.error(error);
       showError(resolveApiErrorMessage(error, "Failed to save connection."));
@@ -198,30 +197,31 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
               Confirm read-only scope and federation posture before provisioning credentials in your Azure tenant.
               Cross-check{" "}
               <Link
-                href={toDocsBlobUrl(TIER2_WIZARD_DOC_PATHS.hostedEnterpriseChecklist)}
+                href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely}
                 className="text-teal-700 underline dark:text-teal-400"
-                target="_blank"
-                rel="noopener noreferrer"
               >
-                hosted Enterprise onboarding
+                Connect Azure securely
               </Link>
               ,{" "}
               <Link
-                href={toDocsBlobUrl(TIER2_WIZARD_DOC_PATHS.procurementFaq)}
+                href={TIER2_WIZARD_HELP_HREFS.procurementFaq}
                 className="text-teal-700 underline dark:text-teal-400"
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 procurement FAQ
               </Link>
               , and{" "}
               <Link
-                href={toDocsBlobUrl(TIER2_WIZARD_DOC_PATHS.trustCenter)}
+                href={TIER2_WIZARD_HELP_HREFS.trustCenter}
                 className="text-teal-700 underline dark:text-teal-400"
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 trust center
+              </Link>
+              . For the full hosted deployment checklist, see{" "}
+              <Link
+                href={TIER2_WIZARD_HELP_HREFS.hostedEnterpriseOnboarding}
+                className="text-teal-700 underline dark:text-teal-400"
+              >
+                Enterprise onboarding checklist
               </Link>
               .
             </p>
@@ -260,10 +260,8 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
             <p className="mt-1 text-sm text-muted-foreground">
               Run this Azure CLI script or deploy{" "}
               <Link
-                href={toDocsBlobUrl(TIER2_WIZARD_DOC_PATHS.azureExtractor)}
+                href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely}
                 className="text-teal-700 underline dark:text-teal-400"
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 Terraform / Bicep onboarding templates
               </Link>{" "}
@@ -426,10 +424,8 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
           <p className="text-xs text-muted-foreground">
             Access boundaries:{" "}
             <Link
-              href={toDocsBlobUrl(TIER2_WIZARD_DOC_PATHS.customerTrustAndAccess)}
+              href={TIER2_WIZARD_HELP_HREFS.securityTrust}
               className="text-teal-700 underline dark:text-teal-400"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               customer trust and access
             </Link>
