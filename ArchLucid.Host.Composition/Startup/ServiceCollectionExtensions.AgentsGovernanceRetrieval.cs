@@ -286,6 +286,10 @@ public static partial class ServiceCollectionExtensions
             o.MaxEvidenceCharacters = Math.Clamp(o.MaxEvidenceCharacters, 1024, 500_000);
             o.MaxInputCharacters = Math.Clamp(o.MaxInputCharacters, 1024, 500_000);
             o.TimeoutSeconds = Math.Clamp(o.TimeoutSeconds, 5, 120);
+            o.MinScoreRejectBelow = Math.Clamp(o.MinScoreRejectBelow, 0.0, 1.0);
+
+            if (o.MinScoreWarnBelow is { } warnFloor)
+                o.MinScoreWarnBelow = Math.Clamp(warnFloor, 0.0, 1.0);
         });
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());

@@ -40,7 +40,8 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null,
         IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer = null,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
-        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null) =>
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null,
+        AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null) =>
         TryEvaluateTraceAsyncCore(
             trace,
             options,
@@ -52,7 +53,8 @@ public static class AgentOutputTraceQualityEvaluator
             agentResultFaithfulnessChecker,
             embeddingFaithfulnessScorer,
             llmFaithfulnessEvaluator,
-            calibratedConfidenceByTaskId);
+            calibratedConfidenceByTaskId,
+            llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions());
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsyncCore(
         AgentExecutionTrace trace,
@@ -65,7 +67,8 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker,
         IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
-        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId)
+        IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId,
+        AgentOutputLlmFaithfulnessOptions llmFaithfulnessOptions)
     {
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentNullException.ThrowIfNull(options);
@@ -153,12 +156,15 @@ public static class AgentOutputTraceQualityEvaluator
             embeddingFaithfulnessScorer,
             cancellationToken).ConfigureAwait(false);
 
-        await ApplyAgentOutputLlmFaithfulnessAsync(
-            trace,
-            evidencePackage,
-            semanticScore,
-            llmFaithfulnessEvaluator,
-            cancellationToken).ConfigureAwait(false);
+        double? llmFaithfulnessScore =
+            await EvaluateLlmFaithfulnessScoreAsync(
+                trace,
+                evidencePackage,
+                semanticScore,
+                llmFaithfulnessEvaluator,
+                cancellationToken).ConfigureAwait(false);
+
+        ApplyLlmFaithfulnessPhaseBEnforcement(llmFaithfulnessScore, llmFaithfulnessOptions, ref gateOutcome);
 
         ApplyJudgeHeuristicDisagreementElevation(semanticScore, ref gateOutcome);
 
@@ -166,11 +172,20 @@ public static class AgentOutputTraceQualityEvaluator
             ? BuildPublicRejectionSummary(
                 qualityGate,
                 options,
+                llmFaithfulnessOptions,
                 pilotStrict,
                 trace.ParsedResultJson,
                 structuralScore,
                 semanticScore,
                 gateOutcome)
+            : gateOutcome == AgentOutputQualityGateOutcome.Warned
+                && llmFaithfulnessOptions.Enabled
+                && llmFaithfulnessOptions.EnforcePhaseB
+                && semanticScore.LlmFaithfulnessScore is { } warnScore
+                && llmFaithfulnessOptions.MinScoreWarnBelow is { } warnCeiling
+                && warnScore >= llmFaithfulnessOptions.MinScoreRejectBelow
+                && warnScore < warnCeiling
+                ? "llm_faithfulness_below_warn_floor"
             : null;
 
         return new TraceQualityEvaluationResult(true, true, false, true, structuralScore, semanticScore, gateOutcome, evaluationReason);
@@ -227,7 +242,7 @@ public static class AgentOutputTraceQualityEvaluator
             semanticScore.AgentResultEmbeddingFaithfulnessMeanCosine = d;
     }
 
-    private static async Task ApplyAgentOutputLlmFaithfulnessAsync(
+    private static async Task<double?> EvaluateLlmFaithfulnessScoreAsync(
         AgentExecutionTrace trace,
         AgentEvidencePackage? evidencePackage,
         AgentOutputSemanticScore semanticScore,
@@ -235,7 +250,7 @@ public static class AgentOutputTraceQualityEvaluator
         CancellationToken cancellationToken)
     {
         if (llmFaithfulnessEvaluator is null || evidencePackage is null || string.IsNullOrWhiteSpace(trace.ParsedResultJson))
-            return;
+            return null;
 
         double? score =
             await llmFaithfulnessEvaluator.TryEvaluateAsync(
@@ -247,6 +262,32 @@ public static class AgentOutputTraceQualityEvaluator
 
         if (score is { } faithfulness)
             semanticScore.LlmFaithfulnessScore = faithfulness;
+
+        return score;
+    }
+
+    internal static void ApplyLlmFaithfulnessPhaseBEnforcement(
+        double? llmFaithfulnessScore,
+        AgentOutputLlmFaithfulnessOptions faithfulnessOptions,
+        ref AgentOutputQualityGateOutcome gateOutcome)
+    {
+        if (!faithfulnessOptions.Enabled || !faithfulnessOptions.EnforcePhaseB)
+            return;
+
+        if (llmFaithfulnessScore is not { } faithfulness)
+            return;
+
+        if (faithfulness < faithfulnessOptions.MinScoreRejectBelow)
+        {
+            gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+
+            return;
+        }
+
+        if (faithfulnessOptions.MinScoreWarnBelow is { } warnCeiling
+            && faithfulness < warnCeiling
+            && gateOutcome == AgentOutputQualityGateOutcome.Accepted)
+            gateOutcome = AgentOutputQualityGateOutcome.Warned;
     }
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceGateDisabledAsync(
@@ -358,6 +399,7 @@ public static class AgentOutputTraceQualityEvaluator
     private static string? BuildPublicRejectionSummary(
         IAgentOutputQualityGate qualityGate,
         AgentOutputQualityGateOptions options,
+        AgentOutputLlmFaithfulnessOptions faithfulnessOptions,
         bool pilotStrict,
         string? parsedResultJson,
         AgentOutputEvaluationScore structural,
@@ -395,6 +437,17 @@ public static class AgentOutputTraceQualityEvaluator
                 semantic.AgentResultFaithfulnessSupportRatio is { } faithRatio &&
                 faithRatio < faithFloor)
                 parts.Add("agent_result_faithfulness_below_floor");
+        }
+
+        if (faithfulnessOptions.Enabled
+            && faithfulnessOptions.EnforcePhaseB
+            && semantic.LlmFaithfulnessScore is { } llmScore)
+        {
+            if (llmScore < faithfulnessOptions.MinScoreRejectBelow)
+                parts.Add("llm_faithfulness_below_reject_floor");
+            else if (faithfulnessOptions.MinScoreWarnBelow is { } llmWarnCeiling
+                     && llmScore < llmWarnCeiling)
+                parts.Add("llm_faithfulness_below_warn_floor");
         }
 
         if (parts.Count == 0)

@@ -2,12 +2,12 @@
 
 # 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 84.23%**
+**ArchLucid Assessment – (A) Headline Readiness: 84.55%**
 
-Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #2 shipped):** [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) + `scripts/demo-policy-pack-delta.ps1` + `/policy-packs` delta banner + `/help/policy-pack-delta-demo` — repeatable same-run / different-gate demo path for CS/sales. Prior rescoring (local pilot path complete): proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**; sponsor **HOLD** (33 block / 14 warn) expected on Simulator + `-SponsorHandoff`.
+Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #3 shipped):** TB-021 Phase B promoted — `ArchLucid:Agents:LlmFaithfulness:EnforcePhaseB` on Staging/Production; per-trace LLM faithfulness warn/reject in `AgentOutputTraceQualityEvaluator` + durable audit `AgentOutput.LlmFaithfulnessWarned` / `AgentOutput.LlmFaithfulnessRejected`. Prior: improvement #2 policy-pack delta demo; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
 
-**Timestamp:** 2026-06-25 (UTC, policy-pack delta demo shipped)  
-**Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, `CONFIGURATION_REFERENCE.md`, `DEFAULT_POLICY_PACKS_V1.md`, `AUDIT_COVERAGE_MATRIX.md`, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), **`POLICY_PACK_DELTA_DEMO_SCRIPT.md`**, **`DIFFERENTIATION_PROOF_PACKET.md`**.
+**Timestamp:** 2026-06-25 (UTC, TB-021 Phase B runtime promotion)  
+**Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
 
 **Operator-path evidence inspected:** `artifacts/first-pilot-proof/first-pilot-proof-20260625T100122Z/` (data consistency PASS, command center, go-no-go summary, evidence bundle); committed run `eb81dd4972ad429e8d4e214f9934bfc0` on Simulator @ `http://127.0.0.1:5128`.
 
@@ -20,20 +20,20 @@ Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procure
 | 1 | Decision-Changing Insight Density | 81 | 13 | 10.53 | 247 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 86 | 13 | 11.18 | 182 |
 | 3 | Governed Review Integrity | 90 | 13 | 11.70 | 130 |
-| 4 | Correctness & Evidence Integrity | 85 | 12 | 10.20 | 180 |
-| 5 | AI / Agent Readiness | 85 | 10 | 8.50 | 150 |
+| 4 | Correctness & Evidence Integrity | 86 | 12 | 10.32 | 168 |
+| 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 130 |
 | 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
 | 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 108 |
 | 8 | Executive / Operator Comprehension | 80 | 8 | 6.40 | 160 |
 | 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 70 |
 | 10 | Adoption Friction | 72 | 5 | 3.60 | 140 |
-| **Total** | | | **100** | **84.23%** | |
+| **Total** | | | **100** | **84.55%** | |
 
-**Prior headline (local pilot path complete):** 83.89% · **Δ +0.34 pp** — policy-pack delta demo script, automation, in-app help, and `/policy-packs` banner make the governance moat repeatable in CS/sales demos (validation artifact; G4 cohort still HOLD).
+**Prior headline (improvement #2 policy-pack delta demo):** 84.23% · **Δ +0.32 pp** — TB-021 Phase B runtime enforcement (`EnforcePhaseB`), per-trace LLM faithfulness floors, audit events; residual TB-021 work is IR eval / grounding enrichment not output gate promotion.
 
 # 3. Diagnostic Scores (non-headline)
 
-These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.23%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
+These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.55%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
 
 | Diagnostic | Value | Calibration |
 |------------|------:|-------------|
@@ -47,7 +47,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 | # | Result | Evidence | Fastest resolution (FAIL/UNKNOWN only) |
 |---|--------|----------|----------------------------------------|
 | 1 | **PASS** | Merge-blocking live E2E + **local operator-path complete (2026-06-25):** run `eb81dd4972ad429e8d4e214f9934bfc0` committed; proof `first-pilot-proof-20260625T100122Z` with data consistency **PASS**, evidence bundle, no `-SkipDemoWorkspaceValidation`. Residual: demo run probes need `AllowTestActorHeaders`; k6/procurement/AI gates still HOLD on Simulator sponsor handoff. | Enable `ArchLucidAuth:AllowTestActorHeaders` for demo workspace probes; real-mode cohort for SEND. |
-| 2 | **PASS** (scoped) | Cost/savings citation contract enforced (`V1_SCOPE.md` §2.16); commit traceability invariants in `AuthorityDrivenArchitectureRunCommitOrchestrator`; **G5 Live AI evidence PASS** in `CLAIM_READINESS_STATUS.md` (2026-06-25, v2 gate, four agent paths, `executionMode=real`). Residual: **TB-021** faithfulness CI soak not fully promoted to enforce — monitor, not ship-blocker today. | Re-run `.\scripts\Invoke-RealLlmEvidenceGate.ps1` before RC if artifact stale. |
+| 2 | **PASS** (scoped) | Cost/savings citation contract enforced (`V1_SCOPE.md` §2.16); commit traceability invariants in `AuthorityDrivenArchitectureRunCommitOrchestrator`; **G5 Live AI evidence PASS** in `CLAIM_READINESS_STATUS.md` (2026-06-25). **TB-021 Phase B promoted (2026-06-25):** runtime LLM faithfulness enforcement on hosted Staging/Production via `EnforcePhaseB`; CI golden-cohort floors unchanged. Residual: IR eval harness (RAG-V1-011) and grounding trace depth. | Monitor nightly golden-cohort; ratchet `MinScoreRejectBelow` toward 0.70 after sustained green runs. |
 | 3 | **PASS** | `ExecutiveRoiSummaryService` + `DispositionAwareRoiBasisCalculator`; explicit per-system vs headline labeling in `V1_SCOPE.md` §2.8; unit tests in `ExecutiveRoiSummaryInvariantTests`. | — |
 | 4 | **PASS** | `live-api-replay-export.spec.ts` — run export ZIP + audit `RunExported`; Markdown/DOCX paths in `V1_SCOPE.md` §2.3. | — |
 | 5 | **PASS** | Merge-blocking `ui-e2e-live` + accessibility baselines; first-review walkthrough in `FIRST_RUN_WALKTHROUGH.md`. | — |
@@ -57,7 +57,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 # 5. Executive Summary
 
-**(A) Overall headline readiness:** **84.23%** (+0.34 pp from 83.89%) — **Policy-pack delta demo shipped:** documented CS/sales script, local automation, in-app help topic, and operator banner linking same-run / different-gate narrative. Local pilot path remains mechanically complete (data consistency **PASS**; sponsor **HOLD** on Simulator + `-SponsorHandoff`). Next validation seam: TB-141 cohort (G4) + real-mode repetition — not more demo doc surface.
+**(A) Overall headline readiness:** **84.55%** (+0.32 pp from 84.23%) — **TB-021 Phase B shipped:** LLM faithfulness judge now enforces per-trace warn/reject on real-mode hosted paths when `EnforcePhaseB=true`; audit trail + config documented. Policy-pack delta demo and local pilot path remain in place. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
 
 **(B) Procurement / market realism (weight 0):** Honest interim posture (self-assessment, CAIQ/SIG, owner-conducted pen test, DPA template). **CPA SOC 2** and **third-party pen-test publication** remain buyer friction (`V1_DEFERRED.md` §6c — TB-135/TB-136, `(B)` only). No signed design partner, no published reference customer, no live commerce un-hold — all correctly deferred; sales-led motion with TEST-mode trial is coherent.
 
@@ -65,7 +65,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 **Enterprise picture:** Strong trust **architecture** (DB-per-tenant, private endpoint story, audit export). Weaker on **assurance artifacts** buyers expect at scale (CPA report, external pen test) — narrated under `(B)`.
 
-**Engineering picture:** Robust CI (OpenAPI snapshot, live SQL E2E, 95% coverage ratchet). Residual fragility: dual coordinator/authority paths, large Operate surface area, RAG quality program (TB-021) incomplete vs shipped retrieval code.
+**Engineering picture:** Robust CI (OpenAPI snapshot, live SQL E2E, 95% coverage ratchet). Phase B faithfulness enforcement closes a major output-side gap on hosted paths; residual fragility: dual coordinator/authority paths, Operate surface breadth, IR eval / grounding enrichment (TB-021 tail).
 
 **Frontier-AI picture (one sentence):** ArchLucid **becomes more valuable** as base models improve **if** the team keeps investing in policy/evidence/workflow layers — **not** because raw critique quality is defensible alone.
 
@@ -105,15 +105,15 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 UX refinement + validation.  
 **Outcomes:** 3, 4.
 
-### 3. Correctness & Evidence Integrity — 84 · 12 · 10.08 · 192
+### 3. Correctness & Evidence Integrity — 86 · 12 · 10.32 · 168
 
-**Justification:** Golden manifest traceability checks on commit; schema validation; cost citation contract; append-only audit with DB DENY UPDATE/DELETE. **G5** real-mode gate PASS documented. **Step 3:** evidence bundle + trace-chain summary + ai-readiness posture collected for committed run; data consistency readiness **WARN** (primary NEXT ACTION in command center). **TB-021** (faithfulness eval harness, grounding trace enrichment) still open — output-side enforcement not fully soaked.
+**Justification:** Golden manifest traceability checks on commit; schema validation; cost citation contract; append-only audit with DB DENY UPDATE/DELETE. **G5** real-mode gate PASS documented. **Improvement #3 shipped (2026-06-25):** Phase B LLM faithfulness enforcement on post-execute trace evaluation with `EnforcePhaseB`, floors **0.65/0.70**, and audit events **`AgentOutput.LlmFaithfulness*`** — unfaithful **traces** flagged/rejected while the run continues for other agents. Residual: IR eval harness (RAG-V1-011), grounding trace UI depth.
 
 **Tradeoffs:** Strict invariants reject bad commits (good) but can frustrate pilots if agent output is messy.
 
-**Recommendations:** Complete **RAG-V1-005** faithfulness CI gate before broad real-mode marketing.
+**Recommendations:** Ratchet `MinScoreRejectBelow` to **0.70** after five consecutive green nightly golden-cohort runs.
 
-**Classification:** V1 (TB-021).  
+**Classification:** V1 (TB-021 Phase B done; IR eval remains).  
 **Outcomes:** 1, 2, 5.
 
 ### 4. Differentiability / Defensibility vs Frontier AI — 86 · 13 · 11.18 · 182
@@ -150,15 +150,15 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 **Outcomes:** 2, 1, 5.
 
-### 7. AI / Agent Readiness — 85 · 10 · 8.50 · 150
+### 7. AI / Agent Readiness — 87 · 10 · 8.70 · 130
 
-**Justification:** Real/simulator separation; `AuthorityRunOrchestrator` in Application (remediated); retrieval ships (`ArchLucid.Retrieval`, Ask, outbox ADR 0004). Agentic expander + Graph-RAG code exists. **TB-021** quality program and `V1_MAGIC_GUARDRAILS.md` (still listing Graph-RAG/HyDE as out-of-V1 magic) create documentation tension — treat **quality/enforcement** as the gap, not absence of retrieval.
+**Justification:** Real/simulator separation; `AuthorityRunOrchestrator` in Application (remediated); retrieval ships (`ArchLucid.Retrieval`, Ask, outbox ADR 0004). **Improvement #3 shipped:** Phase B LLM faithfulness judge enforces per-trace outcomes on hosted real-mode paths; pairs with Phase A deterministic overlap checker and optional embedding scorer. **TB-021 tail:** IR eval (RAG-V1-011), `V1_MAGIC_GUARDRAILS.md` documentation tension on buyer-facing magic claims.
 
-**Tradeoffs:** Advanced retrieval increases cost/latency; simulator hides real-mode variance in CI.
+**Tradeoffs:** Advanced retrieval increases cost/latency; simulator hides real-mode variance in CI; LLM judge adds latency/budget on real runs.
 
-**Recommendations:** Align guardrails doc with shipped retrieval; enforce TB-021 faithfulness gates.
+**Recommendations:** Align guardrails doc with shipped retrieval; ratchet reject floor after nightly soak.
 
-**Classification:** V1 foundation + TB-021 backlog.  
+**Classification:** V1 foundation + TB-021 IR tail.  
 **Outcomes:** 2, 5.
 
 ### 8. Adoption Friction — 71 · 5 · 3.55 · 145
@@ -198,7 +198,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 2. **Time-to-credible first package for skeptical principals** — Operate noise + manual ZIP. *Design:* mixed. *V1 blocker:* soft. *Fix:* pilot-mode UI + default extractor sample package.
 
-3. **RAG/output faithfulness enforcement incomplete (TB-021)** — Retrieval ships; enforce gates soak pending. *Design:* design. *V1 blocker:* soft (G5 PASS). *Fix:* RAG-V1-005 Phase B promotion.
+3. **IR eval / retrieval correctness harness (TB-021 tail)** — Phase B output enforcement shipped; recall@k / drift gates still open. *Design:* design. *V1 blocker:* no. *Fix:* RAG-V1-011.
 
 4. **Operator cognitive overload** — Too many surfaces before first commit value lands. *Design:* design. *V1 blocker:* no. *Fix:* progressive disclosure defaults.
 
@@ -392,27 +392,21 @@ Uses governance dry-run and pre-commit simulation endpoints; no pack content or 
 Residual: market validation — run script in ≥5 prospect calls and note gate-flip comprehension.
 ```
 
-**3. Promote TB-021 faithfulness gate (RAG-V1-005 Phase B soak → enforce)**  
-- **Why:** Reduces hallucination-driven architect dismissal.  
+**3. Promote TB-021 faithfulness gate (RAG-V1-005 Phase B soak → enforce) — SHIPPED 2026-06-25**  
+- **Why:** Reduces hallucination-driven architect dismissal on real-mode hosted paths.  
 - **Impact:** Correctness, AI readiness.  
-- **Classification:** V1.
+- **Evidence:** `AgentOutputLlmFaithfulnessOptions.EnforcePhaseB`, `AgentOutputTraceQualityEvaluator`, `AgentOutputEvaluationRecorder` audit events, Staging/Production appsettings, `CONFIGURATION_REFERENCE.md`, `AGENT_OUTPUT_EVALUATION.md`.  
+- **Classification:** V1 engineering shipped; ratchet floor to 0.70 after sustained green nightly runs.
 
 ```text
-Current problem: Phase A deterministic faithfulness checks run in CI; Phase B LLM-graded semantic faithfulness remains in soak and does not consistently flag or reject unfaithful finding narratives in production pipeline paths.
+Shipped deliverables:
+- EnforcePhaseB + MinScoreRejectBelow (0.65) + MinScoreWarnBelow (0.70) on hosted Staging/Production
+- Per-trace warn/reject in AgentOutputTraceQualityEvaluator (run continues for other traces)
+- Durable audit AgentOutput.LlmFaithfulnessWarned / AgentOutput.LlmFaithfulnessRejected
+- Unit tests: AgentOutputTraceQualityEvaluatorTests, Application.Tests AgentOutputLlmFaithfulnessPhaseBEnforcementTests
+- Api.Tests staging/production appsettings lock for EnforcePhaseB
 
-Desired behavior: After ≥5 consecutive green nightly golden-cohort runs, promote Phase B to enforce configured severity: unfaithful findings flagged/rejected with durable audit event; run continues for other findings.
-
-Scope boundaries: ArchLucid.Application evaluation pipeline + TB-021 config; no prompt rewrites unless tests fail.
-
-Acceptance criteria:
-1. Phase B runs post-generation on real-mode paths when enabled
-2. Audit event on failure (existing catalog type or documented new type with matrix update)
-3. Unit tests with mocked grader returning unfaithful
-4. Document promotion toggle in CONFIGURATION_REFERENCE.md
-
-Tests: ArchLucid.Application.Tests faithfulness suite extended.
-
-Non-goals: Online fine-tuning (RAG-V2-003); MCP exposure.
+Residual: RAG-V1-011 IR eval harness; online fine-tuning (RAG-V2-003) out of scope.
 ```
 
 ### Tier 2 – High Leverage
@@ -460,7 +454,7 @@ Priority order: (1) first-review reliability messaging, (2) guided intake clarit
 |----------|-------|
 | When will founder authorize Stage 0 → Stage 1 GTM (G4 ≥3 real runs)? | requires founder decision |
 | When to flip `Integrations:Itsm:NativeEnabled` default for hosted SaaS? | requires customer validation |
-| Phase B faithfulness promotion date after nightly soak | blocks V1 marketing claims scale-up, not GA code |
+| Phase B faithfulness floor ratchet (0.65 → 0.70) | blocks scale-up marketing claims, not GA code |
 | Commerce un-hold timing | blocks V1.1; owner-only |
 | ServiceNow dev instance for V1.1 connector QA | blocks V1.1 ServiceNow slice |
 

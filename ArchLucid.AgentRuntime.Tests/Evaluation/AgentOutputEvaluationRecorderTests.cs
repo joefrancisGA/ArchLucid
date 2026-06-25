@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -77,6 +78,14 @@ public sealed class AgentOutputEvaluationRecorderTests
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync((double?)null);
 
+        Mock<IOptionsMonitor<AgentOutputLlmFaithfulnessOptions>> llmFaithfulnessOptions = new();
+        llmFaithfulnessOptions.Setup(o => o.CurrentValue).Returns(new AgentOutputLlmFaithfulnessOptions());
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IOptionsMonitor<AgentExecutionOptions>> agentExecutionOptions = new();
         agentExecutionOptions.Setup(o => o.CurrentValue).Returns(new AgentExecutionOptions { Mode = "Simulator" });
 
@@ -104,6 +113,8 @@ public sealed class AgentOutputEvaluationRecorderTests
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             embeddingFaithfulness.Object,
             llmFaithfulness.Object,
+            llmFaithfulnessOptions.Object,
+            auditService.Object,
             new NoOpAgentOutputEvaluationRepository(),
             agentExecutionOptions.Object,
             logger);

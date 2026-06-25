@@ -43,4 +43,36 @@ public sealed class AgentOutputLlmFaithfulnessOptions
         get;
         set;
     } = true;
+
+    /// <summary>
+    ///     When true (TB-021 Phase B promotion), per-trace gate outcomes may warn or reject when
+    ///     <see cref="ArchLucid.Contracts.Agents.AgentOutputSemanticScore.LlmFaithfulnessScore" /> falls below configured floors.
+    ///     Requires <see cref="Enabled" /> and a scored trace; other traces on the run continue independently.
+    /// </summary>
+    public bool EnforcePhaseB
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>
+    ///     Per-trace reject floor for Phase B enforcement when <see cref="EnforcePhaseB" /> is true.
+    ///     Aligns with nightly golden-cohort p50 floor (default 0.65; ratchet target 0.70).
+    /// </summary>
+    public double MinScoreRejectBelow
+    {
+        get;
+        set;
+    } = 0.65;
+
+    /// <summary>
+    ///     Optional per-trace warn ceiling: when set above <see cref="MinScoreRejectBelow" />, scores in
+    ///     [<see cref="MinScoreRejectBelow" />, <c>MinScoreWarnBelow</c>) warn without rejecting.
+    ///     Null disables warn-only Phase B classification (reject floor still applies).
+    /// </summary>
+    public double? MinScoreWarnBelow
+    {
+        get;
+        set;
+    } = 0.70;
 }

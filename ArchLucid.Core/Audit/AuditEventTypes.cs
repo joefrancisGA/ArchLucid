@@ -641,6 +641,12 @@ public static class AuditEventTypes
 
     public const string TenantAgentOutputQualityGateModeOverrideCleared = "Tenant.AgentOutputQualityGateModeOverrideCleared";
 
+    /// <summary>Phase B LLM faithfulness judge scored below warn floor on one agent trace (run continues for other traces).</summary>
+    public const string AgentOutputLlmFaithfulnessWarned = "AgentOutput.LlmFaithfulnessWarned";
+
+    /// <summary>Phase B LLM faithfulness judge scored below reject floor on one agent trace.</summary>
+    public const string AgentOutputLlmFaithfulnessRejected = "AgentOutput.LlmFaithfulnessRejected";
+
     /// <summary>
     ///     Tenant architecture review board cover logo replaced (
     ///     <c>POST /v1/admin/tenant/logo</c>). Payload excludes image bytes.

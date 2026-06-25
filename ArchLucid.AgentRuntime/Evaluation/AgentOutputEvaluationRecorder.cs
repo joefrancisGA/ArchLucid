@@ -1,9 +1,11 @@
 using System.Diagnostics;
+using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts.Variants;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -35,6 +37,8 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentResultEmbeddingFaithfulnessScorer embeddingFaithfulnessScorer,
     IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
+    IOptionsMonitor<AgentOutputLlmFaithfulnessOptions> llmFaithfulnessOptions,
+    IAuditService auditService,
     IAgentOutputEvaluationRepository agentOutputEvaluationRepository,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     ILogger<AgentOutputEvaluationRecorder> logger)
@@ -77,6 +81,12 @@ public sealed class AgentOutputEvaluationRecorder(
 
     private readonly IAgentOutputFaithfulnessEvaluator _llmFaithfulnessEvaluator =
         llmFaithfulnessEvaluator ?? throw new ArgumentNullException(nameof(llmFaithfulnessEvaluator));
+
+    private readonly IOptionsMonitor<AgentOutputLlmFaithfulnessOptions> _llmFaithfulnessOptions =
+        llmFaithfulnessOptions ?? throw new ArgumentNullException(nameof(llmFaithfulnessOptions));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IAgentOutputEvaluationRepository _agentOutputEvaluationRepository =
         agentOutputEvaluationRepository ?? throw new ArgumentNullException(nameof(agentOutputEvaluationRepository));
@@ -128,6 +138,7 @@ public sealed class AgentOutputEvaluationRecorder(
         async Task EvaluateOneAsync(AgentExecutionTrace trace, Dictionary<string, double?> calibratedLookup)
         {
             AgentOutputQualityGateOptions gateOptions = _gateOptionsResolver.Resolve(cancellationToken);
+            AgentOutputLlmFaithfulnessOptions faithfulnessOptions = _llmFaithfulnessOptions.CurrentValue;
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
 
@@ -143,7 +154,8 @@ public sealed class AgentOutputEvaluationRecorder(
                     agentResultEvidenceFaithfulnessChecker,
                     _embeddingFaithfulnessScorer,
                     _llmFaithfulnessEvaluator,
-                    calibratedLookup).ConfigureAwait(false);
+                    calibratedLookup,
+                    faithfulnessOptions).ConfigureAwait(false);
 
             if (evaluated is null)
                 return;
@@ -290,6 +302,14 @@ public sealed class AgentOutputEvaluationRecorder(
                     await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken)
                         .ConfigureAwait(false);
                 }
+
+                await TryLogLlmFaithfulnessGateAuditAsync(
+                        runId,
+                        trace,
+                        evaluated,
+                        faithfulnessOptions,
+                        cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             if (evaluated.RecordStructuralHistogram)
@@ -323,5 +343,58 @@ public sealed class AgentOutputEvaluationRecorder(
             .ToList();
 
         return latest;
+    }
+
+    private async Task TryLogLlmFaithfulnessGateAuditAsync(
+        string runId,
+        AgentExecutionTrace trace,
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult evaluated,
+        AgentOutputLlmFaithfulnessOptions faithfulnessOptions,
+        CancellationToken cancellationToken)
+    {
+        if (!faithfulnessOptions.Enabled || !faithfulnessOptions.EnforcePhaseB)
+            return;
+
+        if (evaluated.Semantic.LlmFaithfulnessScore is not { } score)
+            return;
+
+        string? eventType = null;
+
+        if (evaluated.GateOutcome == AgentOutputQualityGateOutcome.Rejected
+            && score < faithfulnessOptions.MinScoreRejectBelow)
+            eventType = AuditEventTypes.AgentOutputLlmFaithfulnessRejected;
+        else if (evaluated.GateOutcome == AgentOutputQualityGateOutcome.Warned
+                 && faithfulnessOptions.MinScoreWarnBelow is { } warnCeiling
+                 && score >= faithfulnessOptions.MinScoreRejectBelow
+                 && score < warnCeiling)
+            eventType = AuditEventTypes.AgentOutputLlmFaithfulnessWarned;
+
+        if (eventType is null)
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? auditRunId = Guid.TryParse(runId, out Guid runGuid) ? runGuid : null;
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = eventType,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    runId,
+                    traceId = trace.TraceId,
+                    agentType = trace.AgentType.ToString(),
+                    llmFaithfulnessScore = score,
+                    minScoreRejectBelow = faithfulnessOptions.MinScoreRejectBelow,
+                    minScoreWarnBelow = faithfulnessOptions.MinScoreWarnBelow,
+                    gateOutcome = evaluated.GateOutcome.ToString(),
+                    evaluationReason = evaluated.EvaluationReason,
+                }),
+            },
+            cancellationToken).ConfigureAwait(false);
     }
 }

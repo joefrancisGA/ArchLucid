@@ -140,4 +140,43 @@ public sealed class AgentOutputQualityGateStagingAppsettingsTests
         schemaOpts.Should().NotBeNull();
         schemaOpts.EnforceOnParse.Should().BeTrue();
     }
+
+    [SkippableFact]
+    public void Staging_appsettings_promotes_phase_b_llm_faithfulness_enforcement()
+    {
+        Skip.IfNot(File.Exists(StagingJsonPath), $"Expected {StagingJsonPath} (copy from ArchLucid.Api via csproj).");
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddJsonFile(StagingJsonPath, optional: false, reloadOnChange: false)
+            .Build();
+
+        AgentOutputLlmFaithfulnessOptions? options = configuration
+            .GetSection(AgentOutputLlmFaithfulnessOptions.SectionPath)
+            .Get<AgentOutputLlmFaithfulnessOptions>();
+
+        options.Should().NotBeNull();
+        options!.Enabled.Should().BeTrue();
+        options.EnforcePhaseB.Should().BeTrue();
+        options.MinScoreRejectBelow.Should().Be(0.65);
+        options.MinScoreWarnBelow.Should().Be(0.70);
+    }
+
+    [SkippableFact]
+    public void Production_appsettings_promotes_phase_b_llm_faithfulness_enforcement()
+    {
+        Skip.IfNot(File.Exists(ProductionJsonPath), $"Expected {ProductionJsonPath} (copy from ArchLucid.Api via csproj).");
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddJsonFile(ProductionJsonPath, optional: false, reloadOnChange: false)
+            .Build();
+
+        AgentOutputLlmFaithfulnessOptions? options = configuration
+            .GetSection(AgentOutputLlmFaithfulnessOptions.SectionPath)
+            .Get<AgentOutputLlmFaithfulnessOptions>();
+
+        options.Should().NotBeNull();
+        options!.Enabled.Should().BeTrue();
+        options.EnforcePhaseB.Should().BeTrue();
+        options.MinScoreRejectBelow.Should().Be(0.65);
+    }
 }

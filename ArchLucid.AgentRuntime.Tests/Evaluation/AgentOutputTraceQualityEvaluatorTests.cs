@@ -853,6 +853,137 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         // Let's just trust coverage analysis.
     }
 
+    [Fact]
+    public async Task TryEvaluateTrace_phase_b_llm_faithfulness_below_reject_floor_rejects()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1
+        };
+
+        AgentOutputLlmFaithfulnessOptions faithfulnessOptions = new()
+        {
+            Enabled = true,
+            EnforcePhaseB = true,
+            MinScoreRejectBelow = 0.65,
+            MinScoreWarnBelow = 0.70
+        };
+
+        Mock<IAgentOutputQualityGate> gate = new();
+        gate.Setup(g => g.Evaluate(It.IsAny<AgentOutputEvaluationScore>(), It.IsAny<AgentOutputSemanticScore>()))
+            .Returns(AgentOutputQualityGateOutcome.Accepted);
+
+        Mock<IAgentOutputFaithfulnessEvaluator> llmFaithfulness = new();
+        llmFaithfulness
+            .Setup(e => e.TryEvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0.40);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t-llm-faith",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson()
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                gate.Object,
+                CancellationToken.None,
+                new AgentEvidencePackage(),
+                agentResultFaithfulnessChecker: null,
+                embeddingFaithfulnessScorer: null,
+                llmFaithfulnessEvaluator: llmFaithfulness.Object,
+                llmFaithfulnessOptions: faithfulnessOptions);
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        r.EvaluationReason.Should().Contain("llm_faithfulness_below_reject_floor");
+        r.Semantic.LlmFaithfulnessScore.Should().Be(0.40);
+    }
+
+    [Fact]
+    public async Task TryEvaluateTrace_phase_b_llm_faithfulness_warn_floor_warns_when_scores_accept()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1
+        };
+
+        AgentOutputLlmFaithfulnessOptions faithfulnessOptions = new()
+        {
+            Enabled = true,
+            EnforcePhaseB = true,
+            MinScoreRejectBelow = 0.65,
+            MinScoreWarnBelow = 0.70
+        };
+
+        Mock<IAgentOutputQualityGate> gate = new();
+        gate.Setup(g => g.Evaluate(It.IsAny<AgentOutputEvaluationScore>(), It.IsAny<AgentOutputSemanticScore>()))
+            .Returns(AgentOutputQualityGateOutcome.Accepted);
+
+        Mock<IAgentOutputFaithfulnessEvaluator> llmFaithfulness = new();
+        llmFaithfulness
+            .Setup(e => e.TryEvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0.68);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t-llm-faith-warn",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """
+                {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
+                """
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? r =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                gate.Object,
+                CancellationToken.None,
+                new AgentEvidencePackage(),
+                agentResultFaithfulnessChecker: null,
+                embeddingFaithfulnessScorer: null,
+                llmFaithfulnessEvaluator: llmFaithfulness.Object,
+                llmFaithfulnessOptions: faithfulnessOptions);
+
+        r.Should().NotBeNull();
+        r!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Warned);
+        r.EvaluationReason.Should().Contain("llm_faithfulness_below_warn_floor");
+        r.Semantic.LlmFaithfulnessScore.Should().Be(0.68);
+    }
+
     private static string MinimalValidTopologyAgentResultJson() =>
 
         """

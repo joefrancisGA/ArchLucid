@@ -248,7 +248,7 @@ Deterministic **retrieval citation faithfulness** for agent output text against 
 
 **Env overrides:** `ARCHLUCID_FAITHFULNESS_MIN_POSITIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MAX_NEGATIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` (combined diagnostic floor when no split cohorts).
 
-**Phase B (LLM-graded):** nightly/release **`LlmFaithfulnessScore`** on real-mode golden cohort — fully enforced per Owner Decision Addendum in **`docs/assessments/LATEST_GPT55.md`** (p50 ≥ 0.65 → ratchet 0.70). **`real-llm-golden-cohort.yml`** enforces the LLM-graded faithfulness floors on real-mode rows. See `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness` for local trend runs.
+**Phase B (LLM-graded):** nightly/release **`LlmFaithfulnessScore`** on real-mode golden cohort — CI floors enforced via **`real-llm-golden-cohort.yml`**. **Runtime promotion (TB-021, 2026-06-25):** when **`ArchLucid:Agents:LlmFaithfulness:EnforcePhaseB=true`**, post-execute trace evaluation warns or rejects individual agent traces below **`MinScoreRejectBelow`** / in **[MinScoreRejectBelow, MinScoreWarnBelow)** (defaults **0.65** / **0.70** warn ceiling); durable audit **`AgentOutput.LlmFaithfulnessWarned`** / **`AgentOutput.LlmFaithfulnessRejected`**; other traces on the run continue. Staging/Production ship **`EnforcePhaseB: true`**. See `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness` for local trend runs.
 
 If any item fails, classify the sponsor packet as not ready and follow [`QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) or [`RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`](../runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md) before handoff.
 
