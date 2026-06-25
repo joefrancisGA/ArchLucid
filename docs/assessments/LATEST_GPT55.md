@@ -4,7 +4,7 @@
 
 **ArchLucid Assessment – (A) Headline Readiness: 84.78%**
 
-Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #4 shipped):** pilot-mode operator shell default — Operate nav phase-0 until first commit (advanced disclosure no longer bypasses pre-commit), state-aware **next best action** on Overview via `PilotCommandCenterCard` + `resolvePilotNextBestAction`, compact **Executive ROI strip** after commit. Prior: improvement #3 TB-021 Phase B; improvement #2 policy-pack delta demo; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
+Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #5 shipped):** real-mode evidence cadence on RC cuts (G5 Live AI evidence refreshed). Prior: improvement #4 pilot-mode operator shell default; improvement #3 TB-021 Phase B; improvement #2 policy-pack delta demo; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
 
 **Timestamp:** 2026-06-25 (UTC, pilot-mode operator shell default)  
 **Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
@@ -29,7 +29,7 @@ Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procure
 | 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
 | **Total** | | | **100** | **84.78%** | |
 
-**Prior headline (improvement #3 TB-021 Phase B):** 84.55% · **Δ +0.23 pp** — pilot shell default (Operate hidden until commit + no pre-commit advanced bypass), dynamic Overview next action, post-commit Executive ROI strip on Home.
+**Prior headline (improvement #4 pilot shell):** 84.78% · **Δ 0.00 pp** — real-mode evidence cadence on RC cuts (G5 Live AI evidence refreshed 2026-06-25, 4/4 paths PASS).
 
 # 3. Diagnostic Scores (non-headline)
 
@@ -57,7 +57,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 # 5. Executive Summary
 
-**(A) Overall headline readiness:** **84.78%** (+0.23 pp from 84.55%) — **Improvement #4 shipped:** pilot-mode shell default on Overview — Operate clusters stay hidden until first commit (sidebar disclosure no longer bypasses phase 0 pre-commit); `PilotCommandCenterCard` surfaces one state-aware next action; `OperatorHomeExecutiveRoiStrip` shows disposition-aware savings after commit. Phase B faithfulness and policy-pack delta demo remain in place. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
+**(A) Overall headline readiness:** **84.78%** (+0.00 pp from 84.78%) — **Improvement #5 shipped:** real-mode evidence cadence on RC cuts (G5 Live AI evidence refreshed 2026-06-25, 4/4 paths PASS). Prior: pilot-mode shell default on Overview — Operate clusters stay hidden until first commit (sidebar disclosure no longer bypasses phase 0 pre-commit); `PilotCommandCenterCard` surfaces one state-aware next action; `OperatorHomeExecutiveRoiStrip` shows disposition-aware savings after commit. Phase B faithfulness and policy-pack delta demo remain in place. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
 
 **(B) Procurement / market realism (weight 0):** Honest interim posture (self-assessment, CAIQ/SIG, owner-conducted pen test, DPA template). **CPA SOC 2** and **third-party pen-test publication** remain buyer friction (`V1_DEFERRED.md` §6c — TB-135/TB-136, `(B)` only). No signed design partner, no published reference customer, no live commerce un-hold — all correctly deferred; sales-led motion with TEST-mode trial is coherent.
 
@@ -428,7 +428,11 @@ Shipped deliverables:
 Residual: TB-399 Operate IA; executive shell as default sponsor handoff; cohort-scale usage proof (G4).
 ```
 
-**5. Real-mode evidence cadence on RC cuts** — Re-run `Invoke-RealLlmEvidenceGate.ps1`; attach to release bundle per G5. · V1 ops · Design 3 / Market 4.
+**5. Real-mode evidence cadence on RC cuts — SHIPPED 2026-06-25**
+- **Why:** Ensures release candidates have live AI evidence (G5) before external claims.
+- **Impact:** Correctness, Proof-of-ROI Readiness.
+- **Evidence:** `artifacts/release/real-llm-evidence-gate.json` (PASS, 2026-06-25, v2 schema, 4/4 agent paths, `executionMode=real`).
+- **Classification:** V1 ops shipped.
 
 **6. Disposition training microcopy on ROI panel** — Tooltip explaining headline vs per-system non-additivity and disposition basis. · V1 · Design 5 / Market 5.
 
