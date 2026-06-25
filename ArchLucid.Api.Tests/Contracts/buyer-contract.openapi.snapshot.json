@@ -25794,6 +25794,9 @@
       "name": "ClientErrorTelemetry"
     },
     {
+      "name": "CloudInventoryExtractorUpload"
+    },
+    {
       "name": "Comparison"
     },
     {
