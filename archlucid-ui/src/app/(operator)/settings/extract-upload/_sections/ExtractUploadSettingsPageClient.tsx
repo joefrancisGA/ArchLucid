@@ -27,6 +27,8 @@ import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFrom
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const EXTRACTOR_SCRIPT_CDN_URL =
   process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
@@ -216,8 +218,8 @@ export function ExtractUploadSettingsPageClient() {
   return (
     <div className="w-full max-w-3xl space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Extract &amp; Upload</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Extract &amp; Upload</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews.
         </p>
       </div>
@@ -226,7 +228,10 @@ export function ExtractUploadSettingsPageClient() {
 
       {extractorUpdateBanner ? (
         <div
-          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-4 py-3 text-sm"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           data-testid="extractor-version-banner"
         >
           {extractorUpdateBanner}
@@ -235,7 +240,7 @@ export function ExtractUploadSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 1 — Collect inventory locally</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Step 1 — Collect inventory locally</CardTitle>
           <CardDescription>
             Copy the quick-start command, run it from your ArchLucid checkout, then upload the ZIP below. Use{" "}
             <code>-DryRun</code> on the advanced script when you need a preview first.
@@ -243,17 +248,22 @@ export function ExtractUploadSettingsPageClient() {
         </CardHeader>
         <CardContent className="space-y-4">
           <AzureExtractorQuickStartCommandPanel testIdPrefix="extract-upload-quick-start" />
-          <details className="rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-700">
-            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+          <details className={cn("rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Advanced: full Get-ArchLucidAzurePackage.ps1 command
             </summary>
-            <pre className="mt-3 overflow-x-auto rounded-md bg-neutral-950 p-3 text-xs text-neutral-100">
+            <pre
+              className={cn(
+                "mt-3 overflow-x-auto rounded-md bg-neutral-950 p-3 text-neutral-100",
+                OPERATOR_TYPOGRAPHY.micro,
+              )}
+            >
               {buildAdvancedGetArchLucidAzurePackageCommandLine()}
             </pre>
           </details>
           <a
             href={EXTRACTOR_SCRIPT_CDN_URL}
-            className="inline-block text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={cn("inline-block", OPERATOR_LINK.nav)}
             target="_blank"
             rel="noreferrer"
           >
@@ -264,11 +274,11 @@ export function ExtractUploadSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 2 — Validate (optional)</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Step 2 — Validate (optional)</CardTitle>
           <CardDescription>CLI validation before upload.</CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-neutral-700 dark:text-neutral-300">
-          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
+        <CardContent className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
             archlucid azure validate-zip --path &lt;your-package.zip&gt;
           </code>
         </CardContent>
@@ -276,7 +286,7 @@ export function ExtractUploadSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Try it now with demo data</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Try it now with demo data</CardTitle>
           <CardDescription>
             Upload a bundled synthetic Azure extractor ZIP — same schema as{" "}
             <code>Get-ArchLucidAzurePackage.ps1</code> output — without running the extractor locally.
@@ -305,7 +315,7 @@ export function ExtractUploadSettingsPageClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Step 3 — Upload ZIP</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Step 3 — Upload ZIP</CardTitle>
           <CardDescription>
             Drag and drop or browse. Client-side checks validate <code>manifest.json</code> schemaVersion before the API
             call (max {maxMb} MB).
@@ -318,7 +328,10 @@ export function ExtractUploadSettingsPageClient() {
             testId="extract-upload-drop-zone"
             hint={
               selectedFileLabel !== null ? (
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="extract-upload-file-meta">
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
+                  data-testid="extract-upload-file-meta"
+                >
                   Selected: {selectedFileLabel}
                 </p>
               ) : null
@@ -335,7 +348,10 @@ export function ExtractUploadSettingsPageClient() {
             />
           ) : null}
           {packageId !== null ? (
-            <p className="m-0 text-sm text-emerald-800 dark:text-emerald-300" data-testid="extract-upload-success">
+            <p
+              className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="extract-upload-success"
+            >
               Package accepted (<span className="font-mono">{packageId}</span>).
             </p>
           ) : null}
