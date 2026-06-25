@@ -33,7 +33,6 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/architecture_on_one_page.md": "getting-started",
   "docs/library/architecture_flows.md": "getting-started",
   "docs/library/live_e2e_happy_path.md": "developer-troubleshooting",
-  "docs/library/product_packaging.md": "getting-started",
   "docs/library/finding_engine_output_reference.md": "evidence-trail",
   "docs/go-to-market/competitive_comparison.md": "executive-summary",
   "docs/demo/demo_recording_storyboard.md": "pilot-guide",
