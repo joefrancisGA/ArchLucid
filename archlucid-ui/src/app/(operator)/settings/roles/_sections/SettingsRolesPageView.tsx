@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ArchLucidAppRole } from "@/lib/current-principal";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
@@ -70,7 +71,8 @@ function TabBar({
           type="button"
           onClick={() => onChange(tab.id)}
           className={cn(
-            "px-4 py-2 text-sm font-medium leading-none outline-none transition-colors",
+            "px-4 py-2 font-medium leading-none outline-none transition-colors",
+            OPERATOR_TYPOGRAPHY.body,
             "-mb-px border-b-2",
             active === tab.id
               ? "border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300"
@@ -102,7 +104,7 @@ export function SettingsRolesPageView(props: Props) {
   if (m.surface === "authority_loading") {
     return (
       <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
-        <p className="m-0 text-sm text-neutral-500">Loading…</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
   }
@@ -110,7 +112,7 @@ export function SettingsRolesPageView(props: Props) {
   if (m.surface === "forbidden") {
     return (
       <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
-        <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="settings-roles-forbidden">
+        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="settings-roles-forbidden">
           This page requires tenant administrator access (AdminAuthority). Sign in with an admin-ranked account or API key.
         </p>
       </div>
@@ -124,8 +126,8 @@ export function SettingsRolesPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="settings-roles-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Users and roles</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Users and roles</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Invite users, assign roles, and manage workspace access.
         </p>
       </div>
@@ -142,7 +144,7 @@ export function SettingsRolesPageView(props: Props) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Invite user</CardTitle>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Invite user</CardTitle>
               </CardHeader>
               <CardContent>
                 <SettingsRolesInvitePanel
@@ -155,10 +157,10 @@ export function SettingsRolesPageView(props: Props) {
             {!directoryUnavailable ? (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Users</CardTitle>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Users</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {m.loading ? <p className="m-0 text-sm text-neutral-500">Loading…</p> : null}
+                  {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
                   {!m.loading && m.note !== null && m.note !== "api_unavailable" ? (
                     <div data-testid="settings-roles-api-note">
                       <OperatorEmptyState
@@ -176,7 +178,7 @@ export function SettingsRolesPageView(props: Props) {
                     <PrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
                   ) : null}
                   {!m.loading && m.note === null && userRows.length === 0 ? (
-                    <p className="m-0 text-sm text-neutral-500">No users found in this workspace.</p>
+                    <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No users found in this workspace.</p>
                   ) : null}
                 </CardContent>
               </Card>
@@ -194,7 +196,7 @@ export function SettingsRolesPageView(props: Props) {
         >
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Custom role matrix</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Custom role matrix</CardTitle>
             </CardHeader>
             <CardContent>
               <SettingsRolesMatrixSection />
@@ -212,10 +214,10 @@ export function SettingsRolesPageView(props: Props) {
         >
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">API keys</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>API keys</CardTitle>
             </CardHeader>
             <CardContent>
-              {m.loading ? <p className="m-0 text-sm text-neutral-500">Loading…</p> : null}
+              {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
               {!m.loading && m.note !== null ? (
                 <div data-testid="settings-roles-api-keys-note">
                   <OperatorEmptyState
@@ -233,7 +235,7 @@ export function SettingsRolesPageView(props: Props) {
                 <PrincipalTable rows={apiKeyRows} onRoleChange={m.onRoleChange} />
               ) : null}
               {!m.loading && m.note === null && apiKeyRows.length === 0 ? (
-                <p className="m-0 text-sm text-neutral-500">No API keys found in this workspace.</p>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No API keys found in this workspace.</p>
               ) : null}
             </CardContent>
           </Card>
@@ -251,9 +253,9 @@ type PrincipalTableProps = {
 function PrincipalTable({ rows, onRoleChange }: PrincipalTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm">
+      <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
         <thead>
-          <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+          <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
             <th className="py-2 pr-3">Name</th>
             <th className="py-2 pr-3">Email / hint</th>
             <th className="py-2 pr-3">Role</th>
@@ -262,8 +264,8 @@ function PrincipalTable({ rows, onRoleChange }: PrincipalTableProps) {
         <tbody>
           {rows.map((r) => (
             <tr key={`${r.kind}:${r.id}`} className="border-b border-neutral-100 dark:border-neutral-800">
-              <td className="py-2 pr-3 font-medium text-neutral-900 dark:text-neutral-100">{r.name}</td>
-              <td className="py-2 pr-3 text-neutral-600 dark:text-neutral-300">{r.detail}</td>
+              <td className={cn("py-2 pr-3 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{r.name}</td>
+              <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{r.detail}</td>
               <td className="py-2 pr-3">
                 <Select
                   value={r.role}

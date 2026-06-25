@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ALL_MATRIX_PERMISSION_IDS, CUSTOM_ROLE_PERMISSION_GROUPS } from "./custom-role-permission-groups";
 
@@ -148,13 +150,13 @@ export function SettingsRolesMatrixSection() {
   }
 
   if (loading)
-    return <p className="m-0 text-sm text-neutral-500">Loading role matrix…</p>;
+    return <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading role matrix…</p>;
 
   return (
     <section data-testid="settings-roles-matrix" className="space-y-4">
       <div className="flex flex-wrap items-end gap-2">
         <div className="min-w-[14rem] flex-1">
-          <label htmlFor="new-custom-role-name" className="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+          <label htmlFor="new-custom-role-name" className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.label)}>
             New custom role name
           </label>
           <Input
@@ -171,16 +173,16 @@ export function SettingsRolesMatrixSection() {
       </div>
 
       <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-        <table className="min-w-full text-left text-sm">
+        <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
           <thead className="bg-neutral-50 dark:bg-neutral-900/60">
             <tr>
-              <th className="px-3 py-2 font-semibold">Permission</th>
+              <th className={cn("px-3 py-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Permission</th>
               {columns.map((role) => (
-                <th key={role.id ?? role.name} className="px-3 py-2 font-semibold">
+                <th key={role.id ?? role.name} className={cn("px-3 py-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   <div className="flex flex-col gap-1">
                     <span>{role.name}</span>
                     {role.isSystem ? (
-                      <span className="text-xs font-normal text-neutral-500">system</span>
+                      <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>system</span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
                         <Button type="button" size="sm" variant="secondary" disabled={savingRoleId === role.id} onClick={() => void saveRole(role)}>
@@ -201,7 +203,7 @@ export function SettingsRolesMatrixSection() {
           <tbody>
             {CUSTOM_ROLE_PERMISSION_GROUPS.flatMap((group) => [
               <tr key={`group-${group.area}`} className="bg-neutral-50/70 dark:bg-neutral-900/30">
-                <td colSpan={columns.length + 1} className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                <td colSpan={columns.length + 1} className={cn("px-3 py-2", OPERATOR_NAV_GROUP_LABEL)}>
                   {group.area}
                 </td>
               </tr>,

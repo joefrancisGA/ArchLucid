@@ -17,6 +17,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
 
@@ -169,14 +171,14 @@ export function SettingsRolesInvitePanel({ directoryUnavailable, onRetry }: Prop
           </SelectContent>
         </Select>
         {/* Reviewers are typically assigned Reader (read-only review access) or Auditor (read + audit trail). */}
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Reviewers are usually assigned the <strong>Reader</strong> or <strong>Auditor</strong> role.
         </p>
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="invite-message">
-          Message <span className="font-normal text-neutral-400">(optional)</span>
+          Message <span className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(optional)</span>
         </Label>
         <Textarea
           id="invite-message"
