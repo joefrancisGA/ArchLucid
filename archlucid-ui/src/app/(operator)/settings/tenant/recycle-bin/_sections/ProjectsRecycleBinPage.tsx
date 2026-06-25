@@ -131,7 +131,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
       aria-labelledby={`projects-recycle-bin-workspace-heading-${workspace.workspaceId}`}
     >
       <h2
-        className="text-base font-medium text-neutral-900 dark:text-neutral-100"
+        className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
         id={`projects-recycle-bin-workspace-heading-${workspace.workspaceId}`}
       >
         {workspace.name}
