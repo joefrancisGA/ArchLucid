@@ -124,6 +124,14 @@ export function rewriteHelpMarkdownDocLinks(markdown: string, sourceDocPath: str
       return `[${humanizeMarkdownLinkLabel(label, trimmedHref)}](${trimmedHref})`;
     }
 
+    if (trimmedHref.startsWith("#")) {
+      return `[${humanizeMarkdownLinkLabel(label, trimmedHref)}](${trimmedHref})`;
+    }
+
+    if (trimmedHref.startsWith("/") && !trimmedHref.startsWith("//")) {
+      return `[${humanizeMarkdownLinkLabel(label, trimmedHref)}](${trimmedHref})`;
+    }
+
     const hashIndex = trimmedHref.indexOf("#");
     const hrefPath = hashIndex >= 0 ? trimmedHref.slice(0, hashIndex) : trimmedHref;
     const fragment = hashIndex >= 0 ? trimmedHref.slice(hashIndex) : "";

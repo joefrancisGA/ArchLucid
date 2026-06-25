@@ -24,7 +24,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
             <a
               href={`#${heading.id}`}
               className={cn(
-                "block rounded py-0.5 text-neutral-700 underline-offset-2 hover:text-teal-800 hover:underline dark:text-neutral-300 dark:hover:text-teal-300",
+                "block rounded-sm py-0.5 text-neutral-700 underline-offset-2 hover:text-teal-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 dark:text-neutral-300 dark:hover:text-teal-300 dark:focus-visible:outline-teal-400",
                 heading.level === 3 ? "pl-3" : "",
               )}
             >

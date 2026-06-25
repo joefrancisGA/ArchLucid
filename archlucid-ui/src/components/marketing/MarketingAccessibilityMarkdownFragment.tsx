@@ -103,7 +103,12 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
     const isExternal =
       href.startsWith("https://") || href.startsWith("http://") || href.startsWith("mailto:");
     const isInAppHelp = options.linkMode === "help" && href.startsWith("/help");
-    const safe = isExternal || isInAppHelp;
+    const isSamePageAnchor = options.linkMode === "help" && href.startsWith("#") && href.length > 1;
+    const isInternalOperatorRoute =
+      options.linkMode === "help" && href.startsWith("/") && !href.startsWith("//") && !isInAppHelp;
+    const safe = isExternal || isInAppHelp || isSamePageAnchor || isInternalOperatorRoute;
+    const inAppLinkClassName =
+      "rounded-sm text-teal-800 underline decoration-teal-700/40 underline-offset-2 hover:text-teal-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 dark:text-teal-300 dark:hover:text-teal-100 dark:focus-visible:outline-teal-400";
 
     if (!safe) {
       nodes.push(<span key={`${keyPrefix}-unsafe-${i}`}>{label}</span>);
@@ -112,20 +117,29 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
       continue;
     }
 
-    nodes.push(
-      <Link
-        key={`${keyPrefix}-a-${i}`}
-        href={href}
-        className={
-          isInAppHelp
-            ? "text-teal-800 underline decoration-teal-700/40 underline-offset-2 hover:text-teal-950 dark:text-teal-300 dark:hover:text-teal-100"
-            : "text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
-        }
-        {...(isExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
-      >
-        {renderInline(label, `${keyPrefix}-al-${i}`, options)}
-      </Link>,
-    );
+    if (isSamePageAnchor) {
+      nodes.push(
+        <a key={`${keyPrefix}-a-${i}`} href={href} className={inAppLinkClassName}>
+          {renderInline(label, `${keyPrefix}-al-${i}`, options)}
+        </a>,
+      );
+    }
+    else {
+      nodes.push(
+        <Link
+          key={`${keyPrefix}-a-${i}`}
+          href={href}
+          className={
+            isInAppHelp || isInternalOperatorRoute
+              ? inAppLinkClassName
+              : "text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+          }
+          {...(isExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
+        >
+          {renderInline(label, `${keyPrefix}-al-${i}`, options)}
+        </Link>,
+      );
+    }
     remaining = remaining.slice(closeParen + 1);
     i++;
   }

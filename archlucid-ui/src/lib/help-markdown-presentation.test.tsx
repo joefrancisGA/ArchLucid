@@ -40,8 +40,24 @@ describe("help-markdown-presentation", () => {
     const source = "See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for details.";
     const rewritten = rewriteHelpMarkdownDocLinks(source, "docs/library/operator-shell.md");
 
-    expect(rewritten).toBe("See [Product Packaging](/help/getting-started) for details.");
+    expect(rewritten).toBe("See [Product Packaging](/help/billing-and-plans) for details.");
     expect(rewritten.includes(".md")).toBe(false);
+  });
+
+  it("preserves same-page anchor links and internal operator routes", () => {
+    const source = [
+      "- **[Configure SSO](#workforce-sso)**",
+      "- **[Connect Azure securely](/help/cloud-connections/azure)**",
+      "- [`/settings/cloud-connections`](/settings/cloud-connections)",
+    ].join("\n");
+    const rewritten = rewriteHelpMarkdownDocLinks(
+      source,
+      "docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md",
+    );
+
+    expect(rewritten).toContain("[Configure SSO](#workforce-sso)");
+    expect(rewritten).toContain("[Connect Azure securely](/help/cloud-connections/azure)");
+    expect(rewritten).toContain("[Cloud Connections](/settings/cloud-connections)");
   });
 
   it("drops unmapped markdown links to plain labels", () => {
@@ -102,7 +118,7 @@ describe("MarketingAccessibilityMarkdownFragment help presentation", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Product Packaging" })).toHaveAttribute("href", "/help/getting-started");
+    expect(screen.getByRole("link", { name: "Product Packaging" })).toHaveAttribute("href", "/help/billing-and-plans");
     expect(screen.queryByText(/\.md/i)).toBeNull();
   });
 
@@ -152,5 +168,49 @@ Body copy.`}
 
     expect(heading).toHaveAttribute("id", "workforce-sso");
     expect(screen.queryByText(/\{#workforce-sso\}/i)).toBeNull();
+  });
+
+  it("renders same-page anchor links in onboarding hub bullets", () => {
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={[
+          "## Onboarding hub {#onboarding-hub}",
+          "",
+          "- **[Configure SSO](#workforce-sso)**",
+          "- **[Assign policy packs](#default-policy-packs)**",
+          "",
+          "## Workforce SSO {#workforce-sso}",
+          "",
+          "SSO body.",
+          "",
+          "## Default policy packs {#default-policy-packs}",
+          "",
+          "Policy body.",
+        ].join("\n")}
+        tableCaption="Enterprise onboarding checklist reference table"
+        presentation="help"
+        sourceDocPath="docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Configure SSO" })).toHaveAttribute("href", "#workforce-sso");
+    expect(screen.getByRole("link", { name: "Assign policy packs" })).toHaveAttribute("href", "#default-policy-packs");
+    expect(screen.getByRole("heading", { level: 2, name: "Workforce SSO" })).toHaveAttribute("id", "workforce-sso");
+  });
+
+  it("renders internal operator settings links from help markdown", () => {
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody="Open [`/settings/cloud-connections`](/settings/cloud-connections)."
+        tableCaption="Test table"
+        presentation="help"
+        sourceDocPath="docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Cloud Connections" })).toHaveAttribute(
+      "href",
+      "/settings/cloud-connections",
+    );
   });
 });
