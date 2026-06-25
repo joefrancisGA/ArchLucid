@@ -26,6 +26,7 @@ import {
   governanceWorkflowSubmitCardTitleReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
@@ -79,13 +80,13 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
       {buyerPolishedShell && !canMutateWorkflow ? (
         <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="space-y-1">
-            <CardTitle>Governance submissions</CardTitle>
-            <CardDescription className="text-neutral-700 dark:text-neutral-300">
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Governance submissions</CardTitle>
+            <CardDescription className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {governanceWorkflowSubmitCardDescriptionReader}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {hideGovernanceQueryLoadCard
                 ? "Approval activity for this review appears below."
                 : "Load a review in the approval section below to inspect approvals, promotions, and environment activity."}
@@ -95,7 +96,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
       ) : (
         <Card className={cn(!canMutateWorkflow && !buyerPolishedShell && "opacity-95")}>
           <CardHeader>
-            <CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
               {canMutateWorkflow ? governanceWorkflowSubmitCardTitleOperator : governanceWorkflowSubmitCardTitleReader}
             </CardTitle>
             <CardDescription>
@@ -207,7 +208,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
             {!canMutateWorkflow ? (
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="note">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
                 {isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled() ? (
                   <>
                     Approvals require an authorized governance role; your access here is review-only.

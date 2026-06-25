@@ -14,6 +14,8 @@ import {
   governanceWorkflowRefreshRunDataTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type GovernanceWorkflowQueryCardProps = {
   hideGovernanceQueryLoadCard: boolean;
@@ -53,7 +55,7 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
   return (
     <>
       {hideGovernanceQueryLoadCard && activeRunId !== null ? (
-        <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Showing governance workflow for <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>.
         </p>
       ) : null}
@@ -61,7 +63,7 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
       {!hideGovernanceQueryLoadCard ? (
         <Card>
           <CardHeader>
-            <CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
               {canMutateWorkflow
                 ? governanceWorkflowApprovalRequestsCardTitleOperator
                 : governanceWorkflowApprovalRequestsCardTitleReader}
@@ -123,7 +125,7 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
                   autoComplete="username"
                   title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                 />
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   This is stored with promotion and activation records alongside your signed-in account.
                 </p>
               </div>
