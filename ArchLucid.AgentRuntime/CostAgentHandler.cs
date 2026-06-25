@@ -72,7 +72,10 @@ public sealed class CostAgentHandler(
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Cost, tenantId, runGuid, cancellationToken);
-        string systemPrompt = systemResolved.Text;
+        string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
+            systemResolved.Text,
+            AgentType.Cost,
+            request.CloudProvider);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
         CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(request, evidence, _retailPriceLookup);

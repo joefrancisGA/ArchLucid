@@ -230,6 +230,26 @@ public static partial class ServiceCollectionExtensions
                     TimeProvider.System,
                     sp.GetRequiredService<ILogger<AzureRetailPricesCatalogClient>>()));
 
-        services.AddSingleton<IInfrastructureCostArtifactAugmentationProvider, RetailInfrastructureCostArtifactAugmentationProvider>();
+        services.AddSingleton<AwsPublicPricingClient>(
+            static sp =>
+                new AwsPublicPricingClient(
+                    () =>
+                        sp.GetRequiredService<IHttpClientFactory>()
+                            .CreateClient(ArchLucidMultiCloudPublicHttpClients.AwsPricingHttpClientName),
+                    TimeProvider.System,
+                    sp.GetRequiredService<ILogger<AwsPublicPricingClient>>()));
+
+        services.AddSingleton<GcpCloudBillingCatalogClient>(
+            static sp =>
+                new GcpCloudBillingCatalogClient(
+                    () =>
+                        sp.GetRequiredService<IHttpClientFactory>()
+                            .CreateClient(ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingHttpClientName),
+                    sp.GetRequiredService<IOptionsMonitor<GcpBillingCatalogOptions>>(),
+                    TimeProvider.System,
+                    sp.GetRequiredService<ILogger<GcpCloudBillingCatalogClient>>()));
+
+        services.AddSingleton<IInfrastructureCostArtifactAugmentationProvider,
+            MultiCloudInfrastructureCostArtifactAugmentationProvider>();
     }
 }

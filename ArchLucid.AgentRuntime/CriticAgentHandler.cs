@@ -67,7 +67,10 @@ public sealed class CriticAgentHandler(
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Critic, tenantId, runGuid, cancellationToken);
-        string systemPrompt = systemResolved.Text;
+        string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
+            systemResolved.Text,
+            AgentType.Critic,
+            request.CloudProvider);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 

@@ -13,10 +13,10 @@ internal static class InfrastructureCostSummaryNotes
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
 
         if (soleFamily == CloudProvider.Aws)
-            return "Illustrative AWS service USD/month (public Price List adapters deferred; not Azure Retail).";
+            return "AWS Price List on-demand sizing where SKU/region matched; otherwise illustrative AWS USD/month (not Azure Retail).";
 
         if (soleFamily == CloudProvider.Gcp)
-            return "Illustrative GCP service USD/month (Billing Catalog adapters deferred; not Azure Retail).";
+            return "GCP Cloud Billing Catalog sizing where API key and SKU matched; otherwise illustrative GCP USD/month (not Azure Retail).";
 
         return "Illustrative infrastructure USD/month (Retail API probing disabled).";
     }
@@ -32,10 +32,10 @@ internal static class InfrastructureCostSummaryNotes
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
 
         if (soleFamily == CloudProvider.Aws)
-            return "Illustrative AWS service sizing (Azure Retail API not applicable for AWS target cloud).";
+            return "Blend of AWS Price List matches and illustrative fallbacks (on-demand assumptions; not Azure Retail).";
 
         if (soleFamily == CloudProvider.Gcp)
-            return "Illustrative GCP service sizing (Azure Retail API not applicable for GCP target cloud).";
+            return "Blend of GCP Billing Catalog matches and illustrative fallbacks (not Azure Retail).";
 
         return "Blend of Retail API matches and illustrative fallbacks (consumption SKU/region probes do not guarantee agreement with your bill).";
     }

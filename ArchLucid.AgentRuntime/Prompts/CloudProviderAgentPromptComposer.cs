@@ -1,0 +1,117 @@
+using System.Text;
+
+using ArchLucid.Contracts.Common;
+
+namespace ArchLucid.AgentRuntime.Prompts;
+
+/// <summary>Cloud-specific system-prompt addenda and user-prompt guidance for multi-cloud analyze (Phase 4).</summary>
+public static class CloudProviderAgentPromptComposer
+{
+    public static string ApplySystemPromptAddendum(string basePrompt, AgentType agentType, CloudProvider cloudProvider)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(basePrompt);
+
+        string? addendum = TryGetSystemPromptAddendum(agentType, cloudProvider);
+
+        if (string.IsNullOrWhiteSpace(addendum))
+            return basePrompt;
+
+        return basePrompt.TrimEnd() + Environment.NewLine + Environment.NewLine + addendum.Trim();
+    }
+
+    public static void AppendUserPromptCloudGuidance(StringBuilder sb, AgentType agentType, CloudProvider cloudProvider)
+    {
+        ArgumentNullException.ThrowIfNull(sb);
+
+        string? guidance = TryGetUserPromptGuidance(agentType, cloudProvider);
+
+        if (string.IsNullOrWhiteSpace(guidance))
+            return;
+
+        sb.AppendLine();
+        sb.AppendLine(guidance.Trim());
+    }
+
+    internal static string? TryGetSystemPromptAddendum(AgentType agentType, CloudProvider cloudProvider)
+    {
+        if (cloudProvider == CloudProvider.Azure || cloudProvider == CloudProvider.None)
+            return null;
+
+        return agentType switch
+        {
+            AgentType.Topology when cloudProvider == CloudProvider.Aws =>
+                """
+                Target cloud override: AWS.
+                Use AWS service names (EC2, Lambda, EKS, RDS, S3, IAM, VPC) — never azurerm_* or Azure-only defaults.
+                Prefer regional isolation, least-privilege IAM, and S3 public-access block posture in findings.
+                """,
+            AgentType.Topology when cloudProvider == CloudProvider.Gcp =>
+                """
+                Target cloud override: GCP.
+                Use GCP service names (Compute Engine, GKE, Cloud SQL, Cloud Storage, VPC firewall rules) — never azurerm_* defaults.
+                Prefer VPC-native networking, workload identity, and private Google access patterns in findings.
+                """,
+            AgentType.Compliance when cloudProvider == CloudProvider.Aws =>
+                """
+                Target cloud override: AWS.
+                Map controls to AWS idioms (IAM roles/policies, Security Groups, S3 bucket policies, KMS, CloudTrail).
+                """,
+            AgentType.Compliance when cloudProvider == CloudProvider.Gcp =>
+                """
+                Target cloud override: GCP.
+                Map controls to GCP idioms (IAM bindings, VPC firewall rules, CMEK, Cloud Audit Logs).
+                """,
+            AgentType.Cost when cloudProvider == CloudProvider.Aws =>
+                """
+                Target cloud override: AWS.
+                Discuss AWS on-demand / Savings Plans tradeoffs; do not cite Azure Retail Prices for AWS workloads.
+                """,
+            AgentType.Cost when cloudProvider == CloudProvider.Gcp =>
+                """
+                Target cloud override: GCP.
+                Discuss GCE/GKE/Cloud SQL spend drivers; do not cite Azure Retail Prices for GCP workloads.
+                """,
+            AgentType.Critic when cloudProvider == CloudProvider.Aws =>
+                """
+                Target cloud override: AWS.
+                Critique using AWS constructs (public S3 buckets, open Security Groups, overly broad IAM) — not Azure-only patterns.
+                """,
+            AgentType.Critic when cloudProvider == CloudProvider.Gcp =>
+                """
+                Target cloud override: GCP.
+                Critique using GCP constructs (0.0.0.0/0 firewall rules, default SA keys, public Cloud Storage) — not Azure-only patterns.
+                """,
+            _ => null,
+        };
+    }
+
+    internal static string? TryGetUserPromptGuidance(AgentType agentType, CloudProvider cloudProvider)
+    {
+        if (cloudProvider == CloudProvider.Azure || cloudProvider == CloudProvider.None)
+            return null;
+
+        if (agentType == AgentType.Topology && cloudProvider == CloudProvider.Aws)
+        {
+            return """
+                   Important guidance (AWS target):
+                   - Produce a simple, coherent MVP-quality AWS topology.
+                   - Prefer managed services (Lambda, RDS, S3) over self-managed EC2 unless required.
+                   - Use stable IDs such as svc-api, ds-metadata where appropriate.
+                   - Return JSON only.
+                   """;
+        }
+
+        if (agentType == AgentType.Topology && cloudProvider == CloudProvider.Gcp)
+        {
+            return """
+                   Important guidance (GCP target):
+                   - Produce a simple, coherent MVP-quality GCP topology.
+                   - Prefer Cloud Run / GKE Autopilot / Cloud SQL over raw Compute Engine unless required.
+                   - Use stable IDs such as svc-api, ds-metadata where appropriate.
+                   - Return JSON only.
+                   """;
+        }
+
+        return null;
+    }
+}

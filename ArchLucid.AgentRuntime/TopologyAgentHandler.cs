@@ -73,7 +73,10 @@ public sealed class TopologyAgentHandler(
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Topology, tenantId, runGuid, cancellationToken);
-        string systemPrompt = systemResolved.Text;
+        string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
+            systemResolved.Text,
+            AgentType.Topology,
+            request.CloudProvider);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
         string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
@@ -170,13 +173,18 @@ public sealed class TopologyAgentHandler(
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
 
-        sb.AppendLine("Important guidance:");
-        sb.AppendLine("- Produce a simple, coherent MVP-quality Azure topology.");
-        sb.AppendLine("- Prefer App Service over AKS unless AKS is truly necessary.");
-        sb.AppendLine("- If Azure AI Search is required, include it explicitly.");
-        sb.AppendLine("- If SQL metadata is implied, include a SQL datastore explicitly.");
-        sb.AppendLine("- Use stable IDs such as svc-api, svc-search, ds-metadata where appropriate.");
-        sb.AppendLine("- Return JSON only.");
+        CloudProviderAgentPromptComposer.AppendUserPromptCloudGuidance(sb, AgentType.Topology, request.CloudProvider);
+
+        if (request.CloudProvider is CloudProvider.Azure or CloudProvider.None)
+        {
+            sb.AppendLine("Important guidance:");
+            sb.AppendLine("- Produce a simple, coherent MVP-quality Azure topology.");
+            sb.AppendLine("- Prefer App Service over AKS unless AKS is truly necessary.");
+            sb.AppendLine("- If Azure AI Search is required, include it explicitly.");
+            sb.AppendLine("- If SQL metadata is implied, include a SQL datastore explicitly.");
+            sb.AppendLine("- Use stable IDs such as svc-api, svc-search, ds-metadata where appropriate.");
+            sb.AppendLine("- Return JSON only.");
+        }
 
         return sb.ToString();
     }

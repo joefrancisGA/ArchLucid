@@ -78,7 +78,10 @@ public sealed class ComplianceAgentHandler(
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Compliance, tenantId, runGuid, cancellationToken);
-        string systemPrompt = systemResolved.Text;
+        string systemPrompt = CloudProviderAgentPromptComposer.ApplySystemPromptAddendum(
+            systemResolved.Text,
+            AgentType.Compliance,
+            request.CloudProvider);
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
 

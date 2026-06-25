@@ -3,9 +3,9 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 88.48%`
+`ArchLucid Assessment – (A) Headline Readiness: 89.15%`
 
-**State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis is in V1 GA scope** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)); Phases 2–4 engineering may still be in flight. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
+**State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
 **Source materials inspected:**
 - `docs/library/REPO_DIGEST.md`
@@ -25,19 +25,19 @@
 
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
-| 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
+| 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 1.69 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 93 | 13 | 12.09 | 0.91 |
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
-| 4 | Correctness & Evidence Integrity | 92 | 12 | 11.04 | 0.96 |
-| 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
+| 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
+| 5 | AI / Agent Readiness | 88 | 10 | 8.80 | 1.20 |
 | 6 | Time-to-Value | 87 | 10 | 8.70 | 1.30 |
-| 7 | Proof-of-ROI Readiness | 92 | 9 | 8.28 | 0.72 |
+| 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
 | 9 | Runtime & First-Review Reliability | 91 | 7 | 6.37 | 0.63 |
 | 10 | Adoption Friction | 67 | 5 | 3.35 | 1.65 |
-| **Total** | | | **100** | **88.48%** | **11.52%** |
+| **Total** | | | **100** | **89.15%** | **10.85%** |
 
-*(A) Headline Readiness: 88.48%*
+*(A) Headline Readiness: 89.15%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 88.48%. AWS/GCP Phase 3 ships customer-controlled inventory ZIP scripts (`Get-ArchLucidAwsPackage.ps1`, `Get-ArchLucidGcpPackage.ps1`), ingest routes (`POST /v1/extractor/aws|gcp/upload`), durable audit events, and inventory-backed cost nodes — Tier-1 multi-cloud parity with Azure extractor posture; Phase 4 (live pricing + agent prompts) remains engineering.
+- **(A) Overall headline readiness:** 89.15%. AWS/GCP Phase 4 completes multi-cloud analyze: AWS Price List EC2 probes, optional GCP Billing Catalog adapter, multi-cloud cost-summary augmentation, cloud-aware agent system-prompt addenda, and golden-cohort AWS/GCP fixtures — full **§2.19** engineering track delivered.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -82,15 +82,15 @@
 
 - **MCP Membrane (V1.1):** Integrations currently require HTTP/REST. Missing MCP in V1 is safe because most enterprises are not yet running local MCP ecosystems at scale, but V1.1 delivery is essential for agentic future-proofing.
 - **ServiceNow/Jira First-Party Connectors (V1.1 Buyer Surfacing):** V1 provides an outbound create mechanism via REST; this is sufficient for pilots but full bidirectional sync and Confluence publishing will be required to satisfy sticky ITSM integrations long-term.
-- **AWS/GCP analyze Phase 4 (V1 GA contract):** Phases 1–3 ship (enum, Terraform mappers, inventory ZIP ingest); live AWS/GCP pricing adapters and cloud-aware agent prompts remain engineering under **§2.19**.
+- **AWS/GCP analyze (V1 GA §2.19):** Phases 1–4 shipped (Terraform, inventory ZIP ingest, live pricing adapters, cloud-aware agent prompts). Residual gaps are wizard UX polish and optional GCP API-key configuration — not contract blockers.
 
 ---
 
 # 7. Weighted Quality Assessment (detail)
 
 ### 1. Decision-Changing Insight Density
-- **Score:** 86 · **Weight:** 13 · **Contribution:** 11.18 · **Deficiency:** 1.82
-- **Justification:** AWS/GCP Terraform rows classify to cloud-native `RuntimePlatform` values with illustrative cost tables — multi-cloud pilots can compare spend without Azure-only labels.
+- **Score:** 87 · **Weight:** 13 · **Contribution:** 11.31 · **Deficiency:** 1.69
+- **Justification:** Cloud-aware agent prompts steer Topology/Cost/Compliance findings toward AWS/GCP constructs (EC2, S3, GKE, IAM) instead of Azure defaults when `CloudProvider` is set.
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
@@ -100,13 +100,13 @@
 - **Class:** V1 ready (but remains a sales-engineer drag).
 
 ### 3. AI / Agent Readiness
-- **Score:** 86 · **Weight:** 10 · **Contribution:** 8.60 · **Deficiency:** 1.40
-- **Justification:** `ManifestChunkSummarizer` compresses lowest-scoring manifest chunks when estimated tokens exceed `Retrieval:ManifestChunkSummarization:SafeTokenLimit`, preserving agent critique quality on large estates.
+- **Score:** 88 · **Weight:** 10 · **Contribution:** 8.80 · **Deficiency:** 1.20
+- **Justification:** `CloudProviderAgentPromptComposer` injects AWS/GCP system-prompt addenda and topology user guidance; Topology template v1.2.0 lists cross-cloud `RuntimePlatform` enum arms.
 - **Class:** V1 ready.
 
 ### 4. Differentiability / Defensibility vs Frontier AI
-- **Score:** 92 · **Weight:** 13 · **Contribution:** 11.96 · **Deficiency:** 1.04
-- **Justification:** Phase 3 closes the Tier-1 inventory gap: AWS/GCP ZIP packages use the same `manifest.json` + `resources.json` citation contract as Azure extractor, with scoped ingest audit events.
+- **Score:** 93 · **Weight:** 13 · **Contribution:** 12.09 · **Deficiency:** 0.91
+- **Justification:** Multi-cloud cost augmentation probes AWS Price List and GCP Billing Catalog (when configured) alongside Azure Retail — not wrapper-only illustrative labels.
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
@@ -115,13 +115,13 @@
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
-- **Score:** 92 · **Weight:** 12 · **Contribution:** 11.04 · **Deficiency:** 0.96
-- **Justification:** Inventory ingest validates schema v1 manifests (`accountId` / `projectId`), persists scoped packages, and maps `resources.json` rows to AWS/GCP costing platforms via `FromAwsExtractorInventory` / `FromGcpExtractorInventory`.
+- **Score:** 93 · **Weight:** 12 · **Contribution:** 11.16 · **Deficiency:** 0.84
+- **Justification:** `MultiCloudInfrastructureCostArtifactAugmentationProvider` routes nodes to Azure Retail, AWS Price List, or GCP Catalog with honest summary notes when APIs miss.
 - **Class:** V1 ready.
 
 ### 7. Proof-of-ROI Readiness
-- **Score:** 92 · **Weight:** 9 · **Contribution:** 8.28 · **Deficiency:** 0.72
-- **Justification:** AWS/GCP inventory packages feed illustrative cost nodes with cloud-native product labels; ingest success audit rows include `collectionTimestamp` citation proof points aligned with Azure extractor doctrine.
+- **Score:** 93 · **Weight:** 9 · **Contribution:** 8.37 · **Deficiency:** 0.63
+- **Justification:** Cost-summary artifacts distinguish live public API `PriceSource` from illustrative fallbacks for AWS/GCP rows; summary text never claims Azure Retail for non-Azure targets.
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
@@ -145,11 +145,11 @@
 
 1. **Adoption Friction (Configuration Complexity):** Requires heavy lifting to wire OIDC, SQL, and Azure OpenAI. *Fix:* Invest in deeper automated pre-flight diagnostics for SEs. (Market uncertainty). Tier-2 auto-pull hardening shipped; manual Tier-1 ZIP remains the first-review path.
 2. **Threat of Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Ensure the ArchLucid review workflow integrates seamlessly into CI/CD so the architect doesn't feel double-taxed.
-3. **AWS/GCP Analyze Phase 4 Still Engineering:** Phases 1–3 ship (Terraform + inventory ZIP ingest); live pricing adapters and cloud-aware agent prompts remain open under **§2.19**. *Fix:* Execute [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) Phase 4.
-4. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology. 
-5. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
-6. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
-7. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
+3. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology.
+4. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
+5. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
+6. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
+7. **GCP Billing Catalog API Key:** Live GCP pricing requires optional `GcpBillingCatalog:ApiKey` configuration — not zero-config like Azure Retail. *Fix:* Document wizard/API-key path and fall back honestly when unset.
 8. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
 9. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
 10. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
@@ -364,11 +364,11 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 1 multi-cloud — AWS/GCP Phase 4 (live pricing + agent prompts) per [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) (V1 GA §2.19).
-2. **Batch 2:** Tier 1 adoption — `archlucid pilot init` pre-flight, then Tier-1 extractor first-review operator path.
-3. **Batch 3:** Tier 2 trust + traceability — TB-402 zero GitHub seams, then finding-level evidence deep-links.
-4. **Batch 4:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
-5. **Batch 5:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+1. **Batch 1:** Tier 1 adoption — `archlucid pilot init` pre-flight, then Tier-1 extractor first-review operator path.
+2. **Batch 2:** Tier 2 trust + traceability — TB-402 zero GitHub seams, then finding-level evidence deep-links.
+3. **Batch 3:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
+4. **Batch 4:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+5. **Batch 5:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance
 

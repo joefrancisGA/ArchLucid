@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "cohortName": "architecture-golden-multicloud",
+  "description": "AWS/GCP simulator scenarios for multi-cloud analyze Phase 4 (determinism smoke; baselines optional).",
+  "items": [
+    {
+      "id": "gc-aws-001",
+      "title": "AWS web API with RDS (single region)",
+      "cloudProvider": "Aws",
+      "expectedFindingCategories": ["Topology", "Cost"]
+    },
+    {
+      "id": "gc-aws-002",
+      "title": "AWS serverless ingestion (Lambda + S3)",
+      "cloudProvider": "Aws",
+      "expectedFindingCategories": ["Topology", "Compliance"]
+    },
+    {
+      "id": "gc-gcp-001",
+      "title": "GCP GKE internal API with Cloud SQL",
+      "cloudProvider": "Gcp",
+      "expectedFindingCategories": ["Topology", "Cost"]
+    },
+    {
+      "id": "gc-gcp-002",
+      "title": "GCP Compute Engine lift with Cloud Storage export",
+      "cloudProvider": "Gcp",
+      "expectedFindingCategories": ["Cost", "Compliance"]
+    }
+  ]
+}

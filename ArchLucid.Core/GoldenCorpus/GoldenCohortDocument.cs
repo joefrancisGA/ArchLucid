@@ -96,4 +96,11 @@ public sealed class GoldenCohortItem
         get;
         set;
     } = [];
+
+    [JsonPropertyName("cloudProvider")]
+    public string? CloudProvider
+    {
+        get;
+        set;
+    }
 }

@@ -55,6 +55,8 @@ public static partial class ServiceCollectionExtensions
                 sp.GetService<Persistence.Connections.ISqlConnectionFactory>(),
                 sp.GetRequiredService<IHttpClientFactory>()));
         RegisterAzureArmAndRetailPricesHttpClients(services);
+        RegisterMultiCloudPublicPricingHttpClients(services);
+        services.Configure<GcpBillingCatalogOptions>(configuration.GetSection(GcpBillingCatalogOptions.SectionName));
         services.AddScoped<Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
             Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
