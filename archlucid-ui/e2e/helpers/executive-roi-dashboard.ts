@@ -17,6 +17,12 @@ type ExecutiveRoiExportPayload = {
   savingsByEnvironment?: Array<{ environment?: string; estimatedUsdSavings?: number }>;
 };
 
+function isSuccessfulProxyResponse(candidate: Response): boolean {
+  const status = candidate.status();
+
+  return status >= 200 && status < 400;
+}
+
 function isExecutiveRoiSummaryProxyResponse(candidate: Response): boolean {
   const url = candidate.url();
 
@@ -26,12 +32,15 @@ function isExecutiveRoiSummaryProxyResponse(candidate: Response): boolean {
     !url.includes("/history") &&
     !url.includes("/board-pack") &&
     candidate.request().method() === "GET" &&
-    candidate.ok()
+    isSuccessfulProxyResponse(candidate)
   );
 }
 
 function isExecutiveRoiExportProxyResponse(candidate: Response): boolean {
-  return candidate.url().includes("/v1/roi/executive-summary/export") && candidate.ok();
+  return (
+    candidate.url().includes("/v1/roi/executive-summary/export") &&
+    isSuccessfulProxyResponse(candidate)
+  );
 }
 
 async function expandExecutiveSupportingMetricsIfPresent(page: Page): Promise<void> {
