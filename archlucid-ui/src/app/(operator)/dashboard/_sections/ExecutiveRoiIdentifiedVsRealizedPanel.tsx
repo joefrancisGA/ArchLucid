@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import {
   EXECUTIVE_ROI_IDENTIFIED_PENDING_DESCRIPTION,
   EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/executive-roi-identified-vs-realized";
 import { presentExecutiveEstimatedSavings } from "@/lib/executive-estimated-savings-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { resolveExecutiveHeadlineScopeLabel } from "@/lib/roi-sponsor-scope-labels";
 import {
@@ -44,11 +46,14 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
       <div className="space-y-1">
         <h3
           id="exec-roi-identified-vs-realized-heading"
-          className="text-sm font-medium text-neutral-900 dark:text-neutral-100"
+          className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}
         >
-          Identified vs realized savings
+          <span className="inline-flex items-center gap-1">
+            Identified vs realized savings
+            <RoiDispositionTrainingTooltip />
+          </span>
         </h3>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Do not treat identified potential as realized value until findings are remediated through governance.
         </p>
       </div>
@@ -58,11 +63,11 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           className="rounded-md border border-amber-600/30 bg-al-surface-raised p-3 dark:border-amber-700/40"
           data-testid="exec-roi-identified-pending-card"
         >
-          <div className="text-xs font-medium text-amber-900 dark:text-amber-100">
+          <div className={cn("font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
             {EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL}
           </div>
           <p
-            className="mt-1 text-[11px] leading-snug text-amber-900/90 dark:text-amber-100/90"
+            className={cn("mt-1 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.navHelper)}
             data-testid="exec-roi-headline-scope-description"
           >
             {resolveExecutiveHeadlineScopeLabel(summary)}
@@ -74,17 +79,17 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
             {identifiedSavings.display}
           </div>
           {identifiedSavings.footnote ? (
-            <p className="mt-2 text-xs text-amber-900/90 dark:text-amber-100/90">{identifiedSavings.footnote}</p>
+            <p className={cn("mt-2 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>{identifiedSavings.footnote}</p>
           ) : null}
-          <p className="mt-2 text-xs text-amber-900/90 dark:text-amber-100/90">
+          <p className={cn("mt-2 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
             {EXECUTIVE_ROI_IDENTIFIED_PENDING_DESCRIPTION}
           </p>
-          <div className="mt-2 text-xs text-neutral-700 dark:text-neutral-300" data-testid="exec-roi-pricing-basis">
+          <div className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-pricing-basis">
             {formatExecutiveRoiPricingBasisLabel(summary.savingsPricingBasis, summary.eaDiscountMultiplier)}
           </div>
           {summary.savingsPricingBasisDescription ? (
             <p
-              className="mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+              className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="exec-roi-pricing-basis-description"
             >
               {summary.savingsPricingBasisDescription}
@@ -96,7 +101,7 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           className="rounded-md border border-teal-700/30 bg-al-surface-raised p-3 dark:border-teal-600/40"
           data-testid="exec-roi-realized-committed-card"
         >
-          <div className="text-xs font-medium text-teal-800 dark:text-teal-200">
+          <div className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
             {EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL}
           </div>
           <div
@@ -106,13 +111,13 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
             {realizedSavings.display}
           </div>
           {realizedSavings.footnote ? (
-            <p className="mt-2 text-xs text-teal-900 dark:text-teal-100">{realizedSavings.footnote}</p>
+            <p className={cn("mt-2 text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>{realizedSavings.footnote}</p>
           ) : null}
-          <p className="mt-2 text-xs text-teal-900 dark:text-teal-100">
+          <p className={cn("mt-2 text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
             {EXECUTIVE_ROI_REALIZED_COMMITTED_DESCRIPTION}
           </p>
           {buckets.hasBasisBreakdown && buckets.deferredWaivedAcceptedUsd > 0 ? (
-            <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-excluded-basis">
+            <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="exec-roi-excluded-basis">
               Excluded from realized: deferred, waived, accepted-risk, or not-applicable $
               {buckets.deferredWaivedAcceptedUsd.toFixed(0)}
             </p>
@@ -122,7 +127,7 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
 
       {shouldShowRoiCostEvidenceFreshnessWarning(summary.costEvidenceFreshnessStatus) ? (
         <div
-          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-xs text-al-text-primary dark:border-amber-700/50"
+          className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.helper)}
           role="alert"
           data-testid="exec-roi-cost-evidence-freshness-warning"
         >

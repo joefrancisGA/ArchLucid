@@ -2,11 +2,11 @@
 
 # 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 84.78%**
+**ArchLucid Assessment – (A) Headline Readiness: 84.95%**
 
-Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #5 shipped):** real-mode evidence cadence on RC cuts (G5 Live AI evidence refreshed). Prior: improvement #4 pilot-mode operator shell default; improvement #3 TB-021 Phase B; improvement #2 policy-pack delta demo; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
+Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #6 shipped):** disposition training microcopy on ROI panels — reusable `RoiDispositionTrainingTooltip` on Overview strip and dashboard identified-vs-realized panel (headline vs per-system non-additivity + disposition basis). Prior: improvement #5 real-mode evidence cadence; improvement #4 pilot-mode operator shell default; improvement #3 TB-021 Phase B; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
 
-**Timestamp:** 2026-06-25 (UTC, pilot-mode operator shell default)  
+**Timestamp:** 2026-06-25 (UTC, ROI disposition training microcopy)  
 **Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
 
 **Operator-path evidence inspected:** `artifacts/first-pilot-proof/first-pilot-proof-20260625T100122Z/` (data consistency PASS, command center, go-no-go summary, evidence bundle); committed run `eb81dd4972ad429e8d4e214f9934bfc0` on Simulator @ `http://127.0.0.1:5128`.
@@ -23,17 +23,17 @@ Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procure
 | 4 | Correctness & Evidence Integrity | 86 | 12 | 10.32 | 168 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 130 |
 | 6 | Time-to-Value | 80 | 10 | 8.00 | 200 |
-| 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 108 |
-| 8 | Executive / Operator Comprehension | 81 | 8 | 6.48 | 152 |
+| 7 | Proof-of-ROI Readiness | 89 | 9 | 8.01 | 99 |
+| 8 | Executive / Operator Comprehension | 82 | 8 | 6.56 | 144 |
 | 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 70 |
 | 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
-| **Total** | | | **100** | **84.78%** | |
+| **Total** | | | **100** | **84.95%** | |
 
-**Prior headline (improvement #4 pilot shell):** 84.78% · **Δ 0.00 pp** — real-mode evidence cadence on RC cuts (G5 Live AI evidence refreshed 2026-06-25, 4/4 paths PASS).
+**Prior headline (improvement #5 G5 evidence):** 84.78% · **Δ +0.17 pp** — disposition training tooltip on Executive ROI strip + identified-vs-realized panel (`RoiDispositionTrainingTooltip`, `roi-disposition-training-copy.ts`).
 
 # 3. Diagnostic Scores (non-headline)
 
-These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.78%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
+These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.95%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
 
 | Diagnostic | Value | Calibration |
 |------------|------:|-------------|
@@ -57,7 +57,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 # 5. Executive Summary
 
-**(A) Overall headline readiness:** **84.78%** (+0.00 pp from 84.78%) — **Improvement #5 shipped:** real-mode evidence cadence on RC cuts (G5 Live AI evidence refreshed 2026-06-25, 4/4 paths PASS). Prior: pilot-mode shell default on Overview — Operate clusters stay hidden until first commit (sidebar disclosure no longer bypasses phase 0 pre-commit); `PilotCommandCenterCard` surfaces one state-aware next action; `OperatorHomeExecutiveRoiStrip` shows disposition-aware savings after commit. Phase B faithfulness and policy-pack delta demo remain in place. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
+**(A) Overall headline readiness:** **84.95%** (+0.17 pp from 84.78%) — **Improvement #6 shipped:** disposition training microcopy on ROI panels — inline help on Overview `OperatorHomeExecutiveRoiStrip` and dashboard `ExecutiveRoiIdentifiedVsRealizedPanel` explains disposition-aware headline savings and per-system non-additivity. Prior: real-mode evidence cadence (G5); pilot-mode shell default; Phase B faithfulness; policy-pack delta demo. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
 
 **(B) Procurement / market realism (weight 0):** Honest interim posture (self-assessment, CAIQ/SIG, owner-conducted pen test, DPA template). **CPA SOC 2** and **third-party pen-test publication** remain buyer friction (`V1_DEFERRED.md` §6c — TB-135/TB-136, `(B)` only). No signed design partner, no published reference customer, no live commerce un-hold — all correctly deferred; sales-led motion with TEST-mode trial is coherent.
 
@@ -127,13 +127,13 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 validation artifact shipped; market proof still required.  
 **Outcomes:** 2, 5.
 
-### 5. Executive / Operator Comprehension — 81 · 8 · 6.48 · 152
+### 5. Executive / Operator Comprehension — 82 · 8 · 6.56 · 144
 
-**Justification:** Executive ROI section + disposition labels + board-pack export are strong. **Improvement #4 shipped:** compact `OperatorHomeExecutiveRoiStrip` on Overview after first commit (headline scope label + link to `/dashboard`); dynamic next-best-action replaces static “Start review” once progress exists. Policy-pack delta banner on `/policy-packs` remains. Residual cognitive load: Operate breadth after unlock and large settings surface.
+**Justification:** Executive ROI section + disposition labels + board-pack export are strong. **Improvement #4 shipped:** compact `OperatorHomeExecutiveRoiStrip` on Overview after first commit. **Improvement #6 shipped (2026-06-25):** `RoiDispositionTrainingTooltip` on Overview strip and dashboard identified-vs-realized panel — inline help explains disposition-aware headline savings and that per-system rows do not sum to the portfolio headline. Policy-pack delta banner on `/policy-packs` remains. Residual cognitive load: Operate breadth after unlock and large settings surface.
 
 **Tradeoffs:** Enterprise completeness vs pilot simplicity.
 
-**Recommendations:** Disposition tooltip on ROI panel (improvement #6); sponsor-mode executive shell as default handoff after first export.
+**Recommendations:** Sponsor-mode executive shell as default handoff after first export (improvement #7 guardrails alignment).
 
 **Classification:** V1 UI / V1.1 IA (TB-399 URL cleanup).  
 **Outcomes:** 4, 3.
@@ -172,13 +172,13 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 ops + docs.  
 **Outcomes:** 3, 4.
 
-### 9. Proof-of-ROI Readiness — 88 · 9 · 7.92 · 108
+### 9. Proof-of-ROI Readiness — 89 · 9 · 8.01 · 99
 
-**Justification:** Layered ROI model with explicit scopes (`V1_SCOPE.md` §2.8); disposition-aware headline; dedup by `FindingId`; board-pack delegates to same service — credible **if** dispositions maintained.
+**Justification:** Layered ROI model with explicit scopes (`V1_SCOPE.md` §2.8); disposition-aware headline; dedup by `FindingId`; board-pack delegates to same service — credible **if** dispositions maintained. **Improvement #6 shipped (2026-06-25):** disposition training tooltip surfaces headline vs per-system non-additivity and disposition basis at the point of reading savings.
 
 **Tradeoffs:** ROI credibility depends on operator discipline on dispositions and evidence quality.
 
-**Recommendations:** Train pilots on disposition semantics; show headline vs per-system non-additivity in UI tooltip (already documented — ensure visible).
+**Recommendations:** Train pilots on disposition semantics in kickoff; tooltip now visible on ROI surfaces — reinforce in CS scripts.
 
 **Classification:** V1.  
 **Outcomes:** 4, 1.
@@ -434,7 +434,11 @@ Residual: TB-399 Operate IA; executive shell as default sponsor handoff; cohort-
 - **Evidence:** `artifacts/release/real-llm-evidence-gate.json` (PASS, 2026-06-25, v2 schema, 4/4 agent paths, `executionMode=real`).
 - **Classification:** V1 ops shipped.
 
-**6. Disposition training microcopy on ROI panel** — Tooltip explaining headline vs per-system non-additivity and disposition basis. · V1 · Design 5 / Market 5.
+**6. Disposition training microcopy on ROI panel — SHIPPED 2026-06-25**
+- **Why:** Garbage dispositions and non-additive headline math erode sponsor trust without inline training.
+- **Impact:** Executive comprehension, proof-of-ROI readiness.
+- **Evidence:** `roi-disposition-training-copy.ts`, `RoiDispositionTrainingTooltip`, wired on `OperatorHomeExecutiveRoiStrip` + `ExecutiveRoiIdentifiedVsRealizedPanel`, Vitest coverage.
+- **Classification:** V1 UI shipped.
 
 **7. Align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval** — Note Graph-RAG/agentic code exists; guardrails apply to **buyer-facing magic claims**, not code deletion. · V1 docs · Design 4 / Market 2.
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
 import { Button } from "@/components/ui/button";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
@@ -117,7 +118,10 @@ export function OperatorHomeExecutiveRoiStrip(): React.JSX.Element | null {
       <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", OPERATOR_LAYOUT.inlineGap)}>
         <div className="min-w-0 space-y-1">
           <h2 id="operator-home-roi-strip-heading" className={cn("m-0", OPERATOR_TYPE_SCALE.title)}>
-            Executive ROI
+            <span className="inline-flex items-center gap-1">
+              Executive ROI
+              <RoiDispositionTrainingTooltip />
+            </span>
           </h2>
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-al-text-secondary")}>
             <span className="font-medium text-al-text-primary">{savingsLabel}</span>
