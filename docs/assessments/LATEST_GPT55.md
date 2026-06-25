@@ -4,9 +4,9 @@
 
 **ArchLucid Assessment – (A) Headline Readiness: 84.95%**
 
-Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #6 shipped):** disposition training microcopy on ROI panels — reusable `RoiDispositionTrainingTooltip` on Overview strip and dashboard identified-vs-realized panel (headline vs per-system non-additivity + disposition basis). Prior: improvement #5 real-mode evidence cadence; improvement #4 pilot-mode operator shell default; improvement #3 TB-021 Phase B; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
+Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #7 shipped):** align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval (Graph-RAG/agentic code exists; guardrails apply to buyer claims). Prior: improvement #6 disposition training microcopy; improvement #5 real-mode evidence cadence; improvement #4 pilot-mode operator shell default; improvement #3 TB-021 Phase B; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
 
-**Timestamp:** 2026-06-25 (UTC, ROI disposition training microcopy)  
+**Timestamp:** 2026-06-25 (UTC, V1_MAGIC_GUARDRAILS alignment)  
 **Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
 
 **Operator-path evidence inspected:** `artifacts/first-pilot-proof/first-pilot-proof-20260625T100122Z/` (data consistency PASS, command center, go-no-go summary, evidence bundle); committed run `eb81dd4972ad429e8d4e214f9934bfc0` on Simulator @ `http://127.0.0.1:5128`.
@@ -29,7 +29,7 @@ Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procure
 | 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
 | **Total** | | | **100** | **84.95%** | |
 
-**Prior headline (improvement #5 G5 evidence):** 84.78% · **Δ +0.17 pp** — disposition training tooltip on Executive ROI strip + identified-vs-realized panel (`RoiDispositionTrainingTooltip`, `roi-disposition-training-copy.ts`).
+**Prior headline (improvement #6 ROI tooltip):** 84.95% · **Δ 0.00 pp** — align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval (Graph-RAG/agentic code exists; guardrails apply to buyer claims).
 
 # 3. Diagnostic Scores (non-headline)
 
@@ -57,7 +57,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 # 5. Executive Summary
 
-**(A) Overall headline readiness:** **84.95%** (+0.17 pp from 84.78%) — **Improvement #6 shipped:** disposition training microcopy on ROI panels — inline help on Overview `OperatorHomeExecutiveRoiStrip` and dashboard `ExecutiveRoiIdentifiedVsRealizedPanel` explains disposition-aware headline savings and per-system non-additivity. Prior: real-mode evidence cadence (G5); pilot-mode shell default; Phase B faithfulness; policy-pack delta demo. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
+**(A) Overall headline readiness:** **84.95%** (+0.00 pp from 84.95%) — **Improvement #7 shipped:** align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval (Graph-RAG/agentic code exists; guardrails apply to buyer claims). Prior: disposition training microcopy (ROI); real-mode evidence cadence (G5); pilot-mode shell default; Phase B faithfulness; policy-pack delta demo. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
 
 **(B) Procurement / market realism (weight 0):** Honest interim posture (self-assessment, CAIQ/SIG, owner-conducted pen test, DPA template). **CPA SOC 2** and **third-party pen-test publication** remain buyer friction (`V1_DEFERRED.md` §6c — TB-135/TB-136, `(B)` only). No signed design partner, no published reference customer, no live commerce un-hold — all correctly deferred; sales-led motion with TEST-mode trial is coherent.
 
@@ -152,11 +152,11 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 ### 7. AI / Agent Readiness — 87 · 10 · 8.70 · 130
 
-**Justification:** Real/simulator separation; `AuthorityRunOrchestrator` in Application (remediated); retrieval ships (`ArchLucid.Retrieval`, Ask, outbox ADR 0004). **Improvement #3 shipped:** Phase B LLM faithfulness judge enforces per-trace outcomes on hosted real-mode paths; pairs with Phase A deterministic overlap checker and optional embedding scorer. **TB-021 tail:** IR eval (RAG-V1-011), `V1_MAGIC_GUARDRAILS.md` documentation tension on buyer-facing magic claims.
+**Justification:** Real/simulator separation; `AuthorityRunOrchestrator` in Application (remediated); retrieval ships (`ArchLucid.Retrieval`, Ask, outbox ADR 0004). **Improvement #3 shipped:** Phase B LLM faithfulness judge enforces per-trace outcomes on hosted real-mode paths; pairs with Phase A deterministic overlap checker and optional embedding scorer. **Improvement #7 shipped (2026-06-25):** `V1_MAGIC_GUARDRAILS.md` aligned with shipped retrieval (Graph-RAG/agentic code exists; guardrails apply to buyer claims). **TB-021 tail:** IR eval (RAG-V1-011).
 
 **Tradeoffs:** Advanced retrieval increases cost/latency; simulator hides real-mode variance in CI; LLM judge adds latency/budget on real runs.
 
-**Recommendations:** Align guardrails doc with shipped retrieval; ratchet reject floor after nightly soak.
+**Recommendations:** Ratchet reject floor after nightly soak.
 
 **Classification:** V1 foundation + TB-021 IR tail.  
 **Outcomes:** 2, 5.
@@ -440,7 +440,11 @@ Residual: TB-399 Operate IA; executive shell as default sponsor handoff; cohort-
 - **Evidence:** `roi-disposition-training-copy.ts`, `RoiDispositionTrainingTooltip`, wired on `OperatorHomeExecutiveRoiStrip` + `ExecutiveRoiIdentifiedVsRealizedPanel`, Vitest coverage.
 - **Classification:** V1 UI shipped.
 
-**7. Align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval** — Note Graph-RAG/agentic code exists; guardrails apply to **buyer-facing magic claims**, not code deletion. · V1 docs · Design 4 / Market 2.
+**7. Align `V1_MAGIC_GUARDRAILS.md` with shipped retrieval — SHIPPED 2026-06-25**
+- **Why:** Prevents internal confusion about shipped vs deferred capabilities while maintaining strict marketing boundaries.
+- **Impact:** AI / Agent Readiness, organizational alignment.
+- **Evidence:** `V1_MAGIC_GUARDRAILS.md` reflects `GraphRagNeighborExpander` and `AgenticRetrievalQueryExpander` as shipped but bounded.
+- **Classification:** V1 docs shipped.
 
 **8. Enable ITSM native create in configured pilot tenants only** — Document toggle `Integrations:Itsm:NativeEnabled=true`; do not expand connector scope. · V1 config · Design 3 / Market 5.
 
