@@ -60,7 +60,8 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
     hasCommittedArchitectureReview,
   );
   const reviewNavExpanded = operateNavUnlockPhase >= 1 || navExpanded;
-  const reviewNavAdvanced = operateNavUnlockPhase >= 1 || navAdvanced;
+  // Advanced-tier routes stay behind explicit sidebar disclosure even after Operate unlock phase 2.
+  const reviewNavAdvanced = navAdvanced;
   const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;
   const navGateHasCommittedArchitectureReview =
     effectiveHasCommittedArchitectureReview || effectiveOperateUnlockPhase >= 1;
