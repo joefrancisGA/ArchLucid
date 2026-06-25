@@ -11,8 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getIanaTimeZoneSelectOptions, normalizeIanaTimeZoneForSelect } from "@/lib/iana-time-zone-select";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { cn } from "@/lib/utils";
 
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
@@ -45,14 +47,16 @@ const HOUR_OF_DAY_OPTIONS = Array.from({ length: 24 }, (_, i) => ({
   label: formatHour(i),
 }));
 
-const SELECT_CLASS =
-  "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-600";
+const SELECT_CLASS = cn(
+  "flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-600",
+  OPERATOR_TYPOGRAPHY.body,
+);
 
 type SectionHeadingProps = { readonly children: ReactNode };
 
 function SectionHeading({ children }: SectionHeadingProps) {
   return (
-    <h2 className="border-b border-neutral-200 pb-1 text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+    <h2 className={cn("border-b border-neutral-200 pb-1 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
       {children}
     </h2>
   );
@@ -70,8 +74,8 @@ export function TenantSettingsPageView(props: Props) {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="tenant-settings-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Tenant settings</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant settings</h1>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
           Workspace defaults and operator-facing preferences for this tenant.
         </p>
       </div>
@@ -80,14 +84,14 @@ export function TenantSettingsPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tenant name</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Tenant name</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1 text-sm text-neutral-600 dark:text-neutral-300">
+        <CardContent className={cn("space-y-1", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
           <p className="m-0">Organization name is managed by your identity provider.</p>
           {m.currentPrincipalName != null ? (
-            <p className="m-0 text-xs text-neutral-500">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               Signed in as:{" "}
-              <span className="font-medium text-neutral-700 dark:text-neutral-300">{m.currentPrincipalName}</span>
+              <span className={cn(OPERATOR_TYPOGRAPHY.body, "font-medium text-al-text-primary")}>{m.currentPrincipalName}</span>
             </p>
           ) : null}
         </CardContent>

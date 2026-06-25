@@ -6,6 +6,8 @@ import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
 import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const ONBOARDING_OPTIONAL_SETUP_STORAGE_KEY = "archlucid_onboarding_disclosure_optional_setup_v1";
 const ONBOARDING_CLI_TOOLS_STORAGE_KEY = "archlucid_onboarding_disclosure_cli_tools_v1";
@@ -23,10 +25,10 @@ export function OnboardingOptionalSetupSection() {
     >
       <div className="space-y-6">
         <section aria-labelledby="onboarding-roi-baseline-setup-heading" data-testid="onboarding-roi-baseline-setup">
-          <h3 id="onboarding-roi-baseline-setup-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+          <h3 id="onboarding-roi-baseline-setup-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>
             ROI baseline
           </h3>
-          <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">
+          <p className={cn("m-0 mt-1 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
             Add baseline assumptions so Portfolio overview can show estimated savings and sponsor ROI.
           </p>
           <div className="mt-2">

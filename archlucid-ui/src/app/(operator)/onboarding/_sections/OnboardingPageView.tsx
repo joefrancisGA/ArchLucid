@@ -7,6 +7,8 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
@@ -27,10 +29,10 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
   return (
     <OperatorPageContainer variant="reading" className="space-y-8">
       <header className="max-w-prose space-y-3" data-testid="onboarding-hero">
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
+        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>
           Onboarding
         </h1>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
           Create your first review package. Complete one architecture review from intake to committed package.
         </p>
         <div className="flex flex-wrap items-center gap-2">
@@ -41,9 +43,9 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
             <Link href={sampleReviewHref}>Open sample review</Link>
           </Button>
         </div>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           For the full workspace overview, go to{" "}
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/">
+          <Link className={OPERATOR_LINK.inline} href="/">
             {OPERATOR_NAV_LINK_LABELS.home}
           </Link>
           .
@@ -53,10 +55,10 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
       {fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} /> : null}
 
       <section aria-labelledby="onboarding-progress-heading" className="space-y-3" data-testid="onboarding-progress">
-        <h2 id="onboarding-progress-heading" className="m-0 text-base font-semibold text-al-text-primary">
+        <h2 id="onboarding-progress-heading" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
           Progress
         </h2>
-        <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
           Follow this guided path to create and commit your first review package.
         </p>
         <UnifiedFirstPilotProgressPanel checklistVariant="full" embedded checklistOnly />

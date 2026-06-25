@@ -8,7 +8,7 @@ import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadB
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer-polish-copy";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import {
   filterHelpCenterTopicsByQuery,
@@ -53,19 +53,19 @@ export function HelpProductGuide() {
     <div className={OPERATOR_LAYOUT.sectionStack} aria-labelledby="help-product-guide-heading">
       <h2
         id="help-product-guide-heading"
-        className="m-0 text-sm font-semibold text-al-text-primary"
+        className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}
       >
         Using ArchLucid
       </h2>
 
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-base">Getting started</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Getting started</CardTitle>
         </CardHeader>
-        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
+        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
+              <Link className={OPERATOR_LINK.inline} href="/reviews/new">
                 Start a review
               </Link>{" "}
               from a brief, diagram, document, or cloud evidence.
@@ -78,11 +78,11 @@ export function HelpProductGuide() {
             </li>
             <li>
               Share the{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
+              <Link className={OPERATOR_LINK.inline} href={getShowcaseExecutiveHref()}>
                 executive summary
               </Link>{" "}
               or{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/value-report">
+              <Link className={OPERATOR_LINK.inline} href="/value-report">
                 value report
               </Link>
               .
@@ -93,12 +93,12 @@ export function HelpProductGuide() {
 
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-base">Working with a completed review package</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Working with a completed review package</CardTitle>
         </CardHeader>
-        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
+        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
+              <Link className={OPERATOR_LINK.inline} href={getShowcaseExecutiveHref()}>
                 {BUYER_HELP_EXECUTIVE_STEP_CTA}
               </Link>{" "}
               — start with the business decision and monitored risks.
@@ -108,25 +108,25 @@ export function HelpProductGuide() {
             </li>
             <li>
               Follow the{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={inAppHelpHref("evidence-trail")}>
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("evidence-trail")}>
                 evidence trail
               </Link>{" "}
               to see how findings tie to decisions and artifacts.
             </li>
             <li>
               Review{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={inAppHelpHref("governance-approval")}>
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
                 governance approval
               </Link>{" "}
               and the{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={inAppHelpHref("audit-trail")}>
+              <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>
                 audit trail
               </Link>{" "}
               for accountability.
             </li>
             <li>
               Use{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/ask">
+              <Link className={OPERATOR_LINK.inline} href="/ask">
                 Ask
               </Link>{" "}
               for evidence-backed questions in the context of the active review package.
@@ -135,21 +135,21 @@ export function HelpProductGuide() {
         </CardContent>
       </Card>
 
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
         ArchLucid turns an architecture review into a governed package: decisions, findings, artifacts, and an evidence
         trail you can export for diligence.
       </p>
 
       <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-base">Troubleshooting</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Troubleshooting</CardTitle>
         </CardHeader>
-        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, "text-sm text-neutral-800 dark:text-neutral-200")}>
-          <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">If something fails:</p>
+        <CardContent className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
+          <p className={`m-0 ${OPERATOR_TYPOGRAPHY.cardTitle}`}>If something fails:</p>
           <ol className="m-0 list-decimal space-y-2 pl-5">
             <li>Refresh once.</li>
             <li>Check whether your session expired — return to{" "}
-              <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+              <Link className={OPERATOR_LINK.inline} href="/auth/signin">
                 Sign in
               </Link>{" "}
               if needed.
@@ -160,7 +160,7 @@ export function HelpProductGuide() {
           </ol>
           <SupportBundleDownloadButton showAdminLink={isAdmin} />
           <p className="m-0">
-            <Link className="text-teal-700 underline dark:text-teal-300" href={inAppHelpHref("troubleshooting")}>
+            <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("troubleshooting")}>
               Open full troubleshooting guide
             </Link>
           </p>
@@ -170,10 +170,10 @@ export function HelpProductGuide() {
       <section aria-labelledby="help-in-app-topics" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h3 id="help-in-app-topics" className="m-0 text-sm font-semibold text-al-text-primary">
+            <h3 id="help-in-app-topics" className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
               In-app guides
             </h3>
-            <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={`m-0 mt-1 ${OPERATOR_TYPOGRAPHY.helper}`}>
               Start with common tasks. Expand for admin, integration, and system-administration topics.
             </p>
           </div>
@@ -190,7 +190,7 @@ export function HelpProductGuide() {
           </Button>
         </div>
 
-        <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="help-topic-search">
+        <label className={cn("block", OPERATOR_TYPOGRAPHY.navLabel, "text-al-text-primary")} htmlFor="help-topic-search">
           Search guides
         </label>
         <input
@@ -201,7 +201,10 @@ export function HelpProductGuide() {
             setTopicQuery(event.target.value);
           }}
           placeholder="Filter guides by title or summary"
-          className="w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950"
+          className={cn(
+            "w-full max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 dark:border-neutral-700 dark:bg-neutral-950",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           autoComplete="off"
         />
 
@@ -225,7 +228,7 @@ export function HelpProductGuide() {
         ) : null}
 
         {filteredTopics.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No guides match your search.</p>
+          <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>No guides match your search.</p>
         ) : null}
       </section>
     </div>
@@ -244,7 +247,7 @@ function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
 
   return (
     <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
-      <h4 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+      <h4 className={`m-0 ${OPERATOR_NAV_GROUP_LABEL}`}>
         {heading}
       </h4>
       <ul className="m-0 grid gap-2 sm:grid-cols-2">
@@ -255,10 +258,13 @@ function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
             <li key={topic.slug}>
               <Link
                 href={inAppHelpHref(topic.slug)}
-                className="block rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm hover:border-teal-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-teal-800"
+                className={cn(
+                  "block rounded-md border border-neutral-200 bg-white px-3 py-2 shadow-sm hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
+                  OPERATOR_TYPOGRAPHY.body,
+                )}
               >
-                <span className="font-medium text-teal-800 dark:text-teal-300">{display.title}</span>
-                <span className="mt-1 block text-neutral-600 dark:text-neutral-400">{display.summary}</span>
+                <span className={OPERATOR_TYPOGRAPHY.cardTitle}>{display.title}</span>
+                <span className={cn("mt-1 block", OPERATOR_TYPOGRAPHY.helper)}>{display.summary}</span>
               </Link>
             </li>
           );

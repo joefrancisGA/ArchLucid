@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type HelpTabsShellProps = {
@@ -51,7 +52,7 @@ export function HelpTabsShell({ guide, docs }: HelpTabsShellProps) {
         {guide}
       </div>
       <div role="tabpanel" aria-labelledby="help-tab-docs" hidden={tab !== "docs"}>
-        <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mb-4", OPERATOR_TYPOGRAPHY.helper)}>
           Repository and reference topics. Use the Product guide tab for day-one tasks first.
         </p>
         {docs}

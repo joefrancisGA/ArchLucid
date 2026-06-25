@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { listTier2Connections, Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Tier2ConnectionWizard } from "./Tier2ConnectionWizard";
 
@@ -53,9 +55,9 @@ export function CloudConnectionsPageClient() {
     <div className="w-full max-w-3xl space-y-6" data-testid="cloud-connections-page">
       <div>
         <div className="flex items-start gap-2">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Cloud connections</h1>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Cloud connections</h1>
         </div>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
           Cloud connections are optional. They help ArchLucid use production-faithful evidence when available, but reviews
           can also be created from briefs, diagrams, documents, and uploaded evidence.
         </p>
@@ -64,7 +66,7 @@ export function CloudConnectionsPageClient() {
       <section className="space-y-4" aria-labelledby="cloud-connections-available-heading">
         <h2
           id="cloud-connections-available-heading"
-          className="text-base font-semibold text-neutral-900 dark:text-neutral-100"
+          className={OPERATOR_TYPOGRAPHY.sectionTitle}
         >
           Available connections
         </h2>
@@ -73,7 +75,7 @@ export function CloudConnectionsPageClient() {
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
               <CardTitle>Connect Azure</CardTitle>
-              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+              <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge, "font-semibold text-al-text-secondary")}>
                 Evidence tier: Cloud-connected
               </span>
             </div>
@@ -89,13 +91,13 @@ export function CloudConnectionsPageClient() {
       </section>
 
       {loadError ? (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
           {loadError}
         </p>
       ) : null}
 
       {isLoading ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading saved connections…</p>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>Loading saved connections…</p>
       ) : null}
 
       {!isLoading && connections.length > 0 ? (
@@ -107,7 +109,7 @@ export function CloudConnectionsPageClient() {
             <div className="space-y-4">
               {connections.map((conn) => (
                 <div key={conn.connectionId} className="rounded-md border p-4">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className={cn("grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.body)}>
                     <div className="text-muted-foreground">Tenant ID:</div>
                     <div>{conn.tenantId}</div>
                     <div className="text-muted-foreground">Client ID:</div>

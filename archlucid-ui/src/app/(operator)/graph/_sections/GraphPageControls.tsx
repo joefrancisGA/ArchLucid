@@ -16,6 +16,7 @@ import {
   OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT,
 } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import {
@@ -120,7 +121,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
                 {loading ? "Loading…" : BUYER_EVIDENCE_TRAIL_LOAD_BUTTON}
               </Button>
               {showSelectReviewHint ? (
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   {OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT}
                 </p>
               ) : null}
@@ -181,7 +182,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
 
       {!(demoUi || buyerPolishedShell) && runTrim.length > 0 ? (
         <div className="min-w-[10rem] lg:w-auto">
-          <Label htmlFor="graph-mode-select" className="text-[13px] font-semibold">
+          <Label htmlFor="graph-mode-select" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             {OPERATOR_GRAPH_SCOPE_LABEL}
           </Label>
           <select
@@ -189,7 +190,8 @@ export function GraphPageControls(props: GraphPageControlsProps) {
             value={mode}
             onChange={(e) => onModeChange(e.target.value as GraphMode)}
             className={cn(
-              "mt-1.5 block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+              "mt-1.5 block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+              OPERATOR_TYPOGRAPHY.body,
               "lg:w-[220px]",
             )}
           >
@@ -221,7 +223,7 @@ export function GraphPageControls(props: GraphPageControlsProps) {
             {loadButtonLabel}
           </Button>
           {showSelectReviewHint ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
               {OPERATOR_GRAPH_SELECT_REVIEW_FIRST_HINT}
             </p>
           ) : null}

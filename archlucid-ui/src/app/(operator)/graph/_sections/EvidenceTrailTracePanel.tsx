@@ -8,6 +8,8 @@ import { getRunExplanationSummary } from "@/lib/api/architecture-runs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-summary-derive";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type EvidenceTrailTracePanelProps = {
   runId: string;
@@ -73,7 +75,7 @@ export function EvidenceTrailTracePanel(props: EvidenceTrailTracePanelProps) {
     return (
       <OperatorLoadingNotice>
         <strong>Loading trace table</strong>
-        <p className="mt-2 text-sm">Collecting finding provenance rows for this review package.</p>
+        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Collecting finding provenance rows for this review package.</p>
       </OperatorLoadingNotice>
     );
   }
@@ -81,18 +83,21 @@ export function EvidenceTrailTracePanel(props: EvidenceTrailTracePanelProps) {
   if (failure !== null && rows.length === 0) {
     return (
       <div
-        className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm dark:border-neutral-700 dark:bg-neutral-900/40"
+        className={cn(
+          "rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         role="status"
       >
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Trace table unavailable</p>
-        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Trace table unavailable</p>
+        <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
           Explainability metadata could not be loaded for this review. Try graph view or open the review package
           directly.
         </p>
         {onOpenGraphView !== undefined ? (
           <button
             type="button"
-            className="mt-3 text-sm font-medium text-teal-800 underline dark:text-teal-300"
+            className={cn("mt-3", OPERATOR_LINK.step)}
             onClick={onOpenGraphView}
           >
             Open graph view

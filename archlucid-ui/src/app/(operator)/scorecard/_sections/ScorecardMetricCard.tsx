@@ -1,3 +1,6 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 type ScorecardMetricCardProps = {
   hint?: string;
   provenance?: string;
@@ -8,17 +11,17 @@ type ScorecardMetricCardProps = {
 export function ScorecardMetricCard({ hint, provenance, title, value }: ScorecardMetricCardProps) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{title}</p>
-      <p className="mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+      <p className={cn(OPERATOR_TYPOGRAPHY.tab, "uppercase tracking-wide text-al-text-secondary")}>{title}</p>
+      <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
         {value}
       </p>
 
       {hint ? (
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{hint}</p>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{hint}</p>
       ) : null}
 
       {provenance ? (
-        <p className="mt-1 text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+        <p className={cn("mt-1 uppercase tracking-wide", OPERATOR_TYPOGRAPHY.micro, "text-al-text-secondary")}>
           Source: {provenance}
         </p>
       ) : null}

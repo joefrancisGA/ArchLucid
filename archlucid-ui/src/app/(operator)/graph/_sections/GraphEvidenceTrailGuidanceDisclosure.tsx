@@ -6,6 +6,7 @@ import {
   BUYER_GRAPH_WHAT_THIS_PROVES,
 } from "@/lib/buyer-polish-copy";
 import { mergeLayerGuidanceForGraphDisclosure } from "@/lib/layer-guidance";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { cn } from "@/lib/utils";
 
@@ -26,13 +27,13 @@ export function GraphEvidenceTrailGuidanceDisclosure(props: GraphEvidenceTrailGu
       )}
       data-testid="evidence-trail-guidance-disclosure"
     >
-      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+      <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE}
       </summary>
-      <div className="space-y-2 border-t border-neutral-200 px-3 py-2 text-sm leading-relaxed text-neutral-700 dark:border-neutral-700 dark:text-neutral-300">
+      <div className={cn("space-y-2 border-t border-neutral-200 px-3 py-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">{BUYER_EVIDENCE_TRAIL_LAYER_DISCLOSURE_LEAD}</p>
         <p className="m-0">{block.useWhen}</p>
-        <p className="m-0 text-neutral-600 dark:text-neutral-400">{BUYER_GRAPH_WHAT_THIS_PROVES}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_GRAPH_WHAT_THIS_PROVES}</p>
       </div>
     </details>
   );

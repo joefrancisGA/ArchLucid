@@ -6,7 +6,7 @@ import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type RenderInlineOptions = {
@@ -107,8 +107,7 @@ function renderInline(text: string, keyPrefix: string, options: RenderInlineOpti
     const isInternalOperatorRoute =
       options.linkMode === "help" && href.startsWith("/") && !href.startsWith("//") && !isInAppHelp;
     const safe = isExternal || isInAppHelp || isSamePageAnchor || isInternalOperatorRoute;
-    const inAppLinkClassName =
-      "rounded-sm text-teal-800 underline decoration-teal-700/40 underline-offset-2 hover:text-teal-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 dark:text-teal-300 dark:hover:text-teal-100 dark:focus-visible:outline-teal-400";
+    const inAppLinkClassName = cn(OPERATOR_LINK.inline, "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]");
 
     if (!safe) {
       nodes.push(<span key={`${keyPrefix}-unsafe-${i}`}>{label}</span>);
@@ -220,10 +219,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
   const isHelp = props.presentation === "help";
   const bodyTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-neutral-800 dark:text-neutral-200";
+  const h2Class = isHelp
+    ? cn("scroll-mt-24 mt-8", OPERATOR_TYPOGRAPHY.sectionTitle)
+    : "scroll-mt-24 mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50";
   const h3Class = isHelp
-    ? "scroll-mt-24 mt-6 text-base font-semibold text-al-text-primary"
+    ? cn("scroll-mt-24 mt-6", OPERATOR_TYPOGRAPHY.cardTitle)
     : "scroll-mt-24 mt-4 text-sm font-semibold text-al-text-primary";
-  const tableTextClass = isHelp ? "text-sm" : "text-sm";
+  const tableTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-sm";
   const renderOptions: RenderInlineOptions = { linkMode: isHelp ? "help" : "external-only" };
   const markdownBody =
     isHelp
@@ -276,7 +278,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
           key={`details-${key}`}
           className="my-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
         >
-          <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <summary className={cn("cursor-pointer select-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {summary}
           </summary>
           <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
@@ -336,7 +338,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         <h2
           key={`h2-${key}`}
           id={sectionId}
-          className="scroll-mt-24 mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+          className={h2Class}
         >
           {renderInline(title, `h2-${key}`, renderOptions)}
         </h2>,
@@ -355,7 +357,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
       const title = line.slice(2).trim();
       blocks.push(
-        <h1 key={`h1-${key}`} className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <h1 key={`h1-${key}`} className={cn("mt-2", OPERATOR_TYPOGRAPHY.pageTitle)}>
           {renderInline(title, `h1-${key}`, renderOptions)}
         </h1>,
       );
@@ -399,7 +401,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         blocks.push(
           <blockquote
             key={`bq-${key}`}
-            className="my-4 border-l-4 border-neutral-300 pl-4 text-sm italic text-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+            className={cn("my-4 border-l-4 border-neutral-300 pl-4 italic text-al-text-secondary dark:border-neutral-600", OPERATOR_TYPOGRAPHY.body)}
           >
             <p className="m-0 leading-relaxed">{renderInline(body, `bq-${key}`, renderOptions)}</p>
           </blockquote>,

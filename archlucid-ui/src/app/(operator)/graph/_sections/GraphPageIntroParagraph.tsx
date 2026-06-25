@@ -1,4 +1,5 @@
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type GraphPageIntroParagraphProps = {
   demoUi: boolean;
@@ -10,10 +11,10 @@ export function GraphPageIntroParagraph(props: GraphPageIntroParagraphProps) {
   const { demoUi, buyerPolishedShell, leadIntro } = props;
 
   return (
-    <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+    <p className={`m-0 max-w-prose ${OPERATOR_TYPOGRAPHY.helper}`}>
       {leadIntro}{" "}
       {!(demoUi || buyerPolishedShell) ? (
-        <span className="text-neutral-600 dark:text-neutral-400">
+        <span className="text-al-text-secondary">
           Review trail mode emphasizes <GlossaryTooltip termKey="provenance">provenance</GlossaryTooltip> and how the
           package advances; architecture mode centers the{" "}
           <GlossaryTooltip termKey="knowledge_graph">knowledge graph</GlossaryTooltip> built from the captured context.

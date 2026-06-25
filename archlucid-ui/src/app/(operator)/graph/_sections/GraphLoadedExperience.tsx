@@ -22,6 +22,7 @@ import {
   safeGraphExportFilenameSegment,
 } from "@/lib/graph-view-model-export";
 import { graphViewModelFilteredByNodeType } from "@/lib/graph-view-model-type-filter";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { EvidenceTrailPresentationView, GraphMode } from "@/app/(operator)/graph/_sections/graph-page-helpers";
 import { GraphInteractiveCanvas } from "@/app/(operator)/graph/_sections/GraphInteractiveCanvas";
@@ -88,10 +89,10 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           ) : null}
           {buyerGraphView && graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
             <div>
-              <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mb-1.5", OPERATOR_NAV_GROUP_LABEL)}>
                 What this graph proves
               </p>
-              <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+              <p className={cn("m-0 max-w-prose", OPERATOR_TYPOGRAPHY.body)}>
                 {BUYER_GRAPH_WHAT_THIS_PROVES}
               </p>
             </div>
@@ -115,7 +116,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
                 </select>
               </label>
             ) : null}
-            <span className="text-neutral-500 dark:text-neutral-400 text-sm">
+            <span className={OPERATOR_TYPOGRAPHY.helper}>
               {buyerPolishedShell
                 ? graphInteractiveReady && !loading
                   ? `${graph.nodes.length} linked evidence and decision records in this view`
@@ -199,7 +200,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           </div>
           {!buyerPolishedShell ? (
             <div className={cn("mb-3", graphMainColumnMaxClass)}>
-              <p className="m-0 mb-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">Legend</p>
+              <p className={cn("m-0 mb-1.5", OPERATOR_TYPOGRAPHY.tab, "text-al-text-secondary")}>Legend</p>
               {graphLooksLikeCoordinatorProvenanceTrail(graph) && demoUi ? (
                 <GraphReviewTrailLegendChips />
               ) : (
@@ -228,7 +229,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
           />
           {buyerPolishedShell && buyerGraphView ? (
             <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
-              <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.tab, "text-al-text-secondary")}>Next</p>
               <Button type="button" asChild variant="default" size="sm">
                 <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
                   {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
@@ -239,7 +240,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         </>
       )}
       {demoUi && !buyerPolishedShell ? (
-        <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-4 max-w-prose", OPERATOR_TYPOGRAPHY.helper)}>
           Use the controls above to switch reviews or exploration scope — the Claims Intake sample loads this graph
           automatically.
         </p>

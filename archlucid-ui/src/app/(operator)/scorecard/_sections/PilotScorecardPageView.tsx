@@ -2,6 +2,8 @@
 
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ScorecardMetricCard } from "./ScorecardMetricCard";
 import type { UsePilotScorecardPageModel } from "./use-pilot-scorecard-page";
@@ -31,8 +33,8 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     <div className="w-full max-w-[1440px] space-y-8 px-4 py-8">
       <ValueReportOutcomesNav />
       <header>
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.reviewScorecard}</h1>
-        <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{BUYER_TERMINOLOGY.reviewScorecard}</h1>
+        <p className={cn("mt-2 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
           Cumulative tenant metrics from committed reviews, durable baselines for ROI modeling (
           <span className="font-mono">docs/go-to-market/ROI_MODEL.md</span>), and estimated review-time savings when
           baselines are complete.
@@ -42,18 +44,21 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       {error ? (
         <div
           role="alert"
-          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
         >
           {error}
         </div>
       ) : null}
 
-      {data === null && !error ? <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p> : null}
+      {data === null && !error ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading…</p> : null}
 
       {data ? (
         <>
           <section aria-labelledby="scorecard-metrics">
-            <h2 id="scorecard-metrics" className="mb-3 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
+            <h2 id="scorecard-metrics" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
               Operational metrics
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -95,38 +100,47 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             aria-labelledby="roi-baselines"
             className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
           >
-            <h2 id="roi-baselines" className="text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
+            <h2 id="roi-baselines" className={OPERATOR_NAV_GROUP_LABEL}>
               ROI baselines
             </h2>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
               Maps to ROI model inputs (hours per review, reviews per quarter, architect hourly cost). Leave fields empty
               for a null baseline; GET still returns metrics with <code className="font-mono">roiEstimate: null</code>.
             </p>
             <div className="mt-4 grid max-w-lg gap-3">
-              <label className="block text-sm">
-                <span className="text-neutral-700 dark:text-neutral-200">Hours per review</span>
+              <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="text-al-text-primary">Hours per review</span>
                 <input
-                  className="mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 font-mono text-sm dark:border-neutral-600 dark:bg-neutral-950"
+                  className={cn(
+                    "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 font-mono dark:border-neutral-600 dark:bg-neutral-950",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
                   value={hours}
                   onChange={(e) => setHours(e.target.value)}
                   inputMode="decimal"
                   disabled={!canExecute || saving}
                 />
               </label>
-              <label className="block text-sm">
-                <span className="text-neutral-700 dark:text-neutral-200">Reviews per quarter</span>
+              <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="text-al-text-primary">Reviews per quarter</span>
                 <input
-                  className="mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 font-mono text-sm dark:border-neutral-600 dark:bg-neutral-950"
+                  className={cn(
+                    "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 font-mono dark:border-neutral-600 dark:bg-neutral-950",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
                   value={reviews}
                   onChange={(e) => setReviews(e.target.value)}
                   inputMode="numeric"
                   disabled={!canExecute || saving}
                 />
               </label>
-              <label className="block text-sm">
-                <span className="text-neutral-700 dark:text-neutral-200">Architect hourly cost (USD)</span>
+              <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="text-al-text-primary">Architect hourly cost (USD)</span>
                 <input
-                  className="mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 font-mono text-sm dark:border-neutral-600 dark:bg-neutral-950"
+                  className={cn(
+                    "mt-1 w-full rounded border border-neutral-300 bg-white px-2 py-1 font-mono dark:border-neutral-600 dark:bg-neutral-950",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
                   value={rate}
                   onChange={(e) => setRate(e.target.value)}
                   inputMode="decimal"
@@ -137,12 +151,15 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                 type="button"
                 onClick={() => void onSaveBaselines()}
                 disabled={!canExecute || saving}
-                className="rounded bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
+                className={cn(
+                  "rounded bg-neutral-900 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900",
+                  OPERATOR_TYPOGRAPHY.button,
+                )}
               >
                 {saving ? "Saving…" : "Save baselines"}
               </button>
               {!canExecute ? (
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className={OPERATOR_TYPOGRAPHY.helper}>
                   Sign in with an Execute-capable role to update baselines (API <span className="font-mono">PUT …/baselines</span>
                   ).
                 </p>
@@ -151,7 +168,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           </section>
 
           <section aria-labelledby="roi-estimate">
-            <h2 id="roi-estimate" className="mb-3 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
+            <h2 id="roi-estimate" className={cn("mb-3", OPERATOR_NAV_GROUP_LABEL)}>
               ROI estimate (review time lever)
             </h2>
             {data.roiEstimate ? (
@@ -164,12 +181,12 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                   title="Estimated annual savings (50% review hours)"
                   value={resolvedAnnualSavingsLabel ?? "—"}
                 />
-                <p className="sm:col-span-2 text-xs text-neutral-500 dark:text-neutral-400">
+                <p className={cn("sm:col-span-2", OPERATOR_TYPOGRAPHY.helper)}>
                   Model: {data.roiEstimate.modelReference} · Currency: {data.roiEstimate.currency}
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              <p className={OPERATOR_TYPOGRAPHY.helper}>
                 No ROI estimate until all three baselines are set to positive values.
               </p>
             )}

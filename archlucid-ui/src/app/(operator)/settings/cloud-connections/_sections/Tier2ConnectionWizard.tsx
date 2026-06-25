@@ -15,7 +15,9 @@ import {
   type Tier2ConnectionResponse,
 } from "@/lib/api/cloud-connections-api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 import {
   hasTier2FieldValidationErrors,
@@ -190,10 +192,10 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
       {step === 0 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-security-heading">
           <div>
-            <h3 id="tier2-wizard-security-heading" className="text-sm font-medium">
+            <h3 id="tier2-wizard-security-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Security review checklist
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
               Confirm read-only scope and federation posture before provisioning credentials in your Azure tenant.
               Cross-check{" "}
               <Link
@@ -221,7 +223,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
                 href={TIER2_WIZARD_HELP_HREFS.hostedEnterpriseOnboarding}
                 className="text-teal-700 underline dark:text-teal-400"
               >
-                Hosted SaaS enterprise onboarding checklist
+                Enterprise onboarding checklist
               </Link>
               .
             </p>
@@ -229,7 +231,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
 
           <ul className="space-y-3">
             {TIER2_RBAC_CHECKLIST_ITEMS.map((item) => (
-              <li key={item.id} className="flex items-start gap-3 text-sm">
+              <li key={item.id} className={cn("flex items-start gap-3", OPERATOR_TYPOGRAPHY.body)}>
                 <input
                   id={`tier2-check-${item.id}`}
                   type="checkbox"
@@ -254,10 +256,10 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
       {step === 1 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-script-heading">
           <div>
-            <h3 id="tier2-wizard-script-heading" className="text-sm font-medium">
+            <h3 id="tier2-wizard-script-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Provision the service principal
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
               Run this Azure CLI script or deploy{" "}
               <Link
                 href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely}
@@ -272,7 +274,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
 
           <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Azure CLI setup script</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Azure CLI setup script</p>
               <Button
                 type="button"
                 variant="outline"
@@ -283,7 +285,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
                 Copy to clipboard
               </Button>
             </div>
-            <pre className="mt-3 max-h-[min(40vh,320px)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 text-[11px] leading-relaxed dark:border-neutral-700 dark:bg-neutral-900">
+            <pre className={cn("mt-3 max-h-[min(40vh,320px)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro, "leading-relaxed")}>
               <code>{setupScript}</code>
             </pre>
           </div>
@@ -293,10 +295,10 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
       {step === 2 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-ids-heading">
           <div>
-            <h3 id="tier2-wizard-ids-heading" className="text-sm font-medium">
+            <h3 id="tier2-wizard-ids-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Enter connection identifiers
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
               Paste the Azure AD tenant ID, application (client) ID, and comma-separated subscription IDs from your
               provisioning output. ArchLucid stores identifiers only — never client secrets.
             </p>
@@ -318,7 +320,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
               />
 
               {fieldErrors.tenantId ? (
-                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
                   {fieldErrors.tenantId}
                 </p>
               ) : null}
@@ -339,7 +341,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
               />
 
               {fieldErrors.clientId ? (
-                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
                   {fieldErrors.clientId}
                 </p>
               ) : null}
@@ -360,7 +362,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
               />
 
               {fieldErrors.subscriptionIds ? (
-                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")} role="alert">
                   {fieldErrors.subscriptionIds}
                 </p>
               ) : null}
@@ -372,16 +374,16 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
       {step === 3 ? (
         <section className="space-y-4" aria-labelledby="tier2-wizard-save-heading">
           <div>
-            <h3 id="tier2-wizard-save-heading" className="text-sm font-medium">
+            <h3 id="tier2-wizard-save-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Save and validate
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
               Persist the connection for hosted Tier 2 pull jobs, then optionally trigger an on-demand validation run
               against the first subscription ID.
             </p>
           </div>
 
-          <dl className="grid max-w-xl grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-md border p-4 text-sm">
+          <dl className={cn("grid max-w-xl grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-md border p-4", OPERATOR_TYPOGRAPHY.body)}>
             <dt className="text-muted-foreground">Tenant ID</dt>
             <dd data-testid="tier2-summary-tenant">{tenantId.trim() || "—"}</dd>
             <dt className="text-muted-foreground">Client ID</dt>
@@ -392,7 +394,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
 
           {savedConnection !== null ? (
             <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 p-4">
-              <p className="text-sm text-teal-900 dark:text-teal-100">
+              <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-teal-900 dark:text-teal-100")}>
                 Connection saved. Run a hosted validation pull to confirm federated credentials and Reader access.
               </p>
               <Button
@@ -409,8 +411,8 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
                 <p
                   className={
                     validationSucceeded
-                      ? "text-sm text-teal-800 dark:text-teal-200"
-                      : "text-sm text-red-600 dark:text-red-400"
+                      ? cn(OPERATOR_TYPOGRAPHY.body, "text-teal-800 dark:text-teal-200")
+                      : cn(OPERATOR_TYPOGRAPHY.body, "text-red-600 dark:text-red-400")
                   }
                   role="status"
                   data-testid="tier2-validation-message"
@@ -421,7 +423,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
             </div>
           ) : null}
 
-          <p className="text-xs text-muted-foreground">
+          <p className={OPERATOR_TYPOGRAPHY.helper}>
             Access boundaries:{" "}
             <Link
               href={TIER2_WIZARD_HELP_HREFS.securityTrust}
