@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 ///     Host startup must run DbUp then <c>ISchemaBootstrapper</c> — same path as greenfield deployments and CI
 ///     <c>api-greenfield-boot</c>.
 /// </summary>
-public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
+public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
 {
     private const string LogPrefix = nameof(GreenfieldSqlApiFactory);
 
@@ -103,6 +103,84 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     }
 
     /// <inheritdoc />
+    public async Task InitializeAsync()
+    {
+        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
+
+        try
+        {
+            await EnsureServicesStartedAsync().ConfigureAwait(false);
+        }
+        catch (WarmupTimedOutException)
+        {
+            GreenfieldSqlIntegrationWarmup.RecordShardWarmupTimedOut();
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    Task IAsyncLifetime.DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    internal Task<IServiceProvider> EnsureServicesStartedAsync()
+    {
+        return _hostLifecycle.EnsureServicesStartedAsync(LogPrefix, StartServicesCoreAsync);
+    }
+
+    /// <summary>
+    ///     Ensures the host is started under the greenfield bootstrap budget, then returns an <see cref="HttpClient" />.
+    /// </summary>
+    internal async Task<HttpClient> CreateBoundedClientAsync()
+    {
+        await EnsureServicesStartedAsync().ConfigureAwait(false);
+
+        return await IntegrationTestHostStartup.EnsureCompletedAsync(
+            () => CreateClient(),
+            IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
+    }
+
+    private Task<IServiceProvider> StartServicesCoreAsync()
+    {
+        return IntegrationTestStorageProviderHostGate.RunExclusiveAsync(StartServicesCoreUnderGateAsync);
+    }
+
+    private async Task<IServiceProvider> StartServicesCoreUnderGateAsync()
+    {
+        IServiceProvider? resolvedServices = null;
+
+        await ArchitectureRequestConcurrencyTestSupport.RunGreenfieldSqlFactoryBootstrapAsync(async cancellationToken =>
+        {
+            _storageProviderEnvironment.Apply();
+
+            Console.Error.WriteLine(
+                $"[{LogPrefix}] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
+            resolvedServices = await IntegrationTestHostStartup.EnsureStartedAsync(() =>
+            {
+                IServiceProvider services = Services;
+                HttpClient client = CreateClient();
+
+                Console.Error.WriteLine(
+                    $"[{LogPrefix}] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
+                return services;
+            }).ConfigureAwait(false);
+
+            HttpClient healthClient = CreateClient();
+            ArchitectureRequestConcurrencyTestSupport.AlignHttpClientTimeoutForSqlIdempotencyLockChain(
+                healthClient,
+                ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+            await HealthReadyProbe.EnsureReadyAsync(healthClient, cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+
+        return resolvedServices
+            ?? throw new InvalidOperationException("Greenfield SQL host startup did not resolve services.");
+    }
+
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -116,14 +194,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         if (!disposing)
             return;
 
-        try
-        {
-            SqlServerTestCatalogCommands.DropCatalogIfExists(SqlConnectionString);
-        }
-        catch
-        {
-            // Best-effort cleanup (SQL Server may be unavailable on teardown).
-        }
+        IntegrationTestOwnedSqlCatalogDispose.TryDropOwnedCatalog(SqlConnectionString);
     }
 
     /// <summary>
@@ -134,6 +205,10 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     /// </summary>
     public override ValueTask DisposeAsync()
     {
-        return _hostLifecycle.DisposeHostAsync(LogPrefix, () => base.DisposeAsync());
+        return IntegrationTestOwnedSqlCatalogDispose.DisposeHostAndDropOwnedCatalogAsync(
+            LogPrefix,
+            _hostLifecycle,
+            () => base.DisposeAsync(),
+            SqlConnectionString);
     }
 }

@@ -43,7 +43,7 @@ public sealed class GreenfieldSqlBootIntegrationTests
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateBoundedClientAsync();
 
         await HealthReadyProbe.EnsureReadyAsync(client);
     }
@@ -54,7 +54,7 @@ public sealed class GreenfieldSqlBootIntegrationTests
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateBoundedClientAsync();
 
         await HealthReadyProbe.EnsureReadyAsync(client);
 
@@ -79,7 +79,7 @@ public sealed class GreenfieldSqlBootIntegrationTests
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
-        using HttpClient client = factory.CreateClient();
+        using HttpClient client = await factory.CreateBoundedClientAsync();
 
         await HealthReadyProbe.EnsureReadyAsync(client);
 

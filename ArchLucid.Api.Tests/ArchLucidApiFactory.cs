@@ -182,7 +182,13 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
     /// <inheritdoc />
     public override ValueTask DisposeAsync()
     {
-        return _hostLifecycle.DisposeHostAsync(LogPrefix, () => base.DisposeAsync());
+        string? ownedCatalog = _ownsSqlCatalog ? SqlConnectionString : null;
+
+        return IntegrationTestOwnedSqlCatalogDispose.DisposeHostAndDropOwnedCatalogAsync(
+            LogPrefix,
+            _hostLifecycle,
+            () => base.DisposeAsync(),
+            ownedCatalog);
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>

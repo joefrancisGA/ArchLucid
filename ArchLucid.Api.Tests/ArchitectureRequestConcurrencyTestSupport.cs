@@ -301,6 +301,19 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         return runId;
     }
 
+    /// <summary>
+    ///     Bounds greenfield SQL factory startup (DbUp + readiness) for <see cref="GreenfieldSqlApiFactory" /> and seeds.
+    /// </summary>
+    internal static Task RunGreenfieldSqlFactoryBootstrapAsync(
+        Func<CancellationToken, Task> bootstrapBody,
+        CancellationToken cancellationToken = default)
+    {
+        return RunUnderGreenfieldHostBootstrapBudgetAsync(
+            cancellationToken,
+            nameof(GreenfieldSqlApiFactory),
+            bootstrapBody);
+    }
+
     private static async Task RunUnderGreenfieldHostBootstrapBudgetAsync(
         CancellationToken cancellationToken,
         string entryPointName,
