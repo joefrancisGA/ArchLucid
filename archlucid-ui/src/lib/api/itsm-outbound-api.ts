@@ -5,6 +5,11 @@ export type ItsmFindingCorrelationListItem = components["schemas"]["ItsmFindingC
 export type ItsmFindingCorrelationsByFindingResponse =
   components["schemas"]["ItsmFindingCorrelationsByFindingResponse"];
 export type CreateItsmOutboundIssueResponse = components["schemas"]["CreateItsmOutboundIssueResponse"];
+export type ItsmIntegrationHealthResponse = components["schemas"]["ItsmIntegrationHealthResponse"];
+
+export async function fetchItsmIntegrationHealth(): Promise<ItsmIntegrationHealthResponse> {
+  return apiGet<ItsmIntegrationHealthResponse>("/v1/integrations/itsm/health");
+}
 
 export async function listItsmFindingCorrelations(
   findingId: string,
