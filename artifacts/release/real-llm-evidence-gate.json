@@ -1,6 +1,6 @@
 {
     "schema":  "archlucid.real-llm-evidence-gate.v2",
-    "generatedUtc":  "2026-06-25T06:54:30.3165305Z",
+    "generatedUtc":  "2026-06-25T14:25:14.6152080Z",
     "disposition":  "PASS",
     "overallOutcome":  "PASS",
     "executionMode":  "real",
@@ -62,7 +62,7 @@
                        "name":  "Topology smoke token/cost"
                    },
                    {
-                       "detail":  "topology-only: substance=10 claims=0 findings=1 topologyItems=9",
+                       "detail":  "topology-only: substance=9 claims=0 findings=1 topologyItems=8",
                        "result":  "Passed",
                        "name":  "Topology smoke structural smoke"
                    },
@@ -97,7 +97,7 @@
                        "name":  "Full pipeline token/cost"
                    },
                    {
-                       "detail":  "services=2 decisionTraces=27 claims=4",
+                       "detail":  "services=2 decisionTraces=27 claims=7",
                        "result":  "Passed",
                        "name":  "Full pipeline merge completeness"
                    },
@@ -135,12 +135,12 @@
                                 "mergeSuccess":  true,
                                 "manifestServiceCount":  2,
                                 "decisionsCount":  0,
-                                "totalClaims":  4,
+                                "totalClaims":  7,
                                 "inputTokensTotal":  0,
                                 "outputTokensTotal":  0,
                                 "estimatedCostUsd":  null,
                                 "evidenceRefsObserved":  true,
                                 "durableSqlPersistenceExercised":  false
                             },
-    "gitCommitSha":  "c3d90fea2a7e69b7051745dc7364b81ff3a6dbf0"
+    "gitCommitSha":  "314d3506e84a35f6530a4b4a6d0fd40fc0c5039b"
 }
