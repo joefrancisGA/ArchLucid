@@ -470,11 +470,13 @@ public static partial class ServiceCollectionExtensions
 
         services.AddSingleton<TopologyResourceCanonicalEnricher>();
         services.AddSingleton<SecurityBaselineCanonicalEnricher>();
+        services.AddSingleton<TerraformRuntimePlatformCanonicalEnricher>();
         services.AddSingleton<ICanonicalEnricher>(static sp =>
             new CompositeCanonicalEnricher(
             [
                 sp.GetRequiredService<TopologyResourceCanonicalEnricher>(),
                 sp.GetRequiredService<SecurityBaselineCanonicalEnricher>(),
+                sp.GetRequiredService<TerraformRuntimePlatformCanonicalEnricher>(),
             ]));
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
         services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();

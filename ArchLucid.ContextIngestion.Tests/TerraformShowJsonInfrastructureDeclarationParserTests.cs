@@ -340,6 +340,72 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_extracts_aws_ec2_topology_resource()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "aws-state",
+            Format = "terraform-show-json",
+            DeclarationId = "aws-1",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "aws_instance",
+                                "name": "web",
+                                "provider_name": "registry.terraform.io/hashicorp/aws",
+                                "mode": "managed",
+                                "values": { "instance_type": "t3.micro", "availability_zone": "us-east-1a" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].ObjectType.Should().Be("TopologyResource");
+        objects[0].Properties["terraformType"].Should().Be("aws_instance");
+        objects[0].Properties["providerName"].Should().Be("registry.terraform.io/hashicorp/aws");
+    }
+
+    [Fact]
+    public async Task ParseAsync_maps_aws_security_group_to_security_baseline()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "aws-state",
+            Format = "terraform-show-json",
+            DeclarationId = "aws-2",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "aws_security_group",
+                                "name": "web",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle();
+        objects[0].ObjectType.Should().Be("SecurityBaseline");
+    }
+
+    [Fact]
     public async Task ParseAsync_whitespace_content_returns_empty()
     {
         InfrastructureDeclarationReference decl = new()

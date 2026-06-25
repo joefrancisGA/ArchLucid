@@ -39,6 +39,16 @@ public sealed class RuntimePlatformJsonConverter : JsonConverter<RuntimePlatform
             "redis" or "azureredis" or "cacheforredis" or "azurecacheforredis" => RuntimePlatform.Redis,
             "blob" or "blobstorage" or "azureblob" or "storage" => RuntimePlatform.BlobStorage,
             "keyvault" or "azurekeyvault" => RuntimePlatform.KeyVault,
+            "ec2" or "awsinstance" => RuntimePlatform.Ec2,
+            "lambda" or "awslambda" => RuntimePlatform.Lambda,
+            "eks" or "awseks" => RuntimePlatform.Eks,
+            "rds" or "awsrds" => RuntimePlatform.Rds,
+            "s3" or "awss3" => RuntimePlatform.S3,
+            "elasticache" or "awselasticache" => RuntimePlatform.ElastiCache,
+            "computeengine" or "gce" or "gcpcompute" => RuntimePlatform.ComputeEngine,
+            "gke" or "gcpgke" or "googlekubernetesengine" => RuntimePlatform.Gke,
+            "cloudsql" or "gcpcloudsql" => RuntimePlatform.CloudSql,
+            "gcs" or "googlecloudstorage" or "gcpstorage" => RuntimePlatform.Gcs,
             _ => RuntimePlatform.Unknown,
         };
     }

@@ -1,6 +1,6 @@
 namespace ArchLucid.Contracts.Common;
 
-/// <summary>Azure runtime hosting platform assigned to a service or datastore in the manifest.</summary>
+/// <summary>Runtime hosting platform assigned to a service or datastore in the manifest (Azure, AWS, or GCP).</summary>
 public enum RuntimePlatform
 {
     /// <summary>Unspecified — populate from knowledge-graph <c>Properties</c> or explicit design-time input.</summary>
@@ -37,5 +37,35 @@ public enum RuntimePlatform
     BlobStorage = 10,
 
     /// <summary>Azure Key Vault.</summary>
-    KeyVault = 11
+    KeyVault = 11,
+
+    /// <summary>Amazon EC2.</summary>
+    Ec2 = 12,
+
+    /// <summary>AWS Lambda.</summary>
+    Lambda = 13,
+
+    /// <summary>Amazon Elastic Kubernetes Service.</summary>
+    Eks = 14,
+
+    /// <summary>Amazon RDS.</summary>
+    Rds = 15,
+
+    /// <summary>Amazon S3.</summary>
+    S3 = 16,
+
+    /// <summary>Amazon ElastiCache.</summary>
+    ElastiCache = 17,
+
+    /// <summary>Google Compute Engine.</summary>
+    ComputeEngine = 18,
+
+    /// <summary>Google Kubernetes Engine.</summary>
+    Gke = 19,
+
+    /// <summary>Google Cloud SQL.</summary>
+    CloudSql = 20,
+
+    /// <summary>Google Cloud Storage.</summary>
+    Gcs = 21
 }

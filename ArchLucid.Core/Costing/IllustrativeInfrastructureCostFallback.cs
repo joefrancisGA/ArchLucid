@@ -33,6 +33,16 @@ public static class IllustrativeInfrastructureCostFallback
             RuntimePlatform.Redis => 40m,
             RuntimePlatform.BlobStorage => 8m,
             RuntimePlatform.KeyVault => 5m,
+            RuntimePlatform.Ec2 => 110m,
+            RuntimePlatform.Lambda => 20m,
+            RuntimePlatform.Eks => 320m,
+            RuntimePlatform.Rds => 18m,
+            RuntimePlatform.S3 => 6m,
+            RuntimePlatform.ElastiCache => 35m,
+            RuntimePlatform.ComputeEngine => 105m,
+            RuntimePlatform.Gke => 300m,
+            RuntimePlatform.CloudSql => 16m,
+            RuntimePlatform.Gcs => 5m,
             _ => 25m,
         };
 
@@ -40,8 +50,42 @@ public static class IllustrativeInfrastructureCostFallback
     }
 
     /// <summary>Human-facing Azure service name for tables.</summary>
-    public static string FormatIllustrativeAzureProduct(RuntimePlatform platform)
+    public static string FormatIllustrativeAzureProduct(RuntimePlatform platform) =>
+        FormatIllustrativeProduct(platform, CloudProvider.Azure);
+
+    /// <summary>Human-facing service label for cost tables (cloud-aware).</summary>
+    public static string FormatIllustrativeProduct(RuntimePlatform platform, CloudProvider? targetCloud = null)
     {
+        CloudProvider cloud = targetCloud ?? RuntimePlatformCloudFamily.ResolveCloudFamily(platform);
+
+        if (cloud == CloudProvider.Aws)
+        {
+            return platform switch
+            {
+                RuntimePlatform.Ec2 => "Amazon EC2",
+                RuntimePlatform.Lambda => "AWS Lambda",
+                RuntimePlatform.Eks => "Amazon EKS",
+                RuntimePlatform.Rds => "Amazon RDS",
+                RuntimePlatform.S3 => "Amazon S3",
+                RuntimePlatform.ElastiCache => "Amazon ElastiCache",
+                RuntimePlatform.Unknown => "AWS (unspecified)",
+                _ => "AWS workload",
+            };
+        }
+
+        if (cloud == CloudProvider.Gcp)
+        {
+            return platform switch
+            {
+                RuntimePlatform.ComputeEngine => "Google Compute Engine",
+                RuntimePlatform.Gke => "Google Kubernetes Engine",
+                RuntimePlatform.CloudSql => "Google Cloud SQL",
+                RuntimePlatform.Gcs => "Google Cloud Storage",
+                RuntimePlatform.Unknown => "GCP (unspecified)",
+                _ => "GCP workload",
+            };
+        }
+
         return platform switch
         {
             RuntimePlatform.Unknown => "Azure (unspecified)",
@@ -69,7 +113,7 @@ public static class IllustrativeInfrastructureCostFallback
             node.LineKind,
             node.DisplayName,
             node.Platform,
-            FormatIllustrativeAzureProduct(node.Platform),
+            FormatIllustrativeProduct(node.Platform),
             Math.Round(total, 2),
             InfrastructureCostPriceSource.Estimated);
     }
