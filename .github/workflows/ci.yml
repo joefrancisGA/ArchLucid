@@ -2114,6 +2114,7 @@ jobs:
       # Parent-process chunk watchdog (Invoke-ApiIntegrationTestShard.ps1) is the primary hang defense:
       # it captures an out-of-process dotnet-dump before killing the test host. Step timeout-minutes is
       # the Actions backstop so failure/cancelled upload steps still run if the watchdog is bypassed.
+      # Coverlet is disabled on integration shards (test.runsettings): collector finalization crashes under chunked SQL load.
       - name: Test â€” ArchLucid.Api.Tests (Integration shard, exclude Category=Slow)
         timeout-minutes: ${{ matrix.step_timeout_minutes }}
         env:
@@ -2125,6 +2126,7 @@ jobs:
           -FilterChunkSize 8
           -BlameHangTimeout ${{ matrix.blame_timeout }}
           -ChunkTimeout ${{ matrix.chunk_timeout }}
+          -RunSettingsPath test.runsettings
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
       - name: SQL Server hang diagnostics (on failure or timeout)
@@ -2172,13 +2174,6 @@ jobs:
           name: vstest-diag-api-integration-shard-${{ matrix.shard }}
           path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/vstest-api-integration-shard-*.diag.log
           if-no-files-found: ignore
-
-      - uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: coverage-full-regression-core-api-integration-shard-${{ matrix.shard }}
-          path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/**/coverage.cobertura.xml
-          if-no-files-found: warn
 
   dotnet-full-regression-core-api-unit:
     name: ".NET: full regression â€” Api.Tests non-integration (SQL, Category!=Slow&Category!=Integration)"
@@ -2617,12 +2612,7 @@ jobs:
             global.json
             **/*.csproj
 
-      - uses: actions/download-artifact@v6
-        with:
-          pattern: coverage-full-regression-core-api-integration-shard-*
-          merge-multiple: true
-          path: merge-cov/core-api-integration
-
+      # Integration shards skip Coverlet (test.runsettings); merged coverage uses unit/libs/slow shards only.
       - uses: actions/download-artifact@v6
         with:
           name: coverage-full-regression-core-api-unit

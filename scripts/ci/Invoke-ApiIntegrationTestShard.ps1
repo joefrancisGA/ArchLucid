@@ -14,7 +14,7 @@ param(
 
     [string]$BaseFilter = 'Category!=Slow&Category=Integration',
 
-    [string]$RunSettingsPath = 'coverage.runsettings',
+    [string]$RunSettingsPath = 'test.runsettings',
 
     [int]$FilterChunkSize = 8,
 

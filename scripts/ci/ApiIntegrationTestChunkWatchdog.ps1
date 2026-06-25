@@ -875,8 +875,8 @@ function Invoke-DotNetTestChunkWithWatchdog {
         '--filter', $Filter,
         # Do NOT pass --collect here: Start-Process -ArgumentList joins array elements with spaces
         # without quoting, so "--collect:XPlat Code Coverage" splits into three tokens and MSBuild
-        # treats "Code" and "Coverage" as extra project paths (MSB1008). The XPlat Code Coverage
-        # collector is already declared in coverage.runsettings, matching the non-integration job path.
+        # treats "Code" and "Coverage" as extra project paths (MSB1008). Integration shards use
+        # test.runsettings (no Coverlet) to avoid collector crashes during chunked SQL runs.
         '--results-directory', $ResultsDirectory,
         '--logger', 'console;verbosity=minimal',
         '--logger', "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$ChunkNumber-",
