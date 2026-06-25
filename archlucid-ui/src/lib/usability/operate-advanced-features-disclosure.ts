@@ -10,12 +10,8 @@ export function resolveOperateNavUnlockPhase(
   storedPhase: OperateNavUnlockPhase,
   advancedFeaturesEnabled: boolean,
 ): OperateNavUnlockPhase {
-  if (advancedFeaturesEnabled) {
+  if (advancedFeaturesEnabled || storedPhase >= 2) {
     return 2;
-  }
-
-  if (storedPhase >= 2) {
-    return 1;
   }
 
   return storedPhase;

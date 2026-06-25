@@ -4,10 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const baselineSearchParams = new URLSearchParams("baseline=1");
 
-const { createArchitectureRunMock, getRunSummaryMock, saveTenantReviewCycleBaselineMock } = vi.hoisted(() => ({
+const {
+  createArchitectureRunMock,
+  getRunSummaryMock,
+  saveTenantReviewCycleBaselineMock,
+  uploadAzureExtractorPackageMock,
+} = vi.hoisted(() => ({
   createArchitectureRunMock: vi.fn(),
   getRunSummaryMock: vi.fn(),
   saveTenantReviewCycleBaselineMock: vi.fn(),
+  uploadAzureExtractorPackageMock: vi.fn(),
 }));
 
 vi.mock("next/link", () => ({
@@ -52,6 +58,10 @@ vi.mock("@/lib/save-tenant-review-cycle-baseline", async (importOriginal) => {
     saveTenantReviewCycleBaseline: (...args: unknown[]) => saveTenantReviewCycleBaselineMock(...args),
   };
 });
+
+vi.mock("@/lib/upload-azure-extractor-package", () => ({
+  uploadAzureExtractorPackage: (...args: unknown[]) => uploadAzureExtractorPackageMock(...args),
+}));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
@@ -108,6 +118,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     );
     createArchitectureRunMock.mockResolvedValue({ run: { runId: "baseline-run-1" } });
     saveTenantReviewCycleBaselineMock.mockResolvedValue({ ok: true });
+    uploadAzureExtractorPackageMock.mockResolvedValue({ ok: true, packageId: "baseline-pkg-1" });
     getRunSummaryMock.mockResolvedValue({
       runId: "baseline-run-1",
       projectId: "default",

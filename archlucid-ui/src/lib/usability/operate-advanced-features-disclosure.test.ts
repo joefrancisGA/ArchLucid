@@ -18,8 +18,8 @@ describe("operate-advanced-features-disclosure", () => {
     expect(resolveOperateNavUnlockPhase(1, true)).toBe(2);
   });
 
-  it("downgrades stored phase 2 to analysis when advanced features are off", () => {
-    expect(resolveOperateNavUnlockPhase(2, false)).toBe(1);
+  it("preserves stored phase 2 for governance nav when advanced features toggle is off", () => {
+    expect(resolveOperateNavUnlockPhase(2, false)).toBe(2);
   });
 
   it("persists operate unlock phase with advanced features toggle without downgrading pilot-only users", () => {
