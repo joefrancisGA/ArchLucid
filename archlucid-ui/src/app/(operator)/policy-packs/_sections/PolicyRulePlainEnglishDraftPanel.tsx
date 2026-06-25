@@ -16,6 +16,8 @@ import {
   type CuratedRulesDocument,
 } from "@/lib/policy-pack-curated-rules-v1";
 import { showSuccess } from "@/lib/toast";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type PolicyRulePlainEnglishDraftPanelProps = {
   readonly canMutatePacks: boolean;
@@ -51,15 +53,15 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
       className="rounded-md border border-dashed border-teal-300 bg-teal-50/40 p-4 dark:border-teal-800 dark:bg-teal-950/20"
       data-testid="policy-rule-plain-english-draft"
     >
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Draft a rule from plain English
       </p>
-      <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Describe one governance rule in natural language. ArchLucid drafts curated rule JSON using bundled pack
         examples. Review the draft before adding it to this pack — nothing is published automatically.
       </p>
       <Textarea
-        className="mt-3 font-sans text-sm"
+        className={cn("mt-3 font-sans", OPERATOR_TYPOGRAPHY.body)}
         rows={4}
         value={intent}
         onChange={(e) => setIntent(e.target.value)}
@@ -155,24 +157,24 @@ export function PolicyRulePlainEnglishDraftPanel(props: PolicyRulePlainEnglishDr
       ) : null}
       {disclaimer !== null && previewJson !== null ? (
         <div className="mt-4 space-y-3">
-          <p className="m-0 text-xs text-amber-900 dark:text-amber-100" role="status">
+          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)} role="status">
             {disclaimer}
           </p>
           <div className="grid gap-3 md:grid-cols-2">
             <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                 Expected schema
               </p>
-              <pre className="mt-1 max-h-64 overflow-auto rounded-md border border-neutral-200 bg-white p-3 text-xs dark:border-neutral-700 dark:bg-neutral-950">
+              <pre className={cn("mt-1 max-h-64 overflow-auto rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.micro)}>
                 {CURATED_RULE_ROW_SCHEMA_REFERENCE}
               </pre>
             </div>
             <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                 Draft rule JSON
               </p>
               <pre
-                className="mt-1 max-h-64 overflow-auto rounded-md border border-teal-600/40 bg-white p-3 text-xs dark:border-teal-700/50 dark:bg-neutral-950"
+                className={cn("mt-1 max-h-64 overflow-auto rounded-md border border-teal-600/40 bg-white p-3 dark:border-teal-700/50 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.micro)}
                 data-testid="policy-rule-plain-english-preview"
               >
                 {previewJson}

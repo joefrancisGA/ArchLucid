@@ -4,6 +4,8 @@ import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
 import { PolicyPackJsonValidatorPanel } from "./PolicyPackJsonValidatorPanel";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type PolicyPacksAuthoringTabSectionProps = {
   readonly model: PolicyPacksPageViewModel;
@@ -15,7 +17,7 @@ export function PolicyPacksAuthoringTabSection(props: PolicyPacksAuthoringTabSec
 
   return (
     <div className="space-y-8" data-testid="policy-packs-author-tab">
-      <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Map your organization&apos;s standards into curated policy rules. Use guided, visual, or natural-language builders on one workspace with inline review testing, then publish a version for workspace assignment.
       </p>
 

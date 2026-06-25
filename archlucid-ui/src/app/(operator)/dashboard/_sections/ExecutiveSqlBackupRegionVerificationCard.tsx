@@ -12,6 +12,8 @@ import {
   formatSqlBackupPrimaryRegionLabel,
   type SqlBackupRegionVerification,
 } from "@/lib/sql-backup-region-verification";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function verificationStatusIcon(verified: boolean) {
   if (verified) {
@@ -75,11 +77,11 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
     return (
       <Card data-testid="executive-sql-backup-region-verification-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{v.title}</CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">{v.description}</CardDescription>
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>{v.title}</CardTitle>
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>{v.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="sql-backup-verification-loading">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="sql-backup-verification-loading">
             Loading backup region verification…
           </p>
         </CardContent>
@@ -91,11 +93,11 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
     return (
       <Card data-testid="executive-sql-backup-region-verification-card">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{v.title}</CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">{v.description}</CardDescription>
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>{v.title}</CardTitle>
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>{v.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="alert">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="alert">
             Backup region verification is unavailable right now.
           </p>
         </CardContent>
@@ -112,8 +114,8 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
   return (
     <Card data-testid="executive-sql-backup-region-verification-card">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{v.title}</CardTitle>
-        <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">{v.description}</CardDescription>
+        <CardTitle className={OPERATOR_KPI_CARD_TITLE}>{v.title}</CardTitle>
+        <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>{v.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div
@@ -130,21 +132,22 @@ export function ExecutiveSqlBackupRegionVerificationCard() {
               className="block rounded-sm text-inherit no-underline outline-none transition-shadow cursor-pointer hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
               <p
-                className="font-mono text-xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50"
+                className={OPERATOR_TYPOGRAPHY.kpiValue}
                 data-testid="sql-backup-verification-region-name"
               >
                 {regionLabel}
               </p>
             </Link>
             {redundancyLine !== null ? (
-              <p className="text-xs text-neutral-600 dark:text-neutral-400">{redundancyLine}</p>
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{redundancyLine}</p>
             ) : null}
             <p
-              className={
+              className={cn(
                 verification.verified
-                  ? "text-xs text-teal-800 dark:text-teal-200"
-                  : "text-xs text-amber-800 dark:text-amber-200"
-              }
+                  ? "text-teal-800 dark:text-teal-200"
+                  : "text-amber-800 dark:text-amber-200",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
             >
               {statusText}
             </p>

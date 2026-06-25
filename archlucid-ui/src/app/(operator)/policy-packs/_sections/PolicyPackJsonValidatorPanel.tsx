@@ -8,6 +8,7 @@ import { validatePolicyPackContentDocument } from "@/lib/api/policy-pack-validat
 import type { PolicyPackContentValidationResponse } from "@/lib/api/policy-pack-validate-api";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type ValidationResponse = PolicyPackContentValidationResponse;
@@ -74,8 +75,8 @@ export function PolicyPackJsonValidatorPanel() {
       data-testid="policy-pack-json-validator-panel"
     >
       <div className="space-y-1">
-        <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Validate JSON</h3>
-        <p className="m-0 max-w-prose text-xs text-neutral-700 dark:text-neutral-300">
+        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Validate JSON</h3>
+        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Paste a <code className="font-mono">PolicyPackContentDocument</code> to check schema shape and unknown{" "}
           <code className="font-mono">complianceRuleKeys</code> before create or publish.
         </p>
@@ -87,7 +88,7 @@ export function PolicyPackJsonValidatorPanel() {
           setJsonText(event.target.value);
         }}
         rows={14}
-        className="font-mono text-xs"
+        className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
         aria-label="Policy pack content JSON to validate"
         data-testid="policy-pack-json-validator-input"
       />
@@ -111,7 +112,7 @@ export function PolicyPackJsonValidatorPanel() {
       </div>
 
       {failure !== null ? (
-        <p className="m-0 text-sm text-red-800 dark:text-red-200" role="alert">
+        <p className={cn("m-0 text-red-800 dark:text-red-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {failure.message}
         </p>
       ) : null}
@@ -120,7 +121,8 @@ export function PolicyPackJsonValidatorPanel() {
         <div className="space-y-3" role="status">
           <p
             className={cn(
-              "m-0 text-sm font-medium",
+              "m-0 font-medium",
+              OPERATOR_TYPOGRAPHY.body,
               result.valid ? "text-emerald-800 dark:text-emerald-200" : "text-red-800 dark:text-red-200",
             )}
           >
@@ -128,8 +130,8 @@ export function PolicyPackJsonValidatorPanel() {
           </p>
 
           {errors.length > 0 ? (
-            <div className="rounded-md border border-red-600/40 bg-al-surface-raised px-3 py-2 text-xs">
-              <p className="m-0 font-medium">Errors</p>
+            <div className={cn("rounded-md border border-red-600/40 bg-al-surface-raised px-3 py-2", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Errors</p>
               <ul className="mt-1 mb-0 list-disc pl-4">
                 {errors.map((issue) => (
                   <li key={`error:${issue.path ?? ""}:${issue.message ?? ""}`}>{issue.message}</li>
@@ -139,8 +141,8 @@ export function PolicyPackJsonValidatorPanel() {
           ) : null}
 
           {warnings.length > 0 ? (
-            <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-xs">
-              <p className="m-0 font-medium">Warnings</p>
+            <div className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2", OPERATOR_TYPOGRAPHY.helper)}>
+              <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Warnings</p>
               <ul className="mt-1 mb-0 list-disc pl-4">
                 {warnings.map((issue) => (
                   <li key={`warning:${issue.path ?? ""}:${issue.message ?? ""}`}>{issue.message}</li>
