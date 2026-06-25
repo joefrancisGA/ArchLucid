@@ -75,6 +75,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
   const reviewPackageSubtree =
     /^\/reviews\/[^/]+(?:\/|$)/u.test(path) ||
     /^\/manifests\/[^/]/u.test(path) ||
+    /^\/reviews\/[^/]+\/architecture/u.test(path) ||
     /^\/executive\/reviews\/[^/]/u.test(path);
 
   if (reviewPackageSubtree) {
@@ -514,7 +515,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       return "Jump to signed review record, evidence graph, audit…";
     }
 
-    if (path.startsWith("/manifests")) {
+    if (path.startsWith("/manifests") || path.includes("/architecture")) {
       return "Jump to executive summary, graph, governance…";
     }
 

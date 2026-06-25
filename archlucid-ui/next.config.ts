@@ -96,25 +96,27 @@ const nextConfig: NextConfig = {
       // /runs/* → /reviews/* (URL rename; permanent so search engines and bookmarks update)
       { source: "/runs", destination: "/reviews", permanent: true },
       { source: "/runs/:path*", destination: "/reviews/:path*", permanent: true },
+      { source: "/manifests/:id", destination: "/reviews/:id/architecture", permanent: true },
+      { source: "/reviews/:id/manifest", destination: "/reviews/:id/architecture", permanent: true },
       { source: "/alert-rules", destination: "/alerts?tab=rules", permanent: false },
       { source: "/alert-routing", destination: "/alerts?tab=routing", permanent: false },
       { source: "/composite-alert-rules", destination: "/alerts?tab=composite", permanent: false },
       { source: "/alert-simulation", destination: "/alerts?tab=simulation", permanent: false },
       { source: "/alert-tuning", destination: "/alerts?tab=simulation", permanent: false },
       { source: "/settings/webhooks", destination: "/integrations/webhooks", permanent: false },
-      // Demo/share: prefer human-readable manifest URL in the browser bar (rewrites still serve the same page).
+      // Demo/share: prefer human-readable architecture URL in the browser bar (rewrites still serve the same page).
       {
         source: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
-        destination: "/reviews/claims-intake-modernization/manifest",
+        destination: "/reviews/claims-intake-modernization/architecture",
         permanent: false,
       },
     ];
   },
   async rewrites() {
     return [
-      // Friendly demo URL while reusing manifest detail implementation (`SHOWCASE_STATIC_DEMO_*`).
+      // Friendly demo URL while reusing architecture detail implementation (`SHOWCASE_STATIC_DEMO_*`).
       {
-        source: "/reviews/claims-intake-modernization/manifest",
+        source: "/reviews/claims-intake-modernization/architecture",
         destination: "/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890",
       },
     ];
