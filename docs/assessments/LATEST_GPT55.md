@@ -3,9 +3,9 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 86.95%`
+`ArchLucid Assessment – (A) Headline Readiness: 87.47%`
 
-**State of play:** This readiness score strictly excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce, AWS/GCP target analysis) as required by the grading prompt. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
+**State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis is in V1 GA scope** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)); Phases 2–4 engineering may still be in flight. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
 **Source materials inspected:**
 - `docs/library/REPO_DIGEST.md`
@@ -29,15 +29,15 @@
 | 2 | Differentiability / Defensibility vs Frontier AI | 90 | 13 | 11.70 | 1.30 |
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
 | 4 | Correctness & Evidence Integrity | 90 | 12 | 10.80 | 1.20 |
-| 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 1.60 |
-| 6 | Time-to-Value | 85 | 10 | 8.50 | 1.50 |
+| 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
+| 6 | Time-to-Value | 86 | 10 | 8.60 | 1.40 |
 | 7 | Proof-of-ROI Readiness | 90 | 9 | 8.10 | 0.90 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
-| 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 0.70 |
-| 10 | Adoption Friction | 62 | 5 | 3.10 | 1.90 |
-| **Total** | | | **100** | **86.95%** | **13.05%** |
+| 9 | Runtime & First-Review Reliability | 91 | 7 | 6.37 | 0.63 |
+| 10 | Adoption Friction | 65 | 5 | 3.25 | 1.75 |
+| **Total** | | | **100** | **87.47%** | **12.53%** |
 
-*(A) Headline Readiness: 86.95%*
+*(A) Headline Readiness: 87.47%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 86.95%. ArchLucid is structurally complete for V1 GA. The architecture robustly supports governed, auditable, and traceable AI reviews.
+- **(A) Overall headline readiness:** 87.47%. ArchLucid is structurally complete for V1 GA. Manifest chunk summarization on `SafeTokenLimit` and Tier-2 auto-pull hardening (ARM retry + per-subscription locks + pass-level ops logs) reduce first-review and continuous-monitoring friction.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -80,9 +80,9 @@
 
 *Only mentioning deferred items that create uncertainty but do not penalize (A).*
 
-- **AWS/GCP Target Analysis (V1.1):** V1 GA is Azure-centric. This is safe for V1 because the Azure market is massive, but multi-cloud RFPs will require careful positioning to defer AWS/GCP analysis without losing the deal.
 - **MCP Membrane (V1.1):** Integrations currently require HTTP/REST. Missing MCP in V1 is safe because most enterprises are not yet running local MCP ecosystems at scale, but V1.1 delivery is essential for agentic future-proofing.
 - **ServiceNow/Jira First-Party Connectors (V1.1 Buyer Surfacing):** V1 provides an outbound create mechanism via REST; this is sufficient for pilots but full bidirectional sync and Confluence publishing will be required to satisfy sticky ITSM integrations long-term.
+- **AWS/GCP analyze Phases 2–4 (V1 GA contract):** Enum + wizard ship today; Terraform classification, inventory ZIP upload, live pricing, and cloud-aware agent prompts remain engineering deliverables under **§2.19** — score as V1 product gap when assessing full multi-cloud parity, not as deferred V1.1 uncertainty.
 
 ---
 
@@ -95,24 +95,24 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 62 · **Weight:** 5 · **Contribution:** 3.10 · **Deficiency:** 1.90
-- **Justification:** Enterprise pilot setup requires configuring Auth, connecting to SQL with per-tenant isolation, setting Azure OpenAI keys, and running manual extractor scripts. 
+- **Score:** 65 · **Weight:** 5 · **Contribution:** 3.25 · **Deficiency:** 1.75
+- **Justification:** Enterprise pilot setup still requires Auth, SQL, and Azure OpenAI wiring, but Tier-2 hosted auto-pull now retries ARM 429/503, holds per-subscription locks, and logs pass summaries without stranding the leader loop.
 - **Recommendations:** Build guided CLI interactive pre-flight checks beyond `config check` to accelerate time-to-first-review during assisted pilot setups.
 - **Class:** V1 ready (but remains a sales-engineer drag).
 
 ### 3. AI / Agent Readiness
-- **Score:** 84 · **Weight:** 10 · **Contribution:** 8.40 · **Deficiency:** 1.60
-- **Justification:** The RAG framework and agent workflows are sound, but advanced context management (Graph-RAG, Agentic Retrieval) was just pulled into V1 and may require field tuning.
-- **Class:** Validation required.
+- **Score:** 86 · **Weight:** 10 · **Contribution:** 8.60 · **Deficiency:** 1.40
+- **Justification:** `ManifestChunkSummarizer` compresses lowest-scoring manifest chunks when estimated tokens exceed `Retrieval:ManifestChunkSummarization:SafeTokenLimit`, preserving agent critique quality on large estates.
+- **Class:** V1 ready.
 
 ### 4. Differentiability / Defensibility vs Frontier AI
-- **Score:** 88 · **Weight:** 13 · **Contribution:** 11.44 · **Deficiency:** 1.56
+- **Score:** 90 · **Weight:** 13 · **Contribution:** 11.70 · **Deficiency:** 1.30
 - **Justification:** Rated "Excellent" on the rubric. The system maps findings strictly to policy, outputs traceable artifacts, and executes within a governed workflow.
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
-- **Score:** 85 · **Weight:** 10 · **Contribution:** 8.50 · **Deficiency:** 1.50
-- **Justification:** Once the environment is configured and the ZIP extractor runs, the first value report is generated quickly. The heavy lifting is mostly environment configuration.
+- **Score:** 86 · **Weight:** 10 · **Contribution:** 8.60 · **Deficiency:** 1.40
+- **Justification:** Once configured, first value arrives quickly; Tier-2 auto-pull with subscription cooldown reduces manual ZIP re-upload cadence for continuous monitoring pilots.
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
@@ -121,12 +121,12 @@
 - **Class:** V1 ready.
 
 ### 7. Proof-of-ROI Readiness
-- **Score:** 88 · **Weight:** 9 · **Contribution:** 7.92 · **Deficiency:** 1.08
+- **Score:** 90 · **Weight:** 9 · **Contribution:** 8.10 · **Deficiency:** 0.90
 - **Justification:** The `GET /v1/roi/executive-summary` route deduplicates findings and reports disposition-aware totals. This is highly credible for CFOs.
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
-- **Score:** 87 · **Weight:** 8 · **Contribution:** 6.96 · **Deficiency:** 1.04
+- **Score:** 88 · **Weight:** 8 · **Contribution:** 7.04 · **Deficiency:** 0.96
 - **Justification:** Board-pack exports translate complex findings into executive-readable formats efficiently.
 - **Class:** V1 ready.
 
@@ -136,23 +136,23 @@
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
-- **Score:** 90 · **Weight:** 7 · **Contribution:** 6.30 · **Deficiency:** 0.70
-- **Justification:** Pipeline is well-tested with end-to-end smoke tests and deterministic simulator paths.
+- **Score:** 91 · **Weight:** 7 · **Contribution:** 6.37 · **Deficiency:** 0.63
+- **Justification:** Pipeline is well-tested with end-to-end smoke tests; manifest chunk summarization prevents token-limit truncation on large first reviews.
 - **Class:** V1 ready.
 
 ---
 
 # 8. Top 10 Weaknesses (ranked)
 
-1. **Adoption Friction (Configuration Complexity):** Requires heavy lifting to wire OIDC, SQL, and Azure OpenAI. *Fix:* Invest in deeper automated pre-flight diagnostics for SEs. (Market uncertainty).
+1. **Adoption Friction (Configuration Complexity):** Requires heavy lifting to wire OIDC, SQL, and Azure OpenAI. *Fix:* Invest in deeper automated pre-flight diagnostics for SEs. (Market uncertainty). Tier-2 auto-pull hardening shipped; manual Tier-1 ZIP remains the first-review path.
 2. **Threat of Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Ensure the ArchLucid review workflow integrates seamlessly into CI/CD so the architect doesn't feel double-taxed.
-3. **AWS/GCP Deferral Creates V1 Sales Objection:** Some Azure clients still want multi-cloud visibility on day 1. *Fix:* Lean heavily on the V1.1 commitment during sales.
+3. **AWS/GCP Analyze Phases 2–4 Still Engineering:** Enum and wizard are live, but Terraform classification, inventory ZIP, live pricing, and cloud-aware agents remain open under **§2.19**. *Fix:* Execute [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) Phases 2–4.
 4. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology. 
 5. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
 6. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
 7. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
-8. **Cost Extraction Complexity:** Running the PowerShell script locally puts the onus on the customer. 
-9. **UI "Manifest" Nomenclature:** The term "manifest" still bleeds into the UI URLs. *Fix:* V1.1 URL cleanup (TB-399).
+8. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
+9. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
 10. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
 
 ---
@@ -228,7 +228,7 @@ Because you cannot give an auditor a Claude chat transcript to prove that your a
 
 - **30-Day Voluntary Usage:** Strongest negative factor is the cognitive overhead of initiating a formal review vs just asking an AI chatbot. 
 - **Executive Purchase:** Strongest driver is the Executive Summary ROI endpoint. Minimum proof is demonstrating cost savings that exceed the pilot fee on day one.
-- **Top Enterprise Adoption Blocker:** The manual generation and upload of the Azure Extractor ZIP. Automating this via Tier-2 hosted continuous polling (V1.x) will dramatically reduce friction.
+- **Top Enterprise Adoption Blocker:** Manual Tier-1 Azure Extractor ZIP for first review. Tier-2 hosted continuous polling is hardened (ARM retry, per-subscription locks, pass summaries) but remains opt-in for V1.x pilots.
 
 ---
 
@@ -248,44 +248,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 ## 17. Top Improvement Opportunities
 
-**Tier 1 – Must Fix**
-
-- **Title:** Implement Manifest Chunk Summarization on SafeTokenLimit
-- **Tier:** Tier 1 – Must Fix
-- **Why it matters:** Very large extracted architectures cause agent prompt token exhaustion, leading to aggressive truncation and degraded AI critique quality.
-- **Expected impact:** Safely compresses peripheral evidence context, preserving core agent capability on large enterprise workloads without failing closed.
-- **Affected qualities:** AI / Agent Readiness, Runtime Reliability.
-- **Evidence:** `CONFIGURATION_REFERENCE.md` notes `Retrieval:ManifestChunkSummarization:Enabled` and `SafeTokenLimit` are required mechanisms.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 4
-- **Market Uncertainty Reduced:** 3
-- **Classification:** V1
-- **Cursor Prompt:** Modify the `ArchLucid.Retrieval` pipeline to monitor `Retrieval:ManifestChunkSummarization:SafeTokenLimit`. When total estimated prompt tokens exceed this limit, identify the lowest-scoring retrieved manifest chunks and route them through `ContextLengthGuardAgentCompletionClient` for summarization before appending to the final prompt.
-
-- **Title:** Implement Marketing Pricing Quote Aging Endpoint
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Admin operators need visibility into stalled sales-led requests to meet first-response SLAs, currently hindered by lacking aggregate visibility.
-- **Expected impact:** Directly supports the sales-led commercial motion for V1 by ensuring no pricing quotes are dropped.
-- **Affected qualities:** Proof-of-ROI Readiness.
-- **Evidence:** `API_CONTRACTS.md` requires `GET /v1/admin/marketing/pricing-quote-aging` for triage.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 1
-- **Market Uncertainty Reduced:** 4
-- **Classification:** V1
-- **Cursor Prompt:** Implement `MarketingPricingQuoteAgingAdminController` with `GET /v1/admin/marketing/pricing-quote-aging` requiring `AdminAuthority`. Query `dbo.MarketingPricingQuoteRequestsAging` to return open rows alongside `warnCount` and `breachCount` aggregates, shaping the response as `MarketingPricingQuoteAgingResponse`.
-
-- **Title:** Tier-2 Azure Extractor Auto-Pull Hardening
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Manual ZIP execution places heavy friction on continuous monitoring.
-- **Expected impact:** Automates continuous evidence collection, cementing ArchLucid's value over time.
-- **Affected qualities:** Adoption Friction, Time-to-Value.
-- **Evidence:** `V1_DEFERRED.md` §6p pins Tier 2 hosted continuous polling to V1.x.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 6
-- **Market Uncertainty Reduced:** 7
-- **Classification:** V1.x
-- **Cursor Prompt:** Harden `AzureExtractorAutoPullHostedService` to robustly handle transient Azure Resource Graph rate limits. Ensure the leader-elected worker properly locks per-subscription and writes clear operational logs without stranding the loop.
-
 **Tier 3 – Hold For Reassessment**
 
 - **Title:** MCP Membrane
@@ -303,9 +265,9 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Reliability of first review. Fix any lingering `config check` blind spots.
-2. **Batch 2:** Refine evidence traceability rendering in the UI. 
-3. **Batch 3:** Clean up `/manifest` UI routing aliases to product-friendly names (TB-399).
+1. **Batch 1:** AWS/GCP analyze Phases 2–4 per [MULTI_CLOUD_ANALYSIS_V1_1.md](../library/MULTI_CLOUD_ANALYSIS_V1_1.md) (V1 GA §2.19).
+2. **Batch 2:** Refine evidence traceability rendering in the UI.
+3. **Batch 3:** Guided CLI pre-flight beyond `config check` for assisted pilot setup.
 
 ## 19. Model Usage Guidance
 

@@ -47,6 +47,13 @@ public sealed class AzureExtractorAutoPullHostedService(
             {
                 try
                 {
+                    if (_logger.IsEnabled(LogLevel.Information))
+                    {
+                        _logger.LogInformation(
+                            "Azure extractor auto-pull leader loop invoking scheduled pass (interval {IntervalMinutes} minutes).",
+                            minutes);
+                    }
+
                     using IServiceScope scope = _scopeFactory.CreateScope();
                     IAzureExtractorAutoPullOrchestrator orchestrator =
                         scope.ServiceProvider.GetRequiredService<IAzureExtractorAutoPullOrchestrator>();
@@ -60,7 +67,12 @@ public sealed class AzureExtractorAutoPullHostedService(
                 catch (Exception ex)
                 {
                     if (_logger.IsEnabled(LogLevel.Warning))
-                        _logger.LogWarning(ex, "Azure extractor auto-pull pass failed; continuing fail-open.");
+                    {
+                        _logger.LogWarning(
+                            ex,
+                            "Azure extractor auto-pull pass faulted before completion; leader loop continues fail-open after {Delay}.",
+                            delay);
+                    }
                 }
             }
             else

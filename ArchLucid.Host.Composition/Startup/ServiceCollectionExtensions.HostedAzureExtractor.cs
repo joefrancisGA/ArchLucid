@@ -1,6 +1,7 @@
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Integrations.AzureExtractor;
 
 using Microsoft.Extensions.Configuration;
@@ -22,10 +23,16 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAzureExtractorAutoPullOrchestrator, AzureExtractorAutoPullOrchestrator>();
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
         services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
-        services.AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
-        {
-            client.Timeout = TimeSpan.FromMinutes(5);
-        });
+        services
+            .AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(5);
+            })
+            .AddLongLivedPolicyHandler(static serviceProvider =>
+                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
+                    serviceProvider
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("HostedAzureArmReadClient.Policies")));
         services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();

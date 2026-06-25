@@ -21,4 +21,13 @@ public sealed class AzureExtractorAutoPullOptions
         get;
         set;
     } = 360;
+
+    /// <summary>
+    ///     Pause between subscription pulls within one pass to reduce ARM throttling (seconds; clamped in orchestrator).
+    /// </summary>
+    public int SubscriptionCooldownSeconds
+    {
+        get;
+        set;
+    } = 2;
 }
