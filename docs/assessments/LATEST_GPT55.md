@@ -2,11 +2,11 @@
 
 # 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 84.55%**
+**ArchLucid Assessment – (A) Headline Readiness: 84.78%**
 
-Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #3 shipped):** TB-021 Phase B promoted — `ArchLucid:Agents:LlmFaithfulness:EnforcePhaseB` on Staging/Production; per-trace LLM faithfulness warn/reject in `AgentOutputTraceQualityEvaluator` + durable audit `AgentOutput.LlmFaithfulnessWarned` / `AgentOutput.LlmFaithfulnessRejected`. Prior: improvement #2 policy-pack delta demo; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
+Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procurement realism. Reasoning substrate: **platform-provisioned Azure OpenAI** in real mode (hosted SaaS) and **deterministic simulator** in CI (`AgentExecution:Mode=Simulator` per `LIVE_E2E_HAPPY_PATH.md`). **Rescore note (2026-06-25, improvement #4 shipped):** pilot-mode operator shell default — Operate nav phase-0 until first commit (advanced disclosure no longer bypasses pre-commit), state-aware **next best action** on Overview via `PilotCommandCenterCard` + `resolvePilotNextBestAction`, compact **Executive ROI strip** after commit. Prior: improvement #3 TB-021 Phase B; improvement #2 policy-pack delta demo; local pilot proof `first-pilot-proof-20260625T100122Z` — data consistency **PASS**.
 
-**Timestamp:** 2026-06-25 (UTC, TB-021 Phase B runtime promotion)  
+**Timestamp:** 2026-06-25 (UTC, pilot-mode operator shell default)  
 **Source materials inspected:** `REPO_DIGEST.md`, `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, `SOC2_SELF_ASSESSMENT_2026.md`, `SOC2_ROADMAP.md`, `ARCHITECTURE_COMPONENTS.md`, `SYSTEM_MAP.md`, `API_CONTRACTS.md`, **`CONFIGURATION_REFERENCE.md`**, `DEFAULT_POLICY_PACKS_V1.md`, **`AUDIT_COVERAGE_MATRIX.md`**, **`AGENT_OUTPUT_EVALUATION.md`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, `FIRST_RUN_WALKTHROUGH.md`, `LIVE_E2E_HAPPY_PATH.md`, `V1_MAGIC_GUARDRAILS.md`, `CLAIM_READINESS_STATUS.md`, `FIRST_PILOT_OPERATOR_PATH.md`, `DEMO_WORKSPACES.md`, `TECH_BACKLOG.md` (TB-021, TB-141), `POLICY_PACK_DELTA_DEMO_SCRIPT.md`, `DIFFERENTIATION_PROOF_PACKET.md`.
 
 **Operator-path evidence inspected:** `artifacts/first-pilot-proof/first-pilot-proof-20260625T100122Z/` (data consistency PASS, command center, go-no-go summary, evidence bundle); committed run `eb81dd4972ad429e8d4e214f9934bfc0` on Simulator @ `http://127.0.0.1:5128`.
@@ -22,18 +22,18 @@ Readiness excludes deferred V1.1/V2 items per `V1_DEFERRED.md` and `(B)` procure
 | 3 | Governed Review Integrity | 90 | 13 | 11.70 | 130 |
 | 4 | Correctness & Evidence Integrity | 86 | 12 | 10.32 | 168 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 130 |
-| 6 | Time-to-Value | 79 | 10 | 7.90 | 210 |
+| 6 | Time-to-Value | 80 | 10 | 8.00 | 200 |
 | 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 108 |
-| 8 | Executive / Operator Comprehension | 80 | 8 | 6.40 | 160 |
+| 8 | Executive / Operator Comprehension | 81 | 8 | 6.48 | 152 |
 | 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 70 |
-| 10 | Adoption Friction | 72 | 5 | 3.60 | 140 |
-| **Total** | | | **100** | **84.55%** | |
+| 10 | Adoption Friction | 73 | 5 | 3.65 | 135 |
+| **Total** | | | **100** | **84.78%** | |
 
-**Prior headline (improvement #2 policy-pack delta demo):** 84.23% · **Δ +0.32 pp** — TB-021 Phase B runtime enforcement (`EnforcePhaseB`), per-trace LLM faithfulness floors, audit events; residual TB-021 work is IR eval / grounding enrichment not output gate promotion.
+**Prior headline (improvement #3 TB-021 Phase B):** 84.55% · **Δ +0.23 pp** — pilot shell default (Operate hidden until commit + no pre-commit advanced bypass), dynamic Overview next action, post-commit Executive ROI strip on Home.
 
 # 3. Diagnostic Scores (non-headline)
 
-These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.55%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
+These do **not** feed `(A)`. Tension with headline: headline is **high on engineering/governance** (84.78%) while **30-day voluntary usage** and **decision advantage** diagnostics are **materially lower** — the product is build-ready before market proof that principals change decisions and return without a sales motion.
 
 | Diagnostic | Value | Calibration |
 |------------|------:|-------------|
@@ -57,7 +57,7 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 # 5. Executive Summary
 
-**(A) Overall headline readiness:** **84.55%** (+0.32 pp from 84.23%) — **TB-021 Phase B shipped:** LLM faithfulness judge now enforces per-trace warn/reject on real-mode hosted paths when `EnforcePhaseB=true`; audit trail + config documented. Policy-pack delta demo and local pilot path remain in place. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
+**(A) Overall headline readiness:** **84.78%** (+0.23 pp from 84.55%) — **Improvement #4 shipped:** pilot-mode shell default on Overview — Operate clusters stay hidden until first commit (sidebar disclosure no longer bypasses phase 0 pre-commit); `PilotCommandCenterCard` surfaces one state-aware next action; `OperatorHomeExecutiveRoiStrip` shows disposition-aware savings after commit. Phase B faithfulness and policy-pack delta demo remain in place. Next validation seam: TB-141 cohort (G4) + sustained real-mode proof repetition.
 
 **(B) Procurement / market realism (weight 0):** Honest interim posture (self-assessment, CAIQ/SIG, owner-conducted pen test, DPA template). **CPA SOC 2** and **third-party pen-test publication** remain buyer friction (`V1_DEFERRED.md` §6c — TB-135/TB-136, `(B)` only). No signed design partner, no published reference customer, no live commerce un-hold — all correctly deferred; sales-led motion with TEST-mode trial is coherent.
 
@@ -94,13 +94,13 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 engineering done; **market validation required** for insight claims.  
 **Outcomes:** 1, 3, 5.
 
-### 2. Time-to-Value — 78 · 10 · 7.80 · 220
+### 2. Time-to-Value — 80 · 10 · 8.00 · 200
 
-**Justification:** Guided intake (`/reviews/new`, Socratic draft path), demo review, simulator CI path, and Tier-1 Azure extractor (no vendor Azure login) shorten first package. **Step 3 proof (2026-06-25)** confirms the documented operator path runs end-to-end on Windows with `-RunId` and produces command-center + evidence artifacts (~69s proof elapsed). **Counterweights:** `-SkipDemoWorkspaceValidation` required (demo validation hang), prerequisites/preflight CLI-config BLOCK on local lens, Operate-layer breadth, policy-pack vocabulary, identity topology setup.
+**Justification:** Guided intake (`/reviews/new`, Socratic draft path), demo review, simulator CI path, and Tier-1 Azure extractor (no vendor Azure login) shorten first package. **Step 3 proof (2026-06-25)** confirms the documented operator path runs end-to-end on Windows with `-RunId` and produces command-center + evidence artifacts (~69s proof elapsed). **Improvement #4 shipped (2026-06-25):** `resolvePilotNextBestAction` + dynamic `PilotCommandCenterCard` CTA (start → continue → finalize → executive summary); Operate nav phase 0 until commit with pre-commit advanced-disclosure bypass removed. **Counterweights:** demo validation hang, prerequisites/preflight CLI-config BLOCK on local lens, identity topology setup.
 
 **Tradeoffs:** Progressive disclosure helps pilots but hides governance value until expanded.
 
-**Recommendations:** Pilot-mode shell preset: hide Operate links until first committed review + one-line “next best action” on dashboard.
+**Recommendations:** Default extractor sample package for evidence-optional first sessions; repeat local pilot proof on RC cuts.
 
 **Classification:** V1 UX refinement + validation.  
 **Outcomes:** 3, 4.
@@ -127,13 +127,13 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 validation artifact shipped; market proof still required.  
 **Outcomes:** 2, 5.
 
-### 5. Executive / Operator Comprehension — 80 · 8 · 6.40 · 160
+### 5. Executive / Operator Comprehension — 81 · 8 · 6.48 · 152
 
-**Justification:** Executive ROI section + disposition labels + board-pack export are strong. **Policy-pack delta banner** on `/policy-packs` links operators to the in-app demo script. Operator shell still exposes large surface (governance, alerts, graph, compare) — Carbon migration helps but cognitive load remains high for first-time architects.
+**Justification:** Executive ROI section + disposition labels + board-pack export are strong. **Improvement #4 shipped:** compact `OperatorHomeExecutiveRoiStrip` on Overview after first commit (headline scope label + link to `/dashboard`); dynamic next-best-action replaces static “Start review” once progress exists. Policy-pack delta banner on `/policy-packs` remains. Residual cognitive load: Operate breadth after unlock and large settings surface.
 
 **Tradeoffs:** Enterprise completeness vs pilot simplicity.
 
-**Recommendations:** Sponsor-mode dashboard default; defer Operate links until second session.
+**Recommendations:** Disposition tooltip on ROI panel (improvement #6); sponsor-mode executive shell as default handoff after first export.
 
 **Classification:** V1 UI / V1.1 IA (TB-399 URL cleanup).  
 **Outcomes:** 4, 3.
@@ -161,9 +161,9 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 **Classification:** V1 foundation + TB-021 IR tail.  
 **Outcomes:** 2, 5.
 
-### 8. Adoption Friction — 71 · 5 · 3.55 · 145
+### 8. Adoption Friction — 73 · 5 · 3.65 · 135
 
-**Justification:** Hosted Azure OpenAI removes LLM onboarding friction (correct V1 posture). **Step 3 surfaced new friction:** ~20 pilot scripts required UTF-8 BOM + strict-mode fixes on Windows PowerShell 5.1; CLI OpenAPI client deserialize failures on successful HTTP responses; demo workspace validation hangs on `/v1/pilots/runs/{runId}/pilot-run-deltas`; prerequisites/preflight BLOCK on CLI config lens locally. Friction also remains: tenant DB topology, IdP wiring, extractor ZIP manual step, optional Operate configuration, ITSM native create **off by default** (`Integrations:Itsm:NativeEnabled=false`).
+**Justification:** Hosted Azure OpenAI removes LLM onboarding friction (correct V1 posture). **Improvement #4 shipped:** pre-commit Operate hiding enforced in nav + command palette (`resolveOperateNavUnlockPhase` requires commit or explicit analysis unlock before advanced disclosure expands governance nav). **Step 3 friction remains:** PowerShell 5.1 script strictness, CLI OpenAPI deserialize drift, demo workspace validation hang, tenant DB topology, IdP wiring, extractor ZIP manual step, ITSM native create **off by default**.
 
 **Tradeoffs:** Security/isolation vs speed of trial.
 
@@ -196,11 +196,11 @@ These do **not** feed `(A)`. Tension with headline: headline is **high on engine
 
 1. **Unproven decision-changing insight at cohort scale** — G4 HOLD; without repeated real proof packets, insight claims are design-confidence only. *Design vs market:* market. *V1 blocker:* no (pilot gate). *Fix:* execute TB-141 cohort + log decisions changed.
 
-2. **Time-to-credible first package for skeptical principals** — Operate noise + manual ZIP. *Design:* mixed. *V1 blocker:* soft. *Fix:* pilot-mode UI + default extractor sample package.
+2. **Time-to-credible first package for skeptical principals** — Manual ZIP + demo validation hang remain; pilot shell default reduces Operate noise. *Design:* mixed. *V1 blocker:* soft. *Fix:* default extractor sample package + demo validation fix.
 
 3. **IR eval / retrieval correctness harness (TB-021 tail)** — Phase B output enforcement shipped; recall@k / drift gates still open. *Design:* design. *V1 blocker:* no. *Fix:* RAG-V1-011.
 
-4. **Operator cognitive overload** — Too many surfaces before first commit value lands. *Design:* design. *V1 blocker:* no. *Fix:* progressive disclosure defaults.
+4. **Operator cognitive overload after Operate unlock** — Pre-commit surfaces narrowed (improvement #4); governance/analysis breadth still high post-commit. *Design:* design. *V1 blocker:* no. *Fix:* TB-399 URL cleanup + sponsor handoff defaults.
 
 5. **Policy-pack moat invisible in casual demo** — Findings look like smart AI unless pack change moves gate/ROI. *Market:* validation. *Fix:* mandatory two-pack demo script.
 
@@ -411,7 +411,22 @@ Residual: RAG-V1-011 IR eval harness; online fine-tuning (RAG-V2-003) out of sco
 
 ### Tier 2 – High Leverage
 
-**4. Pilot-mode operator shell default** — Hide Operate nav until first commit; surface Executive ROI + next action. · V1 · UI · Design 7 / Market 6.
+**4. Pilot-mode operator shell default — SHIPPED 2026-06-25**  
+- **Why:** First-time architects drown in Operate nav before first commit; ROI lives on `/dashboard` not Overview.  
+- **Impact:** Time-to-value, executive comprehension, adoption friction.  
+- **Evidence:** `resolvePilotNextBestAction.ts`, dynamic `PilotCommandCenterCard`, `OperatorHomeExecutiveRoiStrip`, `resolveOperateNavUnlockPhase` pre-commit guard, `operate-nav-progressive-unlock` auto-hint copy, Vitest coverage.  
+- **Classification:** V1 UX shipped; market validation (30-day voluntary usage) still open.
+
+```text
+Shipped deliverables:
+- resolvePilotNextBestAction + CorePilotCommitContext.latestRunReadyToFinalize
+- PilotCommandCenterCard state-aware CTA (data-testid pilot-next-best-action)
+- OperatorHomeExecutiveRoiStrip on Overview after hasCommittedArchitectureReview
+- Pre-commit Operate nav: advanced disclosure cannot bypass phase 0 without commit or explicit unlock
+- Unit tests: resolve-pilot-next-best-action, operate-advanced-features-disclosure, PilotCommandCenterCard, OperatorHomeExecutiveRoiStrip
+
+Residual: TB-399 Operate IA; executive shell as default sponsor handoff; cohort-scale usage proof (G4).
+```
 
 **5. Real-mode evidence cadence on RC cuts** — Re-run `Invoke-RealLlmEvidenceGate.ps1`; attach to release bundle per G5. · V1 ops · Design 3 / Market 4.
 

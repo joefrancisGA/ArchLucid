@@ -22,6 +22,8 @@ export type CorePilotCommitContext = {
   firstCommittedRunId: string | null;
   /** Second committed run on the page when repeat-compare prompts need a prior anchor. */
   secondCommittedRunId: string | null;
+  /** Newest run has findings but no golden manifest — finalize CTA applies. */
+  latestRunReadyToFinalize: boolean;
 };
 
 function isCommittedRunSummary(run: RunSummary): boolean {
@@ -34,6 +36,7 @@ export const PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT: CorePilotCommitContext = {
   latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
   secondCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+  latestRunReadyToFinalize: false,
 };
 
 /** True when tenant trial status records a first commit timestamp. */
@@ -67,7 +70,12 @@ export function buildCorePilotCommitContextFromRunItems(
   items: readonly RunSummary[],
   trialAnchoredCommit: boolean,
 ): CorePilotCommitContext {
-  const latestRunId = items.length > 0 ? items[0]!.runId : null;
+  const latestRun = items.length > 0 ? items[0]! : null;
+  const latestRunId = latestRun?.runId ?? null;
+  const latestRunReadyToFinalize =
+    latestRun !== null &&
+    latestRun.hasFindingsSnapshot === true &&
+    latestRun.hasGoldenManifest !== true;
   const committedRuns = items.filter((r) => isCommittedRunSummary(r));
   const committed = committedRuns[0];
   const secondCommitted = committedRuns.length > 1 ? committedRuns[1] : undefined;
@@ -80,6 +88,7 @@ export function buildCorePilotCommitContextFromRunItems(
     latestRunId,
     firstCommittedRunId: committed?.runId ?? null,
     secondCommittedRunId: secondCommitted?.runId ?? null,
+    latestRunReadyToFinalize,
   };
 }
 

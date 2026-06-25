@@ -1,21 +1,51 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import {
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
   PILOT_COMMAND_CENTER_HEADING,
-  PILOT_COMMAND_CENTER_LEAD,
   PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
+import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
 }));
 
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/core-pilot-commit-context")>();
+
+  return {
+    ...actual,
+    fetchCorePilotCommitContext: vi.fn(async () => ({
+      hasCommittedManifest: false,
+      committedReviewCount: 0,
+      latestRunId: null,
+      firstCommittedRunId: null,
+      secondCommittedRunId: null,
+      latestRunReadyToFinalize: false,
+    })),
+  };
+});
+
 import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+
+const emptyCommitContext = {
+  hasCommittedManifest: false,
+  committedReviewCount: 0,
+  latestRunId: null,
+  firstCommittedRunId: null,
+  secondCommittedRunId: null,
+  latestRunReadyToFinalize: false,
+};
 
 describe("PilotCommandCenterCard", () => {
+  beforeEach(() => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+    vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(emptyCommitContext);
+  });
   it("shows first-review hero copy before committed workspace activity", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
@@ -28,6 +58,7 @@ describe("PilotCommandCenterCard", () => {
 
   it("shows workspace overview hero copy after committed workspace activity", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+    vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
     render(<PilotCommandCenterCard />);
 
@@ -36,51 +67,37 @@ describe("PilotCommandCenterCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("leads with design-first body copy and evidence-optional workflow steps", () => {
+  it("uses dynamic next-best-action copy from Core Pilot commit context", async () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
 
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-command-center-lead")).toHaveTextContent(PILOT_COMMAND_CENTER_LEAD);
-    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("design brief");
-    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("optional azure");
+    await waitFor(() => {
+      expect(screen.getByTestId("pilot-next-best-action")).toHaveTextContent("Start review");
+    });
+
+    expect(screen.getByTestId("pilot-next-best-action")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-command-center-lead").textContent?.toLowerCase()).toContain("review package");
+  });
+
+  it("shows workflow steps below the header row before first commit", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
+    render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
 
     for (const step of PILOT_PATH_PREVIEW_STEPS) {
       expect(screen.getByText(step.label)).toBeInTheDocument();
     }
-
-    expect(screen.queryByText("Open sample finding → Review evidence → See decision impact")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("pilot-command-center-outcomes")).toBeNull();
   });
 
-  it("keeps Start review as the sole primary action in the header action row", () => {
-    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+  it("hides optional setup footer after first commit", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+    vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
 
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-command-center-primary")).toHaveTextContent("Start review");
-    expect(screen.queryByTestId("pilot-command-center-try-sample")).toBeNull();
-    expect(screen.getByTestId("pilot-command-center-cta-row")).toBeInTheDocument();
-  });
-
-  it("places workflow steps below the header row and optional setup as a muted footer", () => {
-    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
-
-    render(<PilotCommandCenterCard />);
-
-    const card = screen.getByTestId("pilot-command-center-card");
-    const header = card.querySelector(".heroHeader");
-    const stepper = screen.getByTestId("pilot-path-preview-stepper");
-    const optionalSetup = screen.getByTestId("pilot-command-center-optional-setup");
-
-    expect(header).not.toBeNull();
-    expect(card.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(card.compareDocumentPosition(optionalSetup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(optionalSetup).toHaveClass("heroOptionalSetup");
-    expect(optionalSetup.textContent).toContain("Optional setup:");
-    expect(optionalSetup.textContent).toContain("Connect Azure");
-    expect(optionalSetup.textContent).toContain("Invite reviewer");
+    expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
   });
 });

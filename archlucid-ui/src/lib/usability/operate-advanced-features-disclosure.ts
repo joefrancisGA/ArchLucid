@@ -5,12 +5,17 @@ import {
   type OperateNavUnlockPhase,
 } from "@/lib/usability/operate-nav-progressive-unlock";
 
-/** Combines persisted pilot unlock phase with the sidebar advanced-features toggle for palette visibility. */
+/** Combines persisted pilot unlock phase with sidebar disclosure toggles for palette visibility. */
 export function resolveOperateNavUnlockPhase(
   storedPhase: OperateNavUnlockPhase,
   advancedFeaturesEnabled: boolean,
+  hasCommittedArchitectureReview = false,
 ): OperateNavUnlockPhase {
-  if (advancedFeaturesEnabled || storedPhase >= 2) {
+  if (storedPhase >= 2) {
+    return 2;
+  }
+
+  if (advancedFeaturesEnabled && (hasCommittedArchitectureReview || storedPhase >= 1)) {
     return 2;
   }
 
@@ -19,7 +24,7 @@ export function resolveOperateNavUnlockPhase(
 
 /** @deprecated Prefer {@link resolveOperateNavUnlockPhase} with a stored phase from {@link readOperateNavUnlockPhase}. */
 export function operateNavUnlockPhaseForAdvancedFeatures(advancedFeaturesEnabled: boolean): OperateNavUnlockPhase {
-  return resolveOperateNavUnlockPhase(readOperateNavUnlockPhase(), advancedFeaturesEnabled);
+  return resolveOperateNavUnlockPhase(readOperateNavUnlockPhase(), advancedFeaturesEnabled, false);
 }
 
 export function syncOperateNavUnlockWithAdvancedFeatures(advancedFeaturesEnabled: boolean): void {

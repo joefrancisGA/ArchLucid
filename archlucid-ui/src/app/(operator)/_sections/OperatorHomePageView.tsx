@@ -8,6 +8,7 @@ import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
+import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
 import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
@@ -35,6 +36,8 @@ function BuyerPolishedHomePageBody() {
     <>
       <BuyerPolishedHomeHeroSection />
 
+      <OperatorHomeExecutiveRoiStrip />
+
       <OperatorHomeSampleReviewPreview />
 
       <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
@@ -55,6 +58,7 @@ function OperatorHomePageBody() {
   return (
     <>
       <PilotCommandCenterCard />
+      <OperatorHomeExecutiveRoiStrip />
       <OperatorHomeFirstValueCallout />
 
       <OperatorHomeSampleReviewPreview />

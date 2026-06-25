@@ -32,7 +32,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   operateUnlockAnalysisUnlocks: "Analysis — compare, graph, replay, and Q&A",
   operateUnlockStillHidden: "Enterprise controls — audit, alerts, and approval workflow (until you need them)",
   operateAutoUnlockHint:
-    "Analysis tools are now available in the sidebar — compare reviews, ask questions, and explore the evidence graph. Enterprise control routes stay hidden until you unlock them or visit an advanced destination.",
+    "Analysis tools are now in Administration — compare reviews, explore the evidence graph, and open digests when you need them. Enterprise control routes stay hidden until you unlock them.",
 } as const;
 
 /** True until the tenant has at least one committed architecture review. */

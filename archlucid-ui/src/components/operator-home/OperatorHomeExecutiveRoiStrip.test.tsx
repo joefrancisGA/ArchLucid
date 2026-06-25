@@ -1,0 +1,46 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import { OperatorHomeExecutiveRoiStrip } from "@/components/operator-home/OperatorHomeExecutiveRoiStrip";
+
+vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: vi.fn(() => false),
+}));
+
+vi.mock("@/lib/fetch-executive-roi-summary-client", () => ({
+  fetchExecutiveRoiSummaryClient: vi.fn(),
+}));
+
+import { useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
+import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
+
+describe("OperatorHomeExecutiveRoiStrip", () => {
+  it("renders nothing before the tenant has a committed architecture review", () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(false);
+
+    const { container } = render(<OperatorHomeExecutiveRoiStrip />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows compact savings after commit when executive summary loads", async () => {
+    vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
+    vi.mocked(fetchExecutiveRoiSummaryClient).mockResolvedValue({
+      totalEstimatedUsdSavings: 125000,
+      systemCount: 2,
+      latestRunCount: 2,
+      eaDiscountMultiplier: 1,
+      savingsPricingBasis: "Retail",
+      systems: [],
+      topSystemicIssues: [],
+      headlineSavingsScopeCode: "disposition-aware-headline",
+      headlineSavingsScopeDescription: "Disposition-aware portfolio headline",
+    });
+
+    render(<OperatorHomeExecutiveRoiStrip />);
+
+    expect(await screen.findByTestId("operator-home-roi-strip")).toBeInTheDocument();
+    expect(screen.getByText(/125,000/)).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-roi-strip-open-dashboard")).toHaveAttribute("href", "/dashboard");
+  });
+});

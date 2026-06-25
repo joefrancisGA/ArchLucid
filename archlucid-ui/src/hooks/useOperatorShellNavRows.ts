@@ -54,7 +54,11 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
   });
   const operatorAdvancedModeOn =
     (navExpanded && navAdvanced) || (shellShowExtended && shellShowAdvanced);
-  const operateNavUnlockPhase = resolveOperateNavUnlockPhase(effectiveOperateUnlockPhase, operatorAdvancedModeOn);
+  const operateNavUnlockPhase = resolveOperateNavUnlockPhase(
+    effectiveOperateUnlockPhase,
+    operatorAdvancedModeOn,
+    hasCommittedArchitectureReview,
+  );
   const reviewNavExpanded = operateNavUnlockPhase >= 1 || navExpanded;
   const reviewNavAdvanced = operateNavUnlockPhase >= 1 || navAdvanced;
   const effectiveHasCommittedArchitectureReview = hasCommittedArchitectureReview || buyerPolishedShell;

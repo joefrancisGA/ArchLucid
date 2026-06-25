@@ -417,7 +417,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const paletteAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
   const { effectiveOperateUnlockPhase } = useOperateNavUnlockPhase();
   const operatorAdvancedModeOn = showExtended && showAdvanced;
-  const operateNavUnlockPhase = resolveOperateNavUnlockPhase(effectiveOperateUnlockPhase, operatorAdvancedModeOn);
+  const operateNavUnlockPhase = resolveOperateNavUnlockPhase(
+    effectiveOperateUnlockPhase,
+    operatorAdvancedModeOn,
+    hasCommittedArchitectureReview,
+  );
 
   const visibleHrefs = useMemo(() => {
     return visibleOperatorShellHrefSet(
