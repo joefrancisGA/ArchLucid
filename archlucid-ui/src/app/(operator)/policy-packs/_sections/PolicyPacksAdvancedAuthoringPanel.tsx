@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { PolicyPackGeneratorSection } from "./PolicyPackGeneratorSection";
@@ -39,7 +40,8 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
             <button
               type="button"
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium",
+                "rounded-md px-3 py-1.5",
+                OPERATOR_TYPOGRAPHY.tab,
                 authoringTab === "author"
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",
@@ -54,7 +56,8 @@ export function PolicyPacksAdvancedAuthoringPanel(props: PolicyPacksAdvancedAuth
             <button
               type="button"
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium",
+                "rounded-md px-3 py-1.5",
+                OPERATOR_TYPOGRAPHY.tab,
                 authoringTab === "generator"
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent/60",

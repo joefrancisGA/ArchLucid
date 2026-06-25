@@ -3,6 +3,8 @@
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ExecutiveOrphanCandidatesCard } from "./ExecutiveOrphanCandidatesCard";
 import { ExecutiveRoiDashboardLiveKpiCards } from "./ExecutiveRoiDashboardLiveKpiCards";
@@ -30,7 +32,7 @@ export function ExecutiveDashboardSupportingMetricsSection(
       <div className="space-y-4">
         {showDetailedKpiCards ? (
           <>
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {v.globalZeroCountsFootnote}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

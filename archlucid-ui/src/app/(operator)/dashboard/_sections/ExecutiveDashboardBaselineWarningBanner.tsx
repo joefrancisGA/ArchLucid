@@ -7,6 +7,8 @@ import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvid
 import { Button } from "@/components/ui/button";
 import { useWorkspaceBaselineArtifactsPresence } from "@/hooks/use-workspace-baseline-artifacts";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Session-dismiss key — discarded when the browser tab ends. */
 
@@ -53,17 +55,17 @@ export function ExecutiveDashboardBaselineWarningBanner({
   if (variant === "setup") {
     return (
       <div
-        className="rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-sm text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950/40"
+        className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}
         data-testid="executive-baseline-upload-setup-card"
       >
-        <p className="m-0 font-semibold">Optional: upload workspace baseline inventory</p>
-        <p className="mt-2 mb-0 text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Optional: upload workspace baseline inventory</p>
+        <p className={cn("mb-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Ground ROI estimates by uploading an Azure extractor inventory ZIP for this workspace.
         </p>
         <p className="mt-2 mb-0">
           <Link
             href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
-            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            className={OPERATOR_LINK.inline}
             data-testid="executive-baseline-upload-wizard-link"
           >
             Open baseline upload wizard
@@ -75,20 +77,20 @@ export function ExecutiveDashboardBaselineWarningBanner({
 
   return (
     <div
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 flex flex-col gap-3 px-4 py-3 text-sm shadow-sm sm:flex-row sm:items-start sm:justify-between"
+      className={cn("flex flex-col gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary shadow-sm dark:border-amber-700/50 sm:flex-row sm:items-start sm:justify-between", OPERATOR_TYPOGRAPHY.body)}
       role="alert"
       data-testid="executive-baseline-upload-warning-banner"
     >
       <div className="min-w-0 flex-1">
-        <p className="m-0 font-semibold">Upload workspace baseline inventory</p>
-        <p className="mt-2 mb-0 text-amber-900/95 dark:text-amber-100/90">
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Upload workspace baseline inventory</p>
+        <p className={cn("mb-0 mt-2 text-amber-900/95 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.body)}>
           Executive ROI summaries stay grounded when you upload an Azure extractor inventory ZIP for this workspace.
           Use the baseline upload wizard to parse the packager output and start your first review from real inventory.
         </p>
         <p className="mt-2 mb-0">
           <Link
             href={EXECUTIVE_DASHBOARD_BASELINE_UPLOAD_WIZARD_HREF}
-            className="font-medium underline underline-offset-2"
+            className={OPERATOR_LINK.inline}
             data-testid="executive-baseline-upload-wizard-link"
           >
             Open baseline upload wizard
