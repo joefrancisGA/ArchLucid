@@ -81,7 +81,9 @@ export async function expectExecutiveRoiDashboardShell(page: Page): Promise<void
   await expect(page.getByText(v.pageLead).or(page.getByText(v.portfolioPageLead))).toBeVisible();
 }
 
+/** Call before `page.goto` so summary/export proxy responses are not missed during hydration. */
 export async function waitForExecutiveRoiExportResponse(page: Page): Promise<ExecutiveRoiExportPayload> {
+  // Portfolio layout fetches executive summary on mount; register listeners before navigation.
   await page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
 
   await expect(page.getByTestId("executive-primary-decisions-needed"))

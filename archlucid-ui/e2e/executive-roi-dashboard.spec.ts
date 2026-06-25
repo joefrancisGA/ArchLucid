@@ -22,8 +22,8 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
   test("renders portfolio summary, KPI tiles, and trend chart without error boundary @smoke @executive-roi-dashboard", async ({
     page,
   }) => {
-    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
     const exportReady = waitForExecutiveRoiExportResponse(page);
+    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
 
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
@@ -36,8 +36,8 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
   test("export contract and UI reflect deduplicated findings across runs @executive-roi-dashboard", async ({
     page,
   }) => {
-    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
     const exportReady = waitForExecutiveRoiExportResponse(page);
+    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.operator);
 
     await expectExecutiveRoiDashboardShell(page);
     await expectExecutiveRoiFindingDeduplication(page, await exportReady);
@@ -46,8 +46,8 @@ test.describe("executive ROI dashboard — operator /dashboard", () => {
 
 test.describe("executive ROI dashboard — executive /executive/dashboard", () => {
   test("renders sponsor surface with committed-review panels @executive-roi-dashboard", async ({ page }) => {
-    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
     const exportReady = waitForExecutiveRoiExportResponse(page);
+    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
 
     await expectExecutiveRoiDashboardShell(page);
     await expectNoExecutiveRoiDashboardErrorBoundary(page);
@@ -59,8 +59,8 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
   });
 
   test("systemic issue rollup matches deduplicated export rows @executive-roi-dashboard", async ({ page }) => {
-    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
     const exportReady = waitForExecutiveRoiExportResponse(page);
+    await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
 
     await expectExecutiveRoiDashboardShell(page);
     const exportPayload = await exportReady;
