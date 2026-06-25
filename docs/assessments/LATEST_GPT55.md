@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 86.64%`
+`ArchLucid Assessment – (A) Headline Readiness: 86.95%`
 
 **State of play:** This readiness score strictly excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce, AWS/GCP target analysis) as required by the grading prompt. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -26,18 +26,18 @@
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 1.95 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 89 | 13 | 11.57 | 1.43 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 90 | 13 | 11.70 | 1.30 |
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
 | 4 | Correctness & Evidence Integrity | 90 | 12 | 10.80 | 1.20 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 1.60 |
 | 6 | Time-to-Value | 85 | 10 | 8.50 | 1.50 |
-| 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 1.08 |
+| 7 | Proof-of-ROI Readiness | 90 | 9 | 8.10 | 0.90 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
 | 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 0.70 |
 | 10 | Adoption Friction | 62 | 5 | 3.10 | 1.90 |
-| **Total** | | | **100** | **86.64%** | **13.36%** |
+| **Total** | | | **100** | **86.95%** | **13.05%** |
 
-*(A) Headline Readiness: 86.64%*
+*(A) Headline Readiness: 86.95%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 86.64%. ArchLucid is structurally complete for V1 GA. The architecture robustly supports governed, auditable, and traceable AI reviews.
+- **(A) Overall headline readiness:** 86.95%. ArchLucid is structurally complete for V1 GA. The architecture robustly supports governed, auditable, and traceable AI reviews.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -250,32 +250,8 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
-- **Title:** Remove "manifest" from browser URLs (TB-399)
-- **Tier:** Tier 1 – Must Fix
-- **Why it matters:** The internal term "manifest" bleeds into buyer-facing UI URLs (e.g., `/manifests/*`), increasing cognitive load for executives who expect terms like "architecture review".
-- **Expected impact:** Aligns UI terminology strictly with buyer expectations, reducing confusion during demos.
-- **Affected qualities:** Executive / Operator Comprehension, Differentiability.
-- **Evidence:** `V1_DEFERRED.md` section 4 lists TB-399 as a V1.1 backlog item for URL cleanup.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 3
-- **Market Uncertainty Reduced:** 5
-- **Classification:** V1.1
-- **Cursor Prompt:** Modify the Next.js `next.config.ts` in `archlucid-ui` to add permanent redirects/rewrites changing `/manifests/*` to product-language paths (e.g., `/reviews/{id}/architecture`).
-
-**Tier 2 – High Leverage**
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Multi-cloud RFPs block on UI inputs that restrict architecture requests solely to Azure, even if the analysis engine is flexible enough to parse AWS Terraform.
-- **Expected impact:** Captures intent for AWS/GCP workloads early in the baseline wizard, deferring the deep cloud-aware agent logic but securing the RFP checkbox.
-- **Affected qualities:** Proof-of-ROI Readiness, Differentiability.
-- **Evidence:** `MULTI_CLOUD_ANALYSIS_V1_1.md` and `V1_SCOPE.md §2.19` dictate adding `CloudProvider.Aws` and `CloudProvider.Gcp` to the `ArchitectureRequest` contract.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 2
-- **Market Uncertainty Reduced:** 8
-- **Classification:** V1.1
-- **Cursor Prompt:** Add `Aws` and `Gcp` to the `CloudProvider` enum in `ArchLucid.Contracts`. Update `ArchitectureRequestValidator` to allow them. Modify the operator UI baseline wizard to surface AWS and GCP as valid dropdown targets for the architecture request.
-
 - **Title:** Implement Manifest Chunk Summarization on SafeTokenLimit
-- **Tier:** Tier 2 – High Leverage
+- **Tier:** Tier 1 – Must Fix
 - **Why it matters:** Very large extracted architectures cause agent prompt token exhaustion, leading to aggressive truncation and degraded AI critique quality.
 - **Expected impact:** Safely compresses peripheral evidence context, preserving core agent capability on large enterprise workloads without failing closed.
 - **Affected qualities:** AI / Agent Readiness, Runtime Reliability.

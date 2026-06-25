@@ -43,7 +43,7 @@ describe("WizardStepIdentity", () => {
     expect(screen.getByLabelText("Prior review record version (optional)")).toBeInTheDocument();
   });
 
-  it("shows None as the default cloud target and lists Azure as the accelerated V1 option", () => {
+  it("shows None as the default cloud target and lists Azure, Aws, and Gcp options", () => {
     render(<IdentityHarness />);
 
     const triggers = screen.getAllByRole("combobox");
@@ -55,6 +55,8 @@ describe("WizardStepIdentity", () => {
     fireEvent.click(cloudTrigger);
 
     expect(screen.getByRole("option", { name: /Microsoft Azure/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Amazon Web Services/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Google Cloud Platform/i })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: /No cloud \/ evidence-only/i })).toBeInTheDocument();
   });
 

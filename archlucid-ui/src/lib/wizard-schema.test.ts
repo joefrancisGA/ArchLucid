@@ -72,4 +72,11 @@ describe("wizardFormSchema", () => {
 
     expect(parsed.cloudProvider).toBe("None");
   });
+
+  it("accepts Aws and Gcp for Phase 1 multi-cloud intent capture", () => {
+    const base = buildDefaultWizardValues();
+
+    expect(wizardFormSchema.parse({ ...base, cloudProvider: "Aws" }).cloudProvider).toBe("Aws");
+    expect(wizardFormSchema.parse({ ...base, cloudProvider: "Gcp" }).cloudProvider).toBe("Gcp");
+  });
 });

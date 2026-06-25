@@ -29,7 +29,7 @@ const wizardSelectTriggerClassName =
   "w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus:ring-teal-600/35 dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500";
 
 /**
- * Step 2: system name, environment, cloud target (None or Azure in V1).
+ * Step 2: system name, environment, cloud target (None, Azure, Aws, or Gcp).
  */
 export function WizardStepIdentity() {
   const { register, control, formState, clearErrors, watch } = useFormContext<WizardFormValues>();
@@ -106,7 +106,7 @@ export function WizardStepIdentity() {
           <WizardFieldHint
             htmlFor="wizard-cloud-provider"
             label="Cloud target"
-            hint="Choose None for brief/docs/diagram/IaC-only reviews. Choose Azure when the workload runs on Azure or you attach Azure extractor evidence."
+            hint="Choose None for brief/docs/diagram/IaC-only reviews. Choose Azure when the workload runs on Azure or you attach Azure extractor evidence. Aws and Gcp capture target-cloud intent for multi-cloud RFPs; attach Terraform or other IaC for best results until V1.1 deep analysis ships."
           />
           <Controller
             name="cloudProvider"
@@ -125,6 +125,8 @@ export function WizardStepIdentity() {
                 <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
                   <SelectItem value="None">No cloud / evidence-only</SelectItem>
                   <SelectItem value="Azure">Microsoft Azure (accelerated V1 path)</SelectItem>
+                  <SelectItem value="Aws">Amazon Web Services (intent capture — V1.1 deep analysis)</SelectItem>
+                  <SelectItem value="Gcp">Google Cloud Platform (intent capture — V1.1 deep analysis)</SelectItem>
                 </SelectContent>
               </Select>
             )}

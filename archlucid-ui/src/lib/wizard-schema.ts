@@ -35,7 +35,8 @@ function isPriorManifestVersionValid(value: string): boolean {
 
 /**
  * Zod model for the new-run wizard — mirrors `CreateArchitectureRunRequestPayload` (`api.ts`).
- * `cloudProvider` is `None` for evidence-only reviews or `Azure` when Azure evidence is selected.
+ * `cloudProvider` is `None` for evidence-only reviews, `Azure` when Azure evidence is selected,
+ * or `Aws` / `Gcp` for Phase 1 multi-cloud intent capture (deep analysis V1.1).
  */
 export const wizardFormSchema = z.object({
   requestId: z.string().min(1),
@@ -59,7 +60,7 @@ export const wizardFormSchema = z.object({
         .min(2, "System name must be at least 2 characters — use a short project slug, e.g. OrderService."),
     ),
   environment: z.string().min(1, "Required"),
-  cloudProvider: z.enum(["None", "Azure"]),
+  cloudProvider: z.enum(["None", "Azure", "Aws", "Gcp"]),
   constraints: z.array(z.string()),
   requiredCapabilities: z.array(z.string()),
   assumptions: z.array(z.string()),

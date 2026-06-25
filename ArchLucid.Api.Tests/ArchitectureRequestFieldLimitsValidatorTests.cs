@@ -50,6 +50,20 @@ public sealed class ArchitectureRequestFieldLimitsValidatorTests
                 StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(CloudProvider.Aws)]
+    [InlineData(CloudProvider.Gcp)]
+    public async Task Aws_and_Gcp_cloud_providers_pass_validation(CloudProvider cloudProvider)
+    {
+        ArchitectureRequest request = BuildMinimalRequest(new string('a', ArchitectureRequestFieldLimits.MinDescriptionLength));
+        request.CloudProvider = cloudProvider;
+
+        ArchitectureRequestValidator validator = new();
+        ValidationResult result = await validator.ValidateAsync(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
     [Fact]
     public async Task InlineRequirement_over_max_length_fails_validation()
     {
