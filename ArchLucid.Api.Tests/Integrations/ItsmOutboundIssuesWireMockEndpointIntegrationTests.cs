@@ -26,6 +26,7 @@ namespace ArchLucid.Api.Tests.Integrations;
 ///     Validates <c>POST /v1/integrations/itsm/outbound/issues</c> against WireMock (production outbound HttpClients).
 /// </summary>
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 [Trait("Suite", "Core")]
 public sealed class ItsmOutboundIssuesWireMockEndpointIntegrationTests
 {
