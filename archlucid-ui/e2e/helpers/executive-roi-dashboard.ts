@@ -86,9 +86,9 @@ export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
   readonly summaryResponse: Promise<Response>;
   readonly exportPayload: Promise<ExecutiveRoiExportPayload>;
 } {
-  const summaryResponse = page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 60_000 });
+  const summaryResponse = page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 90_000 });
   const exportPayload = page
-    .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 60_000 })
+    .waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 })
     .then(async (response) => (await response.json()) as ExecutiveRoiExportPayload);
 
   return { summaryResponse, exportPayload };

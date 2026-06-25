@@ -16,7 +16,7 @@ import {
 } from "./helpers/executive-roi-dashboard";
 
 /** Mock dashboard waits on export fetch (60s) plus panel hydration on cold CI agents. */
-test.describe.configure({ timeout: 90_000 });
+test.describe.configure({ mode: "serial", timeout: 90_000 });
 
 test.describe("executive ROI dashboard — operator /dashboard", () => {
   test("renders portfolio summary, KPI tiles, and trend chart without error boundary @smoke @executive-roi-dashboard", async ({
@@ -66,6 +66,7 @@ test.describe("executive ROI dashboard — executive /executive/dashboard", () =
     await page.goto(EXECUTIVE_ROI_DASHBOARD_PATHS.executive);
 
     await expectExecutiveRoiDashboardShell(page);
+    await expectNoExecutiveRoiDashboardErrorBoundary(page);
     await roiWaits.summaryResponse;
     const exportPayload = await roiWaits.exportPayload;
     await expectExecutiveRoiExecutiveSurface(page);
