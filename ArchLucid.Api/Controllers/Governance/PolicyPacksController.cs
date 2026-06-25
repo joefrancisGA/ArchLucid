@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -22,6 +23,8 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+
+using FluentValidation;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -61,6 +64,9 @@ public sealed class PolicyPacksController(
     PolicyPackMarkdownExplainService policyPackMarkdownExplainService,
     IPolicyPackRuleTemplatesService policyPackRuleTemplatesService,
     IPolicyPackContentAuthoringValidationService policyPackContentAuthoringValidationService,
+    IValidator<CreatePolicyPackRequest> createPolicyPackRequestValidator,
+    IValidator<PublishPolicyPackVersionRequest> publishPolicyPackVersionRequestValidator,
+    IValidator<AssignPolicyPackRequest> assignPolicyPackRequestValidator,
     IAuditService auditService)
     : ControllerBase
 {
@@ -85,6 +91,16 @@ public sealed class PolicyPacksController(
         policyPackContentAuthoringValidationService
         ?? throw new ArgumentNullException(nameof(policyPackContentAuthoringValidationService));
 
+    private readonly IValidator<CreatePolicyPackRequest> _createPolicyPackRequestValidator =
+        createPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(createPolicyPackRequestValidator));
+
+    private readonly IValidator<PublishPolicyPackVersionRequest> _publishPolicyPackVersionRequestValidator =
+        publishPolicyPackVersionRequestValidator
+        ?? throw new ArgumentNullException(nameof(publishPolicyPackVersionRequestValidator));
+
+    private readonly IValidator<AssignPolicyPackRequest> _assignPolicyPackRequestValidator =
+        assignPolicyPackRequestValidator ?? throw new ArgumentNullException(nameof(assignPolicyPackRequestValidator));
+
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
     // idempotency-posture: operator-documented-safe-retry
@@ -98,6 +114,12 @@ public sealed class PolicyPacksController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? validationProblem =
+            await this.ValidateRequestAsync(_createPolicyPackRequestValidator, request, ct);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -129,6 +151,12 @@ public sealed class PolicyPacksController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        IActionResult? validationProblem =
+            await this.ValidateRequestAsync(_publishPolicyPackVersionRequestValidator, request, ct);
+
+        if (validationProblem is not null)
+            return validationProblem;
+
         PolicyPackVersion version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -148,6 +176,7 @@ public sealed class PolicyPacksController(
     [HttpPost("{policyPackId:guid}/assign")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Assign(
         Guid policyPackId,
@@ -156,6 +185,12 @@ public sealed class PolicyPacksController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? validationProblem =
+            await this.ValidateRequestAsync(_assignPolicyPackRequestValidator, request, ct);
+
+        if (validationProblem is not null)
+            return validationProblem;
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         string versionKey = request.Version.Trim();
