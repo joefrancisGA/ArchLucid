@@ -9,6 +9,7 @@ namespace ArchLucid.Api.Tests;
 ///     Tests for Policy Pack Request Validation.
 /// </summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Integration")]
 public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [SkippableFact]
