@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { operatorSemanticSurface } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { cn } from "@/lib/utils";
 import type { components } from "@/lib/openapi-schemas";
@@ -198,10 +198,10 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
   return (
     <Card data-testid="identity-provider-setup-checklist">
       <CardHeader>
-        <CardTitle className="text-base">Identity setup checklist</CardTitle>
-        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Identity setup checklist</CardTitle>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
           One-screen setup status from{" "}
-          <span className="font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
+          <span className={cn("font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.micro)}>
             GET /v1/admin/auth/configuration-diagnostics
           </span>
           . Values are booleans and labels only; no secrets are returned.
@@ -209,12 +209,17 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
       </CardHeader>
       <CardContent className="space-y-3">
         {configDiagnosticsNote ? (
-          <p className="m-0 text-sm text-amber-900 dark:text-amber-100" data-testid="identity-provider-setup-note">
+          <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-provider-setup-note">
             {configDiagnosticsNote}
           </p>
         ) : null}
         {nextStep ? (
-          <p className="m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm">
+          <p
+            className={cn(
+              "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
             <strong>Next setup step:</strong> {nextStep.detail}
             {nextStep.configKey ? (
               <>
@@ -237,20 +242,20 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
                 data-testid={`identity-provider-setup-${step.label.toLowerCase().replaceAll(" ", "-").replace("/", "")}`}
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{step.label}</span>
-                  <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${statusClass(step.status)}`}>
+                  <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{step.label}</span>
+                  <span className={cn("inline-flex rounded-full border px-2 py-0.5", OPERATOR_TYPOGRAPHY.badge, statusClass(step.status))}>
                     {step.status}
                   </span>
                 </div>
-                <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">{step.detail}</p>
+                <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
                 {step.configKey ? (
-                  <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
                     Config key: <code>{step.configKey}</code>
                   </p>
                 ) : null}
                 {step.docHref ? (
-                  <p className="m-0 mt-2 text-xs">
-                    <Link href={toDocsBlobUrl(step.docHref)} className="underline" rel="noopener noreferrer" target="_blank">
+                  <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+                    <Link href={toDocsBlobUrl(step.docHref)} className={OPERATOR_LINK.nav} rel="noopener noreferrer" target="_blank">
                       Setup guide
                     </Link>
                   </p>

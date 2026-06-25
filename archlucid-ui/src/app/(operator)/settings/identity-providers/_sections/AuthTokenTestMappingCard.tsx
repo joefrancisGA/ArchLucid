@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { components } from "@/lib/openapi-schemas";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { cn } from "@/lib/utils";
 
 type AdminTokenClaimsDiagnosticResponse = components["schemas"]["AdminTokenClaimsDiagnosticResponse"];
 
@@ -74,7 +76,7 @@ export function AuthTokenTestMappingCard() {
   return (
     <Card data-testid="auth-token-test-mapping-card">
       <CardHeader>
-        <CardTitle className="text-base">Test mapping</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Test mapping</CardTitle>
         <CardDescription>
           Paste a sample JWT from your IdP (payload only — signature is not validated). ArchLucid evaluates claim
           mappings and returns resolved roles without changing tenant configuration.
@@ -90,7 +92,7 @@ export function AuthTokenTestMappingCard() {
               setBearerToken(event.target.value);
             }}
             rows={4}
-            className="font-mono text-xs"
+            className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}
             placeholder="eyJhbGciOiJ..."
             data-testid="auth-test-mapping-token-input"
           />
@@ -107,13 +109,13 @@ export function AuthTokenTestMappingCard() {
           {busy ? "Evaluating…" : "Test mapping"}
         </Button>
         {errorMessage !== null ? (
-          <p className="m-0 text-sm text-red-700 dark:text-red-300" role="alert" data-testid="auth-test-mapping-error">
+          <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="auth-test-mapping-error">
             {errorMessage}
           </p>
         ) : null}
         {result !== null ? (
-          <div className="space-y-2 text-sm" data-testid="auth-test-mapping-result">
-            <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Resolved roles</p>
+          <div className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)} data-testid="auth-test-mapping-result">
+            <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Resolved roles</p>
             {(result.resolvedRoles ?? []).length > 0 ? (
               <ul className="m-0 list-disc pl-5">
                 {(result.resolvedRoles ?? []).map((role) => (
@@ -121,11 +123,11 @@ export function AuthTokenTestMappingCard() {
                 ))}
               </ul>
             ) : (
-              <p className="m-0 text-neutral-600 dark:text-neutral-400">No ArchLucid roles resolved.</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>No ArchLucid roles resolved.</p>
             )}
             {(result.unmappedValues ?? []).length > 0 ? (
               <>
-                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Unmapped claim values</p>
+                <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Unmapped claim values</p>
                 <ul className="m-0 list-disc pl-5">
                   {(result.unmappedValues ?? []).map((value) => (
                     <li key={value}>{value}</li>
@@ -135,7 +137,7 @@ export function AuthTokenTestMappingCard() {
             ) : null}
             {(result.warnings ?? []).length > 0 ? (
               <>
-                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Warnings</p>
+                <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Warnings</p>
                 <ul className="m-0 list-disc pl-5 text-amber-900 dark:text-amber-100">
                   {(result.warnings ?? []).map((warning) => (
                     <li key={warning}>{warning}</li>
