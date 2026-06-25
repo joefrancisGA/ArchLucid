@@ -12,6 +12,8 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type TenantBaselineGet = {
   manualPrepHoursPerReview: number | null;
@@ -249,8 +251,8 @@ export function BaselineSettingsClient() {
   return (
     <div className="w-full max-w-3xl space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Baseline settings — ROI measurement</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Baseline settings — ROI measurement</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           These fields tighten the &quot;before&quot; anchor for your value reports. If you skip them, we use conservative
           model defaults. You can update them at any time.
         </p>
@@ -286,12 +288,19 @@ export function BaselineSettingsClient() {
         </div>
       ) : null}
       {!demoMode && loading ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       ) : !demoMode ? (
         <form onSubmit={onSave} className="space-y-4">
-          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300">
-            <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">Review-cycle anchor</p>
-            <p className="m-0 mt-1 leading-relaxed">
+          <div
+            className={cn(
+              "rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              Review-cycle anchor
+            </p>
+            <p className={cn("m-0 mt-1 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
               Median hours from architecture request to a reviewable package — surfaced automatically in sponsor exports when measured deltas exist.
             </p>
           </div>
@@ -316,7 +325,10 @@ export function BaselineSettingsClient() {
 
             <textarea
               id="baseline-review-cycle-note"
-              className="mt-1 min-h-[64px] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none ring-teal-500/40 placeholder:text-neutral-400 focus-visible:ring-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
+              className={cn(
+                "mt-1 min-h-[64px] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-al-text-primary shadow-sm outline-none ring-teal-500/40 placeholder:text-neutral-400 focus-visible:ring-2 dark:border-neutral-700 dark:bg-neutral-950",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               maxLength={500}
               data-testid="baseline-review-cycle-note"
               value={reviewNote}
