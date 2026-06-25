@@ -6,6 +6,8 @@ import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type PilotConversionCtaProps = {
   readonly trialActive: boolean;
@@ -54,7 +56,10 @@ export function PilotConversionCta(props: PilotConversionCtaProps) {
     <div
       role="region"
       aria-label="Pilot conversion call to action"
-      className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 px-4 py-3 text-sm shadow-sm"
+      className={cn(
+        "rounded-md border border-rose-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary shadow-sm dark:border-rose-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       data-testid="pilot-conversion-cta"
     >
       <p className="m-0 font-semibold">Trial AI budget reached for this month</p>

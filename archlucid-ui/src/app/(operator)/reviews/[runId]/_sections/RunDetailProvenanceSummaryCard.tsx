@@ -7,6 +7,8 @@ import { RunDetailEngineProvenanceRow } from "@/components/reviews/RunDetailEngi
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-display";
 import type { RunDetail } from "@/types/authority";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -24,6 +26,9 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
       ? run.architectureRequestId
       : null;
 
+  const definitionLabelClass = cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
+  const monoValueClass = cn("mt-1 flex items-center gap-2 font-mono", OPERATOR_TYPOGRAPHY.micro);
+
   return (
     <section id="provenance-summary" className="scroll-mt-24">
       <Card>
@@ -36,10 +41,10 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
         </CardHeader>
         <CardContent className="space-y-3">
           <CollapsibleSection title="Identifiers" defaultOpen>
-            <dl className="m-0 grid gap-3 text-sm sm:grid-cols-2">
+            <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                <dt className="font-medium text-neutral-700 dark:text-neutral-300">Context snapshot</dt>
-                <dd className="mt-1 flex items-center gap-2 font-mono text-xs">
+                <dt className={definitionLabelClass}>Context snapshot</dt>
+                <dd className={monoValueClass}>
                   {run.contextSnapshotId ?? "—"}
                   {run.contextSnapshotId ? (
                     <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
@@ -47,8 +52,8 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-neutral-700 dark:text-neutral-300">Graph snapshot</dt>
-                <dd className="mt-1 flex items-center gap-2 font-mono text-xs">
+                <dt className={definitionLabelClass}>Graph snapshot</dt>
+                <dd className={monoValueClass}>
                   {run.graphSnapshotId ?? "—"}
                   {run.graphSnapshotId ? (
                     <CopyIdButton value={run.graphSnapshotId} aria-label="Copy graph snapshot ID" />
@@ -56,8 +61,8 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="font-medium text-neutral-700 dark:text-neutral-300">Architecture request</dt>
-                <dd className="mt-1 flex items-center gap-2 font-mono text-xs">
+                <dt className={definitionLabelClass}>Architecture request</dt>
+                <dd className={monoValueClass}>
                   {architectureRequestId ?? "—"}
                   {architectureRequestId ? (
                     <CopyIdButton value={architectureRequestId} aria-label="Copy architecture request ID" />
@@ -67,9 +72,9 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
             </dl>
           </CollapsibleSection>
           {engineProvenance ? <RunDetailEngineProvenanceRow provenance={engineProvenance} /> : null}
-          <p className="m-0 text-sm">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link
-              className="font-medium text-teal-800 underline dark:text-teal-300"
+              className={OPERATOR_LINK.nav}
               href={`/reviews/${encodeURIComponent(runId)}/provenance`}
             >
               View full provenance →

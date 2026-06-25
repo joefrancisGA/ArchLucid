@@ -8,6 +8,8 @@ import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { CoverageChecklistPanel } from "@/components/usability/CoverageChecklistPanel";
 import { InsightDensityCurationBanner } from "@/components/usability/InsightDensityCurationBanner";
 import type { FindingsSnapshotInsightDensityView } from "@/lib/findings-snapshot-insight-density";
@@ -83,7 +85,7 @@ export function RunDetailRunExplanationCollapsible(
         <CoverageChecklistPanel items={insightDensityView.checklistCoverage} className="mt-4" />
         {explanationFailure ? (
           <>
-            <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+            <p className={cn("m-0 mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Aggregate explanation could not be loaded.
             </p>
             <OperatorApiProblem
@@ -92,7 +94,7 @@ export function RunDetailRunExplanationCollapsible(
               correlationId={explanationFailure.correlationId}
               variant="warning"
             />
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
             </p>
             <OperatorSectionRetryButton label="Retry loading explanation" />

@@ -4,6 +4,8 @@ import type { ReactElement } from "react";
 import { ArchitectureGraphViewer } from "@/components/ArchitectureGraphViewer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -45,7 +47,7 @@ export function RunDetailArchitectureGraphSection(
         <CardContent>
           {buyerPolishedArtifactTable ? (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+              <p className={cn("m-0 max-w-prose text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 This review links to a persisted graph snapshot used for audit and evidence navigation.
               </p>
               <Button type="button" variant="default" size="sm" asChild>

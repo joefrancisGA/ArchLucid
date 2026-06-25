@@ -5,6 +5,8 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type RunDetailSponsorModeExplanationCardProps = {
   readonly explanationSummary: RunExplanationSummary | null;
@@ -56,24 +58,24 @@ export function RunDetailSponsorModeExplanationCard(
 
   return (
     <section
-      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-sm"
+      className={cn("rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
       data-testid="sponsor-mode-explanation-card"
       aria-labelledby="sponsor-mode-explanation-heading"
     >
       <header className="space-y-1">
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-200">
+        <p className={cn("m-0 text-teal-700 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
           Sponsor-mode explanation
         </p>
-        <h3 id="sponsor-mode-explanation-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+        <h3 id="sponsor-mode-explanation-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Explain this review like I am the sponsor
         </h3>
       </header>
 
-      <p className="mt-3 m-0 text-teal-900 dark:text-teal-100">
+      <p className={cn("m-0 mt-3 text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
         {firstNonEmptyLine(explanationSummary?.overallAssessment ?? explanationSummary?.explanation?.summary)}
       </p>
 
-      <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+      <dl className={cn("mt-3 grid gap-2 sm:grid-cols-3", OPERATOR_TYPOGRAPHY.helper)}>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Evidence basis</dt>
           <dd className="m-0 mt-1">{basisLabel}</dd>
@@ -97,7 +99,7 @@ export function RunDetailSponsorModeExplanationCard(
 
       {top.length > 0 ? (
         <div className="mt-4">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-200">
+          <p className={cn("m-0 text-teal-700 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
             Top sponsor talking points
           </p>
           <ul className="mt-2 space-y-2 pl-5">
@@ -111,7 +113,7 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
       ) : null}
 
-      <p className="mt-4 m-0 text-xs text-teal-800 dark:text-teal-200">
+      <p className={cn("m-0 mt-4 text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
         Next action: {buyerPolishedArtifactTable ? "send the executive briefing package" : "open the sponsor packet"}
         {" "}after confirming the evidence and ROI basis labels. This is decision support, not a legal or compliance
         attestation.

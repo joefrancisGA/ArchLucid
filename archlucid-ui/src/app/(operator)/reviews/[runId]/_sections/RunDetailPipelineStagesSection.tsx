@@ -11,6 +11,8 @@ import {
   pipelineStageOutcomeLabel,
 } from "@/lib/map-pipeline-stage-outcome-status";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -41,11 +43,11 @@ export function RunDetailPipelineStagesSection({
         defaultOpen={false}
         sectionTestId="run-detail-pipeline-stages-collapsible"
       >
-        <p className="mb-3 text-sm text-al-text-secondary">
+        <p className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Authority pipeline stages for this review (context ingestion through artifacts). Durations are measured in-product; use the trace link for full distributed spans.
         </p>
         {otelTraceId ? (
-          <p className="mb-3 text-sm">
+          <p className={cn("mb-3", OPERATOR_TYPOGRAPHY.body)}>
             <RunTraceViewerLink traceId={otelTraceId} />
           </p>
         ) : null}
@@ -53,7 +55,7 @@ export function RunDetailPipelineStagesSection({
           {stageTimeline.map((stage) => (
             <li
               key={stage.stageName}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800"
+              className={cn("flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
               data-testid={`pipeline-stage-row-${stage.stageName}`}
             >
               <span className="font-medium text-al-text-primary">

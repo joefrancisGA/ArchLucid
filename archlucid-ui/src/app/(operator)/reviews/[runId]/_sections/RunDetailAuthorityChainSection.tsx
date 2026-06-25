@@ -9,6 +9,8 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import type { RunDetail } from "@/types/authority";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -22,6 +24,8 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
   const { run, manifestId } = props;
   const { vocabulary } = useGovernanceMode();
   const manifestLabel = vocabulary.goldenManifestLabel;
+  const rowLabelClass = cn("shrink-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
+  const monoCodeClass = cn("truncate font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro);
 
   return (
     <section id="authority-chain" className="scroll-mt-24">
@@ -35,19 +39,19 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-            <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <GlossaryTooltip termKey="golden_manifest">{manifestLabel}</GlossaryTooltip>
             </p>
             <div className="mt-2 min-w-0">
               {manifestId ? (
                 <Link
-                  className="inline-block text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
                   href={`/manifests/${encodeURIComponent(manifestId)}`}
                 >
                   Finalized signed review record
                 </Link>
               ) : (
-                <span className="font-mono text-xs">—</span>
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>—</span>
               )}
             </div>
           </div>
@@ -56,21 +60,21 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
             <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
               {manifestId ? (
                 <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  <span className={rowLabelClass}>
                     Review record id
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
-                    <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">{manifestId}</code>
+                    <code className={monoCodeClass}>{manifestId}</code>
                     <CopyIdButton value={manifestId} aria-label="Copy review record ID" />
                   </span>
                 </li>
               ) : null}
               <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                <span className={rowLabelClass}>
                   <GlossaryTooltip termKey="context_snapshot">Context snapshot</GlossaryTooltip>
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                  <code className={monoCodeClass}>
                     {run.contextSnapshotId ?? "—"}
                   </code>
                   {run.contextSnapshotId ? (
@@ -79,9 +83,9 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
               </li>
               <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Graph snapshot</span>
+                <span className={rowLabelClass}>Graph snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                  <code className={monoCodeClass}>
                     {run.graphSnapshotId ?? "—"}
                   </code>
                   {run.graphSnapshotId ? (
@@ -90,9 +94,9 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
               </li>
               <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Findings snapshot</span>
+                <span className={rowLabelClass}>Findings snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                  <code className={monoCodeClass}>
                     {run.findingsSnapshotId ?? "—"}
                   </code>
                   {run.findingsSnapshotId ? (
@@ -101,11 +105,11 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
               </li>
               <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                <span className={rowLabelClass}>
                   <GlossaryTooltip termKey="decision_trace">Decision trace</GlossaryTooltip>
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                  <code className={monoCodeClass}>
                     {run.decisionTraceId ?? "—"}
                   </code>
                   {run.decisionTraceId ? (
@@ -114,11 +118,11 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
               </li>
               <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                <span className={rowLabelClass}>
                   <GlossaryTooltip termKey="artifact_bundle">Artifact bundle</GlossaryTooltip>
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                  <code className={monoCodeClass}>
                     {run.artifactBundleId ?? "—"}
                   </code>
                   {run.artifactBundleId ? (
