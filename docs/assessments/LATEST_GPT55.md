@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 86.42%`
+`ArchLucid Assessment – (A) Headline Readiness: 86.64%`
 
 **State of play:** This readiness score strictly excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce, AWS/GCP target analysis) as required by the grading prompt. The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -26,18 +26,18 @@
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 1.95 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 88 | 13 | 11.44 | 1.56 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 89 | 13 | 11.57 | 1.43 |
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
 | 4 | Correctness & Evidence Integrity | 90 | 12 | 10.80 | 1.20 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 1.60 |
 | 6 | Time-to-Value | 85 | 10 | 8.50 | 1.50 |
 | 7 | Proof-of-ROI Readiness | 88 | 9 | 7.92 | 1.08 |
-| 8 | Executive / Operator Comprehension | 87 | 8 | 6.96 | 1.04 |
+| 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
 | 9 | Runtime & First-Review Reliability | 90 | 7 | 6.30 | 0.70 |
 | 10 | Adoption Friction | 62 | 5 | 3.10 | 1.90 |
-| **Total** | | | **100** | **86.43%** | **13.57%** |
+| **Total** | | | **100** | **86.64%** | **13.36%** |
 
-*(A) Headline Readiness: 86.43%*
+*(A) Headline Readiness: 86.64%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 86.43%. ArchLucid is structurally complete for V1 GA. The architecture robustly supports governed, auditable, and traceable AI reviews.
+- **(A) Overall headline readiness:** 86.64%. ArchLucid is structurally complete for V1 GA. The architecture robustly supports governed, auditable, and traceable AI reviews.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
