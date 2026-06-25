@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 Set-StrictMode -Version Latest
 
 function Get-OptionalPropertyValue {
@@ -151,7 +151,7 @@ function Build-ConsolidatedAiReadinessGate {
         $reasons.Add('PilotStrict quality signals are unresolved for this run.')
     }
 
-    if ($Observability.unresolvedQualitySignalsPresent -eq $true) {
+    if ((Get-OptionalPropertyValue -Object $Observability -Name 'unresolvedQualitySignalsPresent') -eq $true) {
         $reasons.Add('Unresolved quality signals remain on the observability summary.')
     }
 

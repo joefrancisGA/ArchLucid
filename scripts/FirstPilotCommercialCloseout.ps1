@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 Set-StrictMode -Version Latest
 
 function Write-FirstPilotCommercialCloseoutArtifacts {
@@ -8,12 +8,16 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
         [Parameter(Mandatory = $true)][string] $RoiBasisStatus,
         [Parameter(Mandatory = $true)][bool] $RoiSponsorSafe,
         [Parameter(Mandatory = $true)][int] $BlockCount,
-        [Parameter(Mandatory = $true)][string[]] $DeferredScopeReasons,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $DeferredScopeReasons,
         [Parameter(Mandatory = $true)][object] $CommercialStep,
         [Parameter(Mandatory = $true)][string] $BaselineCompletenessStatus,
         [Parameter(Mandatory = $true)][bool] $SendEligible,
         [Parameter(Mandatory = $false)][bool] $OverrideApplied = $false,
+        [AllowEmptyCollection()]
         [string[]] $SendBlockReasons = @(),
+        [AllowEmptyCollection()]
         [string[]] $MissingRequiredBaselineFields = @(),
         [string] $DataConsistencyStatus = 'NOT_RUN',
         [string] $ProcurementDisposition = 'NOT_RUN',

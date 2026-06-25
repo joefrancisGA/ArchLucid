@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Emit a buyer-safe admin operational posture rollup (JSON + Markdown) for first-pilot proof.
@@ -97,11 +97,15 @@ function Invoke-AdminGetJson {
 
 function Add-PostureRow {
     param(
-        [Parameter(Mandatory = $true)][System.Collections.Generic.List[object]] $Rows,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [System.Collections.Generic.List[object]] $Rows,
         [Parameter(Mandatory = $true)][string] $Signal,
         [Parameter(Mandatory = $true)][ValidateSet('PASS', 'WARN', 'HOLD')][string] $Disposition,
         [Parameter(Mandatory = $true)][string] $Summary,
-        [Parameter(Mandatory = $true)][string] $Remediation
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Remediation
     )
 
     $Rows.Add([ordered]@{
@@ -125,7 +129,13 @@ else {
     $proofDisposition = [string]$configLint.proofDisposition
 
     if ([string]::IsNullOrWhiteSpace($proofDisposition)) {
-        $proofDisposition = if ($configLint.ok -eq $true) { 'READY' } else { 'HOLD' }
+        $configLintOk = $null
+
+        if ($null -ne $configLint.PSObject.Properties['ok']) {
+            $configLintOk = $configLint.ok
+        }
+
+        $proofDisposition = if ($configLintOk -eq $true) { 'READY' } else { 'HOLD' }
     }
 
     switch ($proofDisposition) {
@@ -209,7 +219,8 @@ if ($null -eq $llmBudget) {
     Add-PostureRow -Rows $rows -Signal 'llm-budget' -Disposition 'WARN' -Summary 'LLM budget proof status not attached.' -Remediation 'Collect committed-run evidence with -RunId to emit llm-budget-proof-status.json.'
 }
 else {
-    $budgetStatus = Get-SafeScalar -Value $llmBudget.status
+    $budgetStatusRaw = if ($null -ne $llmBudget.PSObject.Properties['status']) { $llmBudget.status } else { $null }
+    $budgetStatus = Get-SafeScalar -Value $budgetStatusRaw
     Add-PostureRow -Rows $rows -Signal 'llm-budget' -Disposition 'PASS' -Summary "LLM budget posture recorded (status=$budgetStatus)." -Remediation ''
 }
 
@@ -219,7 +230,7 @@ $routeTier = Read-JsonFileIfPresent -Path $routeTierPath
 if ($null -eq $routeTier) {
     Add-PostureRow -Rows $rows -Signal 'route-tier-nav' -Disposition 'WARN' -Summary 'Route/tier/policy/nav parity summary missing.' -Remediation 'Run python scripts/ci/assert_route_tier_policy_nav.py --sync.'
 }
-elseif ($routeTier.ok -eq $true) {
+elseif ($null -ne $routeTier.PSObject.Properties['ok'] -and $routeTier.ok -eq $true) {
     Add-PostureRow -Rows $rows -Signal 'route-tier-nav' -Disposition 'PASS' -Summary 'Route/tier/policy/nav registry parity passed.' -Remediation ''
 }
 else {

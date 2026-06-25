@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Buyer-safe environment reliability rollup for first-pilot proof (health, data, telemetry, AI gate, LLM budget, timing).
@@ -22,11 +22,15 @@ function Read-JsonFileIfPresent {
 
 function Add-RollupRow {
     param(
-        [Parameter(Mandatory = $true)][System.Collections.Generic.List[object]] $Rows,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [System.Collections.Generic.List[object]] $Rows,
         [Parameter(Mandatory = $true)][string] $Signal,
         [Parameter(Mandatory = $true)][ValidateSet('PASS', 'WARN', 'HOLD')][string] $Disposition,
         [Parameter(Mandatory = $true)][string] $Summary,
-        [Parameter(Mandatory = $true)][string] $Remediation
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $Remediation
     )
 
     $Rows.Add([ordered]@{
@@ -104,7 +108,7 @@ if ($null -eq $llmBudget) {
     Add-RollupRow -Rows $rows -Signal 'llm-budget' -Disposition 'WARN' -Summary 'LLM budget proof status not attached.' -Remediation 'Collect committed-run evidence with -RunId.'
 }
 else {
-    $budgetStatus = [string]$llmBudget.status
+    $budgetStatus = if ($null -ne $llmBudget.PSObject.Properties['status']) { [string]$llmBudget.status } else { 'unknown' }
     Add-RollupRow -Rows $rows -Signal 'llm-budget' -Disposition 'PASS' -Summary "LLM budget posture recorded (status=$budgetStatus)." -Remediation ''
 }
 
@@ -114,7 +118,13 @@ if ($null -eq $timing) {
     Add-RollupRow -Rows $rows -Signal 'timing-budget' -Disposition 'WARN' -Summary 'First-pilot timing budget artifact missing.' -Remediation 'Rerun collect-first-pilot-proof.ps1 to emit first-pilot-timing-budget.json.'
 }
 else {
-    $measured = @($timing.phases | Where-Object { [string]$_.collectionStatus -eq 'measured' }).Count
+    $phaseRows = @()
+
+    if ($null -ne $timing.PSObject.Properties['phases'] -and $null -ne $timing.phases) {
+        $phaseRows = @($timing.phases | Where-Object { [string]$_.collectionStatus -eq 'measured' })
+    }
+
+    $measured = $phaseRows.Count
 
     if ($measured -eq 0) {
         Add-RollupRow -Rows $rows -Signal 'timing-budget' -Disposition 'WARN' -Summary 'Timing budget has no measured phases (guidance-only or missing data).' -Remediation 'Attach staging-smoke or run proof collection with measured timings.'
@@ -127,7 +137,7 @@ else {
 $smoke = Read-JsonFileIfPresent -Path (Join-Path $proofDir 'staging-smoke-summary.json')
 
 if ($null -ne $smoke) {
-    $smokeOk = $smoke.ok -eq $true
+    $smokeOk = ($null -ne $smoke.PSObject.Properties['ok'] -and $smoke.ok -eq $true)
 
     if ($smokeOk) {
         Add-RollupRow -Rows $rows -Signal 'staging-smoke' -Disposition 'PASS' -Summary 'Staging smoke summary attached and reports ok.' -Remediation ''

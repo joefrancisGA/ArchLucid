@@ -1,4 +1,4 @@
-# Dot-source from scripts/: . (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
+﻿# Dot-source from scripts/: . (Join-Path $PSScriptRoot 'ArchLucid.AuthHeaders.ps1')
 # Builds optional Authorization / X-Api-Key headers for ArchLucid HTTP APIs.
 # Precedence: explicit parameters win; otherwise ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY env vars.
 function Get-ArchLucidHttpAuthHeadersHashtable {
@@ -36,4 +36,35 @@ function Get-ArchLucidHttpAuthHeadersHashtable {
     }
 
     return $headers
+}
+
+function Merge-ArchLucidHttpScopeHeaders {
+    param(
+        [hashtable] $Headers,
+        [string] $TenantId = '',
+        [string] $WorkspaceId = '',
+        [string] $ProjectId = ''
+    )
+
+    [hashtable] $merged = @{}
+
+    if ($null -ne $Headers) {
+        foreach ($key in $Headers.Keys) {
+            $merged[$key] = $Headers[$key]
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($TenantId)) {
+        $merged['X-Tenant-Id'] = $TenantId.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($WorkspaceId)) {
+        $merged['X-Workspace-Id'] = $WorkspaceId.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ProjectId)) {
+        $merged['X-Project-Id'] = $ProjectId.Trim()
+    }
+
+    return $merged
 }

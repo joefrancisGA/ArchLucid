@@ -74,7 +74,7 @@ def format_disposition(*, ok: bool, violations: list[str]) -> str:
 
 
 def load_payload(path: Path) -> dict[str, Any]:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(data, dict):
         raise ValueError("preview JSON root must be an object")
     return data

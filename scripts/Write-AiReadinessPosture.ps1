@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+﻿#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
   Assembles the sponsor-facing AI readiness posture artifact from existing evidence outputs.
@@ -585,7 +585,13 @@ $vectorIndexType = Get-VectorIndexTypeFromAppSettings -AbsPath $appSettingsAbs
 $evidenceGateRel    = $EvidenceGateJson.Replace('\', '/')
 $retrievalIrRel     = $RetrievalIrReport.Replace('\', '/')
 
-Write-Host "Evidence gate:     $(if ($null -ne $evidenceGate) { "found ($((Get-PropertyOrNull -Object $evidenceGate -Name 'disposition') ?? 'unknown disposition'))" } else { 'not found' })" -ForegroundColor Cyan
+$evidenceGateDispositionLabel = Get-PropertyOrNull -Object $evidenceGate -Name 'disposition'
+
+if ($null -eq $evidenceGateDispositionLabel) {
+    $evidenceGateDispositionLabel = 'unknown disposition'
+}
+
+Write-Host "Evidence gate:     $(if ($null -ne $evidenceGate) { "found ($evidenceGateDispositionLabel)" } else { 'not found' })" -ForegroundColor Cyan
 Write-Host "Pipeline metrics:  $(if ($null -ne $pipelineMetrics) { 'found' } else { 'not found' })" -ForegroundColor Cyan
 Write-Host "Retrieval report:  $(if (Test-Path -LiteralPath $retrievalIrReportAbs) { 'found' } else { 'not found' })" -ForegroundColor Cyan
 Write-Host "Vector index type: $vectorIndexType" -ForegroundColor Cyan

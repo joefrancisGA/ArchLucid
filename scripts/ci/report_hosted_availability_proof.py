@@ -20,6 +20,7 @@ def _load_summarize_module():
     if spec.loader is None:
         raise RuntimeError("loader missing")
 
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 

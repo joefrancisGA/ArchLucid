@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Run the first-pilot proof pipeline and emit one go/no-go evidence folder.
@@ -55,6 +55,21 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+function Invoke-ProofPythonProcess {
+    param([Parameter(Mandatory = $true)][object[]] $ArgumentList)
+
+    $prevErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+
+    try {
+        & python @ArgumentList 2>&1 | Out-Null
+        return $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $prevErrorActionPreference
+    }
+}
 
 $root = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'FirstPilotProofDisposition.ps1')
@@ -230,8 +245,7 @@ function Add-GovernanceOutcomeSummaryFinding {
         $args += @('--deltas-json', $DeltasJsonPath)
     }
 
-    & python @args 2>&1 | Out-Null
-    $exitCode = $LASTEXITCODE
+    $exitCode = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'governance-outcome-summary.md' -Path 'governance-outcome-summary.md' -Purpose 'Buyer-safe governance PASS/WARN/HOLD summary for sponsor proof.'
     Add-ProofArtifact -Name 'governance-outcome-summary.json' -Path 'governance-outcome-summary.json' -Purpose 'Machine-readable governance outcome summary.'
@@ -310,7 +324,7 @@ function Add-BuyerSafeAuditEvidenceSummaryFinding {
         $args += @('--deltas-json', $DeltasJsonPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'audit-evidence-summary.md' -Path 'audit-evidence-summary.md' -Purpose 'Buyer-safe audit category summary (no raw payloads).'
     Add-ProofArtifact -Name 'audit-evidence-summary.json' -Path 'audit-evidence-summary.json' -Purpose 'Machine-readable audit evidence summary.'
@@ -694,7 +708,7 @@ function Add-ScaleEnvelopeEvidenceFinding {
         $args += @('--k6-summary-json', $K6SummaryJsonPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'scale-envelope-evidence.md' -Path 'scale-envelope-evidence.md' -Purpose 'V1 scale envelope: measured evidence vs configured targets vs untested assumptions.'
     Add-ProofArtifact -Name 'scale-envelope-evidence.json' -Path 'scale-envelope-evidence.json' -Purpose 'Machine-readable V1 scale envelope evidence pack.'
@@ -731,7 +745,7 @@ function Add-FirstPilotTimingBudgetFinding {
         $args += @('--proof-collection-elapsed-ms', $ProofCollectionElapsedMs)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'first-pilot-timing-budget.md' -Path 'first-pilot-timing-budget.md' -Purpose 'Measured vs guidance-only timing budget for first-pilot proof (not SLA).'
     Add-ProofArtifact -Name 'first-pilot-timing-budget.json' -Path 'first-pilot-timing-budget.json' -Purpose 'Machine-readable first-pilot timing budget evidence.'
@@ -745,7 +759,7 @@ function Add-FirstPilotTimingBudgetFinding {
     $budgetDisposition = [string]$timingJson.firstValueCommitBudget.disposition
 
     if ($budgetDisposition -eq 'HOLD') {
-        Add-ProofFinding -Disposition 'HOLD' -Name 'first-pilot-timing-budget' -Detail ([string]$timingJson.firstValueCommitBudget.detail) -Remediation 'Reduce create→commit→artifact wall clock or document environment-specific constraints before sponsor send.'
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'first-pilot-timing-budget' -Detail ([string]$timingJson.firstValueCommitBudget.detail) -Remediation 'Reduce create→commit→artifact wall clock or document environment-specific constraints before sponsor send.'
         return
     }
 
@@ -1080,6 +1094,31 @@ function Add-DemoWorkspaceValidationFinding {
 
     $script:demoWorkspaceValidationDisposition = 'HOLD'
     $detail = "Demo workspace validation returned HOLD (exit code $exitCode)."
+    $scopeHeadersUnavailable = $false
+
+    if (Test-Path -LiteralPath $jsonPath) {
+        try {
+            $demoSummary = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+
+            if ($null -ne $demoSummary.holdReasons) {
+                foreach ($reason in @($demoSummary.holdReasons)) {
+                    if ([string]$reason -eq 'demo-workspace-scope-headers-unavailable') {
+                        $scopeHeadersUnavailable = $true
+                        $detail = 'Demo workspace run probes require scope headers; enable ArchLucidAuth:AllowTestActorHeaders on Development hosts (see DEMO_WORKSPACES.md). Preview essentials may still pass.'
+                        break
+                    }
+                }
+            }
+        }
+        catch {
+            # Keep generic HOLD detail when JSON is unreadable.
+        }
+    }
+
+    if ($SponsorHandoff -and $scopeHeadersUnavailable -and -not [string]::IsNullOrWhiteSpace($RunId)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'demo-workspace-validation' -Detail $detail -Remediation 'For demo-led sponsor send, restart API with ArchLucidAuth:AllowTestActorHeaders=true and rerun ./scripts/verify-demo-workspace.ps1. Committed-run proof with -RunId does not require demo workspace run probes.' -TriageCard 'FP-T023'
+        return
+    }
 
     if ($SponsorHandoff) {
         Add-ProofFinding -Disposition 'BLOCK' -Name 'demo-workspace-validation' -Detail $detail -Remediation 'Run ./scripts/verify-demo-workspace.ps1 and re-seed demo data before demo-led sponsor send.' -TriageCard 'FP-T023'
@@ -1144,8 +1183,12 @@ function Write-QuoteToProofPacketMarkdown {
         [Parameter(Mandatory = $true)][string] $RoiBasisStatus,
         [Parameter(Mandatory = $true)][bool] $RoiSponsorSafe,
         [Parameter(Mandatory = $true)][int] $BlockCount,
-        [Parameter(Mandatory = $true)][string[]] $DeferredScopeReasons,
-        [Parameter(Mandatory = $true)][object[]] $Findings,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $DeferredScopeReasons,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [object[]] $Findings,
         [string] $RunId = '',
         [string] $DataConsistencyStatus = 'NOT_RUN',
         [object] $AiQualityProof = $null
@@ -1290,8 +1333,16 @@ function Add-ProcurementDealReadyFinding {
     $jsonPath = Join-Path $ProofDirectory 'procurement-deal-ready-summary.json'
     $classificationPath = Join-Path $ProofDirectory 'procurement-deal-ready-classification.md'
     $scriptPath = Join-Path $PSScriptRoot 'build_procurement_pack.py'
-    $output = & python $scriptPath --dry-run --deal-ready --json-summary-out $jsonPath --classification-md-out $classificationPath 2>&1
-    $exitCode = $LASTEXITCODE
+    $prevErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+
+    try {
+        $output = & python $scriptPath --dry-run --deal-ready --json-summary-out $jsonPath --classification-md-out $classificationPath 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $prevErrorActionPreference
+    }
     $script:procurementReportText = ($output | Out-String)
     [System.IO.File]::WriteAllText($reportPath, $script:procurementReportText, [System.Text.UTF8Encoding]::new($false))
     Add-ProofArtifact -Name 'procurement-deal-ready-check.txt' -Path 'procurement-deal-ready-check.txt' -Purpose 'Deal-ready procurement pack dry-run output with deferred-scope labels.'
@@ -1611,6 +1662,7 @@ function Resolve-K6SummaryPath {
 
 function Add-ApiHotPathPerformanceFinding {
     param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
         [string] $SummaryPath,
         [string] $EnvironmentLabel,
         [string] $EvidenceClass
@@ -1714,7 +1766,7 @@ function Add-FirstPilotPerformanceBaselineFinding {
         $args += @('--timings-json', $TimingsJsonPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
     Add-ProofArtifact -Name 'first-pilot-performance-baseline.md' -Path 'first-pilot-performance-baseline.md' -Purpose 'Observed first-pilot step latencies — not a load test or SLA proof.'
     Add-ProofArtifact -Name 'first-pilot-performance-baseline.json' -Path 'first-pilot-performance-baseline.json' -Purpose 'Machine-readable first-pilot performance baseline summary.'
 
@@ -1768,7 +1820,7 @@ function Add-LlmBudgetStatusFinding {
         $args += @('--status-json', $statusJsonPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
     Add-ProofArtifact -Name 'llm-budget-proof-status.md' -Path 'llm-budget-proof-status.md' -Purpose 'Buyer-safe UTC-month LLM budget posture for hosted pilot economics.'
     Add-ProofArtifact -Name 'llm-budget-proof-status.json' -Path 'llm-budget-proof-status.json' -Purpose 'Machine-readable LLM budget proof summary.'
 
@@ -1808,7 +1860,7 @@ function Add-HostedAvailabilityRollupFinding {
         }
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
     Add-ProofArtifact -Name 'hosted-availability-rollup.md' -Path 'hosted-availability-rollup.md' -Purpose 'Hosted HTTP probe rollup when artifacts exist — not contractual SLA evidence.'
     Add-ProofArtifact -Name 'hosted-availability-rollup.json' -Path 'hosted-availability-rollup.json' -Purpose 'Machine-readable hosted availability rollup disposition.'
 
@@ -2122,8 +2174,7 @@ function Add-AiModelProvenanceFinding {
         $args += @('--observability-json', $observabilityPath)
     }
 
-    & python @args 2>&1 | Out-Null
-    $exitCode = $LASTEXITCODE
+    $exitCode = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'ai-model-provenance.md' -Path 'ai-model-provenance.md' -Purpose 'Buyer-safe model/prompt-pack provenance without raw prompts.'
     Add-ProofArtifact -Name 'ai-model-provenance.json' -Path 'ai-model-provenance.json' -Purpose 'Machine-readable AI model provenance summary.'
@@ -2193,7 +2244,7 @@ function Add-LlmCostEnvelopeFinding {
         }
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'llm-cost-envelope.md' -Path 'llm-cost-envelope.md' -Purpose 'LLM cost envelope: budget posture and run-level usage labels.'
     Add-ProofArtifact -Name 'llm-cost-envelope.json' -Path 'llm-cost-envelope.json' -Purpose 'Machine-readable LLM cost envelope summary.'
@@ -2286,7 +2337,7 @@ function Invoke-RoiBaselineSendEvaluation {
         $args += '--strict-send'
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     if (-not (Test-Path -LiteralPath $evaluationPath)) {
         return [ordered]@{
@@ -2334,7 +2385,7 @@ function Add-QuoteToProofReadinessFinding {
         $args += @('--override-json', $overridePath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'quote-to-proof-readiness.json' -Path 'quote-to-proof-readiness.json' -Purpose 'Quote-to-proof SEND/HOLD/DEFERRED_SCOPE checklist from proof state.'
     Add-ProofArtifact -Name 'quote-to-proof-readiness.md' -Path 'quote-to-proof-readiness.md' -Purpose 'Human-readable quote-to-proof readiness summary.'
@@ -2386,7 +2437,7 @@ function Add-PilotAcceptanceThresholdFinding {
         $args += @('--first-value-report', $firstValuePath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'pilot-acceptance-thresholds.json' -Path 'pilot-acceptance-thresholds.json' -Purpose 'PASS/HOLD/DEFERRED_SCOPE pilot acceptance evaluation from proof artifacts.'
     Add-ProofArtifact -Name 'pilot-acceptance-thresholds.md' -Path 'pilot-acceptance-thresholds.md' -Purpose 'Human-readable pilot acceptance threshold summary.'
@@ -2499,7 +2550,7 @@ function Add-PilotDecisionLedgerFinding {
         $args += @('--copy-canonical-to', $canonicalCopyPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
     $ledgerExit = $LASTEXITCODE
 
     Add-ProofArtifact -Name 'pilot-decision-ledger-report.json' -Path 'pilot-decision-ledger-report.json' -Purpose 'Validation and decision-change rate summary for the pilot ledger.'
@@ -2614,7 +2665,7 @@ function Add-PaidPilotBaselineReadinessFinding {
         $args += @('--copy-canonical-to', $canonicalCopyPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
     $baselineExit = $LASTEXITCODE
 
     Add-ProofArtifact -Name 'paid-pilot-baseline-readiness-report.json' -Path 'paid-pilot-baseline-readiness-report.json' -Purpose 'Validation summary for paid-pilot ROI baseline capture.'
@@ -2714,7 +2765,7 @@ function Add-FirstNonObviousMomentFinding {
         $args += @('--copy-canonical-to', $canonicalCopyPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'first-non-obvious-moment-report.json' -Path 'first-non-obvious-moment-report.json' -Purpose 'Validation summary for first non-obvious moment capture.'
     Add-ProofArtifact -Name 'first-non-obvious-moment-report.md' -Path 'first-non-obvious-moment-report.md' -Purpose 'Pilot debrief summary surfacing the first non-obvious moment.'
@@ -2811,7 +2862,7 @@ function Add-PilotDismissalTriggerFinding {
         $args += @('--copy-canonical-to', $canonicalCopyPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'pilot-dismissal-trigger-report.json' -Path 'pilot-dismissal-trigger-report.json' -Purpose 'Validation summary for pilot dismissal-trigger capture.'
     Add-ProofArtifact -Name 'pilot-dismissal-trigger-report.md' -Path 'pilot-dismissal-trigger-report.md' -Purpose 'Pilot debrief summary surfacing dismissal-trigger capture.'
@@ -2930,7 +2981,7 @@ function Add-TopSeverityFindingChallengeFinding {
         $args += @('--copy-canonical-to', $canonicalCopyPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
     $challengeExit = $LASTEXITCODE
 
     Add-ProofArtifact -Name 'top-severity-finding-challenge-report.json' -Path 'top-severity-finding-challenge-report.json' -Purpose 'Validation summary for top-severity finding challenge.'
@@ -3030,7 +3081,7 @@ function Add-PilotReuseCohortTrackerFinding {
         $args += @('--copy-canonical-to', $canonicalCopyPath)
     }
 
-    & python @args 2>&1 | Out-Null
+    $null = Invoke-ProofPythonProcess -ArgumentList $args
 
     Add-ProofArtifact -Name 'pilot-reuse-cohort-tracker-report.json' -Path 'pilot-reuse-cohort-tracker-report.json' -Purpose 'Validation summary for 30-day reuse cohort tracker.'
     Add-ProofArtifact -Name 'pilot-reuse-cohort-tracker-report.md' -Path 'pilot-reuse-cohort-tracker-report.md' -Purpose 'Human-readable reuse cohort tracker summary.'
@@ -3111,8 +3162,12 @@ function Add-CommercialCloseoutConsistencyFinding {
     $summaryPath = Join-Path $ProofDirectory 'go-no-go-summary.json'
     $closeoutJson = Join-Path $ProofDirectory 'commercial-closeout.json'
     $closeoutMd = Join-Path $ProofDirectory 'commercial-closeout.md'
-    & python $scriptPath --go-no-go-summary $summaryPath --commercial-closeout $closeoutJson --commercial-closeout-md $closeoutMd 2>&1 | Out-Null
-    $exitCode = $LASTEXITCODE
+    $exitCode = Invoke-ProofPythonProcess -ArgumentList @(
+        $scriptPath,
+        '--go-no-go-summary', $summaryPath,
+        '--commercial-closeout', $closeoutJson,
+        '--commercial-closeout-md', $closeoutMd
+    )
 
     if ($exitCode -eq 0) {
         Add-ProofFinding -Disposition 'PASS' -Name 'commercial-closeout-consistency' -Detail 'commercial-closeout.json agrees with go-no-go-summary.json.' -Remediation ''
@@ -3301,7 +3356,7 @@ $resolvedStagingSmokePath = Resolve-StagingSmokeResultsPath -ExplicitPath $Stagi
 $resolvedHostedProbePath = Resolve-HostedProbeArtifactsPath -ExplicitPath $HostedProbeArtifactsPath
 $performanceEnvironmentLabel = if ($ProductionLikeHostedPilot) { 'production-like-hosted' } else { 'local-or-readiness' }
 $performanceEvidenceClass = if ($ProductionLikeHostedPilot) { 'production-like-k6-not-sla' } else { 'ci-smoke-or-attached-not-sla' }
-Add-ApiHotPathPerformanceFinding -SummaryPath $resolvedK6SummaryPath -EnvironmentLabel $performanceEnvironmentLabel -EvidenceClass $performanceEvidenceClass
+Add-ApiHotPathPerformanceFinding -ProofDirectory $proofDir -SummaryPath $resolvedK6SummaryPath -EnvironmentLabel $performanceEnvironmentLabel -EvidenceClass $performanceEvidenceClass
 Add-FirstPilotPerformanceBaselineFinding -ProofDirectory $proofDir -TimingsJsonPath $resolvedStagingSmokePath
 
 $performanceBaselineJsonForEnvelope = Join-Path $proofDir 'first-pilot-performance-baseline.json'
@@ -3912,7 +3967,7 @@ $lines.Add("| --- | --- |")
 $lines.Add("| Disposition | **$sponsorPacketDisposition** |")
 $lines.Add("| Sponsor handoff mode | $([bool]$SponsorHandoff) |")
 $lines.Add("| Blocking reasons | $($blockingReasons.Count) |")
-$lines.Add("| Deferred scope reasons | $($deferredScopeReasons.Count) |")
+$lines.Add("| Deferred scope reasons | $(@($deferredScopeReasons).Count) |")
 
 if ($blockingReasons.Count -gt 0) {
     $lines.Add('')
@@ -3940,7 +3995,7 @@ if ($blockingReasons.Count -gt 0) {
     }
 }
 
-if ($deferredScopeReasons.Count -gt 0) {
+if (@($deferredScopeReasons).Count -gt 0) {
     $lines.Add('')
     $lines.Add('### Deferred buyer requirements (V1.1/V2/(B) — not V1 blockers)')
     $lines.Add('')
@@ -3959,9 +4014,12 @@ $lines.Add('| --- | --- | --- | --- | --- | --- | --- | --- |')
 foreach ($finding in $findings) {
     $detail = ([string]$finding.detail).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
     $next = ([string]$finding.remediation).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
-    $support = ([string]$finding.supportNextStep).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
-    $docLink = ([string]$finding.remediationDocLink).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
-    $inAppLink = ([string]$finding.remediationInAppLink).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+    $supportValue = if ($null -ne $finding.PSObject.Properties['supportNextStep']) { [string]$finding.supportNextStep } else { '' }
+    $docLinkValue = if ($null -ne $finding.PSObject.Properties['remediationDocLink']) { [string]$finding.remediationDocLink } else { '' }
+    $inAppLinkValue = if ($null -ne $finding.PSObject.Properties['remediationInAppLink']) { [string]$finding.remediationInAppLink } else { '' }
+    $support = $supportValue.Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+    $docLink = $docLinkValue.Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+    $inAppLink = $inAppLinkValue.Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
     $triage = if ([string]::IsNullOrWhiteSpace([string]$finding.triageCard)) { '' } else { [string]$finding.triageCard }
     $lines.Add("| $($finding.disposition) | $($finding.name) | $triage | $detail | $next | $support | $docLink | $inAppLink |")
 }

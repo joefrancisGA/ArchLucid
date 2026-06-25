@@ -1,9 +1,11 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 Set-StrictMode -Version Latest
 
 function Get-TopProofFindingsForHandoff {
     param(
-        [Parameter(Mandatory = $true)][object[]] $Findings,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [object[]] $Findings,
         [int] $MaxRows = 5
     )
 
@@ -18,8 +20,12 @@ function Write-V1WorkflowHandoffArtifacts {
         [Parameter(Mandatory = $true)][string] $ProofDirectory,
         [Parameter(Mandatory = $true)][string] $SponsorPacketDisposition,
         [Parameter(Mandatory = $true)][int] $BlockCount,
-        [Parameter(Mandatory = $true)][string[]] $DeferredScopeReasons,
-        [Parameter(Mandatory = $true)][object[]] $Findings,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [string[]] $DeferredScopeReasons,
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [object[]] $Findings,
         [string] $RunId = '',
         [string] $CommercialNextAction = '',
         [string] $CommercialNextReason = ''

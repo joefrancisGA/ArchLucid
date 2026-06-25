@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 
 <#
 
@@ -105,14 +105,14 @@ if ([string]::IsNullOrWhiteSpace($fixturePackageVersion)) {
 }
 
 foreach ($workspaceKey in @('workspaceA', 'workspaceB')) {
-    $workspace = $manifest.$workspaceKey
+    $manifestWorkspace = $manifest.$workspaceKey
 
-    if ($null -eq $workspace) {
+    if ($null -eq $manifestWorkspace) {
         Add-HoldReason -Code "demo-workspace-manifest-missing-$workspaceKey"
         continue
     }
 
-    if ($null -eq $workspace.expectedCommittedFindingCount) {
+    if ($null -eq $manifestWorkspace.expectedCommittedFindingCount) {
         Add-HoldReason -Code "demo-workspace-manifest-missing-finding-count-$workspaceKey"
     }
 }
@@ -124,6 +124,8 @@ $headers = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiK
 $checks = [System.Collections.Generic.List[string]]::new()
 
 $holdReasons = [System.Collections.Generic.List[string]]::new()
+
+$script:demoScopeHeadersAccepted = $true
 
 
 
@@ -143,6 +145,43 @@ function Add-HoldReason {
 
 
 
+function Test-DemoScopeHeadersAccepted {
+    param(
+        [Parameter(Mandatory = $true)][string] $TenantId,
+        [Parameter(Mandatory = $true)][string] $WorkspaceId,
+        [Parameter(Mandatory = $true)][string] $ProjectId,
+        [Parameter(Mandatory = $true)][string] $RunId
+    )
+
+    $scopeHeaders = Merge-ArchLucidHttpScopeHeaders -Headers $headers -TenantId $TenantId -WorkspaceId $WorkspaceId -ProjectId $ProjectId
+    $uri = "$normalizedBase/v1/pilots/runs/$([Uri]::EscapeDataString($RunId))/pilot-run-deltas"
+
+    try {
+        $null = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing -TimeoutSec 15 -Headers $scopeHeaders
+        return $true
+    }
+    catch {
+        $message = $_.Exception.Message
+
+        if ($null -ne $_.Exception.Response) {
+            $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+            $body = $reader.ReadToEnd()
+
+            if (-not [string]::IsNullOrWhiteSpace($body)) {
+                $message = $body
+            }
+        }
+
+        if ($message -match 'Scope header ''x-workspace-id'' does not match' -or $message -match 'Scope header ''X-Workspace-Id'' does not match') {
+            return $false
+        }
+
+        return $true
+    }
+}
+
+
+
 function Test-DemoRun {
 
     param(
@@ -151,9 +190,19 @@ function Test-DemoRun {
 
         [Parameter(Mandatory = $true)][string] $RunId,
 
-        [Parameter(Mandatory = $true)][int] $ExpectedFindingCount
+        [Parameter(Mandatory = $true)][int] $ExpectedFindingCount,
+
+        [Parameter(Mandatory = $true)][string] $TenantId,
+
+        [Parameter(Mandatory = $true)][string] $WorkspaceId,
+
+        [Parameter(Mandatory = $true)][string] $ProjectId
 
     )
+
+
+
+    $scopeHeaders = Merge-ArchLucidHttpScopeHeaders -Headers $headers -TenantId $TenantId -WorkspaceId $WorkspaceId -ProjectId $ProjectId
 
 
 
@@ -173,15 +222,15 @@ function Test-DemoRun {
 
             UseBasicParsing = $true
 
-            TimeoutSec      = 60
+            TimeoutSec      = 15
 
         }
 
 
 
-        if ($headers.Count -gt 0) {
+        if ($scopeHeaders.Count -gt 0) {
 
-            $req.Headers = $headers
+            $req.Headers = $scopeHeaders
 
         }
 
@@ -279,13 +328,17 @@ function Test-DemoPreview {
 
         $uri = "$normalizedBase/v1/demo/preview"
 
-        $response = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing -TimeoutSec 60
+        $response = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing -TimeoutSec 15
 
         [System.IO.File]::WriteAllText($previewPath, $response.Content, [System.Text.UTF8Encoding]::new($false))
 
-
-
         $validationOutput = & python $previewValidator --validate-file $previewPath 2>&1
+
+        if ($null -eq $validationOutput) {
+
+            $validationOutput = @()
+
+        }
 
         $validationExit = $LASTEXITCODE
 
@@ -354,25 +407,51 @@ function Test-DemoPreview {
 
 
 if ($Workspace -eq 'A' -or $Workspace -eq 'Both') {
-
-    Test-DemoRun -Label 'Workspace A (product-tour)' `
-
-        -RunId $manifest.workspaceA.runId `
-
-        -ExpectedFindingCount ([int]$manifest.workspaceA.expectedCommittedFindingCount)
-
+    $script:demoScopeHeadersAccepted = Test-DemoScopeHeadersAccepted `
+        -TenantId ([string]$manifest.defaultTenantId) `
+        -WorkspaceId ([string]$manifest.workspaceA.workspaceId) `
+        -ProjectId ([string]$manifest.workspaceA.projectId) `
+        -RunId ([string]$manifest.workspaceA.runId)
 }
 
+if (-not $script:demoScopeHeadersAccepted) {
+    Add-HoldReason -Code 'demo-workspace-scope-headers-unavailable'
+    $checks.Add('| Workspace scope headers | HOLD | Enable ArchLucidAuth:AllowTestActorHeaders on Development hosts or set demo workspace scope in the API shell. |')
+}
+else {
+    if ($Workspace -eq 'A' -or $Workspace -eq 'Both') {
+
+        Test-DemoRun -Label 'Workspace A (product-tour)' `
+
+            -RunId $manifest.workspaceA.runId `
+
+            -ExpectedFindingCount ([int]$manifest.workspaceA.expectedCommittedFindingCount) `
+
+            -TenantId ([string]$manifest.defaultTenantId) `
+
+            -WorkspaceId ([string]$manifest.workspaceA.workspaceId) `
+
+            -ProjectId ([string]$manifest.workspaceA.projectId)
+
+    }
 
 
-if ($Workspace -eq 'B' -or $Workspace -eq 'Both') {
 
-    Test-DemoRun -Label 'Workspace B (regulated-scenario)' `
+    if ($Workspace -eq 'B' -or $Workspace -eq 'Both') {
 
-        -RunId $manifest.workspaceB.runId `
+        Test-DemoRun -Label 'Workspace B (regulated-scenario)' `
 
-        -ExpectedFindingCount ([int]$manifest.workspaceB.expectedCommittedFindingCount)
+            -RunId $manifest.workspaceB.runId `
 
+            -ExpectedFindingCount ([int]$manifest.workspaceB.expectedCommittedFindingCount) `
+
+            -TenantId ([string]$manifest.defaultTenantId) `
+
+            -WorkspaceId ([string]$manifest.workspaceB.workspaceId) `
+
+            -ProjectId ([string]$manifest.workspaceB.projectId)
+
+    }
 }
 
 
@@ -450,7 +529,7 @@ if (-not [string]::IsNullOrWhiteSpace($JsonSummaryOut)) {
 
 if ($disposition -eq 'PASS') {
 
-    Write-Host 'PASS — demo workspaces ready for a buyer-safe preview or live demo.' -ForegroundColor Green
+    Write-Host 'PASS - demo workspaces ready for a buyer-safe preview or live demo.' -ForegroundColor Green
 
     exit 0
 
@@ -458,7 +537,7 @@ if ($disposition -eq 'PASS') {
 
 
 
-Write-Host 'HOLD — demo prerequisites incomplete. See docs/go-to-market/DEMO_WORKSPACES.md' -ForegroundColor Yellow
+Write-Host 'HOLD - demo prerequisites incomplete. See docs/go-to-market/DEMO_WORKSPACES.md' -ForegroundColor Yellow
 
 exit 2
 

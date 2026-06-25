@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Collect data-consistency readiness signals for release or pilot handoff (read-only).
@@ -30,7 +30,7 @@ if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
 $normalizedBase = $BaseUrl.Trim().TrimEnd('/')
 $headers = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
-$outDir = Join-Path (Get-Location) $OutputDirectory
+$outDir = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) { $OutputDirectory } else { Join-Path (Get-Location).Path $OutputDirectory }
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $outFile = Join-Path $outDir "data-consistency-readiness-$timestamp.md"
 $summaryJsonPath = Join-Path $outDir 'data-consistency-summary.json'
@@ -101,36 +101,31 @@ catch {
     Add-ProbeResult -Probe '/health/diagnostics' -Status 'WARN' -Notes "$($_.Exception.Message) — may require admin API key"
 }
 
-if ($headers.Count -gt 0) {
-    try {
-        $orphansJson = Invoke-ProbeText '/v1/admin/diagnostics/data-consistency/orphans'
-        $orphans = $orphansJson | ConvertFrom-Json -ErrorAction Stop
-        $totalOrphans = 0
+try {
+    $orphansJson = Invoke-ProbeText '/v1/admin/diagnostics/data-consistency/orphans'
+    $orphans = $orphansJson | ConvertFrom-Json -ErrorAction Stop
+    $totalOrphans = 0
 
-        foreach ($property in $orphans.PSObject.Properties) {
-            $value = $property.Value
+    foreach ($property in $orphans.PSObject.Properties) {
+        $value = $property.Value
 
-            if ($null -ne $value -and $value -is [int]) {
-                $totalOrphans += [int]$value
-            }
-            elseif ($null -ne $value -and $value -is [long]) {
-                $totalOrphans += [int]$value
-            }
+        if ($null -ne $value -and $value -is [int]) {
+            $totalOrphans += [int]$value
         }
-
-        if ($totalOrphans -gt 0) {
-            Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'HOLD' -Notes "Orphan count total=$totalOrphans"
-        }
-        else {
-            Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'PASS' -Notes 'No orphan rows reported'
+        elseif ($null -ne $value -and $value -is [long]) {
+            $totalOrphans += [int]$value
         }
     }
-    catch {
-        Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'WARN' -Notes "$($_.Exception.Message) — orphan probe unavailable"
+
+    if ($totalOrphans -gt 0) {
+        Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'HOLD' -Notes "Orphan count total=$totalOrphans"
+    }
+    else {
+        Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'PASS' -Notes 'No orphan rows reported'
     }
 }
-else {
-    Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'WARN' -Notes 'Skipped — supply BearerToken or ApiKey for orphan probe'
+catch {
+    Add-ProbeResult -Probe '/v1/admin/diagnostics/data-consistency/orphans' -Status 'WARN' -Notes "$($_.Exception.Message) — orphan probe unavailable (DevelopmentBypass or BearerToken/ApiKey required)"
 }
 
 $dataConsistencyStatus = if ($blockingFailures -gt 0) {

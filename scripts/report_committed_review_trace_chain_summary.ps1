@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Emit a compact evidence-to-manifest-to-audit trace-chain summary from committed-run evidence bundle.
@@ -32,7 +32,7 @@ function Get-LatestEvidenceBundleDirectory {
     $dirs = Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue |
         Sort-Object -Property LastWriteTimeUtc -Descending
 
-    if ($dirs.Count -eq 0) {
+    if (@($dirs).Count -eq 0) {
         return $null
     }
 
@@ -69,7 +69,7 @@ if ($null -ne $bundleDir) {
 
     $findingCount = $null
 
-    if ($null -ne $observability -and $null -ne $observability.findingCount) {
+    if ($null -ne $observability -and $null -ne $observability.PSObject.Properties['findingCount']) {
         $findingCount = [int]$observability.findingCount
     }
 
@@ -92,7 +92,7 @@ if ($null -ne $bundleDir) {
 
     $artifactCount = 0
 
-    if ($manifestPresent -and $null -ne $manifest.artifacts) {
+    if ($manifestPresent -and $null -ne $manifest.PSObject.Properties['artifacts'] -and $null -ne $manifest.artifacts) {
         $artifactCount = @($manifest.artifacts).Count
     }
 
@@ -106,7 +106,7 @@ if ($null -ne $bundleDir) {
 
     $auditRows = $null
 
-    if ($null -ne $observability -and $null -ne $observability.auditRowCount) {
+    if ($null -ne $observability -and $null -ne $observability.PSObject.Properties['auditRowCount']) {
         $auditRows = [int]$observability.auditRowCount
     }
 
@@ -148,7 +148,7 @@ $md.Add('| Step | Status | Detail | Pointer |')
 $md.Add('| --- | --- | --- | --- |')
 
 foreach ($step in $chain.steps) {
-    $detail = if ($null -ne $step.detail) { [string]$step.detail } else { '' }
+    $detail = if ($null -ne $step.PSObject.Properties['detail']) { [string]$step.detail } else { '' }
     $md.Add("| $($step.label) | $($step.status) | $detail | ``$($step.pointer)`` |")
 }
 

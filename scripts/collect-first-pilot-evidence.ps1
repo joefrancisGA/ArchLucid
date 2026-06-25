@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Collect buyer-safe first-pilot evidence for a committed architecture review run.
@@ -44,7 +44,7 @@ if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
 $root = Split-Path -Parent $PSScriptRoot
 $normalizedBase = $BaseUrl.Trim().TrimEnd('/')
 $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
-$outRoot = Join-Path (Get-Location) $OutputDirectory
+$outRoot = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) { $OutputDirectory } else { Join-Path (Get-Location).Path $OutputDirectory }
 $bundleDir = Join-Path $outRoot "first-pilot-evidence-$timestamp"
 New-Item -ItemType Directory -Force -Path $bundleDir | Out-Null
 
