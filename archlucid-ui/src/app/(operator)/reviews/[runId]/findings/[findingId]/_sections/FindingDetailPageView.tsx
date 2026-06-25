@@ -4,14 +4,13 @@ import { FindingInspectContextDebugPanel } from "@/components/findings/FindingIn
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
+import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { FindingItsmExportPanel } from "@/components/FindingItsmExportPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingExplainabilityTracePanel } from "@/components/FindingExplainabilityTracePanel";
-import { FindingPolicyProvenancePanel } from "@/components/findings/FindingPolicyProvenancePanel";
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
 import { Badge } from "@/components/ui/badge";
@@ -29,8 +28,6 @@ import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/l
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
 import {
   buildFindingPolicyEvidenceCitationsFromInspect,
-  resolvePolicyRuleIdFromInspect,
-  resolvePolicyRuleLabelFromInspect,
   resolvePolicyTraceExcerptFromInspect,
 } from "@/lib/finding-policy-evidence-citations";
 import { cn } from "@/lib/utils";
@@ -82,9 +79,6 @@ export function FindingDetailPageView(props: Props) {
 
   const confidenceLevel = inspectPayload?.confidenceLevel ?? null;
   const evaluationScore = inspectPayload?.evaluationConfidenceScore ?? null;
-  const policyRuleId = inspectPayload !== null ? resolvePolicyRuleIdFromInspect(inspectPayload) : null;
-  const policyRuleLabel =
-    inspectPayload !== null ? resolvePolicyRuleLabelFromInspect(inspectPayload, policyRuleId) : null;
   const policyProvenanceModel =
     inspectPayload !== null
       ? buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, inspectPayload)
@@ -114,19 +108,18 @@ export function FindingDetailPageView(props: Props) {
                 <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
                   {pageTitle}
                 </h1>
+                {policyProvenanceModel !== null &&
+                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                  <FindingPolicyCitationHero
+                    model={policyProvenanceModel}
+                    traceExcerpt={policyTraceExcerpt}
+                  />
+                ) : null}
                 <p className="m-0 max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300">
                   {inspectPayload !== null
                     ? findingDetailLeadSentence(inspectPayload)
                     : findingDetailLeadFallback(decodedFindingId)}
                 </p>
-                {policyProvenanceModel !== null &&
-                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                  <FindingPolicyTraceabilityBadges
-                    pack={policyProvenanceModel.pack}
-                    policy={policyProvenanceModel.policy}
-                    className="inline-flex"
-                  />
-                ) : null}
               </div>
 
               <div className="rounded-xl border border-white/70 bg-white/90 p-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/80">
@@ -265,6 +258,11 @@ export function FindingDetailPageView(props: Props) {
           </p>
           <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
 
+          {policyProvenanceModel !== null &&
+          (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+            <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
+          ) : null}
+
           {labels !== null ? (
             <div className="flex flex-wrap items-center gap-2">
               {labels.severityLabel ? (
@@ -286,13 +284,6 @@ export function FindingDetailPageView(props: Props) {
                 <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
                   Business impact: {labels.impactedAreaLabel}
                 </Badge>
-              ) : null}
-              {policyProvenanceModel !== null &&
-              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                <FindingPolicyTraceabilityBadges
-                  pack={policyProvenanceModel.pack}
-                  policy={policyProvenanceModel.policy}
-                />
               ) : null}
             </div>
           ) : null}
@@ -342,10 +333,6 @@ export function FindingDetailPageView(props: Props) {
           fallbackMessage={inspectFailure.message}
           correlationId={inspectFailure.correlationId}
         />
-      ) : null}
-
-      {policyProvenanceModel !== null ? (
-        <FindingPolicyProvenancePanel model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
       ) : null}
 
       {inspectPayload !== null ? (

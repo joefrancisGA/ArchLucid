@@ -1,7 +1,17 @@
+import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";
+import type {
+  FindingPolicyCitationLink,
+  FindingPolicyPackCitationLink,
+} from "@/lib/finding-policy-evidence-citations";
 
 const preBoxCls = "m-0 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-4 font-mono text-sm leading-relaxed dark:border-neutral-700 dark:bg-neutral-950 max-h-[min(70vh,720px)]";
+
+export type ArtifactReviewPolicyCitation = {
+  readonly pack?: FindingPolicyPackCitationLink | null;
+  readonly policy?: FindingPolicyCitationLink | null;
+};
 
 /**
  * Human-readable panel plus optional raw disclosure (deterministic; no HTML injection).
@@ -12,8 +22,10 @@ export function ArtifactReviewContent(props: {
   byteLength: number;
   truncated: boolean;
   contentError: string | null;
+  /** When the artifact is cited as evidence for a policy-backed finding, surface the pack + rule above the preview. */
+  policyCitation?: ArtifactReviewPolicyCitation | null;
 }) {
-  const { prepared, contentType, byteLength, truncated, contentError } = props;
+  const { prepared, contentType, byteLength, truncated, contentError, policyCitation = null } = props;
 
   if (contentError) {
     return (
@@ -41,8 +53,17 @@ export function ArtifactReviewContent(props: {
             : "JSON (pretty-printed for review)"
           : "Text content";
 
+  const pack = policyCitation?.pack ?? null;
+  const policy = policyCitation?.policy ?? null;
+
   return (
     <div>
+      {pack !== null || policy !== null ? (
+        <div className="mb-4" data-testid="artifact-review-policy-citation">
+          <FindingPolicyCitationProminentStrip pack={pack} policy={policy} />
+        </div>
+      ) : null}
+
       {truncated && (
         <OperatorWarningCallout>
           <strong>Preview truncated.</strong>

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReactElement } from "react";
 
-import { FindingPolicyTraceabilityBadges } from "@/components/FindingPolicyTraceabilityBadges";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
@@ -179,6 +179,14 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         className={cn("pl-1", subdued ? "opacity-80" : undefined)}
         data-testid={subdued ? `quick-decision-low-confidence-${f.findingId}` : undefined}
       >
+        {citationModel.pack !== null || citationModel.policy !== null ? (
+          <FindingPolicyCitationProminentStrip
+            pack={citationModel.pack}
+            policy={citationModel.policy}
+            compact
+            className="mb-2"
+          />
+        ) : null}
         <div className="flex flex-wrap items-start gap-2">
           <span className={severityBadgeClass(f.severityValue)}>
             <span className="sr-only">Severity </span>
@@ -190,9 +198,6 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             >
               {findingEnforcementTierLabel(f.enforcementTier)}
             </span>
-          ) : null}
-          {citationModel.pack !== null || citationModel.policy !== null ? (
-            <FindingPolicyTraceabilityBadges pack={citationModel.pack} policy={citationModel.policy} />
           ) : null}
           {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
             <FindingConfidenceBadge level={f.confidenceLevel} />

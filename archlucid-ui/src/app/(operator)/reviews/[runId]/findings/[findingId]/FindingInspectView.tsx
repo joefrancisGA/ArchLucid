@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEvidenceLimitsFooter,
@@ -15,6 +16,10 @@ import {
 import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  buildFindingPolicyEvidenceCitationsFromInspect,
+  resolvePolicyTraceExcerptFromInspect,
+} from "@/lib/finding-policy-evidence-citations";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
@@ -107,6 +112,8 @@ export function FindingInspectView({
 
   const findingTitle = findingDetailHeadingTitle(payload);
   const inspectHeroTitle = buyerPolishedShell ? "Evidence trace" : `${findingTitle} — evidence & trace`;
+  const policyCitationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
+  const policyTraceExcerpt = resolvePolicyTraceExcerptFromInspect(payload);
 
   return (
     <div className="w-full max-w-[1440px] space-y-4 p-4">
@@ -157,6 +164,10 @@ export function FindingInspectView({
           </p>
         ) : null}
       </header>
+
+      {policyCitationModel.pack !== null || policyCitationModel.policy !== null ? (
+        <FindingPolicyCitationHero model={policyCitationModel} traceExcerpt={policyTraceExcerpt} />
+      ) : null}
 
       <FindingInspectFindingBody
         runId={runId}

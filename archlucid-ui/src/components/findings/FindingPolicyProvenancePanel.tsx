@@ -13,6 +13,7 @@ export type FindingPolicyProvenancePanelProps = {
   /** Short server narrative linking evidence to the evaluated policy rule. */
   readonly traceExcerpt?: string | null;
   readonly compact?: boolean;
+  readonly variant?: "default" | "prominent";
   readonly className?: string;
 };
 
@@ -47,9 +48,10 @@ function ProvenanceLink(props: {
 
 /** Prominent policy pack, rule, evidence, and trace excerpt for a finding. */
 export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanelProps): ReactElement | null {
-  const { model, traceExcerpt, compact = false, className } = props;
+  const { model, traceExcerpt, compact = false, variant = "default", className } = props;
   const trimmedTrace = traceExcerpt?.trim() ?? "";
   const hasPolicyContext = model.pack !== null || model.policy !== null;
+  const prominent = variant === "prominent";
 
   if (!hasPolicyContext && model.evidence.length === 0 && trimmedTrace.length === 0) {
     return null;
@@ -58,10 +60,14 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
   const violationLabel =
     model.pack !== null ? `Policy violation: ${model.pack.packName}` : "Policy violation";
 
+  const headingLabel = prominent ? "Triggered by policy" : "Policy provenance";
+
   return (
     <section
       className={cn(
-        "rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
+        prominent
+          ? "rounded-lg border border-teal-300/80 bg-teal-50/90 dark:border-teal-800 dark:bg-teal-950/30"
+          : "rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
         compact ? "p-3 space-y-2" : "p-4 space-y-3",
         className,
       )}
@@ -69,9 +75,16 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
       data-testid="finding-policy-provenance-panel"
     >
       <div className="flex flex-wrap items-center gap-2">
-        {hasPolicyContext ? <StatusTag kind="needs-attention" label={violationLabel} data-testid="finding-policy-violation-tag" /> : null}
-        <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", compact ? OPERATOR_TYPOGRAPHY.badge : "text-sm")}>
-          Policy provenance
+        {hasPolicyContext ? (
+          <StatusTag kind="needs-attention" label={violationLabel} data-testid="finding-policy-violation-tag" />
+        ) : null}
+        <p
+          className={cn(
+            "m-0 font-semibold text-neutral-900 dark:text-neutral-100",
+            compact ? OPERATOR_TYPOGRAPHY.badge : prominent ? "text-sm" : "text-sm",
+          )}
+        >
+          {headingLabel}
         </p>
       </div>
 
@@ -82,7 +95,9 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
           </p>
           <FindingPolicyTraceabilityBadges pack={model.pack} policy={model.policy} />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", compact ? "text-[11px]" : "text-xs")}>
-            Select a badge to preview the rule text without leaving this review.
+            {prominent
+              ? "This finding exists because the policy rule evaluated your architecture evidence. Select a badge to preview rule text."
+              : "Select a badge to preview the rule text without leaving this review."}
           </p>
         </div>
       ) : null}

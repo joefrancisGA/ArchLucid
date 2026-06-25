@@ -60,4 +60,34 @@ describe("ArtifactReviewContent (55R smoke — artifact detail panel)", () => {
     expect(screen.getByText(/Preview truncated/)).toBeInTheDocument();
     expect(screen.getByText(/5,000,000 bytes total/)).toBeInTheDocument();
   });
+
+  it("renders prominent policy citation strip when policyCitation is provided", () => {
+    render(
+      <ArtifactReviewContent
+        prepared={basePrepared}
+        contentType="text/plain"
+        byteLength={2048}
+        truncated={false}
+        contentError={null}
+        policyCitation={{
+          pack: {
+            packId: "azure-wa",
+            packName: "Azure Well-Architected",
+            href: "/policy-packs?packId=azure-wa",
+          },
+          policy: {
+            ruleId: "sec-001",
+            ruleLabel: "SEC-001",
+            href: "/policy-packs?ruleId=sec-001",
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("artifact-review-policy-citation")).toBeInTheDocument();
+    expect(screen.getByTestId("finding-policy-citation-prominent")).toBeInTheDocument();
+    expect(screen.getByText(/Triggered by policy/)).toBeInTheDocument();
+    expect(screen.getByTestId("finding-policy-pack-badge")).toHaveTextContent(/Azure Well-Architected/);
+    expect(screen.getByTestId("finding-policy-rule-badge")).toHaveTextContent(/SEC-001/);
+  });
 });

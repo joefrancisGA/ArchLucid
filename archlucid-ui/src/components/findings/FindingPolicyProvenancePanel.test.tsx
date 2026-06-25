@@ -40,6 +40,30 @@ describe("FindingPolicyProvenancePanel", () => {
     expect(screen.getByTestId("finding-policy-trace-excerpt")).toHaveTextContent("public ingress on port 443");
   });
 
+  it("uses prominent styling when variant is prominent", () => {
+    render(
+      <FindingPolicyProvenancePanel
+        variant="prominent"
+        model={{
+          pack: {
+            packId: "azure-wa",
+            packName: "Azure Well-Architected",
+            href: "/policy-packs?packId=azure-wa",
+          },
+          policy: {
+            ruleId: "sec-001",
+            ruleLabel: "SEC-001",
+            href: "/policy-packs?ruleId=sec-001",
+          },
+          evidence: [],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Triggered by policy/)).toBeInTheDocument();
+    expect(screen.getByTestId("finding-policy-provenance-panel")).toHaveClass("border-teal-300/80");
+  });
+
   it("returns null when no provenance is available", () => {
     const { container } = render(
       <FindingPolicyProvenancePanel
