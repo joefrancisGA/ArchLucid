@@ -1,7 +1,11 @@
 import Link from "next/link";
 
 import { OPERATOR_FIRST_HOUR_JOURNEY_STEP_DEFINITIONS } from "@/lib/operator-first-hour-journey-nav";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import {
+  OPERATOR_HOME_SECTION_HEADING,
+  OPERATOR_LINK,
+  OPERATOR_TYPE_SCALE,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,10 +22,10 @@ export function OperatorFirstHourJourneyStrip() {
       className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800"
       data-testid="operator-first-hour-journey-strip"
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.section, "text-teal-900 dark:text-teal-200")}>
+      <h3 className={cn(OPERATOR_HOME_SECTION_HEADING, "text-al-text-primary")}>
         First-hour path
-      </p>
-      <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
+      </h3>
+      <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
         Pilot first, Operate later — complete one review package before opening analysis or governance depth.
       </p>
       <ol className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0", OPERATOR_TYPE_SCALE.body)}>
@@ -30,16 +34,16 @@ export function OperatorFirstHourJourneyStrip() {
             <Link
               href={item.href}
               title={item.chipTooltip}
-              className="font-medium text-teal-900 underline decoration-teal-300 underline-offset-2 hover:text-teal-950 dark:text-teal-100 dark:decoration-teal-700 dark:hover:text-teal-50"
+              className={OPERATOR_LINK.step}
             >
-              <span className="tabular-nums text-neutral-600 dark:text-neutral-400">{item.step}.</span> {item.label}
+              <span className="tabular-nums text-al-text-secondary">{item.step}.</span> {item.label}
             </Link>
           </li>
         ))}
       </ol>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
         Next: {steps[0].nextAction}{" "}
-        <Link href="/help/first-hour-operator-path" className="text-teal-900 underline dark:text-teal-100">
+        <Link href="/help/first-hour-operator-path" className={OPERATOR_LINK.inline}>
           Read the canonical guide
         </Link>
       </p>

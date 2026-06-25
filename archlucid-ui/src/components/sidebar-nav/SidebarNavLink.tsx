@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import type { NavLinkItem } from "@/lib/nav-config.types";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { pilotNavLinkTestId } from "@/lib/pilot-nav-link-test-ids";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -27,7 +27,7 @@ export function SidebarNavLinkLabel(props: SidebarNavLinkLabelProps): ReactEleme
       <span>{props.presented.label}</span>
       <span
         aria-hidden="true"
-        className="text-[10px] font-normal leading-tight text-neutral-600 dark:text-neutral-300"
+        className={OPERATOR_TYPOGRAPHY.navHelper}
       >
         {subtitle}
       </span>
@@ -56,7 +56,8 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
       {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
       {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
       className={cn(
-        "shell-nav-link flex min-w-0 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+        "shell-nav-link flex min-w-0 items-center gap-2 rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800",
+        OPERATOR_TYPOGRAPHY.navLabel,
         props.active
           ? DESIGN_TOKENS.interactive.navActive
           : "text-neutral-900 dark:text-neutral-100",

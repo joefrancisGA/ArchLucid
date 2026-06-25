@@ -360,7 +360,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                 data-testid={`runs-dashboard-tab-${id}`}
                 className={cn(
                   "border-b-2 border-transparent bg-transparent px-0 py-0.5",
-                  OPERATOR_TYPE_SCALE.section,
+                  OPERATOR_TYPE_SCALE.tab,
                   tab === id
                     ? "border-teal-700 text-teal-900 dark:border-teal-300 dark:text-teal-200"
                     : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100",

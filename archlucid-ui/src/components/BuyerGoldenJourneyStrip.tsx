@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /**
@@ -17,8 +17,8 @@ export function BuyerGoldenJourneyStrip() {
       aria-label="Recommended review journey"
       className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-3"
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.section, "text-teal-900 dark:text-teal-200")}>Review journey</p>
-      <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
+      <h3 className={cn(OPERATOR_HOME_SECTION_HEADING, "text-al-text-primary")}>Review journey</h3>
+      <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
         Follow the finalized review package from executive decision through signed review record, evidence graph, governance
         approval, and audit trail.
       </p>
@@ -28,9 +28,9 @@ export function BuyerGoldenJourneyStrip() {
             <Link
               href={item.href}
               title={item.chipTooltip}
-              className="font-medium text-teal-900 underline decoration-teal-300 underline-offset-2 hover:text-teal-950 dark:text-teal-100 dark:decoration-teal-700 dark:hover:text-teal-50"
+              className={OPERATOR_LINK.step}
             >
-              <span className="tabular-nums text-neutral-600 dark:text-neutral-400">{item.step}.</span> {item.label}
+              <span className="tabular-nums text-al-text-secondary">{item.step}.</span> {item.label}
             </Link>
           </li>
         ))}

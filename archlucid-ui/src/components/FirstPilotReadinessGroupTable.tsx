@@ -36,7 +36,7 @@ export function FirstPilotReadinessGroupTable(props: FirstPilotReadinessGroupTab
 
   return (
     <section aria-labelledby={headingId}>
-      <h3 id={headingId} className={`mb-2 ${OPERATOR_TYPE_SCALE.section}`}>
+      <h3 id={headingId} className={`mb-2 ${OPERATOR_TYPE_SCALE.cardTitle}`}>
         {props.groupLabel}
       </h3>
       <EnterpriseTable ariaLabel={`${props.groupLabel} readiness`}>

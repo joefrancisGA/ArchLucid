@@ -99,50 +99,82 @@ export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15.5rem]";
 export const OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS = "lg:w-[15.5rem]";
 
 /**
- * Four-tier operator typography (home + governance surfaces).
- * Prefer these over ad-hoc `text-xs` / `text-[10px]` on composed pages.
- * @see globals.css `.text-title` … `.text-meta` utilities (same scale)
+ * Canonical operator type scale — one treatment per role; avoid ad-hoc size/weight pairs.
+ * CSS utilities in `globals.css` (`.text-page-title`, …) mirror these tokens.
+ * @see docs/library/UI_DESIGN_SYSTEM.md — Typography convention (TB-119)
  */
 export const OPERATOR_TYPE_SCALE = {
-  /** Page hero / primary card headline (20px). */
-  title: "text-xl font-semibold leading-snug tracking-tight text-al-text-primary",
-  /** Major in-card titles (16px). */
-  cardTitle: "text-base font-semibold leading-snug text-al-text-primary",
-  /** Zone / table group / tab labels (14px). */
-  section: "text-sm font-semibold leading-snug text-al-text-primary",
-  /** Default readable copy and table body (13px). */
-  body: "text-[13px] font-normal leading-relaxed text-al-text-primary",
-  /** Helper lines, captions, secondary table context (12px). */
-  meta: "text-xs font-normal leading-snug text-al-text-secondary",
-  /** Timestamps, KPI labels, dense metadata (11px). */
-  micro: "text-[11px] font-normal leading-snug text-al-text-secondary",
+  /** Page title — 20/28, semibold. */
+  pageTitle: "text-xl font-semibold leading-7 tracking-tight text-al-text-primary",
+  /** Section heading — 18/26, semibold. */
+  sectionTitle: "text-lg font-semibold leading-[26px] text-al-text-primary",
+  /** Card / subsection title — 15/22, semibold. */
+  cardTitle: "text-[15px] font-semibold leading-[22px] text-al-text-primary",
+  /** Body — 13/20, normal. */
+  body: "text-[13px] font-normal leading-5 text-al-text-primary",
+  /** Helper / caption — 12/18, normal. */
+  helper: "text-xs font-normal leading-[18px] text-al-text-secondary",
+  /** Sidebar nav item — 13/18, medium. */
+  navLabel: "text-[13px] font-medium leading-[18px] text-al-text-primary",
+  /** Sidebar nav helper — 11/15, normal (sparse use). */
+  navHelper: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
+  /** Button label — 13/18, semibold. */
+  button: "text-[13px] font-semibold leading-[18px]",
+  /** Tab / table header label — 12/16, semibold. */
+  tab: "text-xs font-semibold leading-4 text-al-text-primary",
+  /** Dense metadata / chips — 11/15, normal. */
+  micro: "text-[11px] font-normal leading-[15px] text-al-text-secondary",
+  /** @deprecated Use {@link pageTitle}. */
+  title: "text-xl font-semibold leading-7 tracking-tight text-al-text-primary",
+  /** @deprecated Use {@link sectionTitle}. */
+  section: "text-lg font-semibold leading-[26px] text-al-text-primary",
+  /** @deprecated Use {@link helper}. */
+  meta: "text-xs font-normal leading-[18px] text-al-text-secondary",
 } as const;
 
-/** Zone headings on operator/buyer home — primary workspace surface (TB-347). */
+/** Sidebar group labels — uppercase tab scale. */
+export const OPERATOR_NAV_GROUP_LABEL = `${OPERATOR_TYPE_SCALE.tab} uppercase tracking-wide text-al-text-secondary`;
+
+/** Zone headings on operator/buyer home — dominant workspace surface (TB-347). */
 export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
-  "m-0 text-xl font-bold leading-snug tracking-tight text-al-text-primary";
+  "m-0 text-xl font-bold leading-7 tracking-tight text-al-text-primary";
 
-/** Zone headings on operator/buyer home — one step below {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
-export const OPERATOR_HOME_SECTION_HEADING =
-  "m-0 text-lg font-semibold leading-snug tracking-tight text-al-text-primary";
+/** Zone headings one step below primary — e.g. First-hour path, Latest in workspace. */
+export const OPERATOR_HOME_SECTION_HEADING = `m-0 ${OPERATOR_TYPE_SCALE.sectionTitle}`;
 
-/** Subsection labels inside home disclosure cards — sentence case. */
-export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.section} text-neutral-600 dark:text-neutral-400`;
+/** Accordion / disclosure triggers and tertiary labels — sentence case. */
+export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.cardTitle} text-al-text-secondary`;
+
+/** Tertiary accordion trigger on dense operator surfaces. */
+export const OPERATOR_DISCLOSURE_TRIGGER_CLASS = `${OPERATOR_TYPE_SCALE.cardTitle} text-al-text-secondary`;
 
 /** Page-level actions (primary/secondary CTAs). */
-export const OPERATOR_BUTTON_PAGE_CLASS = "h-9 px-4 text-[13px] font-medium";
+export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button}`;
 
 /** Compact actions in tables and dense cards. */
-export const OPERATOR_BUTTON_COMPACT_CLASS = "h-7 px-3 text-xs font-medium";
+export const OPERATOR_BUTTON_COMPACT_CLASS = `h-7 px-3 ${OPERATOR_TYPE_SCALE.tab}`;
+
+/** Inline link treatments — reserve strong teal underline for navigation, not step labels. */
+export const OPERATOR_LINK = {
+  nav: "font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]",
+  inline:
+    "font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
+  step: "font-medium text-al-text-primary no-underline hover:text-[var(--al-accent-link)] hover:underline underline-offset-2",
+  optional: `${OPERATOR_TYPE_SCALE.helper} font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-[var(--al-accent-interactive)]`,
+} as const;
 
 export const OPERATOR_TYPOGRAPHY = {
-  pageTitle: OPERATOR_TYPE_SCALE.title,
-  /** Legacy uppercase section labels — prefer {@link OPERATOR_TYPE_SCALE.section} on home. */
-  sectionTitle: `${OPERATOR_TYPE_SCALE.section} text-al-text-secondary`,
+  pageTitle: OPERATOR_TYPE_SCALE.pageTitle,
+  sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
   cardTitle: OPERATOR_TYPE_SCALE.cardTitle,
   body: OPERATOR_TYPE_SCALE.body,
-  meta: OPERATOR_TYPE_SCALE.meta,
-  label: OPERATOR_TYPE_SCALE.meta,
+  meta: OPERATOR_TYPE_SCALE.helper,
+  helper: OPERATOR_TYPE_SCALE.helper,
+  label: OPERATOR_TYPE_SCALE.helper,
+  navLabel: OPERATOR_TYPE_SCALE.navLabel,
+  navHelper: OPERATOR_TYPE_SCALE.navHelper,
+  button: OPERATOR_TYPE_SCALE.button,
+  tab: OPERATOR_TYPE_SCALE.tab,
   /** Status chips (11px). Do not use arbitrary `text-[10px]` on operator surfaces. */
   badge: "text-[11px] font-medium leading-none",
   dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
@@ -193,8 +225,7 @@ export const DESIGN_TOKENS = {
     shell: "w-full overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
     table: "w-full border-collapse text-[13px]",
     headRow: "border-b border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900",
-    headCell:
-      "px-3 py-2.5 text-left text-[11px] font-semibold leading-snug text-al-text-secondary",
+    headCell: `px-3 py-2.5 text-left ${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`,
     body: "divide-y divide-neutral-100 dark:divide-neutral-800",
     row: "outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
     rowSelected:
@@ -219,7 +250,7 @@ export const MARKETING_TYPOGRAPHY = {
   pageTitle: OPERATOR_TYPOGRAPHY.pageTitle,
   /** Welcome hero only — still compact vs legacy marketing scale. */
   heroTitle: `${OPERATOR_TYPOGRAPHY.pageTitle} sm:text-2xl`,
-  sectionTitle: OPERATOR_TYPE_SCALE.section,
+  sectionTitle: OPERATOR_TYPE_SCALE.sectionTitle,
   cardTitle: OPERATOR_TYPOGRAPHY.cardTitle,
   body: OPERATOR_TYPOGRAPHY.body,
   meta: OPERATOR_TYPOGRAPHY.meta,

@@ -7,6 +7,7 @@ import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/Gover
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
+import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
   filterSidebarNavClusterLinks,
@@ -50,7 +51,8 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
   }
 
   const headingClassName = cn(
-    "flex w-full min-w-0 items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200",
+    OPERATOR_NAV_GROUP_LABEL,
+    "flex w-full min-w-0 items-start gap-2 rounded-md px-2 py-1.5 text-left",
     props.isCollapsible && "hover:bg-neutral-50 dark:hover:bg-neutral-800/80",
   );
 

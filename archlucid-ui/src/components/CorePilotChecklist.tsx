@@ -16,7 +16,7 @@ import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
@@ -138,7 +138,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
               <div className="flex flex-wrap items-start gap-2">
                 <Link
                   href={stepPresentation.href}
-                  className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold text-blue-700 underline-offset-2 hover:underline dark:text-blue-400")}
+                  className={cn(OPERATOR_TYPOGRAPHY.body, OPERATOR_LINK.step, "font-semibold")}
                 >
                   {step.title}
                 </Link>

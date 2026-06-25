@@ -38,7 +38,7 @@ export function EnterpriseCompactEmptyState(props: EnterpriseCompactEmptyStatePr
         OPERATOR_LAYOUT.sectionStack,
       )}
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.section, "text-neutral-900 dark:text-neutral-100")}>{title}</p>
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{title}</p>
       <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>{description}</p>
       {actionList.length > 0 ? (
         <div className="flex flex-wrap gap-2 pt-1">

@@ -25,6 +25,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const pageCueClassName =
@@ -48,7 +49,7 @@ export function OperateCapabilityNavGroupHint(): ReactNode {
   }
 
   return (
-    <span className="mt-0.5 block max-w-[14rem] text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-600 dark:text-neutral-300">
+    <span className={cn("mt-0.5 block max-w-[14rem] normal-case tracking-normal", OPERATOR_TYPOGRAPHY.navHelper)}>
       {text}
     </span>
   );

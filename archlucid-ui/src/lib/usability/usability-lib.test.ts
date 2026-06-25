@@ -11,6 +11,11 @@ describe("usability lib", () => {
     expect(navLinkQuestionSubtitle("/compare")).toContain("changed");
   });
 
+  it("navLinkQuestionSubtitle omits dense helpers for self-explanatory nav items", () => {
+    expect(navLinkQuestionSubtitle("/graph")).toBeNull();
+    expect(navLinkQuestionSubtitle("/governance")).toBeNull();
+  });
+
   it("filterNavLinksByOperateUnlockPhase hides all Operate links at phase 0", () => {
     const links = [{ href: "/compare" }, { href: "/audit" }];
     const phase0 = filterNavLinksByOperateUnlockPhase(links, false, 0);

@@ -8,22 +8,14 @@ export type NavLinkQuestionSubtitle = {
 };
 
 /**
- * Subtitles only for items whose label alone doesn't convey scope — omit obvious labels
- * (Start review, Review packages, Portfolio view) so the sidebar stays compact.
+ * Subtitles only for nav items whose label alone doesn't convey scope.
+ * Keep this list short — dense helper copy makes the sidebar typographically busy.
  */
 export const NAV_LINK_QUESTION_SUBTITLES: readonly NavLinkQuestionSubtitle[] = [
   { href: "/compare", subtitle: "What changed between two reviews?" },
   { href: "/replay", subtitle: "Does stored output still validate?" },
-  { href: "/graph", subtitle: "How does provenance look for this review?" },
   { href: "/ask", subtitle: "Query this review in plain language" },
-  { href: "/search", subtitle: "Find reviews, findings, and evidence" },
   { href: "/advisory", subtitle: "What should we change next?" },
-  { href: "/governance", subtitle: "What needs a governance decision?" },
-  { href: "/governance/findings", subtitle: "Which findings need disposition?" },
-  { href: "/audit", subtitle: "Who did what, and when?" },
-  { href: "/alerts", subtitle: "What needs attention right now?" },
-  { href: "/policy-packs", subtitle: "Which rules drive findings?" },
-  { href: "/value-report", subtitle: "What value did reviews deliver?" },
 ] as const;
 
 export function navLinkQuestionSubtitle(href: string): string | null {

@@ -29,8 +29,8 @@ export function DemoTenantSeedCallout({
       )}
       data-testid="demo-tenant-seed-callout"
     >
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.section, "text-neutral-900 dark:text-neutral-100")}>{title}</p>
-      <p className={cn("m-0", OPERATOR_TYPE_SCALE.meta, "text-neutral-600 dark:text-neutral-400")}>{description}</p>
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{title}</p>
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>{description}</p>
       <SeedSampleReviewButton label="Load sample workspace" />
     </div>
   );

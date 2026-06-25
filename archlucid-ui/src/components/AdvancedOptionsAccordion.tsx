@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type AdvancedOptionsAccordionProps = {
@@ -56,7 +57,10 @@ export function AdvancedOptionsAccordion({
         <Button
           type="button"
           variant="ghost"
-          className="h-auto w-full justify-between gap-2 px-4 py-3 text-left font-semibold text-neutral-900 hover:bg-neutral-100/80 dark:text-neutral-100 dark:hover:bg-neutral-800/60"
+          className={cn(
+            "h-auto w-full justify-between gap-2 px-4 py-3 text-left hover:bg-neutral-100/80 dark:hover:bg-neutral-800/60",
+            OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+          )}
           aria-expanded={open}
           aria-controls={panelId}
         >

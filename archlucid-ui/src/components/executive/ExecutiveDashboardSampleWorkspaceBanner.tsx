@@ -23,10 +23,10 @@ export function ExecutiveDashboardSampleWorkspaceBanner(
       role="status"
       data-testid="executive-dashboard-sample-workspace-banner"
     >
-      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPE_SCALE.section)}>
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>
         {v.sampleWorkspaceBannerTitle}
       </p>
-      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPE_SCALE.meta)}>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPE_SCALE.helper)}>
         {v.sampleWorkspaceBannerDescription}
       </p>
     </div>

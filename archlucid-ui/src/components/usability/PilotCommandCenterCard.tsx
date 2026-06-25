@@ -17,16 +17,14 @@ import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { cn } from "@/lib/utils";
 
-const optionalSetupLinkClass = cn(
-  OPERATOR_TYPE_SCALE.meta,
-  "font-medium text-al-text-secondary underline decoration-al-text-secondary/40 underline-offset-2 hover:text-al-text-primary hover:decoration-al-accent-interactive",
-);
+const optionalSetupLinkClass = OPERATOR_LINK.optional;
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
   label: "Start review",

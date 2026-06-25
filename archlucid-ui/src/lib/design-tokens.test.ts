@@ -30,24 +30,32 @@ describe("design-tokens TB-115 surfaces", () => {
 });
 
 describe("design-tokens TB-119 typography", () => {
-  it("four-tier scale uses 20/16/13/12/11px steps", () => {
-    expect(OPERATOR_TYPE_SCALE.title).toContain("text-xl");
-    expect(OPERATOR_TYPE_SCALE.cardTitle).toContain("text-base");
-    expect(OPERATOR_TYPE_SCALE.section).toContain("text-sm");
+  it("canonical scale uses 20/18/15/13/12/11px steps", () => {
+    expect(OPERATOR_TYPE_SCALE.pageTitle).toContain("text-xl");
+    expect(OPERATOR_TYPE_SCALE.sectionTitle).toContain("text-lg");
+    expect(OPERATOR_TYPE_SCALE.cardTitle).toContain("text-[15px]");
     expect(OPERATOR_TYPE_SCALE.body).toContain("text-[13px]");
-    expect(OPERATOR_TYPE_SCALE.meta).toContain("text-xs");
-    expect(OPERATOR_TYPE_SCALE.micro).toContain("text-[11px]");
+    expect(OPERATOR_TYPE_SCALE.helper).toContain("text-xs");
+    expect(OPERATOR_TYPE_SCALE.navHelper).toContain("text-[11px]");
+    expect(OPERATOR_TYPE_SCALE.tab).toContain("leading-4");
   });
 
-  it("page titles align with title tier (20px)", () => {
-    expect(OPERATOR_TYPOGRAPHY.pageTitle).toBe(OPERATOR_TYPE_SCALE.title);
+  it("page titles align with pageTitle tier (20px)", () => {
+    expect(OPERATOR_TYPOGRAPHY.pageTitle).toBe(OPERATOR_TYPE_SCALE.pageTitle);
     expect(OPERATOR_TYPOGRAPHY.pageTitle).not.toContain("text-2xl");
   });
 
-  it("section titles use 13px semibold without uppercase", () => {
-    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("text-sm");
+  it("section titles use 18px semibold primary text", () => {
+    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("text-lg");
     expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("font-semibold");
     expect(OPERATOR_TYPOGRAPHY.sectionTitle).not.toContain("uppercase");
+  });
+
+  it("nav and button roles have dedicated tokens", () => {
+    expect(OPERATOR_TYPOGRAPHY.navLabel).toContain("font-medium");
+    expect(OPERATOR_TYPOGRAPHY.navHelper).toContain("leading-[15px]");
+    expect(OPERATOR_TYPOGRAPHY.button).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.tab).toContain("leading-4");
   });
 
   it("KPI values use mono tabular scale separate from page titles", () => {
