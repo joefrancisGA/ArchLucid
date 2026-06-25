@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { writeOperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
@@ -111,6 +111,13 @@ function unlockOperateFeatures(): void {
   fireEvent.click(screen.getByTestId("nav-advanced-unlock"));
 }
 
+/** Advance directly to phase 2 so the operate-governance group becomes visible. */
+function unlockAllOperateFeatures(): void {
+  act(() => {
+    writeOperateNavUnlockPhase(2);
+  });
+}
+
 describe("SidebarNav — new-user buyer-polished catalog (no committed review)", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/");
@@ -139,7 +146,7 @@ describe("SidebarNav — new-user buyer-polished catalog (no committed review)",
 
   it("exposes every requested destination once Operate features are unlocked and groups expanded", async () => {
     render(<SidebarNav />);
-    unlockOperateFeatures();
+    unlockAllOperateFeatures();
 
     await waitFor(() => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toBeInTheDocument();

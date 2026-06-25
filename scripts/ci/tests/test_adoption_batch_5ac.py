@@ -37,7 +37,7 @@ class TestAdoptionBatch5AC(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("PromoteHostedPilotQualityGateFindings", text)
         self.assertIn("quality_gate_warn_only_in_real_production_like", text)
-        self.assertIn("quality_gate_pilot_strict_thresholds_too_loose_in_production_like", text)
+        self.assertIn("QualityGatePilotStrictThresholdsTooLooseInProductionLike", text)
 
     def test_pilot_strict_threshold_lint_rule_exists(self) -> None:
         path = (

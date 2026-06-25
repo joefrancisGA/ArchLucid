@@ -192,7 +192,7 @@ describe("authority seam regression", () => {
       false,
       "all",
       true,
-      1,
+      2, // Phase 2 required: operate-governance group is skipped at phase < 2
     );
 
     const governance = rows.find((r) => r.group.id === "operate-governance");
