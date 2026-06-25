@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 89.15%`
+`ArchLucid Assessment – (A) Headline Readiness: 89.57%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -30,14 +30,14 @@
 | 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
 | 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
 | 5 | AI / Agent Readiness | 88 | 10 | 8.80 | 1.20 |
-| 6 | Time-to-Value | 87 | 10 | 8.70 | 1.30 |
+| 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 88 | 8 | 7.04 | 0.96 |
-| 9 | Runtime & First-Review Reliability | 91 | 7 | 6.37 | 0.63 |
-| 10 | Adoption Friction | 67 | 5 | 3.35 | 1.65 |
-| **Total** | | | **100** | **89.15%** | **10.85%** |
+| 9 | Runtime & First-Review Reliability | 92 | 7 | 6.44 | 0.56 |
+| 10 | Adoption Friction | 72 | 5 | 3.60 | 1.40 |
+| **Total** | | | **100** | **89.57%** | **10.43%** |
 
-*(A) Headline Readiness: 89.15%*
+*(A) Headline Readiness: 89.57%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 89.15%. AWS/GCP Phase 4 completes multi-cloud analyze: AWS Price List EC2 probes, optional GCP Billing Catalog adapter, multi-cloud cost-summary augmentation, cloud-aware agent system-prompt addenda, and golden-cohort AWS/GCP fixtures — full **§2.19** engineering track delivered.
+- **(A) Overall headline readiness:** 89.57%. `archlucid pilot init` ships guided interactive pre-flight: health/ready probes, production-like config lint, JWT role diagnostic, optional Azure OpenAI smoke, PASS/HOLD summary with numbered fix steps, and `pilot-preflight-report.json`.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,10 +94,10 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 67 · **Weight:** 5 · **Contribution:** 3.35 · **Deficiency:** 1.65
-- **Justification:** AWS/GCP Tier-1 inventory ZIP scripts and upload endpoints mirror Azure extractor posture — operators can collect and upload without vendor cloud credentials; wizard copy for platform-specific commands remains a follow-on.
-- **Recommendations:** Build guided CLI interactive pre-flight checks beyond `config check` to accelerate time-to-first-review during assisted pilot setups.
-- **Class:** V1 ready (but remains a sales-engineer drag).
+- **Score:** 72 · **Weight:** 5 · **Contribution:** 3.60 · **Deficiency:** 1.40
+- **Justification:** `archlucid pilot init` walks SEs through health, config lint, token roles, and optional OpenAI smoke in one session — replaces manual check chaining during assisted setup.
+- **Recommendations:** Tier-1 extractor first-review operator path (wizard copy + ZIP pre-validation) remains the top residual friction item.
+- **Class:** V1 ready (SE-assisted pilots materially faster).
 
 ### 3. AI / Agent Readiness
 - **Score:** 88 · **Weight:** 10 · **Contribution:** 8.80 · **Deficiency:** 1.20
@@ -110,8 +110,8 @@
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
-- **Score:** 87 · **Weight:** 10 · **Contribution:** 8.70 · **Deficiency:** 1.30
-- **Justification:** Customer-run AWS/GCP inventory scripts produce upload-ready ZIPs with `collectionTimestamp` citations; ingest persists packages and emits proof-point audit rows without SE intervention.
+- **Score:** 88 · **Weight:** 10 · **Contribution:** 8.80 · **Deficiency:** 1.20
+- **Justification:** Pilot init emits `pilot-preflight-report.json` with numbered remediation steps so operators fix blockers before first review instead of iterating with SEs ad hoc.
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
@@ -135,15 +135,15 @@
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
-- **Score:** 91 · **Weight:** 7 · **Contribution:** 6.37 · **Deficiency:** 0.63
-- **Justification:** Pipeline is well-tested with end-to-end smoke tests; manifest chunk summarization prevents token-limit truncation on large first reviews.
+- **Score:** 92 · **Weight:** 7 · **Contribution:** 6.44 · **Deficiency:** 0.56
+- **Justification:** `archlucid pilot init` gates first review on `/health/ready`, production-like config lint, and token role resolution before operators submit evidence — fewer mid-run failures.
 - **Class:** V1 ready.
 
 ---
 
 # 8. Top 10 Weaknesses (ranked)
 
-1. **Adoption Friction (Configuration Complexity):** Requires heavy lifting to wire OIDC, SQL, and Azure OpenAI. *Fix:* Invest in deeper automated pre-flight diagnostics for SEs. (Market uncertainty). Tier-2 auto-pull hardening shipped; manual Tier-1 ZIP remains the first-review path.
+1. **Tier-1 Extractor First-Review Path:** Manual Azure/AWS/GCP inventory ZIP upload remains the top enterprise adoption blocker; wizard copy and client-side ZIP pre-validation are follow-on. *Fix:* Execute Tier-1 extractor operator path (Assessment §17).
 2. **Threat of Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Ensure the ArchLucid review workflow integrates seamlessly into CI/CD so the architect doesn't feel double-taxed.
 3. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology.
 4. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
@@ -249,18 +249,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
-- **Title:** Guided Interactive Pilot Pre-Flight (`archlucid pilot init`)
-- **Tier:** Tier 1 – Must Fix
-- **Why it matters:** Adoption friction remains the headline drag; `config lint` is powerful but not conversational — SEs still manually chain checks during assisted setup.
-- **Expected impact:** Cuts time-to-first-review by walking operators through SQL, auth, Azure OpenAI, and production-like profile checks with fix hints in one session.
-- **Affected qualities:** Adoption Friction, Time-to-Value, Runtime & First-Review Reliability.
-- **Evidence:** Assessment §7 Adoption Friction recommendation; `CONFIGURATION_REFERENCE.md` pilot profiles; `PILOT_MISCONFIGURATION_GUARDS.md`.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 3
-- **Market Uncertainty Reduced:** 6
-- **Classification:** V1
-- **Cursor Prompt:** Add `archlucid pilot init` interactive CLI that runs: health/ready probe, `config lint --profile production-like-hosted-pilot`, token diagnostic (`auth test-token`), and optional Azure OpenAI smoke. Print PASS/HOLD with numbered fix steps and write `pilot-preflight-report.json`. Reuse existing services — no duplicate lint logic.
-
 - **Title:** Tier-1 Extractor First-Review Operator Path
 - **Tier:** Tier 1 – Must Fix
 - **Why it matters:** Manual Azure Extractor ZIP upload is still the top enterprise adoption blocker; Tier-2 auto-pull is opt-in and post-setup.
@@ -364,7 +352,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 1 adoption — `archlucid pilot init` pre-flight, then Tier-1 extractor first-review operator path.
+1. **Batch 1:** Tier 1 adoption — Tier-1 extractor first-review operator path (wizard evidence upload + ZIP pre-validation).
 2. **Batch 2:** Tier 2 trust + traceability — TB-402 zero GitHub seams, then finding-level evidence deep-links.
 3. **Batch 3:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
 4. **Batch 4:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.

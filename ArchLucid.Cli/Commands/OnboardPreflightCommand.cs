@@ -1,9 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Core.Hosting;
-
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -36,7 +33,7 @@ internal static class OnboardPreflightCommand
         IConfiguration localConfiguration = PilotPreflightLocalSteps.LoadLocalConfiguration(simulateProduction);
         List<PilotPreflightStepResult> steps =
         [
-            .. EvaluateProductionLikeConfigLint(localConfiguration, simulateProduction),
+            .. PilotPreflightProductionLikeConfigLintSteps.Evaluate(localConfiguration, simulateProduction),
             .. PilotPreflightLocalSteps.Evaluate(localConfiguration, simulateProduction),
         ];
 
@@ -75,46 +72,5 @@ internal static class OnboardPreflightCommand
             : $"BLOCK — {report.BlockCount} blocking failure(s), {report.WarnCount} warning(s). Fix BLOCK rows before production-like onboarding.");
 
         return report.AllBlockingPassed ? CliExitCode.Success : CliExitCode.OperationFailed;
-    }
-
-    private static IEnumerable<PilotPreflightStepResult> EvaluateProductionLikeConfigLint(
-        IConfiguration localConfiguration,
-        bool simulateProduction)
-    {
-        string envName =
-            localConfiguration["ASPNETCORE_ENVIRONMENT"]
-            ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-            ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
-            ?? (simulateProduction ? Environments.Production : Environments.Development);
-
-        OperatorConfigurationLintSnapshot lintSnapshot =
-            OperatorConfigurationLintEvaluator.Evaluate(localConfiguration, envName.Trim());
-
-        ConfigLintReportDocument report =
-            ConfigLintReportBuilder.Build(lintSnapshot, ConfigLintProfileNames.ProductionLikeHostedPilot);
-
-        foreach (ConfigLintReportFinding finding in report.BlockingFindings)
-        {
-            yield return new PilotPreflightStepResult
-            {
-                Name = $"config-lint:{finding.Category}:{finding.RuleName}",
-                Disposition = PilotPreflightDisposition.Block,
-                Detail = finding.Message,
-                Remediation = string.IsNullOrWhiteSpace(finding.RemediationHint)
-                    ? ConfigLintFindingGuidance.TryResolve(finding.RuleName)?.RemediationHint
-                    : finding.RemediationHint,
-            };
-        }
-
-        foreach (ConfigLintReportFinding finding in report.AdvisoryFindings)
-        {
-            yield return new PilotPreflightStepResult
-            {
-                Name = $"config-lint:{finding.Category}:{finding.RuleName}",
-                Disposition = PilotPreflightDisposition.Warn,
-                Detail = finding.Message,
-                Remediation = null,
-            };
-        }
     }
 }

@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Admin;
@@ -35,49 +34,29 @@ internal static class AuthTestTokenCommand
             return CliExitCode.ConfigurationError;
         }
 
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
+        AuthTokenClaimsDiagnosticOutcome outcome = await AuthTokenClaimsDiagnosticClient
+            .DiagnoseAsync(baseUrl, bearerToken!)
+            .ConfigureAwait(false);
 
-        if (string.IsNullOrWhiteSpace(apiKey))
+        if (outcome.IsMissingApiKey)
         {
-            await Console.Error.WriteLineAsync(
-                "[ArchLucid CLI] Set ARCHLUCID_API_KEY with AdminAuthority before running auth test-token.");
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + outcome.ErrorDetail);
 
             return CliExitCode.ConfigurationError;
         }
 
-        AdminTokenClaimsDiagnosticRequest payload = new() { BearerToken = bearerToken! };
-        string jsonBody = JsonSerializer.Serialize(payload, JsonOptions);
-
-        using HttpClient httpClient = new() { BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/") };
-        using HttpRequestMessage request = new(HttpMethod.Post, "v1/admin/auth/diagnose-token");
-        request.Headers.Add("X-Api-Key", apiKey);
-        request.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-        using HttpResponseMessage response = await httpClient.SendAsync(request).ConfigureAwait(false);
-        string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
+        if (!outcome.IsSuccess)
         {
-            await Console.Error.WriteLineAsync(
-                $"[ArchLucid CLI] POST diagnose-token failed: HTTP {(int)response.StatusCode}");
-            await Console.Error.WriteLineAsync(body);
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + outcome.ErrorDetail);
 
             return CliExitCode.OperationFailed;
         }
 
-        AdminTokenClaimsDiagnosticResponse? parsed =
-            JsonSerializer.Deserialize<AdminTokenClaimsDiagnosticResponse>(body, JsonOptions);
-
-        if (parsed is null)
-        {
-            await Console.Error.WriteLineAsync("[ArchLucid CLI] Could not parse diagnose-token JSON.");
-
-            return CliExitCode.OperationFailed;
-        }
+        AdminTokenClaimsDiagnosticResponse parsed = outcome.Response!;
 
         if (CliExecutionContext.JsonOutput)
         {
-            Console.WriteLine(body);
+            Console.WriteLine(JsonSerializer.Serialize(parsed, JsonOptions));
 
             return CliExitCode.Success;
         }
