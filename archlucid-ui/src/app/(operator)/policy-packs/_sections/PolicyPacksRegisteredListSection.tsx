@@ -7,6 +7,8 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { policyPackTypeDisplayLabel } from "@/lib/policy-pack-type-label";
 import { isStandardBaselinePolicyPackName } from "@/lib/policy-pack-standard-baseline";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BooleanStatusChip } from "@/components/ui/boolean-status-chip";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -26,11 +28,11 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
 
   return (
     <section className="mb-8" aria-labelledby="policy-packs-current-heading">
-      <h3 id="policy-packs-current-heading">
+      <h3 id="policy-packs-current-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         {canMutatePacks ? policyPacksCurrentPacksHeadingOperator : policyPacksCurrentPacksHeadingReader}
       </h3>
       {packs.length === 0 ? (
-        <p className="text-neutral-500 dark:text-neutral-400 max-w-2xl text-sm">
+        <p className={cn("max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
         </p>
       ) : (
@@ -53,27 +55,27 @@ export function PolicyPacksRegisteredListSection(props: PolicyPacksRegisteredLis
                 />
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <code className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{p.policyPackId}</code>
+                <code className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{p.policyPackId}</code>
                 <CopyIdButton value={p.policyPackId} aria-label="Copy policy pack ID" />
               </div>
-              <span className="text-sm text-neutral-700 dark:text-neutral-300">
+              <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {" "}
                 — {policyPackTypeDisplayLabel(p.packType)} / {p.status} / current{" "}
                 <code>{p.currentVersion}</code>
               </span>
-              <div className="text-[13px] text-neutral-600 dark:text-neutral-400">{p.description}</div>
+              <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{p.description}</div>
             </li>
           ))}
         </ul>
       )}
 
-      <label className="block mt-3">
+      <label className={cn("mt-3 block", OPERATOR_TYPOGRAPHY.body)}>
         Selected pack (inspect versions and lifecycle)
         <select
           value={selectedPackId}
           onChange={(e) => onSelectedPackIdChange(e.target.value)}
           title={canMutatePacks ? undefined : policyPacksPackSelectReaderTitle}
-          className="block w-full max-w-lg p-2 mt-1"
+          className={cn("mt-1 block w-full max-w-lg p-2", OPERATOR_TYPOGRAPHY.body)}
         >
           <option value="">—</option>
           {packs.map((p) => (

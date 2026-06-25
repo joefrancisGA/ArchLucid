@@ -10,6 +10,7 @@ import {
   policyPacksLifecycleLeadReaderLine,
   policyPacksPublishButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { PACK_TYPES, VERTICAL_POLICY_PACK_IMPORTS } from "./policy-packs-page-constants";
 
@@ -76,11 +77,11 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
 
   return (
     <section className="mb-0" aria-labelledby="policy-packs-lifecycle-heading">
-      <h3 id="policy-packs-lifecycle-heading">
+      <h3 id="policy-packs-lifecycle-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         {canMutatePacks ? "Lifecycle actions" : "Lifecycle actions (operator writes)"}
       </h3>
       {canMutatePacks ? null : (
-        <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-3xl mt-1 mb-2">
+        <p className={cn("mb-2 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {policyPacksLifecycleLeadReaderLine}
         </p>
       )}
@@ -89,10 +90,10 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
           <GovernanceDryRunModal policyPackId={selectedPackId} />
         </div>
         <section className="mb-8" aria-labelledby="policy-packs-vertical-import-heading">
-          <h4 id="policy-packs-vertical-import-heading" className="mt-0 mb-2">
+          <h4 id="policy-packs-vertical-import-heading" className={cn("mb-2 mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Import a vertical policy pack
           </h4>
-          <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mb-3 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Loads the starter <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">policy-pack.json</code>{" "}
             shipped under{" "}
             <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">archlucid-ui/public/vertical-templates/</code>{" "}
@@ -117,10 +118,13 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
         </section>
 
         <section className="mb-8">
-          <h4 className="mt-0 mb-2">Create pack</h4>
-          <div className="grid gap-2.5 max-w-3xl">
+          <h4 className={cn("mb-2 mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Create pack</h4>
+          <div className="grid max-w-3xl gap-2.5">
             <div className="space-y-2">
-              <label htmlFor="policy-pack-create-name" className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              <label
+                htmlFor="policy-pack-create-name"
+                className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+              >
                 Name
               </label>
               <Input
@@ -137,7 +141,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             <div className="space-y-2">
               <label
                 htmlFor="policy-pack-create-description"
-                className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
               >
                 Description
               </label>
@@ -195,22 +199,27 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
         </section>
 
         <section className="mb-8">
-          <h4 className="mt-0 mb-2">Publish version</h4>
+          <h4 className={cn("mb-2 mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Publish version</h4>
           {bundledPublishBlocked ? (
-            <p className="mb-2 max-w-prose rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs">
+            <p
+              className={cn(
+                "mb-2 max-w-prose rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
+            >
               Selected pack is <strong className="font-semibold">Bundled default (platform)</strong>: ArchLucid seeded it at tenant onboarding. Published versions upgrade with product releases —
               tenants cannot mint new SemVer revisions from Policy packs UI (API blocks republish too). Customize by copying JSON into a{" "}
               <strong className="font-semibold">Project custom</strong> pack.
             </p>
           ) : null}
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Creates a published version row and marks the pack Active. Use a new semantic version when content changes.
           </p>
-          <div className="grid gap-2.5 max-w-3xl">
+          <div className="grid max-w-3xl gap-2.5">
             <div className="space-y-2">
               <label
                 htmlFor="policy-pack-publish-version"
-                className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
               >
                 Version label
               </label>
@@ -255,15 +264,15 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
         </section>
 
         <section className="mb-0">
-          <h4 className="mt-0 mb-2">Assign to current scope</h4>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <h4 className={cn("mb-2 mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assign to current scope</h4>
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Assignment must reference an existing version string for that pack (e.g. the one you published).
           </p>
-          <div className="flex gap-3 flex-wrap items-end">
+          <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-2">
               <label
                 htmlFor="policy-pack-assign-version"
-                className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
               >
                 Version
               </label>

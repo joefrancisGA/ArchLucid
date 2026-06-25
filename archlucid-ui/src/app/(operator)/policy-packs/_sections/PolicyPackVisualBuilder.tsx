@@ -25,6 +25,8 @@ import {
   visualBuilderStateToContentJson,
 } from "@/lib/policy-pack-visual-builder";
 import { showSuccess } from "@/lib/toast";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type PolicyPackVisualBuilderProps = {
   readonly canMutatePacks: boolean;
@@ -240,22 +242,25 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
 
   return (
     <section aria-labelledby="visual-builder-heading" className="space-y-4 rounded-lg border border-border p-4">
-      <h3 id="visual-builder-heading" className="text-sm font-semibold text-al-text-primary">
+      <h3 id="visual-builder-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Visual policy pack builder
       </h3>
-      <p className="text-sm text-muted-foreground">
+      <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>
         Pick a starter template, compose conditions, and keep JSON as the source of truth for simulate/publish.
       </p>
 
       {templatesError !== null ? (
-        <p className="text-sm text-red-700 dark:text-red-300" role="alert">
+        <p className={cn("text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {templatesError}
         </p>
       ) : null}
 
       {roundTripWarning !== null ? (
         <p
-          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           role="status"
         >
           {roundTripWarning}
@@ -264,19 +269,21 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
 
       <div className="grid gap-4 lg:grid-cols-12">
         <div className="space-y-2 lg:col-span-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Templates</p>
+          <p className={cn("text-muted-foreground", OPERATOR_NAV_GROUP_LABEL)}>Templates</p>
           <div className="max-h-80 space-y-3 overflow-y-auto rounded-md border border-border p-2">
             {[...groupedTemplates.entries()].map(([category, items]) => (
               <div key={category}>
-                <p className="text-xs font-semibold text-muted-foreground">{category}</p>
+                <p className={cn("font-semibold text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)}>{category}</p>
                 <ul className="mt-1 space-y-1">
                   {items.map((template) => (
                     <li key={template.templateId}>
                       <button
                         type="button"
-                        className={`w-full rounded px-2 py-1 text-left text-sm hover:bg-accent ${
-                          selectedTemplateId === template.templateId ? "bg-accent font-medium" : ""
-                        }`}
+                        className={cn(
+                          "w-full rounded px-2 py-1 text-left hover:bg-accent",
+                          OPERATOR_TYPOGRAPHY.body,
+                          selectedTemplateId === template.templateId && "bg-accent font-medium",
+                        )}
                         onClick={() => loadTemplate(template)}
                         data-testid={`visual-template-${template.templateId}`}
                       >
@@ -291,7 +298,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
         </div>
 
         <div className="space-y-3 lg:col-span-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Conditions</p>
+          <p className={cn("text-muted-foreground", OPERATOR_NAV_GROUP_LABEL)}>Conditions</p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="outline" disabled={!canMutatePacks} onClick={addLeafCondition}>
               Add condition
@@ -302,7 +309,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
           </div>
 
           {builderState.root.type === "group" && builderState.root.children.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No conditions yet — add a leaf or load a template.</p>
+            <p className={cn("text-muted-foreground", OPERATOR_TYPOGRAPHY.body)}>No conditions yet — add a leaf or load a template.</p>
           ) : null}
 
           {builderState.root.type === "group"
@@ -310,7 +317,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                 child.type === "leaf" ? (
                   <div key={`leaf-${index}`} className="grid gap-2 rounded border border-border p-3 sm:grid-cols-3">
                     <select
-                      className="rounded border border-input bg-background px-2 py-1 text-sm"
+                      className={cn("rounded border border-input bg-background px-2 py-1", OPERATOR_TYPOGRAPHY.body)}
                       value={child.field}
                       disabled={!canMutatePacks}
                       onChange={(event) => {
@@ -330,7 +337,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                       ))}
                     </select>
                     <select
-                      className="rounded border border-input bg-background px-2 py-1 text-sm"
+                      className={cn("rounded border border-input bg-background px-2 py-1", OPERATOR_TYPOGRAPHY.body)}
                       value={child.operator}
                       disabled={!canMutatePacks}
                       onChange={(event) => {
@@ -351,7 +358,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                     </select>
                     {child.operator === "severityAtLeast" ? (
                       <select
-                        className="rounded border border-input bg-background px-2 py-1 text-sm"
+                        className={cn("rounded border border-input bg-background px-2 py-1", OPERATOR_TYPOGRAPHY.body)}
                         value={child.value}
                         disabled={!canMutatePacks}
                         onChange={(event) => {
@@ -372,7 +379,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
                       </select>
                     ) : child.operator === "categoryIn" ? (
                       <select
-                        className="rounded border border-input bg-background px-2 py-1 text-sm"
+                        className={cn("rounded border border-input bg-background px-2 py-1", OPERATOR_TYPOGRAPHY.body)}
                         value={child.value}
                         disabled={!canMutatePacks}
                         onChange={(event) => {
@@ -411,10 +418,10 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
               )
             : null}
 
-          <label className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <label className={cn("block text-muted-foreground", OPERATOR_NAV_GROUP_LABEL)}>
             Compliance rule keys (comma-separated)
             <Input
-              className="mt-1 font-mono text-sm"
+              className={cn("mt-1 font-mono", OPERATOR_TYPOGRAPHY.body)}
               value={builderState.complianceRuleKeys.join(", ")}
               disabled={!canMutatePacks}
               onChange={(event) => {
@@ -429,9 +436,9 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
         </div>
 
         <div className="space-y-2 lg:col-span-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Live JSON preview</p>
+          <p className={cn("text-muted-foreground", OPERATOR_NAV_GROUP_LABEL)}>Live JSON preview</p>
           <Textarea
-            className="min-h-80 font-mono text-xs"
+            className={cn("min-h-80 font-mono", OPERATOR_TYPOGRAPHY.micro)}
             value={jsonPreview}
             disabled={!canMutatePacks}
             onChange={(event) => onJsonPreviewEdit(event.target.value)}
@@ -441,10 +448,10 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       </div>
 
       <div className="flex flex-wrap items-end gap-3 border-t border-border pt-3">
-        <label className="text-sm">
+        <label className={OPERATOR_TYPOGRAPHY.body}>
           Review ID for validate
           <Input
-            className="mt-1 w-72 font-mono text-xs"
+            className={cn("mt-1 w-72 font-mono", OPERATOR_TYPOGRAPHY.micro)}
             value={simulateRunId}
             onChange={(event) => setSimulateRunId(event.target.value)}
           />
@@ -467,7 +474,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
       </div>
 
       {simulateFailure !== null ? (
-        <p className="text-sm text-red-700 dark:text-red-300" role="alert">
+        <p className={cn("text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {simulateFailure.message}
         </p>
       ) : null}
