@@ -14,6 +14,8 @@ import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ManifestSummary } from "@/types/authority";
 
 import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
@@ -33,6 +35,9 @@ export function RunDetailManifestSummarySection(
   const evaluationStandardsLabel = isStreamlinedCorePilotPath(hasCommittedArchitectureReview)
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.evaluationStandards
     : "Policy pack";
+  const definitionLabelClass = cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
+  const definitionValueClass = cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body);
+  const monoValueClass = cn("min-w-0 break-all font-mono", OPERATOR_TYPOGRAPHY.micro);
 
   return (
     <section id="manifest-summary" className="scroll-mt-24 space-y-4">
@@ -42,45 +47,45 @@ export function RunDetailManifestSummarySection(
         </CardHeader>
         <CardContent className="space-y-4">
           {manifestSummary.operatorSummary ? (
-            <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {manifestSummary.operatorSummary}
             </p>
           ) : null}
           <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
             {!buyerPolishedShell ? (
               <>
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Review ID</dt>
-                <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
-                  <code className="min-w-0 break-all font-mono text-xs">{manifestSummary.runId}</code>
+                <dt className={definitionLabelClass}>Review ID</dt>
+                <dd className={cn("m-0 flex min-w-0 flex-wrap items-center gap-2", definitionValueClass)}>
+                  <code className={monoValueClass}>{manifestSummary.runId}</code>
                   <CopyIdButton value={manifestSummary.runId} aria-label="Copy review ID" />
                 </dd>
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Review record ID</dt>
-                <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
-                  <code className="min-w-0 break-all font-mono text-xs">{manifestSummary.manifestId}</code>
+                <dt className={definitionLabelClass}>Review record ID</dt>
+                <dd className={cn("m-0 flex min-w-0 flex-wrap items-center gap-2", definitionValueClass)}>
+                  <code className={monoValueClass}>{manifestSummary.manifestId}</code>
                   <CopyIdButton value={manifestSummary.manifestId} aria-label="Copy review record ID" />
                 </dd>
               </>
             ) : null}
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
+            <dt className={definitionLabelClass}>Status</dt>
+            <dd className={cn("m-0", definitionValueClass)}>
               {manifestStatusForDisplay(manifestSummary.status)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{evaluationStandardsLabel}</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
+            <dt className={definitionLabelClass}>{evaluationStandardsLabel}</dt>
+            <dd className={cn("m-0", definitionValueClass)}>
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Decisions</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
+            <dt className={definitionLabelClass}>Decisions</dt>
+            <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
               {finiteIntegerCountDisplay(manifestSummary.decisionCount)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <dt className={definitionLabelClass}>
               {buyerPolishedShell ? "Monitored risks" : "Warnings"}
             </dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
+            <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
               {finiteIntegerCountDisplay(manifestSummary.warningCount)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Unresolved issues</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100 tabular-nums">
+            <dt className={definitionLabelClass}>Unresolved issues</dt>
+            <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
           </dl>

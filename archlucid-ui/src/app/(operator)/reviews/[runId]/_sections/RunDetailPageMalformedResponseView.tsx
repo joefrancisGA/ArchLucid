@@ -2,21 +2,23 @@ import Link from "next/link";
 
 import { OperatorMalformedCallout } from "@/components/OperatorShellMessage";
 import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export function RunDetailPageMalformedResponseView(props: { readonly message: string }): React.JSX.Element {
   return (
     <RunDetailMinimalChromeMount>
       <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
+        <h1 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Review detail</h1>
         <OperatorMalformedCallout>
           <strong>Review detail response was not usable.</strong>
           <p className="mt-2">{props.message}</p>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             The review record could not be displayed. Try reloading.
           </p>
         </OperatorMalformedCallout>
         <p>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+          <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
             ← Back to reviews
           </Link>
         </p>
