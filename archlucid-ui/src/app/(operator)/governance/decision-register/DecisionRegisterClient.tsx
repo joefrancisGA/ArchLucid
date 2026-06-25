@@ -19,6 +19,8 @@ import {
   BUYER_GOVERNANCE_DECISION_REGISTER_LEAD,
   BUYER_GOVERNANCE_DECISION_REGISTER_TITLE,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const BUYER_CONFIDENCE_OPTIONS = ["Evidence-backed", "Model-assisted", "Unknown"] as const;
 
@@ -89,10 +91,10 @@ export default function DecisionRegisterClient() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Filters</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Filters</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3">
-          <label className="grid gap-1 text-sm">
+          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium">Category</span>
             <input
               className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
@@ -100,7 +102,7 @@ export default function DecisionRegisterClient() {
               onChange={(event) => setCategory(event.target.value)}
             />
           </label>
-          <label className="grid gap-1 text-sm">
+          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium">Recorded after</span>
             <input
               type="date"
@@ -109,7 +111,7 @@ export default function DecisionRegisterClient() {
               onChange={(event) => setRecordedAfter(event.target.value)}
             />
           </label>
-          <label className="grid gap-1 text-sm">
+          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium">Recorded before</span>
             <input
               type="date"
@@ -118,7 +120,7 @@ export default function DecisionRegisterClient() {
               onChange={(event) => setRecordedBefore(event.target.value)}
             />
           </label>
-          <label className="grid gap-1 text-sm">
+          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium">Min confidence</span>
             <input
               type="number"
@@ -130,7 +132,7 @@ export default function DecisionRegisterClient() {
               onChange={(event) => setMinConfidence(event.target.value)}
             />
           </label>
-          <label className="grid gap-1 text-sm">
+          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium">Max confidence</span>
             <input
               type="number"
@@ -142,7 +144,7 @@ export default function DecisionRegisterClient() {
               onChange={(event) => setMaxConfidence(event.target.value)}
             />
           </label>
-          <label className="grid gap-1 text-sm">
+          <label className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium">Buyer confidence source</span>
             <select
               className="rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
@@ -177,7 +179,7 @@ export default function DecisionRegisterClient() {
         </CardContent>
       </Card>
 
-      {loading ? <p className="text-sm text-muted-foreground">Loading decision register…</p> : null}
+      {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading decision register…</p> : null}
 
       {loadError ? (
         <EmptyState title="Decision register unavailable" description={loadError} />
@@ -199,14 +201,14 @@ export default function DecisionRegisterClient() {
         {decisions.map((decision) => (
           <Card key={`${decision.manifestId}-${decision.decisionId}`}>
             <CardHeader>
-              <CardTitle className="text-base">{decision.title}</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{decision.title}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
+            <CardContent className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
               <p>
                 <span className="font-medium">Category:</span> {decision.category} ·{" "}
                 <span className="font-medium">Option:</span> {decision.selectedOption}
               </p>
-              <p className="text-muted-foreground">{decision.rationale}</p>
+              <p className="text-al-text-secondary">{decision.rationale}</p>
               {decision.confidence != null ? (
                 <p>
                   Confidence: {decision.confidence}
@@ -217,23 +219,17 @@ export default function DecisionRegisterClient() {
                       : ""}
                 </p>
               ) : (
-                <p className="text-muted-foreground">
+                <p className="text-al-text-secondary">
                   Confidence: Unknown{decision.buyerConfidenceSource ? ` (${decision.buyerConfidenceSource})` : ""}
                 </p>
               )}
-              <p className="text-muted-foreground">Recorded: {decision.recordedAtUtc}</p>
+              <p className="text-al-text-secondary">Recorded: {decision.recordedAtUtc}</p>
               <p>
-                <Link
-                  className="text-blue-700 underline dark:text-blue-400"
-                  href={`/manifests/${decision.manifestId}`}
-                >
+                <Link className={OPERATOR_LINK.nav} href={`/manifests/${decision.manifestId}`}>
                   View signed record
                 </Link>
                 {" · "}
-                <Link
-                  className="text-blue-700 underline dark:text-blue-400"
-                  href={`/reviews/${decision.runId}`}
-                >
+                <Link className={OPERATOR_LINK.nav} href={`/reviews/${decision.runId}`}>
                   View review
                 </Link>
               </p>
