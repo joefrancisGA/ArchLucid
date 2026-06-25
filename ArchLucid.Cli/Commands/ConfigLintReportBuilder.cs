@@ -276,7 +276,7 @@ internal static class ConfigLintReportBuilder
             {
                 Category = "Quality-gate posture",
                 EvaluatedVia =
-                    "Blocking `quality_gate_warn_only_in_real_production_like` when Real + WarnOnly under production-like-hosted-pilot profile",
+                    "Blocking `quality_gate_warn_only_in_real_production_like` and `quality_gate_pilot_strict_thresholds_too_loose_in_production_like` under production-like-hosted-pilot profile",
             },
             new ConfigLintReportCheckCategory
             {
