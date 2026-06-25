@@ -1,9 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import Link from "next/link";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
@@ -38,21 +39,21 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
   return (
     <div className="w-full max-w-3xl space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Identity providers</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Read-only view of <strong className="font-medium text-neutral-800 dark:text-neutral-200">ArchLucidAuth</strong>{" "}
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Identity providers</h1>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
+          Read-only view of <strong className="font-medium text-al-text-primary">ArchLucidAuth</strong>{" "}
           catalog rows (authority, audience, mode). Effective values are masked server-side — configure secrets only in
           your hosting environment or Key Vault, not in this UI. For guided tenant SSO setup, use the{" "}
-          <a href="/settings/identity/sso-wizard" className="text-teal-700 underline-offset-2 hover:underline">
+          <a href="/settings/identity/sso-wizard" className={OPERATOR_LINK.inline}>
             SSO configuration wizard
           </a>
           . For SAML claim-mapping tables (Entra, Okta, Ping) and offline validation with{" "}
-          <code className="text-xs">archlucid auth validate-saml</code>, see the{" "}
+          <code className={OPERATOR_TYPOGRAPHY.micro}>archlucid auth validate-saml</code>, see the{" "}
           <Link
             href={inAppHelpHref("enterprise-onboarding", "saml-claim-mapping-reference")}
-            className="text-teal-700 underline-offset-2 hover:underline"
+            className={OPERATOR_LINK.inline}
           >
-            SAML claim-mapping reference in the hosted SaaS enterprise onboarding checklist
+            SAML claim-mapping reference in the enterprise onboarding checklist
           </Link>
           .
         </p>
@@ -60,19 +61,19 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">OIDC catalog alignment</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>OIDC catalog alignment</CardTitle>
         </CardHeader>
         <CardContent>
           {note !== null ? (
-            <p className="m-0 text-sm text-amber-900 dark:text-amber-100" data-testid="identity-providers-note">
+            <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-note">
               {note}
             </p>
           ) : null}
           {rows !== null && rows.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm" data-testid="identity-providers-table">
+              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)} data-testid="identity-providers-table">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
                     <th className="py-2 pr-3">Config path</th>
                     <th className="py-2 pr-3">Set</th>
                     <th className="py-2 pr-3">Effective value</th>
@@ -81,11 +82,11 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
                 <tbody>
                   {rows.map((r) => (
                     <tr key={r.configPath} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-3 font-mono text-xs text-neutral-900 dark:text-neutral-100">
+                      <td className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
                         {r.configPath}
                       </td>
-                      <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{r.isSet ? "yes" : "no"}</td>
-                      <td className="break-all py-2 pr-3 text-neutral-700 dark:text-neutral-300">
+                      <td className="py-2 pr-3 text-al-text-secondary">{r.isSet ? "yes" : "no"}</td>
+                      <td className="break-all py-2 pr-3 text-al-text-secondary">
                         {r.effectiveValue ?? "—"}
                       </td>
                     </tr>

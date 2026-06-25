@@ -5,6 +5,8 @@ import Link from "next/link";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -27,33 +29,39 @@ export function PilotValueReportPageView(props: Props) {
       <LayerHeader pageKey="value-report-pilot" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.evaluationValueReport}</h1>
-        <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_TERMINOLOGY.evaluationValueReport}</h1>
+        <p className={cn("doc-meta m-0", OPERATOR_TYPOGRAPHY.helper)}>
           One-click proof-of-ROI snapshot: committed reviews, findings, pipeline timing, governance signals, and audit-backed
-          recommendation counts for the selected UTC window (<code className="text-xs">toUtc</code> is exclusive, matching the audit
+          recommendation counts for the selected UTC window (<code className={OPERATOR_TYPOGRAPHY.micro}>toUtc</code> is exclusive, matching the audit
           export).
         </p>
-        <p className="m-0 text-sm">
-          <Link href="/value-report/roi" className="font-medium text-blue-700 underline dark:text-blue-400">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+          <Link href="/value-report/roi" className={OPERATOR_LINK.inline}>
             Open ROI summary
           </Link>
         </p>
 
         <div className="flex flex-wrap items-end gap-3">
-          <label className="block text-sm">
-            <span className="mb-1 block text-neutral-600 dark:text-neutral-400">From UTC</span>
+          <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
+            <span className={cn("mb-1 block", OPERATOR_TYPOGRAPHY.helper)}>From UTC</span>
             <input
               type="datetime-local"
-              className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+              className={cn(
+                "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               value={m.fromUtc}
               onChange={(e) => m.setFromUtc(e.target.value)}
             />
           </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-neutral-600 dark:text-neutral-400">To UTC (exclusive)</span>
+          <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
+            <span className={cn("mb-1 block", OPERATOR_TYPOGRAPHY.helper)}>To UTC (exclusive)</span>
             <input
               type="datetime-local"
-              className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+              className={cn(
+                "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               value={m.toUtc}
               onChange={(e) => m.setToUtc(e.target.value)}
             />
@@ -79,7 +87,7 @@ export function PilotValueReportPageView(props: Props) {
 
         {m.data ? (
           <div className="space-y-6">
-            <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm">
+            <div className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.body)}>
               {m.data.runDetailsTruncated ? (
                 <p className="m-0">
                   Finding and timing aggregates cap at {m.data.runDetailCap} earliest committed reviews in the window; total committed reviews
@@ -115,14 +123,14 @@ export function PilotValueReportPageView(props: Props) {
             </div>
 
             <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Severity distribution</h2>
+              <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Severity distribution</h2>
               <PilotValueReportSeverityBars counts={m.data.findingsBySeverity} />
             </section>
 
             <section className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Governance &amp; policy</h2>
-                <ul className="m-0 list-none space-y-2 p-0 text-sm text-neutral-700 dark:text-neutral-300">
+                <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Governance &amp; policy</h2>
+                <ul className={cn("m-0 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body, "text-al-text-secondary")}>
                   <li>Approvals: {m.data.governanceApprovals}</li>
                   <li>Rejections: {m.data.governanceRejections}</li>
                   <li>Policy pack assignments: {m.data.policyPackAssignments}</li>
@@ -131,18 +139,18 @@ export function PilotValueReportPageView(props: Props) {
                 </ul>
               </div>
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Agent types</h2>
-                <p className="m-0 font-mono text-sm text-neutral-800 dark:text-neutral-200">
+                <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Agent types</h2>
+                <p className={cn("m-0 font-mono", OPERATOR_TYPOGRAPHY.body)}>
                   {m.data.uniqueAgentTypes.length ? m.data.uniqueAgentTypes.join(", ") : "—"}
                 </p>
               </div>
             </section>
 
             <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Review timeline (detail sample)</h2>
+              <h2 className={cn("mt-0", OPERATOR_NAV_GROUP_LABEL)}>Review timeline (detail sample)</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+                <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
+                  <thead className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
                     <tr>
                       <th className="py-2 pr-3">Review ID</th>
                       <th className="py-2 pr-3">Created</th>
@@ -153,14 +161,14 @@ export function PilotValueReportPageView(props: Props) {
                   <tbody>
                     {m.data.committedRunsTimeline.map((row) => (
                       <tr key={row.runId} className="border-b border-neutral-100 dark:border-neutral-800">
-                        <td className="py-2 pr-3 font-mono text-xs">{row.runId}</td>
-                        <td className="py-2 pr-3 text-xs text-neutral-600 dark:text-neutral-400">
+                        <td className={cn("py-2 pr-3 font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.runId}</td>
+                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
                           {new Date(row.createdUtc).toISOString()}
                         </td>
-                        <td className="py-2 pr-3 text-xs text-neutral-600 dark:text-neutral-400">
+                        <td className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
                           {row.committedUtc ? new Date(row.committedUtc).toISOString() : "—"}
                         </td>
-                        <td className="py-2 text-xs">{row.systemName || "—"}</td>
+                        <td className={cn("py-2", OPERATOR_TYPOGRAPHY.helper)}>{row.systemName || "—"}</td>
                       </tr>
                     ))}
                   </tbody>

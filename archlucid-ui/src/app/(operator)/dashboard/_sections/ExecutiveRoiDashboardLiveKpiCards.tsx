@@ -19,7 +19,8 @@ import {
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/executive-pilot-day";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type LiveKpiState = {
   summary: ExecutiveRoiSummary | null;
@@ -34,7 +35,7 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
   }
 
   return (
-    <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+    <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
       {props.text}
       {props.runbookHref ? (
         <>
@@ -174,7 +175,7 @@ export function ExecutiveRoiDashboardLiveKpiCards({
     <>
       {pilotDayNumber !== null && !buyerPolished ? (
         <p
-          className="m-0 text-sm text-neutral-600 dark:text-neutral-400 sm:col-span-2 lg:col-span-3"
+          className={cn("m-0 text-al-text-secondary sm:col-span-2 lg:col-span-3", OPERATOR_TYPOGRAPHY.body)}
           data-testid="exec-kpi-pilot-day-badge"
         >
           Day {pilotDayNumber} of your ArchLucid pilot
@@ -182,10 +183,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
       ) : null}
       <Card data-testid="exec-kpi-resolved-30d">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {v.resolvedFindings30dMetric.title}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.resolvedFindings30dMetric.description}
           </CardDescription>
         </CardHeader>
@@ -204,10 +205,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
 
       <Card data-testid="exec-kpi-discovered-30d">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {v.newlyDiscoveredFindings30dMetric.title}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.newlyDiscoveredFindings30dMetric.description}
           </CardDescription>
         </CardHeader>
@@ -227,10 +228,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
       {!executiveDetails ? (
       <Card data-testid="exec-kpi-stale-risks">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {v.staleArchitectureRisksMetric.title}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.staleArchitectureRisksMetric.description}{" "}
             <Link href="/governance/findings" className="underline">
               Risk register
@@ -255,10 +256,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
         <>
       <Card data-testid="exec-kpi-decisions-needed">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {v.decisionsNeededMetric.title}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.decisionsNeededMetric.description}{" "}
             <Link href="/governance/findings" className="underline">
               Risk register
@@ -280,10 +281,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
 
       <Card className="sm:col-span-2 lg:col-span-1" data-testid="exec-kpi-expiring-waivers">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {v.expiringWaiversMetric.title}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.expiringWaiversMetric.description}
           </CardDescription>
         </CardHeader>
@@ -304,10 +305,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
 
       <Card data-testid="exec-kpi-remediated-30d">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {buyerPolished ? v.findingsRemediated30dMetric.title : "Findings remediated (30d)"}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {buyerPolished
               ? v.findingsRemediated30dMetric.description
               : "Computed from disposition workflow evidence"}
@@ -329,10 +330,10 @@ export function ExecutiveRoiDashboardLiveKpiCards({
       {!executiveDetails ? (
       <Card data-testid="exec-kpi-cost-evidence-freshness">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
             {v.costEvidenceStatusMetric.title}
           </CardTitle>
-          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+          <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
             {v.costEvidenceStatusMetric.description}
           </CardDescription>
         </CardHeader>

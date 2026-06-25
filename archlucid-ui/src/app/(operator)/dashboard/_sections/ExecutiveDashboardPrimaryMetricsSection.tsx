@@ -12,7 +12,7 @@ import {
   presentCostEvidenceFreshness,
   presentExecutiveKpiCount,
 } from "@/lib/executive-roi-kpi-display";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildExecutiveServerSavingsSummary,
   resolveRunSavingsUsd,
@@ -102,10 +102,10 @@ export function ExecutiveDashboardPrimaryMetricsSection(
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card data-testid="executive-primary-decisions-needed">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               {v.decisionsNeededMetric.title}
             </CardTitle>
-            <CardDescription className="text-xs">{v.decisionsNeededMetric.description}</CardDescription>
+            <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>{v.decisionsNeededMetric.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <Link
@@ -119,14 +119,14 @@ export function ExecutiveDashboardPrimaryMetricsSection(
 
         <Card data-testid="executive-primary-risk-posture">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               Risk posture
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
               Stale architecture risks and waivers expiring within 14 days
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-neutral-600 dark:text-neutral-400">{v.staleArchitectureRisksMetric.title}</span>
               <Link href={EXECUTIVE_KPI_DRILL_THROUGH.staleArchitectureRisks} className="font-semibold tabular-nums text-al-text-primary underline-offset-2 hover:underline">
@@ -144,27 +144,27 @@ export function ExecutiveDashboardPrimaryMetricsSection(
 
         <Card data-testid="executive-primary-roi-impact">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               Estimated savings
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
               Directional portfolio impact from committed reviews
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>{estimatedSavings.display}</p>
             {estimatedSavings.footnote ? (
-              <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{estimatedSavings.footnote}</p>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{estimatedSavings.footnote}</p>
             ) : null}
           </CardContent>
         </Card>
 
         <Card data-testid="executive-primary-governance-readiness">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               {v.costEvidenceStatusMetric.title}
             </CardTitle>
-            <CardDescription className="text-xs">{v.costEvidenceStatusMetric.description}</CardDescription>
+            <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>{v.costEvidenceStatusMetric.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <Link
@@ -174,7 +174,7 @@ export function ExecutiveDashboardPrimaryMetricsSection(
               <p className="text-2xl font-semibold tabular-nums text-al-text-primary">{costFreshness.display}</p>
             </Link>
             {costFreshness.footnote ? (
-              <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{costFreshness.footnote}</p>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{costFreshness.footnote}</p>
             ) : null}
           </CardContent>
         </Card>

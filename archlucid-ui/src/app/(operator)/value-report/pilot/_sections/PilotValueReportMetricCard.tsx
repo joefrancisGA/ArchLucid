@@ -1,3 +1,6 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 type Props = {
   title: string;
   value: string;
@@ -7,12 +10,12 @@ type Props = {
 export function PilotValueReportMetricCard(props: Props) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{props.title}</p>
-      <p className="mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+      <p className={cn(OPERATOR_TYPOGRAPHY.tab, "uppercase tracking-wide text-al-text-secondary")}>{props.title}</p>
+      <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
         {props.value}
       </p>
       {props.hint ? (
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{props.hint}</p>
+        <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{props.hint}</p>
       ) : null}
     </div>
   );

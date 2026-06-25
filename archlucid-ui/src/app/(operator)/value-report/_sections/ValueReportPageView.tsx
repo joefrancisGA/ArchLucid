@@ -15,7 +15,7 @@ import {
   BUYER_VALUE_REPORT_PERIOD_UTC_HELP,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_KPI_CARD_TITLE, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import type { UseValueReportPageModel } from "./use-value-report-page";
@@ -49,22 +49,28 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
   const exportControls = (
     <div className="space-y-3">
       <fieldset className="m-0 space-y-2 border-0 p-0">
-        <legend className="text-sm font-medium text-al-text-primary">Report period</legend>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{BUYER_VALUE_REPORT_PERIOD_UTC_HELP}</p>
+        <legend className={OPERATOR_TYPOGRAPHY.navLabel}>Report period</legend>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_VALUE_REPORT_PERIOD_UTC_HELP}</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="flex flex-1 flex-col gap-1 text-sm">
+          <label className={cn("flex flex-1 flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>From</span>
             <input
-              className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+              className={cn(
+                "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               type="datetime-local"
               value={fromUtc}
               onChange={(e) => setFromUtc(e.target.value)}
             />
           </label>
-          <label className="flex flex-1 flex-col gap-1 text-sm">
+          <label className={cn("flex flex-1 flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>To</span>
             <input
-              className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+              className={cn(
+                "rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               type="datetime-local"
               value={toUtc}
               onChange={(e) => setToUtc(e.target.value)}
@@ -85,12 +91,12 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
         </div>
       </fieldset>
       {!canMutate ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
           Operator or Administrator role required to generate sponsor reports.
         </p>
       ) : null}
       {canMutate && !hasReportData && !previewBusy ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
           Finalize at least one review package in this period before downloading a sponsor report.
         </p>
       ) : null}
@@ -102,16 +108,16 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
       <LayerHeader pageKey="value-report" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
+        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{BUYER_VALUE_REPORT_PAGE_TITLE}</h1>
         {buyerPolishedShell ? (
           <div className={cn("space-y-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800", DESIGN_TOKENS.surface.card)}>
-            <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{BUYER_VALUE_REPORT_OUTCOME_LEAD}</p>
           </div>
         ) : (
-          <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">{BUYER_VALUE_REPORT_PAGE_SUBTITLE}</p>
+          <p className={cn("doc-meta m-0", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_VALUE_REPORT_PAGE_SUBTITLE}</p>
         )}
         {previewBusy ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="status">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} role="status">
             Loading report preview…
           </p>
         ) : null}

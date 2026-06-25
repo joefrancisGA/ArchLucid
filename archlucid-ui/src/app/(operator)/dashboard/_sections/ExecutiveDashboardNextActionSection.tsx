@@ -16,7 +16,7 @@ import {
   windowForExecutiveRange,
 } from "@/lib/executive-time-range";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function sumDriftChanges(points: { changeCount: number }[]): number {
   return points.reduce((sum, point) => sum + (Number.isFinite(point.changeCount) ? point.changeCount : 0), 0);
@@ -73,11 +73,11 @@ export function ExecutiveDashboardNextActionSection(
         <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{v.nextActionSectionTitle}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">{action.headline}</p>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{action.explanation}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{action.headline}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{action.explanation}</p>
         <Link
           href={action.href}
-          className="inline-flex text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+          className={cn("inline-flex", OPERATOR_LINK.inline)}
         >
           Open in operator view
         </Link>

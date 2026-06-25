@@ -10,7 +10,9 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { tryParseApiProblemDetails } from "@/lib/api-problem";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
+import { OPERATOR_KPI_CARD_TITLE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
+import { cn } from "@/lib/utils";
 import { AlertCircle, Info } from "lucide-react";
 
 const CROSS_TENANT_PORTFOLIO_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiCrossTenantPortfolio}`;
@@ -160,10 +162,10 @@ export function PortfolioPageView() {
   if (state.status === "loading") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card>
           <CardContent className="pt-6">
-            <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading portfolio data...</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Loading portfolio data...</p>
           </CardContent>
         </Card>
       </OperatorPageContainer>
@@ -173,7 +175,7 @@ export function PortfolioPageView() {
   if (state.status === "configuration-required") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card
           className="border-teal-200 bg-teal-50/60 dark:border-teal-900 dark:bg-teal-950/30"
           data-testid="portfolio-directory-key-not-configured"
@@ -187,11 +189,11 @@ export function PortfolioPageView() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3 pt-0">
-            <p className="m-0 text-sm leading-relaxed text-teal-950 dark:text-teal-100">{state.detail}</p>
-            <p className="m-0 text-sm">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "leading-relaxed text-teal-950 dark:text-teal-100")}>{state.detail}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               <Link
                 href={toDocsBlobUrl(PORTFOLIO_CONFIGURATION_DOC_PATH)}
-                className="font-medium text-teal-900 underline dark:text-teal-200"
+                className={OPERATOR_LINK.inline}
                 rel="noopener noreferrer"
                 target="_blank"
               >
@@ -208,12 +210,12 @@ export function PortfolioPageView() {
   if (state.status === "error") {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
               <AlertCircle className="h-5 w-5" />
-              <p className="m-0 text-sm font-medium" role="alert">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body, "font-medium")} role="alert">
                 {state.message}
               </p>
             </div>
@@ -229,7 +231,7 @@ export function PortfolioPageView() {
   if (!data.isKAnonymitySatisfied) {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-8">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{BUYER_TERMINOLOGY.portfolioOverview}</h1>
         <Card>
           <CardHeader>
             <CardTitle>Insufficient Data</CardTitle>
@@ -246,8 +248,8 @@ export function PortfolioPageView() {
   return (
     <OperatorPageContainer variant="dashboard" className="space-y-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">{BUYER_TERMINOLOGY.portfolioOverview}</h1>
-        <p className="text-neutral-500 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{BUYER_TERMINOLOGY.portfolioOverview}</h1>
+        <p className={OPERATOR_TYPOGRAPHY.helper}>
           Aggregated ROI and risk metrics across all your accessible tenants.
         </p>
       </div>
@@ -255,12 +257,12 @@ export function PortfolioPageView() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               Total Estimated Savings
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+            <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
               {formatUsd(data.totalEstimatedUsdSavings)}
             </p>
           </CardContent>
@@ -268,12 +270,12 @@ export function PortfolioPageView() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               Systems Reviewed
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+            <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
               {data.totalSystemCount}
             </p>
           </CardContent>
@@ -281,12 +283,12 @@ export function PortfolioPageView() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            <CardTitle className={OPERATOR_KPI_CARD_TITLE}>
               Critical Findings
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+            <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
               {data.totalCriticalFindings}
             </p>
           </CardContent>
@@ -309,12 +311,12 @@ export function PortfolioPageView() {
                   className="flex items-center justify-between border-b border-neutral-100 pb-4 last:border-0 last:pb-0 dark:border-neutral-800"
                 >
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none text-neutral-900 dark:text-neutral-100">
+                    <p className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "leading-none")}>
                       {issue.category}
                     </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Severity: {issue.severity}</p>
+                    <p className={OPERATOR_TYPOGRAPHY.helper}>Severity: {issue.severity}</p>
                   </div>
-                  <div className="font-mono text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  <div className={cn(OPERATOR_TYPOGRAPHY.dataValue, "font-mono")}>
                     {issue.count}
                   </div>
                 </div>

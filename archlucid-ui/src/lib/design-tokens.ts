@@ -148,6 +148,12 @@ export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.cardTit
 /** Tertiary accordion trigger on dense operator surfaces. */
 export const OPERATOR_DISCLOSURE_TRIGGER_CLASS = `${OPERATOR_TYPE_SCALE.cardTitle} text-al-text-secondary`;
 
+/** KPI / metric tile label on dashboard, portfolio, and scorecard cards. */
+export const OPERATOR_KPI_CARD_TITLE = `${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`;
+
+/** KPI / metric tile caption under the label. */
+export const OPERATOR_KPI_CARD_DESCRIPTION = OPERATOR_TYPE_SCALE.helper;
+
 /** Page-level actions (primary/secondary CTAs). */
 export const OPERATOR_BUTTON_PAGE_CLASS = `h-9 px-4 ${OPERATOR_TYPE_SCALE.button}`;
 

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   OPERATOR_CARD,
+  OPERATOR_KPI_CARD_DESCRIPTION,
+  OPERATOR_KPI_CARD_TITLE,
   OPERATOR_LAYOUT,
   OPERATOR_TYPE_SCALE,
   OPERATOR_TYPOGRAPHY,
@@ -62,6 +64,12 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("text-4xl");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("font-mono");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("tabular-nums");
+  });
+
+  it("KPI card title and description use tab and helper scales", () => {
+    expect(OPERATOR_KPI_CARD_TITLE).toContain("text-al-text-secondary");
+    expect(OPERATOR_KPI_CARD_TITLE).toBe(`${OPERATOR_TYPE_SCALE.tab} text-al-text-secondary`);
+    expect(OPERATOR_KPI_CARD_DESCRIPTION).toBe(OPERATOR_TYPE_SCALE.helper);
   });
 
   it("badge typography uses 11px medium scale for status chips", () => {
