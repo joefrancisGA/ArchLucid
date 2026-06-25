@@ -87,15 +87,17 @@ export function prepareExecutiveRoiDashboardProxyWaits(page: Page): {
   readonly exportPayload: Promise<ExecutiveRoiExportPayload>;
 } {
   const summaryResponse = page.waitForResponse(isExecutiveRoiSummaryProxyResponse, { timeout: 90_000 });
+  // Operator legacy `/dashboard` fires export on mount; portfolio `/executive/dashboard` defers until summary hydrates.
+  const earlyExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
   const exportPayload = summaryResponse.then(async () => {
-    // Portfolio `/executive/dashboard` mounts export fetch only after committed-review panels hydrate.
     await page
       .getByText("Savings by environment")
       .scrollIntoViewIfNeeded({ timeout: 30_000 })
       .catch(() => undefined);
     await expect(page.getByText("Savings by environment")).toBeVisible({ timeout: 30_000 }).catch(() => undefined);
 
-    const response = await page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
+    const lateExportResponse = page.waitForResponse(isExecutiveRoiExportProxyResponse, { timeout: 90_000 });
+    const response = await Promise.race([earlyExportResponse, lateExportResponse]);
 
     return (await response.json()) as ExecutiveRoiExportPayload;
   });
