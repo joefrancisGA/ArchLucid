@@ -10,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
@@ -89,11 +91,16 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             useBuyerFacingRunLabels={buyerShell === true}
           />
 
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
-            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+          <details
+            className={cn(
+              "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               Advanced: filter by review ID
             </summary>
-            <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Paste a review ID when the review package is not in the recent list. The filter above accepts the same
               value.
             </p>
@@ -101,7 +108,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
               <Label htmlFor="semantic-search-run-id-advanced">Review ID</Label>
               <Input
                 id="semantic-search-run-id-advanced"
-                className="font-mono text-sm"
+                className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}
                 value={runId}
                 onChange={(e) => setRunId(e.target.value)}
                 placeholder="Paste review ID to narrow search"
@@ -120,7 +127,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             {loading ? "Searching…" : "Search"}
           </Button>
 
-          <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{SEARCH_EXAMPLE_QUERIES_LINE}</p>
+          <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SEARCH_EXAMPLE_QUERIES_LINE}</p>
         </CardContent>
       </Card>
 

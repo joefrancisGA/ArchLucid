@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import {
@@ -30,20 +31,26 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
       <CardContent className="space-y-3 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <div className="font-semibold text-neutral-900 dark:text-neutral-100">{hit.title}</div>
+            <div className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{hit.title}</div>
             {runId !== null ? (
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                <span className="font-medium text-neutral-800 dark:text-neutral-200">Review package:</span> {runId}
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                <span className="font-medium text-al-text-primary">Review package:</span> {runId}
               </p>
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100">
+            <span
+              className={cn(
+                "rounded-md border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-medium text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/60",
+                OPERATOR_TYPOGRAPHY.badge,
+              )}
+            >
               {sourceLabel}
             </span>
             <span
               className={cn(
-                "rounded-md border px-2 py-0.5 text-xs font-medium",
+                "rounded-md border px-2 py-0.5 font-medium",
+                OPERATOR_TYPOGRAPHY.badge,
                 relevanceTier === "high"
                   ? "border-teal-200 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
                   : "border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
@@ -54,15 +61,12 @@ export function SearchRetrievalHitCard(props: SearchRetrievalHitCardProps) {
           </div>
         </div>
 
-        <p className="m-0 whitespace-pre-wrap text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p className={cn("m-0 whitespace-pre-wrap leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {hit.text}
         </p>
 
         {actionLink !== null ? (
-          <Link
-            href={actionLink.href}
-            className="inline-flex text-sm font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-950 dark:text-teal-200 dark:decoration-teal-700 dark:hover:text-teal-50"
-          >
+          <Link href={actionLink.href} className={cn("inline-flex", OPERATOR_LINK.nav)}>
             {actionLink.label}
           </Link>
         ) : null}
