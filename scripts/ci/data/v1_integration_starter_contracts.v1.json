@@ -5,7 +5,8 @@
   "docRefs": [
     "docs/library/API_CONTRACTS.md",
     "docs/library/CLI_USAGE.md",
-    "docs/library/LIVE_E2E_HAPPY_PATH.md"
+    "docs/library/LIVE_E2E_HAPPY_PATH.md",
+    "docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md"
   ],
   "workflows": [
     {
@@ -118,6 +119,54 @@
             {
               "status": 404,
               "meaning": "One or both run ids not found"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pre-commit-governance-gate",
+      "label": "Simulate or commit pre-commit governance gate",
+      "cliHints": [
+        "curl POST /v1/governance/pre-commit/simulate",
+        "curl POST /v1/architecture/run/{runId}/commit"
+      ],
+      "steps": [
+        {
+          "id": "simulate-pre-commit",
+          "method": "POST",
+          "path": "/v1/governance/pre-commit/simulate",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "PreCommitGateResult",
+          "requestShapeExample": {
+            "runId": "00000000-0000-0000-0000-000000000001",
+            "syntheticSeverity": "Critical",
+            "syntheticCount": 1
+          },
+          "errorSemantics": [
+            {
+              "status": 400,
+              "meaning": "Invalid runId or simulation parameters"
+            },
+            {
+              "status": 404,
+              "meaning": "Run not found in tenant scope"
+            }
+          ],
+          "claimBoundary": "Dry-run only — does not commit golden manifest; audit GovernancePreCommitSimulationEvaluated"
+        },
+        {
+          "id": "commit-with-gate",
+          "method": "POST",
+          "path": "/v1/architecture/run/{runId}/commit",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "CommitRunResponse",
+          "optional": true,
+          "errorSemantics": [
+            {
+              "status": 409,
+              "typeFragment": "governance-pre-commit-blocked",
+              "meaning": "PreCommitGateResult block — extensions.blockingFindingIds per API_ERROR_CONTRACT.md"
             }
           ]
         }

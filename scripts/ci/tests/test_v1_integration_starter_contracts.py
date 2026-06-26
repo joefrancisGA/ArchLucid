@@ -36,7 +36,13 @@ class V1IntegrationStarterContractsTests(unittest.TestCase):
         workflow_ids = {row["id"] for row in workflows}
 
         self.assertEqual(
-            {"review-lifecycle", "artifacts-retrieval", "compare-runs", "roi-summary"},
+            {
+                "review-lifecycle",
+                "artifacts-retrieval",
+                "compare-runs",
+                "pre-commit-governance-gate",
+                "roi-summary",
+            },
             workflow_ids,
         )
 
@@ -45,6 +51,20 @@ class V1IntegrationStarterContractsTests(unittest.TestCase):
 
         self.assertIn("/v1/architecture/request", paths)
         self.assertIn("/v1/architecture/run/{runId}/commit", paths)
+
+        pre_commit_steps = next(row for row in workflows if row["id"] == "pre-commit-governance-gate")["steps"]
+        pre_commit_paths = {step["path"] for step in pre_commit_steps}
+
+        self.assertIn("/v1/governance/pre-commit/simulate", pre_commit_paths)
+
+    def test_pre_commit_ci_gate_starter_assets_exist(self) -> None:
+        root = ROOT
+        for relative in (
+            "docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md",
+            "scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml",
+            "scripts/ci/data/pre_commit_ci_gate_starter.azure-pipelines-snippet.yml",
+        ):
+            self.assertTrue((root / relative).is_file(), msg=f"missing {relative}")
 
 
 if __name__ == "__main__":

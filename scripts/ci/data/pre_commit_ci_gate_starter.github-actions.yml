@@ -1,0 +1,99 @@
+# Reference GitHub Actions starter — pre-commit governance gate (OpenAPI v1).
+# Copy to .github/workflows/archlucid-pre-commit-gate.yml and configure secrets.
+#
+# Modes (set job env ARCHLUCID_GATE_MODE):
+#   simulate — POST /v1/governance/pre-commit/simulate (dry-run, no commit)
+#   commit   — POST /v1/architecture/run/{runId}/commit (real gate; fails on 409 #governance-pre-commit-blocked)
+#
+# Secrets: ARCHLUCID_API_URL, ARCHLUCID_API_KEY
+# Input:   archlucid_run_id (workflow_dispatch) or ARCHLUCID_RUN_ID env
+
+name: ArchLucid pre-commit gate (starter)
+
+on:
+  workflow_dispatch:
+    inputs:
+      archlucid_run_id:
+        description: Existing ArchLucid review runId (ReadyForCommit or Committed for simulate)
+        required: true
+        type: string
+      gate_mode:
+        description: simulate (dry-run) or commit (real finalize)
+        required: true
+        default: simulate
+        type: choice
+        options:
+          - simulate
+          - commit
+
+env:
+  ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_API_URL }}
+  ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+  ARCHLUCID_RUN_ID: ${{ inputs.archlucid_run_id }}
+  ARCHLUCID_GATE_MODE: ${{ inputs.gate_mode }}
+  ARCHLUCID_CORRELATION_ID: gh-precommit-${{ github.run_id }}
+
+jobs:
+  pre-commit-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate secrets and run id
+        run: |
+          set -euo pipefail
+          if [[ -z "${ARCHLUCID_API_URL:-}" || -z "${ARCHLUCID_API_KEY:-}" ]]; then
+            echo "Configure repository secrets ARCHLUCID_API_URL and ARCHLUCID_API_KEY" >&2
+            exit 2
+          fi
+          if [[ -z "${ARCHLUCID_RUN_ID:-}" ]]; then
+            echo "Set ARCHLUCID_RUN_ID or workflow input archlucid_run_id" >&2
+            exit 2
+          fi
+
+      - name: Run pre-commit governance gate
+        run: |
+          set -euo pipefail
+          API="${ARCHLUCID_API_URL%/}"
+          RUN_ID="${ARCHLUCID_RUN_ID}"
+          MODE="${ARCHLUCID_GATE_MODE:-simulate}"
+          HDR=(-H "X-Api-Key: ${ARCHLUCID_API_KEY}" -H "X-Correlation-ID: ${ARCHLUCID_CORRELATION_ID}" -H "Content-Type: application/json")
+
+          if [[ "$MODE" == "simulate" ]]; then
+            BODY="$(jq -n --arg runId "$RUN_ID" '{ runId: $runId, syntheticSeverity: "Critical", syntheticCount: 1 }')"
+            HTTP="$(curl -sS -o gate.json -w "%{http_code}" -X POST "$API/v1/governance/pre-commit/simulate" "${HDR[@]}" -d "$BODY")"
+            if [[ "$HTTP" != "200" ]]; then
+              echo "Simulate failed: HTTP $HTTP" >&2
+              cat gate.json >&2
+              exit 2
+            fi
+            BLOCKED="$(jq -r '.blocked // false' gate.json)"
+            if [[ "$BLOCKED" == "true" ]]; then
+              echo "Pre-commit gate WOULD BLOCK commit" >&2
+              jq '{ blocked, blockingFindingIds, policyPackId, minimumBlockingSeverity, blockExplanation }' gate.json >&2
+              exit 1
+            fi
+            echo "Pre-commit simulate PASS (blocked=false)"
+            jq '{ blocked, warnOnly, warnings }' gate.json
+            exit 0
+          fi
+
+          if [[ "$MODE" == "commit" ]]; then
+            HTTP="$(curl -sS -o gate.json -w "%{http_code}" -X POST "$API/v1/architecture/run/${RUN_ID}/commit" "${HDR[@]}" -d '{}')"
+            if [[ "$HTTP" == "200" ]]; then
+              echo "Commit PASS"
+              exit 0
+            fi
+            if [[ "$HTTP" == "409" ]]; then
+              TYPE="$(jq -r '.type // .Type // empty' gate.json)"
+              if [[ "$TYPE" == *"governance-pre-commit-blocked"* ]]; then
+                echo "Governance pre-commit blocked (409 #governance-pre-commit-blocked)" >&2
+                jq '{ type, title, detail, blockingFindingIds: .extensions.blockingFindingIds // .blockingFindingIds }' gate.json >&2
+                exit 1
+              fi
+            fi
+            echo "Commit failed: HTTP $HTTP" >&2
+            cat gate.json >&2
+            exit 2
+          fi
+
+          echo "Unknown ARCHLUCID_GATE_MODE: $MODE (use simulate or commit)" >&2
+          exit 2

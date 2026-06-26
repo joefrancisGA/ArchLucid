@@ -319,6 +319,12 @@ internal static class PilotProofPacketCommand
             Utf8NoBom,
             cancellationToken);
 
+        await File.WriteAllTextAsync(
+            Path.Combine(dir, ProofPacketSourceLabelsBuilder.FileName),
+            ProofPacketSourceLabelsBuilder.Build(runId),
+            Utf8NoBom,
+            cancellationToken);
+
         return new PilotProofPacketWriteOutcome(CliExitCode.Success, dir);
     }
 

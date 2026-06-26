@@ -21,6 +21,7 @@ public sealed class PilotProofPacketSchemaRegressionTests
             "quote-to-proof-readiness.json",
             "redaction-manifest.json",
             "governance-outcome-summary.json",
+            ProofPacketSourceLabelsBuilder.FileName,
         ]);
     }
 

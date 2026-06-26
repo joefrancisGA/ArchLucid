@@ -44,5 +44,6 @@ public static class PilotProofPacketArtifactCatalog
         "scale-envelope-evidence.json",
         "audit-sample.json",
         "artifact-manifest.json",
+        ProofPacketSourceLabelsBuilder.FileName,
     ];
 }

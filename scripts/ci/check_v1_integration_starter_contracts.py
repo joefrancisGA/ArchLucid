@@ -17,6 +17,19 @@ from release_evidence_common import load_json, repo_root  # noqa: E402
 _FIXTURES_REL = Path("scripts/ci/data/v1_integration_starter_contracts.v1.json")
 _OPENAPI_REL = Path("ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json")
 _REQUIRED_SCHEMA = "archlucid.v1-integration-starter-contracts.v1"
+_PRE_COMMIT_STARTER_DOC = Path("docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md")
+_PRE_COMMIT_GHA_STARTER = Path("scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml")
+_PRE_COMMIT_ADO_STARTER = Path("scripts/ci/data/pre_commit_ci_gate_starter.azure-pipelines-snippet.yml")
+_REQUIRED_STARTER_PATHS = (
+    "/v1/governance/pre-commit/simulate",
+    "/v1/architecture/run/{runId}/commit",
+)
+_FORBIDDEN_SECRET_PATTERNS = (
+    "sk_live_",
+    "AKIA",
+    "password: \"",
+    "api_key: \"archlucid",
+)
 
 
 def _load_openapi_paths(root: Path) -> set[str]:
@@ -84,6 +97,53 @@ def _validate_workflows(workflows: Any, openapi_paths: set[str]) -> list[str]:
     return errors
 
 
+def _validate_pre_commit_ci_gate_starter(root: Path) -> list[str]:
+    errors: list[str] = []
+    doc_path = root / _PRE_COMMIT_STARTER_DOC
+    gha_path = root / _PRE_COMMIT_GHA_STARTER
+    ado_path = root / _PRE_COMMIT_ADO_STARTER
+
+    for path in (doc_path, gha_path, ado_path):
+        if not path.is_file():
+            errors.append(f"pre-commit CI starter missing: {path.relative_to(root).as_posix()}")
+
+    if errors:
+        return errors
+
+    doc_text = doc_path.read_text(encoding="utf-8", errors="replace")
+    gha_text = gha_path.read_text(encoding="utf-8", errors="replace")
+    ado_text = ado_path.read_text(encoding="utf-8", errors="replace")
+    combined = f"{doc_text}\n{gha_text}\n{ado_text}"
+
+    for starter_rel in (_PRE_COMMIT_GHA_STARTER, _PRE_COMMIT_ADO_STARTER):
+        starter_posix = starter_rel.as_posix()
+
+        if starter_posix not in doc_text:
+            errors.append(f"PRE_COMMIT_CI_GATE_STARTER.md must link: {starter_posix}")
+
+    if "governance-pre-commit-blocked" not in combined:
+        errors.append("pre-commit CI starter must document #governance-pre-commit-blocked problem type")
+
+    if "PreCommitGateResult" not in doc_text:
+        errors.append("PRE_COMMIT_CI_GATE_STARTER.md must reference PreCommitGateResult")
+
+    for api_path in _REQUIRED_STARTER_PATHS:
+        if api_path not in combined:
+            errors.append(f"pre-commit CI starter must reference OpenAPI path: {api_path}")
+
+    for pattern in _FORBIDDEN_SECRET_PATTERNS:
+        if pattern in combined:
+            errors.append(f"pre-commit CI starter must not embed secret pattern: {pattern}")
+
+    if "secrets.ARCHLUCID_API_KEY" not in gha_text:
+        errors.append("GitHub Actions starter must use secrets.ARCHLUCID_API_KEY")
+
+    if "$(ARCHLUCID_API_KEY)" not in ado_text:
+        errors.append("Azure DevOps starter must reference $(ARCHLUCID_API_KEY) variable")
+
+    return errors
+
+
 def validate(root: Path) -> tuple[list[str], dict[str, Any] | None]:
     fixtures_path = root / _FIXTURES_REL
     payload = load_json(fixtures_path)
@@ -116,6 +176,7 @@ def validate(root: Path) -> tuple[list[str], dict[str, Any] | None]:
 
     openapi_paths = _load_openapi_paths(root)
     errors.extend(_validate_workflows(payload.get("workflows"), openapi_paths))
+    errors.extend(_validate_pre_commit_ci_gate_starter(root))
 
     return errors, payload
 

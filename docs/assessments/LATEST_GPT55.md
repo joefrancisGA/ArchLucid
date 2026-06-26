@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 92.80%`
+`ArchLucid Assessment – (A) Headline Readiness: 93.19%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -35,18 +35,18 @@
 | # | Quality | Score (1–100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 89 | 13 | 11.57 | 1.43 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 93 | 13 | 12.09 | 0.91 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
 | 3 | Governed Review Integrity | 98 | 13 | 12.74 | 0.26 |
-| 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
+| 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
 | 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
-| 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
+| 7 | Proof-of-ROI Readiness | 96 | 9 | 8.64 | 0.36 |
 | 8 | Executive / Operator Comprehension | 97 | 8 | 7.76 | 0.24 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
-| 10 | Adoption Friction | 91 | 5 | 4.55 | 0.45 |
-| **Total** | | | **100** | **92.80%** | **7.20%** |
+| 10 | Adoption Friction | 92 | 5 | 4.60 | 0.40 |
+| **Total** | | | **100** | **93.19%** | **6.81%** |
 
-*(A) Headline Readiness: 92.80%*
+*(A) Headline Readiness: 93.19%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **56%** (range **42%–66%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **+1** for ITSM native create default path when tenant probes validate (**#6 done 2026-06-26**); **−19** for shell complexity, deployment-gated ITSM when unconfigured, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **92.80%** (+0.10 from **#6 ITSM native create default path** — Adoption Friction 91; cumulative +3.88 from prior shipped batches). **`isItsmNativeCreateDefaultPathReady`** promotes one-click Jira/ServiceNow sync on finding detail when deployment flag + health probes validate; admin wizard auto-lands on verify/runbooks instead of always restarting at prerequisites.
+**Reconciliation:** Headline **93.19%** (+0.21 from **#16 CLI proof-packet export** — Proof-of-ROI 96, Correctness & Evidence Integrity 94; cumulative +4.27 from prior shipped batches). **`archlucid proof-packet --runId … --out packet.zip`** reuses `PilotProofPacketCommand.WriteFolderAsync`, emits `SOURCE-LABELS.txt`, and fails closed on buyer-safe commit gate.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 92.80%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#6–#14, help sweep, Tier 1 #2/#3/#1, #10, #13, Tier 2 #4/#5/#8). **#6 shipped (2026-06-26):** **ITSM native create default path** — `itsm-native-create-readiness.ts` gates one-click sync on `nativeEnabled` + reachable vendor probes; `FindingItsmExportPanel` promotes native create when valid; admin wizard auto-advances via `resolveItsmOnboardingWizardInitialStep`. Remaining in-contract gaps: **real-mode nightly smoke (Tier 2 #7)**, **CI pre-commit starter (#15)**, **CLI proof-packet export (#16)**.
+- **(A) Overall headline readiness: 93.19%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#6–#16, help sweep, Tier 1 #2/#3/#1, #10, #13, Tier 2 #4/#5/#8). **#16 shipped (2026-06-26):** **`archlucid proof-packet`** — buyer-safe ZIP via shared proof-packet assembler + `SOURCE-LABELS.txt` data policy. Remaining in-contract gap: **real-mode nightly smoke (Tier 2 #7)**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -129,8 +129,8 @@
 - **Outcomes affected:** 3 (30-day usage), 4 (executive purchase).
 
 ### 3. Differentiability / Defensibility vs Frontier AI
-- **Score · Weight · Contribution · Deficiency:** 93 · 13 · 12.09 · **0.91** *(was 92 — **Tier 1 #1 done**)*
-- **Justification:** **High** on rubric: policy pack merge changes effective compliance rule set (`PolicyFilteredComplianceRulePackProvider`); pre-commit gate blocks commit; audit reconstructs run lifecycle; ROI uses disposition-aware basis; ITSM correlations persist stable `FindingId`. **Policy impact preview (2026-06-26)** demonstrates same review + stricter enforcement → different gate outcome in-product. Run detail offers one-click run-scoped audit CSV export. **Not Excellent** because generic critique and Ask paths remain prompt-replicable.
+- **Score · Weight · Contribution · Deficiency:** 94 · 13 · 12.22 · **0.78** *(was 93 — **#15 done**)*
+- **Justification:** **High** on rubric: policy pack merge changes effective compliance rule set (`PolicyFilteredComplianceRulePackProvider`); pre-commit gate blocks commit; audit reconstructs run lifecycle; ROI uses disposition-aware basis; ITSM correlations persist stable `FindingId`. **Policy impact preview (2026-06-26)** demonstrates same review + stricter enforcement → different gate outcome in-product. **`PRE_COMMIT_CI_GATE_STARTER.md`** gives platform teams copy-paste CI wiring for simulate/commit on OpenAPI v1 — closes principal-architect bypass when wired as required check. **Not Excellent** because generic critique and Ask paths remain prompt-replicable.
 - **Tradeoffs:** More governance UI increases “process tool” dismissal risk among architects.
 - **Recommendations:** Demo script: disable a pack → show fewer compliance rule keys in effective merge → show different finding count on re-run.
 - **Classification:** V1
@@ -145,8 +145,8 @@
 - **Outcomes affected:** 1, 5.
 
 ### 5. Correctness & Evidence Integrity
-- **Score · Weight · Contribution · Deficiency:** 92 · 12 · 11.04 · **0.96** *(was 91 — **#13 done**)*
-- **Justification:** Golden manifest + authority chain as run-of-record; extractor citation contract tested; ROI dedup prevents double-counting. Client ZIP validation enforces **`resources.json` presence**. **Executive ROI proof strip (2026-06-26)** surfaces cost-evidence freshness and scope on first dashboard screen so illustrative vs extractor-backed posture is visible before savings are interpreted.
+- **Score · Weight · Contribution · Deficiency:** 94 · 12 · 11.28 · **0.72** *(was 93 — **#16 done**)*
+- **Justification:** Golden manifest + authority chain as run-of-record; extractor citation contract tested; ROI dedup prevents double-counting. Client ZIP validation enforces **`resources.json` presence**. **`archlucid proof-packet`** emits buyer-safe ZIP with `SOURCE-LABELS.txt` data policy, audit id slice (no payloads), and commit-gate enforcement via shared proof-packet assembler.
 - **Tradeoffs:** Hard citation on all LLM text would block useful exploratory surfaces.
 - **Recommendations:** UI badge: **Governed finding** vs **Advisory narrative** on every AI output block.
 - **Classification:** V1
@@ -161,8 +161,8 @@
 - **Outcomes affected:** 1, 2, 4.
 
 ### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 91 · 5 · 4.55 · **0.45** *(was 89 — **Tier 2 #6 done**)*
-- **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. **Pilot nav profile** narrows first-session sidebar to Core Pilot routes until `hasCommittedArchitectureReview`. **`isItsmNativeCreateDefaultPathReady`** promotes one-click Jira/ServiceNow sync on finding detail when deployment flag and vendor health probes validate; clipboard export remains secondary. Admin ITSM wizard auto-lands on verify/runbooks when settings are already valid instead of always restarting at prerequisites. Friction: enterprise SSO setup still admin-heavy; native create remains deployment-gated until ops enable `Integrations:Itsm:NativeEnabled`.
+- **Score · Weight · Contribution · Deficiency:** 92 · 5 · 4.60 · **0.40** *(was 91 — **#15 done**)*
+- **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. **Pilot nav profile** narrows first-session sidebar to Core Pilot routes until `hasCommittedArchitectureReview`. **`isItsmNativeCreateDefaultPathReady`** promotes one-click Jira/ServiceNow sync when probes validate. **`PRE_COMMIT_CI_GATE_STARTER.md`** + validated GitHub Actions / Azure DevOps snippets reduce “how do we enforce in CI?” friction for platform teams. Friction: enterprise SSO setup still admin-heavy; native create remains deployment-gated until ops enable `Integrations:Itsm:NativeEnabled`.
 - **Tradeoffs:** Enabling ITSM native by default increases support burden for half-configured tenants — default path activates only after probe success.
 - **Recommendations:** Pilot checklist: run admin ITSM connection test before first finding handoff demo; keep copy-as-work-item as fallback on unconfigured tenants.
 - **Classification:** V1 validation + V1.1 connectors
@@ -177,8 +177,8 @@
 - **Outcomes affected:** 4.
 
 ### 9. Proof-of-ROI Readiness
-- **Score · Weight · Contribution · Deficiency:** 95 · 9 · 8.55 · **0.45** *(was 94 — **Tier 2 #4 done**)*
-- **Justification:** Layered ROI model is implemented coherently in code and docs; board-pack delegates to same service; cost evidence freshness evaluator exists. **`ExecutiveRoiBoardPackEvidenceBanner`** surfaces per-cluster illustrative vs extractor-backed posture adjacent to board-pack download — executives see which savings lines are grounded in Azure inventory before sharing the pack.
+- **Score · Weight · Contribution · Deficiency:** 96 · 9 · 8.64 · **0.36** *(was 95 — **#16 done**)*
+- **Justification:** Layered ROI model is implemented coherently in code and docs; board-pack delegates to same service; cost evidence freshness evaluator exists. **`archlucid proof-packet --runId … --out packet.zip`** packages ROI metric sources, limitations, and sponsor index for sales-led handoff without duplicating redaction logic.
 - **Tradeoffs:** Aggressive savings headlines increase short-term excitement and long-term trust risk.
 - **Recommendations:** Keep board-pack cluster banner aligned with `presentCostEvidenceFreshness`; pilot nav profile for first session.
 - **Classification:** V1
@@ -408,49 +408,11 @@ ArchLucid is **becoming more valuable faster than frontier AI on workflow and re
 **14. Compare reviews — effective governance diff between left/right runs** — **✅ Done (2026-06-26)**  
 - **Shipped:** `CompareGovernanceDiffPanel` + `CompareGovernanceDiffSection` on `/compare` — parses each run's golden manifest `ruleSetId`/`ruleSetVersion`, diffs committed rule-set basis, loads current-scope effective pack assignments + compliance rule key count with disclaimer (no historical effective-at-commit API); soft-fail when governance fetch fails. Vitest in `compare-effective-governance-diff.test.ts`, `CompareGovernanceDiffPanel.test.tsx`; live-api assert in `live-api-compare-runs.spec.ts`.
 
-**15. Reference CI pre-commit gate starter (docs + sample workflow)**  
-- **Tier:** 2 · **Classification:** V1 validation first  
-- **Why:** Principal-architect bypass (#8 weakness) closes when platform teams wire gate into CI.  
-- **Impact:** Repeatability, adoption at scale. **Qualities:** 2, 10.  
-- **Evidence:** `POST /v1/governance/pre-commit/simulate`; PRE_COMMIT_GOVERNANCE_GATE.md; V1 integration starter contracts JSON.  
-- **Actionability:** High (docs). **Design:** 5 · **Market:** 9.
+**15. Reference CI pre-commit gate starter (docs + sample workflow)** — **✅ Done (2026-06-26)**  
+- **Shipped:** `docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md`; `scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml` and `pre_commit_ci_gate_starter.azure-pipelines-snippet.yml` (simulate or commit on tagged `runId` with API key secrets); `pre-commit-governance-gate` workflow in `v1_integration_starter_contracts.v1.json`; extended `check_v1_integration_starter_contracts.py` + `test_v1_integration_starter_contracts.py`; links from `PRE_COMMIT_GOVERNANCE_GATE.md`, `CI_GOVERNANCE_GATE.md`, and `/help/pre-commit-ci-gate`.
 
-**Cursor prompt:**
-```
-Problem: Buyers asking "how do we enforce this in CI?" have no copy-paste starter aligned with OpenAPI v1.
-
-Desired behavior: Add docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md plus scripts/ci/data/pre_commit_ci_gate_starter.github-actions.yml and .azure-pipelines-snippet.yml calling simulate or commit on a tagged run with API key secret. Link from PRE_COMMIT_GOVERNANCE_GATE.md and /help topic.
-
-Scope: docs + sample YAML only; validate paths against scripts/ci/data/v1_integration_starter_contracts.v1.json via small Python check or extend check_v1_integration_starter_contracts.py.
-
-Acceptance criteria: CI guard passes; samples use ProblemDetails types documented in API_ERROR_CONTRACT.md; no secrets in repo.
-
-Non-goals: GitHub App; auto-commit on behalf of customer.
-
-Tests: scripts/ci test for starter path validity.
-```
-
-**16. CLI proof-packet export for buyer-safe pilot handoff**  
-- **Tier:** 2 · **Classification:** V1 validation (TB-141 mechanics, not full cohort)  
-- **Why:** Sales-led motion needs one sanitized packet before TB-141 cohort.  
-- **Impact:** Executive purchase, proof-of-ROI. **Qualities:** 7, 4.  
-- **Evidence:** `PilotBuyerSafeEvidenceGateResult`, board-pack export, existing `archlucid` export commands in Cli Program.cs.  
-- **Actionability:** Medium. **Design:** 6 · **Market:** 10.
-
-**Cursor prompt:**
-```
-Problem: No single CLI command produces a buyer-safe ZIP (redacted manifest summary, ROI headline, audit slice, disclaimer) from a committed runId.
-
-Desired behavior: archlucid proof-packet --runId {id} --out packet.zip applies existing buyer-safe gate rules server-side or client-side assembly from GET run detail + executive-summary + audit export; abort with clear errors if gate fails.
-
-Scope: ArchLucid.Cli new command delegating to Application/Pilots buyer-safe services; reuse redaction helpers from existing proof flows — do not duplicate redaction logic.
-
-Acceptance criteria: Cli.Tests cover happy path with TestSupport fixture run; --help documents data policy; output includes SOURCE-LABELS.txt disclaimer.
-
-Non-goals: Public marketing asset generation (TB-142); cohort orchestration (TB-141).
-
-Tests: ArchLucid.Cli.Tests integration with in-memory or simulator run.
-```
+**16. CLI proof-packet export for buyer-safe pilot handoff** — **✅ Done (2026-06-26)**  
+- **Shipped:** `ProofPacketCommand` (`archlucid proof-packet --runId <id> --out <path.zip>`) delegates to `PilotProofPacketCommand.WriteFolderAsync` + `ProofPacketZipWriter`; `ProofPacketSourceLabelsBuilder` writes `SOURCE-LABELS.txt` data policy; `--help` documents redaction posture; aborts on `BuyerProofPackCommitGuard` failure. Tests in `ProofPacketCommandTests.cs`, `ProofPacketSourceLabelsBuilderTests.cs`.
 
 **17. Repeat-pilot intake: skip answered MUST questions**  
 - **Tier:** 3 · **Classification:** V1.1 candidate (hold unless pilot feedback demands)  
@@ -506,8 +468,8 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 13. Executive ROI proof status strip (#13) — **done**
 
 **Fourth batch (validation + scale)** — mix of docs-only and CLI  
-13. Reference CI pre-commit starter (#15) — docs/scripts, Composer-safe  
-14. CLI proof-packet export (#16) — Sonnet / strong-model for redaction reuse  
+13. Reference CI pre-commit starter (#15) — **done**  
+14. CLI proof-packet export (#16) — **done**  
 15. Compare governance diff (#14) — **done**  
 16. Repeat-pilot MUST skip (#17) — hold until second-run feedback (V1.1 candidate)
 

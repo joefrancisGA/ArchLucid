@@ -24,6 +24,7 @@ This closes the principal-architect bypass gap: CI enforces the same governed pa
 
 Related docs:
 
+- [`docs/runbooks/PRE_COMMIT_CI_GATE_STARTER.md`](PRE_COMMIT_CI_GATE_STARTER.md) — minimal copy-paste simulate/commit starters (`scripts/ci/data/pre_commit_ci_gate_starter.*.yml`)
 - [`docs/library/PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) — 409 semantics, `BlockCommitOnCritical`, dry-run
 - [`docs/library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) — Flow A1 (request → execute → commit)
 - [`docs/runbooks/GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) — Bearer token auth for automation
