@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Fragment, useMemo, useState } from "react";
 import type React from "react";
@@ -30,7 +32,7 @@ function ShortcutComboKbd({ combo }: { combo: string }) {
       {parts.map((part, index) => (
         <Fragment key={`${part}-${index}`}>
           {index > 0 ? <span className="text-neutral-400 dark:text-neutral-500">+</span> : null}
-          <kbd className="rounded border border-neutral-200 bg-white px-1.5 py-0.5 font-mono text-xs text-neutral-800 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100">
+          <kbd className={cn("rounded border border-neutral-200 bg-white px-1.5 py-0.5 font-mono text-neutral-800 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
             {formatKeyPart(part)}
           </kbd>
         </Fragment>
@@ -52,9 +54,9 @@ function ShortcutTable({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{caption}</h4>
+      <h4 className={cn("font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{caption}</h4>
       <div
-        className="grid gap-2 rounded-md border border-neutral-200/80 bg-white p-3 text-sm dark:border-neutral-600 dark:bg-neutral-900/30"
+        className={cn("grid gap-2 rounded-md border border-neutral-200/80 bg-white p-3 dark:border-neutral-600 dark:bg-neutral-900/30", OPERATOR_TYPOGRAPHY.body)}
         role="table"
         aria-label={caption}
       >
@@ -67,7 +69,7 @@ function ShortcutTable({
             <div className="font-medium text-neutral-800 dark:text-neutral-100" role="cell">
               <ShortcutComboKbd combo={entry.key} />
             </div>
-            <div className="text-sm text-neutral-600 dark:text-neutral-300" role="cell">
+            <div className={cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} role="cell">
               {entry.description}
             </div>
           </div>
@@ -113,7 +115,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
           <CollapsibleTrigger
             type="button"
-            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
             aria-expanded={moreOpen}
           >
             {moreOpen ? "Hide" : "Show"} all navigation shortcuts
@@ -127,7 +129,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         <Collapsible open={alertsOpen} onOpenChange={setAlertsOpen}>
           <CollapsibleTrigger
             type="button"
-            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
             aria-expanded={alertsOpen}
           >
             {alertsOpen ? "Hide" : "Show"} alerts page shortcuts
@@ -141,7 +143,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         <Collapsible open={helpOpen} onOpenChange={setHelpOpen}>
           <CollapsibleTrigger
             type="button"
-            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
+            className={cn("w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600", OPERATOR_TYPOGRAPHY.helper)}
             aria-expanded={helpOpen}
           >
             {helpOpen ? "Hide" : "Show"} help overlay shortcut

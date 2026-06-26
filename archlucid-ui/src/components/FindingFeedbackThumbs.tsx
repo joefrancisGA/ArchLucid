@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import type { ReactElement } from "react";
@@ -40,13 +42,13 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
       data-testid={`finding-feedback-${findingId}`}
     >
       {!compact ? (
-        <span className="text-xs text-neutral-600 dark:text-neutral-400">Helpful?</span>
+        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Helpful?</span>
       ) : null}
       <Button
         type="button"
         size="sm"
         variant="outline"
-        className={compact ? "h-7 px-2 text-xs" : undefined}
+        className={compact ? (cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)) : undefined}
         disabled={disabled || busy}
         aria-label={`Mark finding ${findingId} helpful`}
         title="Thumbs up"
@@ -58,7 +60,7 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
         type="button"
         size="sm"
         variant="outline"
-        className={compact ? "h-7 px-2 text-xs" : undefined}
+        className={compact ? (cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)) : undefined}
         disabled={disabled || busy}
         aria-label={`Mark finding ${findingId} not helpful`}
         title="Thumbs down"
@@ -67,7 +69,7 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
         👎
       </Button>
       {note !== null ? (
-        <span className="text-xs text-neutral-600 dark:text-neutral-400" role="status">
+        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
           {note}
         </span>
       ) : null}

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useMemo, useState } from "react";
 import ReactFlow, {
@@ -83,7 +85,7 @@ function FindingEvidenceGraphCanvas(props: {
   if (highlighted.nodes.length === 0) {
     return (
       <OperatorEmptyState title="No matching graph nodes">
-        <p className="m-0 text-sm">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           The examined node ids for this finding do not appear on the architecture graph for this review.
         </p>
       </OperatorEmptyState>
@@ -174,7 +176,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
 
   if (graphNodeIdsExamined.length === 0) {
     return (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="finding-evidence-graph-empty">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="finding-evidence-graph-empty">
         No architecture graph nodes were recorded for this finding trace.
       </p>
     );
@@ -183,7 +185,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
   return (
     <section className="space-y-3" data-testid="finding-evidence-graph">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Teal nodes match the evidence trail ({graphNodeIdsExamined.length} examined).
         </p>
         <div className="flex flex-wrap gap-1">
@@ -211,7 +213,7 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
       </div>
 
       {loadNote !== null ? (
-        <p className="m-0 text-xs text-amber-800 dark:text-amber-200" role="status">
+        <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)} role="status">
           {loadNote}
         </p>
       ) : null}

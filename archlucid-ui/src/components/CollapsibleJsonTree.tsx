@@ -1,7 +1,8 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 
 const DEFAULT_COLLAPSE_DEPTH = 3;
 
@@ -33,7 +34,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
     return (
       <span>
         {keyPrefix}
-        <span className="break-all font-mono text-xs">{JSON.stringify(value)}</span>
+        <span className={cn("break-all font-mono", OPERATOR_TYPOGRAPHY.helper)}>{JSON.stringify(value)}</span>
       </span>
     );
   }
@@ -53,7 +54,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
           {keyPrefix}
           <Collapsible defaultOpen={false} className="w-full min-w-0">
             <CollapsibleTrigger
-              className="text-left text-xs text-sky-700 underline dark:text-sky-300"
+              className={cn("text-left text-sky-700 underline dark:text-sky-300", OPERATOR_TYPOGRAPHY.helper)}
               type="button"
               aria-label={`Expand JSON array of ${String(value.length)} items`}
             >
@@ -105,7 +106,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
           {keyPrefix}
           <Collapsible defaultOpen={false} className="w-full min-w-0">
             <CollapsibleTrigger
-              className="text-left text-xs text-sky-700 underline dark:text-sky-300"
+              className={cn("text-left text-sky-700 underline dark:text-sky-300", OPERATOR_TYPOGRAPHY.helper)}
               type="button"
               aria-label={`Expand JSON object with ${String(entries.length)} keys`}
             >
@@ -114,7 +115,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
             <CollapsibleContent>
               <div className="space-y-1 border-l border-neutral-200 pl-3 dark:border-neutral-600">
                 {entries.map(([k, v]) => (
-                  <div key={k} className="min-w-0 break-words text-xs">
+                  <div key={k} className={cn("min-w-0 break-words", OPERATOR_TYPOGRAPHY.helper)}>
                     <JsonNode value={v} depth={depth + 1} propertyKey={k} />
                   </div>
                 ))}
@@ -130,7 +131,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
         {keyPrefix}
         <div className="space-y-1 border-l border-neutral-200 pl-3 dark:border-neutral-600">
           {entries.map(([k, v]) => (
-            <div key={k} className="min-w-0 break-words text-xs">
+            <div key={k} className={cn("min-w-0 break-words", OPERATOR_TYPOGRAPHY.helper)}>
               <JsonNode value={v} depth={depth + 1} propertyKey={k} />
             </div>
           ))}
@@ -158,7 +159,7 @@ export function CollapsibleJsonTree({
 }) {
   return (
     <div
-      className={cn("max-h-80 overflow-auto rounded bg-white p-3 text-xs text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100", className)}
+      className={cn("max-h-80 overflow-auto rounded bg-white p-3 text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper, className)}
       role="region"
       aria-label={ariaLabel}
     >

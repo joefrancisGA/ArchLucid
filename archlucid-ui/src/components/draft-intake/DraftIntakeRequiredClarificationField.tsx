@@ -1,8 +1,9 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
@@ -41,18 +42,18 @@ export function DraftIntakeRequiredClarificationField(
       data-question-primary={isPrimary ? "true" : "false"}
     >
       <p
-        className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+        className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="socratic-question-progress"
       >
         Required clarification {props.clarificationIndex} of {props.clarificationTotal}
       </p>
       <p
-        className="m-0 text-xs text-neutral-500 dark:text-neutral-400"
+        className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="socratic-question-baseline-label"
       >
         {REQUIRED_CLARIFICATION_BASELINE_LABEL}
       </p>
-      <p className={cn("m-0 text-sm font-medium", !isPrimary && "text-neutral-700 dark:text-neutral-300")}>
+      <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body, !isPrimary && "text-neutral-700 dark:text-neutral-300")}>
         {props.question.prompt}
       </p>
       <Textarea

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -167,7 +169,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
     <div className="draft-intake-actor-editor space-y-4" data-testid="draft-intake-actor-editor">
       <div className="space-y-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {GUIDED_INTAKE_ACTORS_SECTION_HEADING}
           </p>
           <Button
@@ -183,11 +185,11 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
           </Button>
         </div>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {GUIDED_INTAKE_TRUST_BOUNDARY_HINT}
         </p>
         {!canSuggestFromIntent ? (
-          <p className="m-0 text-xs text-neutral-500" data-testid="draft-intake-actor-suggest-hint">
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} data-testid="draft-intake-actor-suggest-hint">
             {GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT}
           </p>
         ) : null}
@@ -195,7 +197,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
 
       {props.actorSet.actors.length === 0 ? (
         <p
-          className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
           data-testid="draft-intake-actor-empty"
         >
           {GUIDED_INTAKE_ACTORS_EMPTY_STATE}
@@ -207,11 +209,11 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           className="space-y-3 rounded-md border border-dashed border-neutral-300 p-3 dark:border-neutral-700"
           data-testid="draft-intake-actor-suggestions-panel"
         >
-          <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING}
           </p>
           {pendingSuggestions.length === 0 ? (
-            <p className="m-0 text-xs text-neutral-500">
+            <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
               No new suggestions — add actors manually or edit intent and try again.
             </p>
           ) : (
@@ -221,7 +223,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
 
                 return (
                   <li key={key}>
-                    <label className="flex cursor-pointer items-start gap-2 text-sm">
+                    <label className={cn("flex cursor-pointer items-start gap-2", OPERATOR_TYPOGRAPHY.body)}>
                       <input
                         type="checkbox"
                         className="mt-1"
@@ -276,7 +278,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           data-testid="draft-intake-actor-row"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
               {formatActorCardHeading(actor, index)}
             </p>
             <div className="flex flex-wrap gap-2">

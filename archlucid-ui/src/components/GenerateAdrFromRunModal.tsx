@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { FileDown } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -15,8 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
@@ -97,7 +97,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
                 setMarkdown(e.target.value);
               }}
               spellCheck={false}
-              className={cn("min-h-[14rem] font-mono leading-relaxed md:min-h-[18rem]", OPERATOR_TYPOGRAPHY.micro, "md:font-normal md:leading-5 md:text-[13px]")}
+              className={cn("min-h-[14rem] font-mono leading-relaxed md:min-h-[18rem]", OPERATOR_TYPOGRAPHY.micro, (cn("md:font-normal md:leading-5 md:", OPERATOR_TYPOGRAPHY.helper)))}
               aria-label="Architecture decision record markdown"
             />
           </div>

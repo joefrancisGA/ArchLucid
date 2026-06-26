@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useSearchParams } from "next/navigation";
 
 import { CtaButton } from "@/components/marketing/CtaButton";
 import { buildSelfDemoCtaHref } from "@/lib/marketing/build-self-demo-cta-href";
 import { recordMarketingCtaSelfDemoClick } from "@/lib/marketing/marketing-clarity-custom-event";
-import { cn } from "@/lib/utils";
 
 /** Owner / legal-approved disclosure (hero self-demo; does not claim paid-tenant parity). */
 export const SELF_DEMO_HERO_DISCLOSURE_COPY =
@@ -52,7 +53,7 @@ export function SelfDemoRequestCta(props: { readonly className?: string }) {
       </CtaButton>
       <p
         id={SELF_DEMO_DISCLOSURE_ID}
-        className="text-center text-[11px] leading-snug text-neutral-500 dark:text-neutral-400"
+        className={cn("text-center leading-snug text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       >
         {SELF_DEMO_HERO_DISCLOSURE_COPY}
       </p>

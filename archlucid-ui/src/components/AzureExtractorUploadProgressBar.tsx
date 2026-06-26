@@ -1,5 +1,6 @@
 "use client";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type AzureExtractorUploadProgressBarProps = {
@@ -18,7 +19,7 @@ export function AzureExtractorUploadProgressBar(props: AzureExtractorUploadProgr
 
   return (
     <div className={cn("space-y-1", className)} data-testid={testId}>
-      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{label}</p>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{label}</p>
       <div
         className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"
         role="progressbar"

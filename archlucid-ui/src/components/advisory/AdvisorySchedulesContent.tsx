@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
@@ -31,11 +33,10 @@ import {
   alertToolingListRefreshButtonTitleReader,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { cn } from "@/lib/utils";
 import type { AdvisoryScanExecution, AdvisoryScanSchedule } from "@/types/advisory-scheduling";
 
 const inputClass =
-  "block w-full rounded-md border border-neutral-300 bg-white p-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100";
+  (cn("block w-full rounded-md border border-neutral-300 bg-white p-2 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body));
 
 /**
  * Schedules tab: CRUD and history for scan windows (Execute-class mutations; inspect-only for Read — former `/advisory-scheduling`).
@@ -124,12 +125,12 @@ export function AdvisorySchedulesContent() {
     <div className="w-full max-w-[1200px] px-4 py-6">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
-          <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Advisory schedules</h2>
+          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>Advisory schedules</h2>
         </div>
         <p className="doc-meta m-0">
           Advisory scans evaluate your architecture against configurable advisory rules. Background worker polls every
           ~5 minutes for due schedules. Use the <strong>project slug</strong> (same as the architecture reviews list,
-          often <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">default</code>) so recent
+          often <code className={cn("rounded bg-neutral-200 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>default</code>) so recent
           reviews are discovered.
         </p>
 
@@ -145,7 +146,7 @@ export function AdvisorySchedulesContent() {
 
         <div className={cn("flex flex-col gap-6", !canMutateSchedules && "flex-col-reverse")}>
           <section className="mb-0 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-            <h3 className="mt-0 text-sm font-semibold text-al-text-primary">
+            <h3 className={cn("mt-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {canMutateSchedules
                 ? advisorySchedulesCreateSectionHeadingOperator
                 : advisorySchedulesCreateSectionHeadingReader}
@@ -205,11 +206,11 @@ export function AdvisorySchedulesContent() {
               </Button>
             </div>
 
-            <h3 className="text-sm font-semibold text-al-text-primary">
+            <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
             </h3>
             {schedules.length === 0 ? (
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                 {canMutateSchedules ? advisorySchedulesEmptyListOperatorLine : advisorySchedulesEmptyListReaderLine}
               </p>
             ) : (
@@ -220,7 +221,7 @@ export function AdvisorySchedulesContent() {
                     className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
                   >
                     <strong className="text-neutral-900 dark:text-neutral-100">{s.name}</strong>
-                    <div className="mt-2 text-[13px] text-neutral-600 dark:text-neutral-400">
+                    <div className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       <div>
                         Cron: <code className="font-mono">{s.cronExpression}</code>
                       </div>
@@ -266,8 +267,8 @@ export function AdvisorySchedulesContent() {
                     </div>
                     {executionsBySchedule[s.scheduleId]?.length ? (
                       <div className="mt-3">
-                        <h4 className="mt-2 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recent executions</h4>
-                        <ul className="pl-[18px] text-[13px]">
+                        <h4 className={cn("mt-2 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Recent executions</h4>
+                        <ul className={cn("pl-[18px]", OPERATOR_TYPOGRAPHY.helper)}>
                           {executionsBySchedule[s.scheduleId].map((ex) => (
                             <li key={ex.executionId}>
                               {ex.status} — {new Date(ex.startedUtc).toLocaleString()}

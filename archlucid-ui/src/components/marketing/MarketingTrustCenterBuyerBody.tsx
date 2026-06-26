@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -15,13 +17,13 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Trust Center</h1>
-        <p className="mt-3 text-sm font-medium leading-relaxed text-neutral-900 dark:text-neutral-100">
+        <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Trust Center</h1>
+        <p className={cn("mt-3 font-medium leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           Buyers can rely on published procurement artifacts today: control mapping and questionnaire-oriented summaries,
           architecture and security documentation, and audit-ready evidence packages backed by immutable lifecycle logging for
           material changes.
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Detailed diligence materials (questionnaire responses, subprocessors, tenancy detail) are delivered through your
           procurement channel — coordinate intake via{" "}
           <Link
@@ -33,20 +35,20 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           .
         </p>
 
-        <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {lastReviewedUtc !== null
             ? `Last assurance content review (UTC): ${lastReviewedUtc}.`
             : "Last assurance content review is refreshed with each assurance-cycle update."}
         </p>
 
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 px-4 py-4">
-          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Assurance at a glance</p>
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Assurance at a glance</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg border-2 border-blue-300/80 bg-white/90 p-4 shadow-sm dark:border-blue-800/70 dark:bg-neutral-950/50">
-              <p className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-800 dark:text-neutral-200">
+              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 Available now
               </p>
-              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                 <li>
                   Procurement-ready architecture, operations, and security documentation packs you can submit during initial
                   procurement review.
@@ -59,10 +61,10 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               </ul>
             </div>
             <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Shared during diligence
               </p>
-              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                 <li>CAIQ-lite / SIG–oriented summaries and questionnaire responses under confidentiality</li>
                 <li>
                   Subprocessors and tenancy overview on request — start with{" "}
@@ -76,10 +78,10 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
               </ul>
             </div>
             <div className="rounded-md border border-blue-200/70 bg-white/80 p-3 dark:border-blue-900/60 dark:bg-neutral-950/40">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Planned assurance activities
               </p>
-              <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+              <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                 <li>
                   Formal reports are distributed after completion, approval, and controlled release — aligned with your
                   procurement calendar.
@@ -118,7 +120,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <h2 id="trust-security-posture" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
             Security posture summary
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             ArchLucid is built for regulated buyers: tenant isolation, scope-filtered APIs, immutable audit instrumentation for
             material changes, and evidence packs suitable for questionnaires. Detailed control narratives and questionnaire
             responses are shared during diligence.
@@ -132,7 +134,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <h2 id="trust-assurance-artifacts" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
             Assurance artifacts
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             Request the current procurement-ready bundle containing questionnaire pre-fills (for example CAIQ-lite and SIG
             oriented summaries), tenancy and subprocessors overview, SLA summary excerpts, incident response placeholders, and
             security contact references. Detailed reports referenced in questionnaires are commonly shared under confidentiality.
@@ -147,7 +149,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <h2 id="trust-data-handling" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
             Data handling &amp; privacy
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             ArchLucid stores architecture review evidence and governance metadata about systems customers describe — not a clinical
             record system or patient-care record store.{" "}
             The public demo uses illustrative data only and is not intended for regulated health data. Production deployments are
@@ -173,7 +175,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
           <h2 id="trust-procurement" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
             Procurement questionnaire response package
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             Procurement teams reuse structured answers mapped to ArchLucid&rsquo;s reusable procurement evidence catalogue. Submit
             your intake form requirements and stakeholder list via the{" "}
             <Link
@@ -188,13 +190,13 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
       </div>
 
       <section aria-labelledby="trust-planned-assurance">
-        <h2 id="trust-planned-assurance" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="trust-planned-assurance" className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
           Planned assurance
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mt-2 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Planned assurance activities below — timelines align with your procurement calendar.
         </p>
-        <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+        <ul className={cn("mt-3 max-w-3xl list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <li>
             <span className="font-medium text-neutral-900 dark:text-neutral-100">SOC&nbsp;2 program:</span> readiness mapping
             and control baselines continue on a published cadence. Planned attestations and third-party reports are
@@ -217,10 +219,10 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         aria-labelledby="trust-contact-review-heading"
         className="rounded-xl border-2 border-neutral-200 bg-white px-5 py-5 shadow-md dark:border-neutral-700 dark:bg-neutral-900/50"
       >
-        <h2 id="trust-contact-review-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+        <h2 id="trust-contact-review-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
           Security contact
         </h2>
-        <p className="mt-2 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mt-2 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Email{" "}
           <Link
             className="font-medium text-blue-800 underline underline-offset-2 hover:text-blue-950 dark:text-blue-300 dark:hover:text-blue-200"

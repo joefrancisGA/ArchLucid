@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ArtifactDescriptor } from "@/types/authority";
 import type { ReactElement } from "react";
 
@@ -19,7 +21,7 @@ export function ArtifactIntegrityTechnicalDetails(props: ArtifactIntegrityTechni
 
   return (
     <details className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+      <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         Integrity and format details
       </summary>
       <div className="mt-3 space-y-4">
@@ -28,24 +30,24 @@ export function ArtifactIntegrityTechnicalDetails(props: ArtifactIntegrityTechni
             key={artifact.artifactId}
             className="border-t border-neutral-200 pt-3 first:border-t-0 first:pt-0 dark:border-neutral-700"
           >
-            <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               {getArtifactBusinessLabel(artifact.artifactType)}
             </p>
-            <dl className="m-0 mt-2 grid gap-2 text-[11px] text-neutral-600 dark:text-neutral-400">
+            <dl className={cn("m-0 mt-2 grid gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <div>
                 <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Media type / format</dt>
                 <dd className="m-0 mt-0.5">
-                  <code className="break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
+                  <code className={cn("break-all font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.badge)}>
                     {artifact.format}
                   </code>
-                  <span className="mt-1 block text-[10px] text-neutral-500 dark:text-neutral-500">
+                  <span className={cn("mt-1 block text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>
                     Presentation: {getArtifactFormatLabel(artifact.format)}
                   </span>
                 </dd>
               </div>
               <div>
                 <dt className="m-0 font-medium text-neutral-700 dark:text-neutral-300">Content fingerprint</dt>
-                <dd className="m-0 mt-0.5 break-all font-mono text-[10px] text-neutral-800 dark:text-neutral-200">
+                <dd className={cn("m-0 mt-0.5 break-all font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.badge)}>
                   {artifact.contentHash}
                 </dd>
               </div>

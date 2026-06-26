@@ -1,7 +1,8 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
 
 type ReviewPackagePlainSummaryProps = {
   readonly blockingFindingCount: number;
@@ -23,7 +24,7 @@ export function ReviewPackagePlainSummary(props: ReviewPackagePlainSummaryProps)
       data-testid="review-package-plain-summary"
       role="status"
     >
-      <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">
+      <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-semibold">{total} finding{total === 1 ? "" : "s"}</span>
         {props.blockingFindingCount > 0 ? (
           <>

@@ -1,5 +1,6 @@
-import { COMMAND_PALETTE_DISPLAY_SHORTCUT } from "@/lib/keyboard-shortcut-display";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { COMMAND_PALETTE_DISPLAY_SHORTCUT } from "@/lib/keyboard-shortcut-display";
 
 export type KeyboardShortcutBadgeProps = {
   readonly shortcut?: string;
@@ -15,8 +16,7 @@ export function KeyboardShortcutBadge(props: KeyboardShortcutBadgeProps) {
 
   return (
     <span
-      className={cn(
-        "rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
+      className={cn("rounded border border-neutral-300 bg-white px-1 py-0.5 font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge,
         className,
       )}
     >

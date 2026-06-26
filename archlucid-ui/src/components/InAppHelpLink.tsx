@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 
 import { helpTooltipIconClassName, helpTooltipLinkClassName } from "@/components/ui/help-tooltip-trigger";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
 
 export type InAppHelpLinkProps = {
   /** Registry slug such as `troubleshooting` or `pilot-guide`. */
@@ -26,8 +27,7 @@ export function InAppHelpLink(props: InAppHelpLinkProps) {
     return (
       <Link
         href={href}
-        className={cn(
-          "text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300",
+        className={cn("font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body,
           props.className,
         )}
       >

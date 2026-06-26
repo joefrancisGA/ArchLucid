@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -69,13 +71,13 @@ export function OperatorUnauthorizedPageClient() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4 py-16 text-center" data-testid="operator-unauthorized-page">
-      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Access not authorized</h1>
+      <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Access not authorized</h1>
       {showJwtRoleMappingCallout ? (
         <div className="text-left">
           <OperatorJwtBearerRoleMappingCallout testId="operator-unauthorized-jwt-role-callout" />
         </div>
       ) : (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Your identity signed in successfully, but no ArchLucid app role (Admin, Operator, Reader, or Auditor) was found on
           your token. Ask your tenant administrator to assign an app role in your identity provider, then sign in again.
         </p>

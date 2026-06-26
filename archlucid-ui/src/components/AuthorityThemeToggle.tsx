@@ -1,8 +1,9 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import {
   applyAuthorityThemeToDocument,
   buildAuthorityThemeToggleLabel,
@@ -50,15 +51,14 @@ export function AuthorityThemeToggle() {
     <button
       type="button"
       data-testid="authority-theme-toggle"
-      className={cn(
-        "auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white text-sm transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700",
+      className={cn("auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700", OPERATOR_TYPOGRAPHY.body,
         theme === "charcoal" ? "text-neutral-100 dark:text-neutral-100" : "text-teal-800 dark:text-teal-300",
       )}
       aria-label={label}
       title={label}
       onClick={() => setAndPersist(nextTheme)}
     >
-      <span aria-hidden className="text-[10px] font-bold leading-none">
+      <span aria-hidden className={cn("font-bold leading-none", OPERATOR_TYPOGRAPHY.badge)}>
         {icon}
       </span>
     </button>

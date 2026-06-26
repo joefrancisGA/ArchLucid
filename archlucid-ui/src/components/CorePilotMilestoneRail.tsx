@@ -1,7 +1,8 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { operatorSemanticSurface } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const MILESTONE_SHORT: readonly string[] = ["Request", "Review process", "Finalize", "Package"];
 
@@ -19,7 +20,7 @@ export function CorePilotMilestoneRail(props: {
       aria-label="Core Pilot milestone progress"
       data-testid="core-pilot-milestone-rail"
     >
-      <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mb-1.5 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
         Milestones (architecture review packaging)
       </p>
       <ol className="m-0 flex min-w-0 flex-nowrap gap-1 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
@@ -41,16 +42,16 @@ export function CorePilotMilestoneRail(props: {
               data-testid={`core-pilot-milestone-${index}`}
               aria-current={current ? "step" : undefined}
             >
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <span className={cn("font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
                 {index + 1}
               </span>
-              <span className="text-[11px] font-medium leading-snug text-neutral-900 dark:text-neutral-100">{label}</span>
+              <span className={cn("font-medium leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{label}</span>
               <span className="sr-only">{complete ? "complete" : "not complete"}</span>
             </li>
           );
         })}
       </ol>
-      <p className="m-0 mt-1 text-[10px] leading-snug text-neutral-500 dark:text-neutral-400">
+      <p className={cn("m-0 mt-1 leading-snug text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
         Status comes from saved runs plus commit signals — checklist checkboxes capture what you verified.
       </p>
     </nav>

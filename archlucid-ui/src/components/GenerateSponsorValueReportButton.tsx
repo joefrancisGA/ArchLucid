@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -60,16 +62,16 @@ export function GenerateSponsorValueReportButton() {
 
   return (
     <div className="max-w-xl space-y-2">
-      <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Sponsor collateral</p>
+      <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>Sponsor collateral</p>
       {roiBaselineLoading ? (
-        <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Checking ROI baseline posture…</p>
+        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Checking ROI baseline posture…</p>
       ) : blockRoiExport ? (
-        <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">
+        <p className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
           Capture tenant ROI baselines (review-cycle hours + manual preparation hours) before generating sponsor DOCX — use Settings → Baseline or the guided ROI baseline wizard on operator home.
         </p>
       ) : null}
       {!blockRoiExport && !roiBaselineLoading ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           DOCX includes ROI narrative claim gate (PASS/WARN/HOLD), estimate basis, and execution-mode caveats per tenant
           scope — hours and dollars are estimates, not savings guarantees.
         </p>

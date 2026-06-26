@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -23,7 +25,6 @@ import {
   type PilotRoiValidationVerdict,
 } from "@/lib/pilot-roi-validation-handoff";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { cn } from "@/lib/utils";
 
 export type PilotRoiValidationHandoffCardProps = {
   readonly runId: string;
@@ -102,11 +103,11 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
       aria-label="Pilot ROI validation handoff"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <p className="m-0 text-sm font-semibold text-al-text-primary">Pilot ROI validation handoff</p>
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Pilot ROI validation handoff</p>
         <StatusTag kind={verdictStatusKind(verdictCopy.verdict)} label={verdictCopy.headline} />
       </div>
 
-      <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">{verdictCopy.detail}</p>
+      <p className={cn("m-0 mt-2 leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{verdictCopy.detail}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <StatusTag kind={roi.tier === "Strong" ? "ready" : roi.tier === "Low" ? "blocked" : "needs-attention"} label={`ROI confidence: ${roi.tier}`} />
@@ -120,18 +121,18 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
         ) : null}
       </div>
 
-      <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{roi.meaning}</p>
+      <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{roi.meaning}</p>
 
       {!buyerPolishedShell ? (
-        <p className="m-0 mt-2 font-mono text-xs text-neutral-500 dark:text-neutral-400">Review ID: {runId}</p>
+        <p className={cn("m-0 mt-2 font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Review ID: {runId}</p>
       ) : null}
 
       <CollapsibleSection title="Run validation interview (15 min)" defaultOpen={false}>
-        <ol className="m-0 list-decimal space-y-2 pl-5 text-sm text-neutral-800 dark:text-neutral-100">
+        <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           {PILOT_ROI_VALIDATION_INTERVIEW_QUESTIONS.map((question) => (
             <li key={question.ledgerField}>
               {question.prompt}
-              <span className="block text-xs text-neutral-500 dark:text-neutral-400">
+              <span className={cn("block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Ledger: {question.ledgerField}
               </span>
             </li>
@@ -144,16 +145,16 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
           {copyState === "copied" ? "Copied checklist" : "Copy validation notes"}
         </Button>
         {copyState === "failed" ? (
-          <span className="text-xs text-rose-700 dark:text-rose-300" role="alert">
+          <span className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
             Clipboard unavailable — copy manually from the runbook.
           </span>
         ) : null}
-        <Link href={firstRunHelpHref} className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href={firstRunHelpHref} className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           First-run help
         </Link>
         <a
           href={validationSessionHref}
-          className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+          className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
           rel="noopener noreferrer"
           target="_blank"
         >
@@ -216,7 +217,7 @@ export function PilotRoiValidationHandoffClient(props: PilotRoiValidationHandoff
   if (loadState.status === "loading") {
     return (
       <div
-        className={cn("rounded-md border border-neutral-200 p-4 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400", className)}
+        className={cn("rounded-md border border-neutral-200 p-4 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body, className)}
         role="status"
         aria-live="polite"
         data-testid="pilot-roi-validation-handoff-loading"

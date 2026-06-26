@@ -29,8 +29,7 @@ export function CtoDemoSegregationCallout(): React.JSX.Element | null {
     <div
       role="note"
       data-testid="cto-demo-segregation-callout"
-      className={cn(
-        "mb-4 rounded-md border border-teal-200/70 bg-teal-50/80 px-4 py-3 text-sm text-teal-950 print:hidden",
+      className={cn("mb-4 rounded-md border border-teal-200/70 bg-teal-50/80 px-4 py-3 text-teal-950 print:hidden", OPERATOR_TYPOGRAPHY.body,
         "dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100",
       )}
     >

@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,6 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
-import { cn } from "@/lib/utils";
 
 /**
  * Buyer-walkthrough summary: one card that narrates submit → review → approve → governed package readiness
@@ -71,17 +72,17 @@ export function GovernanceApprovalStoryCard(props: {
       )}
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-base text-neutral-900 dark:text-neutral-50">
+        <CardTitle className={cn("text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
           {approved ? "This package completed the approval path" : "Approval status for this review"}
         </CardTitle>
-        <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 leading-relaxed">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review package
             version <span className="font-semibold">{row.manifestVersion}</span> — approved as architecture decision record for
             this review package. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (
-            <dl className="m-0 mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <dl className={cn("m-0 mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <dt className="text-neutral-500 dark:text-neutral-500">{BUYER_SHOWCASE_APPROVER_ROLE}</dt>
               <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</dd>
               <dt className="text-neutral-500 dark:text-neutral-500">{BUYER_SHOWCASE_REQUEST_OWNER_ROLE}</dt>
@@ -101,7 +102,7 @@ export function GovernanceApprovalStoryCard(props: {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <p className="m-0 mb-3 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <p className={cn("m-0 mb-3 font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Approval path for this package
         </p>
         <ol className="m-0 flex list-none flex-col gap-3 p-0 sm:flex-row sm:items-stretch sm:gap-2">
@@ -114,8 +115,7 @@ export function GovernanceApprovalStoryCard(props: {
                 />
               ) : null}
               <div
-                className={cn(
-                  "min-w-0 flex-1 rounded-md border px-3 py-2 text-sm",
+                className={cn("min-w-0 flex-1 rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body,
                   s.label === "Approved as architecture decision record" && promoteReady
                     ? "border-neutral-400 bg-[var(--al-layer-hover)] ring-2 ring-[var(--al-accent-border-focus)]/30 dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-200 bg-white/90 dark:border-neutral-700 dark:bg-neutral-950/40",
@@ -127,12 +127,12 @@ export function GovernanceApprovalStoryCard(props: {
                   </span>
                   {s.label}
                 </p>
-                <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">{s.detail}</p>
+                <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{s.detail}</p>
               </div>
             </li>
           ))}
         </ol>
-        <p className="m-0 mt-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-4 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE}
         </p>
       </CardContent>

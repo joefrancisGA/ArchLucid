@@ -1,9 +1,10 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   persistAuthorityTheme,
   readStoredAuthorityTheme,
@@ -47,7 +48,7 @@ export function AuthorityThemeDevSelector() {
 
   if (!mounted) {
     return (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400" aria-hidden="true">
+      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-hidden="true">
         Loading visual theme…
       </p>
     );
@@ -55,10 +56,10 @@ export function AuthorityThemeDevSelector() {
 
   return (
     <div className="space-y-3" data-testid="authority-theme-dev-selector">
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Preview the charcoal authority hierarchy against the default teal accent theme. Selection is
         stored in this browser only (
-        <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">archlucid_authority_theme</code>
+        <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>archlucid_authority_theme</code>
         ).
       </p>
       <div className="flex flex-col gap-2 sm:flex-row" role="group" aria-label="Visual authority theme">
@@ -78,10 +79,9 @@ export function AuthorityThemeDevSelector() {
               )}
               onClick={() => selectTheme(option.value)}
             >
-              <span className="text-sm font-medium">{option.label}</span>
+              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>{option.label}</span>
               <span
-                className={cn(
-                  "text-xs font-normal",
+                className={cn("font-normal", OPERATOR_TYPOGRAPHY.helper,
                   selected ? "text-primary-foreground/90" : "text-neutral-600 dark:text-neutral-400",
                 )}
               >
@@ -91,7 +91,7 @@ export function AuthorityThemeDevSelector() {
           );
         })}
       </div>
-      <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+      <p className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
         Build default when no override is set:{" "}
         <span className="font-medium text-neutral-700 dark:text-neutral-300">{envDefault}</span>
         {" · "}

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -81,18 +83,18 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
     >
       <h2
         id={`roi-card-${domSuffix}`}
-        className="m-0 text-sm font-semibold text-al-text-primary"
+        className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         {title}
       </h2>
-      <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">{windowLabel}</p>
+      <p className={cn("m-0 mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{windowLabel}</p>
       {props.rangeCaption ? (
-        <p className="m-0 mt-1 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">{props.rangeCaption}</p>
+        <p className={cn("m-0 mt-1 font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{props.rangeCaption}</p>
       ) : null}
       <p className="m-0 mt-3 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
         {formatHours(hours)}
       </p>
-      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Model: 8×Critical + 3×High + 1×Medium + 2×pre-commit blocks. Blocks in window:{" "}
         <span title={props.precommitBlocksExact ? undefined : "Audit search may be capped; count is a lower bound."}>
           {blockLabel}
@@ -100,13 +102,13 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
         .
       </p>
       {props.isAdmin ? (
-        <div className="mt-4 space-y-2 rounded-md border border-neutral-100 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-950/50">
+        <div className={cn("mt-4 space-y-2 rounded-md border border-neutral-100 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-950/50", OPERATOR_TYPOGRAPHY.body)}>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-xs font-medium text-neutral-600 dark:text-neutral-400" htmlFor={`hourly-usd-${domSuffix}`}>
+            <label className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`hourly-usd-${domSuffix}`}>
               Loaded cost / hour (USD)
             </label>
             {!hourlyIsDefault ? (
-              <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-950 dark:bg-amber-950/40 dark:text-amber-100">
+              <span className={cn("rounded bg-amber-100 px-1.5 py-0.5 font-medium text-amber-950 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.badge)}>
                 local override
               </span>
             ) : null}
@@ -117,7 +119,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
             inputMode="decimal"
             min={1}
             step={1}
-            className="max-w-[12rem] font-mono text-sm"
+            className={cn("max-w-[12rem] font-mono", OPERATOR_TYPOGRAPHY.body)}
             value={mounted ? hourlyUsd : DEFAULT_LOADED_HOURLY_USD}
             disabled={!mounted}
             aria-label="Loaded engineering cost per hour in US dollars"
@@ -130,20 +132,20 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
             }}
           />
           {hours <= 1e-9 ? (
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
               Not enough data yet to estimate a dollar total.
             </p>
           ) : showImpliedDollarTotal ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Implied total: <span className="font-mono font-medium">{formatUsd(usdTotal)}</span> (estimate only; not an
               invoice).
             </p>
           ) : buyerPolishedShell ? (
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
               Not enough surfaced hours yet for a sponsor-facing dollar estimate.
             </p>
           ) : (
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
               Dollar total would round to $0 at your loaded rate — raise $/hour or wait for more surfaced hours.
             </p>
           )}

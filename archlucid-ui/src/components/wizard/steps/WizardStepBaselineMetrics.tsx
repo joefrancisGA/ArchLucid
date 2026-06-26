@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,12 +49,12 @@ export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps)
               onReviewCycleHoursChange(event.target.value);
             }}
           />
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             How many hours does a typical architecture review currently take your team (request to approved
             manifest)? Required for sponsor-ready ROI reporting in your first-value report.
           </p>
           {fieldError !== null ? (
-            <p className="m-0 text-sm text-red-600" role="alert" data-testid="wizard-baseline-metrics-error">
+            <p className={cn("m-0 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="wizard-baseline-metrics-error">
               {fieldError}
             </p>
           ) : null}
@@ -62,7 +64,7 @@ export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps)
           <Label htmlFor="wizard-baseline-confidence">How confident are you in this estimate?</Label>
           <select
             id="wizard-baseline-confidence"
-            className="flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+            className={cn("flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}
             value={confidence}
             data-testid="wizard-baseline-confidence"
             onChange={(event) => {

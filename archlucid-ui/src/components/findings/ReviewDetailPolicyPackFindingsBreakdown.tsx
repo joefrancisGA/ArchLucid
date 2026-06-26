@@ -35,7 +35,7 @@ function ImpactCountLine(props: {
       : 0;
 
   return (
-    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="policy-pack-impact-counts">
+    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="policy-pack-impact-counts">
       {mappedCount} finding{mappedCount === 1 ? "" : "s"} cite curated policy rules
       {unmappedCount > 0
         ? `; ${unmappedCount} remain unmapped to a pack rule and should be reviewed separately.`
@@ -70,7 +70,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
       <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.badge)}>
         Policy pack impact on this review
       </p>
-      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Counts reflect compliance rule keys mapped to bundled or assigned policy packs — not generic AI commentary.
       </p>
       <ImpactCountLine mappedFindingCount={mappedFindingCount} unmappedFindingCount={unmappedFindingCount} />
@@ -85,7 +85,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
             {group.packHref !== null ? (
               <Link
                 href={group.packHref}
-                className="text-xs font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                className={cn("font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid={`policy-pack-breakdown-link-${group.groupKey}`}
               >
                 View policy basis
@@ -94,7 +94,7 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
           </li>
         ))}
       </ul>
-      <p className="m-0 mt-3 text-xs">
+      <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
         {manifestPackHref !== null ? (
           <Link
             href={manifestPackHref}

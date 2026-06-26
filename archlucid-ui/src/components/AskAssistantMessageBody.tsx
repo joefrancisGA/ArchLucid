@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
@@ -74,10 +76,10 @@ function GroundingLinksFooter(props: {
 
   return (
     <div className="mt-4 rounded-lg border border-neutral-200/90 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Sources in this review package
       </p>
-      <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm">
+      <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {primaryLinks.map((link) => (
           <li key={link.href}>
             <Link
@@ -91,10 +93,10 @@ function GroundingLinksFooter(props: {
       </ul>
       {overflowLinks.length > 0 ? (
         <details className="mt-2">
-          <summary className="cursor-pointer select-none text-xs font-medium text-neutral-700 dark:text-neutral-300">
+          <summary className={cn("cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             More sources ({overflowLinks.length})
           </summary>
-          <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm">
+          <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
             {overflowLinks.map((link) => (
               <li key={link.href}>
                 <Link
@@ -130,7 +132,7 @@ export function AskAssistantMessageBody(props: {
     ) : null;
 
   const buyerAnswerLeadPlain = buyerPolishedLinks ? (
-    <p className="m-0 mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+    <p className={cn("m-0 mb-2 font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
       Based on the evidence indexed for this review package:
     </p>
   ) : null;
@@ -168,17 +170,17 @@ export function AskAssistantMessageBody(props: {
         "The sections below summarize risk framing, cited evidence, mitigation commitments, and validation checks for this package.";
     }
 
-    const bodyClass = "m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200";
+    const bodyClass = (cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body));
 
     return (
       <div className="space-y-4">
-        <p className="m-0 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">{executiveLead}</p>
+        <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{executiveLead}</p>
         {preambleForRender.length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks)}</p>
         ) : null}
         {sectionsForRender.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
-            <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{section.title}</h4>
+            <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks) : "—"}
             </div>
@@ -191,7 +193,7 @@ export function AskAssistantMessageBody(props: {
 
   if (structured !== null) {
     const bodyClass =
-      "m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200";
+      (cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body));
 
     return (
       <div className="space-y-4">
@@ -200,7 +202,7 @@ export function AskAssistantMessageBody(props: {
         ) : null}
         {structured.sections.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
-            <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {section.title}
             </h4>
             <div className={`${bodyClass} mt-2`}>
@@ -224,11 +226,11 @@ export function AskAssistantMessageBody(props: {
 
     return (
       <div className="space-y-4">
-        <p className="m-0 text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+        <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks)}
         </p>
         {bodyText.length > 0 ? (
-          <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks)}
           </p>
         ) : null}
@@ -240,7 +242,7 @@ export function AskAssistantMessageBody(props: {
   return (
     <div className="space-y-0">
       {buyerAnswerLeadPlain}
-      <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
+      <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {renderTextWithUuidReviewLinks(content, buyerPolishedLinks)}
       </p>
       {footer}

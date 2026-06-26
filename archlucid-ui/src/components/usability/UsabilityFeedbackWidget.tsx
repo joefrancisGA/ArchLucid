@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -73,7 +75,7 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
             type="button"
             variant="ghost"
             size="sm"
-            className="h-8 text-xs text-neutral-600 dark:text-neutral-400"
+            className={cn("h-8 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="usability-feedback-trigger"
           >
             Feedback
@@ -86,7 +88,7 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
           <DialogDescription>Short notes help us improve the operator experience.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <label className="block text-sm font-medium" htmlFor="usability-feedback-score">
+          <label className={cn("block font-medium", OPERATOR_TYPOGRAPHY.body)} htmlFor="usability-feedback-score">
             Score (1–5)
           </label>
           <input

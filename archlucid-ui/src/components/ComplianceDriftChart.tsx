@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export interface ComplianceDriftChartProps {
@@ -48,7 +50,7 @@ function topChangeTypesSummary(changesByType: Record<string, number>): string {
 export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
   if (points.length === 0) {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         No compliance drift data for this period.
       </p>
     );
@@ -85,7 +87,7 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
               style={{ height: barPx }}
               title={title}
             />
-            <span className="truncate text-[10px] text-neutral-500 dark:text-neutral-400">
+            <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
               {formatBucketLabel(point.bucketUtc)}
             </span>
           </div>

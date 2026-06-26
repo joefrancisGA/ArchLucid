@@ -44,7 +44,7 @@ export function PolicyPackComplianceRuleKeyDiffView(
 
   return (
     <section aria-label="Compliance rule key diff" data-testid="policy-pack-compliance-rule-key-diff">
-      <div className="mb-3 flex flex-wrap gap-3 text-sm text-neutral-700 dark:text-neutral-300">
+      <div className={cn("mb-3 flex flex-wrap gap-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span>
           <strong>{beforeLabel}:</strong> {props.beforeKeys.length} key(s)
         </span>
@@ -58,7 +58,7 @@ export function PolicyPackComplianceRuleKeyDiffView(
 
       {changedItems.length === 0 ? (
         <OperatorEmptyState title="No compliance rule key changes">
-          <p className="m-0 text-sm">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             The before and after snapshots share the same merged compliance rule keys for this preview.
           </p>
         </OperatorEmptyState>
@@ -73,7 +73,7 @@ export function PolicyPackComplianceRuleKeyDiffView(
               <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
                 {changeLabel(item.changeType)}
               </p>
-              <code className="mt-1 block break-all text-xs">{item.key}</code>
+              <code className={cn("mt-1 block break-all", OPERATOR_TYPOGRAPHY.helper)}>{item.key}</code>
             </li>
           ))}
         </ul>

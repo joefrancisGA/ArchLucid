@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import type { ComparisonExplanation } from "@/types/explanation";
 
@@ -12,21 +14,21 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
   return (
     <section className="mt-7">
       <h3 className="mb-2">AI explanation</h3>
-      <p className="mt-0 text-[13px] text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Generated from structured deltas. Treat as narrative assistance only—confirm every claim against the
         structured and legacy tables before sign-off.
       </p>
 
       <div className={sectionBoxCls}>
-        <h4 className="mt-0 text-[15px]">Summary</h4>
+        <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Summary</h4>
         <p className="m-0 font-semibold leading-normal">{explanation.highLevelSummary}</p>
       </div>
 
       <div className={sectionBoxCls}>
-        <h4 className="mt-0 text-[15px]">Major changes (from structured delta)</h4>
+        <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Major changes (from structured delta)</h4>
         {explanation.majorChanges.length === 0 ? (
           <OperatorEmptyState title="No major change lines">
-            <p className="m-0 text-sm">The model returned an empty list for this section.</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>The model returned an empty list for this section.</p>
           </OperatorEmptyState>
         ) : (
           <ul className="m-0 pl-5 leading-relaxed">
@@ -38,10 +40,10 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
       </div>
 
       <div className={sectionBoxCls}>
-        <h4 className="mt-0 text-[15px]">Key tradeoffs</h4>
+        <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Key tradeoffs</h4>
         {explanation.keyTradeoffs.length === 0 ? (
           <OperatorEmptyState title="No tradeoff lines">
-            <p className="m-0 text-sm">None reported for this comparison.</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>None reported for this comparison.</p>
           </OperatorEmptyState>
         ) : (
           <ul className="m-0 pl-5 leading-relaxed">
@@ -53,7 +55,7 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
       </div>
 
       <div className={sectionBoxCls}>
-        <h4 className="mt-0 text-[15px]">Narrative</h4>
+        <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Narrative</h4>
         <p className="m-0 whitespace-pre-wrap leading-relaxed">{explanation.narrative}</p>
       </div>
     </section>

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 import { useState, type ReactElement } from "react";
@@ -66,7 +68,7 @@ export function RunDetailRunGovernanceDispositionActions(
   return (
     <div className="space-y-3">
       {normalizedExisting.length > 0 ? (
-        <p className="m-0 text-sm text-al-text-secondary">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Recorded disposition: <span className="font-medium text-al-text-primary">{normalizedExisting}</span>
         </p>
       ) : null}
@@ -99,11 +101,11 @@ export function RunDetailRunGovernanceDispositionActions(
         </Button>
       </div>
       {hasCommitBlockingFailures ? (
-        <p className="m-0 text-xs text-amber-800 dark:text-amber-200">
+        <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
           Approve is blocked while commit-blocking finding coverage failures are open.
         </p>
       ) : null}
-      {errorMessage ? <p className="m-0 text-sm text-red-700 dark:text-red-300">{errorMessage}</p> : null}
+      {errorMessage ? <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p> : null}
 
       <Dialog open={pending !== null} onOpenChange={(open) => !open && setPending(null)}>
         <DialogContent>
@@ -114,10 +116,10 @@ export function RunDetailRunGovernanceDispositionActions(
               dispositions.
             </DialogDescription>
           </DialogHeader>
-          <label className="block text-sm">
+          <label className={cn("block", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-medium text-al-text-primary">Rationale (optional)</span>
             <textarea
-              className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+              className={cn("mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
               rows={4}
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}

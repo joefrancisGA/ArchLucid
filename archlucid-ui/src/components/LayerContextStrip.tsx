@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -5,7 +7,6 @@ import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-n
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { type LayerId } from "@/lib/getLayerForRoute";
 import { operatorSemanticBadge, OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const layerStripBase =
   "border-b border-neutral-200 bg-al-surface-raised border-l-4 dark:border-neutral-800";
@@ -107,9 +108,9 @@ export function LayerContextStrip({
         data-testid="layer-context-strip"
         role="region"
       >
-        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-h-9 w-full flex-col gap-1 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6")}>
+        <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, (cn("flex min-h-9 w-full flex-col gap-1 px-4 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6", OPERATOR_TYPOGRAPHY.body)))}>
           <div className="flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5">
-            <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text">
+            <p className={cn("m-0 min-w-0 flex-1", OPERATOR_TYPOGRAPHY.body)} id="operator-layer-context-text">
               <span className={cn("font-medium", baseStrip.labelClass)}>{orientation.label}</span>
               <span className="text-neutral-500 dark:text-neutral-400" aria-hidden>
                 {" "}
@@ -119,7 +120,7 @@ export function LayerContextStrip({
             </p>
             {stripBack !== null ? (
               <Link
-                className="shrink-0 text-sm font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100"
+                className={cn("shrink-0 font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
                 data-testid="layer-context-back-pilot"
                 href={stripBack.href}
                 prefetch
@@ -134,7 +135,7 @@ export function LayerContextStrip({
               className="flex flex-col gap-2 border-t border-neutral-200/70 pt-1.5 dark:border-neutral-700/80"
               data-testid="buyer-golden-journey-stepper"
             >
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+              <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerGoldenJourneyNav.prev !== null ? (
                 <Link
                   className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
@@ -194,8 +195,7 @@ export function LayerContextStrip({
                         <span
                           aria-current="step"
                           title={def.chipTooltip}
-                          className={cn(
-                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition",
+                          className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium transition", OPERATOR_TYPOGRAPHY.badge,
                             chipClass,
                           )}
                         >
@@ -206,8 +206,7 @@ export function LayerContextStrip({
                           href={def.href}
                           title={def.chipTooltip}
                           prefetch
-                          className={cn(
-                            "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium no-underline transition hover:opacity-95",
+                          className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95", OPERATOR_TYPOGRAPHY.badge,
                             chipClass,
                           )}
                         >
@@ -244,13 +243,13 @@ export function LayerContextStrip({
       data-testid="layer-context-strip"
       role="region"
     >
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 text-sm font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6")}>
-        <p className="m-0 min-w-0 flex-1 text-sm" id="operator-layer-context-text" title={copy.question}>
+      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, (cn("flex h-full min-h-9 flex-wrap items-center gap-x-2 gap-y-0.5 px-4 py-1.5 font-normal leading-tight text-neutral-800 dark:text-neutral-200 lg:px-6", OPERATOR_TYPOGRAPHY.body)))}>
+        <p className={cn("m-0 min-w-0 flex-1", OPERATOR_TYPOGRAPHY.body)} id="operator-layer-context-text" title={copy.question}>
           <span className={cn("font-medium", copy.labelClass)}>{copy.label}</span>
         </p>
         {stripBack !== null ? (
           <Link
-            className="shrink-0 text-sm font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100"
+            className={cn("shrink-0 font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
             data-testid="layer-context-back-pilot"
             href={stripBack.href}
             prefetch

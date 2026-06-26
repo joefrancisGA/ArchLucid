@@ -111,7 +111,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
           >
             Debug: View Raw Context
           </label>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Shows cited evidence excerpts, provenance context steps, and the redacted LLM user prompt the model saw.
           </p>
         </div>
@@ -148,7 +148,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
           ) : null}
 
           {!loading && failure === null && blocks.length === 0 ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               No raw context blocks are available for this finding yet.
             </p>
           ) : null}
@@ -157,13 +157,13 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
             <ol className="m-0 list-none space-y-4 p-0">
               {blocks.map((block) => (
                 <li key={block.id} className={cn("space-y-2", blockBorderClass(block.kind))}>
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                  <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                     {block.title}
                   </p>
                   {block.meta !== null ? (
                     <p className="m-0 font-mono text-[0.65rem] text-neutral-500 dark:text-neutral-400">{block.meta}</p>
                   ) : null}
-                  <pre className="m-0 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-3 text-xs leading-relaxed text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100">
+                  <pre className={cn("m-0 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-3 leading-relaxed text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
                     {block.body}
                   </pre>
                 </li>

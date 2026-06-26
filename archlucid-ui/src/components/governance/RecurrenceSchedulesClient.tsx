@@ -171,7 +171,7 @@ export default function RecurrenceSchedulesClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         Operating rhythm for automated follow-up architecture reviews. Schedules clone the source run on the cron you define.
       </p>
-      {loadError ? <p className="m-0 text-sm text-red-700 dark:text-red-400">{loadError}</p> : null}
+      {loadError ? <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p> : null}
       <EnterpriseTable ariaLabel="Architecture review recurrence schedules">
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
@@ -200,12 +200,12 @@ export default function RecurrenceSchedulesClient() {
                   <EnterpriseTableCell>
                     <Link
                       href={`/reviews/${schedule.sourceRunId}`}
-                      className="font-mono text-sm text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+                      className={cn("font-mono text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
                     >
                       {truncateRunId(schedule.sourceRunId)}
                     </Link>
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell className="font-mono text-xs">{schedule.cronExpression}</EnterpriseTableCell>
+                  <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{schedule.cronExpression}</EnterpriseTableCell>
                   <EnterpriseTableCell>{formatUtcLabel(schedule.nextRunUtc)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <StatusTag
@@ -247,7 +247,7 @@ export default function RecurrenceSchedulesClient() {
                             : "Enable"}
                       </Button>
                       {autoDisabled ? (
-                        <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           Auto-disabled after repeated failures — re-enable when ready.
                         </span>
                       ) : null}

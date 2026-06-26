@@ -1,13 +1,19 @@
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { operatorConfidenceSurface } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   buildExplanationConfidenceSummary,
   type ExplanationConfidenceDisposition,
 } from "@/lib/run-explanation-confidence-disposition";
+import { cn } from "@/lib/utils";
 import { buyerExplanationConfidenceDispositionLabel } from "@/lib/buyer-explanation-confidence-labels";
+import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function dispositionClass(disposition: ExplanationConfidenceDisposition): string {
@@ -49,11 +55,11 @@ export function RunExplanationConfidenceBanner(props: {
       data-testid="run-explanation-confidence-banner"
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {buyerPolished ? `Explanation confidence: ${dispositionLabel}` : `Explanation confidence — ${dispositionLabel}`}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 pt-0 text-sm">
+      <CardContent className={cn("space-y-2 pt-0", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0 font-medium">{confidence.title}</p>
         <p className="m-0">{confidence.detail}</p>
       </CardContent>

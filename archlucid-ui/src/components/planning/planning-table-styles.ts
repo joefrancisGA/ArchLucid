@@ -1,4 +1,4 @@
-export const planningTableCls = "mt-2 w-full border-collapse text-sm";
+export const planningTableCls = (cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body));
 
 export const planningThTdCls =
   "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";

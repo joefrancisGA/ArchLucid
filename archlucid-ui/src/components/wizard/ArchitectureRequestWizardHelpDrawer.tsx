@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
@@ -14,7 +16,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getDocHref } from "@/lib/help-topics";
-import { cn } from "@/lib/utils";
 
 const WIZARD_DOC_LINKS: { title: string; docPath: string; blurb: string }[] = [
   {
@@ -80,9 +81,9 @@ export function ArchitectureRequestWizardHelpDrawer() {
               return (
                 <li key={item.docPath}>
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{item.title}</p>
-                  <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{item.blurb}</p>
+                  <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{item.blurb}</p>
                   <Link
-                    className="mt-2 inline-block text-sm font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-400"
+                    className={cn("mt-2 inline-block font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.body)}
                     href={href}
                   >
                     View in Help

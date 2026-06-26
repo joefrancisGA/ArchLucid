@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 /**
  * Non-interactive placeholder shown while the React Flow chunk loads or initializes.
  * Gives screenshot and demo paths a credible “evidence trail” silhouette instead of an empty box.
@@ -42,7 +44,7 @@ export function GraphStaticFallback() {
           x="48"
           y="152"
           textAnchor="middle"
-          className="fill-neutral-600 text-[11px] font-medium dark:fill-neutral-300"
+          className={cn("fill-neutral-600 font-medium dark:fill-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
           Context
@@ -51,7 +53,7 @@ export function GraphStaticFallback() {
           x="148"
           y="152"
           textAnchor="middle"
-          className="fill-neutral-600 text-[11px] font-medium dark:fill-neutral-300"
+          className={cn("fill-neutral-600 font-medium dark:fill-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
           Evidence
@@ -60,7 +62,7 @@ export function GraphStaticFallback() {
           x="256"
           y="156"
           textAnchor="middle"
-          className="fill-neutral-800 text-[11px] font-semibold dark:fill-neutral-100"
+          className={cn("fill-neutral-800 font-semibold dark:fill-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
           Finding
@@ -69,7 +71,7 @@ export function GraphStaticFallback() {
           x="364"
           y="152"
           textAnchor="middle"
-          className="fill-neutral-600 text-[11px] font-medium dark:fill-neutral-300"
+          className={cn("fill-neutral-600 font-medium dark:fill-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
           Decisions
@@ -78,13 +80,13 @@ export function GraphStaticFallback() {
           x="416"
           y="152"
           textAnchor="middle"
-          className="fill-neutral-600 text-[11px] font-medium dark:fill-neutral-300"
+          className={cn("fill-neutral-600 font-medium dark:fill-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           style={{ fontFamily: "system-ui, sans-serif" }}
         >
           Package
         </text>
       </svg>
-      <p className="m-0 max-w-md text-center text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 max-w-md text-center leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Sample evidence trail — the interactive graph appears here when the viewer finishes loading.
       </p>
     </div>

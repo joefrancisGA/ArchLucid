@@ -1,12 +1,19 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { cn } from "@/lib/utils";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { PILOT_NAV_PROFILE_HELP_HREF } from "@/lib/pilot-nav-profile-alignment";
+import { cn } from "@/lib/utils";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 type OperateFeaturesUnlockPanelProps = {
@@ -25,11 +32,11 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
       className="mt-2 space-y-2 border-t border-neutral-200 px-2 pt-3 dark:border-neutral-700"
       data-testid="operate-features-unlock-panel"
     >
-      <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Need deeper analysis?</p>
-      <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Need deeper analysis?</p>
+      <p className={cn("leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockLead}
       </p>
-      <ul className="list-disc space-y-1 pl-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <ul className={cn("list-disc space-y-1 pl-4 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <li>
           <span className="font-medium text-neutral-700 dark:text-neutral-300">Unlocks:</span>{" "}
           {CORE_PILOT_PATH_STREAMLINED_LABELS.operateUnlockAnalysisUnlocks}
@@ -43,13 +50,13 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
         type="button"
         variant="outline"
         size="sm"
-        className="w-full justify-start text-xs font-medium"
+        className={cn("w-full justify-start font-medium", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="nav-advanced-unlock"
         onClick={props.onUnlock}
       >
         Show analysis tools
       </Button>
-      <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <Link href={PILOT_NAV_PROFILE_HELP_HREF} className={OPERATOR_LINK.inline} data-testid="pilot-nav-profile-help-link">
           How pilot navigation works
         </Link>

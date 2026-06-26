@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -24,10 +26,10 @@ export function DemoReviewPolicyCallout(props: DemoReviewPolicyCalloutProps): Re
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
             Policy-aware demo review
           </p>
-          <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             Evaluated against{" "}
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">{policyPackName}</span>
             . Findings below map to curated pack rules — not generic model advice.
@@ -37,7 +39,7 @@ export function DemoReviewPolicyCallout(props: DemoReviewPolicyCalloutProps): Re
           <StatusTag kind="ready" label={`Pack: ${policyPackName}`} />
           <Link
             href="/policy-packs"
-            className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+            className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             View policy packs
           </Link>

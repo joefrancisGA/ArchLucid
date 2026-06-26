@@ -24,7 +24,7 @@ export function PilotPathPreviewStepper(props: PilotPathPreviewStepperProps): Re
           <span
             className={cn(
               OPERATOR_TYPOGRAPHY.badge,
-              "inline-flex h-4 min-w-[1rem] items-center justify-center rounded border border-neutral-300 bg-white px-0.5 text-[10px] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200",
+              (cn("inline-flex h-4 min-w-[1rem] items-center justify-center rounded border border-neutral-300 bg-white px-0.5 font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.badge)),
             )}
             aria-hidden
           >

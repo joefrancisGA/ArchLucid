@@ -56,13 +56,13 @@ export function ReviewDetailPolicyPackImpactCallout(
           <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
             Policy-aware review
           </p>
-          <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             Evaluated against{" "}
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">{packLabel}</span>. Findings below
             should cite curated pack rules, evidence, and explainability traces — not generic model advice alone.
           </p>
           {mappedCount !== null && totalCount !== null ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="review-detail-policy-pack-impact-counts">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-detail-policy-pack-impact-counts">
               {mappedCount} of {totalCount} surfaced finding{totalCount === 1 ? "" : "s"} map to a policy rule on this
               review.
             </p>
@@ -73,7 +73,7 @@ export function ReviewDetailPolicyPackImpactCallout(
           {packHref !== null ? (
             <Link
               href={packHref}
-              className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+              className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="review-detail-policy-pack-impact-view-pack"
             >
               View policy basis
@@ -81,14 +81,14 @@ export function ReviewDetailPolicyPackImpactCallout(
           ) : null}
           <Link
             href={authorHref}
-            className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+            className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
             data-testid="review-detail-policy-pack-impact-edit-rules"
           >
             Edit pack rules
           </Link>
           <Link
             href={simulateHref}
-            className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+            className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
             data-testid="review-detail-policy-pack-impact-simulate"
           >
             Simulate pack changes
@@ -96,7 +96,7 @@ export function ReviewDetailPolicyPackImpactCallout(
           {runId.length > 0 ? (
             <Link
               href={`/audit?runId=${encodeURIComponent(runId)}`}
-              className="text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100"
+              className={cn("font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="review-detail-policy-pack-impact-audit"
             >
               Audit trail

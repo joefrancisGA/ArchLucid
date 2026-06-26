@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -60,10 +62,10 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
         handleFiles(event.dataTransfer.files);
       }}
     >
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         {props.title ?? "Attach evidence (optional)"}
       </p>
-      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {props.description ??
           "Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images. Drag files here or browse."}
       </p>
@@ -94,7 +96,7 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
           </label>
         </Button>
       </div>
-      <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Need an example?{" "}
         <Link
           href="/help/evidence-intake"
@@ -106,12 +108,12 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
       </p>
       {files.length > 0 ? (
         <div className="mt-3 space-y-2" data-testid="wizard-evidence-upload-attachments">
-          <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">Attached evidence</p>
+          <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>Attached evidence</p>
           <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
             {files.map((file, index) => (
               <li
                 key={`${file.name}-${index}`}
-                className="inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-200"
+                className={cn("inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-200 bg-white px-2 py-1 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
               >
                 <span className="truncate" title={file.name}>
                   {file.name}

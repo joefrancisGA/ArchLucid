@@ -1,7 +1,8 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 
 export type DemoUnavailableNoticeProps = {
   title: string;
@@ -28,14 +29,13 @@ export function DemoUnavailableNotice({
     <div
       role="status"
       data-testid="demo-unavailable-notice"
-      className={cn(
-        "mb-4 max-w-3xl rounded-lg border border-neutral-300 bg-neutral-50 px-4 py-3 text-[15px] leading-snug text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200",
+      className={cn("mb-4 max-w-3xl rounded-lg border border-neutral-300 bg-neutral-50 px-4 py-3 leading-snug text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper,
         className,
       )}
     >
       <strong className="block text-neutral-900 dark:text-neutral-100">{title}</strong>
-      {description ? <p className="mt-2 mb-0 text-sm text-neutral-600 dark:text-neutral-400">{description}</p> : null}
-      {children ? <div className="mt-2 text-sm">{children}</div> : null}
+      {description ? <p className={cn("mt-2 mb-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{description}</p> : null}
+      {children ? <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>{children}</div> : null}
       {learnMoreHref ? (
         <p className="mt-3 mb-0">
           <Link

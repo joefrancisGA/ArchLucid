@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -29,16 +31,16 @@ export function MarketingCustomPolicyPackAuthoringSection(
     >
       <h2
         id="custom-policy-pack-authoring-heading"
-        className="m-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100"
+        className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}
       >
         Custom Policy Pack Authoring (Professional Services)
       </h2>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <p className={cn("mt-3 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Commission customer-specific governance policy packs beyond bundled{" "}
         <strong>PlatformDefault</strong> packs. Engagements are owner-delivered professional services — not a
         self-serve product toggle. Choose an IP tier that matches your confidentiality posture:
       </p>
-      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+      <ul className={cn("mt-3 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <li>
           <strong>Customer-exclusive</strong> — pack content stays confidential to your organization; ArchLucid does not
           resell the pack verbatim.
@@ -51,7 +53,7 @@ export function MarketingCustomPolicyPackAuthoringSection(
       </ul>
 
       <div className="mt-6 overflow-x-auto">
-        <table className="min-w-full border-collapse text-left text-sm">
+        <table className={cn("min-w-full border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
           <caption className="sr-only">Custom policy pack authoring SKU scope matrix</caption>
           <thead>
             <tr className="border-b border-neutral-200 dark:border-neutral-700">
@@ -88,7 +90,7 @@ export function MarketingCustomPolicyPackAuthoringSection(
         </table>
       </div>
 
-      <p className="mt-4 text-sm text-neutral-700 dark:text-neutral-300">
+      <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Canonical USD list prices (customer-exclusive and ArchLucid-owned tiers), maintenance options, and discount
         stacking rules live only in{" "}
         <a

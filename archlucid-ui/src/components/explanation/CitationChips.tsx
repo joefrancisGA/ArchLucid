@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -43,7 +45,7 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
 
   return (
     <div className="mb-3">
-      <h4 className="mb-1.5 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300">
+      <h4 className={cn("mb-1.5 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         {buyerPolished ? "Evidence cited" : "Citations"}
       </h4>
       <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
@@ -55,7 +57,7 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
             <li key={`${c.kind}-${c.id}`}>
               <Link
                 href={href}
-                className="inline-block rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                className={cn("inline-block rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
                 aria-label={`Citation ${kindLabel}: ${c.label}`}
               >
                 <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> · {c.label}

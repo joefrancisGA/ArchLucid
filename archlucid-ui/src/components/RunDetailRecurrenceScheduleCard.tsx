@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -102,16 +104,16 @@ export function RunDetailRecurrenceScheduleCard({ runId }: RunDetailRecurrenceSc
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
       data-testid="run-detail-recurrence-schedule"
     >
-      <h3 className="m-0 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h3 className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Automated follow-up review
       </h3>
-      <p className="m-0 mb-3 text-sm text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 mb-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Clone this committed review on a schedule so governance does not depend on operator memory.
       </p>
-      {statusMessage ? <p className="m-0 mb-2 text-sm text-teal-800 dark:text-teal-300">{statusMessage}</p> : null}
-      {errorMessage ? <p className="m-0 mb-2 text-sm text-red-700 dark:text-red-400">{errorMessage}</p> : null}
+      {statusMessage ? <p className={cn("m-0 mb-2 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p> : null}
+      {errorMessage ? <p className={cn("m-0 mb-2 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p> : null}
       {existing ? (
-        <ul className="m-0 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+        <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <li>
             {existing.name} — {existing.cronExpression}
             {existing.isEnabled ? "" : " (disabled)"}

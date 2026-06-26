@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -66,10 +68,10 @@ export function OperatorTaskSuccessTile() {
         aria-labelledby="operator-task-success-heading"
         className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
-        <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+        <h2 id="operator-task-success-heading" className={cn("font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Pilot adoption
         </h2>
-        <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={cn("mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           No data yet. Metrics appear after your first completed review session.
         </p>
       </section>
@@ -82,10 +84,10 @@ export function OperatorTaskSuccessTile() {
         aria-labelledby="operator-task-success-heading"
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="operator-task-success-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Pilot adoption
         </h2>
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Loading…</p>
+        <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Loading…</p>
       </section>
     );
   }
@@ -95,7 +97,7 @@ export function OperatorTaskSuccessTile() {
       aria-labelledby="operator-task-success-heading"
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="operator-task-success-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Pilot adoption
       </h2>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
@@ -103,22 +105,22 @@ export function OperatorTaskSuccessTile() {
           <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             {safeNonNegativeWholeDisplay(data.firstSessionCompletedTotal)}
           </dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Sessions</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Sessions</dt>
         </div>
         <div>
           <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             {safeNonNegativeWholeDisplay(data.firstRunCommittedTotal)}
           </dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Finalized</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Finalized</dt>
         </div>
         <div>
           <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
             {safeSessionsToFinalizedPercent(data.firstRunCommittedPerSessionRatio, data.firstSessionCompletedTotal)}
           </dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Conversion</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Conversion</dt>
         </div>
       </dl>
-      <p className="mt-2 text-center text-[10px] text-neutral-400 dark:text-neutral-500">{data.windowNote}</p>
+      <p className={cn("mt-2 text-center text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>{data.windowNote}</p>
     </section>
   );
 }

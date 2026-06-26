@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -82,7 +84,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
     <CollapsibleSection title="Ask about this finding" defaultOpen={props.defaultOpen === true}>
       <div className="finding-ask-inline-panel space-y-4">
           {isBuyerPolishedOperatorShellEnv() ? (
-            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{BUYER_ASK_GROUNDING_ONCE}</p>
+            <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ASK_GROUNDING_ONCE}</p>
           ) : null}
           {turns.length > 0 ? (
             <ol className="m-0 list-none space-y-4 p-0">
@@ -91,11 +93,11 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   key={`${index}-${turn.question.slice(0, 24)}`}
                   className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
                 >
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     You asked
                   </p>
-                  <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">{turn.question}</p>
-                  <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{turn.question}</p>
+                  <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Answer
                   </p>
                   <AskAssistantMessageBody content={turn.answer} />

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -51,10 +53,10 @@ export function PilotOutcomeCard() {
         aria-labelledby="pilot-outcome-heading"
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="pilot-outcome-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Pilot health (last 30 days)
         </h2>
-        <div className="mt-2 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+        <div className={cn("mt-2 flex items-center gap-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           <span className="h-2 w-2 rounded-full bg-neutral-300 dark:bg-neutral-600" aria-hidden />
           Data unavailable — {error}
         </div>
@@ -68,10 +70,10 @@ export function PilotOutcomeCard() {
         aria-labelledby="pilot-outcome-heading"
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="pilot-outcome-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Pilot health (last 30 days)
         </h2>
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Loading…</p>
+        <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Loading…</p>
       </section>
     );
   }
@@ -84,10 +86,10 @@ export function PilotOutcomeCard() {
         aria-labelledby="pilot-outcome-heading"
         className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
-        <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+        <h2 id="pilot-outcome-heading" className={cn("font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Pilot health (last 30 days)
         </h2>
-        <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={cn("mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           After your first finalized review, this panel will show success rates, finalized manifests, and
           time-to-finalization trends.
         </p>
@@ -109,24 +111,24 @@ export function PilotOutcomeCard() {
       aria-labelledby="pilot-outcome-heading"
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="pilot-outcome-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Pilot health (last 30 days)
       </h2>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{displaySuccessRate}%</dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Success rate</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Success rate</dt>
         </div>
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{inPeriod}</dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Reviews (period)</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Reviews (period)</dt>
         </div>
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{withManifest}</dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Finalized</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Finalized</dt>
         </div>
       </dl>
-      <p className="mt-2 text-center font-mono text-[10px] text-neutral-400 dark:text-neutral-500">
+      <p className={cn("mt-2 text-center font-mono text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>
         {summary.periodStart} → {summary.periodEnd}
       </p>
     </section>

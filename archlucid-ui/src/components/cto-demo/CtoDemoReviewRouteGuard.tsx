@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -43,10 +45,10 @@ export function CtoDemoReviewRouteGuard(props: CtoDemoReviewRouteGuardProps): Re
       data-testid="cto-demo-review-route-guard"
       role="alert"
     >
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         CTO demo is active — this review is not part of the demo.
       </p>
-      <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Jump to the Claims Intake showcase to stay on the five-step diligence path.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">

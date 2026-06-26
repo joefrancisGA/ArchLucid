@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
@@ -47,7 +49,7 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
       </div>
       <OperatorErrorUiReferenceLine />
       <details
-        className="mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/50"
+        className={cn("mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="operator-connectivity-technical-details"
       >
         <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">

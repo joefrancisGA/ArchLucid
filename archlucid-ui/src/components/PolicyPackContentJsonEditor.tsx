@@ -52,7 +52,7 @@ export function PolicyPackContentJsonEditor(props: PolicyPackContentJsonEditorPr
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-start gap-2">
-        <label htmlFor={id} className="min-w-[12rem] flex-1 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <label htmlFor={id} className={cn("min-w-[12rem] flex-1 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {label}
         </label>
         <PolicyPackJsonSchemaHelpIcon ariaLabel={schemaHelpAriaLabel} />
@@ -67,8 +67,7 @@ export function PolicyPackContentJsonEditor(props: PolicyPackContentJsonEditorPr
         readOnly={readOnly}
         title={title}
         rows={rows}
-        className={cn(
-          "mt-1 font-mono text-xs",
+        className={cn("mt-1 font-mono", OPERATOR_TYPOGRAPHY.helper,
           hasBlockingIssues && "border-red-500 focus-visible:ring-red-500 dark:border-red-600",
           !hasBlockingIssues && hasWarnings && "border-amber-500 focus-visible:ring-amber-500 dark:border-amber-600",
         )}

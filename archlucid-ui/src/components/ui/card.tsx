@@ -1,5 +1,6 @@
 import * as React from "react"
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<
@@ -47,7 +48,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-neutral-500 dark:text-neutral-400", className)}
+    className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body, className)}
     {...props}
   />
 ))

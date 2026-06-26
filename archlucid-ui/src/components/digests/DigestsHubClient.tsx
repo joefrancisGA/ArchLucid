@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { DIGESTS_HUB_TAB_IDS, digestsHubTabFromSearchParam, type DigestsHubTabId } from "@/lib/digests-hub-tab";
-import { cn } from "@/lib/utils";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
@@ -81,8 +82,7 @@ export function DigestsHubClient() {
                 data-testid={`digests-hub-tab-${id}`}
                 title={tabTitle}
                 onClick={() => onSelectTab(id)}
-                className={cn(
-                  "rounded-t-md border border-b-0 px-3 py-2 text-sm font-medium",
+                className={cn("rounded-t-md border border-b-0 px-3 py-2 font-medium", OPERATOR_TYPOGRAPHY.body,
                   selected
                     ? "border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
                     : "border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",

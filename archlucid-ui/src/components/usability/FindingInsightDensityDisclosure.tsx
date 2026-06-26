@@ -26,7 +26,7 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
       <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.meta)}>
         Insight density signals
       </summary>
-      <dl className="m-0 mt-2 space-y-2 text-sm">
+      <dl className={cn("m-0 mt-2 space-y-2", OPERATOR_TYPOGRAPHY.body)}>
         {hasScore ? (
           <div>
             <dt className="font-semibold text-al-text-primary">Insight density score</dt>

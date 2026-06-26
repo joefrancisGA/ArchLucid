@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -19,7 +21,6 @@ import {
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { ENTERPRISE_STATUS_LABELS, type EnterpriseStatusKind } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 const emptyCommitContext: CorePilotCommitContext = {
   hasCommittedManifest: false,
@@ -139,16 +140,16 @@ export function FirstValueLanePanel(props: { readonly className?: string } = {})
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <h2 id="first-value-lane-heading" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <h2 id="first-value-lane-heading" className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {FIRST_VALUE_LANE_HEADING}
           </h2>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Minimum path to one sponsor-usable artifact — advanced branches stay out of lane until after first commit.
           </p>
         </div>
         <Link
           href="/help/first-value-20-minutes"
-          className="shrink-0 text-xs font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+          className={cn("shrink-0 font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
         >
           Lane runbook
         </Link>
@@ -156,7 +157,7 @@ export function FirstValueLanePanel(props: { readonly className?: string } = {})
 
       {laneComplete ? (
         <p
-          className="m-0 mt-3 rounded-md border border-emerald-700/40 bg-al-surface-raised px-2.5 py-2 text-xs text-al-text-primary dark:border-emerald-800/50"
+          className={cn("m-0 mt-3 rounded-md border border-emerald-700/40 bg-al-surface-raised px-2.5 py-2 text-al-text-primary dark:border-emerald-800/50", OPERATOR_TYPOGRAPHY.helper)}
           role="status"
         >
           First-value lane complete — sponsor artifact available from the committed review.
@@ -172,12 +173,12 @@ export function FirstValueLanePanel(props: { readonly className?: string } = {})
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0 space-y-1">
-                <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                   {index + 1}. {phase.title}
                 </p>
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{phase.summary}</p>
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{phase.summary}</p>
                 {phase.advancedNote ? (
-                  <p className="m-0 text-[11px] text-neutral-500 dark:text-neutral-500">{phase.advancedNote}</p>
+                  <p className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{phase.advancedNote}</p>
                 ) : null}
               </div>
               <StatusTag

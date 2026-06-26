@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { FileJson, FileSpreadsheet } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -54,10 +56,10 @@ export function FindingsItsmExportToolbar({ runId, findings }: FindingsItsmExpor
       className="rounded-lg border border-neutral-200 bg-neutral-50/90 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="findings-itsm-export-toolbar"
     >
-      <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         Export for Jira / ServiceNow
       </p>
-      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Download all findings, or use <strong>Copy for Jira</strong> on each row for one-click paste into a ticket.
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -65,7 +67,7 @@ export function FindingsItsmExportToolbar({ runId, findings }: FindingsItsmExpor
           type="button"
           variant="default"
           size="sm"
-          className="h-8 gap-1.5 text-xs"
+          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
           disabled={exportingCsv}
           data-testid="findings-export-csv-button"
           onClick={() => {
@@ -79,7 +81,7 @@ export function FindingsItsmExportToolbar({ runId, findings }: FindingsItsmExpor
           type="button"
           variant="outline"
           size="sm"
-          className="h-8 gap-1.5 text-xs"
+          className={cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="findings-export-json-button"
           onClick={onExportJson}
         >
@@ -88,7 +90,7 @@ export function FindingsItsmExportToolbar({ runId, findings }: FindingsItsmExpor
         </Button>
       </div>
       {exportError !== null ? (
-        <p className="m-0 mt-2 text-xs text-red-700 dark:text-red-300" role="alert">
+        <p className={cn("m-0 mt-2 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {exportError}
         </p>
       ) : null}

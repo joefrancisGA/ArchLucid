@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -11,7 +13,6 @@ import {
   type OperatorSavedView,
 } from "@/lib/api/operator-saved-views";
 import type { OperatorSavedViewPayload, OperatorSavedViewSurface } from "@/lib/operator-saved-view-types";
-import { cn } from "@/lib/utils";
 
 type UseOperatorSavedViewsOptions = {
   surface: OperatorSavedViewSurface;
@@ -194,13 +195,13 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
       data-testid={`operator-saved-views-${surface}`}
     >
       <div className="flex flex-wrap items-end gap-2">
-        <label className="min-w-[12rem] flex-1 text-xs font-medium text-neutral-700 dark:text-neutral-200">
+        <label className={cn("min-w-[12rem] flex-1 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
           Saved views
           <select
             value={selectedViewId}
             onChange={(event) => setSelectedViewId(event.target.value)}
             disabled={disabled || loading || views.length === 0}
-            className="mt-1 block w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm dark:border-neutral-600 dark:bg-neutral-950"
+            className={cn("mt-1 block w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 dark:border-neutral-600 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}
             aria-label={`Load saved ${surface} view`}
           >
             <option value="">{loading ? "Loading…" : views.length === 0 ? "No saved views" : "Select a view"}</option>
@@ -245,18 +246,18 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
         </Button>
       </div>
       <div className="flex flex-wrap items-end gap-2">
-        <label className="min-w-[12rem] flex-1 text-xs font-medium text-neutral-700 dark:text-neutral-200">
+        <label className={cn("min-w-[12rem] flex-1 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
           Save current view as
           <input
             value={saveName}
             onChange={(event) => setSaveName(event.target.value)}
             disabled={disabled || saving}
             placeholder="My daily audit filters"
-            className="mt-1 block w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm dark:border-neutral-600 dark:bg-neutral-950"
+            className={cn("mt-1 block w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 dark:border-neutral-600 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}
             aria-label={`Name for new ${surface} saved view`}
           />
         </label>
-        <label className="flex items-center gap-2 pb-2 text-xs text-neutral-700 dark:text-neutral-200">
+        <label className={cn("flex items-center gap-2 pb-2 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
           <input
             type="checkbox"
             checked={saveShared}
@@ -270,12 +271,12 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
         </Button>
       </div>
       {failure !== null ? (
-        <p className="m-0 text-xs text-red-700 dark:text-red-300" role="alert">
+        <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {failure.message}
         </p>
       ) : null}
       {statusMessage !== null ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="status">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
           {statusMessage}
         </p>
       ) : null}

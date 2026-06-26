@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -71,9 +73,9 @@ export function Tier1InventoryZipUploadPanel(props: Tier1InventoryZipUploadPanel
           onPendingFileChange(null);
         }}
         hint={
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Client-side checks require <code className="text-[11px]">manifest.json</code> (schemaVersion 1) and{" "}
-            <code className="text-[11px]">resources.json</code> at the archive root. Maximum size {maxMb} MB.
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Client-side checks require <code className={OPERATOR_TYPOGRAPHY.helper}>manifest.json</code> (schemaVersion 1) and{" "}
+            <code className={OPERATOR_TYPOGRAPHY.helper}>resources.json</code> at the archive root. Maximum size {maxMb} MB.
           </p>
         }
         onZipSelected={(file) => {
@@ -97,7 +99,7 @@ export function Tier1InventoryZipUploadPanel(props: Tier1InventoryZipUploadPanel
 
       {pendingFile !== null && validationError === null ? (
         <p
-          className="m-0 text-sm text-neutral-700 dark:text-neutral-300"
+          className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
           data-testid="wizard-evidence-upload-selected"
         >
           Selected: <span className="font-medium">{pendingFile.name}</span> — validated locally; uploads automatically

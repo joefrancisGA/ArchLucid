@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import type { LlmCostDailyBucket } from "@/lib/llm-cost-reporting";
@@ -36,7 +38,7 @@ export function EstimatedLlmCostBarChart(props: EstimatedLlmCostBarChartProps): 
 
   if (daily.length === 0) {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">No AI usage recorded in the last 30 days.</p>
+      <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No AI usage recorded in the last 30 days.</p>
     );
   }
 
@@ -65,7 +67,7 @@ export function EstimatedLlmCostBarChart(props: EstimatedLlmCostBarChartProps): 
               style={{ height: barPx }}
               title={title}
             />
-            <span className="truncate text-[10px] text-neutral-500 dark:text-neutral-400">
+            <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
               {formatBucketLabel(point.bucketUtc)}
             </span>
           </div>

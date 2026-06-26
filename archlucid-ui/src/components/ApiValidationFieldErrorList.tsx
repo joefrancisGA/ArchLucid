@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ApiValidationFieldError } from "@/lib/api-validation-problem";
 import { formatValidationFieldKey } from "@/lib/api-validation-problem";
@@ -25,9 +27,9 @@ export function ApiValidationFieldErrorList(props: ApiValidationFieldErrorListPr
         return (
           <li
             key={`${entry.field}:${entry.messages.join("|")}`}
-            className="rounded-md border border-red-200 bg-red-50/80 px-3 py-2 text-sm dark:border-red-900/60 dark:bg-red-950/30"
+            className={cn("rounded-md border border-red-200 bg-red-50/80 px-3 py-2 dark:border-red-900/60 dark:bg-red-950/30", OPERATOR_TYPOGRAPHY.body)}
           >
-            <p className="m-0 font-mono text-xs font-semibold uppercase tracking-wide text-red-900 dark:text-red-200">
+            <p className={cn("m-0 font-mono font-semibold uppercase tracking-wide text-red-900 dark:text-red-200", OPERATOR_TYPOGRAPHY.helper)}>
               {label}
             </p>
             <ul className="m-0 mt-1 list-disc space-y-1 pl-4 text-neutral-800 dark:text-neutral-200">

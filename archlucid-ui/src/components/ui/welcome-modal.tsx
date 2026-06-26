@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { CheckCircle2, FileText, LayoutDashboard, Package, Route, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -166,7 +168,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
             )}
           </div>
 
-          <DialogTitle className="text-center text-xl font-bold text-white">{title}</DialogTitle>
+          <DialogTitle className={cn("text-center font-bold text-white", OPERATOR_TYPOGRAPHY.pageTitle)}>{title}</DialogTitle>
 
           {operatorFirstRun ? null : (
             <div
@@ -188,7 +190,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
         </div>
 
         <div className="px-6 py-4">
-          <DialogDescription className="text-center text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+          <DialogDescription className={cn("text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {description}
           </DialogDescription>
         </div>
@@ -222,7 +224,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
               </div>
 
               {stepIndex > 0 ? (
-                <Button type="button" variant="ghost" className="self-center text-sm" onClick={goBack}>
+                <Button type="button" variant="ghost" className={cn("self-center", OPERATOR_TYPOGRAPHY.body)} onClick={goBack}>
                   Back
                 </Button>
               ) : null}
@@ -246,10 +248,10 @@ export function WelcomeModal(props: WelcomeModalProps) {
               </div>
 
               <div className="flex w-full flex-wrap justify-center gap-2">
-                <Button type="button" variant="ghost" className="text-sm" onClick={goBack}>
+                <Button type="button" variant="ghost" className={OPERATOR_TYPOGRAPHY.body} onClick={goBack}>
                   Back
                 </Button>
-                <Button type="button" variant="ghost" className="text-sm text-neutral-600 dark:text-neutral-400" asChild>
+                <Button type="button" variant="ghost" className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} asChild>
                   <Link href="/reviews?projectId=default" onClick={onDismiss}>
                     Browse reviews
                   </Link>

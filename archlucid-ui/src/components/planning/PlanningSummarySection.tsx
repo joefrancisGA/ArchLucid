@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { LearningSummaryResponse } from "@/types/learning";
 
@@ -15,25 +17,25 @@ export function PlanningSummarySection(props: PlanningSummarySectionProps) {
 
   return (
     <section className="mb-7" aria-labelledby="planning-summary-heading">
-      <h3 id="planning-summary-heading" className="mb-2 text-[17px]">
+      <h3 id="planning-summary-heading" className={cn("mb-2", OPERATOR_TYPOGRAPHY.helper)}>
         Summary
       </h3>
-      <p className="mt-0 text-[13px] text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Generated {generatedUtc ? formatIsoUtcForDisplay(generatedUtc) : "—"} · {summary.themeCount} theme(s) ·{" "}
         {summary.planCount} plan(s)
       </p>
       <ul className={cardListCls}>
         <li className={cardCls}>
-          <div className="text-xs text-neutral-500 dark:text-neutral-400">Theme evidence (signals)</div>
-          <div className="text-xl font-semibold">{summary.totalThemeEvidenceSignals}</div>
+          <div className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Theme evidence (signals)</div>
+          <div className={cn("font-semibold", OPERATOR_TYPOGRAPHY.pageTitle)}>{summary.totalThemeEvidenceSignals}</div>
         </li>
         <li className={cardCls}>
-          <div className="text-xs text-neutral-500 dark:text-neutral-400">Linked signals (plans)</div>
-          <div className="text-xl font-semibold">{summary.totalLinkedSignalsAcrossPlans}</div>
+          <div className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Linked signals (plans)</div>
+          <div className={cn("font-semibold", OPERATOR_TYPOGRAPHY.pageTitle)}>{summary.totalLinkedSignalsAcrossPlans}</div>
         </li>
         <li className={cardCls}>
-          <div className="text-xs text-neutral-500 dark:text-neutral-400">Max plan priority</div>
-          <div className="text-xl font-semibold">{summary.maxPlanPriorityScore ?? "—"}</div>
+          <div className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Max plan priority</div>
+          <div className={cn("font-semibold", OPERATOR_TYPOGRAPHY.pageTitle)}>{summary.maxPlanPriorityScore ?? "—"}</div>
         </li>
       </ul>
     </section>

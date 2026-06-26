@@ -314,13 +314,13 @@ function AppShellInner({ children }: AppShellClientProps) {
                       </h1>
                       <Link
                         href="/reviews?projectId=default"
-                        className="text-sm font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300"
+                        className={cn("font-semibold text-teal-800 underline underline-offset-2 dark:text-teal-300", OPERATOR_TYPOGRAPHY.cardTitle)}
                       >
                         Reviews
                       </Link>
                       <Link
                         href="/"
-                        className="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300"
+                        className={cn("font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
                       >
                         {OPERATOR_NAV_LINK_LABELS.home}
                       </Link>

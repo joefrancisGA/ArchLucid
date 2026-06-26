@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
 type GlossaryEntry = {
@@ -88,7 +90,7 @@ export function ProductConceptsGlossary({
   return (
     <div className={className}>
       <CollapsibleSection title="Terminology reference" defaultOpen={defaultOpen}>
-        <dl className="m-0 space-y-3 text-sm">
+        <dl className={cn("m-0 space-y-3", OPERATOR_TYPOGRAPHY.body)}>
           {entries.map((entry) => (
             <div key={entry.term}>
               <dt className="font-semibold text-neutral-800 dark:text-neutral-200">{entry.term}</dt>

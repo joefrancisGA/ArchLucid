@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useMemo, useState } from "react";
 
@@ -168,7 +170,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
 
   if (nodes.length === 0) {
     return (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400" aria-live="polite">
+      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
         No graph nodes to visualize.
       </p>
     );
@@ -179,7 +181,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
       <h3 id="prov-graph-heading" className="mt-0">
         Provenance graph
       </h3>
-      <p className="mt-1 text-[13px] text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Layered view of coordinator linkage. Click a node to scroll to its row in the table below.
       </p>
       <div className="overflow-x-auto overflow-y-visible rounded-md border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950">
@@ -255,8 +257,8 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
           aria-label="Selected provenance node details"
           className="mt-4 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
         >
-          <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Node detail</h4>
-          <dl className="mt-3 space-y-1 text-sm">
+          <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Node detail</h4>
+          <dl className={cn("mt-3 space-y-1", OPERATOR_TYPOGRAPHY.body)}>
             <div>
               <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">ID</dt>
               <dd className="ml-2 inline break-all text-neutral-700 dark:text-neutral-300">{selectedNode.id}</dd>
@@ -300,7 +302,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
         </DialogContent>
       </Dialog>
 
-      <div className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+      <div className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <strong>Legend</strong>
         <ul className="mt-2 columns-2 gap-2 pl-[18px]">
           <li>
@@ -331,7 +333,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
             <span className="text-neutral-300 dark:text-neutral-600">●</span> Other
           </li>
         </ul>
-        <p className="mt-2 text-[11px]">Layers (top to bottom): {LAYER_LABELS.join(" → ")}</p>
+        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.helper)}>Layers (top to bottom): {LAYER_LABELS.join(" → ")}</p>
       </div>
       <style>{`
         .prov-node-row--flash {

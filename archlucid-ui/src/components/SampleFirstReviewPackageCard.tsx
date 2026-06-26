@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -14,7 +16,6 @@ import {
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
-import { cn } from "@/lib/utils";
 
 const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
@@ -100,7 +101,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
           {buyerPolished === true ? null : (
             <dl className="grid grid-cols-3 gap-2 text-center">
               <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Findings</dt>
+                <dt className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Findings</dt>
                 <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount}
                 </dd>

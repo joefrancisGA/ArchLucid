@@ -1,3 +1,5 @@
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -6,8 +8,6 @@ import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help-heading-slug";
 import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 type RenderInlineOptions = {
   readonly linkMode: "external-only" | "help";
@@ -221,11 +221,11 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const bodyTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-neutral-800 dark:text-neutral-200";
   const h2Class = isHelp
     ? cn("scroll-mt-24 mt-8", OPERATOR_TYPOGRAPHY.sectionTitle)
-    : "scroll-mt-24 mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50";
+    : (cn("scroll-mt-24 mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle));
   const h3Class = isHelp
     ? cn("scroll-mt-24 mt-6", OPERATOR_TYPOGRAPHY.cardTitle)
-    : "scroll-mt-24 mt-4 text-sm font-semibold text-al-text-primary";
-  const tableTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-sm";
+    : (cn("scroll-mt-24 mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle));
+  const tableTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.body;
   const renderOptions: RenderInlineOptions = { linkMode: isHelp ? "help" : "external-only" };
   const markdownBody =
     isHelp

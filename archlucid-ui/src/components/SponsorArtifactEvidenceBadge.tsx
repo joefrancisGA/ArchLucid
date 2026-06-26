@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import {
@@ -31,7 +33,11 @@ function trustPostureClass(posture: string): string {
 export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadgeProps): ReactElement {
   const badges = resolveSponsorArtifactEvidenceBadges(props);
   const trustPostures = resolveSponsorArtifactTrustPostures(props);
-  const sharedClass = `inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${badgeClass(badges.warnBeforeSponsorSend)}`;
+  const sharedClass = cn(
+    "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
+    badgeClass(badges.warnBeforeSponsorSend),
+    OPERATOR_TYPOGRAPHY.badge,
+  );
 
   return (
     <span className="inline-flex flex-wrap items-center gap-2" data-testid="sponsor-artifact-evidence-badges">
@@ -40,7 +46,7 @@ export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadge
           key={trust.posture}
           data-testid={`sponsor-trust-posture-${trust.posture}`}
           title={trust.detail}
-          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${trustPostureClass(trust.posture)}`}
+          className={cn("inline-flex items-center rounded-full border px-2 py-0.5 font-medium ${trustPostureClass(trust.posture)}", OPERATOR_TYPOGRAPHY.helper)}
         >
           {trust.display}
         </span>
@@ -54,7 +60,7 @@ export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadge
       {badges.warnBeforeSponsorSend ? (
         <span
           data-testid="sponsor-evidence-send-warning"
-          className="text-[11px] font-medium text-amber-900 dark:text-amber-100"
+          className={cn("font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
         >
           Review before external sponsor send — stale, missing, demo-derived, or heuristic evidence must not read as current.
         </span>

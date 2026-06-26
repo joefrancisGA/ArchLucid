@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -13,10 +15,10 @@ export function FeatureNotAvailable() {
       data-testid="feature-not-available"
     >
       <CardContent className="px-6 py-8 text-center">
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           This feature is not enabled in this workspace
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mx-auto mt-2 max-w-md text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Contact your administrator to enable it, or explore what is available from the navigation.
         </p>
         <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700" type="button">
@@ -37,10 +39,10 @@ export function AvailableAfterFirstRun() {
       data-testid="available-after-first-run"
     >
       <CardContent className="px-6 py-8 text-center">
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Available after your first finalized review
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mx-auto mt-2 max-w-md text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Complete an architecture request and finalize the review to unlock this view.
         </p>
         <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700" type="button">

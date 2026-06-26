@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -21,16 +23,16 @@ export function TechnicalIdDisclosure(props: TechnicalIdDisclosureProps) {
   }
 
   if (!buyerPolished) {
-    return <code className="break-all rounded bg-neutral-100 px-1 font-mono text-xs dark:bg-neutral-800">{trimmed}</code>;
+    return <code className={cn("break-all rounded bg-neutral-100 px-1 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{trimmed}</code>;
   }
 
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
-      <span className="text-sm text-neutral-700 dark:text-neutral-300">{props.label}</span>
+      <span className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{props.label}</span>
       {open ? (
-        <code className="break-all rounded bg-neutral-100 px-1 font-mono text-xs dark:bg-neutral-800">{trimmed}</code>
+        <code className={cn("break-all rounded bg-neutral-100 px-1 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{trimmed}</code>
       ) : (
-        <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setOpen(true)}>
+        <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)} onClick={() => setOpen(true)}>
           Show details
         </Button>
       )}

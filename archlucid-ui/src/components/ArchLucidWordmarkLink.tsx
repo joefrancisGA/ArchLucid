@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link, { type LinkProps } from "next/link";
 import { forwardRef } from "react";
 
 import { ArchLucidLogo, type ArchLucidLogoVariant } from "@/components/brand/ArchLucidLogo";
-import { cn } from "@/lib/utils";
 
 export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
   variant: "operator" | "marketing";
@@ -41,7 +42,7 @@ function resolveLogoLayout(
     logoVariant: "full",
     heightClass: "h-7",
     size: 28,
-    wordmarkClassName: "text-xl font-semibold tracking-tight leading-none",
+    wordmarkClassName: (cn("font-semibold tracking-tight leading-none", OPERATOR_TYPOGRAPHY.pageTitle)),
   };
 }
 
@@ -69,7 +70,7 @@ function resolveExplicitLogoLayout(
     size: variant === "marketing" ? 28 : undefined,
     wordmarkClassName:
       variant === "marketing"
-        ? "text-xl font-semibold tracking-tight leading-none"
+        ? (cn("font-semibold tracking-tight leading-none", OPERATOR_TYPOGRAPHY.pageTitle))
         : undefined,
   };
 }

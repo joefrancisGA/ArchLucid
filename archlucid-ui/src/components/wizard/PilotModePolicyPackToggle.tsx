@@ -1,7 +1,8 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { FOCUSED_PILOT_MODE_COPY } from "@/lib/focused-pilot-mode-policy-packs";
-import { cn } from "@/lib/utils";
 
 type PilotModePolicyPackToggleProps = {
   readonly enabled: boolean;
@@ -19,7 +20,7 @@ export function PilotModePolicyPackToggle(props: PilotModePolicyPackToggleProps)
     <div className={cn("space-y-2", className)} data-testid={`${testId}-wrap`}>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:text-neutral-100"
+        className={cn("flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
       >
         <input
           id={inputId}
@@ -38,7 +39,7 @@ export function PilotModePolicyPackToggle(props: PilotModePolicyPackToggleProps)
         />
         <span className="min-w-0 leading-snug">
           <span className="block font-medium">{FOCUSED_PILOT_MODE_COPY.toggleLabel}</span>
-          <span className="mt-1 block text-[11px] font-normal text-neutral-600 dark:text-neutral-400">
+          <span className={cn("mt-1 block font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {FOCUSED_PILOT_MODE_COPY.toggleDescription}
           </span>
         </span>

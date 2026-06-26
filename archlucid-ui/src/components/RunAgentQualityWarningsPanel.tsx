@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -71,7 +73,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
       <Card className="border-amber-600/35 dark:border-amber-700/45">
         <CardHeader>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">AI Quality Warnings</h3>
+            <h3 className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>AI Quality Warnings</h3>
             <StatusTag kind="needs-attention" label={`${rows.length} trace${rows.length === 1 ? "" : "s"}`} />
           </div>
           <CardDescription>
@@ -79,7 +81,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
             adding evidence or context.
           </CardDescription>
           {blockSummary !== null ? (
-            <p className="m-0 mt-2 text-sm font-medium text-neutral-800 dark:text-neutral-200" role="status">
+            <p className={cn("m-0 mt-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} role="status">
               {blockSummary}{" "}
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={QUALITY_GATE_REJECTION_RUNBOOK_PATH}>
                 Quality gate recovery runbook
@@ -89,7 +91,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
               <thead>
                 <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
                   <th className="px-1.5 py-2">Agent</th>
@@ -110,11 +112,11 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                         <StatusTag kind="needs-attention" label="Warned" />
                       )}
                     </td>
-                    <td className="px-1.5 py-2 font-mono text-xs">{row.structuralCompletenessRatio.toFixed(2)}</td>
-                    <td className="px-1.5 py-2 font-mono text-xs">
+                    <td className={cn("px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.helper)}>{row.structuralCompletenessRatio.toFixed(2)}</td>
+                    <td className={cn("px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                       {row.semanticScore === null ? "—" : row.semanticScore.toFixed(2)}
                     </td>
-                    <td className="px-1.5 py-2 text-xs text-neutral-600 dark:text-neutral-400">
+                    <td className={cn("px-1.5 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       {row.breachedThresholds.join(" · ")}
                     </td>
                   </tr>
@@ -127,7 +129,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
             <Button type="button" variant="primary" size="sm" disabled={busy} onClick={() => void onReRunReview()}>
               {busy ? "Re-running review…" : "Re-run review"}
             </Button>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Re-invokes agent execution for this review package (same run id).
             </p>
           </div>

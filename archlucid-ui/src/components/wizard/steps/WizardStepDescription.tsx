@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -175,7 +177,7 @@ export function WizardStepDescription() {
             id="err-wizard-description"
             message={descErr != null ? String(descErr) : undefined}
           />
-          <p id="wizard-description-count" className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p id="wizard-description-count" className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {description.trim().length} / {ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters (minimum 10; suggest fields needs 20)
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -187,7 +189,7 @@ export function WizardStepDescription() {
             >
               {suggestBusy ? "Suggesting…" : "Suggest fields"}
             </Button>
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Uses AI to pre-fill constraints, capabilities, assumptions, and hints on later steps. Review every suggestion.
             </p>
           </div>

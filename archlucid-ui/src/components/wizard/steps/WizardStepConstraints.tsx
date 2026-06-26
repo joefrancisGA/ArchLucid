@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -86,7 +88,7 @@ function ChipListBlock(props: {
               <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
                 <span className="max-w-[240px] truncate">{item}</span>
                 {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
-                  <span className="rounded bg-violet-100 px-1 text-[10px] font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100">
+                  <span className={cn("rounded bg-violet-100 px-1 font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100", OPERATOR_NAV_GROUP_LABEL)}>
                     AI
                   </span>
                 ) : null}
@@ -105,7 +107,7 @@ function ChipListBlock(props: {
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-neutral-500">No items yet.</p>
+        <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>No items yet.</p>
       )}
     </div>
   );

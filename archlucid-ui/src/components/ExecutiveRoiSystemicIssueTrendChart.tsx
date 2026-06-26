@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   Bar,
@@ -63,7 +65,7 @@ export function ExecutiveRoiSystemicIssueTrendChart(props: ExecutiveRoiSystemicI
 
   if (series.length === 0) {
     return (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         No historical systemic issue trends yet — commit architecture reviews to populate this chart.
       </p>
     );

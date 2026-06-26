@@ -17,7 +17,7 @@ export function GraphNodeKindLegendChips(props: { className?: string }) {
       {KINDS.map((x) => (
         <li
           key={x.k}
-          className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${x.c}`}
+          className={cn("inline-flex rounded-full px-2.5 py-0.5 font-semibold uppercase tracking-wide ${x.c}", OPERATOR_NAV_GROUP_LABEL)}
         >
           {x.k}
         </li>

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -107,10 +109,10 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What-if cost analysis</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>What-if cost analysis</h3>
             {props.isIllustrativePricing && !isBuyerPolishedOperatorShellEnv() && (
               <span 
-                className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-500/20"
+                className={cn("inline-flex items-center rounded-md bg-amber-100 px-2 py-1 font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-500/20", OPERATOR_TYPOGRAPHY.helper)}
                 title="Illustrative Retail Pricing: Actual EA discounts may vary"
                 data-testid="illustrative-pricing-badge"
               >
@@ -118,7 +120,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
               </span>
             )}
           </div>
-          <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Select findings to model projected annual architecture cost after applying recommendations.
           </p>
         </div>
@@ -130,7 +132,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             onChange={(event) => setEnabled(event.target.checked)}
             aria-label="Enable what-if analysis"
           />
-          <Label htmlFor="what-if-enabled" className="text-sm">
+          <Label htmlFor="what-if-enabled" className={OPERATOR_TYPOGRAPHY.body}>
             What-if mode
           </Label>
         </div>
@@ -139,11 +141,11 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
       {baseline !== null ? (
         <dl className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-medium uppercase text-neutral-500">Baseline annual cost</dt>
+            <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Baseline annual cost</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums">{formatUsd(baseline)}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase text-neutral-500">Projected new cost</dt>
+            <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums text-teal-800 dark:text-teal-200">
               {projected !== null ? formatUsd(projected) : "—"}
             </dd>
@@ -155,7 +157,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
         <ul className="m-0 mt-4 list-none space-y-2 p-0">
           {enriched.map((row) => (
             <li key={row.finding.findingId}>
-              <label className="flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-950/60">
+              <label className={cn("flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950/60", OPERATOR_TYPOGRAPHY.body)}>
                 <input
                   type="checkbox"
                   className="mt-1"
@@ -165,7 +167,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                 <span className="min-w-0 flex-1">
                   <span className="font-medium">{row.finding.title}</span>
                   {row.savingsUsd > 0 ? (
-                    <span className="ml-2 text-xs text-neutral-500">
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       −{formatUsd(row.savingsUsd)}
                       {row.interval && (
                         <span className="ml-1 opacity-75">
@@ -175,7 +177,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                     </span>
                   ) : null}
                   {row.interval?.reasoning && (
-                    <p className="m-0 mt-0.5 text-xs text-neutral-500 italic">
+                    <p className={cn("m-0 mt-0.5 text-neutral-500 italic", OPERATOR_TYPOGRAPHY.helper)}>
                       {row.interval.reasoning}
                     </p>
                   )}

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -23,13 +25,13 @@ export function ReasoningTraceReadMore({ heading, trace }: { heading: string; tr
   return (
     <div className="space-y-2">
       <h4 className="m-0">{heading}</h4>
-      <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">{display}</p>
+      <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{display}</p>
       {needsTruncate ? (
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 px-2 text-xs"
+          className={cn("h-8 px-2", OPERATOR_TYPOGRAPHY.helper)}
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
         >

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -10,7 +12,6 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 import type { ExecDigestPreferencesResponse } from "@/types/exec-digest-preferences";
 
 const dayNames: string[] = [
@@ -91,8 +92,8 @@ export function ExecDigestScheduleContent() {
   return (
     <div className="w-full max-w-3xl space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Weekly executive digest</h2>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h2 className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>Weekly executive digest</h2>
+        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Schedule a weekly email for sponsors with compliance drift, finalized review package highlights, and dashboard links.
           Delivery uses the same outbound email transport as trial lifecycle messages.
         </p>
@@ -109,7 +110,7 @@ export function ExecDigestScheduleContent() {
       ) : null}
 
       {loading || !prefs ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading preferences…</p>
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading preferences…</p>
       ) : (
         <div className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
           <div className="flex items-center gap-2">
@@ -121,7 +122,7 @@ export function ExecDigestScheduleContent() {
               disabled={!canMutate}
               onChange={(e) => setEmailEnabled(e.target.checked)}
             />
-            <Label htmlFor="exec-digest-enabled" className="text-sm font-medium">
+            <Label htmlFor="exec-digest-enabled" className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>
               Enable weekly digest email
             </Label>
           </div>
@@ -135,7 +136,7 @@ export function ExecDigestScheduleContent() {
               onChange={(e) => setRecipients(e.target.value)}
               placeholder="ops@example.com; sponsor@example.com"
             />
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               When empty, the trial admin mailbox is used if one exists.
             </p>
           </div>
@@ -169,8 +170,7 @@ export function ExecDigestScheduleContent() {
             <Label htmlFor="exec-digest-dow">Day of week</Label>
             <select
               id="exec-digest-dow"
-              className={cn(
-                "h-9 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm",
+              className={cn("h-9 w-full rounded-md border border-neutral-300 bg-white px-2", OPERATOR_TYPOGRAPHY.body,
                 "dark:border-neutral-700 dark:bg-neutral-900",
               )}
               value={dayOfWeek}
@@ -190,7 +190,7 @@ export function ExecDigestScheduleContent() {
               {saving ? "Saving…" : "Save preferences"}
             </Button>
             {!prefs.isConfigured ? (
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">Not yet saved to the database.</span>
+              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Not yet saved to the database.</span>
             ) : null}
           </div>
         </div>

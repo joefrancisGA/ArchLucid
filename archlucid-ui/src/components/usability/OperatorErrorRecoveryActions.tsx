@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -12,10 +14,10 @@ type OperatorErrorRecoveryActionsProps = {
 /** Standard retry / help actions below operator error callouts (request ID is shown by the parent callout). */
 export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActionsProps) {
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm" data-testid="operator-error-recovery-actions">
+    <div className={cn("mt-3 flex flex-wrap items-center gap-3", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-error-recovery-actions">
       <button
         type="button"
-        className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+        className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
         onClick={() => {
           window.location.reload();
         }}
@@ -30,7 +32,7 @@ export function OperatorErrorRecoveryActions(props: OperatorErrorRecoveryActions
         </Link>
       )}
       {props.showSystemHealth === true ? (
-        <Link href="/health" className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href="/health" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           System health
         </Link>
       ) : null}

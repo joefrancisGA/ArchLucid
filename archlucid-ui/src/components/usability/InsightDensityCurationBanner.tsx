@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
@@ -26,7 +28,7 @@ export function InsightDensityCurationBanner(props: InsightDensityCurationBanner
 
   return (
     <OperatorEmptyState title="Insight curation">
-      <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200" data-testid="insight-density-curation-banner">
+      <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} data-testid="insight-density-curation-banner">
         {message}
       </p>
     </OperatorEmptyState>

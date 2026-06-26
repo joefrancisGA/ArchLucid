@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -221,8 +223,8 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   return (
     <div className="draft-intake-what-if-panel space-y-4" data-testid="draft-intake-what-if-panel">
       <div>
-        <p className="m-0 text-sm font-semibold text-al-text-primary">Explore a what-if branch</p>
-        <p className="mt-1 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Explore a what-if branch</p>
+        <p className={cn("mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Clone this admitted draft with one change, submit it as a separate architecture review, then use{" "}
           <strong>Compare two reviews</strong> to see how the outcomes differ.
         </p>
@@ -230,7 +232,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
 
         {quota !== null ? (
           <p
-            className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="draft-intake-what-if-quota"
           >
             {formatDraftBranchQuotaSummary(quota)}
@@ -238,11 +240,11 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
         ) : null}
 
         {quotaError !== null ? (
-          <p className="m-0 text-xs text-amber-700 dark:text-amber-300">{quotaError}</p>
+          <p className={cn("m-0 text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.helper)}>{quotaError}</p>
         ) : null}
 
         {!quotaAllowsBranch ? (
-          <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">
+          <p className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
             Branch cap reached for this parent draft — submit an existing branch or start a new intake.
           </p>
         ) : null}
@@ -272,7 +274,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
               ))}
             </SelectContent>
           </Select>
-          <p className="text-xs text-neutral-500">{selectedKindMeta.description}</p>
+          <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{selectedKindMeta.description}</p>
         </div>
 
         {overrideKind === "QuestionAnswer" ? (

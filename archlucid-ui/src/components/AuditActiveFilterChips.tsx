@@ -1,5 +1,7 @@
 "use client";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export type AuditActiveFilterChip = {
@@ -23,14 +25,14 @@ export function AuditActiveFilterChips(props: AuditActiveFilterChipsProps): Reac
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="audit-active-filter-chips" role="status">
-      <span className="text-xs text-neutral-500">Active filters:</span>
+      <span className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Active filters:</span>
       {chips.map((chip) => (
         <Button
           key={chip.id}
           type="button"
           variant="outline"
           size="sm"
-          className="h-7 gap-1 text-xs"
+          className={cn("h-7 gap-1", OPERATOR_TYPOGRAPHY.helper)}
           onClick={() => {
             onClearChip(chip.id);
           }}
@@ -39,7 +41,7 @@ export function AuditActiveFilterChips(props: AuditActiveFilterChipsProps): Reac
           <span aria-hidden>×</span>
         </Button>
       ))}
-      <Button type="button" variant="ghost" size="sm" className="h-7 text-xs" onClick={onClearAll}>
+      <Button type="button" variant="ghost" size="sm" className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)} onClick={onClearAll}>
         Clear all
       </Button>
     </div>

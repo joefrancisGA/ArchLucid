@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 
 type Tier1InventoryZipValidationCalloutProps = {
@@ -14,7 +16,7 @@ export function Tier1InventoryZipValidationCallout(props: Tier1InventoryZipValid
       <OperatorErrorCallout>
         <strong>Inventory ZIP validation failed</strong>
         <p className="mt-2">{props.message}</p>
-        <p className="mt-2.5 text-sm">
+        <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
           <Link
             href="/help/cloud-connections"
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"

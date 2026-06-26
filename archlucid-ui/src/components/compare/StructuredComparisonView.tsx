@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { applyBuyerPolishedGoldenManifestSummaryHighlights } from "@/lib/buyer-golden-manifest-summary-highlights";
@@ -53,7 +55,7 @@ function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
   }
 
   return (
-    <table className="mt-2 w-full border-collapse text-sm">
+    <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
       <thead>
         <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
           <th className={cellCls}>Decision</th>
@@ -70,12 +72,12 @@ function DecisionDeltasTable(props: { rows: DecisionDelta[] }) {
                 {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
               </div>
               {d.displayLabel?.trim() ? (
-                <details className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                <details className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   <summary className="cursor-pointer select-none">Technical key</summary>
-                  <code className="mt-0.5 block font-mono text-[11px]">{d.decisionKey}</code>
+                  <code className={cn("mt-0.5 block font-mono", OPERATOR_TYPOGRAPHY.helper)}>{d.decisionKey}</code>
                 </details>
               ) : (
-                <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+                <div className={cn("mt-0.5 font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {d.decisionKey}
                 </div>
               )}
@@ -99,8 +101,8 @@ function ComparisonFoldSection(props: {
 }) {
   return (
     <details className={sectionBoxCls} open={props.defaultOpen}>
-      <summary className="cursor-pointer list-none text-[15px] font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
-        <span className="mr-2 inline-flex items-center rounded-full bg-neutral-200 px-2 py-0 text-[11px] font-bold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
+      <summary className={cn("cursor-pointer list-none font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className={cn("mr-2 inline-flex items-center rounded-full bg-neutral-200 px-2 py-0 font-bold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
           {props.countBadge}
         </span>
         {props.title}
@@ -142,10 +144,10 @@ export function StructuredComparisonView(props: {
   return (
     <section id="compare-structured" className="mt-7">
       <h3 className="mb-2">{BUYER_COMPARE_STRUCTURED_HEADING}</h3>
-      <p className="mb-3 max-w-3xl text-sm font-medium leading-relaxed text-neutral-800 dark:text-neutral-100">
+      <p className={cn("mb-3 max-w-3xl font-medium leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_COMPARE_STRUCTURED_LEAD}
       </p>
-      <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
+      <div className={cn("mb-3 flex flex-wrap items-baseline gap-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span>
           <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId, props.baselinePickedSummary)}
         </span>
@@ -161,7 +163,7 @@ export function StructuredComparisonView(props: {
       </div>
       {summaryHighlights.length > 0 ? (
         <p
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-3 max-w-3xl p-3 text-sm"
+          className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-3 max-w-3xl p-3", OPERATOR_TYPOGRAPHY.body)}
           data-testid="compare-sponsor-recommendation"
         >
           <strong>Sponsor recommendation:</strong> {summaryHighlights[0]}
@@ -173,7 +175,7 @@ export function StructuredComparisonView(props: {
           ) : null}
         </p>
       ) : null}
-      <p className="mb-4 mt-0 text-sm">
+      <p className={cn("mb-4 mt-0", OPERATOR_TYPOGRAPHY.body)}>
         <a
           href={getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
             includeComparisonExplanation: true,
@@ -196,7 +198,7 @@ export function StructuredComparisonView(props: {
 
       {noMaterialDeltaSections ? (
         <div
-          className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+          className={cn("mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
           role="status"
           data-testid="compare-no-material-deltas"
         >
@@ -217,7 +219,7 @@ export function StructuredComparisonView(props: {
                   <>
                     {material.length > 0 ? (
                       <div className="space-y-2">
-                        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                        <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                           Material architecture deltas
                         </p>
                         <DecisionDeltasTable rows={material} />
@@ -225,10 +227,10 @@ export function StructuredComparisonView(props: {
                     ) : null}
                     {metadata.length > 0 ? (
                       <div className={material.length > 0 ? "mt-5 space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-700" : "space-y-2"}>
-                        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                        <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           Metadata / bookkeeping
                         </p>
-                        <p className="m-0 max-w-prose text-[11px] text-neutral-600 dark:text-neutral-400">
+                        <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           Identifier, hash, and timestamp fields may move without changing sponsor-facing posture.
                         </p>
                         <DecisionDeltasTable rows={metadata} />
@@ -246,7 +248,7 @@ export function StructuredComparisonView(props: {
               countBadge={golden.requirementChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className="mt-2 w-full border-collapse text-sm">
+              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                     <th className={cellCls}>Requirement</th>
@@ -271,7 +273,7 @@ export function StructuredComparisonView(props: {
               countBadge={golden.securityChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className="mt-2 w-full border-collapse text-sm">
+              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                     <th className={cellCls}>Control</th>
@@ -298,7 +300,7 @@ export function StructuredComparisonView(props: {
               countBadge={golden.topologyChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className="mt-2 w-full border-collapse text-sm">
+              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                     <th className={cellCls}>Resource</th>
@@ -323,7 +325,7 @@ export function StructuredComparisonView(props: {
               countBadge={golden.costChanges.length}
               defaultOpen={foldDefaultOpen}
             >
-              <table className="mt-2 w-full border-collapse text-sm">
+              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                     <th className={cellCls}>Baseline — projected monthly run rate</th>
@@ -339,7 +341,7 @@ export function StructuredComparisonView(props: {
                   ))}
                 </tbody>
               </table>
-              <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+              <p className={cn("mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Projected monthly run rates are derived from the review pipeline cost model. Figures reflect the
                 architecture as described; validate against your FinOps baseline before using in budget planning.
                 Use &ldquo;{props.buyerCompareUi === true ? "Summarize for leadership" : "Summarize for sponsor"}

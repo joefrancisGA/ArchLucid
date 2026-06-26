@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -44,7 +46,7 @@ export function CommandPaletteRecentViewsGroup(props: CommandPaletteRecentViewsG
           }}
         >
           <span className="font-medium">{entry.label}</span>
-          <span className="ml-2 text-xs text-neutral-500">{entry.kind}</span>
+          <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{entry.kind}</span>
         </CommandItem>
       ))}
     </CommandGroup>

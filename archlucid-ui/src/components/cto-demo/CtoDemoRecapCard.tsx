@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useMemo, useState } from "react";
 
@@ -112,8 +114,8 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
       className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/60"
       data-testid="cto-demo-recap-card"
     >
-      <p className="m-0 text-xs font-semibold text-neutral-800 dark:text-neutral-100">{BUYER_CTO_DEMO_RECAP_HEADING}</p>
-      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 font-semibold text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_CTO_DEMO_RECAP_HEADING}</p>
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {payload.findingsCount} findings · {payload.riskPosture} · ~{payload.firstValueMinutes} min to value
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
@@ -154,7 +156,7 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
         </div>
       ) : null}
       {payload.snapshotUrl.trim().length > 0 ? (
-        <p className="m-0 mt-2 break-all font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-2 break-all font-mono text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {payload.snapshotUrl}
         </p>
       ) : null}

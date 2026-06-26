@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -271,7 +273,7 @@ export function CorePilotWizardLauncher() {
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <div className={cn("flex items-center justify-between font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 <span>
                   Pilot step <span className="text-neutral-900 dark:text-neutral-100">{state.stepIndex + 1}</span> /{" "}
                   {CORE_PILOT_WIZARD_STEP_COUNT}
@@ -283,13 +285,13 @@ export function CorePilotWizardLauncher() {
             </div>
           </DialogHeader>
 
-          <div id="core-pilot-wizard-body" className="space-y-4 pb-8 text-sm text-neutral-800 dark:text-neutral-100">
+          <div id="core-pilot-wizard-body" className={cn("space-y-4 pb-8 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {step.body}
           </div>
 
           <DialogFooter className="space-y-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             {onLastScreen ? (
-              <label className="flex items-start gap-2 text-xs text-neutral-600 dark:text-neutral-300">
+              <label className={cn("flex items-start gap-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                 <input
                   type="checkbox"
                   className="mt-1 h-4 w-4 shrink-0 rounded border border-neutral-400 text-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-950"
@@ -301,7 +303,7 @@ export function CorePilotWizardLauncher() {
                 Don&apos;t show the guided review dialog again (preference stored on this browser)
               </label>
             ) : (
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Close anytime — progress saves in this browser. Reopen from Help, Onboarding, or the Core Pilot checklist on Overview.
               </span>
             )}

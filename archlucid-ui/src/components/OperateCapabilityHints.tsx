@@ -29,7 +29,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const pageCueClassName =
-  "mb-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400";
+  (cn("mb-2 max-w-3xl leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
 
 /**
  * Second line under **Operate · governance** in the sidebar and mobile drawer.

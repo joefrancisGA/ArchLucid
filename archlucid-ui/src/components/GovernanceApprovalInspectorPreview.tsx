@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -28,7 +30,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
 
   return (
     <div
-      className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200"
+      className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
       data-testid="governance-approval-inspector-preview"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -36,46 +38,46 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
       </div>
 
       <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Review ID
         </dt>
         <dd className="m-0 min-w-0">
           <Link
             href={`/reviews/${encodeURIComponent(request.runId)}`}
-            className="break-all font-mono text-xs font-medium text-teal-800 underline dark:text-teal-300"
+            className={cn("break-all font-mono font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
           >
             {request.runId}
           </Link>
         </dd>
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Manifest
         </dt>
-        <dd className="m-0 font-mono text-xs">{request.manifestVersion}</dd>
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <dd className={cn("m-0 font-mono", OPERATOR_TYPOGRAPHY.helper)}>{request.manifestVersion}</dd>
+        <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Requested
         </dt>
         <dd className="m-0" title={requestedLabel}>
           <span className="block">{formatRelativeTime(request.requestedUtc)}</span>
-          <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-400">{requestedLabel}</span>
+          <span className={cn("mt-0.5 block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{requestedLabel}</span>
         </dd>
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Requested by
         </dt>
         <dd className="m-0">{request.requestedBy}</dd>
         {reviewedLabel !== null && reviewedUtcRaw !== null ? (
           <>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Reviewed
             </dt>
             <dd className="m-0" title={reviewedLabel}>
               <span className="block">{formatRelativeTime(reviewedUtcRaw)}</span>
-              <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-400">{reviewedLabel}</span>
+              <span className={cn("mt-0.5 block text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewedLabel}</span>
             </dd>
           </>
         ) : null}
         {request.reviewedBy !== null && request.reviewedBy.length > 0 ? (
           <>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Reviewed by
             </dt>
             <dd className="m-0">{request.reviewedBy}</dd>
@@ -83,7 +85,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         ) : null}
         {request.requestComment !== null && request.requestComment.trim().length > 0 ? (
           <>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Request comment
             </dt>
             <dd className="m-0 whitespace-pre-wrap">{request.requestComment}</dd>
@@ -91,7 +93,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         ) : null}
         {request.reviewComment !== null && request.reviewComment.trim().length > 0 ? (
           <>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Review comment
             </dt>
             <dd className="m-0 whitespace-pre-wrap">{request.reviewComment}</dd>

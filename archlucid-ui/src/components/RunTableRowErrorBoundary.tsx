@@ -1,5 +1,7 @@
 "use client";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { Component, type ErrorInfo, type ReactElement } from "react";
 
 type RunTableRowErrorBoundaryProps = {
@@ -31,9 +33,9 @@ export class RunTableRowErrorBoundary extends Component<
     if (this.state.hasError) {
       return (
         <tr data-testid={`runs-row-error-${this.props.runId}`}>
-          <td className="px-3 py-2 align-top text-sm text-neutral-700 dark:text-neutral-200" colSpan={3}>
+          <td className={cn("px-3 py-2 align-top text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} colSpan={3}>
             <span className="font-semibold">This review row could not be displayed.</span>{" "}
-            <span className="font-mono text-xs text-neutral-500">({this.props.runId})</span>
+            <span className={cn("font-mono text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>({this.props.runId})</span>
           </td>
         </tr>
       );

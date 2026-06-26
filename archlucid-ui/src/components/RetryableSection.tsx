@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useId, useState } from "react";
 
@@ -46,7 +48,7 @@ export function RetryableSection<T>({ title, fetchData, children }: RetryableSec
       <h3 id={headingId}>{title}</h3>
       {error !== null ? (
         <div className="mt-2">
-          <p className="m-0 text-sm text-red-800 dark:text-red-200">{error}</p>
+          <p className={cn("m-0 text-red-800 dark:text-red-200", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
           <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => void load()}>
             Retry
           </Button>

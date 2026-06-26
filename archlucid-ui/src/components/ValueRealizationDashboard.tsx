@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -47,7 +49,7 @@ export function ValueRealizationDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-sm text-neutral-500">Loading Value Realization metrics...</div>;
+    return <div className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Loading Value Realization metrics...</div>;
   }
 
   if (failure) {
@@ -104,37 +106,37 @@ export function ValueRealizationDashboard() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg border p-4 text-center">
-            <p className="text-sm text-neutral-500">Total reviews</p>
+            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Total reviews</p>
             <p className="text-2xl font-bold">{Number.isFinite(totalReviews) ? totalReviews : 0}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
-            <p className="text-sm text-neutral-500">Time saved (tenant model)</p>
+            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Time saved (tenant model)</p>
             <p className="text-2xl font-bold text-teal-600">{formatHours(safeHours)}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
-            <p className="text-sm text-neutral-500">Avg time to commit</p>
+            <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Avg time to commit</p>
             <p className="text-2xl font-bold">
               {avgCommitMins !== null ? `${avgCommitMins} mins` : "Not enough data yet"}
             </p>
           </div>
         </div>
         {showMeasuredRoiBlock ? (
-        <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/80 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/40">
+        <div className={cn("rounded-lg border border-dashed border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 font-medium text-neutral-800 dark:text-neutral-100">Measured ROI snapshot</p>
           <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
-            Hours come from persisted review telemetry (<span className="font-mono text-xs">EstimatedHoursSaved</span>{" "}
+            Hours come from persisted review telemetry (<span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>EstimatedHoursSaved</span>{" "}
             per review). Implied spend uses the same loaded rate as the ROI page (
-            <span className="font-mono text-xs">{formatUsd(hourlyUsd)}</span>
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{formatUsd(hourlyUsd)}</span>
             /h from this browser unless you changed it under Value report → ROI).
           </p>
-          <p className="m-0 mt-2 font-mono text-sm font-semibold text-al-text-primary tabular-nums text-neutral-900 dark:text-neutral-50">
+          <p className={cn("m-0 mt-2 font-mono font-semibold text-al-text-primary tabular-nums text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             ~{formatUsd(impliedUsd)}{" "}
-            <span className="text-sm font-normal text-neutral-500">estimated from hours × your loaded rate</span>
+            <span className={cn("font-normal text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>estimated from hours × your loaded rate</span>
           </p>
           <p className="m-0 mt-2">
             <Link
               href="/value-report/roi"
-              className="text-sm font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
+              className={cn("font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400", OPERATOR_TYPOGRAPHY.body)}
             >
               Open ROI assumptions &amp; sensitivity →
             </Link>

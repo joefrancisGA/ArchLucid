@@ -153,7 +153,7 @@ export default function RiskExceptionsClient() {
 
       {expiringSoonCount > 0 ? (
         <div
-          className="rounded-md border border-l-4 border-neutral-200 border-l-[var(--al-status-warn-fg)] bg-[var(--al-status-warn-bg)] px-4 py-3 text-sm text-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
+          className={cn("rounded-md border border-l-4 border-neutral-200 border-l-[var(--al-status-warn-fg)] bg-[var(--al-status-warn-bg)] px-4 py-3 text-neutral-800 dark:border-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
           data-testid="risk-exceptions-expiring-warning"
           role="status"
         >
@@ -162,7 +162,7 @@ export default function RiskExceptionsClient() {
         </div>
       ) : null}
 
-      {loadError ? <p className="m-0 text-sm text-red-700 dark:text-red-400">{loadError}</p> : null}
+      {loadError ? <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p> : null}
 
       {records.length === 0 ? (
         <EnterpriseCompactEmptyState
@@ -197,7 +197,7 @@ export default function RiskExceptionsClient() {
                 <EnterpriseTableRow key={record.riskExceptionId}>
                   <EnterpriseTableCell>
                     <div className="flex flex-wrap items-center gap-2">
-                      <code className="font-mono text-xs">{truncateMiddle(record.findingId, 24)}</code>
+                      <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{truncateMiddle(record.findingId, 24)}</code>
                       <CopyIdButton value={record.findingId} aria-label="Copy finding ID" />
                     </div>
                   </EnterpriseTableCell>
@@ -218,7 +218,7 @@ export default function RiskExceptionsClient() {
                           void submitRenew(record);
                         }}
                       >
-                        <label className="flex flex-col gap-1 text-xs">
+                        <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
                           <span>New expiry (UTC)</span>
                           <input
                             type="datetime-local"
@@ -233,7 +233,7 @@ export default function RiskExceptionsClient() {
                             }}
                           />
                         </label>
-                        <label className="flex flex-col gap-1 text-xs">
+                        <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
                           <span>Rationale (optional)</span>
                           <input
                             className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"

@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -62,9 +64,9 @@ export function ReviewAgentExecutionLogSection({
         </CardHeader>
         <CardContent>
           <CollapsibleSection title={`${sorted.length} agent${sorted.length === 1 ? "" : "s"} ran`} defaultOpen={false}>
-            <table className="w-full text-xs">
+            <table className={cn("w-full", OPERATOR_TYPOGRAPHY.helper)}>
               <thead>
-                <tr className="border-b border-neutral-200 text-left text-[11px] font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+                <tr className={cn("border-b border-neutral-200 text-left font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   <th className="pb-1.5 pr-3 font-medium">Agent</th>
                   <th className="pb-1.5 pr-3 font-medium">Confidence</th>
                   <th className="pb-1.5 pr-3 font-medium">Findings</th>
@@ -92,13 +94,13 @@ export function ReviewAgentExecutionLogSection({
                       <td className="py-1.5">
                         {hasDegradation ? (
                           <span
-                            className="inline-flex rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                            className={cn("inline-flex rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-medium text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300", OPERATOR_TYPOGRAPHY.badge)}
                             title={result.degradationReasonCode ?? ""}
                           >
                             Degraded
                           </span>
                         ) : (
-                          <span className="inline-flex rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+                          <span className={cn("inline-flex rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
                             OK
                           </span>
                         )}

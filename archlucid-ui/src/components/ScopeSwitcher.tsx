@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
@@ -53,7 +55,6 @@ import {
 } from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { cn } from "@/lib/utils";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
 const SCOPE_PANEL_GAP_PX = 4;
@@ -399,7 +400,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
   const scopeTriggerMaxWidthClass =
     density === "compact" ? "max-w-[min(12.5rem,32vw)]" : "max-w-[min(20rem,42vw)]";
   const scopeTriggerLabelClass =
-    "min-w-0 flex-1 truncate whitespace-nowrap text-left text-xs font-medium text-neutral-800 dark:text-neutral-200";
+    (cn("min-w-0 flex-1 truncate whitespace-nowrap text-left font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper));
 
   const scopePanel =
     open && panelStyle != null ? (
@@ -420,20 +421,20 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         }
       >
         {panelMode === "loading" ? (
-          <p className="m-0 text-sm text-neutral-500">Loading workspaces…</p>
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Loading workspaces…</p>
         ) : null}
         {panelMode === "current-scope-info" ? (
           <>
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {BUYER_SCOPE_CURRENT_WORKSPACE_TITLE}
             </p>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {BUYER_SCOPE_CURRENT_WORKSPACE_BODY}
             </p>
-            <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {triggerLabel}
             </p>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {BUYER_SCOPE_SAMPLE_WORKSPACE_CONNECTED_HINT}
             </p>
             <Button type="button" size="sm" onClick={closePanel}>
@@ -444,19 +445,19 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         {panelMode === "sample-info" ? (
           <>
             <div className="flex flex-wrap items-start gap-2">
-              <p className="m-0 min-w-0 flex-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              <p className={cn("m-0 min-w-0 flex-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {sampleFullTitle}
               </p>
-              <span className="shrink-0 rounded border border-teal-200 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
+              <span className={cn("shrink-0 rounded border border-teal-200 bg-teal-50 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
                 Sample
               </span>
             </div>
             <div className="space-y-1.5">
-              <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                 {BUYER_SCOPE_SAMPLE_WORKSPACE_DEMO_HINT}
               </p>
               <p
-                className="m-0 text-sm text-neutral-600 dark:text-neutral-300"
+                className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
                 data-testid="operator-scope-sample-info-body"
               >
                 {BUYER_SCOPE_SAMPLE_WORKSPACE_BODY}
@@ -468,8 +469,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
               </Button>
               <Link
                 href={SCOPE_SWITCHER_HELP_HREF}
-                className={cn(
-                  "text-xs font-medium text-neutral-500 underline-offset-2 hover:text-neutral-700 hover:underline",
+                className={cn("font-medium text-neutral-500 underline-offset-2 hover:text-neutral-700 hover:underline", OPERATOR_TYPOGRAPHY.helper,
                   "dark:text-neutral-400 dark:hover:text-neutral-200",
                 )}
               >
@@ -480,10 +480,10 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         ) : null}
         {panelMode === "error" ? (
           <>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300" data-testid="operator-scope-list-note">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-scope-list-note">
               {listError ?? BUYER_SCOPE_SWITCHER_LOAD_ERROR}
             </p>
-            <details className="rounded-md border border-neutral-200 p-2 text-xs dark:border-neutral-700">
+            <details className={cn("rounded-md border border-neutral-200 p-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
               <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
                 Technical details
               </summary>
@@ -498,7 +498,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
         ) : null}
         {panelMode === "selector" ? (
           <>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {BUYER_SCOPE_SWITCHER_CONNECTED_INTRO}
             </p>
             {workspaces !== null && workspaces.length > 0 ? (
@@ -510,7 +510,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
 
                   return (
                     <div key={ws.workspaceId} className="space-y-1">
-                      <p className="m-0 truncate text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ws.name}</p>
+                      <p className={cn("m-0 truncate font-semibold text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{ws.name}</p>
                       {ws.projects.map((pr) => {
                         return (
                           <Button
@@ -542,7 +542,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             ) : null}
             {stored !== null && !isDevDefaultScopeRecord(stored) ? (
               <div className="space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-700">
-                <Label className="text-xs text-neutral-500">Override</Label>
+                <Label className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Override</Label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -586,8 +586,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             }}
           >
             <span
-              className={cn(
-                "inline-flex min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+              className={cn("inline-flex min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2 py-1 font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper,
                 polishedTriggerMaxWidthClass,
               )}
             >

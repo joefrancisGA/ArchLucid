@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 
@@ -14,22 +16,22 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
       className="mb-6 max-w-4xl rounded-lg border-2 border-dashed border-neutral-400 bg-al-surface-raised p-4 shadow-sm ring-1 ring-neutral-300/40 dark:border-neutral-600 dark:bg-neutral-900/50 dark:ring-neutral-700/45"
       data-testid="graph-idle-legend"
     >
-      <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolished ? "Decision traceability preview" : "Graph preview (sample)"}
       </p>
       {buyerPolished ? (
-        <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Shapes how reviewed context, findings, and deliverables connect to the signed review record for this review package.
         </p>
       ) : (
-        <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-1 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Loaded graphs represent <strong>decisions</strong>, <strong>findings</strong>, <strong>artifacts</strong>,{" "}
           <strong>review trail events</strong>, and <strong>architecture components</strong> as nodes, with edges for
           provenance and flow. Use the review and mode controls to load or refresh the graph.
         </p>
       )}
       <GraphNodeKindLegendChips className="mt-3" />
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400">
+      <div className={cn("mt-3 flex flex-wrap items-center gap-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Review</span>
         <span aria-hidden>→</span>
         <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Context</span>

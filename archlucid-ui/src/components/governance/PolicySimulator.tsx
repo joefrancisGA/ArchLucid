@@ -1,24 +1,22 @@
 "use client";
+import { OPERATOR_CALLOUT_BLOCKED_CLASS, OPERATOR_CALLOUT_SUCCESS_CLASS, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
 import type { components } from "@/lib/openapi-schemas";
 import { DOMAIN_TERMS } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 export type PolicySimulatorProps = {
   result: components["schemas"]["PolicyPackGovernanceDryRunResult"];
   className?: string;
 };
 
-const passedCardCls =
-  "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 p-3 text-sm";
+const passedCardCls = cn("p-3", OPERATOR_CALLOUT_SUCCESS_CLASS);
 
-const failedCardCls =
-  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-3 text-sm";
+const failedCardCls = cn("p-3", OPERATOR_CALLOUT_BLOCKED_CLASS);
 
-const warningCardCls =
-  "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm";
+const warningCardCls = cn("p-3", OPERATOR_CALLOUT_WARN_CLASS);
 
 function checkList(title: string, checks: string[], tone: "passed" | "failed" | "warning"): ReactNode {
   if (checks.length === 0) {
@@ -29,10 +27,10 @@ function checkList(title: string, checks: string[], tone: "passed" | "failed" | 
 
   return (
     <section className={cardCls} data-testid={`policy-simulator-${tone}-checks`}>
-      <h4 className="m-0 text-sm font-semibold">{title}</h4>
+      <h4 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</h4>
       <ul className="m-0 mt-2 list-disc space-y-1 ps-5">
         {checks.map((check) => (
-          <li key={check} className="font-mono text-xs break-all">
+          <li key={check} className={cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>
             {check}
           </li>
         ))}
@@ -54,7 +52,7 @@ export function PolicySimulator({ result, className }: PolicySimulatorProps) {
       data-testid="policy-simulator"
       aria-label={`${DOMAIN_TERMS.policyPack} dry-run simulation`}
     >
-      <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/40">
+      <div className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Simulation outcome</p>
         {result.gateResult !== undefined ? (
           <p className="m-0 mt-1">
@@ -64,7 +62,7 @@ export function PolicySimulator({ result, className }: PolicySimulatorProps) {
           </p>
         ) : null}
         {result.resolvedRunId !== undefined && result.resolvedRunId.trim().length > 0 ? (
-          <p className="m-0 mt-1 font-mono text-xs break-all">Resolved run: {result.resolvedRunId}</p>
+          <p className={cn("m-0 mt-1 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>Resolved run: {result.resolvedRunId}</p>
         ) : null}
       </div>
 
@@ -76,7 +74,7 @@ export function PolicySimulator({ result, className }: PolicySimulatorProps) {
       {warnings.length > 0 ? checkList("Warnings", warnings, "warning") : null}
 
       {passedChecks.length === 0 && failedChecks.length === 0 && warnings.length === 0 ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No check details returned for this simulation.</p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No check details returned for this simulation.</p>
       ) : null}
     </div>
   );

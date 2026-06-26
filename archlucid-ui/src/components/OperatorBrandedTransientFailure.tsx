@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -58,32 +60,32 @@ export function OperatorBrandedTransientFailure({
   return (
     <div role="alert" aria-live="assertive">
     <OperatorWarningCallout>
-      <strong className="text-base">{title}</strong>
-      <p className="mt-2 text-sm leading-relaxed">{body}</p>
+      <strong className={OPERATOR_TYPOGRAPHY.body}>{title}</strong>
+      <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{body}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <OperatorSectionRetryButton label={retryLabel} />
-        <Link className="text-sm font-medium text-teal-900 underline dark:text-teal-300" href="/">
+        <Link className={cn("font-medium text-teal-900 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} href="/">
           {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         <Link
-          className="text-sm font-medium text-teal-900 underline dark:text-teal-300"
+          className={cn("font-medium text-teal-900 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
           href="/reviews?projectId=default"
         >
           Reviews
         </Link>
-        <Link className="text-sm font-medium text-teal-900 underline dark:text-teal-300" href="/help">
+        <Link className={cn("font-medium text-teal-900 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} href="/help">
           Help
         </Link>
       </div>
       {correlationId.length > 0 ? (
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-neutral-700 dark:text-neutral-300">
+        <div className={cn("mt-4 flex flex-wrap items-center gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <span className="font-semibold">Need support?</span>
           <span>Provide correlation ID</span>
           <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{correlationId}</code>
           <CopyIdButton value={correlationId} aria-label="Copy correlation ID" />
         </div>
       ) : null}
-      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-800 dark:text-neutral-300">
+      <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         ArchLucid · {footerLabel}
       </p>
       <span data-testid="branded-transient-failure" className="sr-only">

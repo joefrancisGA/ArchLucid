@@ -28,7 +28,7 @@ function StageRow(props: { readonly stage: CtoDemoLiveRunStage }): React.JSX.Ele
     stage.state === "complete" ? "✓" : stage.state === "running" ? "●" : "○";
 
   return (
-    <li className="flex items-start gap-2 text-sm text-neutral-800 dark:text-neutral-200">
+    <li className={cn("flex items-start gap-2 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
       <span aria-hidden className="tabular-nums text-neutral-500 dark:text-neutral-400">
         {marker}
       </span>
@@ -129,7 +129,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
   }, [finalized, runId]);
 
   if (error !== null) {
-    return <p className="m-0 text-sm text-red-700 dark:text-red-300">{error}</p>;
+    return <p className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>{error}</p>;
   }
 
   const completeHref =
@@ -150,7 +150,7 @@ export function CtoDemoLiveRunProgressRail(props: CtoDemoLiveRunProgressRailProp
         ))}
       </ol>
       {elapsedSeconds >= SLOW_RUN_MESSAGE_SECONDS && !finalized ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Still working — complex briefs take a moment longer.
         </p>
       ) : null}

@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/types/learning";
 import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
 
@@ -8,7 +10,7 @@ type PlanningThemesTableProps = {
   onSelectThemeForPlans: (themeId: string) => void;
 };
 
-const browseBtnCls = "cursor-pointer px-2.5 py-1 text-[13px]";
+const browseBtnCls = (cn("cursor-pointer px-2.5 py-1", OPERATOR_TYPOGRAPHY.helper));
 
 function countPlansForTheme(plans: LearningPlanListItemResponse[], themeId: string): number {
   return plans.filter((p) => p.themeId === themeId).length;
@@ -20,7 +22,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
 
   if (themes.length === 0) {
     return (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400" role="status">
+      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
         No themes in this scope.
       </p>
     );
@@ -49,7 +51,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
               <tr key={t.themeId} className={isActive ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}>
                 <td className={planningThTdCls}>
                   <strong>{t.title}</strong>
-                  <div className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{t.themeKey}</div>
+                  <div className={cn("mt-1 text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{t.themeKey}</div>
                 </td>
                 <td className={planningThTdCls}>{t.severityBand}</td>
                 <td className={planningNumericCellCls}>{t.evidenceSignalCount}</td>
@@ -57,7 +59,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
                 <td className={planningThTdCls}>{t.affectedArtifactTypeOrWorkflowArea || "—"}</td>
                 <td className={planningThTdCls}>
                   {planCount === 0 ? (
-                    <span className="text-[13px] text-neutral-400 dark:text-neutral-500">—</span>
+                    <span className={cn("text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>—</span>
                   ) : (
                     <button
                       type="button"
@@ -70,7 +72,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
                     </button>
                   )}
                 </td>
-                <td className={`${planningThTdCls} max-w-[280px] text-[13px]`}>{t.summary}</td>
+                <td className={cn("${planningThTdCls} max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</td>
               </tr>
             );
           })}

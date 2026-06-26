@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -15,14 +17,14 @@ export function OperatorJwtBearerRoleMappingCallout(props: OperatorJwtBearerRole
 
   return (
     <div
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50"
+      className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.body)}
       role="alert"
       data-testid={props.testId ?? "operator-jwt-role-mapping-callout"}
     >
       <p className="m-0 font-medium">JWT signed in, but no ArchLucid app role was found</p>
       <p className="mb-0 mt-2 text-pretty">
-        Map your IdP groups or custom claims to <code className="text-xs">ArchLucidRoles</code> (Admin, Operator,
-        Reader, or Auditor) via <code className="text-xs">ArchLucidAuth:RoleClaimSources</code>, then sign in again.
+        Map your IdP groups or custom claims to <code className={OPERATOR_TYPOGRAPHY.helper}>ArchLucidRoles</code> (Admin, Operator,
+        Reader, or Auditor) via <code className={OPERATOR_TYPOGRAPHY.helper}>ArchLucidAuth:RoleClaimSources</code>, then sign in again.
       </p>
       <p className="mb-0 mt-2">
         <Link

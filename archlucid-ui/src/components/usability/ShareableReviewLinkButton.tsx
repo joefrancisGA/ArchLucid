@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useState } from "react";
 
@@ -53,7 +55,7 @@ export function ShareableReviewLinkButton(props: ShareableReviewLinkButtonProps)
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap items-center gap-2">
-          <code className="flex-1 break-all rounded bg-neutral-100 px-2 py-1 text-xs dark:bg-neutral-800">{url}</code>
+          <code className={cn("flex-1 break-all rounded bg-neutral-100 px-2 py-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{url}</code>
           <CopyIdButton value={url} aria-label="Copy share link" />
         </div>
       </DialogContent>

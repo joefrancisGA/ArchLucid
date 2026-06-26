@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 
@@ -40,7 +42,7 @@ export function RunAgentResultsSummaryCard(props: {
       data-testid="run-agent-results-summary-card"
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Agent results
         </CardTitle>
       </CardHeader>
@@ -58,7 +60,7 @@ export function RunAgentResultsSummaryCard(props: {
             return (
               <li
                 key={result.resultId}
-                className="rounded-md border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
+                className={cn("rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
                 data-testid={`run-agent-result-row-${result.resultId}`}
               >
                 <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">

@@ -1,8 +1,9 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { AZURE_EXTRACTOR_DEMO_SCENARIOS } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
-import { cn } from "@/lib/utils";
 
 export type AzureExtractorDemoScenarioPickerProps = {
   selectedScenarioId: AzureExtractorDemoScenarioId;
@@ -41,11 +42,11 @@ export function AzureExtractorDemoScenarioPicker(props: AzureExtractorDemoScenar
               onSelectScenario(scenario.id);
             }}
           >
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{scenario.title}</p>
-            <p className="m-0 mt-1 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{scenario.title}</p>
+            <p className={cn("m-0 mt-1 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {scenario.subtitle}
             </p>
-            <p className="m-0 mt-2 text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 mt-2 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {resourceCount} synthetic resources
             </p>
           </button>

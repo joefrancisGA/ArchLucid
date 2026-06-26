@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
@@ -44,7 +46,7 @@ export function OperatorHomeGate({ children }: { children: ReactNode }) {
   if (!allow) {
     return (
       <div aria-busy="true">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
   }

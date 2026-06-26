@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -74,10 +76,10 @@ export function ExecutiveRoiDashboard() {
         aria-labelledby="exec-roi-dashboard-heading"
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h2 id="exec-roi-dashboard-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="exec-roi-dashboard-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Executive ROI
         </h2>
-        <p className="mt-2 text-xs text-red-600 dark:text-red-400" role="alert">
+        <p className={cn("mt-2 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {error}
         </p>
       </section>
@@ -90,10 +92,10 @@ export function ExecutiveRoiDashboard() {
         aria-labelledby="exec-roi-dashboard-heading"
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h2 id="exec-roi-dashboard-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="exec-roi-dashboard-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Executive ROI
         </h2>
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Loading…</p>
+        <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Loading…</p>
       </section>
     );
   }
@@ -103,27 +105,27 @@ export function ExecutiveRoiDashboard() {
       aria-labelledby="exec-roi-dashboard-heading"
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 id="exec-roi-dashboard-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="exec-roi-dashboard-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Executive ROI
       </h2>
-      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Aggregated impact from <span className="font-mono">GET /v1/analytics/roi</span>.
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-          <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Time saved</div>
+          <div className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Time saved</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
             {formatTimeSavedHours(data.timeSavedHours)}
           </div>
         </div>
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-          <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Decisions automated</div>
+          <div className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Decisions automated</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
             {formatCount(data.decisionsAutomated)}
           </div>
         </div>
         <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-          <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Compliance risks mitigated</div>
+          <div className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Compliance risks mitigated</div>
           <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
             {formatCount(data.complianceRisksMitigated)}
           </div>

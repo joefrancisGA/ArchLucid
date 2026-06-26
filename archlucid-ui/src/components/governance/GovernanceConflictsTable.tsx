@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { planningTableCls, planningThTdCls } from "@/components/planning/planning-table-styles";
@@ -56,11 +58,11 @@ export function GovernanceConflictsTable(props: GovernanceConflictsTableProps) {
               <tr key={rowKey}>
                 <td className={planningThTdCls}>
                   <div className="font-medium">{conflict.itemType}</div>
-                  <code className="text-xs">{conflict.itemKey}</code>
+                  <code className={OPERATOR_TYPOGRAPHY.helper}>{conflict.itemKey}</code>
                 </td>
                 <td className={planningThTdCls}>
                   <div className="font-medium">{conflict.conflictType}</div>
-                  <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">{conflict.description}</p>
+                  <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{conflict.description}</p>
                 </td>
                 <td className={planningThTdCls}>
                   {winner === null ? (
@@ -68,7 +70,7 @@ export function GovernanceConflictsTable(props: GovernanceConflictsTableProps) {
                   ) : (
                     <>
                       <div className="font-medium">{winner.policyPackName}</div>
-                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                      <div className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                         v{winner.version} · scope <code>{winner.scopeLevel}</code>
                         {winner.wasSelected ? (
                           <span className="ml-1.5 rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
@@ -80,7 +82,7 @@ export function GovernanceConflictsTable(props: GovernanceConflictsTableProps) {
                   )}
                 </td>
                 <td className={planningThTdCls}>
-                  <p className="m-0 text-sm">{why}</p>
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{why}</p>
                 </td>
                 <td className={planningThTdCls}>
                   {losers.length === 0 ? (
@@ -89,15 +91,15 @@ export function GovernanceConflictsTable(props: GovernanceConflictsTableProps) {
                     <ul className="m-0 list-none space-y-1.5 p-0">
                       {losers.map((loser) => (
                         <li key={loser.assignmentId}>
-                          <div className="text-sm">
+                          <div className={OPERATOR_TYPOGRAPHY.body}>
                             {loser.policyPackName}{" "}
-                            <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                               (v{loser.version}, {loser.scopeLevel})
                             </span>
                           </div>
                           <Link
                             href={policyPacksEditHref(loser.policyPackId)}
-                            className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+                            className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
                           >
                             {props.canEditPolicyPacks ? "Edit assignment" : "View pack"}
                           </Link>

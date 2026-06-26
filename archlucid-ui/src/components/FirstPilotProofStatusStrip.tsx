@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -69,7 +71,7 @@ export function FirstPilotProofStatusStrip() {
   if (loadFailed || snapshot === null) {
     return (
       <div
-        className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400"
+        className={cn("rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
         data-testid="first-pilot-proof-status-strip"
       >
         <p className="m-0">{FIRST_PILOT_PROOF_STATUS_UNAVAILABLE}</p>
@@ -88,7 +90,7 @@ export function FirstPilotProofStatusStrip() {
   if (snapshot.disposition === "NOT_RUN") {
     return (
       <div
-        className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400"
+        className={cn("rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
         data-testid="first-pilot-proof-status-strip"
       >
         <p className="m-0">{firstPilotProofNotRunCopy()}</p>
@@ -110,16 +112,16 @@ export function FirstPilotProofStatusStrip() {
       data-testid="first-pilot-proof-status-strip"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-wide opacity-80">Last proof collect</span>
-        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+        <span className={cn("font-semibold uppercase tracking-wide opacity-80", OPERATOR_NAV_GROUP_LABEL)}>Last proof collect</span>
+        <span className={cn("rounded-full border border-current/20 px-2 py-0.5 font-semibold uppercase tracking-wide", OPERATOR_NAV_GROUP_LABEL)}>
           {snapshot.verdict}
         </span>
         {snapshot.proofFolder ? (
-          <span className="font-mono text-[10px] opacity-80">{snapshot.proofFolder}</span>
+          <span className={cn("font-mono opacity-80", OPERATOR_TYPOGRAPHY.badge)}>{snapshot.proofFolder}</span>
         ) : null}
       </div>
-      <p className="m-0 mt-2 text-sm leading-relaxed">{loadedSummaryLine(snapshot)}</p>
-      <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
+      <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{loadedSummaryLine(snapshot)}</p>
+      <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
         {snapshot.remediationLinks.map((link) => (
           <li key={link.path}>
             <Link

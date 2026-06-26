@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
@@ -36,7 +38,7 @@ export function FrictionlessTrialBanner() {
 
   return (
     <div
-      className="border-b border-teal-700/30 bg-teal-950/90 px-4 py-2 text-sm text-teal-50"
+      className={cn("border-b border-teal-700/30 bg-teal-950/90 px-4 py-2 text-teal-50", OPERATOR_TYPOGRAPHY.body)}
       data-testid="frictionless-trial-banner"
       role="status"
     >

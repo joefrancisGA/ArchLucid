@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -81,7 +83,7 @@ export function MobileNavDrawer() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="flex max-h-[min(92vh,720px)] flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
           <DialogHeader className="border-b border-neutral-200 px-4 py-3 dark:border-neutral-700">
-            <DialogTitle className="text-left text-base font-semibold">Navigation</DialogTitle>
+            <DialogTitle className={cn("text-left font-semibold", OPERATOR_TYPOGRAPHY.body)}>Navigation</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
             {allRows.map((row) => {

@@ -1,6 +1,7 @@
 "use client";
-
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
 import {
   buildColorModeToggleLabel,
   resolveDarkAppearance,
@@ -35,14 +36,13 @@ export function ColorModeToggle() {
   return (
     <button
       type="button"
-      className={cn(
-        "auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white text-sm transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700",
+      className={cn("auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700", OPERATOR_TYPOGRAPHY.body,
       )}
       aria-label={label}
       title={label}
       onClick={() => setAndPersist(nextMode)}
     >
-      <span aria-hidden className="text-xs">{icon}</span>
+      <span aria-hidden className={OPERATOR_TYPOGRAPHY.helper}>{icon}</span>
     </button>
   );
 }

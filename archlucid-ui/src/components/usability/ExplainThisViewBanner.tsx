@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
-import { cn } from "@/lib/utils";
 
 function explainViewDismissKey(pathname: string): string {
   return `archlucid.explain-view.dismissed.${pathname}`;
@@ -32,8 +33,7 @@ export function ExplainThisViewBanner() {
 
   return (
     <aside
-      className={cn(
-        "mb-4 rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-900/50",
+      className={cn("mb-4 rounded-lg border border-neutral-200 bg-neutral-50/90 px-4 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body,
         "lg:ml-auto lg:max-w-sm lg:border-l-4 lg:border-l-teal-700 lg:pl-3 dark:lg:border-l-teal-500",
       )}
       aria-label={`About ${explanation.title}`}

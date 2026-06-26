@@ -52,10 +52,10 @@ export function OperatorCoArchitectHomeStrip({ buyerPolishedShell = false }: Ope
           : "rounded-xl border border-neutral-200/90 bg-neutral-50/80 px-4 py-3 shadow-sm dark:border-neutral-700/80 dark:bg-neutral-900/50",
       )}
     >
-      <p className={cn("m-0", buyerPolishedShell ? OPERATOR_TYPE_SCALE.cardTitle : "text-sm font-semibold text-neutral-900 dark:text-neutral-100")}>
+      <p className={cn("m-0", buyerPolishedShell ? OPERATOR_TYPE_SCALE.cardTitle : (cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)))}>
         {OPERATOR_CO_ARCHITECT_BRAND_LINE}
       </p>
-      <p className={cn("m-0 mt-2", buyerPolishedShell ? OPERATOR_TYPE_SCALE.body : "mt-1 text-xs leading-snug", "text-neutral-600 dark:text-neutral-400")}>
+      <p className={cn("m-0 mt-2", buyerPolishedShell ? OPERATOR_TYPE_SCALE.body : (cn("mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)), "text-neutral-600 dark:text-neutral-400")}>
         {bodyCopy}
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">

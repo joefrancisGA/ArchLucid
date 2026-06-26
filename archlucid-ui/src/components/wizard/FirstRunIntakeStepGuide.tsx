@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type FirstRunIntakeStepGuideProps = {
@@ -73,12 +74,12 @@ export function FirstRunIntakeStepGuide(props: FirstRunIntakeStepGuideProps): Re
       {steps.map((step) => (
         <li
           key={step.key}
-          className={cn("rounded-md border px-3 py-2 text-sm", stepClassName(step.state))}
+          className={cn("rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body, stepClassName(step.state))}
           data-testid={`first-run-intake-step-${step.key}`}
           data-step-state={step.state}
         >
           <p className="m-0 font-medium">{step.label}</p>
-          <p className="m-0 mt-0.5 text-xs leading-snug opacity-90">{step.detail}</p>
+          <p className={cn("m-0 mt-0.5 leading-snug opacity-90", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
         </li>
       ))}
     </ol>

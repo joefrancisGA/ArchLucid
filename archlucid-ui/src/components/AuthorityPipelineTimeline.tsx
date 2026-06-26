@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { CheckCircle2, Circle } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -74,7 +76,7 @@ export function AuthorityPipelineTimeline({
 }: AuthorityPipelineTimelineProps) {
   if (loadErrorMessage) {
     return (
-      <p className="mt-0 text-sm text-amber-700 dark:text-amber-400">
+      <p className={cn("mt-0 text-amber-700 dark:text-amber-400", OPERATOR_TYPOGRAPHY.body)}>
         Pipeline timeline could not be loaded: {loadErrorMessage}
       </p>
     );
@@ -82,7 +84,7 @@ export function AuthorityPipelineTimeline({
 
   if (items === null) {
     return (
-      <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Pipeline timeline not loaded.
       </p>
     );
@@ -90,7 +92,7 @@ export function AuthorityPipelineTimeline({
 
   if (items.length === 0) {
     return (
-      <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         No events recorded yet for this review.
       </p>
     );
@@ -98,7 +100,7 @@ export function AuthorityPipelineTimeline({
 
   return (
     <ol
-      className="m-0 max-w-3xl list-none space-y-0 pl-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+      className={cn("m-0 max-w-3xl list-none space-y-0 pl-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
       aria-label="Review trail timeline"
     >
       {items.map((row, index) => {
@@ -114,13 +116,13 @@ export function AuthorityPipelineTimeline({
             <div className="mt-0.5">{timelineStatusIcon(row.eventType)}</div>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <time
-                className="text-xs font-medium text-neutral-500 dark:text-neutral-400"
+                className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                 dateTime={row.occurredUtc}
               >
                 {new Date(row.occurredUtc).toLocaleString()}
               </time>
               {elapsed ? (
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">{elapsed}</span>
+                <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{elapsed}</span>
               ) : null}
               <span className="font-medium text-neutral-900 dark:text-neutral-100">
                 {pipelineEventTypeFriendlyLabel(row.eventType)}
@@ -130,18 +132,18 @@ export function AuthorityPipelineTimeline({
                 {actorLabel(row.actorUserName)}
               </span>
               {omitEventTechnicalDetails ? null : (
-              <details className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              <details className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 <summary className="cursor-pointer select-none text-teal-800 underline dark:text-teal-300">
                   Technical details
                 </summary>
                 <div className="mt-2 space-y-1 border-s border-neutral-200 ps-3 dark:border-neutral-700">
                   <p className="m-0">
                     <span className="font-medium text-neutral-600 dark:text-neutral-400">Event id:</span>{" "}
-                    <code className="text-[12px]">{row.eventId}</code>
+                    <code className={OPERATOR_TYPOGRAPHY.helper}>{row.eventId}</code>
                   </p>
                   <p className="m-0">
                     <span className="font-medium text-neutral-600 dark:text-neutral-400">Event type:</span>{" "}
-                    <code className="text-[12px]">{row.eventType}</code>
+                    <code className={OPERATOR_TYPOGRAPHY.helper}>{row.eventType}</code>
                   </p>
                   {row.correlationId ? (
                     <p className="m-0">

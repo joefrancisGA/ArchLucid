@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -7,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { extractEmailDomainForAnalytics } from "@/lib/marketing/extract-email-domain-for-analytics";
 import { recordMarketingCtaEarlyAccessSubmit } from "@/lib/marketing/marketing-clarity-custom-event";
-import { cn } from "@/lib/utils";
 
 const THANKS_COPY = "Thanks! Our team will follow up within 2 business days.";
 
@@ -88,7 +89,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
   if (done) {
     return (
       <p
-        className="mx-auto mt-4 max-w-md text-center text-sm text-neutral-700 dark:text-neutral-300"
+        className={cn("mx-auto mt-4 max-w-md text-center text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
         data-testid="welcome-early-access-thanks"
       >
         {THANKS_COPY}
@@ -103,7 +104,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
           type="button"
           variant="ghost"
           size="sm"
-          className="text-sm font-medium text-teal-800 dark:text-teal-200"
+          className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}
           onClick={() => setOpen(true)}
         >
           Join early access
@@ -116,10 +117,10 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
           className="relative w-full rounded-lg border border-neutral-200 bg-white p-4 text-left shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
           aria-label="Early access request"
         >
-          <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Request a conversation—this is not instant product access, checkout, or the same as a walkthrough-led pilot.
           </p>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>Work email</span>
             <input
               required
@@ -131,7 +132,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
               className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950"
             />
           </label>
-          <label className="mt-3 flex flex-col gap-1 text-sm">
+          <label className={cn("mt-3 flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>Company (optional)</span>
             <input
               type="text"
@@ -142,7 +143,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
               className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-950"
             />
           </label>
-          <label className="mt-3 flex flex-col gap-1 text-sm">
+          <label className={cn("mt-3 flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>Role</span>
             <select
               value={role}
@@ -163,7 +164,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
             </label>
           </div>
           {error ? (
-            <p className="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">
+            <p className={cn("mt-3 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {error}
             </p>
           ) : null}

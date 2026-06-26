@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -45,7 +47,7 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
     <div data-testid={rootTestId}>
       <OperatorErrorCallout>
       <strong>{presentation.heading}</strong>
-      <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Error code:{" "}
         <code
           className="rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800"
@@ -65,13 +67,13 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
       </p>
       <p className="mt-2">{presentation.guidance}</p>
       {presentation.errors.length > 0 ? (
-        <ul className="mt-2 list-inside list-disc text-sm">
+        <ul className={cn("mt-2 list-inside list-disc", OPERATOR_TYPOGRAPHY.body)}>
           {presentation.errors.map((error) => (
             <li key={error}>{error}</li>
           ))}
         </ul>
       ) : null}
-      <p className="mt-2.5 text-sm">
+      <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
         <Link
           href={toDocsBlobUrl(presentation.docPath)}
           className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
@@ -83,7 +85,7 @@ export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFa
         </Link>
       </p>
       {props.correlationId ? (
-        <p className="mt-2.5 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-2.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Correlation ID:{" "}
           <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{props.correlationId}</code>
         </p>

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 
@@ -8,7 +10,6 @@ import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
 } from "@/lib/finding-policy-evidence-citations";
-import { cn } from "@/lib/utils";
 
 export type FindingPolicyCitationProminentStripProps = {
   readonly pack?: FindingPolicyPackCitationLink | null;
@@ -41,13 +42,13 @@ export function FindingPolicyCitationProminentStrip(
     >
       <div className="flex flex-wrap items-center gap-2">
         <StatusTag kind="needs-attention" label={violationLabel} data-testid="finding-policy-violation-tag" />
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-950 dark:text-teal-100">
+        <p className={cn("m-0 font-semibold uppercase tracking-wide text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
           Triggered by policy
         </p>
       </div>
       <FindingPolicyTraceabilityBadges pack={pack} policy={policy} />
       {!props.compact ? (
-        <p className="m-0 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           Select a badge to preview the rule text. This finding exists because the policy rule evaluated your
           architecture evidence.
         </p>

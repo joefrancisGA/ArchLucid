@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -101,10 +103,10 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
     >
       <div className="w-full max-w-md space-y-4 rounded-lg border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-sm font-semibold text-al-text-primary">Take tour</h2>
+          <h2 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Take tour</h2>
           <button
             type="button"
-            className="rounded p-1 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            className={cn("rounded p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.body)}
             onClick={handleClose}
             data-testid="opt-in-tour-close"
             aria-label="Close tour"
@@ -116,14 +118,14 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
         {DRAFT_TOUR_STEPS.map((step, idx) =>
           idx === stepIndex ? (
             <div key={step.title} data-testid={`opt-in-tour-step-${idx}`} className="space-y-3">
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{step.title}</h3>
-              <p className="text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">{step.body}</p>
+              <h3 className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{step.title}</h3>
+              <p className={cn("leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{step.body}</p>
             </div>
           ) : null,
         )}
 
         <div className="flex items-center justify-between pt-2">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+          <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Step {stepIndex + 1} of {DRAFT_TOUR_STEPS.length}
           </span>
           <div className="flex gap-2">

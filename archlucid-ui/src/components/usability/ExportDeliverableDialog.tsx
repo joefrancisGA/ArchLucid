@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -51,7 +53,7 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
           <DialogDescription>Choose an audience and open the matching export workflow.</DialogDescription>
         </DialogHeader>
         <fieldset className="m-0 space-y-2 border-0 p-0">
-          <legend className="mb-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">Audience</legend>
+          <legend className={cn("mb-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Audience</legend>
           {AUDIENCE_OPTIONS.map((option) => (
             <label
               key={option.id}
@@ -66,8 +68,8 @@ export function ExportDeliverableDialog(props: ExportDeliverableDialogProps) {
                 className="mt-1"
               />
               <span>
-                <span className="block text-sm font-semibold">{option.label}</span>
-                <span className="block text-xs text-neutral-600 dark:text-neutral-400">{option.description}</span>
+                <span className={cn("block font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{option.label}</span>
+                <span className={cn("block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{option.description}</span>
               </span>
             </label>
           ))}

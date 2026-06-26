@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ComplianceDriftTrendPoint } from "@/types/governance-dashboard";
 
 export type ComplianceDriftOpenResolvedChartProps = {
@@ -31,7 +33,7 @@ export function ComplianceDriftOpenResolvedChart(props: ComplianceDriftOpenResol
 
   if (points.length === 0) {
     return (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         No compliance drift findings activity for this period.
       </p>
     );
@@ -53,7 +55,7 @@ export function ComplianceDriftOpenResolvedChart(props: ComplianceDriftOpenResol
         maxStack={maxStack}
         barMaxPx={barMaxPx}
       />
-      <ul className="m-0 flex list-none flex-wrap gap-4 p-0 text-xs text-neutral-600 dark:text-neutral-400">
+      <ul className={cn("m-0 flex list-none flex-wrap gap-4 p-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <li className="flex items-center gap-1.5">
           <span className="inline-block h-2.5 w-2.5 rounded-sm bg-amber-500/90" aria-hidden />
           Opened (findings captured)
@@ -110,7 +112,7 @@ function OpenResolvedStackedBars(props: {
                 <div className="w-full bg-amber-500/90" style={{ height: openPx }} />
               ) : null}
             </div>
-            <span className="truncate text-[10px] text-neutral-500 dark:text-neutral-400">
+            <span className={cn("truncate text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>
               {formatBucketLabel(point.bucketUtc)}
             </span>
           </div>

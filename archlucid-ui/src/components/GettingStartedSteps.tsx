@@ -17,8 +17,8 @@ export function GettingStartedSteps({ heading, steps, className }: GettingStarte
         className,
       )}
     >
-      <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{heading}</p>
-      <ol className="mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-snug text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{heading}</p>
+      <ol className={cn("mb-0 mt-2 list-decimal space-y-1.5 pl-5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {steps.map((step, index) => (
           <li key={index}>{step}</li>
         ))}

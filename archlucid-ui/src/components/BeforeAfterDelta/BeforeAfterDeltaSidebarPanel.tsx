@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { formatFindings, formatHours, safeCommittedRunWindowCount } from "./formatDelta";
 import { useDeltaQuery } from "./useDeltaQuery";
@@ -32,26 +34,26 @@ export function BeforeAfterDeltaSidebarPanel({ count = 5 }: BeforeAfterDeltaSide
       data-testid="before-after-delta-panel-sidebar"
       role="complementary"
       aria-label="Median proof-of-ROI deltas (sidebar)"
-      className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+      className={cn("rounded-md border border-neutral-200 bg-neutral-50 p-3 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
     >
-      <p className="m-0 mb-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+      <p className={cn("m-0 mb-2 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
         Median delta · last <span data-testid="delta-sidebar-window">{windowCount}</span> finalized review(s)
       </p>
       <dl className="m-0 grid grid-cols-2 gap-2">
         <div>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Findings</dt>
           <dd
             data-testid="delta-sidebar-median-findings"
-            className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+            className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             {formatFindings(data.medianTotalFindings)}
           </dd>
         </div>
         <div>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Time</dt>
+          <dt className={cn("uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Time</dt>
           <dd
             data-testid="delta-sidebar-median-time"
-            className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+            className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
           >
             {formatHours(data.medianTimeToCommittedManifestTotalSeconds)}
           </dd>

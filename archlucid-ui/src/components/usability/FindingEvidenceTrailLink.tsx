@@ -15,7 +15,7 @@ export function FindingEvidenceTrailLink(props: FindingEvidenceTrailLinkProps) {
   return (
     <Link
       href={href}
-      className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+      className={cn("font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
       data-testid="finding-evidence-trail-link"
     >
       {props.label ?? "Explain in evidence trail"}

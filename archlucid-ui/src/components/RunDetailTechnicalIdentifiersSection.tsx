@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
@@ -25,10 +27,10 @@ export function RunDetailTechnicalIdentifiersSection({
   return (
     <section id="technical-identifiers" className="scroll-mt-24" aria-label={triggerLabel}>
       <AdvancedOptionsAccordion triggerLabel={triggerLabel}>
-        <dl className="m-0 grid gap-2 text-sm text-neutral-600 dark:text-neutral-400 sm:grid-cols-[auto_1fr] sm:gap-x-6 sm:gap-y-1">
+        <dl className={cn("m-0 grid gap-2 text-neutral-600 dark:text-neutral-400 sm:grid-cols-[auto_1fr] sm:gap-x-6 sm:gap-y-1", OPERATOR_TYPOGRAPHY.body)}>
           <dt className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</dt>
           <dd className="m-0 flex min-w-0 flex-wrap items-center gap-1">
-            <code className="truncate rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
+            <code className={cn("truncate rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
               {runId}
             </code>
             <CopyIdButton value={runId} aria-label="Copy review ID" />
@@ -37,8 +39,8 @@ export function RunDetailTechnicalIdentifiersSection({
           <dd
             className={
               buyerPolishedShell
-                ? "m-0 text-xs text-neutral-800 dark:text-neutral-200"
-                : "m-0 font-mono text-xs text-neutral-800 dark:text-neutral-200"
+                ? (cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper))
+                : (cn("m-0 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper))
             }
           >
             {projectDisplay}

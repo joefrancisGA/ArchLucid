@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -22,10 +24,10 @@ export function DemoExplainConversionCtaCard() {
       >
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="m-0 text-sm font-semibold text-al-text-primary">
+            <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Ready to run this on your own architecture?
             </p>
-            <p className="m-0 mt-0.5 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Upload your Azure evidence file to get a review like this in about 15 minutes.
             </p>
           </div>

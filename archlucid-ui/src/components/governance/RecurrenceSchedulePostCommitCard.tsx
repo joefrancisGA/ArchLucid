@@ -119,7 +119,7 @@ export function RecurrenceSchedulePostCommitCard({
     >
       <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 p-4 text-left">
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Schedule next review</h3>
-        <span className="text-xs text-neutral-600 dark:text-neutral-400">{open ? "Hide" : "Show"}</span>
+        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{open ? "Hide" : "Show"}</span>
       </CollapsibleTrigger>
       <CollapsibleContent className="border-t border-neutral-200 px-4 pb-4 pt-3 dark:border-neutral-700">
         <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body)}>
@@ -134,7 +134,7 @@ export function RecurrenceSchedulePostCommitCard({
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>Next run: {formatNextRunUtc(existing.nextRunUtc)}</p>
             <Link
               href="/governance/recurrence-schedules"
-              className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+              className={cn("font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
               data-testid="recurrence-schedule-manage-link"
             >
               Manage all recurrence schedules
@@ -148,26 +148,26 @@ export function RecurrenceSchedulePostCommitCard({
               void submitSchedule();
             }}
           >
-            <label className="flex flex-col gap-1 text-sm">
+            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <span className={OPERATOR_TYPOGRAPHY.label}>Display name</span>
               <input
-                className="rounded border border-neutral-300 bg-white px-2 py-1 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                className={cn("rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 data-testid="recurrence-schedule-name"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm">
+            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <span className={OPERATOR_TYPOGRAPHY.label}>Cron expression (UTC)</span>
               <input
-                className="rounded border border-neutral-300 bg-white px-2 py-1 font-mono text-sm dark:border-neutral-700 dark:bg-neutral-900"
+                className={cn("rounded border border-neutral-300 bg-white px-2 py-1 font-mono dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                 value={cronExpression}
                 onChange={(e) => setCronExpression(e.target.value)}
                 data-testid="recurrence-schedule-cron"
               />
             </label>
-            {statusMessage ? <p className="m-0 text-sm text-teal-800 dark:text-teal-300">{statusMessage}</p> : null}
-            {errorMessage ? <p className="m-0 text-sm text-red-700 dark:text-red-400">{errorMessage}</p> : null}
+            {statusMessage ? <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p> : null}
+            {errorMessage ? <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{errorMessage}</p> : null}
             <Button
               type="submit"
               size="sm"

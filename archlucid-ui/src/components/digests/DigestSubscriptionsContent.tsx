@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -26,7 +28,6 @@ import {
   digestSubscriptionsYourSubscriptionsHeadingReader,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { cn } from "@/lib/utils";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 
 /**
@@ -107,7 +108,7 @@ export function DigestSubscriptionsContent() {
   return (
     <div className="max-w-3xl">
       <h2 className="mt-0">Digest subscriptions</h2>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         When an architecture digest is generated (scheduled or manual scan), enabled subscriptions in this scope receive
         a delivery attempt. Dev uses fake email/webhook loggers — check API logs for output.
       </p>
@@ -214,7 +215,7 @@ export function DigestSubscriptionsContent() {
                   className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{item.name}</strong>
-                  <div className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+                  <div className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                     <div>Channel: {item.channelType}</div>
                     <div className="break-all">Destination: {item.destination}</div>
                     <div>Enabled: {String(item.isEnabled)}</div>
@@ -257,7 +258,7 @@ export function DigestSubscriptionsContent() {
                     </button>
                   </div>
                   {attemptsBySub[item.subscriptionId]?.length ? (
-                    <ul className="mt-3 pl-5 text-[13px]">
+                    <ul className={cn("mt-3 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                       {attemptsBySub[item.subscriptionId].map((a) => (
                         <li key={a.attemptId}>
                           {a.status} — {new Date(a.attemptedUtc).toLocaleString()}

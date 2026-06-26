@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState, type ReactNode } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { type GlossaryTermEntry, type GlossaryTermKey, GLOSSARY_TERMS } from "@/lib/glossary-terms";
-import { cn } from "@/lib/utils";
 
 export type GlossaryTooltipProps = {
   termKey: GlossaryTermKey;
@@ -55,11 +56,11 @@ export function GlossaryTooltip({ termKey, children, pulseOnFirstSession = true 
           {children}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-sm text-sm">
-        <p className="m-0 text-sm font-semibold">{entry.term}</p>
-        <p className="mb-0 mt-1.5 text-xs leading-snug">{entry.definition}</p>
+      <TooltipContent side="top" className={cn("max-w-sm", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{entry.term}</p>
+        <p className={cn("mb-0 mt-1.5 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>{entry.definition}</p>
         {entry.docLink !== undefined ? (
-          <p className="mb-0 mt-2 text-xs">
+          <p className={cn("mb-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
             <a
               className="font-medium underline decoration-neutral-300 underline-offset-2 dark:decoration-neutral-600"
               href={entry.docLink}

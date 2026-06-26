@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -53,7 +55,7 @@ export function Breadcrumbs() {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="mb-3 min-w-0 max-w-full text-sm text-neutral-600 dark:text-neutral-400 print:hidden"
+      className={cn("mb-3 min-w-0 max-w-full text-neutral-600 dark:text-neutral-400 print:hidden", OPERATOR_TYPOGRAPHY.body)}
       data-testid="operator-breadcrumbs"
     >
       <ol className="m-0 flex min-w-0 flex-nowrap items-center gap-0 overflow-hidden p-0 list-none">

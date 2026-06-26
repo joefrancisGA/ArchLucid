@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -16,7 +18,7 @@ export function StalledReviewGuidanceCallout(props: StalledReviewGuidanceCallout
   return (
     <OperatorWarningCallout>
       <strong>Review still running ({props.elapsedMinutes}+ min)</strong>
-      <p className="m-0 mt-2 text-sm">
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
         Large evidence packages or cold-start infrastructure can extend pipeline time. The assessment coordinator is still
         working — refresh this page in a few minutes.
       </p>

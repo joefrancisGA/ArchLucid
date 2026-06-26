@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
 import { HelpTooltipTrigger } from "@/components/ui/help-tooltip-trigger";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 export type FieldHelpTooltipProps = {
   /** Field or label name — used in the accessible name (`About {label}`) unless `ariaLabel` is set. */
@@ -31,7 +32,7 @@ export function FieldHelpTooltip(props: FieldHelpTooltipProps): React.JSX.Elemen
           className={className}
         />
       </TooltipTrigger>
-      <TooltipContent className={cn("max-w-xs text-sm")} side={side}>
+      <TooltipContent className={cn("max-w-xs", OPERATOR_TYPOGRAPHY.body)} side={side}>
         {hint}
       </TooltipContent>
     </Tooltip>

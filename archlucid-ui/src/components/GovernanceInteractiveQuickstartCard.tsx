@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -11,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 type GovernanceInteractiveQuickstartCardProps = {
   /** Hide the First 30 days onboarding link (buyer-polished workflow surface). */
@@ -38,14 +39,14 @@ export function GovernanceInteractiveQuickstartCard({
       data-testid="governance-interactive-quickstart"
     >
       <CardHeader className={cn("space-y-1 pb-2", suppressCardTitle && "pt-0")}>
-        {suppressCardTitle ? null : <CardTitle className="text-base">Governance quick path</CardTitle>}
+        {suppressCardTitle ? null : <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Governance quick path</CardTitle>}
         <CardDescription>
           Use this sequence the first time you move a finalized review record through approval. Skipping steps is fine once
           your team knows the rhythm.
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-3 pt-0">
-        <ol className="m-0 list-decimal space-y-2 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+        <ol className={cn("m-0 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           <li>
             <Link href="/policy-packs" className="font-medium text-teal-800 underline dark:text-teal-300">
               Open policy packs
@@ -65,7 +66,7 @@ export function GovernanceInteractiveQuickstartCard({
         </ol>
       </CardContent>
       {hideFirst30DaysLink ? null : (
-        <p className="m-0 px-6 pb-2 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 px-6 pb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Onboarding preset (optional):{" "}
           <Link href="/governance/first-30-days" className="font-medium text-teal-800 underline dark:text-teal-300">
             First 30 days — governance rhythm

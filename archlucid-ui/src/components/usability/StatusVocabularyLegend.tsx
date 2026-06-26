@@ -24,7 +24,7 @@ export function StatusVocabularyLegend() {
       </summary>
       <ul className="m-0 mt-2 list-none space-y-1.5 p-0">
         {rows.map((row) => (
-          <li key={row.label} className="text-sm text-neutral-700 dark:text-neutral-300">
+          <li key={row.label} className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">{row.label}</span>
             <span className="text-neutral-600 dark:text-neutral-400"> — {row.description}</span>
           </li>

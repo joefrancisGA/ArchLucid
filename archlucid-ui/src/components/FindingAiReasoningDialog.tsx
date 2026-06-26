@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 
@@ -69,11 +71,11 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200">
+        <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {trimmedId.length > 0 ? (
             <p className="m-0">
               <span className="font-semibold text-neutral-900 dark:text-neutral-100">Finding id:</span>{" "}
-              <span className="font-mono text-xs">{trimmedId}</span>
+              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{trimmedId}</span>
             </p>
           ) : null}
 
@@ -84,7 +86,7 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
           ) : null}
 
           {snapshot === null ? (
-            <p className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 m-0 p-3">
+            <p className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 m-0 p-3", OPERATOR_TYPOGRAPHY.body)}>
               No finding payload was available on this review response. Open <strong>View trace</strong> for persisted
               explainability, or inspect the finding page after the pipeline persists full results.
             </p>
@@ -100,11 +102,11 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
                 >
                   <h3
                     id="ai-reasoning-confidence-heading"
-                    className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+                    className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   >
                     Evaluation signals
                   </h3>
-                  <dl className="m-0 mt-2 space-y-1.5 text-xs">
+                  <dl className={cn("m-0 mt-2 space-y-1.5", OPERATOR_TYPOGRAPHY.helper)}>
                     {keys.evaluationConfidenceScore !== undefined && keys.evaluationConfidenceScore !== null ? (
                       <div className="flex flex-wrap gap-x-2">
                         <dt className="font-semibold text-neutral-700 dark:text-neutral-300">evaluationConfidenceScore</dt>
@@ -125,7 +127,7 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
                       <div>
                         <dt className="font-semibold text-neutral-700 dark:text-neutral-300">evidenceRefs</dt>
                         <dd className="m-0 mt-0.5">
-                          <ul className="m-0 list-disc space-y-0.5 pl-5 font-mono text-[11px]">
+                          <ul className={cn("m-0 list-disc space-y-0.5 pl-5 font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                             {evidenceList.map((ref, i) => (
                               <li key={`${String(ref)}-${i}`}>{String(ref)}</li>
                             ))}
@@ -139,20 +141,20 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
 
               {snapshot.reasoningTrace.trim().length > 0 ? (
                 <section aria-labelledby="ai-reasoning-trace-heading">
-                  <h3 id="ai-reasoning-trace-heading" className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  <h3 id="ai-reasoning-trace-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Reasoning trace
                   </h3>
-                  <pre className="mt-2 max-h-[min(40vh,22rem)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 text-xs leading-relaxed text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950/80 dark:text-neutral-100">
+                  <pre className={cn("mt-2 max-h-[min(40vh,22rem)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 leading-relaxed text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950/80 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
                     <code className="whitespace-pre-wrap break-words font-mono">{snapshot.reasoningTrace}</code>
                   </pre>
                 </section>
               ) : null}
 
               <section aria-labelledby="ai-reasoning-raw-heading">
-                <h3 id="ai-reasoning-raw-heading" className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                <h3 id="ai-reasoning-raw-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Raw finding JSON
                 </h3>
-                <pre className="mt-2 max-h-[min(50vh,28rem)] overflow-auto rounded-md border border-neutral-200 bg-neutral-950 p-3 text-[11px] leading-snug text-emerald-100 dark:border-neutral-700">
+                <pre className={cn("mt-2 max-h-[min(50vh,28rem)] overflow-auto rounded-md border border-neutral-200 bg-neutral-950 p-3 leading-snug text-emerald-100 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
                   <code className="whitespace-pre-wrap break-all font-mono">{snapshot.wireJson}</code>
                 </pre>
               </section>

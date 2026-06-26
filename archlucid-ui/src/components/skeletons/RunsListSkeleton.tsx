@@ -14,7 +14,7 @@ export function RunsListSkeleton() {
         <Skeleton className="h-4 w-56" />
       </div>
       <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-700">
-        <table className="w-full border-collapse text-sm">
+        <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
           <thead>
             <tr className="border-b border-neutral-200 dark:border-neutral-700">
               <th className="p-2 text-left">

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useState } from "react";
 
@@ -138,12 +140,12 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
             <textarea
               id="dry-run-thresholds-json"
               data-testid="dry-run-thresholds-json"
-              className="min-h-[120px] rounded-md border border-neutral-300 bg-white p-2 font-mono text-xs dark:border-neutral-700 dark:bg-neutral-900"
+              className={cn("min-h-[120px] rounded-md border border-neutral-300 bg-white p-2 font-mono dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}
               value={thresholdsJson}
               onChange={(e) => setThresholdsJson(e.target.value)}
               spellCheck={false}
             />
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Values are sent through the LLM-prompt redaction pipeline before being persisted in
               the audit log (PENDING_QUESTIONS Q37).
             </p>
@@ -184,7 +186,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
             <div
               role="alert"
               data-testid="dry-run-error"
-              className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50"
+              className={cn("rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50", OPERATOR_TYPOGRAPHY.body)}
             >
               {errorMessage}
             </div>
@@ -193,7 +195,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
           {result !== null ? (
             <section
               data-testid="dry-run-result"
-              className="grid gap-2 rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-700"
+              className={cn("grid gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
             >
               {(() => {
                 const simulationSummary: PolicyPackSimulationSummary | null =
@@ -205,7 +207,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
                     data-testid="policy-pack-simulation-summary"
                   >
                     <p className="m-0 font-semibold">{simulationSummary.headline}</p>
-                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       {simulationSummary.detail}
                     </p>
                   </div>
@@ -224,12 +226,12 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
                 {result.returnedRuns} of {result.totalRequestedRuns}
               </div>
               <div className="grid gap-1">
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                <div className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Proposed thresholds (after redaction):
                 </div>
                 <pre
                   data-testid="dry-run-redacted-json"
-                  className="whitespace-pre-wrap break-words rounded-md bg-neutral-100 p-2 font-mono text-xs dark:bg-neutral-800"
+                  className={cn("whitespace-pre-wrap break-words rounded-md bg-neutral-100 p-2 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {result.proposedThresholdsRedactedJson}
                 </pre>

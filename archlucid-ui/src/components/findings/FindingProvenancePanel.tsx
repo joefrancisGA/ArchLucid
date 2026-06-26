@@ -49,10 +49,10 @@ function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): Rea
 
   return (
     <li className={cn("space-y-1", stepBorderClass(step.kind))}>
-      <p className={cn("m-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200", step.kind === "conclusion" ? "font-bold" : "")}>
+      <p className={cn("m-0 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper, step.kind === "conclusion" ? "font-bold" : "")}>
         {stepKindLabel(step.kind)}: {step.label}
       </p>
-      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{step.detail}</p>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
     </li>
   );
 }
@@ -115,7 +115,7 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
             </ul>
           ) : null}
           {!loading && error ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Provenance not available for this finding.</p>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Provenance not available for this finding.</p>
           ) : null}
           {!loading && steps !== null ? (
             <ol className="m-0 list-none space-y-3 p-0">

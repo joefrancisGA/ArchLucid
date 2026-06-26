@@ -1,8 +1,9 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useId, useState } from "react";
 
-import { cn } from "@/lib/utils";
 
 /**
  * Long policy or rule text: line-clamp by default with an accessible expand control.
@@ -43,7 +44,7 @@ export function ClampedLongText({
       {needsToggle ? (
         <button
           type="button"
-          className="mt-1 text-left text-sm font-medium text-sky-800 underline focus:outline-none focus:ring-2 focus:ring-sky-500 dark:text-sky-200"
+          className={cn("mt-1 text-left font-medium text-sky-800 underline focus:outline-none focus:ring-2 focus:ring-sky-500 dark:text-sky-200", OPERATOR_TYPOGRAPHY.body)}
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls={id}

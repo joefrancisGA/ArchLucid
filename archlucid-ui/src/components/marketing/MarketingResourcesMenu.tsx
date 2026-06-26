@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -72,7 +74,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
         aria-expanded={open}
         aria-controls={resourcesMenuId}
         aria-haspopup="menu"
-        className="inline-flex list-none cursor-pointer items-center rounded-md px-2 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
+        className={cn("inline-flex list-none cursor-pointer items-center rounded-md px-2 py-1.5 font-medium text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.body)}
         onClick={toggleMenu}
       >
         Resources
@@ -89,7 +91,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           <Link
             href="/compliance-journey"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
             onClick={closeMenu}
           >
             Compliance journey
@@ -97,7 +99,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           <Link
             href="/trust"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
             onClick={closeMenu}
           >
             Trust Center
@@ -105,7 +107,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           <Link
             href="/security-trust"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
             onClick={closeMenu}
           >
             Security &amp; assurance
@@ -113,7 +115,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           <Link
             href="/privacy"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
             onClick={closeMenu}
           >
             Privacy
@@ -121,7 +123,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
           <Link
             href="/why"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+            className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
             onClick={closeMenu}
           >
             Why ArchLucid
@@ -130,7 +132,7 @@ export function MarketingResourcesMenu({ liveDemoLinked }: MarketingResourcesMen
             <Link
               href="/live-demo"
               role="menuitem"
-              className="block px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+              className={cn("block px-3 py-2 text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
               onClick={closeMenu}
             >
               Live demo

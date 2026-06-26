@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -26,7 +28,7 @@ function truncateForDisplay(value: string): { text: string; truncated: boolean }
 function RawField(props: { readonly label: string; readonly value: string | null | undefined }) {
   if (props.value === null || props.value === undefined || props.value.trim().length === 0) {
     return (
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-neutral-600 dark:text-neutral-300">{props.label}:</span> (empty)
       </p>
     );
@@ -36,12 +38,12 @@ function RawField(props: { readonly label: string; readonly value: string | null
 
   return (
     <div>
-      <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300">{props.label}</p>
-      <pre className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded border border-neutral-200/80 bg-neutral-50 px-2 py-1.5 font-mono text-[11px] text-neutral-800 dark:border-neutral-700/80 dark:bg-neutral-900/60 dark:text-neutral-200">
+      <p className={cn("font-medium text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</p>
+      <pre className={cn("mt-1 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded border border-neutral-200/80 bg-neutral-50 px-2 py-1.5 font-mono text-neutral-800 dark:border-neutral-700/80 dark:bg-neutral-900/60 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         {text}
       </pre>
       {truncated ? (
-        <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+        <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Preview truncated for UI safety; full text may be in durable blob storage when blob upload succeeded.
         </p>
       ) : null}
@@ -58,14 +60,14 @@ export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForens
 
   if (!canViewRaw) {
     return (
-      <span className="text-xs text-neutral-500 dark:text-neutral-400" title="Execute authority required">
+      <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} title="Execute authority required">
         Restricted
       </span>
     );
   }
 
   if (!props.snapshot) {
-    return <span className="text-xs text-neutral-500 dark:text-neutral-400">No trace row</span>;
+    return <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>No trace row</span>;
   }
 
   const hasAny =
@@ -75,11 +77,11 @@ export function RunToolInvocationForensicsRawCell(props: RunToolInvocationForens
     (props.snapshot.parsedResultJson?.trim().length ?? 0) > 0;
 
   if (!hasAny) {
-    return <span className="text-xs text-neutral-500 dark:text-neutral-400">No inline text</span>;
+    return <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>No inline text</span>;
   }
 
   return (
-    <details className="text-xs">
+    <details className={OPERATOR_TYPOGRAPHY.helper}>
       <summary className="cursor-pointer text-al-accent hover:underline">View raw</summary>
       <div className="mt-2 max-w-lg space-y-2 rounded border border-neutral-200/80 bg-al-surface-raised p-2 dark:border-neutral-700/80">
         <RawField label="User prompt (redacted)" value={props.snapshot.userPrompt} />

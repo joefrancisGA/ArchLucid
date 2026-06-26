@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { ArchLucidLogo } from "@/components/brand/ArchLucidLogo";
 import { ArchLucidMark } from "@/components/brand/ArchLucidMark";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
@@ -16,7 +18,7 @@ function MarkSizeRow() {
         <div key={markSize} className="flex flex-col items-center gap-1">
           <ArchLucidMark size={markSize} title={`ArchLucid (${markSize}px)`} />
 
-          <span className="text-xs text-neutral-500">{markSize}px</span>
+          <span className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{markSize}px</span>
         </div>
       ))}
     </div>
@@ -31,7 +33,7 @@ function Swatch({ label, value }: { label: string; value: string }) {
         style={{ backgroundColor: value }}
       />
 
-      <span className="text-sm text-neutral-700">
+      <span className={cn("text-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
         {label} <code className="text-neutral-500">{value}</code>
       </span>
     </div>
@@ -42,7 +44,7 @@ export function ArchLucidLogoPreview() {
   return (
     <div className="space-y-8 p-6">
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-600">Brand colors</h2>
+        <h2 className={cn("font-semibold text-neutral-600", OPERATOR_TYPOGRAPHY.cardTitle)}>Brand colors</h2>
 
         <div className="flex flex-wrap gap-6">
           <Swatch label="Navy" value={ARCHLUCID_BRAND.navy} />
@@ -52,7 +54,7 @@ export function ArchLucidLogoPreview() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-600">
+        <h2 className={cn("font-semibold text-neutral-600", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Mark — size legibility (16 / 24 / 32 px targets)
         </h2>
 
@@ -60,7 +62,7 @@ export function ArchLucidLogoPreview() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-600">Logo variants</h2>
+        <h2 className={cn("font-semibold text-neutral-600", OPERATOR_TYPOGRAPHY.cardTitle)}>Logo variants</h2>
 
         <div className="flex flex-col gap-4">
           <ArchLucidLogo variant="full" />
@@ -72,7 +74,7 @@ export function ArchLucidLogoPreview() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-neutral-600">
+        <h2 className={cn("font-semibold text-neutral-600", OPERATOR_TYPOGRAPHY.cardTitle)}>
           On dark surface
         </h2>
 

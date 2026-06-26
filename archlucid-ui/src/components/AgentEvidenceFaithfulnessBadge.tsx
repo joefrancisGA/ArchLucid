@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER,
   evidenceFaithfulnessBadgePresentation,
@@ -15,10 +17,10 @@ export function AgentEvidenceFaithfulnessBadge(props: { ratio: unknown }) {
   return (
     <span
       title={title}
-      className={`inline-flex max-w-full cursor-help items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${pres.badgeClassName}`}
+      className={cn("inline-flex max-w-full cursor-help items-center gap-1 rounded-full px-2 py-0.5 font-medium ${pres.badgeClassName}", OPERATOR_TYPOGRAPHY.helper)}
     >
       <span className="whitespace-nowrap">{pres.tierLabel}</span>
-      <span className="font-mono text-[11px] opacity-90">({pres.formattedRatio})</span>
+      <span className={cn("font-mono opacity-90", OPERATOR_TYPOGRAPHY.helper)}>({pres.formattedRatio})</span>
     </span>
   );
 }

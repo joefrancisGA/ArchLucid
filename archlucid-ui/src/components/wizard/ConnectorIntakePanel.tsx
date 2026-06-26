@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -95,8 +97,8 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
       className="rounded-md border border-dashed border-neutral-300 bg-al-surface-raised p-4 dark:border-neutral-700"
       data-testid="connector-intake-panel"
     >
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Import from Terraform or Git</p>
-      <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Import from Terraform or Git</p>
+      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Paste <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">terraform show -json</code> output or
         point at a public GitHub <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">.tf</code> file.
       </p>
@@ -110,7 +112,7 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
       </div>
       {tab === "terraform" ? (
         <Textarea
-          className="mt-3 font-mono text-xs"
+          className={cn("mt-3 font-mono", OPERATOR_TYPOGRAPHY.helper)}
           rows={8}
           value={terraformJson}
           onChange={(e) => setTerraformJson(e.target.value)}
@@ -160,7 +162,7 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
         </div>
       ) : null}
       {success !== null ? (
-        <p className="mt-3 text-sm text-teal-800 dark:text-teal-300" data-testid="connector-intake-success">
+        <p className={cn("mt-3 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} data-testid="connector-intake-success">
           {success}
         </p>
       ) : null}

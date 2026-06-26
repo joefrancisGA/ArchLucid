@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Check, ClipboardList } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -109,14 +111,14 @@ function WorkItemCopyControls({
   const selectTriggerClass = compact
     ? "h-7 w-full text-[0.65rem]"
     : prominent
-      ? "h-9 w-[12rem] text-xs"
-      : "h-8 w-[11.5rem] text-xs";
+      ? (cn("h-9 w-[12rem]", OPERATOR_TYPOGRAPHY.helper))
+      : (cn("h-8 w-[11.5rem]", OPERATOR_TYPOGRAPHY.helper));
 
   const buttonClass = compact
     ? "h-7 gap-1 px-2 text-[0.65rem]"
     : prominent
-      ? "h-9 gap-1.5 text-xs"
-      : "h-8 gap-1.5 text-xs";
+      ? (cn("h-9 gap-1.5", OPERATOR_TYPOGRAPHY.helper))
+      : (cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper));
 
   return (
     <div className={compact ? "flex min-w-0 flex-col gap-1.5" : "flex flex-wrap items-center gap-2"}>
@@ -147,7 +149,7 @@ function WorkItemCopyControls({
         </SelectTrigger>
         <SelectContent>
           {FORMAT_ITEMS.map((item) => (
-            <SelectItem key={item.value} value={item.value} className="text-xs">
+            <SelectItem key={item.value} value={item.value} className={OPERATOR_TYPOGRAPHY.helper}>
               {item.label}
             </SelectItem>
           ))}

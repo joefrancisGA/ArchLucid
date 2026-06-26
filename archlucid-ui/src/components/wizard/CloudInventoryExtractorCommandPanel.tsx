@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -8,7 +10,6 @@ import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
 import { buildGetArchLucidCloudPackageCommandLine } from "@/lib/get-archlucid-cloud-package-command";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { showError, showSuccess } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 
 export type CloudInventoryExtractorCommandPanelProps = {
   platform: CloudInventoryPlatform;
@@ -48,10 +49,10 @@ export function CloudInventoryExtractorCommandPanel(props: CloudInventoryExtract
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             {platformLabel} inventory script
           </p>
-          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Run from your ArchLucid checkout — no vendor credentials in your cloud account. Upload the resulting ZIP
             below.
           </p>
@@ -77,7 +78,7 @@ export function CloudInventoryExtractorCommandPanel(props: CloudInventoryExtract
         </Button>
       </div>
       <pre
-        className="mt-3 max-h-[min(40vh,320px)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 text-[11px] leading-relaxed dark:border-neutral-700 dark:bg-neutral-900"
+        className={cn("mt-3 max-h-[min(40vh,320px)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}
         data-testid={`${testIdPrefix}-command`}
       >
         <code>{commandLine}</code>

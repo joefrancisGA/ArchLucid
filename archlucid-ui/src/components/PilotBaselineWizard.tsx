@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useState, type FormEvent, type ReactElement } from "react";
@@ -238,7 +240,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <div className={cn("flex items-center justify-between font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <span>
                 Step <span className="text-neutral-900 dark:text-neutral-100">{stepIndex + 1}</span> / {STEP_COUNT}
               </span>
@@ -249,9 +251,9 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
           </div>
         </DialogHeader>
 
-        <div id="pilot-baseline-wizard-body" className="space-y-4 pb-4 text-sm text-neutral-800 dark:text-neutral-100">
+        <div id="pilot-baseline-wizard-body" className={cn("space-y-4 pb-4 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           {demoMode ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Demo mode hides authenticated baseline persistence — connect a tenant workspace to capture ROI anchors.
             </p>
           ) : stepIndex === 0 ? (
@@ -264,7 +266,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
               <div>
                 <Label htmlFor="pilot-baseline-review-hours">Current median hours per architecture review</Label>
 
-                <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Estimate the current elapsed effort from request intake to a reviewable package.
                 </p>
 
@@ -286,7 +288,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
 
                 <textarea
                   id="pilot-baseline-review-note"
-                  className="mt-1 min-h-[72px] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none ring-teal-500/40 placeholder:text-neutral-400 focus-visible:ring-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
+                  className={cn("mt-1 min-h-[72px] w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-neutral-900 shadow-sm outline-none ring-teal-500/40 placeholder:text-neutral-400 focus-visible:ring-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}
                   maxLength={500}
                   value={reviewNote}
                   onChange={(x) => setReviewNote(x.target.value)}
@@ -336,7 +338,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
         </div>
 
         <DialogFooter className="space-y-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             You can update this later in{" "}
             <Link href="/settings/baseline" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
               Settings → Baseline

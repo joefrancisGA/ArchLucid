@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";
@@ -6,7 +8,7 @@ import type {
   FindingPolicyPackCitationLink,
 } from "@/lib/finding-policy-evidence-citations";
 
-const preBoxCls = "m-0 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-4 font-mono text-sm leading-relaxed dark:border-neutral-700 dark:bg-neutral-950 max-h-[min(70vh,720px)]";
+const preBoxCls = (cn("m-0 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-4 font-mono leading-relaxed dark:border-neutral-700 dark:bg-neutral-950 max-h-[min(70vh,720px)]", OPERATOR_TYPOGRAPHY.body));
 
 export type ArtifactReviewPolicyCitation = {
   readonly pack?: FindingPolicyPackCitationLink | null;
@@ -32,7 +34,7 @@ export function ArtifactReviewContent(props: {
       <OperatorWarningCallout>
         <strong>In-shell preview unavailable.</strong>
         <p className="mt-2">{contentError}</p>
-        <p className="mt-2 text-sm">
+        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
           Use <strong>Download</strong> to open the artifact locally. Descriptor metadata above is still
           valid when the download endpoint succeeds.
         </p>
@@ -67,14 +69,14 @@ export function ArtifactReviewContent(props: {
       {truncated && (
         <OperatorWarningCallout>
           <strong>Preview truncated.</strong>
-          <p className="mt-2 text-sm">
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
             Showing the first portion of this artifact ({byteLength.toLocaleString()} bytes total). Download
             for the full file.
           </p>
         </OperatorWarningCallout>
       )}
 
-      <p className="mb-2 text-[13px] text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mb-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {caption} · <code>{contentType}</code> · {byteLength.toLocaleString()} bytes
       </p>
 

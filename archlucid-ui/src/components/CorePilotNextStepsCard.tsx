@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -24,7 +26,7 @@ type Phase = "loading" | "ready";
 function StepBadge({ label }: { label: string }) {
   return (
     <span
-      className="inline-block rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-semibold text-teal-800 dark:bg-teal-900/50 dark:text-teal-300"
+      className={cn("inline-block rounded-full bg-teal-100 px-2 py-0.5 font-semibold text-teal-800 dark:bg-teal-900/50 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="pilot-step-badge"
     >
       {label}
@@ -36,7 +38,7 @@ function StepBadge({ label }: { label: string }) {
 function RunIdNote({ runId }: { runId: string }) {
   return (
     <p
-      className="m-0 text-[11px] text-neutral-500 dark:text-neutral-400"
+      className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="pilot-run-id"
     >
       Review ID:{" "}
@@ -52,7 +54,7 @@ function RunIdNote({ runId }: { runId: string }) {
 function SkipForNowNote() {
   return (
     <p
-      className="m-0 mt-3 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400"
+      className={cn("m-0 mt-3 leading-relaxed text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="pilot-skip-for-now"
     >
       <span className="font-medium text-neutral-600 dark:text-neutral-300">Skip for now:</span>{" "}
@@ -65,7 +67,7 @@ function SkipForNowNote() {
 /** Rescue link shown at the bottom of every pre-commit state. */
 function RescueLink() {
   return (
-    <p className="m-0 mt-2 text-[11px] text-neutral-500 dark:text-neutral-400" data-testid="pilot-rescue-link">
+    <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="pilot-rescue-link">
       Blocked?{" "}
       <Link href="/help" className="font-medium text-blue-700 underline underline-offset-2 dark:text-blue-400">
         Help
@@ -151,7 +153,7 @@ export function CorePilotNextStepsCard() {
         collapsedSummary="First review package finalized — open detail, CLI shortcuts, and optional Operate links."
         headerAside={<StepBadge label={corePilotStepBadgeLabel("committed")} />}
       >
-        <p className="mb-3 mt-0 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mb-3 mt-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           First review package is finalized. Open the architecture package and findings — export sponsor-ready
           Markdown/PDF from review detail when needed; CLI shortcuts below speed support tickets.
         </p>
@@ -165,13 +167,13 @@ export function CorePilotNextStepsCard() {
           </Link>
         </div>
 
-        <div className="mb-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs leading-relaxed text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+        <div className={cn("mb-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 leading-relaxed text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <p className="m-0 font-semibold text-neutral-800 dark:text-neutral-100">Copy/paste CLI (replace RUN)</p>
           <code className="mt-1 block whitespace-pre-wrap break-all font-mono">
             archlucid first-value-report RUN --save{"\n"}
             archlucid run-support-packet RUN
           </code>
-          <p className="mb-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mb-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <code className="font-mono">run-support-packet</code> prints review-record/version/trace/context for escalation — pair with{" "}
             <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" variant="text" />.
           </p>
@@ -181,8 +183,8 @@ export function CorePilotNextStepsCard() {
           <RunIdNote runId={firstCommittedRunId} />
         ) : null}
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-neutral-100 pt-3 text-sm dark:border-neutral-800">
-          <p className="m-0 text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+        <div className={cn("mt-3 flex flex-col gap-2 border-t border-neutral-100 pt-3 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Now available (optional):
           </p>
           <Link
@@ -215,13 +217,13 @@ export function CorePilotNextStepsCard() {
 
         {latestRunId !== null ? <RunIdNote runId={latestRunId} /> : null}
 
-        <ol className="m-0 mt-3 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">
+        <ol className={cn("m-0 mt-3 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           <li className="flex items-start gap-2 text-neutral-400 dark:text-neutral-500" aria-label="Step 1 complete">
-            <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-600 dark:text-teal-400">✓</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-600 dark:text-teal-400", OPERATOR_TYPOGRAPHY.helper)}>✓</span>
             <span className="line-through">{OPERATOR_NAV_LINK_LABELS.capture} — architecture request</span>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 2 active">
-            <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/graph?runId=${encodeURIComponent(latestRunId)}` : "/graph"}
               className="font-medium text-blue-700 underline dark:text-blue-400"
@@ -231,7 +233,7 @@ export function CorePilotNextStepsCard() {
             </Link>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 3 active">
-            <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
             <Link
               href={latestRunId !== null ? `/reviews/${latestRunId}` : "/reviews?projectId=default"}
               className="font-medium text-blue-700 underline dark:text-blue-400"
@@ -241,7 +243,7 @@ export function CorePilotNextStepsCard() {
             </Link>
           </li>
           <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
-            <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">4.</span>
+            <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
             <span>
               Report — sponsor-facing summary on{" "}
               <Link href="/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
@@ -271,9 +273,9 @@ export function CorePilotNextStepsCard() {
     >
       <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-2 inline-block" />
 
-      <ol className="m-0 mt-0 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">
+      <ol className={cn("m-0 mt-0 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         <li className="flex items-start gap-2" aria-label="Step 1 active">
-          <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>
+          <span aria-hidden className={cn("mt-0.5 shrink-0 font-bold text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>▶</span>
           <Link
             href="/reviews/new"
             className="font-medium text-blue-700 underline dark:text-blue-400"
@@ -283,15 +285,15 @@ export function CorePilotNextStepsCard() {
           </Link>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">
-          <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">2.</span>
+          <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>2.</span>
           <span>Evidence — open the evidence trail after your review package starts.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
-          <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>
+          <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>3.</span>
           <span>Review — complete the assessment and finalize the package from review detail.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
-          <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">4.</span>
+          <span aria-hidden className={cn("mt-0.5 shrink-0 text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>4.</span>
           <span>Report — executive summary and sponsor-facing outputs when ready.</span>
         </li>
       </ol>

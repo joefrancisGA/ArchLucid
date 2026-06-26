@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -99,10 +101,10 @@ export function AfterCorePilotChecklistHint() {
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader className="space-y-1 sm:flex sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
           <div>
-            <h3 id="after-core-pilot-card-title" className="m-0 text-sm font-semibold text-al-text-primary tracking-tight text-teal-950 dark:text-teal-100">
+            <h3 id="after-core-pilot-card-title" className={cn("m-0 font-semibold text-al-text-primary tracking-tight text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Ready for more?
             </h3>
-            <p className="m-0 mt-0.5 text-xs text-teal-800/90 dark:text-teal-200/90">Expand your pilot — optional next steps</p>
+            <p className={cn("m-0 mt-0.5 text-teal-800/90 dark:text-teal-200/90", OPERATOR_TYPOGRAPHY.helper)}>Expand your pilot — optional next steps</p>
           </div>
           <Button
             type="button"
@@ -116,7 +118,7 @@ export function AfterCorePilotChecklistHint() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200" data-testid="after-core-pilot-intro">
+          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} data-testid="after-core-pilot-intro">
             When you have a real question that review detail cannot answer—<strong>what changed between two reviews</strong>,{" "}
             <strong>whether the provenance chain still validates</strong>, or a <strong>visual graph</strong>—the links
             below point to deeper analysis. <strong>Enterprise Controls</strong> (governance, audit, alerts) stay in
@@ -125,7 +127,7 @@ export function AfterCorePilotChecklistHint() {
 
           <Collapsible defaultOpen className="rounded-md border border-teal-200/80 bg-white/70 dark:border-teal-900/60 dark:bg-teal-950/30">
             <CollapsibleTrigger
-              className="auth-panel-focus flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm font-semibold text-teal-950 dark:text-teal-100 [&[data-state=open]_svg]:rotate-180"
+              className={cn("auth-panel-focus flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left font-semibold text-teal-950 dark:text-teal-100 [&[data-state=open]_svg]:rotate-180", OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="after-core-pilot-whats-next-collapsible-trigger"
             >
               Suggested next steps
@@ -135,7 +137,7 @@ export function AfterCorePilotChecklistHint() {
               <ul className="m-0 list-none space-y-3 border-t border-teal-200/60 px-3 py-3 dark:border-teal-800/50">
                 {suggestions.map((s, index) => {
                   return (
-                    <li key={s.href} className="text-sm text-neutral-800 dark:text-neutral-200">
+                    <li key={s.href} className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                       <div className="font-medium text-teal-900 dark:text-teal-200">
                         <Link href={s.href} className="underline decoration-teal-600/50 underline-offset-2 hover:decoration-teal-800 dark:decoration-teal-500/50 dark:hover:text-teal-100">
                           {s.title}
@@ -143,7 +145,7 @@ export function AfterCorePilotChecklistHint() {
                       </div>
                       <p className="m-0 mt-0.5 text-neutral-700 dark:text-neutral-300">{s.description}</p>
                       <p
-                        className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-400"
+                        className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid={`after-core-pilot-sidebar-note-${index}`}
                       >
                         <span className="font-medium text-neutral-600 dark:text-neutral-500">Sidebar: </span>

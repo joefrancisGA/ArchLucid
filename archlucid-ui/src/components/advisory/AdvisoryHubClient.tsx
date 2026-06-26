@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
-import { cn } from "@/lib/utils";
 
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
@@ -89,8 +90,7 @@ export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
                 data-testid={`advisory-hub-tab-${id}`}
                 title={tabTitle}
                 onClick={() => onSelectTab(id)}
-                className={cn(
-                  "rounded-t-md border border-b-0 px-3 py-2 text-sm font-medium",
+                className={cn("rounded-t-md border border-b-0 px-3 py-2 font-medium", OPERATOR_TYPOGRAPHY.body,
                   selected
                     ? "border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
                     : "border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",

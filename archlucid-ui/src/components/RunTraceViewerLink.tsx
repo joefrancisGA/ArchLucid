@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Check, Copy, ExternalLink } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -41,7 +43,7 @@ export function RunTraceViewerLink({ traceId }: RunTraceViewerLinkProps) {
     traceId.length > 8 ? `${traceId.slice(0, 8)}…` : traceId;
 
   return (
-    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+    <div className={cn("mt-1 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}>
       {traceUrl ? (
         <a
           href={traceUrl}

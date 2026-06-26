@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -29,7 +31,7 @@ export function SupportBundleDownloadButton({
       </Button>
 
       {showAdminLink ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Requires admin API access. Full diagnostics page:{" "}
           <Link className="text-teal-800 underline dark:text-teal-300" href="/admin/support">
             Admin → Support
@@ -41,7 +43,7 @@ export function SupportBundleDownloadButton({
       {error !== null ? (
         <p
           role="alert"
-          className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-2 text-sm"
+          className={cn("rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 p-2", OPERATOR_TYPOGRAPHY.body)}
           data-testid="support-bundle-download-error"
         >
           {error}

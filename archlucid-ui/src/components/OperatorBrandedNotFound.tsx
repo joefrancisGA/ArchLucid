@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
@@ -31,18 +33,18 @@ export function OperatorBrandedNotFound({
   return (
     <div data-testid="branded-not-found">
       <OperatorEmptyState title="We could not find that ArchLucid artifact">
-      <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         The link may be mistyped, expired, or pointed to a review package, evidence item, finding, or workspace item
         that is not available in the current workspace.
       </p>
-      <p className="m-0 mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         If the review was just created, wait a moment and retry. If you pasted an ID, confirm the full value was
         copied.
       </p>
-      <p className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         If you expected a completed review, open Review packages and confirm the workspace selector is set correctly.
       </p>
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-medium">
+      <div className={cn("mt-4 flex flex-wrap items-center gap-4 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <OperatorSectionRetryButton label={retryLabel} />
         <Link className="text-teal-800 underline dark:text-teal-300" href="/" data-testid="not-found-home">
           {OPERATOR_NAV_LINK_LABELS.home}
@@ -71,7 +73,7 @@ export function OperatorBrandedNotFound({
           </Link>
         ) : null}
       </div>
-      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-800 dark:text-neutral-300">
+      <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         ArchLucid · 404
       </p>
       <span className="sr-only">Page not found</span>

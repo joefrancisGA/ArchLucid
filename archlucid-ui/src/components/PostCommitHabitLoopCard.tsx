@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import type { ReactElement } from "react";
@@ -37,14 +39,14 @@ export function PostCommitHabitLoopCard({
       data-testid="post-commit-habit-loop-card"
     >
       <CardHeader className="pb-2">
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Next after commit</h2>
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Next after commit</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           One primary action for sponsor handoff; optional loops stay secondary unless you have a concrete question.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Primary
           </p>
           <Button
@@ -59,12 +61,12 @@ export function PostCommitHabitLoopCard({
               {loop.primary.label}
             </Link>
           </Button>
-          <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">{loop.primary.description}</p>
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{loop.primary.description}</p>
         </div>
 
         {loop.optional.length > 0 ? (
           <div className="flex flex-col gap-2">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-medium uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Optional
             </p>
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
@@ -72,13 +74,13 @@ export function PostCommitHabitLoopCard({
                 <li key={action.id}>
                   <Link
                     href={action.href}
-                    className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+                    className={cn("font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
                     data-testid={`post-commit-habit-optional-${action.id}`}
                     title={action.description}
                   >
                     {action.label}
                   </Link>
-                  <span className="block text-xs text-neutral-600 dark:text-neutral-400">{action.description}</span>
+                  <span className={cn("block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{action.description}</span>
                 </li>
               ))}
             </ul>

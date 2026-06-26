@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import {
@@ -35,16 +37,16 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
   return (
     <Card className={toneClass} data-testid="draft-intake-decision-receipt-card">
       <CardHeader>
-        <CardTitle className="text-base">Decision receipt — intake not admitted</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Decision receipt — intake not admitted</CardTitle>
         <CardDescription>
           {props.redirectReason} This is a complete product outcome, not an error dead-end (ADR 0052).
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <DraftIntakeClaimLabel surface="redirected-draft" />
-        <p className="m-0 text-sm font-semibold">{feasibilityVerdictKindLabel(props.verdict.kind)}</p>
-        <p className="m-0 text-sm leading-relaxed">{props.verdict.summary}</p>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{feasibilityVerdictKindLabel(props.verdict.kind)}</p>
+        <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{props.verdict.summary}</p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Cost story ({DECISION_RECEIPT_COST_ESTIMATE_LABEL}): ~$1 session vs ~$25k / 2–4 weeks of human
           architecture review avoided.
         </p>

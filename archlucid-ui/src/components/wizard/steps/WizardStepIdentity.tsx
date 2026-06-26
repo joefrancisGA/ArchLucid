@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -61,7 +63,7 @@ export function WizardStepIdentity() {
             })}
           />
           <WizardFieldError id="err-wizard-systemName" message={systemErr != null ? String(systemErr) : undefined} />
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {systemNameValue.trim().length} characters (minimum 2)
           </p>
         </div>
@@ -135,7 +137,7 @@ export function WizardStepIdentity() {
             id="err-wizard-cloud"
             message={cloudErr != null ? String(cloudErr) : undefined}
           />
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className={cn("mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             Evidence-only is the default first-pilot path. Azure export accelerates topology and cost findings when InfoSec approves the script.
           </p>
         </div>

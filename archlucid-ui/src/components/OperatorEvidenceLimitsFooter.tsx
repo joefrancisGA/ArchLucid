@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -63,19 +65,19 @@ export function OperatorEvidenceLimitsFooter({
 
   return (
     <footer
-      className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100"
+      className={cn("rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
       aria-labelledby="operator-evidence-limits-heading"
       data-testid="operator-evidence-limits-footer"
     >
-      <h2 id="operator-evidence-limits-heading" className="m-0 text-sm font-semibold tracking-tight">
+      <h2 id="operator-evidence-limits-heading" className={cn("m-0 font-semibold tracking-tight", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Evidence basis
       </h2>
 
-      <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Review structural provenance and recorded inspect metadata linked from this review.
       </p>
 
-      <details className="m-0 mt-2 rounded-md border border-neutral-200 bg-white/60 p-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-400">
+      <details className={cn("m-0 mt-2 rounded-md border border-neutral-200 bg-white/60 p-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">Review scope and limitations</summary>
         <p className="m-0 mt-2 leading-relaxed">
           This strip reflects API-reported execution signals only; it does not assert production latency or external
@@ -124,18 +126,18 @@ export function OperatorEvidenceLimitsFooter({
 
       {showFallbackDisclaimer && showTechnicalExecutionDisclosures ? (
         <p
-          className="m-0 mt-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
+          className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="operator-evidence-limits-fallback-disclaimer"
         >
           This review is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
           simulator output was substituted (see review record field{" "}
-          <span className="font-mono text-[11px]">realModeFellBackToSimulator</span>
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>realModeFellBackToSimulator</span>
           ).
           {deploymentSnapshot.length > 0 ? (
             <>
               {" "}
               Recorded deployment snapshot at fallback:{" "}
-              <span className="font-mono text-[11px]">{deploymentSnapshot}</span>.
+              <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{deploymentSnapshot}</span>.
             </>
           ) : null}
         </p>
@@ -143,19 +145,19 @@ export function OperatorEvidenceLimitsFooter({
 
       {showInspectMetaLine && showTechnicalExecutionDisclosures ? (
         <p
-          className="m-0 mt-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
+          className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="operator-evidence-limits-inspect-metadata"
         >
           Inspect API returned{" "}
           {modelName.length > 0 ? (
             <>
-              model deployment name <span className="font-mono text-[11px]">{modelName}</span>
+              model deployment name <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{modelName}</span>
             </>
           ) : null}
           {modelName.length > 0 && promptVersion.length > 0 ? " and " : null}
           {promptVersion.length > 0 ? (
             <>
-              prompt template version <span className="font-mono text-[11px]">{promptVersion}</span>
+              prompt template version <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{promptVersion}</span>
             </>
           ) : null}
           .

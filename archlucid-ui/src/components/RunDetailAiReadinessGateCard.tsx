@@ -81,7 +81,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
   if (state === "error" || payload === null) {
     return (
       <div
-        className={cn("mb-4 px-4 py-3 text-sm", operatorSemanticSurface("warn"))}
+        className={cn("mb-4 px-4 py-3", OPERATOR_TYPOGRAPHY.body, operatorSemanticSurface("warn"))}
         data-testid="run-detail-ai-readiness-gate-error"
       >
         AI readiness signals could not be loaded. Review the first-value Markdown report before sponsor send.
@@ -95,8 +95,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
 
   return (
     <div
-      className={cn(
-        "mb-4 px-4 py-3 text-sm",
+      className={cn("mb-4 px-4 py-3", OPERATOR_TYPOGRAPHY.body,
         pilotStrictOk ? operatorSemanticSurface("ready") : operatorSemanticSurface("warn"),
       )}
       data-testid="run-detail-ai-readiness-gate"
@@ -104,7 +103,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
       <p className="m-0 font-semibold">
         {pilotStrictOk ? "AI readiness: PilotStrict satisfied" : "AI readiness: HOLD — review before sponsor send"}
       </p>
-      <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+      <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
         {pilotStrictOk
           ? "No PilotStrict trace or faithfulness failures are attested for this committed review on real-mode hosts."
           : "PilotStrict quality signals failed or are unresolved. Open the first-value report and observability summary before external PDF send."}
@@ -115,7 +114,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
           </>
         ) : null}
       </p>
-      <p className="m-0 mt-2 text-xs">
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
         <Link
           href={`/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`}
           className="font-medium underline underline-offset-2"

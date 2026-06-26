@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type DraftIntakeClaimSurface =
   | "structural-admission"
@@ -23,10 +25,13 @@ export type DraftIntakeClaimLabelProps = {
 
 function claimLabelClassName(surface: DraftIntakeClaimSurface): string {
   if (surface === "structural-admission") {
-    return "m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300";
+    return cn(
+      "m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
+      OPERATOR_TYPOGRAPHY.body,
+    );
   }
 
-  return "m-0 text-xs text-neutral-600 dark:text-neutral-400";
+  return (cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
 }
 
 /** Evidence-basis label for Socratic draft-intake surfaces (SPONSOR_CLAIM_LABEL_AUDIT). */

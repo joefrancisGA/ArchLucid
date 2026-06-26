@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 
@@ -22,14 +24,14 @@ export function OperateUnlockAutoHint(props: OperateUnlockAutoHintProps): ReactE
       data-testid="operate-unlock-auto-hint"
       role="status"
     >
-      <p className="m-0 text-xs leading-relaxed text-neutral-800 dark:text-neutral-200">
+      <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         {CORE_PILOT_PATH_STREAMLINED_LABELS.operateAutoUnlockHint}
       </p>
       <Button
         type="button"
         variant="ghost"
         size="sm"
-        className="h-auto px-0 py-0 text-xs font-medium text-teal-800 hover:bg-transparent hover:underline dark:text-teal-300"
+        className={cn("h-auto px-0 py-0 font-medium text-teal-800 hover:bg-transparent hover:underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="operate-unlock-auto-hint-dismiss"
         onClick={props.onDismiss}
       >

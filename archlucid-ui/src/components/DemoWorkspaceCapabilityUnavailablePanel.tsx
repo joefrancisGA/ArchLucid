@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -7,7 +9,6 @@ import {
   BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY,
   BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE,
 } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 
 type DemoWorkspaceCapabilityUnavailablePanelProps = {
   readonly capability: string;
@@ -25,8 +26,7 @@ export function DemoWorkspaceCapabilityUnavailablePanel(
 
   return (
     <div
-      className={cn(
-        "rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400",
+      className={cn("rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-neutral-600 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body,
         layout === "standalone" ? "mx-auto max-w-2xl" : "w-full",
       )}
       data-testid="demo-workspace-capability-unavailable"
@@ -38,7 +38,7 @@ export function DemoWorkspaceCapabilityUnavailablePanel(
         <Button asChild size="sm">
           <Link href="/">{BUYER_DEMO_CAPABILITY_RETURN_HOME_CTA}</Link>
         </Button>
-        <Link href="/help/troubleshooting" className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href="/help/troubleshooting" className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           {BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA}
         </Link>
       </div>

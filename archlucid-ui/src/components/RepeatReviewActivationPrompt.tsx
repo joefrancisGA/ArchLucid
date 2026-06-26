@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
@@ -56,13 +58,13 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2
               id="repeat-review-activation-heading"
-              className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+              className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
             >
               {prompt.headline}
             </h2>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+        <CardContent className={cn("space-y-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <OperatorHomeGuidanceLink helpSlug="repeat-review-loop" label="Repeat-review loop" />
           <p className="m-0">{prompt.summary}</p>
           <div>
@@ -79,12 +81,12 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
                 >
                   {action.label}
                 </Link>
-                <p className="m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">{action.reason}</p>
+                <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{action.reason}</p>
               </li>
             ))}
           </ul>
           {buyerPolishedShell ? (
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Optional follow-up — not required to finish your first proof package.
             </p>
           ) : null}

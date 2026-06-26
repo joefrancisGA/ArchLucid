@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -94,7 +96,7 @@ function AdvancedChipList(props: {
               <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
                 <span className="max-w-[220px] truncate">{item}</span>
                 {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
-                  <span className="rounded bg-violet-100 px-1 text-[10px] font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100">
+                  <span className={cn("rounded bg-violet-100 px-1 font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100", OPERATOR_NAV_GROUP_LABEL)}>
                     AI
                   </span>
                 ) : null}
@@ -128,7 +130,7 @@ function CollapsibleSection(props: {
         <span className="flex flex-wrap items-center gap-2">
           <span>{props.title}</span>
           {props.count > 0 ? (
-            <Badge variant="secondary" className="font-mono text-xs">
+            <Badge variant="secondary" className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
               {props.count}
             </Badge>
           ) : null}
@@ -168,7 +170,7 @@ export function WizardStepAdvanced() {
       title="Advanced inputs (optional)"
       description="Policy references, topology and security hints, attached documents, and infrastructure declarations."
     >
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Most reviews only need earlier steps. Open Advanced Options when you want custom policy overrides, structured
         hints, attached documents, or raw infrastructure snippets for agents.
       </p>
@@ -206,14 +208,14 @@ export function WizardStepAdvanced() {
             label="Documents"
             hint="Each row is a named UTF-8 attachment (name, content type, body) merged into agent context alongside the main brief."
           />
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Reference files (ADRs, RFCs) inlined as UTF-8 text for agent context.
           </p>
           {docFields.map((row, index) => (
             <div key={row.id} className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
               <div className="grid gap-2 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium" htmlFor={`doc-name-${index}`}>
+                  <label className={cn("mb-1 block font-medium", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`doc-name-${index}`}>
                     Name
                   </label>
                   <Input
@@ -233,7 +235,7 @@ export function WizardStepAdvanced() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium" htmlFor={`doc-ct-${index}`}>
+                  <label className={cn("mb-1 block font-medium", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`doc-ct-${index}`}>
                     Content type
                   </label>
                   <Input
@@ -254,7 +256,7 @@ export function WizardStepAdvanced() {
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium" htmlFor={`doc-body-${index}`}>
+                <label className={cn("mb-1 block font-medium", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`doc-body-${index}`}>
                   Content
                 </label>
                 <Textarea
@@ -296,14 +298,14 @@ export function WizardStepAdvanced() {
             label="Infrastructure declarations"
             hint="Raw JSON or simple-Terraform snippets describe estate in place so agents diff against truth instead of assuming greenfield."
           />
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Existing IaC or config snippets agents should reason about.
           </p>
           {infraFields.map((row, index) => (
             <div key={row.id} className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
               <div className="grid gap-2 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium" htmlFor={`infra-name-${index}`}>
+                  <label className={cn("mb-1 block font-medium", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`infra-name-${index}`}>
                     Name
                   </label>
                   <Input
@@ -323,7 +325,7 @@ export function WizardStepAdvanced() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium" htmlFor={`infra-format-${index}`}>
+                  <label className={cn("mb-1 block font-medium", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`infra-format-${index}`}>
                     Format
                   </label>
                   <Controller
@@ -357,7 +359,7 @@ export function WizardStepAdvanced() {
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium" htmlFor={`infra-body-${index}`}>
+                <label className={cn("mb-1 block font-medium", OPERATOR_TYPOGRAPHY.helper)} htmlFor={`infra-body-${index}`}>
                   Content
                 </label>
                 <Textarea

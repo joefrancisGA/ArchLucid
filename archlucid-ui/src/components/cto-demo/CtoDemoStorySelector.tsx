@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT,
@@ -12,7 +14,6 @@ import {
   isCtoDemoStoryFullyBacked,
   type CtoDemoStory,
 } from "@/lib/buyer-cto-demo-story-registry";
-import { cn } from "@/lib/utils";
 
 export type CtoDemoStorySelectorProps = {
   readonly selectedStoryId?: string;
@@ -25,7 +26,7 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
 
   return (
     <div data-testid="cto-demo-story-selector">
-      <p className="m-0 mb-1 text-[11px] text-neutral-500 dark:text-neutral-400">{BUYER_CTO_DEMO_STORY_GATED_NOTE}</p>
+      <p className={cn("m-0 mb-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_CTO_DEMO_STORY_GATED_NOTE}</p>
       <div
         className="flex flex-wrap gap-1"
         role="group"
@@ -40,8 +41,7 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
               key={story.id}
               type="button"
               data-testid={`cto-demo-story-option-${story.id}`}
-              className={cn(
-                "rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
+              className={cn("rounded-full border px-2 py-0.5 font-medium transition", OPERATOR_TYPOGRAPHY.helper,
                 selected
                   ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-600 dark:bg-teal-950/50 dark:text-teal-100"
                   : fullyBacked

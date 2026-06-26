@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Settings2 } from "lucide-react";
 import type { ReactElement } from "react";
@@ -41,7 +43,7 @@ export function SidebarNavLayoutSettingsPanel(
           type="button"
           variant="ghost"
           size="sm"
-          className="sidebar-disclosure-trigger w-full justify-start gap-2 text-xs text-neutral-800 dark:text-neutral-200"
+          className={cn("sidebar-disclosure-trigger w-full justify-start gap-2 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
           data-onboarding="tour-nav-settings"
           aria-haspopup="dialog"
           aria-expanded={props.settingsOpen}
@@ -58,7 +60,7 @@ export function SidebarNavLayoutSettingsPanel(
             type="button"
             variant="outline"
             size="sm"
-            className="sidebar-disclosure-trigger mt-2 w-full justify-start px-3 py-2 text-left text-xs font-medium text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className={cn("sidebar-disclosure-trigger mt-2 w-full justify-start px-3 py-2 text-left font-medium text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="sidebar-show-advanced-operations-toggle"
             aria-pressed={props.shellShowAdvanced}
             aria-label={
@@ -84,15 +86,15 @@ export function SidebarNavLayoutSettingsPanel(
             <DialogDescription>
               Control which sidebar links appear by progressive disclosure tier. The same destination list also
               respects optional minimum API access-level hints (Read / Operator / Admin) when the shell can resolve your
-              principal via <code className="text-xs">GET /api/auth/me</code>; the command palette (Ctrl+K) uses the
-              same tier + access-level composition (see <code className="text-xs">nav-shell-visibility.ts</code>).
+              principal via <code className={OPERATOR_TYPOGRAPHY.helper}>GET /api/auth/me</code>; the command palette (Ctrl+K) uses the
+              same tier + access-level composition (see <code className={OPERATOR_TYPOGRAPHY.helper}>nav-shell-visibility.ts</code>).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>
-                <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                <p className={cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   <strong>Advanced Analysis:</strong> compare, replay, graph, architecture advisory, evaluation feedback,
                   recommendation tuning.{" "}
                   <strong>Admin:</strong> baseline and tenant settings.{" "}
@@ -115,7 +117,7 @@ export function SidebarNavLayoutSettingsPanel(
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="nav-advanced">{NAV_DISCLOSURE.advanced.show}</Label>
-                <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                <p className={cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   <strong>Enterprise Controls:</strong> audit log, Alerts hub, governance workflow, schedules, and deeper
                   trust surfaces — independent from analysis & investigation links.
                 </p>

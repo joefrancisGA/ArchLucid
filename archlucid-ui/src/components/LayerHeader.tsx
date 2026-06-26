@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import {
@@ -7,7 +9,6 @@ import {
 } from "@/lib/layer-guidance";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { useNavSurface } from "@/lib/use-nav-surface";
-import { cn } from "@/lib/utils";
 
 export type LayerHeaderProps = {
   pageKey: LayerGuidancePageKey;
@@ -52,16 +53,16 @@ export function LayerHeader({
         className={cn(
           "m-0 font-semibold uppercase tracking-wide",
           compact
-            ? "text-[10px] text-neutral-600 dark:text-neutral-300"
-            : "text-[11px] text-teal-900 dark:text-teal-200",
+            ? (cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge))
+            : (cn("text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)),
         )}
       >
         {block.layerBadge}
       </p>
-      <p className="m-0 mt-0.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">{block.headline}</p>
+      <p className={cn("m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{block.headline}</p>
       {!block.omitReviewPackageScopeHelp ? (
         <p
-          className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 mt-1.5 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="layer-header-review-vocabulary"
           title={ARCHITECTURE_REVIEW_VOCABULARY.buyerReviewPackageScopeHelp}
         >
@@ -78,24 +79,24 @@ export function LayerHeader({
           "m-0 mt-1 leading-snug",
           usesOperateGovernanceFootnote
             ? compact
-              ? "text-xs text-neutral-600 dark:text-neutral-300"
-              : "text-xs text-neutral-500 dark:text-neutral-400"
-            : "text-sm text-neutral-600 dark:text-neutral-400",
+              ? (cn("text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper))
+              : (cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper))
+            : (cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)),
         )}
       >
         {block.useWhen}
       </p>
       {!compact && block.firstPilotNote ? (
-        <p className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">{block.firstPilotNote}</p>
+        <p className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{block.firstPilotNote}</p>
       ) : null}
       {block.enterpriseFootnote ? (
-        <p className="m-0 mt-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 mt-1.5 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           {block.enterpriseFootnote}
         </p>
       ) : null}
       {operateExecuteRankCue && !demoUi ? (
         <p
-          className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="layer-header-operate-execute-rank-cue"
           role="note"
         >
@@ -110,7 +111,7 @@ export function LayerHeader({
       className={cn(
         !className &&
           (compact
-            ? "max-w-3xl rounded-md bg-neutral-100/70 py-2 pl-0 text-xs dark:bg-neutral-900/60"
+            ? cn("max-w-3xl rounded-md bg-neutral-100/70 py-2 pl-0 dark:bg-neutral-900/60", OPERATOR_TYPOGRAPHY.helper)
             : "mb-4 max-w-3xl border-l-4 border-teal-700 py-1 pl-3 dark:border-teal-500"),
         collapsibleGuidance ? "mb-0" : null,
         className,
@@ -124,10 +125,10 @@ export function LayerHeader({
   if (collapsibleGuidance !== undefined && collapsibleGuidance.trim().length > 0) {
     return (
       <details
-        className="mb-4 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40"
+        className={cn("mb-4 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="layer-header-collapsible-guidance"
       >
-        <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {collapsibleGuidance}
         </summary>
         <div className="mt-3">{guidanceAside}</div>

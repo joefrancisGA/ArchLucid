@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { Pin, PinOff } from "lucide-react";
@@ -41,12 +43,12 @@ export function NavPinnedLinksPanel() {
   return (
     <div className="mb-3 space-y-2" data-testid="nav-pinned-links-panel">
       <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Pinned</span>
+        <span className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Pinned</span>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="h-7 gap-1 px-2 text-xs"
+          className={cn("h-7 gap-1 px-2", OPERATOR_TYPOGRAPHY.helper)}
           onClick={pinCurrent}
           aria-pressed={currentPinned}
         >
@@ -56,14 +58,14 @@ export function NavPinnedLinksPanel() {
       </div>
 
       {pinned.length === 0 ? (
-        <p className="m-0 px-1 text-xs text-neutral-500">Pin frequently used pages for quick access.</p>
+        <p className={cn("m-0 px-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Pin frequently used pages for quick access.</p>
       ) : (
         <ul className="m-0 list-none space-y-0.5 p-0">
           {pinned.map((row) => (
             <li key={row.href} className="flex items-center gap-1 rounded px-1 hover:bg-neutral-100 dark:hover:bg-neutral-900">
               <Link
                 href={row.href}
-                className="min-w-0 flex-1 truncate rounded px-1 py-1 text-sm text-neutral-800 dark:text-neutral-200"
+                className={cn("min-w-0 flex-1 truncate rounded px-1 py-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
               >
                 {row.label}
               </Link>

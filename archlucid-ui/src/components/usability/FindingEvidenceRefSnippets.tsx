@@ -25,7 +25,7 @@ export function FindingEvidenceRefSnippets(props: FindingEvidenceRefSnippetsProp
         {props.snippets.map((snippet, index) => (
           <li
             key={`${index}-${snippet.slice(0, 24)}`}
-            className="rounded border border-neutral-200 bg-white/80 px-2 py-1.5 text-sm leading-relaxed text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+            className={cn("rounded border border-neutral-200 bg-white/80 px-2 py-1.5 leading-relaxed text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
           >
             {snippet}
           </li>

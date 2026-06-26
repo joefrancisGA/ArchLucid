@@ -1,10 +1,11 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
-import { cn } from "@/lib/utils";
 
 const calloutBase =
-  "mb-4 max-w-3xl rounded-lg px-4 py-3 text-[15px] leading-snug";
+  (cn("mb-4 max-w-3xl rounded-lg px-4 py-3 leading-snug", OPERATOR_TYPOGRAPHY.helper));
 
 /**
  * API / configuration failures on review pages (server-rendered).
@@ -79,7 +80,7 @@ export function OperatorLoadingNotice({ children }: { children: ReactNode }) {
  */
 export function OperatorTryNext({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+    <div className={cn("mt-3 max-w-3xl leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
       <strong className="text-neutral-800 dark:text-neutral-200">Try next:</strong> {children}
     </div>
   );

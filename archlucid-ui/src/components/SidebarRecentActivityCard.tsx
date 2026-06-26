@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -6,7 +8,6 @@ import { useEffect, useState } from "react";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
 
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 
@@ -58,7 +59,7 @@ export function SidebarRecentActivityCard() {
   return (
     <Collapsible open={open} onOpenChange={persist}>
       <CollapsibleTrigger
-        className="sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
+        className={cn("sidebar-disclosure-trigger flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
         type="button"
         aria-expanded={open}
         aria-controls="sidebar-recent-activity-content"

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCommandState } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
@@ -131,7 +133,7 @@ function CommandPaletteDocumentationSearch({
               }}
             >
               <span className="font-medium">{row.title}</span>
-              <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
+              <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{row.category}</span>
             </a>
           </CommandItem>
         );
@@ -531,8 +533,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           size="sm"
           className={
             buyerPolishedShell
-              ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-              : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              ? (cn("h-8 gap-1.5 border-neutral-300 bg-white px-2.5 font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper))
+              : cn(
+                  "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800",
+                  OPERATOR_TYPOGRAPHY.tab,
+                )
           }
           aria-label={
             buyerPolishedShell
@@ -599,7 +604,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
                     }}
                   >
                     {entry.label}{" "}
-                    <span className="ml-1 text-xs text-neutral-500">({entry.key})</span>
+                    <span className={cn("ml-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>({entry.key})</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

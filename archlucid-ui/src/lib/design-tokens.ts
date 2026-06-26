@@ -277,6 +277,21 @@ export const MARKETING_SURFACES = {
     "flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-200 bg-al-surface-raised text-sm font-semibold text-al-text-primary dark:border-neutral-800",
 } as const;
 
+/** GitBook-like reading column — descendant typography for {@link DocumentLayout}. */
+export const OPERATOR_DOCUMENT_ARTICLE_BODY = [
+  "[&_p]:text-[13px] [&_p]:leading-relaxed",
+  "[&_h2]:scroll-mt-20 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-neutral-900 dark:[&_h2]:text-neutral-50",
+  "[&_h3]:scroll-mt-20 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-neutral-900 dark:[&_h3]:text-neutral-100",
+  "[&_h4]:scroll-mt-16 [&_h4]:text-[13px] [&_h4]:font-semibold [&_h4]:text-neutral-900 dark:[&_h4]:text-neutral-100",
+  "[&_.doc-meta]:text-xs [&_.doc-meta]:text-neutral-500 dark:[&_.doc-meta]:text-neutral-400",
+  "[&_ul]:my-0 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_ul]:text-[13px] [&_ul]:leading-relaxed",
+  "[&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:rounded-md [&_pre]:border [&_pre]:border-neutral-200 [&_pre]:bg-neutral-100 [&_pre]:p-3 [&_pre]:text-xs dark:[&_pre]:border-neutral-700 dark:[&_pre]:bg-neutral-800",
+  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-xs",
+  "[&_thead_th]:border-b [&_thead_th]:border-neutral-200 [&_thead_th]:bg-neutral-50/90 [&_thead_th]:p-2 [&_thead_th]:text-left [&_thead_th]:font-semibold dark:[&_thead_th]:border-neutral-700 dark:[&_thead_th]:bg-neutral-900/50",
+  "[&_tbody_tr:nth-child(odd)]:bg-neutral-50/70 dark:[&_tbody_tr:nth-child(odd)]:bg-neutral-900/35",
+  "[&_td]:border-b [&_td]:border-neutral-100 [&_td]:p-2 [&_td]:align-top dark:[&_td]:border-neutral-800",
+].join(" ");
+
 /** Shared class strings for bulk migration off pastel Tailwind fills (TB-115). */
 export const OPERATOR_CALLOUT_WARN_CLASS = DESIGN_TOKENS.callout.warn;
 export const OPERATOR_CALLOUT_BLOCKED_CLASS = DESIGN_TOKENS.callout.blocked;

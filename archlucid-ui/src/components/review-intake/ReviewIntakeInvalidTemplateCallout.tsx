@@ -8,7 +8,7 @@ export function ReviewIntakeInvalidTemplateCallout(
 ): React.JSX.Element {
   return (
     <p
-      className="m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100"
+      className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
       data-testid="review-intake-invalid-template-callout"
       role="status"
     >

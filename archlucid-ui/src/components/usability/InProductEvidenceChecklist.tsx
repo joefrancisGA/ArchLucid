@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -97,24 +99,24 @@ export function InProductEvidenceChecklist() {
       data-testid="in-product-evidence-checklist"
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 id="in-product-evidence-checklist-heading" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3 id="in-product-evidence-checklist-heading" className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           First-run evidence checklist
         </h3>
         <Link
           href={resolveInAppDocHref("/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md")}
-          className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
+          className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
         >
           Full walkthrough
         </Link>
       </div>
 
       {phase === "loading" ? (
-        <p className="m-0 text-sm text-neutral-500">Checking workspace readiness…</p>
+        <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Checking workspace readiness…</p>
       ) : (
         <ul className="m-0 list-none space-y-2 p-0">
           {rows.map((row) => (
             <li key={row.id} className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-sm text-neutral-800 dark:text-neutral-200">{row.label}</span>
+              <span className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{row.label}</span>
               <div className="flex items-center gap-2">
                 <StatusTag
                   kind={

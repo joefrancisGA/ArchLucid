@@ -11,7 +11,7 @@ export function ExtractUploadFileProgressList(props: ExtractUploadFileProgressLi
   }
 
   return (
-    <ul className="m-0 max-h-40 list-none space-y-1 overflow-y-auto rounded border border-neutral-200 p-2 text-xs dark:border-neutral-700" data-testid="extract-upload-file-progress">
+    <ul className={cn("m-0 max-h-40 list-none space-y-1 overflow-y-auto rounded border border-neutral-200 p-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)} data-testid="extract-upload-file-progress">
       {props.fileStatuses.map((file) => (
         <li key={file.name} className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="truncate font-mono text-neutral-800 dark:text-neutral-200">{file.name}</span>

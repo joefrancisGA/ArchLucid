@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -107,11 +109,11 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
               key={`${index}-${turn.message.slice(0, 24)}`}
               className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
             >
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 You asked
               </p>
-              <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">{turn.message}</p>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{turn.message}</p>
+              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Answer
               </p>
               <AskAssistantMessageBody content={turn.answer} />
@@ -119,12 +121,12 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
           ))}
         </ol>
       ) : (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{NO_SUGGESTIONS_COPY}</p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{NO_SUGGESTIONS_COPY}</p>
       )}
 
       <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
         <summary
-          className="cursor-pointer select-none text-sm font-medium text-al-text-primary"
+          className={cn("cursor-pointer select-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="draft-intake-reason-follow-up-toggle"
         >
           Ask a follow-up
@@ -175,9 +177,9 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
     return (
       <div className="draft-intake-reasoning-embedded space-y-3" data-testid="draft-intake-reasoning-panel">
         <div>
-          <p className="m-0 text-sm font-semibold text-al-text-primary">{ASSISTANT_NOTES_TITLE}</p>
+          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{ASSISTANT_NOTES_TITLE}</p>
           <p
-            className="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+            className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="draft-intake-reasoning-summary"
           >
             {summaryStatus}
@@ -199,9 +201,9 @@ export function DraftIntakeReasoningPanel(props: DraftIntakeReasoningPanelProps)
     >
       <summary className="cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold text-al-text-primary">{ASSISTANT_NOTES_TITLE}</span>
+          <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{ASSISTANT_NOTES_TITLE}</span>
           <span
-            className="text-xs font-normal text-neutral-600 dark:text-neutral-400"
+            className={cn("font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="draft-intake-reasoning-summary"
           >
             {summaryStatus}

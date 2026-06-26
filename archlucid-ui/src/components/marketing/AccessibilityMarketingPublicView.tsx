@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -39,8 +41,8 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
 
   return (
     <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
-      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Accessibility</h1>
-      <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+      <h1 className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Accessibility</h1>
+      <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         WCAG 2.1 Level AA — public self-attestation for the ArchLucid marketing site and product posture (no formal VPAT).
       </p>
 
@@ -59,10 +61,10 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
       />
 
       <section aria-labelledby="a11y-tooling-scope" className="scroll-mt-24">
-        <h2 id="a11y-tooling-scope" className="mt-10 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <h2 id="a11y-tooling-scope" className={cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
           Tooling and scope
         </h2>
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Automated checks use <strong className="font-semibold text-neutral-800 dark:text-neutral-200">axe-core</strong> via{" "}
           <strong className="font-semibold text-neutral-800 dark:text-neutral-200">@axe-core/playwright</strong> and static analysis via{" "}
           <strong className="font-semibold text-neutral-800 dark:text-neutral-200">eslint-plugin-jsx-a11y</strong> as described in the policy
@@ -94,7 +96,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
       />
 
       <section aria-labelledby="a11y-vpat" className="scroll-mt-24">
-        <h2 id="a11y-vpat" className="mt-10 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <h2 id="a11y-vpat" className={cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
           VPAT
         </h2>
         <p className="mt-3 leading-relaxed text-neutral-800 dark:text-neutral-200">
@@ -112,7 +114,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
       />
 
       <section aria-labelledby="a11y-report" className="scroll-mt-24">
-        <h2 id="a11y-report" className="mt-10 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <h2 id="a11y-report" className={cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
           Reporting an accessibility barrier
         </h2>
         <p className="mt-3 leading-relaxed text-neutral-800 dark:text-neutral-200">
@@ -129,7 +131,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
         </p>
       </section>
 
-      <footer className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+      <footer className={cn("mt-12 border-t border-neutral-200 pt-6 text-neutral-600 dark:border-neutral-800 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <p>
           {props.lastReviewedLine ?? "Last reviewed: (missing — update ACCESSIBILITY.md)"} — review cadence:{" "}
           <span className="font-medium text-neutral-800 dark:text-neutral-200">annually</span>.

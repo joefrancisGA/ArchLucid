@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
@@ -20,7 +22,6 @@ import {
   resolveIntegrationEventBusGuidance,
   resolveIntegrationEventBusHumanStatus,
 } from "@/lib/connector-operations-present";
-import { cn } from "@/lib/utils";
 import type { ConnectorSurfaceStatusDto, TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
 
 function ConnectorReadinessCard(props: { readonly connector: ConnectorSurfaceStatusDto }): ReactElement {
@@ -35,21 +36,21 @@ function ConnectorReadinessCard(props: { readonly connector: ConnectorSurfaceSta
       data-testid={`connector-card-${connector.connectorKey}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <strong className="text-sm text-neutral-900 dark:text-neutral-100">{connectorCardTitle(connector)}</strong>
-        <Badge variant="outline" className={cn("text-xs", humanStatusBadgeClass(humanStatus))}>
+        <strong className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{connectorCardTitle(connector)}</strong>
+        <Badge variant="outline" className={cn(OPERATOR_TYPOGRAPHY.helper, humanStatusBadgeClass(humanStatus))}>
           {statusLabel}
         </Badge>
       </div>
-      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{guidance}</p>
+      <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{guidance}</p>
       {connector.configurationHref ? (
         <Link
-          className="mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
+          className={cn("mt-2 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
           href={connector.configurationHref}
         >
           Open configuration
         </Link>
       ) : null}
-      <details className="mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/50">
+      <details className={cn("mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}>
         <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
           Technical details
         </summary>
@@ -70,13 +71,13 @@ function IntegrationEventBusCard(props: { readonly bus: TenantIntegrationsOperat
       data-testid="connector-card-integration-event-bus"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <strong className="text-sm text-neutral-900 dark:text-neutral-100">Integration event bus</strong>
-        <Badge variant="outline" className={cn("text-xs", humanStatusBadgeClass(humanStatus))}>
+        <strong className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Integration event bus</strong>
+        <Badge variant="outline" className={cn(OPERATOR_TYPOGRAPHY.helper, humanStatusBadgeClass(humanStatus))}>
           {humanStatus}
         </Badge>
       </div>
-      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{guidance}</p>
-      <details className="mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/50">
+      <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{guidance}</p>
+      <details className={cn("mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}>
         <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
           Technical details
         </summary>
@@ -143,7 +144,7 @@ export function ConnectorOperationsDashboard(): ReactElement {
 
   return (
     <div className="space-y-6">
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Check whether notification, ticketing, publishing, and messaging integrations are configured for this workspace.
         These connectors are optional for first review value.
       </p>
@@ -157,10 +158,10 @@ export function ConnectorOperationsDashboard(): ReactElement {
 
         return (
           <section key={group.id}>
-            <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+            <h2 className={cn("m-0 font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {group.title}
             </h2>
-            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{group.description}</p>
+            <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{group.description}</p>
             <ul className="mt-4 grid list-none gap-3 p-0 sm:grid-cols-2">
               {connectors.map((connector) => (
                 <ConnectorReadinessCard key={connector.connectorKey} connector={connector} />
@@ -171,10 +172,10 @@ export function ConnectorOperationsDashboard(): ReactElement {
       })}
 
       <section>
-        <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+        <h2 className={cn("m-0 font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Technical readiness
         </h2>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Messaging infrastructure used by integration events. Expand technical details for publisher, consumer, and queue settings.
         </p>
         <ul className="mt-4 grid list-none gap-3 p-0 sm:grid-cols-2">

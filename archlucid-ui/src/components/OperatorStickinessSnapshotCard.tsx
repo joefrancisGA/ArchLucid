@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
@@ -68,7 +70,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
 
   if (problem !== null) {
     return (
-      <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4">
+      <div className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-4", OPERATOR_TYPOGRAPHY.body)}>
         <OperatorApiProblem
           problem={problem.problem}
           fallbackMessage={problem.message}
@@ -94,16 +96,16 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
     <section aria-labelledby="stickiness-snapshot-heading">
       <h2
         id="stickiness-snapshot-heading"
-        className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+        className={cn("mb-3 font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
       >
         Pilot &amp; repeat usage
       </h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Reviews</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Reviews</h3>
           </CardHeader>
-          <CardContent className="space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
+          <CardContent className={cn("space-y-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0 tabular-nums">
               <span className="font-medium">{funnel.committedRunsInScope}</span> committed ·{" "}
               <span className="font-medium">{funnel.totalRunsInScope}</span> total
@@ -122,9 +124,9 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">First-value milestones</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>First-value milestones</h3>
           </CardHeader>
-          <CardContent className="space-y-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <CardContent className={cn("space-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <p className="m-0">
               First manifest:{" "}
               {formatInstantForLocale(funnel.firstGoldenManifestUtc ?? null)}
@@ -140,16 +142,16 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Governance habit</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Governance habit</h3>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <CardContent className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0 tabular-nums">
               Comparisons (30d): <span className="font-medium">{data.comparisonEventsLast30Days}</span>
             </p>
             <p className="m-0 tabular-nums">
               Pending approvals: <span className="font-medium">{data.pendingGovernanceApprovals}</span>
             </p>
-            <Link className="text-xs font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
+            <Link className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)} href="/governance">
               {buyerPolishedShell ? "View governance approval" : "Open governance workflow"}
             </Link>
           </CardContent>

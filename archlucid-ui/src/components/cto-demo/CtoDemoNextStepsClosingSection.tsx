@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -15,8 +17,8 @@ import {
 export function CtoDemoNextStepsClosingSection(): React.JSX.Element {
   return (
     <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800" data-testid="cto-demo-next-steps-closing">
-      <h4 className="m-0 text-sm font-semibold text-al-text-primary">{BUYER_CTO_DEMO_NEXT_STEPS_HEADING}</h4>
-      <p className="m-0 mt-1 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+      <h4 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{BUYER_CTO_DEMO_NEXT_STEPS_HEADING}</h4>
+      <p className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_CTO_DEMO_NEXT_STEPS_SUBTEXT}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">

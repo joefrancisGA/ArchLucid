@@ -1,15 +1,22 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   getGovernanceReviewsAwaitingAction,
   type GovernanceReviewAwaitingActionItem,
 } from "@/lib/api/governance-stickiness-api";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function formatRunId(runId: string): string {
@@ -49,7 +56,7 @@ export function ReviewsAwaitingActionCard() {
   }, []);
 
   if (loadError) {
-    return <p className="m-0 text-sm text-red-700 dark:text-red-400">{loadError}</p>;
+    return <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>;
   }
 
   if (items.length === 0) {
@@ -75,8 +82,8 @@ export function ReviewsAwaitingActionCard() {
                 data-testid={`reviews-awaiting-row-${runHex}`}
               >
                 <div className="min-w-0">
-                  <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">{item.name}</p>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{item.name}</p>
+                  <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Run {formatRunId(item.runId)}
                     {item.newFindingCount > 0 ? ` · ${item.newFindingCount} new finding(s)` : null}
                   </p>

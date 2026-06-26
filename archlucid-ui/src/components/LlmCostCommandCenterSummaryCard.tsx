@@ -62,7 +62,7 @@ function BudgetDispositionBanner(props: { readonly budget: LlmBudgetCommandCente
 
   return (
     <p
-      className={cn("m-0 rounded-md border px-3 py-2 text-sm", budgetToneClass(budget.disposition))}
+      className={cn("m-0 rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body, budgetToneClass(budget.disposition))}
       role="status"
       data-testid="llm-cost-command-center-budget-disposition"
     >
@@ -80,21 +80,21 @@ function SummaryGrid(props: { readonly summary: LlmCostCommandCenterSummary; rea
   return (
     <dl className="m-0 grid gap-2 sm:grid-cols-2">
       <div>
-        <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">UTC month (est.)</dt>
+        <dt className={cn("uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>UTC month (est.)</dt>
         <dd className="m-0 text-lg font-semibold tabular-nums">{formatUsd(summary.utcMonthEstimatedUsd, currency)}</dd>
-        <dd className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <dd className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {formatTokens(summary.utcMonthPromptTokens)} prompt · {formatTokens(summary.utcMonthCompletionTokens)} completion tokens
         </dd>
       </div>
       <div>
-        <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">UTC today (est.)</dt>
+        <dt className={cn("uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>UTC today (est.)</dt>
         <dd className="m-0 text-lg font-semibold tabular-nums">
           {summary.utcTodayEstimatedUsd !== null
             ? formatUsd(summary.utcTodayEstimatedUsd, currency)
             : "No bucket yet"}
         </dd>
         {summary.utcTodayPromptTokens !== null ? (
-          <dd className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <dd className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {formatTokens(summary.utcTodayPromptTokens)} prompt ·{" "}
             {formatTokens(summary.utcTodayCompletionTokens ?? 0)} completion tokens
           </dd>
@@ -102,10 +102,10 @@ function SummaryGrid(props: { readonly summary: LlmCostCommandCenterSummary; rea
       </div>
       {summary.topWorkspaceProjectLabel !== null ? (
         <div className="sm:col-span-2">
-          <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Top workspace / project</dt>
+          <dt className={cn("uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Top workspace / project</dt>
           <dd className="m-0 font-medium">{summary.topWorkspaceProjectLabel}</dd>
           {summary.topWorkspaceProjectEstimatedUsd !== null ? (
-            <dd className="m-0 text-sm tabular-nums text-neutral-700 dark:text-neutral-300">
+            <dd className={cn("m-0 tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {formatUsd(summary.topWorkspaceProjectEstimatedUsd, currency)} (30-day window)
             </dd>
           ) : null}
@@ -113,10 +113,10 @@ function SummaryGrid(props: { readonly summary: LlmCostCommandCenterSummary; rea
       ) : null}
       {summary.topExpensiveRunId !== null ? (
         <div className="sm:col-span-2">
-          <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Top expensive review</dt>
-          <dd className="m-0 font-medium font-mono text-sm">{summary.topExpensiveRunId}</dd>
+          <dt className={cn("uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Top expensive review</dt>
+          <dd className={cn("m-0 font-medium font-mono", OPERATOR_TYPOGRAPHY.body)}>{summary.topExpensiveRunId}</dd>
           {summary.topExpensiveRunEstimatedUsd !== null ? (
-            <dd className="m-0 text-sm tabular-nums text-neutral-700 dark:text-neutral-300">
+            <dd className={cn("m-0 tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {formatUsd(summary.topExpensiveRunEstimatedUsd, currency)} estimated trace cost
             </dd>
           ) : null}
@@ -165,8 +165,8 @@ export function LlmCostCommandCenterSummaryCard(props: {
   return (
     <Card data-testid="llm-cost-command-center-summary">
       <CardHeader>
-        <CardTitle className="text-base">Monthly AI usage</CardTitle>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Monthly AI usage</CardTitle>
+        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Estimated AI usage cost for the current UTC month — not invoiced Azure spend.
         </p>
       </CardHeader>

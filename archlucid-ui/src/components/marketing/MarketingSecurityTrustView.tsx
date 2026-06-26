@@ -1,9 +1,14 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   SECURITY_TRUST_MATURITY_SECTION_HEADINGS,
   SECURITY_TRUST_NDA_NOTICE,
@@ -86,9 +91,9 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         <h2 id="security-trust-buyer-proof-strip" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Available for diligence today
         </h2>
-        <ul className="m-0 mt-3 list-none space-y-3 pl-0 text-sm text-neutral-800 dark:text-neutral-200">
+        <ul className={cn("m-0 mt-3 list-none space-y-3 pl-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           <li>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Procurement evidence
             </p>
             <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
@@ -97,7 +102,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             </ul>
           </li>
           <li>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Security documentation
             </p>
             <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
@@ -106,7 +111,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             </ul>
           </li>
           <li>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Data handling posture
             </p>
             <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
@@ -114,7 +119,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             </ul>
           </li>
           <li>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Audit instrumentation
             </p>
             <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
@@ -122,7 +127,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
             </ul>
           </li>
           <li>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Diligence contact
             </p>
             <ul className="m-0 mt-1 list-disc space-y-1 pl-5">
@@ -137,10 +142,10 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
           </li>
           <li className="mt-2 list-none pl-0">
             <details className="rounded-md border border-neutral-200 bg-white/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40">
-              <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              <summary className={cn("cursor-pointer font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 Encryption key reference
               </summary>
-              <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">
+              <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                 Published OpenPGP material:{" "}
                 <Link
                   className={MARKETING_SURFACES.inlineLink}
@@ -148,7 +153,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                 >
                   /.well-known/pgp-key.txt
                 </Link>{" "}
-                (see repository <span className="font-mono text-xs">SECURITY.md</span> for fingerprint).
+                (see repository <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>SECURITY.md</span> for fingerprint).
               </p>
             </details>
           </li>
@@ -168,10 +173,10 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
 
       <section
         aria-label="Current assurance posture summary"
-        className="mt-6 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-200"
+        className={cn("mt-6 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-neutral-800 shadow-sm dark:border-neutral-700 dark:bg-neutral-950/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
       >
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">At a glance</p>
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Public procurement evidence is available now; detailed security summaries are shared during diligence;
           independent third-party testing is planned for the next assurance cycle.
         </p>
@@ -181,18 +186,18 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         aria-label="Third-party assurance and NDA"
         className="mt-8 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
       >
-        <p className="m-0 text-sm font-semibold text-sky-950 dark:text-sky-100">Sensitive reports under NDA</p>
-        <p className="m-0 mt-2 text-sm text-sky-950/90 dark:text-sky-100/90">{SECURITY_TRUST_NDA_NOTICE}</p>
+        <p className={cn("m-0 font-semibold text-sky-950 dark:text-sky-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Sensitive reports under NDA</p>
+        <p className={cn("m-0 mt-2 text-sky-950/90 dark:text-sky-100/90", OPERATOR_TYPOGRAPHY.body)}>{SECURITY_TRUST_NDA_NOTICE}</p>
       </section>
 
       <section aria-labelledby="security-trust-assurance-ladder" className="mt-8 scroll-mt-24">
         <h2
           id="security-trust-assurance-ladder"
-          className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+          className={cn("font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
         >
           Assurance posture
         </h2>
-        <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Grouped by what exists today, what is delivered through diligence, and what is scheduled next — so reviewers see
           the maturity picture in one pass.
         </p>
@@ -216,8 +221,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                     id={meta.id}
                     className={
                       plannedTierMuted
-                        ? "m-0 text-sm font-semibold text-al-text-primary text-neutral-700 dark:text-neutral-300"
-                        : "m-0 text-sm font-semibold text-al-text-primary"
+                        ? (cn("m-0 font-semibold text-al-text-primary text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.cardTitle))
+                        : (cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle))
                     }
                   >
                     {meta.title}
@@ -225,8 +230,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                   <p
                     className={
                       plannedTierMuted
-                        ? "m-0 mt-2 text-xs text-neutral-500 dark:text-neutral-500"
-                        : "m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400"
+                        ? (cn("m-0 mt-2 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper))
+                        : (cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body))
                     }
                   >
                     {meta.intro}
@@ -249,20 +254,20 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                       <h4
                         className={
                           isPlanned
-                            ? "m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-                            : "m-0 text-sm font-semibold text-al-text-primary"
+                            ? (cn("m-0 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.cardTitle))
+                            : (cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle))
                         }
                       >
                         {row.engagement}
                       </h4>
                       {row.id === "owner-security-self-assessment-2026" ? (
-                        <p className="m-0 mt-3 text-sm font-medium leading-snug text-neutral-900 dark:text-neutral-100">
+                        <p className={cn("m-0 mt-3 font-medium leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                           Control mapping aligned to SOC 2 criteria.
                         </p>
                       ) : null}
-                      <dl className="m-0 mt-3 grid gap-3 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
+                      <dl className={cn("m-0 mt-3 grid gap-3 text-neutral-800 dark:text-neutral-200 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
                         <div className="flex flex-col gap-0.5">
-                          <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                          <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Status
                           </dt>
                           <dd className="m-0">
@@ -278,13 +283,13 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                           </dd>
                         </div>
                         <div className="flex flex-col gap-0.5 sm:col-span-2">
-                          <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                          <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Scope
                           </dt>
                           <dd className="m-0 text-neutral-700 dark:text-neutral-300">{row.scope}</dd>
                         </div>
                         <div className="flex flex-col gap-0.5">
-                          <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                          <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Available artifact
                           </dt>
                           <dd className="m-0" data-testid="assurance-access-badge">
@@ -292,14 +297,14 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                           </dd>
                         </div>
                         <div className="flex flex-col gap-0.5 sm:col-span-2">
-                          <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                          <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                             Next step
                           </dt>
                           <dd className="m-0 text-neutral-700 dark:text-neutral-300">{row.completedUtc}</dd>
                         </div>
                       </dl>
                       {row.id === "owner-security-self-assessment-2026" ? (
-                        <p className="m-0 mt-3 border-t border-neutral-200 pt-3 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-400">
+                        <p className={cn("m-0 mt-3 border-t border-neutral-200 pt-3 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           {SECURITY_TRUST_SOC2_READINESS_FOOTNOTE}
                         </p>
                       ) : null}
@@ -313,7 +318,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
         </div>
       </section>
 
-      <footer className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+      <footer className={cn("mt-12 border-t border-neutral-200 pt-6 text-neutral-600 dark:border-neutral-800 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <p>
           Procurement contact:{" "}
           <span className="font-medium text-neutral-800 dark:text-neutral-200">security@archlucid.net</span>

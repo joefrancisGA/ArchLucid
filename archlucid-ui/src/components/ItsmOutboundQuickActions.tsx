@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -87,7 +89,7 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
             type="button"
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
+            className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)}
             disabled={busy || jiraLinked}
             onClick={() => void onCreate("Jira")}
             data-testid="itsm-sync-jira"
@@ -99,7 +101,7 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
             type="button"
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
+            className={cn("h-7", OPERATOR_TYPOGRAPHY.helper)}
             disabled={busy || serviceNowLinked}
             onClick={() => void onCreate("ServiceNow")}
             data-testid="itsm-sync-servicenow"
@@ -111,7 +113,7 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
       ) : null}
 
       {!compact && correlations.length > 0 ? (
-        <ul className="space-y-1 text-xs">
+        <ul className={cn("space-y-1", OPERATOR_TYPOGRAPHY.helper)}>
           {correlations.map((c) => (
             <li key={`${c.provider}-${c.externalKey}`}>
               <span className="font-medium">{c.provider}</span> · <code>{c.externalKey}</code>
@@ -129,8 +131,8 @@ export function ItsmOutboundQuickActions({ findingId, compact = false }: ItsmOut
         </ul>
       ) : null}
 
-      {statusMessage ? <p className="text-xs text-green-700 dark:text-green-400">{statusMessage}</p> : null}
-      {errorMessage ? <p className="text-xs text-red-700 dark:text-red-400">{errorMessage}</p> : null}
+      {statusMessage ? <p className={cn("text-green-700 dark:text-green-400", OPERATOR_TYPOGRAPHY.helper)}>{statusMessage}</p> : null}
+      {errorMessage ? <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{errorMessage}</p> : null}
     </div>
   );
 }

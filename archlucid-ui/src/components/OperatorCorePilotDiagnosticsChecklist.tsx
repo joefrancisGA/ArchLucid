@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useSyncExternalStore, useState } from "react";
@@ -80,13 +82,13 @@ export function OperatorCorePilotDiagnosticsChecklist() {
       defaultExpanded={false}
       collapsedSummary="Server-tracked onboarding signals and step map for the first review."
     >
-      <ul className="m-0 list-disc space-y-1.5 pl-5 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+      <ul className={cn("m-0 list-disc space-y-1.5 pl-5 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </ul>
       <p
-        className="m-0 mt-4 text-xs leading-snug text-neutral-600 dark:text-neutral-400"
+        className={cn("m-0 mt-4 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="core-pilot-advanced-deferral-note"
       >
         {CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE}
@@ -96,12 +98,12 @@ export function OperatorCorePilotDiagnosticsChecklist() {
           Server-tracked onboarding signals (this deployment)
         </h3>
 
-        <p className="m-0 mt-2 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           These counters are process-lifetime for this deployment and reset when the API host restarts.
         </p>
 
         {ratesError !== null ? (
-          <p className="m-0 mt-2 text-xs text-amber-700 dark:text-amber-300" role="status">
+          <p className={cn("m-0 mt-2 text-amber-700 dark:text-amber-300", OPERATOR_TYPOGRAPHY.helper)} role="status">
             {ratesError}{" "}
             <strong className="font-medium">Manual checklist toggles beside this card still apply.</strong>
           </p>
@@ -110,15 +112,15 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         {rates !== null ? (
           <dl className="m-0 mt-3 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
-              <dt className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">Sessions</dt>
+              <dt className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>Sessions</dt>
               <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">{rates.firstSessionCompletedTotal}</dd>
             </div>
             <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
-              <dt className="text-[10px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Finalized</dt>
+              <dt className={cn("uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>Finalized</dt>
               <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">{rates.firstRunCommittedTotal}</dd>
             </div>
             <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
-              <dt className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">Conversion</dt>
+              <dt className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.badge)}>Conversion</dt>
               <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">
                 {rates.firstSessionCompletedTotal > 0
                   ? `${Math.round(rates.firstRunCommittedPerSessionRatio * 100)}%`
@@ -129,18 +131,18 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         ) : null}
 
         {rates !== null ? (
-          <p className="m-0 mt-2 text-center text-[10px] text-neutral-400 dark:text-neutral-500">{rates.windowNote}</p>
+          <p className={cn("m-0 mt-2 text-center text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>{rates.windowNote}</p>
         ) : null}
 
         <div className="mt-3 flex flex-wrap gap-2 border-t border-dashed border-neutral-200 pt-3 dark:border-neutral-700">
-          <span className="text-[11px] text-neutral-600 dark:text-neutral-400">
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Registration/session signal:{" "}
             <strong className="font-semibold text-neutral-800 dark:text-neutral-200">{sessionRecorded ? "recorded" : "not recorded"}</strong>
           </span>
-          <span className="text-[11px] text-neutral-400" aria-hidden>
+          <span className={cn("text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-hidden>
             ·
           </span>
-          <span className="text-[11px] text-neutral-600 dark:text-neutral-400">
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Finalization signal:{" "}
             <strong className="font-semibold text-neutral-800 dark:text-neutral-200">{finalizedRecorded ? "≥1 finalized review" : "waiting"}</strong>
           </span>
@@ -148,7 +150,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
       </section>
 
       <section aria-labelledby="core-pilot-step-map-heading" className="mt-4">
-        <h3 id="core-pilot-step-map-heading" className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        <h3 id="core-pilot-step-map-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Steps (storage + inferred from finalize counters)
         </h3>
 
@@ -162,15 +164,15 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
             return (
               <li key={step.title}>
-                <div className="flex gap-2 text-xs leading-snug text-neutral-800 dark:text-neutral-200">
+                <div className={cn("flex gap-2 leading-snug text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
                   <span className={doneDisplay ? "text-teal-600 dark:text-teal-400" : "text-neutral-400"} aria-hidden>
                     {doneDisplay ? "✓" : "○"}
                   </span>
                   <div className="min-w-0 flex-1">
                     <strong className="font-semibold">{index + 1}. {step.title}</strong>
-                    <p className="m-0 mt-0.5 text-[11px] text-neutral-600 dark:text-neutral-400">{step.shortBody}</p>
+                    <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{step.shortBody}</p>
                     {!storageDone && inferredFinalize ? (
-                      <p className="m-0 mt-1 text-[10px] text-teal-700 dark:text-teal-300">
+                      <p className={cn("m-0 mt-1 text-teal-700 dark:text-teal-300", OPERATOR_TYPOGRAPHY.badge)}>
                         Completed via finalize counter — update the sidebar checklist to match when you&apos;re ready.
                       </p>
                     ) : null}
@@ -187,7 +189,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
           })}
         </ol>
 
-        <p className="m-0 mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
+        <p className={cn("m-0 mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           The sidebar <strong className="font-medium text-neutral-700 dark:text-neutral-300">first review checklist</strong>
           {": "}
           checkbox progress is stored locally; finalization milestones also appear in server counters above once the pipeline persists.
@@ -198,7 +200,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
           <Link
             href="#first-run-workflow-panel"
-            className="inline-flex rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-teal-200 dark:hover:bg-neutral-900"
+            className={cn("inline-flex rounded-md border border-neutral-300 bg-white px-2.5 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-teal-200 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.helper)}
           >
             Jump to first review checklist
           </Link>

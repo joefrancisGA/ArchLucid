@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -10,16 +12,16 @@ export function TenantLlmJudgeGuideCard(): React.JSX.Element {
   return (
     <Card data-testid="tenant-llm-judge-guide-card">
       <CardHeader>
-        <CardTitle className="text-base">LLM-as-judge (advanced quality)</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>LLM-as-judge (advanced quality)</CardTitle>
         <CardDescription>
           Semantic evaluation beyond heuristic structural checks. Disabled by default to control LLM spend; enable when
           pilots need deeper automated oversight.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+      <CardContent className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <p className="m-0">
           Host configuration key:{" "}
-          <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">ArchLucid:Agents:LlmJudge:Enabled</code>
+          <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>ArchLucid:Agents:LlmJudge:Enabled</code>
           . Daily token budget applies when enabled.
         </p>
         <p className="m-0">

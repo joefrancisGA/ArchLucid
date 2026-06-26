@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -16,7 +18,7 @@ export function GovernanceBlockExplainer(props: GovernanceBlockExplainerProps): 
 
   return (
     <div
-      className="rounded-md border border-amber-600/35 bg-neutral-50 px-3 py-2 text-sm dark:border-amber-700/45 dark:bg-neutral-900"
+      className={cn("rounded-md border border-amber-600/35 bg-neutral-50 px-3 py-2 dark:border-amber-700/45 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
       data-testid="governance-block-explainer"
       role="alert"
     >
@@ -26,12 +28,12 @@ export function GovernanceBlockExplainer(props: GovernanceBlockExplainerProps): 
       </div>
       <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">{reason}</p>
       {policyRuleId !== null && policyRuleId !== undefined && policyRuleId.trim().length > 0 ? (
-        <p className="m-0 mt-1 text-xs text-neutral-500">
+        <p className={cn("m-0 mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
           Policy rule: <span className="font-mono">{policyRuleId}</span>
         </p>
       ) : null}
       {remediationHref !== undefined ? (
-        <Link href={remediationHref} className="mt-2 inline-block text-sm font-medium text-teal-800 underline dark:text-teal-300">
+        <Link href={remediationHref} className={cn("mt-2 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           Review effective policy →
         </Link>
       ) : null}

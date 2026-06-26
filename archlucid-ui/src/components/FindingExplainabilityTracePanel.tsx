@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -71,11 +73,11 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
       <div className="space-y-1">
         <h2
           id="finding-explainability-trace-heading"
-          className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+          className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
           Explainability trace
         </h2>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Deterministic pipeline evidence — rules applied, citations, and trace completeness before external model audit.
         </p>
       </div>
@@ -103,12 +105,12 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
       {!loading && failure === null && data !== null ? (
         <div className="mt-4 space-y-3">
           <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+            <div className={cn("flex items-center justify-between gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <span>{findingTraceCompletenessPlainEnglish(ratioPct)}</span>
               <span>{ratioPct}%</span>
             </div>
             <Progress value={ratioPct} aria-label="Trace completeness" />
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {findingEvidenceCountPlainLine(evidenceRefs)}
             </p>
           </div>

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 
 type MarketingAccessibilityContentSectionProps = {
@@ -18,8 +20,8 @@ export function MarketingAccessibilityContentSection(props: MarketingAccessibili
   const HeadingTag = props.headingLevel === 3 ? "h3" : "h2";
   const headingClass =
     props.headingLevel === 3
-      ? "mt-6 text-sm font-semibold text-al-text-primary"
-      : "mt-10 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50";
+      ? (cn("mt-6 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle))
+      : (cn("mt-10 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle));
 
   return (
     <section aria-labelledby={props.id} className="scroll-mt-24">

@@ -95,32 +95,31 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
 
       <div className="grid gap-3 lg:grid-cols-3">
         <div className={cn("p-3", DESIGN_TOKENS.surface.card)}>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Verdict
           </p>
           <span
-            className={cn(
-              "mt-1 inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold",
+            className={cn("mt-1 inline-flex rounded-full border px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.helper,
               verdictTierBadgeClassName(verdictTier),
             )}
             data-testid="cto-demo-verdict-tier-badge"
           >
             {verdictTierLabel(verdictTier)}
           </span>
-          <p className="m-0 mt-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{summary.riskPosture}</p>
-          <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("m-0 mt-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{summary.riskPosture}</p>
+          <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {summary.overallAssessment}
           </p>
         </div>
 
         <div className={cn("p-3", DESIGN_TOKENS.surface.card)}>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Top risks
           </p>
           {topRisks.length === 0 ? (
-            <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">No prioritized findings surfaced.</p>
+            <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No prioritized findings surfaced.</p>
           ) : (
-            <ol className="m-0 mt-1 list-decimal space-y-2 pl-4 text-sm text-neutral-800 dark:text-neutral-200">
+            <ol className={cn("m-0 mt-1 list-decimal space-y-2 pl-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {topRisks.map((risk) => (
                 <li key={risk.findingId}>
                   <span className="font-medium">{risk.title}</span>
@@ -132,7 +131,7 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
                     </span>
                     <Link
                       href={governanceStepHref}
-                      className="text-xs font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                      className={cn("font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid={`finding-governance-link-${risk.findingId}`}
                     >
                       Review controls
@@ -145,10 +144,10 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
         </div>
 
         <div className={cn("p-3", DESIGN_TOKENS.surface.card)}>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Recommended action
           </p>
-          <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{recommendedAction}</p>
+          <p className={cn("m-0 mt-1 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{recommendedAction}</p>
         </div>
       </div>
     </section>
@@ -183,7 +182,7 @@ export function CtoDemoFindingEvidenceLink(props: { readonly runId: string; read
   return (
     <Link
       href={href}
-      className="text-xs font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+      className={cn("font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
       data-testid={`finding-evidence-link-${props.findingId}`}
     >
       View evidence

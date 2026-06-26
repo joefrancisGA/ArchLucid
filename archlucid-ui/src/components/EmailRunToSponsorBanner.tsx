@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -317,14 +319,14 @@ export function EmailRunToSponsorBanner({
       aria-label="Executive sponsor deliverables (downstream)"
       className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
     >
-      <p className="m-0 flex flex-wrap items-center text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
+      <p className={cn("m-0 flex flex-wrap items-center font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}>
         <span>{buyerPolishedShell ? "Downstream deliverable" : "Sponsor distribution"}</span>
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
             title="UTC days since your tenant's first finalized review record"
             aria-label={`Day ${badgeDayN} since your tenant's first finalized review record`}
-            className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
+            className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             Day {badgeDayN} since first finalization
           </span>
@@ -332,7 +334,7 @@ export function EmailRunToSponsorBanner({
         {timeToFirstCommitHours !== null ? (
           <span
             data-testid="email-run-to-sponsor-time-to-first-commit"
-            className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
+            className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             {timeToFirstCommitHours.toFixed(2)} h to first finalization
           </span>
@@ -340,7 +342,7 @@ export function EmailRunToSponsorBanner({
         {estimatedUsdSavings !== null ? (
           <span
             data-testid="email-run-to-sponsor-estimated-usd-savings"
-            className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
+            className={cn("ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             {formatUsd(estimatedUsdSavings)} projected savings (estimate)
           </span>
@@ -348,18 +350,18 @@ export function EmailRunToSponsorBanner({
         {executionModeLabel !== null ? (
           <span
             data-testid="email-run-to-sponsor-execution-mode"
-            className="ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
+            className={cn("ml-2 inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 font-medium text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
           >
             Execution mode: {executionModeLabel}
           </span>
         ) : null}
       </p>
 
-      <h2 className="m-0 mt-2 text-sm font-semibold text-al-text-primary">
+      <h2 className={cn("m-0 mt-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolishedShell ? "Create executive sponsor scorecard" : "Generate pilot scorecard package"}
       </h2>
 
-      <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">
+      <p className={cn("m-0 mt-2 leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         Sponsor narrative aligns with the{" "}
         <a
           className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
@@ -394,10 +396,10 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-execution-mode-gap"
-          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.body)}
         >
           <p className="m-0 font-semibold">Execution mode blocks external sponsor PDF</p>
-          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             This review is labeled{" "}
             <strong>{executionModeLabel ?? "non-Real"}</strong>. Simulator, Fallback, and Mixed modes may be used for
             internal walkthroughs only — re-execute in Real mode or label exports explicitly before external sponsor send.
@@ -409,10 +411,10 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-ai-readiness-gap"
-          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-3 py-2", OPERATOR_TYPOGRAPHY.body)}
         >
           <p className="m-0 font-semibold">AI readiness gate not satisfied</p>
-          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             PilotStrict agent-output quality signals failed for this review. Resolve faithfulness and citation gaps in the
             first-value report and observability summary before external sponsor PDF send on real-mode hosts.
           </p>
@@ -423,10 +425,10 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-projected-dollar-gap"
-          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-3 py-2", OPERATOR_TYPOGRAPHY.body)}
         >
           <p className="m-0 font-semibold">Projected dollar claims not sponsor-safe</p>
-          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             ROI baseline fields are defaulted or incomplete. Capture buyer-provided baselines on{" "}
             <Link className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200" href="/scorecard#roi-baselines">
               the scorecard
@@ -440,10 +442,10 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-roi-baseline-gap"
-          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
+          className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-3 py-2", OPERATOR_TYPOGRAPHY.body)}
         >
           <p className="m-0 font-semibold">Missing tenant ROI baselines</p>
-          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             The sponsor PDF assumes captured review-cycle and manual-prep anchors from{" "}
             <a
               className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200"
@@ -467,7 +469,7 @@ export function EmailRunToSponsorBanner({
               Guided baseline wizard
             </Button>
             <Link
-              className="text-xs font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200"
+              className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}
               href="/settings/baseline"
             >
               Baseline settings
@@ -476,13 +478,13 @@ export function EmailRunToSponsorBanner({
         </div>
       ) : null}
 
-      <h3 className="m-0 mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h3 className={cn("m-0 mt-4 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolishedShell ? "Executive readiness (sample signals)" : "Sponsor readiness"}
       </h3>
 
       {proofGate.status === "skipped" ? null : proofGate.status === "loading" && curatedSampleRun ? (
         <p
-          className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="email-run-to-sponsor-readiness-sample-static"
         >
           {buyerPolishedShell ? (
@@ -499,7 +501,7 @@ export function EmailRunToSponsorBanner({
         </p>
       ) : proofGate.status === "loading" ? (
         <p
-          className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="email-run-to-sponsor-readiness-loading"
           aria-busy
         >
@@ -509,7 +511,7 @@ export function EmailRunToSponsorBanner({
         </p>
       ) : proofGate.status === "error" ? (
         <p
-          className="m-0 mt-2 text-xs font-medium text-amber-800 dark:text-amber-200"
+          className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="email-run-to-sponsor-readiness-error"
         >
           {buyerPolishedShell
@@ -518,7 +520,7 @@ export function EmailRunToSponsorBanner({
         </p>
       ) : !readinessCopy ? (
         <p
-          className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="email-run-to-sponsor-readiness-incomplete"
         >
           {buyerPolishedShell
@@ -532,20 +534,26 @@ export function EmailRunToSponsorBanner({
           data-readiness-classification={readinessCopy.classification ?? ""}
           className={
             readinessCopy.variant === "blocked"
-              ? "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-2 px-3 py-2 text-sm"
+              ? cn("mt-2 px-3 py-2", OPERATOR_CALLOUT_WARN_CLASS)
               : readinessCopy.variant === "caveats"
-                ? "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-2 px-3 py-2 text-sm"
+                ? cn("mt-2 px-3 py-2", OPERATOR_CALLOUT_WARN_CLASS)
                 : readinessCopy.variant === "ready"
-                  ? "mt-2 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50"
-                  : "mt-2 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100"
+                  ? cn(
+                      "mt-2 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50",
+                      OPERATOR_TYPOGRAPHY.body,
+                    )
+                  : cn(
+                      "mt-2 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100",
+                      OPERATOR_TYPOGRAPHY.body,
+                    )
           }
         >
           <p className="m-0 font-semibold leading-snug">{readinessCopy.title}</p>
-          <p className="m-0 mt-1 text-xs leading-relaxed opacity-90">{readinessCopy.detail}</p>
+          <p className={cn("m-0 mt-1 leading-relaxed opacity-90", OPERATOR_TYPOGRAPHY.helper)}>{readinessCopy.detail}</p>
         </div>
       )}
 
-      <h3 className="m-0 mt-5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h3 className={cn("m-0 mt-5 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolishedShell ? "Primary package downloads" : "Download package"}
       </h3>
 
@@ -616,7 +624,7 @@ export function EmailRunToSponsorBanner({
             {markSentBusy ? "Recording…" : "Mark as sent to sponsor"}
           </Button>
         )}
-        <span className="text-xs text-neutral-600 dark:text-neutral-400">
+        <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {blockSponsorPdfForExecutionMode
             ? "PDF export stays disabled until execution mode is Real (or this is a labeled curated sample review)."
             : blockSponsorPdfForAiGate
@@ -631,7 +639,7 @@ export function EmailRunToSponsorBanner({
         </span>
       </div>
 
-      <ul className="m-0 mt-3 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
+      <ul className={cn("m-0 mt-3 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>
           <a
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
@@ -703,7 +711,7 @@ export function EmailRunToSponsorBanner({
       </div>
 
       {markSentError !== null ? (
-        <p className="m-0 mt-2 text-xs font-medium text-amber-800 dark:text-amber-200" role="alert">
+        <p className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)} role="alert">
           {markSentError}
         </p>
       ) : null}

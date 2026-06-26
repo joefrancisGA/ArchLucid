@@ -56,8 +56,7 @@ export function QuickReviewProofScopeField(props: QuickReviewProofScopeFieldProp
           return (
             <label
               key={option.id}
-              className={cn(
-                "inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm",
+              className={cn("inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body,
                 checked
                   ? "border-al-accent-interactive bg-al-surface-raised text-al-text-primary"
                   : "border-neutral-200 bg-white text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900",

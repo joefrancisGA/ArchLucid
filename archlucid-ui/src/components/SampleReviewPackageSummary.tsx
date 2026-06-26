@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -44,36 +46,36 @@ export function SampleReviewPackageSummary({
 
       <section
         aria-labelledby="sample-review-package-summary-heading"
-        className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4"
+        className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-4", OPERATOR_TYPOGRAPHY.body)}
       >
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide">Sample review package</p>
+        <p className={cn("m-0 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.helper)}>Sample review package</p>
         <h2 id="sample-review-package-summary-heading" className="m-0 mt-1 text-lg font-semibold">
           Claims Intake sample review package
         </h2>
-        <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed">
+        <p className={cn("m-0 mt-2 max-w-2xl leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           Inspect the signed review record, evidence trail, and audit record when you need the full package. Numbers are
           illustrative only and do not represent customer ROI without a live workspace.
         </p>
 
         <dl className="mt-4 grid gap-2 sm:grid-cols-4">
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
-            <dt className="text-[11px] font-medium uppercase tracking-wide opacity-80">Review ID</dt>
-            <dd className="m-0 truncate font-mono text-xs">{runId}</dd>
+            <dt className={cn("font-medium uppercase tracking-wide opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Review ID</dt>
+            <dd className={cn("m-0 truncate font-mono", OPERATOR_TYPOGRAPHY.helper)}>{runId}</dd>
           </div>
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
-            <dt className="text-[11px] font-medium uppercase tracking-wide opacity-80">Findings</dt>
+            <dt className={cn("font-medium uppercase tracking-wide opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Findings</dt>
             <dd className="m-0 text-lg font-semibold">{findingCountDisplay}</dd>
-            <p className="m-0 text-[11px] opacity-80">Demo severity mix; inspect finding details below.</p>
+            <p className={cn("m-0 opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Demo severity mix; inspect finding details below.</p>
           </div>
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
-            <dt className="text-[11px] font-medium uppercase tracking-wide opacity-80">Artifacts</dt>
+            <dt className={cn("font-medium uppercase tracking-wide opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Artifacts</dt>
             <dd className="m-0 text-lg font-semibold">{artifactCount}</dd>
-            <p className="m-0 text-[11px] opacity-80">Generated outputs attached to the review package.</p>
+            <p className={cn("m-0 opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Generated outputs attached to the review package.</p>
           </div>
           <div className="rounded-lg border border-amber-200 bg-white/70 px-3 py-2 dark:border-amber-800 dark:bg-neutral-950/50">
-            <dt className="text-[11px] font-medium uppercase tracking-wide opacity-80">Evidence confidence</dt>
+            <dt className={cn("font-medium uppercase tracking-wide opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Evidence confidence</dt>
             <dd className="m-0 text-lg font-semibold">Demo only</dd>
-            <p className="m-0 text-[11px] opacity-80">Connect a workspace for tenant proof.</p>
+            <p className={cn("m-0 opacity-80", OPERATOR_TYPOGRAPHY.helper)}>Connect a workspace for tenant proof.</p>
           </div>
         </dl>
 

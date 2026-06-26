@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -35,7 +37,7 @@ export function GovernanceReviewsAwaitingNavBadge() {
 
   return (
     <span
-      className="ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-600 px-1.5 text-[10px] font-bold text-white"
+      className={cn("ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-600 px-1.5 font-bold text-white", OPERATOR_TYPOGRAPHY.badge)}
       aria-label={`${count} reviews awaiting action`}
       data-testid="governance-awaiting-action-nav-badge"
     >

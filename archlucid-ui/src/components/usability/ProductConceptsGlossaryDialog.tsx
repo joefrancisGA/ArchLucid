@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { BookText } from "lucide-react";
 import { useState } from "react";
@@ -53,7 +55,7 @@ export function ProductConceptsGlossaryDialog(props: ProductConceptsGlossaryDial
           }}
         >
           <BookText className="h-4 w-4" aria-hidden />
-          <span className="text-xs font-medium">Concepts</span>
+          <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Concepts</span>
         </Button>
       ) : null}
       <Dialog open={open} onOpenChange={setOpen}>

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -48,7 +50,7 @@ export function AuthPanel() {
     <div
       role="region"
       aria-label="Authentication status"
-      className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-neutral-600 dark:text-neutral-400"
+      className={cn("flex shrink-0 flex-wrap items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
     >
       <span className="inline-flex h-6 items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2 py-0 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${signedIn ? "bg-emerald-500" : "bg-neutral-400"}`} aria-hidden />
@@ -56,7 +58,7 @@ export function AuthPanel() {
       </span>
       {!signedIn ? (
         <Link
-          className="auth-panel-focus inline-flex h-6 items-center rounded-md bg-slate-900 px-2.5 py-0 text-[11px] font-medium text-white no-underline dark:bg-slate-800"
+          className={cn("auth-panel-focus inline-flex h-6 items-center rounded-md bg-slate-900 px-2.5 py-0 font-medium text-white no-underline dark:bg-slate-800", OPERATOR_TYPOGRAPHY.helper)}
           href="/auth/signin"
           aria-label="Sign in with your organization account"
         >
@@ -65,7 +67,7 @@ export function AuthPanel() {
       ) : (
         <button
           type="button"
-          className="auth-panel-focus inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 py-0 text-[11px] font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+          className={cn("auth-panel-focus inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 py-0 font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
           aria-label="Sign out and return to the operator home page"
           onClick={() => void signOutAndRedirectHome()}
         >

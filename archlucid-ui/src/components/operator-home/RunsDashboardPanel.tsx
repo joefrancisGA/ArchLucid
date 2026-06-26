@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -62,7 +64,6 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 const DEFAULT_PROJECT_ID = "default";
@@ -488,7 +489,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               ) : null}
 
               {runListError ? (
-                <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:text-[13px] [&_strong]:font-semibold")} data-testid="runs-dashboard-recent-error">
+                <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:font-semibold")} data-testid="runs-dashboard-recent-error">
                   <OperatorApiProblem
                     problem={failure.problem}
                     fallbackMessage={failure.message}
@@ -675,7 +676,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               ) : null}
 
               {runListError ? (
-                <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:text-[13px] [&_strong]:font-semibold")}>
+                <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:font-semibold")}>
                   <OperatorApiProblem
                     problem={failure.problem}
                     fallbackMessage={failure.message}

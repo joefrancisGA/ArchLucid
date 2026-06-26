@@ -1,24 +1,40 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
+import { cn } from "@/lib/utils";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
+import { cn } from "@/lib/utils";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { cn } from "@/lib/utils";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
+import { cn } from "@/lib/utils";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
+import { cn } from "@/lib/utils";
 import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/WelcomeMarketingProblemSolutionSection";
+import { cn } from "@/lib/utils";
 import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeMarketingUseCasesSection";
+import { cn } from "@/lib/utils";
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
+import { cn } from "@/lib/utils";
 import {
   WELCOME_HERO_CTA_SUBHEADING,
   WELCOME_HERO_PITCH,
 } from "@/components/marketing/welcome-marketing-copy";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
+import { cn } from "@/lib/utils";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { cn } from "@/lib/utils";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 type WelcomeVerifyLink = {
@@ -36,7 +52,7 @@ function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerif
   const { links } = props;
 
   return (
-    <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+    <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
       <span className="font-semibold text-neutral-700 dark:text-neutral-300">Verify:</span>{" "}
       {links.map((link, index) => (
         <span key={`${link.href}|${link.label}`}>
@@ -119,7 +135,7 @@ export function WelcomeMarketingPage() {
         <div data-testid="welcome-hero-cta-stack" className="mt-8 flex w-full flex-col items-center gap-5">
           <p
             id="hero-cta-subheading"
-            className="max-w-2xl text-lg font-semibold leading-snug text-neutral-800 dark:text-neutral-100 sm:text-xl"
+            className={cn("max-w-2xl text-lg font-semibold leading-snug text-neutral-800 dark:text-neutral-100 sm:", OPERATOR_TYPOGRAPHY.pageTitle)}
             data-testid="welcome-hero-cta-subheading"
           >
             {WELCOME_HERO_CTA_SUBHEADING}
@@ -130,13 +146,13 @@ export function WelcomeMarketingPage() {
             data-testid="welcome-hero-primary-secondary-row"
             aria-labelledby="hero-cta-subheading"
           >
-            <WalkthroughRequestCta className="h-11 min-h-11 w-full px-8 text-base font-bold shadow-sm sm:w-auto sm:min-w-[12rem]" />
+            <WalkthroughRequestCta className={cn("h-11 min-h-11 w-full px-8 font-bold shadow-sm sm:w-auto sm:min-w-[12rem]", OPERATOR_TYPOGRAPHY.body)} />
             <SelfDemoRequestCta />
           </div>
 
           <div data-testid="welcome-hero-tertiary-region" className="flex w-full max-w-2xl flex-col items-center">
             <HeroEarlyAccessCta className="max-w-md" />
-            <p className="mt-2 max-w-lg text-center text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className={cn("mt-2 max-w-lg text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <span className="font-medium text-neutral-700 dark:text-neutral-300">FAQ:</span>{" "}
               <Link
                 className={MARKETING_SURFACES.inlineLink}
@@ -166,7 +182,7 @@ export function WelcomeMarketingPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Same finalized demo as{" "}
             <Link className={MARKETING_SURFACES.inlineLink} href="/demo/preview">
               the demo preview page
@@ -177,13 +193,13 @@ export function WelcomeMarketingPage() {
             </Link>
             .
           </p>
-          <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             <Link className={MARKETING_SURFACES.inlineLink} href="/WORKED_EXAMPLE_ROI.pdf">
               See worked example (PDF)
             </Link>{" "}
             — Contoso sample ROI (fictional tenant). Ask your account team for the written walkthrough companion.
           </p>
-          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}
             <Link className={MARKETING_SURFACES.inlineLink} href="/why">
               Why ArchLucid
@@ -220,7 +236,7 @@ export function WelcomeMarketingPage() {
             <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
               Structured findings with a versioned review package you can hand to ARB and audit partners.
             </p>
-            <p className="m-0 mt-3 text-xs font-medium">
+            <p className={cn("m-0 mt-3 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className={MARKETING_SURFACES.inlineLink} href="/why">
                 Why teams standardize on ArchLucid
               </Link>
@@ -231,7 +247,7 @@ export function WelcomeMarketingPage() {
             <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
               Trace graph tie-outs and audit milestones—not an ephemeral chat transcript.
             </p>
-            <p className="m-0 mt-3 text-xs font-medium">
+            <p className={cn("m-0 mt-3 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className={MARKETING_SURFACES.inlineLink} href="/see-it">
                 See it in 30 seconds
               </Link>
@@ -242,7 +258,7 @@ export function WelcomeMarketingPage() {
             <p className={`m-0 mt-2 ${MARKETING_TYPOGRAPHY.meta}`}>
               Published Trust Center materials and downloadable diligence anchors—know what to verify.
             </p>
-            <p className="m-0 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium">
+            <p className={cn("m-0 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-medium", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className={MARKETING_SURFACES.inlineLink} href="/trust">
                 Open Trust Center
               </Link>

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorUploadProgressBar } from "@/components/AzureExtractorUploadProgressBar";
@@ -39,7 +41,7 @@ export function WizardPostCreateEvidenceUploadPanel(props: WizardPostCreateEvide
   if (uploadState === "success") {
     return (
       <p
-        className="rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
+        className={cn("rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}
         data-testid="wizard-evidence-upload-success"
       >
         Evidence uploaded and linked to this review.

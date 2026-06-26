@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,13 +21,13 @@ function TraceSection(props: {
   return (
     <Collapsible defaultOpen={props.defaultOpen ?? false} className="rounded-md border border-neutral-200 dark:border-neutral-700">
       <CollapsibleTrigger
-        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm font-semibold text-neutral-900 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-900/60"
+        className={cn("flex w-full items-center justify-between gap-2 px-3 py-2 text-left font-semibold text-neutral-900 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-900/60", OPERATOR_TYPOGRAPHY.cardTitle)}
         data-testid={props.testId}
       >
         <span>{props.title}</span>
         <ChevronDown className="h-4 w-4 shrink-0 text-neutral-500 transition-transform [[data-state=open]_&]:rotate-180" />
       </CollapsibleTrigger>
-      <CollapsibleContent className="border-t border-neutral-200 px-3 py-3 text-sm dark:border-neutral-700">
+      <CollapsibleContent className={cn("border-t border-neutral-200 px-3 py-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}>
         {props.children}
       </CollapsibleContent>
     </Collapsible>
@@ -54,11 +56,11 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
       >
         <h3
           id="explainability-trace-decision-heading"
-          className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         >
           Decision
         </h3>
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-900 dark:text-neutral-100">{decisionText}</p>
+        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{decisionText}</p>
       </section>
 
       <TraceSection title="Rule applied" testId="explainability-trace-rules">
@@ -79,7 +81,7 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         ) : (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {evidenceRefs.map((ref, index) => (
-              <li key={`${ref}-${index}`} className="font-mono text-xs">
+              <li key={`${ref}-${index}`} className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>
                 {ref}
               </li>
             ))}

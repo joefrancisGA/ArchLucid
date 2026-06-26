@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState, type ReactElement } from "react";
 
@@ -57,7 +59,7 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
       {error !== null ? (
         <p
           role="alert"
-          className="m-0 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50"
+          className={cn("m-0 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50", OPERATOR_TYPOGRAPHY.body)}
           data-testid="copy-manifest-json-error"
         >
           {error}

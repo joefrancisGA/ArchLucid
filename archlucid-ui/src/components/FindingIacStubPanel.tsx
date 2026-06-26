@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -79,16 +81,16 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
         }
       }}
     >
-      {busy ? <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading remediation stub…</p> : null}
+      {busy ? <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading remediation stub…</p> : null}
 
       {error !== null ? (
         <OperatorApiProblem fallbackMessage={error.message} problem={null} correlationId={error.correlationId} />
       ) : null}
 
       {loaded && !busy && (iacStub === null || iacStub.length === 0) ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           No IaC stub was generated for this finding. Enable{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-xs dark:bg-neutral-800">
+          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>
             AgentRuntime:GenerateIacStubs
           </code>{" "}
           and finalize the review to produce stubs on future runs.
@@ -97,10 +99,10 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
 
       {iacStub !== null && iacStub.length > 0 ? (
         <div className="space-y-2">
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Minimal Azure Bicep snippet suggested for this finding. Review before applying in your estate.
           </p>
-          <pre className="max-h-96 overflow-auto rounded-lg border border-neutral-200 bg-neutral-950 p-4 text-xs leading-relaxed text-neutral-100 dark:border-neutral-700">
+          <pre className={cn("max-h-96 overflow-auto rounded-lg border border-neutral-200 bg-neutral-950 p-4 leading-relaxed text-neutral-100 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
             <code>{iacStub}</code>
           </pre>
           <Button

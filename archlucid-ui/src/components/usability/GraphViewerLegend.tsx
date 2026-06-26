@@ -9,7 +9,7 @@ export function GraphViewerLegend() {
 
   return (
     <div
-      className="mb-3 flex flex-wrap items-center gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40"
+      className={cn("mb-3 flex flex-wrap items-center gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="graph-viewer-legend"
       role="note"
       aria-label="Graph legend"

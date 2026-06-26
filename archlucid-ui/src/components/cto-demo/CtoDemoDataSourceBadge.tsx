@@ -1,9 +1,9 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useIsLiveApiActive } from "@/hooks/useIsLiveApiActive";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
 
 export type CtoDemoDataSourceBadgeProps = {
   readonly className?: string;
@@ -21,8 +21,7 @@ export function CtoDemoDataSourceBadge(props: CtoDemoDataSourceBadgeProps): Reac
   if (isLiveApi === null) {
     return (
       <span
-        className={cn(
-          "inline-flex items-center rounded-full border border-neutral-200 px-2 py-0.5 text-[11px] font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400",
+        className={cn("inline-flex items-center rounded-full border border-neutral-200 px-2 py-0.5 font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper,
           OPERATOR_TYPOGRAPHY.badge,
           className,
         )}
@@ -36,8 +35,7 @@ export function CtoDemoDataSourceBadge(props: CtoDemoDataSourceBadgeProps): Reac
   if (isLiveApi) {
     return (
       <span
-        className={cn(
-          "inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:border-teal-900/50 dark:bg-teal-950/40 dark:text-teal-100",
+        className={cn("inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 font-medium text-teal-900 dark:border-teal-900/50 dark:bg-teal-950/40 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper,
           OPERATOR_TYPOGRAPHY.badge,
           className,
         )}
@@ -51,8 +49,7 @@ export function CtoDemoDataSourceBadge(props: CtoDemoDataSourceBadgeProps): Reac
 
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
+      className={cn("inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper,
         OPERATOR_TYPOGRAPHY.badge,
         className,
       )}

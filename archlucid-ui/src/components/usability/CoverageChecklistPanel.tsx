@@ -45,13 +45,13 @@ export function CoverageChecklistPanel(props: CoverageChecklistPanelProps): Reac
           >
             <div className="flex flex-wrap items-center gap-2">
               <SeverityTag severity={null} kind="info" label="Checklist" />
-              <span className="text-sm font-medium text-al-text-primary">{item.title}</span>
+              <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{item.title}</span>
             </div>
             {item.category !== null ? (
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.meta)}>{item.category}</p>
             ) : null}
             {item.recommendation !== null && item.recommendation.length > 0 ? (
-              <p className="m-0 mt-1 text-sm leading-relaxed text-al-text-secondary">{item.recommendation}</p>
+              <p className={cn("m-0 mt-1 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.recommendation}</p>
             ) : null}
           </li>
         ))}

@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "archlucid_first_value_callout_dismissed_v1";
 
@@ -88,10 +89,10 @@ export function FirstValueReachedCallout(props: FirstValueReachedCalloutProps) {
       data-testid="first-value-reached-callout"
       role="status"
     >
-      <p className="m-0 text-sm font-medium text-emerald-950 dark:text-emerald-100">
+      <p className={cn("m-0 font-medium text-emerald-950 dark:text-emerald-100", OPERATOR_TYPOGRAPHY.body)}>
         Your first architecture review is ready — open it
       </p>
-      <p className="mt-1 mb-3 text-sm text-emerald-900/90 dark:text-emerald-200/90">
+      <p className={cn("mt-1 mb-3 text-emerald-900/90 dark:text-emerald-200/90", OPERATOR_TYPOGRAPHY.body)}>
         A committed signed review record is on your tenant. Open the pre-seeded welcome review to see findings and next steps.
       </p>
       <div className="flex flex-wrap items-center gap-2">

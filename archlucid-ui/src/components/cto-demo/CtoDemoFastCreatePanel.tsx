@@ -104,7 +104,7 @@ export function CtoDemoFastCreatePanel(): ReactElement {
   return (
     <Card data-testid="cto-demo-fast-create-panel" className="border-teal-200/70 dark:border-teal-900/40">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Live create (demo)</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Live create (demo)</CardTitle>
         <CardDescription>
           Simulator path lands on the showcase in ~15s. Live path uses your Azure OpenAI deployment with the same pipeline.
         </CardDescription>
@@ -127,7 +127,7 @@ export function CtoDemoFastCreatePanel(): ReactElement {
                 data-testid="cto-demo-fast-create-progress"
               />
             </div>
-            <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">{CTO_DEMO_FAST_CREATE_STAGE_LABELS[stageIndex]}</p>
+            <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{CTO_DEMO_FAST_CREATE_STAGE_LABELS[stageIndex]}</p>
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">

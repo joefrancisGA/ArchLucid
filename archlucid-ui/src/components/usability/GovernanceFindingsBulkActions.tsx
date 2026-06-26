@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -70,7 +72,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       className="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="governance-findings-bulk-actions"
     >
-      <p className="m-0 w-full text-sm font-medium text-neutral-900 dark:text-neutral-50">
+      <p className={cn("m-0 w-full font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
         {props.selectedFindingIds.length} finding(s) selected
       </p>
       <div className="min-w-[16rem] flex-1">

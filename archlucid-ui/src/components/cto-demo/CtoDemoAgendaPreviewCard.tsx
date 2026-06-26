@@ -20,7 +20,7 @@ export function CtoDemoAgendaPreviewCard(): React.JSX.Element {
         {BUYER_CTO_DEMO_AGENDA_HEADING}
       </h3>
       <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta)}>{BUYER_CTO_DEMO_AGENDA_SUBTEXT}</p>
-      <ol className="m-0 mt-3 list-decimal space-y-1 pl-4 text-sm text-neutral-800 dark:text-neutral-200">
+      <ol className={cn("m-0 mt-3 list-decimal space-y-1 pl-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, index) => {
           const budget = BUYER_CTO_DEMO_STEP_BUDGET_MINUTES[index] ?? 0;
 

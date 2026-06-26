@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -134,7 +136,7 @@ export function OperatorRouteDiagnosticsPanel(props: OperatorRouteDiagnosticsPan
         </Button>
       </div>
       <CollapsibleContent className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
-        <dl className="m-0 grid gap-2 text-xs text-neutral-700 dark:text-neutral-300">
+        <dl className={cn("m-0 grid gap-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
           <DiagnosticRow label="Attempted route" value={payload.attemptedRoute} />
           <DiagnosticRow label="Review ID" value={payload.runId} />
           {payload.packageId ? <DiagnosticRow label="Package ID" value={payload.packageId} /> : null}

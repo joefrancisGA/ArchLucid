@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -119,26 +121,26 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
       <div className="grid gap-3 lg:grid-cols-2">
         <Card className="border-neutral-200 shadow-sm dark:border-neutral-800 lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">Final decision</CardTitle>
+            <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Final decision</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               Approved with monitoring — one residual PHI risk under active oversight; no blocking findings.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{summary.overallAssessment}</p>
+            <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{summary.overallAssessment}</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">Remaining risk</CardTitle>
+            <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Remaining risk</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               What still needs executive or control-owner attention after this review.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 pt-0">
             {remainingRiskParts.map((line, index) => (
-              <p key={index} className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+              <p key={index} className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 {line}
               </p>
             ))}
@@ -147,7 +149,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">
+            <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Recommended executive action
             </CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
@@ -155,7 +157,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {pickRecommendedExecutiveAction(summary)}
             </p>
           </CardContent>
@@ -163,13 +165,13 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">Evidence confidence</CardTitle>
+            <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Evidence confidence</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               How strongly the synthesized narrative aligns to persisted artifacts and deterministic checks.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="m-0 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            <p className={cn("m-0 leading-relaxed text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               {evidenceConfidenceLine.length > 0
                 ? evidenceConfidenceLine
                 : "Confidence metadata was not returned for this review — use prioritized findings and the review package as the authoritative record."}
@@ -179,13 +181,13 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">Review record</CardTitle>
+            <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Review record</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               Jump to the finalized signed deliverables and governance checkpoints that anchor this narrative.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <ul className="m-0 list-none space-y-2 p-0 text-sm sm:columns-2 sm:gap-x-8 sm:[&>li]:break-inside-avoid">
+            <ul className={cn("m-0 list-none space-y-2 p-0 sm:columns-2 sm:gap-x-8 sm:[&>li]:break-inside-avoid", OPERATOR_TYPOGRAPHY.body)}>
             <li>
               <Link
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"

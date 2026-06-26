@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 
 export type CommitBlockingFindingLink = {
@@ -23,7 +25,7 @@ export function CommitBlockingFindingsBanner(props: CommitBlockingFindingsBanner
       <strong>
         {props.blockingFindings.length} blocking finding{props.blockingFindings.length === 1 ? "" : "s"} — finalize when resolved
       </strong>
-      <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm">
+      <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
         {props.blockingFindings.map((finding) => (
           <li key={finding.findingId}>
             <Link

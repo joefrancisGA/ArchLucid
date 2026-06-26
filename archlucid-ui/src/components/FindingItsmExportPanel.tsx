@@ -29,11 +29,11 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
       >
         <h2
           id="finding-itsm-native-default-heading"
-          className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+          className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
         >
           Sync to Jira or ServiceNow
         </h2>
-        <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Tenant ITSM connectors passed connection validation — create a linked issue in one click. Clipboard export
           remains available below when you need manual paste.
         </p>
@@ -60,15 +60,15 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
     >
       <h2
         id="finding-itsm-export-heading"
-        className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+        className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         Copy for Jira or ServiceNow
       </h2>
-      <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         One click copies Jira wiki markup ready to paste into a ticket. Choose ServiceNow or JSON for other trackers.
       </p>
       {deploymentEnabled ? (
-        <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Native one-click create unlocks after ITSM connection validation —{" "}
           <Link
             href={ITSM_NATIVE_CREATE_ADMIN_HREF}

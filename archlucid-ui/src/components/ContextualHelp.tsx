@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   useCallback,
@@ -18,7 +20,6 @@ import {
   contextualHelpTriggerAriaLabel,
   toDocsBlobUrl,
 } from "@/lib/contextual-help-content";
-import { cn } from "@/lib/utils";
 
 export type ContextualHelpPlacement = "top" | "right" | "bottom" | "left";
 
@@ -176,11 +177,11 @@ export function ContextualHelp({
         role="region"
         aria-label="Contextual help"
         style={panelStyle}
-        className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-left text-sm leading-snug text-neutral-800 shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+        className={cn("rounded-md border border-neutral-200 bg-white px-3 py-2 text-left leading-snug text-neutral-800 shadow-md dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
       >
-        <div className="m-0 text-xs text-neutral-700 dark:text-neutral-200">{text}</div>
+        <div className={cn("m-0 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{text}</div>
         {moreHref != null && (
-          <div className="m-0 mt-2 text-xs">
+          <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
             <ExternalLink
               className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300"
               href={moreHref}

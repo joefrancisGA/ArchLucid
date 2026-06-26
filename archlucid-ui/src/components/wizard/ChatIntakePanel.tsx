@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -86,7 +88,7 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
     >
       <div>
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Paste unstructured text</p>
-        <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Drop a Slack thread, Jira ticket, or rough markdown brief. ArchLucid maps it into review fields — no JSON
           required.
         </p>
@@ -104,7 +106,7 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
         aria-describedby="chat-intake-raw-text-hint"
         data-testid="chat-intake-raw-text"
       />
-      <p id="chat-intake-raw-text-hint" className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+      <p id="chat-intake-raw-text-hint" className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {rawText.trim().length} characters (minimum 20)
       </p>
       <div className="flex flex-wrap items-center gap-3">
@@ -117,12 +119,12 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
         >
           {parseBusy ? "Parsing…" : "Parse into wizard"}
         </Button>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Does not create a review until you submit the wizard.
         </p>
       </div>
       {parseSuccess !== null ? (
-        <p className="m-0 text-sm text-teal-800 dark:text-teal-300" data-testid="chat-intake-parse-success">
+        <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)} data-testid="chat-intake-parse-success">
           {parseSuccess}
         </p>
       ) : null}

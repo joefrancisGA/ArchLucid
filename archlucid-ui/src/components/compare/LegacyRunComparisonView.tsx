@@ -1,9 +1,11 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { sortDiffItems } from "@/lib/compare-display-sort";
 import type { RunComparison } from "@/types/authority";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
-const monoCls = "font-mono text-[13px]";
+const monoCls = (cn("font-mono", OPERATOR_TYPOGRAPHY.helper));
 
 const FIXTURE_MANIFEST_RE = /manifest-(left|right)-fixture/i;
 const FIXTURE_HASH_RE = /^sha256:(left|right)$/i;
@@ -50,7 +52,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
   return (
     <section id="compare-legacy" className="mt-7">
       <h3 className="mb-2">Review-level diff</h3>
-      <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <strong>Baseline:</strong> <code className={monoCls}>{result.leftRunId}</code> ·{" "}
         <strong>Updated:</strong> <code className={monoCls}>{result.rightRunId}</code>
         {result.runLevelDiffCount !== undefined && (
@@ -61,15 +63,15 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         )}
       </p>
 
-      <h4 className="text-[15px]">Review-level diffs</h4>
+      <h4 className={OPERATOR_TYPOGRAPHY.helper}>Review-level diffs</h4>
       {result.runLevelDiffs.length === 0 ? (
         <OperatorEmptyState title="No review-level diffs">
-          <p className="m-0 text-sm">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             The endpoint returned zero row-level differences (valid empty result).
           </p>
         </OperatorEmptyState>
       ) : (
-        <table className="mt-2 w-full border-collapse text-sm">
+        <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
           <thead>
             <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
               <th className={cellCls}>Kind</th>
@@ -93,10 +95,10 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         </table>
       )}
 
-      <h4 className="mt-6 text-[15px]">Review package diff</h4>
+      <h4 className={cn("mt-6", OPERATOR_TYPOGRAPHY.helper)}>Review package diff</h4>
       {!result.manifestComparison ? (
         <OperatorEmptyState title="No review package comparison block">
-          <p className="m-0 text-sm">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             {
               'The API did not include a review package comparison object for this pair (distinct from "zero diffs inside a comparison").'
             }
@@ -104,15 +106,15 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         </OperatorEmptyState>
       ) : (
         <>
-          <p className="mb-2 text-sm">
+          <p className={cn("mb-2", OPERATOR_TYPOGRAPHY.body)}>
             <strong>Changes:</strong> added {result.manifestComparison.addedCount}, removed{" "}
             {result.manifestComparison.removedCount}, changed {result.manifestComparison.changedCount}
           </p>
-          <details className="mb-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900/50">
-            <summary className="cursor-pointer text-xs font-medium text-neutral-600 dark:text-neutral-400">
+          <details className={cn("mb-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}>
+            <summary className={cn("cursor-pointer font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Technical details
             </summary>
-            <p className="mb-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("mb-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <strong>Review record IDs:</strong>{" "}
               <code className={monoCls}>
                 {displayManifestId(result.manifestComparison.leftManifestId, "left")}
@@ -129,10 +131,10 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
           </details>
           {manifestDiffs.length === 0 ? (
             <OperatorEmptyState title="Review comparison has zero line items">
-              <p className="m-0 text-sm">Comparison object present but diff list is empty.</p>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Comparison object present but diff list is empty.</p>
             </OperatorEmptyState>
           ) : (
-            <table className="mt-2 w-full border-collapse text-sm">
+            <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
               <thead>
                 <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
                   <th className={cellCls}>Kind</th>

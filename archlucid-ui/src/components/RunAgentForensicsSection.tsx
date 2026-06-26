@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { AgentEvidenceFaithfulnessBadge } from "@/components/AgentEvidenceFaithfulnessBadge";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -127,7 +129,7 @@ function EvaluationSummaryFooter(props: {
   const avgGrounding = averageEvidenceGroundingRatio(evaluationPayload.scores);
 
   return (
-    <p className="mt-3 text-[13px] text-neutral-500 dark:text-neutral-400">
+    <p className={cn("mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
       Evaluated at {formatInstantForLocale(evaluationPayload.evaluatedAtUtc)} · skipped traces:{" "}
       {evaluationPayload.tracesSkippedCount}
       {evaluationPayload.averageStructuralCompletenessRatio !== null &&
@@ -201,9 +203,9 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
   return (
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
       <CollapsibleSection title="Advanced — agent traces and structural evaluation (diagnostics)" defaultOpen={false}>
-      <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Prompt/response audit rows plus on-demand structural and semantic scoring of persisted agent JSON. Semantic columns and
-        backend histogram <code className="text-xs">archlucid_agent_output_semantic_score</code> are{" "}
+        backend histogram <code className={OPERATOR_TYPOGRAPHY.helper}>archlucid_agent_output_semantic_score</code> are{" "}
         <strong className="font-medium text-neutral-600 dark:text-neutral-300">heuristic completeness signals</strong> (and an
         optional LLM rubric when enabled) — not embedding similarity and not proof that recommendations are factually correct.
         The <strong className="font-medium text-neutral-600 dark:text-neutral-300">Evidence grounding</strong> column is a
@@ -224,7 +226,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
         <div
           role="status"
           aria-live="polite"
-          className="mb-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2.5 text-sm"
+          className={cn("mb-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-3 py-2.5", OPERATOR_TYPOGRAPHY.body)}
         >
           <strong>Blob persistence warning:</strong> at least one trace row has{" "}
           <code>blobUploadFailed=true</code> (full prompt/response blobs may be missing). See{" "}
@@ -235,7 +237,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
       {tracesFailure ? (
         <>
-          <p className="mb-2 text-sm font-semibold">Traces could not be loaded.</p>
+          <p className={cn("mb-2 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Traces could not be loaded.</p>
           <OperatorApiProblem
             problem={tracesFailure.problem}
             fallbackMessage={tracesFailure.message}
@@ -247,7 +249,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
       {evaluationFailure ? (
         <>
-          <p className="mb-2 mt-3 text-sm font-semibold">
+          <p className={cn("mb-2 mt-3 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>
             On-demand evaluation could not be loaded.
           </p>
           <OperatorApiProblem
@@ -260,14 +262,14 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       ) : null}
 
       {!tracesFailure && traces.length === 0 ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           No execution traces in the first page of results — expand when troubleshooting ingestion or agent steps.
         </p>
       ) : null}
 
       {!tracesFailure && traces.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+          <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
             <thead>
               <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
                 <th className="px-1.5 py-2">Agent</th>
@@ -305,7 +307,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                     <td className="whitespace-nowrap px-1.5 py-2 text-neutral-600 dark:text-neutral-400">
                       {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
                     </td>
-                    <td className="px-1.5 py-2 font-mono text-xs">{t.traceId}</td>
+                    <td className={cn("px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</td>
                     <td className="px-1.5 py-2">{t.parseSucceeded ? "yes" : "no"}</td>
                     <td className="px-1.5 py-2">
                       {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "—"}
@@ -351,7 +353,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                       )}
                     </td>
                     <td
-                      className="max-w-[14rem] truncate px-1.5 py-2 text-xs text-neutral-600 dark:text-neutral-400"
+                      className={cn("max-w-[14rem] truncate px-1.5 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                       title={rawNotes.title ?? (rawNotes.text === "—" ? undefined : rawNotes.text)}
                     >
                       {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "—" : rawNotes.text}

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_CALLOUT_SUCCESS_CLASS, OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import React, { useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, UploadCloud, X } from "lucide-react";
@@ -170,7 +172,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
   return (
     <div className="space-y-4 rounded-lg border p-4">
       <h3 className="text-lg font-medium">Add evidence</h3>
-      <p className="text-sm text-neutral-500">
+      <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>
         Upload up to {MAX_FILES} files per action. ZIP archives are expanded automatically (up to 1 000 entries each).
       </p>
 
@@ -184,7 +186,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
         tabIndex={0}
       >
         <UploadCloud className="mb-2 h-8 w-8 text-neutral-400" />
-        <p className="text-sm font-medium text-neutral-700">Drag files here or click to browse</p>
+        <p className={cn("font-medium text-neutral-700", OPERATOR_TYPOGRAPHY.body)}>Drag files here or click to browse</p>
         <div className="mt-4 flex gap-4" onClick={(e) => e.stopPropagation()}>
           <Button type="button" variant="outline" size="sm" asChild>
             <label className="cursor-pointer">
@@ -232,7 +234,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
         {files.length} out of {MAX_FILES} files selected
       </div>
 
-      <div className="flex items-center justify-between text-sm font-medium">
+      <div className={cn("flex items-center justify-between font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <span>
           {files.length} / {MAX_FILES} files
         </span>
@@ -241,7 +243,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
       {error ? (
         <div
           id="upload-error"
-          className="flex items-center rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-2"
+          className={cn("flex items-center rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 p-2", OPERATOR_TYPOGRAPHY.body)}
           data-testid="bulk-evidence-upload-error"
         >
           <AlertCircle className="mr-2 h-4 w-4 shrink-0" />
@@ -253,8 +255,8 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
         <div
           className={
             uploadSummary.isPartial
-              ? "space-y-2 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-2"
-              : "flex items-start gap-2 rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 p-2"
+              ? cn("space-y-2 p-2", OPERATOR_CALLOUT_WARN_CLASS)
+              : cn("flex items-start gap-2 p-2", OPERATOR_CALLOUT_SUCCESS_CLASS)
           }
           data-testid="bulk-evidence-upload-summary"
         >
@@ -270,7 +272,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
                 {uploadSummary.outcomes
                   .filter((outcome) => outcome.status === "failed")
                   .map((outcome) => (
-                    <li key={outcome.fileName} className="text-xs">
+                    <li key={outcome.fileName} className={OPERATOR_TYPOGRAPHY.helper}>
                       <span className="font-medium">{outcome.fileName}</span>
                       {outcome.reason ? <span className="text-amber-900/80"> — {outcome.reason}</span> : null}
                     </li>
@@ -284,7 +286,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
       {files.length > 0 ? (
         <ul className="max-h-48 space-y-2 overflow-y-auto rounded border bg-white p-2">
           {files.map((f, i) => (
-            <li key={`${f.name}-${i}`} className="flex items-center justify-between p-1 text-sm hover:bg-neutral-50">
+            <li key={`${f.name}-${i}`} className={cn("flex items-center justify-between p-1 hover:bg-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
               <span className="max-w-[200px] truncate" title={f.name}>
                 {f.name}
               </span>
@@ -308,7 +310,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
       {showProgress ? (
         <div className="space-y-1" data-testid="bulk-evidence-upload-progress">
           <Progress value={progressPercent} className="h-2 w-full" aria-label="Upload progress" />
-          <div className="flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
+          <div className={cn("flex justify-between text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             <span>{progressPercent}%</span>
             {etaLabel ? <span>{etaLabel}</span> : null}
           </div>

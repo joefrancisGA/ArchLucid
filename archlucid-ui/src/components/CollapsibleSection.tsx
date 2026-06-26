@@ -1,5 +1,7 @@
 "use client";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 type CollapsibleSectionProps = {
@@ -35,7 +37,7 @@ export function CollapsibleSection({
         }
       }}
     >
-      <summary className="cursor-pointer select-none text-sm font-semibold text-al-text-primary">
+      <summary className={cn("cursor-pointer select-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {title}
       </summary>
       <div className="mt-3">{children}</div>

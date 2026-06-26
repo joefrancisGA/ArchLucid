@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -20,7 +22,7 @@ export function FrictionlessTrialLauncher() {
   }, [router]);
 
   return (
-    <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="frictionless-trial-launcher">
+    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="frictionless-trial-launcher">
       Opening the sample review package…
     </p>
   );

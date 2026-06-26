@@ -1,3 +1,4 @@
+import { OPERATOR_DOCUMENT_ARTICLE_BODY, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type DocumentTocItem = {
@@ -15,17 +16,7 @@ export type DocumentLayoutProps = {
 const articleBodyClass = cn(
   "min-w-0 max-w-3xl flex-1 space-y-6 text-neutral-800 dark:text-neutral-200",
   "print:max-w-none print:text-black",
-  "[&_p]:text-base [&_p]:leading-relaxed",
-  "[&_h2]:scroll-mt-20 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-neutral-900 dark:[&_h2]:text-neutral-50",
-  "[&_h3]:scroll-mt-20 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-neutral-900 dark:[&_h3]:text-neutral-100",
-  "[&_h4]:scroll-mt-16 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-neutral-900 dark:[&_h4]:text-neutral-100",
-  "[&_.doc-meta]:text-sm [&_.doc-meta]:text-neutral-500 dark:[&_.doc-meta]:text-neutral-400",
-  "[&_ul]:my-0 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_ul]:text-base [&_ul]:leading-relaxed",
-  "[&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:rounded-md [&_pre]:border [&_pre]:border-neutral-200 [&_pre]:bg-neutral-100 [&_pre]:p-3 [&_pre]:text-sm dark:[&_pre]:border-neutral-700 dark:[&_pre]:bg-neutral-800",
-  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-sm",
-  "[&_thead_th]:border-b [&_thead_th]:border-neutral-200 [&_thead_th]:bg-neutral-50/90 [&_thead_th]:p-2 [&_thead_th]:text-left [&_thead_th]:font-semibold dark:[&_thead_th]:border-neutral-700 dark:[&_thead_th]:bg-neutral-900/50",
-  "[&_tbody_tr:nth-child(odd)]:bg-neutral-50/70 dark:[&_tbody_tr:nth-child(odd)]:bg-neutral-900/35",
-  "[&_td]:border-b [&_td]:border-neutral-100 [&_td]:p-2 [&_td]:align-top dark:[&_td]:border-neutral-800",
+  OPERATOR_DOCUMENT_ARTICLE_BODY,
 );
 
 /**
@@ -53,10 +44,10 @@ export function DocumentLayout({ children, tocItems, className }: DocumentLayout
           aria-label="On this page"
           data-testid="document-layout-toc"
         >
-          <p className="m-0 mb-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 mb-2 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
             On this page
           </p>
-          <ul className="m-0 list-none space-y-1.5 p-0 text-xs">
+          <ul className={cn("m-0 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.helper)}>
             {tocItems.map((item) => (
               <li key={item.id}>
                 <a

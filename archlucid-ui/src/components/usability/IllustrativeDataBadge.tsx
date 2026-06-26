@@ -1,4 +1,5 @@
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type IllustrativeDataBadgeProps = {
@@ -14,8 +15,7 @@ export function IllustrativeDataBadge(props: IllustrativeDataBadgeProps) {
 
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-full border border-neutral-300 bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200",
+      className={cn("inline-flex items-center rounded-full border border-neutral-300 bg-neutral-100 px-2 py-0.5 font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper,
         props.className,
       )}
       role="status"

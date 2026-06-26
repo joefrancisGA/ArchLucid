@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 
 
@@ -125,7 +127,6 @@ import {
 
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
 
-import { cn } from "@/lib/utils";
 
 
 
@@ -792,7 +793,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
         ) : null}
 
         {showPresenterLayer && presenterNotesVisible && navigation.stepIndex === 2 ? (
-          <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400" data-testid="cto-demo-compare-drift-beat">
+          <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="cto-demo-compare-drift-beat">
             {BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL}:{" "}
             <Link
               href={BUYER_CTO_DEMO_COMPARE_HREF}
@@ -809,11 +810,11 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
             className="mt-2 rounded-md border border-amber-200/80 bg-amber-50/60 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/20"
             data-testid="cto-demo-panic-script-section"
           >
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">Presenter only</p>
-            <p className="m-0 mt-2 text-xs font-semibold text-amber-900 dark:text-amber-200">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>Presenter only</p>
+            <p className={cn("m-0 mt-2 font-semibold text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
               {BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">{BUYER_CTO_DEMO_PANIC_SCRIPT_BODY}</p>
+            <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_CTO_DEMO_PANIC_SCRIPT_BODY}</p>
             <div className="mt-2">
               {panicEnabled ? (
                 <StatusTag kind="ready" label={BUYER_CTO_DEMO_PANIC_ENABLED_LABEL} />
@@ -899,7 +900,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               {smokeResults !== null ? (
 
-                <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs" data-testid="cto-demo-smoke-check-results">
+                <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="cto-demo-smoke-check-results">
 
                   {smokeResults.map((row) => (
 
@@ -944,7 +945,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
 
         {showPresenterLayer ? (
-          <p className={cn("m-0 mt-2 text-xs text-neutral-500 dark:text-neutral-400")}>{BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT}</p>
+          <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT}</p>
         ) : null}
 
         {showPresenterLayer ? (
@@ -1069,7 +1070,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
           <ol
 
-            className="m-0 mt-2 list-decimal space-y-2 pl-4 text-xs text-neutral-700 dark:text-neutral-300"
+            className={cn("m-0 mt-2 list-decimal space-y-2 pl-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
 
             data-testid="buyer-cto-demo-tour-cto-questions"
 
@@ -1149,9 +1150,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                       title={def.chipTooltip}
 
-                      className={cn(
-
-                        "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                      className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium", OPERATOR_TYPOGRAPHY.helper,
 
                         chipClass,
 
@@ -1175,9 +1174,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                       title={def.chipTooltip}
 
-                      className={cn(
-
-                        "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
+                      className={cn("inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 font-medium no-underline transition hover:opacity-95", OPERATOR_TYPOGRAPHY.helper,
 
                         chipClass,
 

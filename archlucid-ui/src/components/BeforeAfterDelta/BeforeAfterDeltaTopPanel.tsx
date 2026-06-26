@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   formatFindings,
@@ -44,10 +46,10 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
       aria-label="Median proof-of-ROI deltas across recent finalized reviews"
       className="mb-6 max-w-4xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
-      <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+      <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         Recent finalized reviews — median delta
       </h3>
-      <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Across the last <strong data-testid="delta-top-window">{windowCount}</strong> finalized review(s) in
         scope. Median (not mean) so one outlier does not skew the headline. Same numbers as the per-run value
         report.
@@ -55,34 +57,34 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
 
       <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
+          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Median findings per finalized review
           </dt>
           <dd
             data-testid="delta-top-median-findings"
-            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+            className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
           >
             {formatFindings(data.medianTotalFindings)}
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
+          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Median time to finalized review package
           </dt>
           <dd
             data-testid="delta-top-median-time"
-            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+            className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
           >
             {formatHours(data.medianTimeToCommittedManifestTotalSeconds)}
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
+          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Median LLM calls (attested rows)
           </dt>
           <dd
             data-testid="delta-top-median-llm"
-            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+            className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
             title="Median count of persisted agent execution traces per run when all window rows have attested counts."
           >
             {formatMedianLlmCalls(data.medianLlmCallCount)}
@@ -92,7 +94,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
 
       <ol
         data-testid="delta-top-rows"
-        className="mt-3 space-y-1 text-xs text-neutral-600 dark:text-neutral-400"
+        className={cn("mt-3 space-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       >
         {data.items.map((row, index) => {
           const rid = typeof row.runId === "string" && row.runId.length > 0 ? row.runId : `row-${String(index)}`;

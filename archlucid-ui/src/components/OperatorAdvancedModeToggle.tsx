@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { OPERATOR_ADVANCED_MODE } from "@/lib/nav-disclosure-copy";
@@ -29,7 +31,7 @@ export function OperatorAdvancedModeToggle({
         size="sm"
         className={
           className ??
-          "sidebar-disclosure-trigger w-full justify-start px-3 py-2 text-left text-xs font-medium text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+          (cn("sidebar-disclosure-trigger w-full justify-start px-3 py-2 text-left font-medium text-neutral-900 shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper))
         }
         data-testid={testId}
         aria-pressed={advancedModeOn}
@@ -44,7 +46,7 @@ export function OperatorAdvancedModeToggle({
         {advancedModeOn ? OPERATOR_ADVANCED_MODE.hide : OPERATOR_ADVANCED_MODE.show}
       </Button>
       {showFootnote && !advancedModeOn ? (
-        <p className="m-0 px-1 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 px-1 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {OPERATOR_ADVANCED_MODE.footnote}
         </p>
       ) : null}

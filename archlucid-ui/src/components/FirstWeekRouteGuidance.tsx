@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,7 @@ function GuidanceBody(props: {
     <>
       <p className="m-0 mt-1.5 text-neutral-700 dark:text-neutral-300">{props.bridgeCopy}</p>
       {props.operateDeferralNote.trim().length > 0 ? (
-        <p className="m-0 mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">{props.operateDeferralNote}</p>
+        <p className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{props.operateDeferralNote}</p>
       ) : null}
       {primaryAction !== undefined ? (
         <div className="mt-2.5">
@@ -59,7 +61,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
       <aside
         aria-label="First-week guidance"
         data-testid={`first-week-route-guidance-${props.variant}`}
-        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 text-sm leading-snug"
+        className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 leading-snug", OPERATOR_TYPOGRAPHY.body)}
       >
         <p className="m-0 font-semibold text-teal-900 dark:text-teal-200">{config.useWhen}</p>
         <GuidanceBody
@@ -77,12 +79,12 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
       <details
         aria-label="First-week guidance"
         data-testid={`first-week-route-guidance-${props.variant}`}
-        className="max-w-prose rounded-md border border-neutral-200/90 bg-neutral-50/80 px-3 py-2.5 text-sm leading-snug text-neutral-800 dark:border-neutral-700/80 dark:bg-neutral-900/40 dark:text-neutral-200"
+        className={cn("max-w-prose rounded-md border border-neutral-200/90 bg-neutral-50/80 px-3 py-2.5 leading-snug text-neutral-800 dark:border-neutral-700/80 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
       >
         <summary className="cursor-pointer font-semibold text-neutral-800 dark:text-neutral-100">
           {FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY}
         </summary>
-        <p className="m-0 mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">{config.useWhen}</p>
+        <p className={cn("m-0 mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody
           useWhen={config.useWhen}
           bridgeCopy={config.bridgeCopy}
@@ -97,7 +99,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
     <aside
       aria-label="First-week guidance"
       data-testid={`first-week-route-guidance-${props.variant}`}
-      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 text-sm leading-snug"
+      className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 leading-snug", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0">
         <span className="font-semibold text-teal-900 dark:text-teal-200">Use this when:</span> {config.useWhen}

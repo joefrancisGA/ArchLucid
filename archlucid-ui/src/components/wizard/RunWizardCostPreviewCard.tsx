@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -80,7 +82,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
       <div
         role="status"
         data-testid="run-cost-preview-error"
-        className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50"
+        className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50", OPERATOR_TYPOGRAPHY.body)}
       >
         {error}
       </div>
@@ -89,7 +91,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
 
   if (data === null) {
     return (
-      <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="run-cost-preview-loading">
+      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="run-cost-preview-loading">
         Loading cost preview…
       </p>
     );
@@ -116,7 +118,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
   return (
     <div
       data-testid="run-cost-preview-card"
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 shadow-sm"
+      className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-4 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-medium" data-testid="run-cost-preview-headline">
         Estimated Azure OpenAI cost for this review:{" "}
@@ -126,24 +128,24 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
           <span data-testid="run-cost-preview-amount">—</span>
         )}{" "}
         (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
-        <code className="rounded bg-amber-100/80 px-1 text-xs dark:bg-amber-900/60">MaxCompletionTokens</code>
+        <code className={cn("rounded bg-amber-100/80 px-1 dark:bg-amber-900/60", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
         ={data.maxCompletionTokens})
         {data.deploymentName ? (
           <>
             {" "}
-            · deployment <code className="rounded bg-amber-100/80 px-1 text-xs dark:bg-amber-900/60">{data.deploymentName}</code>
+            · deployment <code className={cn("rounded bg-amber-100/80 px-1 dark:bg-amber-900/60", OPERATOR_TYPOGRAPHY.helper)}>{data.deploymentName}</code>
           </>
         ) : null}
       </p>
       {data.pricingUsesIllustrativeUsdRates ? (
-        <p className="mt-2 mb-0 text-xs font-medium text-amber-950 dark:text-amber-50">
+        <p className={cn("mt-2 mb-0 font-medium text-amber-950 dark:text-amber-50", OPERATOR_TYPOGRAPHY.helper)}>
           Illustrative USD rates are still set from defaults — override{" "}
           <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/60">AgentExecution:LlmCostEstimation</code> to match
           your deployment&apos;s list price.
         </p>
       ) : null}
-      <p className="mt-2 mb-0 text-xs text-amber-900/90 dark:text-amber-100/90">{data.estimatedCostBasis}</p>
-      <p className="mt-2 mb-0 text-xs text-amber-900/90 dark:text-amber-100/90">
+      <p className={cn("mt-2 mb-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>{data.estimatedCostBasis}</p>
+      <p className={cn("mt-2 mb-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
         Methodology:{" "}
         <Link className="font-medium text-amber-950 underline dark:text-amber-50" href={DOCS_URL}>
           docs/deployment/PER_TENANT_COST_MODEL.md

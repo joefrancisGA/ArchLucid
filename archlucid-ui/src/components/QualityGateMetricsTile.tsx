@@ -1,15 +1,21 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
+import { cn } from "@/lib/utils";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   dispositionLabel,
   type OperatorAiQualitySnapshot,
   type OperatorAiQualitySnapshotDisposition,
 } from "@/lib/operator-ai-quality-snapshot";
+import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function formatMetric(value: number | null | undefined, digits: number): string {
@@ -87,15 +93,15 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
           ) : null}
         </div>
       </CardHeader>
-      <CardContent className="grid gap-3 sm:grid-cols-2 text-sm">
+      <CardContent className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
-          <p className="m-0 text-xs text-neutral-500">
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             {executiveSurface ? "Retrieval accuracy (top results)" : "Mean recall@5 (golden cohort)"}
           </p>
           <p className="m-0 font-mono text-lg text-neutral-900 dark:text-neutral-100">{formatMetric(recall, 4)}</p>
         </div>
         <div>
-          <p className="m-0 text-xs text-neutral-500">
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             {executiveSurface ? "Rank quality" : "Mean MRR"}
           </p>
           <p className="m-0 font-mono text-lg text-neutral-900 dark:text-neutral-100">{formatMetric(mrr, 4)}</p>

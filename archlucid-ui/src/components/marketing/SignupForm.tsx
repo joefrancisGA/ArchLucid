@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -200,7 +202,7 @@ export function SignupForm() {
           <Label htmlFor="signup-email">Work email</Label>
           <Input id="signup-email" type="email" autoComplete="email" {...register("adminEmail")} className="mt-1" />
           {formState.errors.adminEmail ? (
-            <p className="mt-1 text-sm text-red-600" role="alert">
+            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {formState.errors.adminEmail.message}
             </p>
           ) : null}
@@ -210,7 +212,7 @@ export function SignupForm() {
           <Label htmlFor="signup-name">Full name</Label>
           <Input id="signup-name" autoComplete="name" {...register("adminDisplayName")} className="mt-1" />
           {formState.errors.adminDisplayName ? (
-            <p className="mt-1 text-sm text-red-600" role="alert">
+            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {formState.errors.adminDisplayName.message}
             </p>
           ) : null}
@@ -220,7 +222,7 @@ export function SignupForm() {
           <Label htmlFor="signup-org">Organization name</Label>
           <Input id="signup-org" autoComplete="organization" {...register("organizationName")} className="mt-1" />
           {formState.errors.organizationName ? (
-            <p className="mt-1 text-sm text-red-600" role="alert">
+            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {formState.errors.organizationName.message}
             </p>
           ) : null}
@@ -262,7 +264,7 @@ export function SignupForm() {
             className="mt-1"
           />
           {formState.errors.architectureTeamSize ? (
-            <p className="mt-1 text-sm text-red-600" role="alert">
+            <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {formState.errors.architectureTeamSize.message}
             </p>
           ) : null}
@@ -304,7 +306,7 @@ export function SignupForm() {
               className="mt-1"
             />
             {formState.errors.industryVerticalOther ? (
-              <p className="mt-1 text-sm text-red-600" role="alert">
+              <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
                 {formState.errors.industryVerticalOther.message}
               </p>
             ) : null}
@@ -312,10 +314,10 @@ export function SignupForm() {
         ) : null}
 
         <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-          <p id="signup-baseline-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <p id="signup-baseline-heading" className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Baseline review hours (recommended)
           </p>
-          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Supplying <strong className="font-semibold text-neutral-800 dark:text-neutral-200">baseline review hours</strong> tightens your
             ROI &quot;before&quot; anchors. Default signup stays fast; pick <em>I will enter our median review-cycle hours</em>{" "}
             to unlock the baseline review hours field. We still compute a measured-vs-baseline curve after your first
@@ -343,7 +345,7 @@ export function SignupForm() {
                 data-testid="signup-baseline-choice-model"
               />
               <div className="flex items-center gap-1">
-                <label htmlFor="signup-baseline-model" className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                <label htmlFor="signup-baseline-model" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                   Use model default (modeled estimate)
                 </label>
                 <InlineInfoTooltip
@@ -362,7 +364,7 @@ export function SignupForm() {
                 onChange={() => setBaselineChoice("custom")}
                 data-testid="signup-baseline-choice-custom"
               />
-              <label htmlFor="signup-baseline-custom" className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              <label htmlFor="signup-baseline-custom" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                 I will enter our median review-cycle hours
               </label>
             </div>
@@ -370,7 +372,7 @@ export function SignupForm() {
 
           {baselineChoice === "custom" ? (
             <div className="mt-3 space-y-3 border-t border-neutral-200 pt-3 dark:border-neutral-600">
-              <p className="text-xs text-neutral-600 dark:text-neutral-400">
+              <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Overriding produces a measured-vs-baseline curve on the operator dashboard once a review finalizes.
               </p>
               <div>
@@ -387,7 +389,7 @@ export function SignupForm() {
                   className="mt-1"
                 />
                 {formState.errors.baselineReviewCycleHours ? (
-                  <p className="mt-1 text-sm text-red-600" role="alert">
+                  <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
                     {formState.errors.baselineReviewCycleHours.message}
                   </p>
                 ) : null}
@@ -402,7 +404,7 @@ export function SignupForm() {
                   className="mt-1"
                 />
                 {formState.errors.baselineReviewCycleSource ? (
-                  <p className="mt-1 text-sm text-red-600" role="alert">
+                  <p className={cn("mt-1 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
                     {formState.errors.baselineReviewCycleSource.message}
                   </p>
                 ) : null}
@@ -420,7 +422,7 @@ export function SignupForm() {
           </Button>
         </div>
 
-        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           By continuing you agree to use ArchLucid in accordance with your organization&apos;s policies and our{" "}
           <Link className="text-teal-800 underline dark:text-teal-300" href="/privacy">
             privacy policy

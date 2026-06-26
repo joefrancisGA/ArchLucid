@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
@@ -11,7 +13,6 @@ import type { RunSummary } from "@/types/authority";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { runSummaryDisplayLabel } from "@/lib/run-summary-display-label";
-import { cn } from "@/lib/utils";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
 const DEMO_RUN_PREF_ID = "claims-intake-modernization";
@@ -227,14 +228,14 @@ export function RunIdPicker({
   }, [runs, query, useBuyerFacingRunLabels]);
 
   const popupContainerClass =
-    "absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-md dark:border-neutral-700 dark:bg-neutral-900";
+    (cn("absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white py-1 shadow-md dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body));
   /** role="listbox" must contain option/group children — avoid it for loading-only or empty-list error banners (axe aria-required-children). */
   const showRunPopup = open && (filtered.length > 0 || loadError !== null || loading);
   const popupUsesListbox = !loading && filtered.length > 0;
 
   return (
     <div className="relative max-w-xl">
-      <Label htmlFor={controlId} className="mb-1 block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+      <Label htmlFor={controlId} className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {label}
       </Label>
       <Input
@@ -317,11 +318,11 @@ export function RunIdPicker({
                       setOpen(false);
                     }}
                   >
-                    <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{primaryText}</span>
+                    <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{primaryText}</span>
                     {useBuyerFacingRunLabels ? (
                       secondaryText
                     ) : (
-                      <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">{secondaryText}</span>
+                      <span className={cn("font-mono text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{secondaryText}</span>
                     )}
                   </button>
                 </li>

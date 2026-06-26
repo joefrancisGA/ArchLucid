@@ -34,8 +34,7 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
               aria-current={isActive ? "step" : undefined}
             >
               <span
-                className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
+                className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors", OPERATOR_TYPOGRAPHY.cardTitle,
                   isActive && "border-teal-700 bg-teal-700 text-white",
                   !isActive &&
                     isDone &&
@@ -47,11 +46,11 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
               >
                 {index + 1}
               </span>
-              <span className="max-w-[10rem] text-xs font-medium text-neutral-800 dark:text-neutral-200 md:text-sm">
+              <span className={cn("max-w-[10rem] font-medium text-neutral-800 dark:text-neutral-200 md:", OPERATOR_TYPOGRAPHY.body)}>
                 {step.label}
               </span>
               {step.description ? (
-                <span className="hidden max-w-[12rem] text-xs text-neutral-500 dark:text-neutral-300 md:block">
+                <span className={cn("hidden max-w-[12rem] text-neutral-500 dark:text-neutral-300 md:block", OPERATOR_TYPOGRAPHY.helper)}>
                   {step.description}
                 </span>
               ) : null}

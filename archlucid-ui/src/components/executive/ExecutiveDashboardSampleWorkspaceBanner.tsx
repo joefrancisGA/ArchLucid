@@ -16,8 +16,7 @@ export function ExecutiveDashboardSampleWorkspaceBanner(
 
   return (
     <div
-      className={cn(
-        "rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-sm shadow-sm dark:border-neutral-800",
+      className={cn("rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body,
         props.className,
       )}
       role="status"

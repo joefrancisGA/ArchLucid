@@ -1,11 +1,12 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { UploadCloud } from "lucide-react";
 import { useId, useRef, useState, type ReactNode } from "react";
 
 import { AzureExtractorUploadProgressBar } from "@/components/AzureExtractorUploadProgressBar";
 import { AZURE_EXTRACTOR_ZIP_ONLY_MESSAGE, isAzureExtractorZipFile } from "@/lib/is-azure-extractor-zip-file";
-import { cn } from "@/lib/utils";
 
 export type AzureExtractorZipDropZoneProps = {
   ariaLabel: string;
@@ -118,10 +119,10 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
         }}
       >
         <UploadCloud className="mb-2 h-8 w-8 text-neutral-500 dark:text-neutral-400" aria-hidden />
-        <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-100">
+        <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           Drag and drop your Azure packager ZIP here
         </p>
-        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           or click to browse (.zip{onFolderSelected !== undefined ? " or folder" : ""})
         </p>
       </div>
@@ -168,7 +169,7 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
           />
           <button
             type="button"
-            className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
+            className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.helper)}
             disabled={isDisabled}
             onClick={() => folderInputRef.current?.click()}
           >

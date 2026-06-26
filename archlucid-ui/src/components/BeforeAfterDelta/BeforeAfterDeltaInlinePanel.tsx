@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { formatFindings, formatHours, percentDelta } from "./formatDelta";
 import { pickPriorForSameRequest } from "./pick-prior-for-same-request";
@@ -50,16 +52,16 @@ export function BeforeAfterDeltaInlinePanel({ runId }: BeforeAfterDeltaInlinePan
       aria-label="Delta vs prior finalized review for the same architecture request"
       className="mb-4 max-w-3xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
-      <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+      <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         Delta vs prior finalization (same request)
       </h3>
       {prior === null ? (
         <p
           data-testid="delta-inline-no-prior"
-          className="mt-2 text-xs text-neutral-600 dark:text-neutral-400"
+          className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         >
           No prior finalized review found for request{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
+          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>
             {current.requestId === "" ? "(unknown)" : current.requestId}
           </code>{" "}
           in the recent window. This is the first finalization for this request — future reviews will compare here.
@@ -87,20 +89,20 @@ function BeforeAfterDeltaInlineComparisonRow({
   return (
     <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-        <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
+        <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Findings</dt>
         <dd
           data-testid="delta-inline-findings"
-          className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+          className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
         >
           {formatFindings(current.totalFindings)}{" "}
-          <span className="text-sm font-normal text-neutral-600 dark:text-neutral-400">
+          <span className={cn("font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             (prior: {formatFindings(prior.totalFindings)})
           </span>
         </dd>
         {findingsDelta !== null ? (
           <dd
             data-testid="delta-inline-findings-percent"
-            className="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+            className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           >
             {findingsDelta >= 0
               ? `${findingsDelta.toFixed(1)}% fewer findings vs prior finalization`
@@ -109,22 +111,22 @@ function BeforeAfterDeltaInlineComparisonRow({
         ) : null}
       </div>
       <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-        <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
+        <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Time to finalized review package
         </dt>
         <dd
           data-testid="delta-inline-time"
-          className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+          className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
         >
           {formatHours(current.timeToCommittedManifestTotalSeconds)}{" "}
-          <span className="text-sm font-normal text-neutral-600 dark:text-neutral-400">
+          <span className={cn("font-normal text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             (prior: {formatHours(prior.timeToCommittedManifestTotalSeconds)})
           </span>
         </dd>
         {timeDelta !== null ? (
           <dd
             data-testid="delta-inline-time-percent"
-            className="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+            className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
           >
             {timeDelta >= 0
               ? `${timeDelta.toFixed(1)}% faster vs prior finalization`

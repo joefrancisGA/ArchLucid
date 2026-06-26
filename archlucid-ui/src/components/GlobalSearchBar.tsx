@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -164,19 +166,19 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           role="listbox"
           className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
         >
-          {loading ? <p className="m-0 px-3 py-2 text-sm text-neutral-500">Searching…</p> : null}
+          {loading ? <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Searching…</p> : null}
           {!loading && !hasResults ? (
-            <p className="m-0 px-3 py-2 text-sm text-neutral-500">No matches.</p>
+            <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>No matches.</p>
           ) : null}
           {!loading && (results?.runs?.length ?? 0) > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
-              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Reviews</h3>
+              <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Reviews</h3>
               <ul className="m-0 list-none p-0">
                 {results?.runs?.map((run) => (
                   <li key={run.runId}>
                     <button
                       type="button"
-                      className="w-full rounded px-1 py-1.5 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                      className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => {
                         router.push(`/reviews/${encodeURIComponent(run.runId)}`);
                         setOpen(false);
@@ -191,13 +193,13 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           ) : null}
           {!loading && (results?.findings?.length ?? 0) > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
-              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Findings</h3>
+              <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Findings</h3>
               <ul className="m-0 list-none p-0">
                 {results?.findings?.map((finding) => (
                   <li key={`${finding.runId}:${finding.findingId}`}>
                     <button
                       type="button"
-                      className="w-full rounded px-1 py-1.5 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                      className={cn("w-full rounded px-1 py-1.5 text-left hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => {
                         router.push(
                           `/reviews/${encodeURIComponent(finding.runId)}/findings/${encodeURIComponent(finding.findingId)}`,
@@ -206,7 +208,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       }}
                     >
                       <span className="font-medium">{finding.title}</span>
-                      <span className="ml-2 text-xs text-neutral-500">{finding.severity}</span>
+                      <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{finding.severity}</span>
                     </button>
                   </li>
                 ))}
@@ -215,13 +217,13 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           ) : null}
           {!loading && (results?.policyPacks?.length ?? 0) > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
-              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Policy packs</h3>
+              <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy packs</h3>
               <ul className="m-0 list-none p-0">
                 {results?.policyPacks?.map((pack) => (
                   <li key={pack.policyPackId}>
                     <Link
                       href={`/policy-packs?packId=${encodeURIComponent(pack.policyPackId)}`}
-                      className="block rounded px-1 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                      className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => setOpen(false)}
                     >
                       {pack.name}
@@ -233,17 +235,17 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           ) : null}
           {!loading && helpHits.length > 0 ? (
             <section className="px-3 py-2">
-              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">Help</h3>
+              <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Help</h3>
               <ul className="m-0 list-none p-0">
                 {helpHits.map((hit) => (
                   <li key={hit.slug}>
                     <Link
                       href={`/help/${hit.slug}`}
-                      className="block rounded px-1 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                      className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
                       onClick={() => setOpen(false)}
                     >
                       <span className="font-medium">{hit.title}</span>
-                      <span className="mt-0.5 block text-xs text-neutral-500">{hit.summary}</span>
+                      <span className={cn("mt-0.5 block text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{hit.summary}</span>
                     </Link>
                   </li>
                 ))}

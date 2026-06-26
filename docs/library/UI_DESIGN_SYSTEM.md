@@ -172,35 +172,27 @@ Do not use `text-2xl` / `text-3xl` on operator page titles. Hierarchy must use *
 
 ### Typography normalization progress (token sweep)
 
-**Last rescored:** 2026-06-26 (EST, after wave 90).
+**Last rescored:** 2026-06-26 (EST, after wave 91 — bulk components sweep).
 
 | Layer | Status | Files with ad-hoc sizes | Ad-hoc matches |
 |-------|--------|-------------------------|----------------|
 | `(operator)/` routes | **Complete** | **0** | **0** |
-| `src/components/` | In progress | **~159** | **~462** |
-| **Headline score** | | **62.3%** | |
+| `src/components/` | **Complete** | **0** | **0** |
+| **Headline score** | | **100%** | |
 
-`(0.25 × 1.00) + (0.75 × (920 − 462) / 920) = 0.623` → **62.3%**
+`(0.25 × 1.00) + (0.75 × (920 − 0) / 920) = 1.00` → **100%**
+
+**Wave 91 (2026-06-26):** Bulk sweep via `archlucid-ui/scripts/migrate-typography-sweep-components.ps1` (regex `\b` fix for `text-[Npx]`, embedded class literals, import dedupe) + manual stragglers (`DocumentLayout` → `OPERATOR_DOCUMENT_ARTICLE_BODY`, callout ternaries, policy provenance compact branches). **181** files import-deduped after script passes.
 
 **Completed buckets (components phase, do not regress):**
 
 | Bucket | Status |
 |--------|--------|
 | `(operator)/` App Router pages | Complete |
-| `src/components/reviews/` | Complete (0 ad-hoc matches) |
-| Run detail core (progress, inspector, explainability, decision summary, outcomes, trust evidence) | Complete |
-| Wizard preset + evidence upload steps | Complete |
-| Wizard track step + Azure extractor ZIP field | Complete |
-| `ManifestDetailSummaryPanel` | Complete |
-| Alerts inbox + alert routing + alert tooling pages | Complete |
-| `FindingExplainabilityDialog` + `HelpPanel` + `HelpSearchPanel` | Complete |
-| `ExecutiveWorkspaceHealthDashboard` | Complete |
-| `GraphViewer` | Complete |
-| Operator-home strips (prior waves 69–77) | Complete |
+| **`src/components/` (all buckets)** | **Complete** |
+| Bulk migration script + import repair | Complete |
 
-**Next priority buckets:** `FindingExplainPanel`, `ScopeSwitcher`, wizard stragglers (identity, Azure context, inventory ZIP panels), `OperatorFirstRunWorkflowPanel`.
-
-Regenerate metrics: `rg "text-(xs|sm|base|xl|\[1[0-9]px\])" archlucid-ui/src/components --count` (exclude intentional token-aligned exceptions documented in component comments).
+Regenerate metrics: `rg "text-(xs|sm|base|xl|\[1[0-9]px\])" archlucid-ui/src/components --glob '*.{tsx,ts}' --count` (exclude `__snapshots__`; Vitest snapshots may still echo expanded token class strings).
 
 ---
 

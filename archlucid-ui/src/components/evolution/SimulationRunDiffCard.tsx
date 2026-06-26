@@ -1,15 +1,20 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { EvolutionSimulationRunWithEvaluationResponse } from "@/types/evolution";
 import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
 
 const cardCls = "mb-3.5 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700";
-const headerCls = "flex flex-wrap items-baseline gap-2.5 border-b border-neutral-200 bg-neutral-50/90 px-3 py-2.5 text-[13px] dark:border-neutral-700 dark:bg-neutral-900/50";
-const colCls = "p-3.5 text-[13px] leading-normal align-top";
+const headerCls = cn(
+  "flex flex-wrap items-baseline gap-2.5 border-b border-neutral-200 bg-neutral-50/90 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/50",
+  OPERATOR_TYPOGRAPHY.body,
+);
+const colCls = (cn("p-3.5 leading-normal align-top", OPERATOR_TYPOGRAPHY.helper));
 const colBeforeCls = `${colCls} border-r-[3px] border-neutral-300 bg-al-surface-raised dark:border-neutral-600`;
 const colAfterCls = `${colCls} bg-al-surface-raised dark:bg-neutral-900/50`;
-const labelCls = "mb-1.5 text-[11px] font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400";
-const monoCls = "font-mono text-xs break-all";
+const labelCls = (cn("mb-1.5 font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
+const monoCls = (cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper));
 
 function formatScore(n: number | null | undefined): string {
   if (n === null || n === undefined) {
@@ -112,7 +117,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
           {ev !== null && ev !== undefined ? (
             <>
               <div className={`${labelCls} mt-3.5`}>Evaluation scores</div>
-              <table className="mt-2 w-full border-collapse text-xs">
+              <table className={cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.helper)}>
                 <tbody>
                   <tr>
                     <td className="pr-2 py-0.5 text-neutral-500 dark:text-neutral-400">Simulation</td>
@@ -138,8 +143,8 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
               </table>
               {(ev.regressionSignals ?? []).length > 0 ? (
                 <div className="mt-2">
-                  <div className="mb-1 text-xs font-semibold">Regression signals</div>
-                  <ul className="m-0 pl-[18px] text-xs">
+                  <div className={cn("mb-1 font-semibold", OPERATOR_TYPOGRAPHY.helper)}>Regression signals</div>
+                  <ul className={cn("m-0 pl-[18px]", OPERATOR_TYPOGRAPHY.helper)}>
                     {(ev.regressionSignals ?? []).map((s, i) => (
                       <li key={`${i}-${s}`}>{s}</li>
                     ))}
@@ -152,7 +157,7 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
           {run.evaluationExplanationSummary !== null &&
           run.evaluationExplanationSummary !== undefined &&
           run.evaluationExplanationSummary !== "" ? (
-            <p className="mt-2.5 text-xs text-neutral-700 dark:text-neutral-300">
+            <p className={cn("mt-2.5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               <strong>Summary:</strong> {run.evaluationExplanationSummary}
             </p>
           ) : null}

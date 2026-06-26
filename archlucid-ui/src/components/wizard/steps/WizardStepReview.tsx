@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 import type { FieldErrors } from "react-hook-form";
@@ -45,7 +47,7 @@ function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
   return (
     <div
       role="alert"
-      className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-3 text-sm"
+      className={cn("rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 p-3", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-semibold">Fix validation errors before creating the architecture review:</p>
       <ul className="mt-2 mb-0 list-disc pl-5">
@@ -60,8 +62,8 @@ function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
 function ReadOnlyBlock(props: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h3 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{props.title}</h3>
-      <div className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{props.children}</div>
+      <h3 className={cn("font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</h3>
+      <div className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{props.children}</div>
     </section>
   );
 }
@@ -102,7 +104,7 @@ export function WizardStepReview() {
           <p className="m-0 whitespace-pre-wrap">{v.description}</p>
           {(v.inlineRequirements ?? []).some((s) => s.trim()) ? (
             <div className="mt-2">
-              <p className="m-0 text-xs font-medium text-neutral-500">Inline requirements</p>
+              <p className={cn("m-0 font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements</p>
               <ul className="mt-1 list-disc pl-5">
                 {(v.inlineRequirements ?? [])
                   .map((s) => s.trim())
@@ -118,19 +120,19 @@ export function WizardStepReview() {
         <Separator />
 
         <ReadOnlyBlock title="Constraints & capabilities">
-          <p className="m-0 text-xs text-neutral-500">Constraints</p>
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Constraints</p>
           <ul className="mt-1 list-disc pl-5">
             {(v.constraints ?? []).map((c) => (
               <li key={c}>{c}</li>
             ))}
           </ul>
-          <p className="mt-2 m-0 text-xs text-neutral-500">Required capabilities</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Required capabilities</p>
           <ul className="mt-1 list-disc pl-5">
             {(v.requiredCapabilities ?? []).map((c) => (
               <li key={c}>{c}</li>
             ))}
           </ul>
-          <p className="mt-2 m-0 text-xs text-neutral-500">Assumptions</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Assumptions</p>
           <ul className="mt-1 list-disc pl-5">
             {(v.assumptions ?? []).map((c) => (
               <li key={c}>{c}</li>
@@ -141,15 +143,15 @@ export function WizardStepReview() {
         <Separator />
 
         <ReadOnlyBlock title="Advanced">
-          <p className="m-0 text-xs text-neutral-500">Policy references</p>
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
           <p className="m-0">{(v.policyReferences ?? []).join(", ") || "—"}</p>
-          <p className="mt-2 m-0 text-xs text-neutral-500">Topology hints</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Topology hints</p>
           <p className="m-0">{(v.topologyHints ?? []).join(", ") || "—"}</p>
-          <p className="mt-2 m-0 text-xs text-neutral-500">Security baseline hints</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
           <p className="m-0">{(v.securityBaselineHints ?? []).join(", ") || "—"}</p>
-          <p className="mt-2 m-0 text-xs text-neutral-500">Documents</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">{(v.documents ?? []).filter((d) => d.name.trim()).length} attached</p>
-          <p className="mt-2 m-0 text-xs text-neutral-500">Infrastructure declarations</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
           <p className="m-0">
             {(v.infrastructureDeclarations ?? []).filter((d) => d.name.trim()).length} declaration(s)
           </p>
@@ -158,7 +160,7 @@ export function WizardStepReview() {
         <Separator />
 
         <ReadOnlyBlock title="Request id">
-          <code className="text-xs">{v.requestId}</code>
+          <code className={OPERATOR_TYPOGRAPHY.helper}>{v.requestId}</code>
         </ReadOnlyBlock>
       </div>
     </WizardStepPanel>

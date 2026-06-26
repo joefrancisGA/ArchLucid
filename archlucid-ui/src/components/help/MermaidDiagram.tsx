@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useId, useMemo, useState } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { sanitizeMermaidRenderId } from "@/lib/help-mermaid";
-import { cn } from "@/lib/utils";
 
 export type MermaidDiagramProps = {
   readonly source: string;
@@ -89,11 +90,11 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
         )}
       >
         {renderError !== null ? (
-          <p className="m-0 text-sm text-amber-800 dark:text-amber-200" role="alert">
+          <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
             {renderError}
           </p>
         ) : svgMarkup === null ? (
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" aria-live="polite">
+          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-live="polite">
             Rendering diagram…
           </p>
         ) : (
@@ -106,7 +107,7 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
         )}
       </div>
       <details className="mt-2">
-        <summary className="cursor-pointer text-xs font-medium text-neutral-600 dark:text-neutral-400">
+        <summary className={cn("cursor-pointer font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           View diagram source
         </summary>
         <HelpMarkdownCodeBlock code={props.source} language="mermaid" />

@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
 import { HelpTooltipTrigger } from "@/components/ui/help-tooltip-trigger";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 export type ToolbarHelpTooltipProps = {
   "aria-label": string;
@@ -50,7 +51,7 @@ export function ToolbarHelpTooltip(props: ToolbarHelpTooltipProps): React.JSX.El
           />
         )}
       </TooltipTrigger>
-      <TooltipContent sideOffset={sideOffset} side={side} className={cn("max-w-xs text-sm")}>
+      <TooltipContent sideOffset={sideOffset} side={side} className={cn("max-w-xs", OPERATOR_TYPOGRAPHY.body)}>
         {content}
       </TooltipContent>
     </Tooltip>

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -147,7 +149,7 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
       <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center gap-2">
-            <CardTitle id="finish-setup-heading" className="text-base">
+            <CardTitle id="finish-setup-heading" className={OPERATOR_TYPOGRAPHY.body}>
               {panelVariant === "optional" ? "Optional workspace setup" : "Finish workspace setup"}
             </CardTitle>
             {allRequiredDone ? <StatusTag kind="ready" label="Required steps complete" /> : <StatusTag kind="needs-attention" label="Setup in progress" />}
@@ -164,13 +166,13 @@ export function FinishSetupWizardPanel({ variant }: FinishSetupWizardPanelProps 
               const done = step.isDone(ctx);
 
               return (
-                <li key={step.id} className="text-sm">
+                <li key={step.id} className={OPERATOR_TYPOGRAPHY.body}>
                   <div className="flex flex-wrap items-baseline gap-2">
                     <span className="font-medium text-neutral-900 dark:text-neutral-100">{step.label}</span>
                     {done ? <StatusTag kind="ready" label="Done" /> : <StatusTag kind="needs-attention" label="Needs attention" />}
                   </div>
                   <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">{step.description}</p>
-                  <Link href={step.href} className="mt-1 inline-block text-sm font-medium text-teal-800 underline dark:text-teal-300">
+                  <Link href={step.href} className={cn("mt-1 inline-block font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
                     {step.cta} →
                   </Link>
                 </li>

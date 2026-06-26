@@ -1,6 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { enterpriseStatusTagClass } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type FindingTrustChipKind =
@@ -69,7 +71,7 @@ export function FindingTrustChip(props: FindingTrustChipProps) {
 
   return (
     <span
-      className={`inline-flex shrink-0 rounded-md border px-2 py-0.5 text-xs font-semibold ${chipClassByKind[chip.kind]}`}
+      className={cn("inline-flex shrink-0 rounded-md border px-2 py-0.5 font-semibold ${chipClassByKind[chip.kind]}", OPERATOR_TYPOGRAPHY.helper)}
       title={chip.title}
       data-testid={`finding-trust-chip-${chip.kind}`}
     >

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -59,11 +61,11 @@ export function PostCommitAdvancedAnalysisHint({
   const body = (
     <>
       {!embeddedInCollapsible ? (
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Advanced Analysis — optional
         </p>
       ) : null}
-      <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-200">
+      <p className={cn("m-0 mt-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {buyerPolishedShell ? (
           <>
             If sponsors already have the exported package from <strong>Deliverables & exports</strong>, use this section
@@ -96,13 +98,13 @@ export function PostCommitAdvancedAnalysisHint({
             </Link>
           </Button>
           {compareWithPriorHref !== null ? (
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">
+            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Prior item is the most recent other finalization for the same request (recent activity window).
             </span>
           ) : null}
         </div>
       ) : null}
-      <ul className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-sm">
+      <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
         <li>
           <Link
             className="text-teal-800 underline dark:text-teal-300"

@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState, type ReactNode } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { GLOSSARY_DEFINITIONS, type GlossaryDefinitionId } from "@/lib/glossary-definitions";
-import { cn } from "@/lib/utils";
 
 export type GlossaryTermProps = {
   termId: GlossaryDefinitionId;
@@ -62,10 +63,10 @@ export function GlossaryTerm({ termId, children, pulseOnFirstSession = true }: G
           {children}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-sm text-sm pointer-events-auto">
-        <p className="m-0 text-sm font-semibold">{entry.displayLabel}</p>
-        <p className="mb-0 mt-1.5 text-xs leading-snug">{entry.shortDefinition}</p>
-        <p className="mb-0 mt-2 text-xs">
+      <TooltipContent side="top" className={cn("max-w-sm pointer-events-auto", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{entry.displayLabel}</p>
+        <p className={cn("mb-0 mt-1.5 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>{entry.shortDefinition}</p>
+        <p className={cn("mb-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
           <button
             type="button"
             className="m-0 cursor-pointer border-0 bg-transparent p-0 font-medium text-inherit underline decoration-neutral-300 underline-offset-2 dark:decoration-neutral-600"
@@ -76,7 +77,7 @@ export function GlossaryTerm({ termId, children, pulseOnFirstSession = true }: G
           </button>
         </p>
         {learnMoreOpen ? (
-          <p className="mb-0 mt-2 border-t border-neutral-700 pt-2 text-xs leading-snug dark:border-neutral-300">
+          <p className={cn("mb-0 mt-2 border-t border-neutral-700 pt-2 leading-snug dark:border-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             {entry.longDefinition}
           </p>
         ) : null}

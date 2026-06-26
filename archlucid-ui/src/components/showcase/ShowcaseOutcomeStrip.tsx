@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -42,17 +44,17 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/reviews/${encRun}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Decision, evidence, and audit package</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Decision, evidence, and audit package</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`1 · ${BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Sign in with a connected workspace to open the executive summary and finalized signed record.
           </span>
         </div>
@@ -60,77 +62,77 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
 
       {hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Signed architecture record and deliverables index</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Signed architecture record and deliverables index</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>{`2 · ${SIGNED_MANIFEST_LABEL}`}</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Unavailable for this preview</span>
         </div>
       )}
 
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/graph?runId=${encRun}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Traceability from evidence to decisions</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Traceability from evidence to decisions</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">See summarized posture on the finalized signed review record</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>See summarized posture on the finalized signed review record</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Unavailable for this preview</span>
         </div>
       )}
 
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/governance?runId=${encRun}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">{governanceSubtitle}</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{governanceSubtitle}</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={`/manifests/${encManifest}`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">{governanceSubtitle}</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{governanceSubtitle}</span>
         </Link>
       ) : (
         <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-          <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">4 · Governance approval</span>
-          <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Unavailable for this preview</span>
         </div>
       )}
 
       {encFinding !== null ? (
         isRunDetailAvailable ? (
           <Link className={cardClass} href={`/audit?runId=${encRun}`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+            <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">Recorded lifecycle events for this review</span>
+            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Recorded lifecycle events for this review</span>
           </Link>
         ) : hasManifest ? (
           <Link className={cardClass} href={`/manifests/${encManifest}`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+            <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">PHI minimization posture — see related items in the signed review record</span>
+            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>PHI minimization posture — see related items in the signed review record</span>
           </Link>
         ) : (
           <div className={`${cardClass} pointer-events-none cursor-not-allowed opacity-60`}>
-            <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+            <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">Unavailable for this preview</span>
+            <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Unavailable for this preview</span>
           </div>
         )
       ) : null}

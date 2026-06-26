@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -99,11 +101,11 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
       open={open}
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
-      <summary className="cursor-pointer list-none text-[15px] font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
+      <summary className={cn("cursor-pointer list-none font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.helper)}>
         {buyerPolished ? BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL : "Review record diff appendix"}
       </summary>
       <div className="mt-3 space-y-3">
-        <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolished ? BUYER_COMPARE_REVIEW_RECORD_DIFF_INTRO : COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO}
         </p>
 
@@ -114,7 +116,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
                 ? BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_HEADING
                 : `Loading ${SIGNED_MANIFEST_LABEL.toLowerCase()} documents.`}
             </strong>
-            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               {buyerPolished
                 ? BUYER_COMPARE_REVIEW_RECORD_DIFF_LOADING_BODY
                 : "Fetching both review records for diff…"}
@@ -123,7 +125,7 @@ export function CompareRawManifestDiffSection(props: CompareRawManifestDiffSecti
         ) : null}
 
         {errorMessage !== null ? (
-          <p className="m-0 text-sm text-red-800 dark:text-red-300" role="alert">
+          <p className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
             {errorMessage}
           </p>
         ) : null}

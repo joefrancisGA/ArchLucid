@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -135,7 +137,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: Executi
 
   return (
     <p
-      className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 text-sm leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200"
+      className={cn("m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 leading-relaxed text-neutral-800 shadow-sm dark:border-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
       data-testid="executive-value-narrative"
       role="status"
       aria-busy={loading ? "true" : undefined}

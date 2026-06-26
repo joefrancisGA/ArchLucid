@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -84,10 +86,10 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
       className="mt-6 rounded-lg border border-teal-200/80 bg-teal-50/30 p-4 print:hidden dark:border-teal-900/40 dark:bg-teal-950/20"
       data-testid="cto-demo-audit-closing-beat"
     >
-      <h3 id="cto-demo-audit-closing-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+      <h3 id="cto-demo-audit-closing-heading" className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING}
       </h3>
-      <p className="m-0 mt-2 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+      <p className={cn("m-0 mt-2 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">

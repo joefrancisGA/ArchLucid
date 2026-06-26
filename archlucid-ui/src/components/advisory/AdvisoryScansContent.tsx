@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -91,7 +93,7 @@ export function AdvisoryScansContent() {
     <div className="w-full max-w-[1200px] px-4 py-6">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
-          <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Architecture advisory</h2>
+          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>Architecture advisory</h2>
         </div>
         <p className="doc-meta m-0">
           Generate prioritized recommendations from a finalized review package: changes, risks, tradeoffs, and follow-up
@@ -120,7 +122,7 @@ export function AdvisoryScansContent() {
             preferAutoPick={false}
           />
 
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
+          <details className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}>
             <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
               Advanced: enter review ID manually
             </summary>
@@ -129,13 +131,13 @@ export function AdvisoryScansContent() {
                 value={runId}
                 onChange={(e) => setRunId(e.target.value)}
                 placeholder="Architecture review ID (target / current review)"
-                className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+                className={cn("rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
               />
               <input
                 value={compareToRunId}
                 onChange={(e) => setCompareToRunId(e.target.value)}
                 placeholder="Optional compare-to architecture review ID"
-                className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+                className={cn("rounded-md border border-neutral-300 bg-white p-2 font-mono text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
               />
             </div>
           </details>
@@ -159,7 +161,7 @@ export function AdvisoryScansContent() {
           </div>
 
           {!reviewSelected ? (
-            <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Select a finalized review package first.
             </p>
           ) : null}
@@ -180,10 +182,10 @@ export function AdvisoryScansContent() {
             aria-label="Experimental advisory panels"
             className="mb-4 rounded-lg border border-dashed border-neutral-400 p-3 dark:border-neutral-500"
           >
-            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Experimental</h3>
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Experimental</h3>
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Optional panels for in-development advisory UX. Enable with{" "}
-              <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true</code>{" "}
+              <code className={cn("rounded bg-neutral-200 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true</code>{" "}
               at build time.
             </p>
           </section>
@@ -194,15 +196,15 @@ export function AdvisoryScansContent() {
             className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
             aria-label="No advisory scan selected"
           >
-            <p className="m-0 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               No advisory scan selected — choose a review package to generate recommendations.
             </p>
 
-            <h3 className="mt-4 mb-2 text-sm font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+            <h3 className={cn("mt-4 mb-2 font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)}>
               Example recommendation
             </h3>
-            <div className="rounded border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-950">
-              <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">High impact</p>
+            <div className={cn("rounded border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}>
+              <p className={cn("m-0 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>High impact</p>
               <p className="m-0 mt-1 font-semibold text-neutral-900 dark:text-neutral-100">
                 API tier lacks a circuit breaker around legacy claims service
               </p>
@@ -215,10 +217,10 @@ export function AdvisoryScansContent() {
                 timeout + bulkhead; capture health metrics for the dependency.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Accept</span>
-                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Defer</span>
-                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Reject</span>
-                <span className="rounded border border-neutral-200 px-2 py-0.5 text-xs text-neutral-500 dark:border-neutral-700">Mark implemented</span>
+                <span className={cn("rounded border border-neutral-200 px-2 py-0.5 text-neutral-500 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>Accept</span>
+                <span className={cn("rounded border border-neutral-200 px-2 py-0.5 text-neutral-500 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>Defer</span>
+                <span className={cn("rounded border border-neutral-200 px-2 py-0.5 text-neutral-500 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>Reject</span>
+                <span className={cn("rounded border border-neutral-200 px-2 py-0.5 text-neutral-500 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>Mark implemented</span>
               </div>
             </div>
           </section>
@@ -226,8 +228,8 @@ export function AdvisoryScansContent() {
 
         {planSummary ? (
           <>
-            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Summary</h3>
-            <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
+            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Summary</h3>
+            <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
               {planSummary.summaryNotes.map((note, index) => (
                 <li key={index}>{note}</li>
               ))}
@@ -237,8 +239,8 @@ export function AdvisoryScansContent() {
 
         {recommendations.length > 0 ? (
           <>
-            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Recommendations</h3>
-            <p className="doc-meta m-0 text-sm">
+            <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Recommendations</h3>
+            <p className={cn("doc-meta m-0", OPERATOR_TYPOGRAPHY.body)}>
               Accept, defer, reject, or mark recommendations as implemented to record governance disposition.
             </p>
             <div className="grid gap-4">
@@ -247,40 +249,40 @@ export function AdvisoryScansContent() {
                   key={rec.recommendationId}
                   className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
                 >
-                  <h4 className="m-0 text-sm font-semibold text-al-text-primary">{rec.title}</h4>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <h4 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{rec.title}</h4>
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Status:</strong> {rec.status}
                   </p>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Category:</strong> {rec.category}
                   </p>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Urgency:</strong> {rec.urgency}
                   </p>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Priority score:</strong> {rec.priorityScore}
                   </p>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Rationale:</strong> {rec.rationale}
                   </p>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Suggested action:</strong> {rec.suggestedAction}
                   </p>
-                  <p className="m-0 mt-2 text-base leading-relaxed">
+                  <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                     <strong>Expected impact:</strong> {rec.expectedImpact}
                   </p>
                   {rec.reviewedByUserName ? (
-                    <p className="m-0 mt-2 text-base leading-relaxed">
+                    <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                       <strong>Last reviewed by:</strong> {rec.reviewedByUserName}
                     </p>
                   ) : null}
                   {rec.reviewComment ? (
-                    <p className="m-0 mt-2 text-base leading-relaxed">
+                    <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                       <strong>Review comment:</strong> {rec.reviewComment}
                     </p>
                   ) : null}
                   {rec.resolutionRationale ? (
-                    <p className="m-0 mt-2 text-base leading-relaxed">
+                    <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
                       <strong>Resolution rationale:</strong> {rec.resolutionRationale}
                     </p>
                   ) : null}
@@ -303,7 +305,7 @@ export function AdvisoryScansContent() {
             </div>
           </>
         ) : planSummary && recommendations.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No persisted recommendations returned for this architecture review.</p>
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No persisted recommendations returned for this architecture review.</p>
         ) : null}
       </DocumentLayout>
     </div>

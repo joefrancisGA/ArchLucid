@@ -1,9 +1,11 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { diffPolicyPackContent, type PolicyPackDiffItem } from "@/lib/policy-pack-diff";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { PolicyPackVersion } from "@/types/policy-packs";
 
-const cardBaseCls = "mb-2.5 rounded-lg border p-3 text-sm";
+const cardBaseCls = (cn("mb-2.5 rounded-lg border p-3", OPERATOR_TYPOGRAPHY.body));
 
 function cardCls(changeType: "added" | "removed" | "changed"): string {
   if (changeType === "added")
@@ -51,10 +53,10 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
 
   return (
     <section aria-label="Policy pack version diff" className="mt-5">
-      <h4 className="mb-2 mt-0 text-base">Content diff</h4>
-      <div className="mb-4 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
+      <h4 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.body)}>Content diff</h4>
+      <div className={cn("mb-4 flex flex-wrap items-baseline gap-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span>
-          <strong>Left:</strong> <code className="text-[13px]">{leftVersion.version}</code>
+          <strong>Left:</strong> <code className={OPERATOR_TYPOGRAPHY.helper}>{leftVersion.version}</code>
           <span className="ml-2 text-neutral-500 dark:text-neutral-400">
             ({formatIsoUtcForDisplay(leftVersion.createdUtc)})
           </span>
@@ -63,7 +65,7 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
           →
         </span>
         <span>
-          <strong>Right:</strong> <code className="text-[13px]">{rightVersion.version}</code>
+          <strong>Right:</strong> <code className={OPERATOR_TYPOGRAPHY.helper}>{rightVersion.version}</code>
           <span className="ml-2 text-neutral-500 dark:text-neutral-400">
             ({formatIsoUtcForDisplay(rightVersion.createdUtc)})
           </span>
@@ -71,14 +73,14 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
       </div>
 
       {parseError !== null ? (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+        <p role="alert" className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>
           {parseError}
         </p>
       ) : null}
 
       {parseError === null && items.length === 0 ? (
         <OperatorEmptyState title="No content differences">
-          <p className="m-0 text-sm">Parsed JSON is structurally identical for these two versions.</p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Parsed JSON is structurally identical for these two versions.</p>
         </OperatorEmptyState>
       ) : null}
 
@@ -95,12 +97,12 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
               <div className="mb-1.5 font-semibold">
                 <span data-diff-label>{changeLabel(item.changeType)}</span>
                 {" · "}
-                <code className="text-xs">{item.path}</code>
+                <code className={OPERATOR_TYPOGRAPHY.helper}>{item.path}</code>
               </div>
               {item.changeType === "added" && item.rightValue !== undefined ? (
                 <pre
                   data-diff-value="right"
-                  className="m-0 whitespace-pre-wrap break-words font-mono text-xs"
+                  className={cn("m-0 whitespace-pre-wrap break-words font-mono", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {item.rightValue}
                 </pre>
@@ -108,7 +110,7 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
               {item.changeType === "removed" && item.leftValue !== undefined ? (
                 <pre
                   data-diff-value="left"
-                  className="m-0 whitespace-pre-wrap break-words font-mono text-xs"
+                  className={cn("m-0 whitespace-pre-wrap break-words font-mono", OPERATOR_TYPOGRAPHY.helper)}
                 >
                   {item.leftValue}
                 </pre>
@@ -116,19 +118,19 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
               {item.changeType === "changed" ? (
                 <div className="grid gap-2">
                   <div>
-                    <div className="mb-1 text-xs font-semibold">Before</div>
+                    <div className={cn("mb-1 font-semibold", OPERATOR_TYPOGRAPHY.helper)}>Before</div>
                     <pre
                       data-diff-value="left"
-                      className="m-0 whitespace-pre-wrap break-words font-mono text-xs"
+                      className={cn("m-0 whitespace-pre-wrap break-words font-mono", OPERATOR_TYPOGRAPHY.helper)}
                     >
                       {item.leftValue ?? "—"}
                     </pre>
                   </div>
                   <div>
-                    <div className="mb-1 text-xs font-semibold">After</div>
+                    <div className={cn("mb-1 font-semibold", OPERATOR_TYPOGRAPHY.helper)}>After</div>
                     <pre
                       data-diff-value="right"
-                      className="m-0 whitespace-pre-wrap break-words font-mono text-xs"
+                      className={cn("m-0 whitespace-pre-wrap break-words font-mono", OPERATOR_TYPOGRAPHY.helper)}
                     >
                       {item.rightValue ?? "—"}
                     </pre>

@@ -44,8 +44,8 @@ function DeliverableTile(props: DeliverableTileProps): React.JSX.Element {
       className="flex flex-col rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       data-testid={testId}
     >
-      <p className="m-0 text-sm font-semibold text-al-text-primary">{title}</p>
-      <p className="m-0 mt-1 flex-1 text-xs text-neutral-600 dark:text-neutral-400">{description}</p>
+      <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</p>
+      <p className={cn("m-0 mt-1 flex-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
       <div className="mt-3">{children}</div>
     </div>
   );

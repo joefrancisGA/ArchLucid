@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -102,11 +104,11 @@ type TrialLimitModalBodyProps = {
 
 function TrialLimitModalBody({ payload, daysLine }: TrialLimitModalBodyProps) {
   if (payload === null) {
-    return <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">A trial limit blocked this action.</p>;
+    return <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>A trial limit blocked this action.</p>;
   }
 
   return (
-    <div className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+    <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
       <p className="m-0">{formatTrialLimitReasonLabel(payload.trialReason)}</p>
       {payload.detail.length > 0 ? <p className="m-0 text-neutral-600 dark:text-neutral-400">{payload.detail}</p> : null}
       {daysLine !== null ? <p className="m-0">{daysLine}</p> : null}

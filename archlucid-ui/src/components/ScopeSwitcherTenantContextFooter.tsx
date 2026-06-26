@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -16,7 +18,7 @@ function TenantContextDetails(props: { readonly context: ActiveTenantContextView
   const { context } = props;
 
   return (
-    <details className="rounded-md border border-neutral-200 p-2 text-xs dark:border-neutral-700">
+    <details className={cn("rounded-md border border-neutral-200 p-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
       <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
         Tenant details
       </summary>
@@ -64,7 +66,7 @@ export function ScopeSwitcherTenantContextFooter(): React.JSX.Element {
       className="space-y-2 border-t border-neutral-200 pt-2 dark:border-neutral-700"
       data-testid="operator-scope-switcher-tenant-context"
     >
-      <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-200" title={tooltip}>
+      <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)} title={tooltip}>
         Tenant: <span className="font-normal text-neutral-800 dark:text-neutral-100">{context.displayName}</span>
       </p>
       <TenantContextDetails context={context} />
@@ -73,7 +75,7 @@ export function ScopeSwitcherTenantContextFooter(): React.JSX.Element {
       ) : (
         <Link
           href="/settings/tenant"
-          className="text-xs font-medium text-neutral-600 underline-offset-2 hover:text-neutral-900 hover:underline dark:text-neutral-400 dark:hover:text-neutral-100"
+          className={cn("font-medium text-neutral-600 underline-offset-2 hover:text-neutral-900 hover:underline dark:text-neutral-400 dark:hover:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
         >
           Tenant settings
         </Link>

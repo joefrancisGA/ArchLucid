@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
@@ -27,7 +29,7 @@ export function PageContextualHelpButton() {
     >
       <Link href={`/help/${topic.slug}`} title={`Help: ${topic.label}`}>
         <CircleHelp className="h-4 w-4" aria-hidden />
-        <span className="text-xs font-medium">{topic.label}</span>
+        <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>{topic.label}</span>
       </Link>
     </Button>
   );

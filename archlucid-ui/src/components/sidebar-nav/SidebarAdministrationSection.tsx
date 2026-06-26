@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ReactElement } from "react";
@@ -45,7 +47,7 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
     >
       <button
         type="button"
-        className="sidebar-disclosure-trigger flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-800/80"
+        className={cn("sidebar-disclosure-trigger flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-neutral-800/80", OPERATOR_TYPOGRAPHY.helper)}
         id="sidebar-admin-section-heading"
         data-testid="sidebar-administration-toggle"
         aria-expanded={props.showAdministration}

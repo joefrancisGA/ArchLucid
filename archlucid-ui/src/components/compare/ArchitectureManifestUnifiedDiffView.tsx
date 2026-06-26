@@ -1,3 +1,4 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
   buildArchitectureManifestUnifiedLines,
@@ -31,7 +32,7 @@ export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestU
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <p className="m-0 border-b border-neutral-200 px-3 py-2 text-xs text-neutral-600 dark:border-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 border-b border-neutral-200 px-3 py-2 text-neutral-600 dark:border-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-neutral-800 dark:text-neutral-200">{props.baselineLabel}</span>
         <span aria-hidden="true" className="mx-2 text-neutral-400">
           →
@@ -44,7 +45,7 @@ export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestU
         role="region"
         aria-label="Unified line diff of baseline and updated review record JSON"
       >
-        <table className="w-full border-collapse text-left font-mono text-[12px] leading-snug">
+        <table className={cn("w-full border-collapse text-left font-mono leading-snug", OPERATOR_TYPOGRAPHY.helper)}>
           <caption className="sr-only">
             Lines prefixed with minus were removed from the baseline review record; lines prefixed with plus were added in
             the updated review record; blank prefix lines are unchanged context.
@@ -52,7 +53,7 @@ export function ArchitectureManifestUnifiedDiffView(props: ArchitectureManifestU
           <tbody>
             {rows.map((line, index) => (
               <tr key={index} className={cn("align-top", rowClass(line))}>
-                <td className="w-8 shrink-0 select-none whitespace-nowrap py-px pr-1 pl-2 text-right text-[10px] text-neutral-500 dark:text-neutral-500">
+                <td className={cn("w-8 shrink-0 select-none whitespace-nowrap py-px pr-1 pl-2 text-right text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.badge)}>
                   {index + 1}
                 </td>
                 <td className="w-5 shrink-0 select-none whitespace-nowrap py-px text-center font-semibold text-neutral-600 dark:text-neutral-400">

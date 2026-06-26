@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { LearningPlanListItemResponse } from "@/types/learning";
 import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
@@ -7,7 +9,7 @@ type PlanningPlansTableProps = {
   themeTitleById: Map<string, string>;
 };
 
-const mutedNoteCls = "text-[13px] text-neutral-500 dark:text-neutral-400";
+const mutedNoteCls = (cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper));
 
 /** Prioritized plans with theme context and links into read-only detail. */
 export function PlanningPlansTable(props: PlanningPlansTableProps) {
@@ -15,7 +17,7 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
 
   if (plans.length === 0) {
     return (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400" role="status">
+      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
         No plans in this scope.
       </p>
     );
@@ -41,7 +43,7 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
                 <Link href={`/planning/plans/${encodeURIComponent(p.planId)}`} className="text-blue-700 dark:text-blue-400">
                   {p.title}
                 </Link>
-                <div className="mt-1.5 text-[13px] text-neutral-600 dark:text-neutral-400">{p.summary}</div>
+                <div className={cn("mt-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{p.summary}</div>
               </td>
               <td className={planningThTdCls}>
                 <span className={mutedNoteCls}>{themeTitleById.get(p.themeId) ?? p.themeId}</span>

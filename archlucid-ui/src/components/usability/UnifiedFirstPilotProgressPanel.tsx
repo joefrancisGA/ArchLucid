@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -9,7 +11,6 @@ import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCock
 import { InProductEvidenceChecklist } from "@/components/usability/InProductEvidenceChecklist";
 import { StatusVocabularyLegend } from "@/components/usability/StatusVocabularyLegend";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 type UnifiedFirstPilotProgressPanelProps = {
   readonly checklistVariant?: "full" | "compact";
@@ -49,7 +50,7 @@ export function UnifiedFirstPilotProgressPanel(props: UnifiedFirstPilotProgressP
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         {embedded ? null : (
-          <h2 id="unified-first-pilot-progress-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+          <h2 id="unified-first-pilot-progress-heading" className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
             First review progress
           </h2>
         )}

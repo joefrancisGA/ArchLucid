@@ -3,7 +3,7 @@
 exports[`MarketingPricingPublicCutoverNotice > matches snapshot (Marketplace go-live / public price list notice) 1`] = `
 <aside
   aria-label="Enterprise pricing and quotation guidance"
-  class="mb-6 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs leading-relaxed text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-300"
+  class="mb-6 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs font-normal leading-[18px] text-al-text-secondary leading-relaxed text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-300"
   data-testid="pricing-single-footnote"
 >
   Final pricing depends on deployment scope, review volume, data sensitivity, deployment model, and procurement channel.

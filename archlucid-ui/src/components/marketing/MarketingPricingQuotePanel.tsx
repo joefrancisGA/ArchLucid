@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -140,20 +142,20 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       aria-labelledby="quote-request-heading"
       className="mb-10 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 id="quote-request-heading" className="mb-2 text-sm font-semibold text-al-text-primary">
+      <h2 id="quote-request-heading" className={cn("mb-2 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Request a quote
       </h2>
-      <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Submit your procurement details and our sales team will follow up within one business day (UTC weekdays) with
         next steps — most teams consolidate requirements over email before workspace provisioning begins.
       </p>
       {done ? (
-        <p className="text-sm text-teal-800 dark:text-teal-200" role="status">
+        <p className={cn("text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.body)} role="status">
           Thanks — your request was received. A member of our team will reach out within one business day.
         </p>
       ) : !panelOpen ? (
         <div className="space-y-3">
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Share work email, company, tier interest, and optional deployment context. We respond with procurement next steps.
           </p>
           <Button type="button" variant="primary" onClick={() => setPanelOpen(true)}>
@@ -171,11 +173,11 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
               autoComplete="off"
               value={websiteUrl}
               onChange={(ev) => setWebsiteUrl(ev.target.value)}
-              className="w-full rounded border px-2 py-1 text-sm"
+              className={cn("w-full rounded border px-2 py-1", OPERATOR_TYPOGRAPHY.body)}
             />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <label className="flex flex-col gap-1 text-sm">
+            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <span>Work email</span>
               <input
                 required
@@ -186,7 +188,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                 className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm">
+            <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <span>Company</span>
               <input
                 required
@@ -197,7 +199,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                 className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm md:col-span-2">
+            <label className={cn("flex flex-col gap-1 md:col-span-2", OPERATOR_TYPOGRAPHY.body)}>
               <span>Tier interest</span>
               <select
                 value={tierInterest}
@@ -215,11 +217,11 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
           </div>
 
           <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-            <summary className="cursor-pointer select-none text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               Add deployment details (optional)
             </summary>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
-              <label className="flex flex-col gap-1 text-sm">
+              <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Industry</span>
                 <input
                   type="text"
@@ -229,7 +231,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                   className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                 />
               </label>
-              <label className="flex flex-col gap-1 text-sm">
+              <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Procurement timeline</span>
                 <input
                   type="text"
@@ -239,7 +241,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                   className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                 />
               </label>
-              <label className="flex flex-col gap-1 text-sm">
+              <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Deployment preference</span>
                 <input
                   type="text"
@@ -250,7 +252,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                   className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                 />
               </label>
-              <label className="flex flex-col gap-1 text-sm">
+              <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Data sensitivity</span>
                 <input
                   type="text"
@@ -261,7 +263,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
                   className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                 />
               </label>
-              <label className="flex flex-col gap-1 text-sm md:col-span-2">
+              <label className={cn("flex flex-col gap-1 md:col-span-2", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Expected monthly review volume</span>
                 <input
                   type="text"
@@ -275,9 +277,9 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
             </div>
           </details>
 
-          <label className="flex flex-col gap-1 text-sm">
+          <label className={cn("flex flex-col gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <span>Message</span>
-            <span className="text-xs font-normal text-neutral-500 dark:text-neutral-400">
+            <span className={cn("font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Add context not covered above; procurement and account teams follow up on details.
             </span>
             <textarea
@@ -290,7 +292,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
             />
           </label>
           {error ? (
-            <p className="text-sm text-red-600" role="alert">
+            <p className={cn("text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {error}
             </p>
           ) : null}

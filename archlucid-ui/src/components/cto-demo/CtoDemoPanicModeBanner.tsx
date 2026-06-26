@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -47,7 +49,7 @@ export function CtoDemoPanicModeBanner(): React.JSX.Element | null {
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[9985] flex items-center justify-center gap-2 bg-amber-600 px-4 py-1.5 text-xs font-semibold text-white print:hidden"
+      className={cn("fixed inset-x-0 top-0 z-[9985] flex items-center justify-center gap-2 bg-amber-600 px-4 py-1.5 font-semibold text-white print:hidden", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="cto-demo-panic-banner"
       role="status"
     >

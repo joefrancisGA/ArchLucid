@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -202,7 +204,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
     return (
       <OperatorLoadingNotice>
         <strong>Loading architecture graph.</strong>
-        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Fetching components and relationships for this review…
         </p>
       </OperatorLoadingNotice>
@@ -248,12 +250,12 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
       {showScrubber ? (
         <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
           <label
-            className="block text-sm font-medium text-neutral-900 dark:text-neutral-100"
+            className={cn("block font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
             htmlFor="architecture-graph-as-of-range"
           >
             As-of instant (UTC)
           </label>
-          <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Scrub backward to the latest committed graph snapshot at or before the selected time for this review&apos;s
             project.
           </p>
@@ -270,13 +272,13 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
               setAsOfUserMs(Number(ev.target.value));
             }}
           />
-          <p className="m-0 mt-1 font-mono text-xs text-neutral-700 dark:text-neutral-300" aria-live="polite">
+          <p className={cn("m-0 mt-1 font-mono text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)} aria-live="polite">
             {new Date(scrubValueMs).toISOString()}
           </p>
         </div>
       ) : null}
       {pagingNote !== null ? (
-        <p className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 m-0 p-2 text-sm">
+        <p className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 m-0 p-2", OPERATOR_TYPOGRAPHY.body)}>
           {pagingNote}
         </p>
       ) : null}
@@ -285,7 +287,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
         <Button type="button" variant="outline" size="sm" asChild>
           <Link href={explorerHref}>Open full graph explorer</Link>
         </Button>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           The explorer supports review-trail views, decision subgraphs, and architecture mode filters.
         </p>
       </div>

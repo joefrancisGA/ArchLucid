@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { Component, type ErrorInfo, type ReactNode } from "react";
@@ -27,13 +29,13 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
 
   return (
     <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-      <table className="w-full border-collapse text-sm">
+      <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
         <thead>
           <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <th className={cn("px-3 py-2 text-left font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Review
             </th>
-            <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <th className={cn("px-3 py-2 text-left font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Actions
             </th>
           </tr>
@@ -45,11 +47,11 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
             return (
               <tr key={run.runId}>
                 <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
-                  <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                  <span className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
                     {runListPrimaryTitle(run)}
                   </span>
                   {buyerPolishedShell ? null : (
-                    <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                    <code className={cn("mt-1 block break-all font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       {run.runId}
                     </code>
                   )}
@@ -105,7 +107,7 @@ export class RunsListAggregateErrorBoundary extends Component<
     if (demoPaged !== null && demoPaged.items.length > 0) {
       return (
         <div className="mt-4 space-y-4" role="alert">
-          <p className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 m-0 max-w-prose px-3 py-2 text-sm">
+          <p className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 m-0 max-w-prose px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
             <strong className="font-semibold">Showing sample run data.</strong> The live grid hit a client rendering
             issue; demo mode substitutes the Claims Intake row so navigation stays usable.
           </p>
@@ -128,14 +130,14 @@ export class RunsListAggregateErrorBoundary extends Component<
 
     return (
       <div
-        className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mt-6 max-w-xl space-y-3 p-4 text-sm"
+        className={cn("rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 mt-6 max-w-xl space-y-3 p-4", OPERATOR_TYPOGRAPHY.body)}
         role="alert"
       >
         <p className="m-0 font-semibold">Reviews could not render</p>
         {isDev && this.state.message !== null ? (
-          <p className="m-0 font-mono text-xs opacity-95">{this.state.message}</p>
+          <p className={cn("m-0 font-mono opacity-95", OPERATOR_TYPOGRAPHY.helper)}>{this.state.message}</p>
         ) : (
-          <p className="m-0 text-sm opacity-95">
+          <p className={cn("m-0 opacity-95", OPERATOR_TYPOGRAPHY.body)}>
             This review list hit an unexpected error. You can retry or return to {OPERATOR_NAV_LINK_LABELS.home} for a fresh start.
           </p>
         )}

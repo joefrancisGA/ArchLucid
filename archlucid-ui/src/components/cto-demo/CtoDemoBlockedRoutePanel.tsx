@@ -43,14 +43,14 @@ export function CtoDemoBlockedRoutePanel(props: CtoDemoBlockedRoutePanelProps): 
       <Card className="w-full border-neutral-200 dark:border-neutral-700">
         <CardHeader>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>ArchLucid</p>
-          <CardTitle className="mt-1 text-xl">{entry.label}</CardTitle>
+          <CardTitle className={cn("mt-1", OPERATOR_TYPOGRAPHY.pageTitle)}>{entry.label}</CardTitle>
           <CardDescription>
             This area is available in a provisioned ArchLucid tenant. During this showcase, the five-step review journey is
             live — {entry.label.toLowerCase()} and similar surfaces are available post-signup.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">{entry.description}</p>
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{entry.description}</p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" asChild data-testid="cto-demo-blocked-return">
               <Link href={returnHref}>Return to demo</Link>

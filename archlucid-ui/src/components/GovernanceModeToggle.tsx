@@ -1,8 +1,9 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { GOVERNANCE_MODE_COPY } from "@/lib/governance-mode-vocabulary";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
-import { cn } from "@/lib/utils";
 
 type GovernanceModeToggleProps = {
   readonly className?: string;
@@ -25,7 +26,7 @@ export function GovernanceModeToggle(props: GovernanceModeToggleProps) {
     <div className={cn("space-y-2", className)} data-testid={`${testId}-wrap`}>
       <label
         htmlFor={inputId}
-        className="flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:text-neutral-100"
+        className={cn("flex cursor-pointer items-start gap-2 rounded-md border border-neutral-200 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
         title={GOVERNANCE_MODE_COPY.toggleTitle}
       >
         <input
@@ -48,7 +49,7 @@ export function GovernanceModeToggle(props: GovernanceModeToggleProps) {
         </span>
       </label>
       {showFootnote && !isGovernanceModeEnabled ? (
-        <p className="m-0 px-1 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 px-1 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {GOVERNANCE_MODE_COPY.toggleFootnote}
         </p>
       ) : null}

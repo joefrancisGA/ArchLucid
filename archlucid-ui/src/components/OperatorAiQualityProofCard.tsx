@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -67,9 +69,9 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
   if (loadFailed || snapshot === null) {
     return (
       <section className={shellClassName} data-testid="operator-ai-quality-proof-card">
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Assistant readiness</h2>
-        <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Run <code className="font-mono text-xs">python scripts/ci/write_operator_ai_quality_snapshot.py</code> after
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assistant readiness</h2>
+        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Run <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>python scripts/ci/write_operator_ai_quality_snapshot.py</code> after
           retrieval evaluation to populate assistant readiness diagnostics.
         </p>
       </section>
@@ -92,12 +94,12 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
       data-testid="operator-ai-quality-proof-card"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Assistant readiness</h2>
-        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Assistant readiness</h2>
+        <span className={cn("rounded-full border border-current/20 px-2 py-0.5 font-semibold uppercase tracking-wide", OPERATOR_NAV_GROUP_LABEL)}>
           {dispositionLabel(disposition)}
         </span>
       </div>
-      <p className="m-0 mt-2 text-sm leading-relaxed">
+      <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
         Offline retrieval evaluation snapshot (not live tenant corpus). Mean recall@5{" "}
         <span className="font-mono tabular-nums">{formatMetric(snapshot.retrievalIr.meanRecallAt5, 4)}</span> · MRR{" "}
         <span className="font-mono tabular-nums">{formatMetric(snapshot.retrievalIr.meanMrr, 4)}</span>
@@ -120,12 +122,12 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
         ) : null}
       </p>
       {history.length > 1 ? (
-        <p className="m-0 mt-1 text-xs opacity-80">
+        <p className={cn("m-0 mt-1 opacity-80", OPERATOR_TYPOGRAPHY.helper)}>
           Trend: {history.length} snapshot{history.length === 1 ? "" : "s"} in{" "}
           <span className="font-mono">operator-ai-quality-history.json</span>
         </p>
       ) : null}
-      <ul className="m-0 mt-3 list-none space-y-1 p-0 text-xs">
+      <ul className={cn("m-0 mt-3 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
         {snapshot.remediationLinks.map((link) => (
           <li key={link.path}>
             {link.path.startsWith("/") ? (

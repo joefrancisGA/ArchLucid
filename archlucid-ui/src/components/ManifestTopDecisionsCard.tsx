@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -43,7 +45,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-al-text-primary">
+          <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {buyer ? "Decisions in this package" : "Architectural decisions"}
           </CardTitle>
           <CardDescription>
@@ -68,7 +70,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
               {excerpts.map((line) => (
                 <li
                   key={line}
-                  className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+                  className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
                 >
                   {line}
                 </li>
@@ -103,7 +105,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     return (
       <Card id="manifest-key-decisions">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-al-text-primary">Key decisions</CardTitle>
+          <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Key decisions</CardTitle>
           <CardDescription>
             Grouped by control area — main architecture choices captured in this review package.
           </CardDescription>
@@ -112,10 +114,10 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
           {sections.map((section, idx) => (
             <details key={section.area} open={idx === 0} className="rounded-lg border border-neutral-200 dark:border-neutral-700">
               <summary className="flex cursor-pointer select-none items-center justify-between px-3 py-2.5">
-                <span className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                <span className={cn("font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   {section.area}
                 </span>
-                <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                <span className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {section.lines.length} decision{section.lines.length === 1 ? "" : "s"}
                 </span>
               </summary>
@@ -123,7 +125,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
                 {section.lines.map((line) => (
                   <li
                     key={line}
-                    className="rounded-md border border-neutral-100 bg-white px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700/60 dark:bg-neutral-900/40 dark:text-neutral-200"
+                    className={cn("rounded-md border border-neutral-100 bg-white px-3 py-2 text-neutral-800 dark:border-neutral-700/60 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
                   >
                     {line}
                   </li>
@@ -142,7 +144,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   return (
     <Card id="manifest-key-decisions">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold text-al-text-primary">{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
+        <CardTitle className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
         <CardDescription>
           {buyer
             ? "Main architecture choices captured in this review package."
@@ -154,7 +156,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
           {topThree.map((line) => (
             <li
               key={line}
-              className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+              className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
             >
               {line}
             </li>
@@ -163,12 +165,12 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
 
         {remainder.length > 0 ? (
           <details className="rounded-md border border-neutral-200 dark:border-neutral-700">
-            <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <summary className={cn("cursor-pointer px-3 py-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
               Show all decisions ({SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.length} total)
             </summary>
             <ul className="m-0 list-none space-y-2 border-t border-neutral-200 p-3 dark:border-neutral-700">
               {remainder.map((line) => (
-                <li key={line} className="text-sm text-neutral-700 dark:text-neutral-300">
+                <li key={line} className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   {line}
                 </li>
               ))}

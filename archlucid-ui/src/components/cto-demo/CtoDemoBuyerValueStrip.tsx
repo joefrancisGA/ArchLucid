@@ -47,7 +47,7 @@ export function CtoDemoBuyerValueStrip(props: CtoDemoBuyerValueStripProps): Reac
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
         What you&apos;re seeing
       </p>
-      <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">{valueLine}</p>
+      <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{valueLine}</p>
     </div>
   );
 }

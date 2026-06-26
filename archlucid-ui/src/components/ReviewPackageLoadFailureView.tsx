@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -186,12 +188,12 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
   if (phase === "pending") {
     return (
       <OperatorLoadingNotice>
-        <strong className="text-base">Opening your generated review…</strong>
-        <p className="m-0 mt-2 text-sm leading-relaxed">
+        <strong className={OPERATOR_TYPOGRAPHY.body}>Opening your generated review…</strong>
+        <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           ArchLucid is waiting for the new review package to become available. This usually takes a few seconds after
           generation starts.
         </p>
-        <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Review ID: <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{runId}</code>
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
@@ -221,14 +223,14 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
 
   return (
     <OperatorEmptyState title={title}>
-      <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{bodyParagraph}</p>
-      <p className="m-0 mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{guidance}</p>
+      <p className={cn("m-0 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{bodyParagraph}</p>
+      <p className={cn("m-0 mt-3 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{guidance}</p>
       {lastRetryMessage !== null ? (
-        <p className="m-0 mt-3 text-xs text-rose-800 dark:text-rose-300" data-testid="retry-failure-message">
+        <p className={cn("m-0 mt-3 text-rose-800 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} data-testid="retry-failure-message">
           {lastRetryMessage}
         </p>
       ) : null}
-      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm font-medium">
+      <div className={cn("mt-4 flex flex-wrap items-center gap-3 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <Button
           type="button"
           variant="outline"
@@ -247,7 +249,7 @@ export function ReviewPackageLoadFailureView(props: ReviewPackageLoadFailureView
         </Link>
       </div>
       <OperatorRouteDiagnosticsPanel payload={diagnostics} />
-      <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-800 dark:text-neutral-300">
+      <p className={cn("m-0 mt-6 uppercase tracking-wide text-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         ArchLucid · REVIEW LOAD FAILURE
       </p>
       <span data-testid="review-package-load-failure" className="sr-only">

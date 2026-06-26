@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -51,14 +53,14 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
             <CardTitle className="m-0 text-lg">{title}</CardTitle>
             <RunStatusBadge run={run} />
           </div>
-          <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {meta?.decisionSummary ?? defaultDecisionSummary(run)}
           </p>
         </CardHeader>
         <CardContent className="pt-0">
-          <dl className="m-0 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Decision date
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
@@ -66,7 +68,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Package owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
@@ -74,7 +76,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Risk owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
@@ -82,7 +84,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Approval authority
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
@@ -90,7 +92,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Last audit event
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
@@ -98,7 +100,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {BUYER_SURFACE_VOCABULARY.auditTrail}
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
@@ -107,7 +109,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
             </div>
             {showcaseCounts !== null ? (
               <div className="sm:col-span-2 lg:col-span-3">
-                <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Findings summary
                 </dt>
                 <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">

@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -217,14 +219,14 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             }
             onValueChange={onChange}
           >
-            <SelectTrigger id={selectControlId} className="font-mono text-sm">
+            <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Review list could not be reached — using the Claims Intake sample review for this page.
           </p>
         </div>
@@ -237,11 +239,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
           {labelText} {optionalCopy}
         </Label>
         <Select disabled>
-          <SelectTrigger id={selectControlId} className="font-mono text-sm">
+          <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
             <SelectValue placeholder={reviewsUnavailablePlaceholder} />
           </SelectTrigger>
         </Select>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{reviewsUnavailableHint}</p>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{reviewsUnavailableHint}</p>
       </div>
     );
   }
@@ -251,7 +253,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       <div className="space-y-2">
         <Label htmlFor={selectControlId}>{labelText}</Label>
         <Select disabled>
-          <SelectTrigger id={selectControlId} className="font-mono text-sm">
+          <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
             <SelectValue placeholder="Loading reviews…" />
           </SelectTrigger>
         </Select>
@@ -273,14 +275,14 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             value={value.trim().length > 0 ? value : SHOWCASE_STATIC_DEMO_RUN_ID}
             onValueChange={onChange}
           >
-            <SelectTrigger id={selectControlId} className="font-mono text-sm">
+            <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             No reviews returned from the API — selecting the Claims Intake sample review package for this workspace.
           </p>
         </div>
@@ -293,11 +295,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
           {labelText} {optionalCopy}
         </Label>
         <Select disabled>
-          <SelectTrigger id={selectControlId} className="font-mono text-sm">
+          <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
             <SelectValue placeholder="No review packages yet" />
           </SelectTrigger>
         </Select>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           No review packages yet.{" "}
           <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
             Start a review
@@ -322,7 +324,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     <div className="space-y-2">
       <Label htmlFor={selectControlId}>{labelText}</Label>
       <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
-        <SelectTrigger id={selectControlId} className="font-mono text-sm">
+        <SelectTrigger id={selectControlId} className={cn("font-mono", OPERATOR_TYPOGRAPHY.body)}>
           <SelectValue placeholder="Choose an architecture review" />
         </SelectTrigger>
         <SelectContent>

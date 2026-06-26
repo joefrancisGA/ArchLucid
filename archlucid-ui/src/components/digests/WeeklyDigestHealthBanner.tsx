@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
@@ -50,12 +52,12 @@ export function WeeklyDigestHealthBanner(): ReactElement {
 
   return (
     <div
-      className="mb-6 rounded-lg border border-neutral-200 bg-white p-4 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+      className={cn("mb-6 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
       data-testid="weekly-digest-health-banner"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Weekly digest health</h2>
+          <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Weekly digest health</h2>
           <p className="mt-1 m-0 text-neutral-600 dark:text-neutral-400">
             Enabled schedules: <span className="font-medium text-neutral-900 dark:text-neutral-100">{snap.enabledAdvisoryScheduleCount}</span>
             {" · "}
@@ -79,13 +81,13 @@ export function WeeklyDigestHealthBanner(): ReactElement {
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className={cn("rounded-md border border-neutral-300 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
             href="/advisory"
           >
             Advisory schedules
           </Link>
           <Link
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className={cn("rounded-md border border-neutral-300 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
             href="/integrations/operations"
           >
             Connector operations

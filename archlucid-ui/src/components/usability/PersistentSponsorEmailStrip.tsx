@@ -1,5 +1,7 @@
 "use client";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 type PersistentSponsorEmailStripProps = {
@@ -18,12 +20,12 @@ export function PersistentSponsorEmailStrip(props: PersistentSponsorEmailStripPr
       className="sticky top-[calc(var(--app-shell-sticky,0px)+0.5rem)] z-10 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-teal-200 bg-teal-50/90 px-3 py-2 dark:border-teal-900 dark:bg-teal-950/40"
       data-testid="persistent-sponsor-email-strip"
     >
-      <p className="m-0 text-sm text-teal-950 dark:text-teal-100">
+      <p className={cn("m-0 text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
         Review committed — email the sponsor packet or open exports below.
       </p>
       <Link
         href="#sponsor-handoff"
-        className="text-sm font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200"
+        className={cn("font-semibold text-teal-900 underline underline-offset-2 dark:text-teal-200", OPERATOR_TYPOGRAPHY.cardTitle)}
       >
         Jump to sponsor handoff
       </Link>

@@ -7,7 +7,7 @@ export function WizardFieldError({ id, message }: { id?: string; message?: strin
   }
 
   return (
-    <p id={id} className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
+    <p id={id} className={cn("mt-1 text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
       {message}
     </p>
   );

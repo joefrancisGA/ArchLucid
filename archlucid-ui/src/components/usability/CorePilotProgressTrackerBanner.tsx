@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -16,7 +18,6 @@ import {
 } from "@/lib/usability/core-pilot-progress-tracker";
 import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
-import { cn } from "@/lib/utils";
 
 type CorePilotProgressTrackerBannerProps = {
   readonly className?: string;
@@ -75,10 +76,10 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             First review progress — {progress.completedCount} of {progress.totalCount} steps
           </p>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             About {estimatedMinutes} minutes remaining
             {" · "}
             <Link href="/help/first-value-20-minutes" className="font-medium text-teal-800 underline dark:text-teal-300">
@@ -86,7 +87,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
             </Link>
           </p>
           {nextStep !== null ? (
-            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
               Next: <span className="font-medium">{nextStep.title}</span>
             </p>
           ) : null}
@@ -105,8 +106,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
             return (
               <li
                 key={step.title}
-                className={cn(
-                  "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                className={cn("rounded-full px-2.5 py-0.5 font-medium", OPERATOR_TYPOGRAPHY.helper,
                   done
                     ? "bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-200"
                     : "bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",

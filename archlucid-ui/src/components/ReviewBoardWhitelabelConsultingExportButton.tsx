@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useCallback, useState, type ChangeEvent, type ReactElement } from "react";
 
@@ -151,7 +153,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="whitelabel-firm-display-name">
+              <label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} htmlFor="whitelabel-firm-display-name">
                 Firm display name
               </label>
               <Input
@@ -166,7 +168,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
             </div>
             <div className="space-y-1">
               <label
-                className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
                 htmlFor="whitelabel-client-engagement-title"
               >
                 Client engagement title
@@ -181,7 +183,7 @@ export function ReviewBoardWhitelabelConsultingExportButton(
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="whitelabel-logo-file">
+              <label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} htmlFor="whitelabel-logo-file">
                 Logo image file
               </label>
               <Input

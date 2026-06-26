@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -120,28 +122,28 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 text-sm">
+        <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind="neutral" label={`Pack: ${preview.packName}`} />
             {preview.severity !== null ? <StatusTag kind="needs-attention" label={preview.severity} /> : null}
           </div>
 
           <div>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Rule ID
             </p>
-            <p className="m-0 mt-1 font-mono text-sm text-neutral-900 dark:text-neutral-100">{preview.ruleId}</p>
+            <p className={cn("m-0 mt-1 font-mono text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{preview.ruleId}</p>
           </div>
 
           <div>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Rule title
             </p>
             <p className="m-0 mt-1 font-medium text-neutral-900 dark:text-neutral-100">{preview.ruleTitle}</p>
           </div>
 
           <div>
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Rule text
             </p>
             <p className="m-0 mt-1 leading-relaxed text-neutral-800 dark:text-neutral-200">{preview.description}</p>
@@ -149,7 +151,7 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
 
           {preview.remediationGuidance.trim().length > 0 ? (
             <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Remediation guidance
               </p>
               <p className="m-0 mt-1 leading-relaxed text-neutral-800 dark:text-neutral-200">
@@ -160,7 +162,7 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
 
           {preview.evidenceHints.length > 0 ? (
             <div>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Evidence hints
               </p>
               <ul className="m-0 mt-1 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300">
@@ -172,13 +174,13 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
           ) : null}
 
           {loading ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="status">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
               Loading policy pack rule text…
             </p>
           ) : null}
 
           {loadError !== null ? (
-            <p className="m-0 text-xs text-rose-700 dark:text-rose-300" role="alert">
+            <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
               {loadError}
             </p>
           ) : null}

@@ -1,3 +1,4 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const REVIEW_TRAIL_KINDS: ReadonlyArray<{ k: string; role: string; c: string }> = [
@@ -76,9 +77,9 @@ export function GraphReviewTrailLegendChips(props: {
           )}
           title={x.role}
         >
-          <span className="text-[11px] font-semibold uppercase tracking-wide">{x.k}</span>
+          <span className={cn("font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.helper)}>{x.k}</span>
           {showRoles ? (
-            <span className="text-[11px] font-normal normal-case tracking-normal opacity-75">
+            <span className={cn("font-normal normal-case tracking-normal opacity-75", OPERATOR_TYPOGRAPHY.helper)}>
               — {x.role}
             </span>
           ) : null}

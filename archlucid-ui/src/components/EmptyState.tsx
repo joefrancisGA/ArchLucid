@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -50,10 +52,10 @@ export function EmptyState({
           {Icon ? (
             <Icon className="h-12 w-12 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
           ) : null}
-          <h3 className="text-sm font-semibold text-al-text-primary">{title}</h3>
-          <p className="max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{description}</p>
+          <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</h3>
+          <p className={cn("max-w-md leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{description}</p>
           {filteredEmpty ? (
-            <p className="m-0 max-w-md text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 max-w-md text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               No rows match your current filters — clear filters or broaden the search to see more results.
             </p>
           ) : null}
@@ -85,7 +87,7 @@ export function EmptyState({
           {helpTopicPath ? (
             <Link
               href={helpTopicPath.startsWith("/") ? helpTopicPath : `/help/${helpTopicPath}`}
-              className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+              className={cn("font-medium text-teal-800 underline dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}
             >
               Learn more
             </Link>

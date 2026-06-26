@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
 
@@ -32,12 +34,12 @@ export function ProvenanceNodeExplainCell({ runId, nodeId }: Props) {
         Explain node
       </Button>
       {statusLine ? (
-        <p className="m-0 max-w-[280px] text-[11px] text-neutral-600 dark:text-neutral-400" aria-live="polite">
+        <p className={cn("m-0 max-w-[280px] text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-live="polite">
           {statusLine}
         </p>
       ) : null}
       {aggregateProxyHref ? (
-        <p className="m-0 max-w-[280px] text-[11px]">
+        <p className={cn("m-0 max-w-[280px]", OPERATOR_TYPOGRAPHY.helper)}>
           <a
             className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             href={aggregateProxyHref}

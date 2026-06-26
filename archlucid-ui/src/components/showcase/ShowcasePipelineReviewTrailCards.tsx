@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
@@ -43,7 +45,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
 
   if (items.length === 0) {
     return (
-      <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="showcase-pipeline-cards-empty">
+      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="showcase-pipeline-cards-empty">
         No review-trail events in this preview payload yet.
       </p>
     );
@@ -72,21 +74,21 @@ export function ShowcasePipelineReviewTrailCards(props: {
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{label}</p>
+                <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{label}</p>
                 <time
-                  className="mt-1 block text-xs font-medium text-neutral-500 dark:text-neutral-400"
+                  className={cn("mt-1 block font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   dateTime={row.occurredUtc}
                 >
                   {safeLocaleTime(row.occurredUtc)}
                 </time>
                 {row.actorUserName.trim().length > 0 ? (
-                  <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Actor:</span>{" "}
                     {row.actorUserName}
                   </p>
                 ) : null}
               </div>
-              <div className="flex flex-wrap gap-2 text-xs">
+              <div className={cn("flex flex-wrap gap-2", OPERATOR_TYPOGRAPHY.helper)}>
                 {showPrimaryReviewDeepLink ? (
                   <Link
                     className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"

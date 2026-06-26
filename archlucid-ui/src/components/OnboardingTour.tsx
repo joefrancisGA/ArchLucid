@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -179,15 +181,15 @@ export function OnboardingTour() {
         aria-labelledby="onboarding-tour-title"
       >
         <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {stepIndex + 1} of {stepCount}
           </p>
-          <h2 id="onboarding-tour-title" className="m-0 mt-1 text-sm font-semibold text-al-text-primary">
+          <h2 id="onboarding-tour-title" className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {step.title}
           </h2>
-          <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{step.body}</p>
+          <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{step.body}</p>
           {step.id === "done" ? (
-            <p className="m-0 mt-3 text-sm">
+            <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
               <Link
                 className="font-semibold text-teal-800 underline dark:text-teal-300"
                 href={ONBOARDING_TOUR_DONE_LINK_HREF}

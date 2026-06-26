@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
@@ -220,24 +222,24 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
       aria-label="Review-cycle delta before vs measured"
       className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
-      <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+      <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         Review-cycle delta (before vs measured)
       </h3>
-      <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Compares your estimated baseline review cycle time against measured time for finalized review packages in this
         workspace. Estimated savings use accepted cost findings from committed review activity.
       </p>
 
       <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Baseline (before)</dt>
+          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Baseline (before)</dt>
           <dd
             data-testid="before-after-delta-baseline-hours"
-            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+            className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
           >
             {formatHours(data.baselineHours)} h
           </dd>
-          <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <dd className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {data.baselineHours === null
               ? "Not provided at signup — using a measured anchor only."
               : data.baselineSource
@@ -246,28 +248,28 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Measured (this review)</dt>
+          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Measured (this review)</dt>
           <dd
             data-testid="before-after-delta-measured-hours"
-            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+            className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
           >
             {formatHours(data.measuredHours)} h
           </dd>
-          <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <dd className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {data.measuredAvailable
               ? "Measured from committed review activity in this workspace."
               : "Awaiting first finalized review package to populate the measurement."}
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Estimated USD savings</dt>
+          <dt className={cn("font-medium uppercase text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Estimated USD savings</dt>
           <dd
             data-testid="before-after-delta-estimated-usd-savings"
-            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
+            className={cn("mt-1 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
           >
             {formatUsd(data.estimatedUsdSavings)}
           </dd>
-          <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <dd className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Sum of accepted Cost-category findings from the run findings snapshot.
           </dd>
         </div>
@@ -276,7 +278,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
       {delta !== null ? (
         <p
           data-testid="before-after-delta-summary"
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-3 px-3 py-2 text-sm font-medium"
+          className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-3 px-3 py-2 font-medium", OPERATOR_TYPOGRAPHY.body)}
         >
           {delta.hours >= 0
             ? `Delta: ${delta.hours.toFixed(2)} h saved per finalized review (${delta.percent.toFixed(1)}% improvement)`

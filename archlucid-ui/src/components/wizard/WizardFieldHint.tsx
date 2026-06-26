@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { InlineInfoTooltip } from "@/components/InlineInfoTooltip";
 import { Label } from "@/components/ui/label";
@@ -16,7 +18,7 @@ export function WizardFieldHint({ htmlFor, label, hint }: WizardFieldHintProps) 
     htmlFor !== undefined && htmlFor.length > 0 ? (
       <Label htmlFor={htmlFor}>{label}</Label>
     ) : (
-      <span className="text-sm font-medium leading-none text-neutral-900 dark:text-neutral-100">{label}</span>
+      <span className={cn("font-medium leading-none text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{label}</span>
     );
 
   return (

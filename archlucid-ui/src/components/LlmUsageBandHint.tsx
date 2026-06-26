@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -75,12 +77,12 @@ export function LlmUsageBandHint() {
   if (exhausted) {
     return (
       <div
-        className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 px-4 py-3 text-sm shadow-sm"
+        className={cn("rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50 px-4 py-3 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
         role="alert"
         data-testid="llm-usage-band-hint-exhausted"
       >
         <p className="m-0 font-semibold leading-snug">{formatBuyerLlmUsageExhaustedCopy()}</p>
-        <p className="m-0 mt-1 text-xs leading-snug">
+        <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>
           <Link href="/pricing#pricing-quote-request" className="font-medium underline underline-offset-2">
             View pricing and request a quote
           </Link>
@@ -97,12 +99,12 @@ export function LlmUsageBandHint() {
 
   return (
     <div
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-4 py-3 text-sm shadow-sm"
+      className={cn("rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-4 py-3 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
       role="status"
       data-testid="llm-usage-band-hint-approaching"
     >
       <p className="m-0 leading-snug">{formatBuyerLlmUsageApproachingCopy(remainingPercent)}</p>
-      <p className="m-0 mt-1 text-xs leading-snug">
+      <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>
         <Link href="/pricing#pricing-quote-request" className="font-medium underline underline-offset-2">
           Talk to us about upgrading
         </Link>

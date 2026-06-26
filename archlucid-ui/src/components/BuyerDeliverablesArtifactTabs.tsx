@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ReactElement } from "react";
 import { useMemo, useState } from "react";
@@ -11,7 +13,6 @@ import {
   sponsorArtifactAudienceBucket,
   type SponsorArtifactAudienceBucket,
 } from "@/lib/artifact-review-helpers";
-import { cn } from "@/lib/utils";
 import type { ArtifactDescriptor } from "@/types/authority";
 
 type TabId = "executive" | "arb";
@@ -57,8 +58,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
             type="button"
             role="tab"
             aria-selected={tab === id}
-            className={cn(
-              "rounded-md border px-3 py-1.5 text-xs font-semibold transition",
+            className={cn("rounded-md border px-3 py-1.5 font-semibold transition", OPERATOR_TYPOGRAPHY.helper,
               tab === id
                 ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                 : "border-transparent bg-neutral-100 text-neutral-600 hover:border-neutral-300 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600",
@@ -74,7 +74,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
 
       {tab === "executive" ? (
         execRows.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             No executive or sponsor-scoped outputs are listed for this package in this view.
           </p>
         ) : (
@@ -89,7 +89,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
           />
         )
       ) : arbRows.length === 0 ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           No architecture review board or audit-scoped outputs are listed for this package in this view.
         </p>
       ) : (

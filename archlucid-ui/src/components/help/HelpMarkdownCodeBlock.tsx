@@ -1,10 +1,11 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { Check, Copy } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export type HelpMarkdownCodeBlockProps = {
   readonly code: string;
@@ -31,7 +32,7 @@ export function HelpMarkdownCodeBlock(props: HelpMarkdownCodeBlockProps): React.
         type="button"
         variant="ghost"
         size="sm"
-        className="absolute right-2 top-2 h-7 gap-1 px-2 text-xs text-neutral-600 dark:text-neutral-300"
+        className={cn("absolute right-2 top-2 h-7 gap-1 px-2 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
         onClick={() => {
           void handleCopy();
         }}
@@ -41,8 +42,7 @@ export function HelpMarkdownCodeBlock(props: HelpMarkdownCodeBlockProps): React.
         {copied ? "Copied" : "Copy"}
       </Button>
       <pre
-        className={cn(
-          "max-w-full overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 pr-16 text-sm leading-relaxed dark:border-neutral-700 dark:bg-neutral-900/80",
+        className={cn("max-w-full overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 pr-16 leading-relaxed dark:border-neutral-700 dark:bg-neutral-900/80", OPERATOR_TYPOGRAPHY.body,
         )}
       >
         <code className="font-mono text-neutral-900 dark:text-neutral-100">{props.code}</code>

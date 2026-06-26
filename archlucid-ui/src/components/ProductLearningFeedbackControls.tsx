@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useMemo, useState } from "react";
 
@@ -9,7 +11,6 @@ import {
   type ProductLearningSignalRequest,
 } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 
 type ProductLearningFeedbackControlsProps = {
   readonly runId?: string | null;
@@ -95,8 +96,7 @@ export function ProductLearningFeedbackControls({
 
   return (
     <div
-      className={cn(
-        "rounded-md border border-neutral-200 bg-white/80 p-3 text-xs dark:border-neutral-700 dark:bg-neutral-900/60",
+      className={cn("rounded-md border border-neutral-200 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/60", OPERATOR_TYPOGRAPHY.helper,
         compact ? "space-y-2" : "space-y-3",
       )}
     >
@@ -120,7 +120,7 @@ export function ProductLearningFeedbackControls({
             type="button"
             size="sm"
             variant={option.value === "Trusted" ? "outline" : "ghost"}
-            className="h-7 px-2 text-xs"
+            className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.helper)}
             disabled={busyDisposition !== null}
             onClick={() => void submit(option.value)}
           >
@@ -138,7 +138,7 @@ export function ProductLearningFeedbackControls({
             setComment(event.target.value);
           }}
           placeholder="Optional feedback note."
-          className="auth-panel-focus w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-xs text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+          className={cn("auth-panel-focus w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}
         />
       </label>
     </div>

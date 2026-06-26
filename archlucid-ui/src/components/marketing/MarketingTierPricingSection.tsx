@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -108,15 +110,15 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
   return (
     <section aria-labelledby={props.sectionHeadingId} className="mb-10">
-      <h2 id={props.sectionHeadingId} className="mb-2 text-xl font-semibold tracking-tight text-al-text-primary">
+      <h2 id={props.sectionHeadingId} className={cn("mb-2 font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
         {props.sectionTitle}
       </h2>
       {props.sectionIntro ? (
-        <p className="mb-6 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">{props.sectionIntro}</p>
+        <p className={cn("mb-6 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{props.sectionIntro}</p>
       ) : null}
 
       {pricingError ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={cn("text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert">
           Pricing data is temporarily unavailable.
         </p>
       ) : null}
@@ -160,31 +162,31 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
                 }
               >
-                <h3 className="text-sm font-semibold text-al-text-primary">
+                <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                   {pkg.title}
                   {pkg.id === "professional" ? (
-                    <span className="ms-2 align-middle text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">
+                    <span className={cn("ms-2 align-middle font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
                       Recommended
                     </span>
                   ) : null}
                 </h3>
                 {pkg.id === "team" ? (
-                  <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">
                       Evaluation and small-team workspace
                     </span>
                     {" — "}pilot and evaluation tier (not the primary procurement path).
                   </p>
                 ) : null}
-                <p className="mt-2 flex-1 text-sm text-neutral-700 dark:text-neutral-300">{pkg.summary}</p>
+                <p className={cn("mt-2 flex-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pkg.summary}</p>
                 {BILLING_TIER_FEATURE_BULLETS[pkg.id] !== undefined ? (
-                  <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
+                  <ul className={cn("mt-3 list-disc space-y-1 pl-5 leading-snug text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                     {BILLING_TIER_FEATURE_BULLETS[pkg.id]!.slice(0, 5).map((line) => (
                       <li key={line}>{line}</li>
                     ))}
                   </ul>
                 ) : null}
-                <dl className="mt-4 space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
+                <dl className={cn("mt-4 space-y-1 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                   {typeof pkg.workspaceMonthlyUsd === "number" ? (
                     <div className="flex justify-between gap-2">
                       <dt>Workspace</dt>
@@ -206,10 +208,10 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 </dl>
                 {pkg.id === "enterprise" ? (
                   <>
-                    <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       Deployment model and terms are finalized through procurement.
                     </p>
-                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">{BUYER_PRICING_FAIR_USE_OVERAGE_NOTE}</p>
+                    <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_PRICING_FAIR_USE_OVERAGE_NOTE}</p>
                   </>
                 ) : null}
                 <div className="mt-4 flex flex-col gap-2">
@@ -264,12 +266,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
             ))}
           </ul>
           <p
-            className="mt-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+            className={cn("mt-6 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
             data-testid="pricing-early-adopter-framing"
           >
             {BUYER_EARLY_ADOPTER_PRICING_NOTE}
           </p>
-          <p className="mt-8 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-8 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Roadmap-oriented diligence topics (for example enterprise directory lifecycle) are summarized in the{" "}
             <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq#pricing-roadmap-notes">
               product FAQ

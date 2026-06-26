@@ -1,4 +1,6 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -66,12 +68,12 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
   return (
     <Card data-testid="operator-outbox-diagnostics-card">
       <CardHeader>
-        <CardTitle className="text-base">Queue and partial-failure status</CardTitle>
-        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.body}>Queue and partial-failure status</CardTitle>
+        <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Pending async work and dead-letter queue depths for authority pipeline and integration events.
         </p>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardContent className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
         {error !== null ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400" role="status">
             {error}
@@ -81,31 +83,31 @@ export function OperatorOutboxDiagnosticsCard(): React.JSX.Element {
         {snapshot !== null ? (
           <dl className="m-0 grid gap-2 sm:grid-cols-2">
             <div>
-              <dt className="text-xs uppercase tracking-wide text-neutral-500">Authority pipeline pending</dt>
+              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Authority pipeline pending</dt>
               <dd className={`m-0 tabular-nums ${toneClass(snapshot.authorityPipelineWorkPending ?? 0)}`}>
                 {snapshot.authorityPipelineWorkPending ?? 0}
               </dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-neutral-500">Authority pipeline dead-letter</dt>
+              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Authority pipeline dead-letter</dt>
               <dd className={`m-0 tabular-nums ${toneClass(snapshot.authorityPipelineWorkDeadLetter ?? 0)}`}>
                 {snapshot.authorityPipelineWorkDeadLetter ?? 0}
               </dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-neutral-500">Retrieval indexing pending</dt>
+              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Retrieval indexing pending</dt>
               <dd className={`m-0 tabular-nums ${toneClass(snapshot.retrievalIndexingPending ?? 0)}`}>
                 {snapshot.retrievalIndexingPending ?? 0}
               </dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-neutral-500">Integration publish pending</dt>
+              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Integration publish pending</dt>
               <dd className={`m-0 tabular-nums ${toneClass(snapshot.integrationEventOutboxPublishPending ?? 0)}`}>
                 {snapshot.integrationEventOutboxPublishPending ?? 0}
               </dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-xs uppercase tracking-wide text-neutral-500">Integration dead-letter</dt>
+              <dt className={cn("uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Integration dead-letter</dt>
               <dd className={`m-0 tabular-nums ${toneClass(snapshot.integrationEventOutboxDeadLetter ?? 0)}`}>
                 {snapshot.integrationEventOutboxDeadLetter ?? 0}
               </dd>

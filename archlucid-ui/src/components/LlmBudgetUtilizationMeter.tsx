@@ -1,9 +1,10 @@
 "use client";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   llmBudgetUtilizationPercent,
@@ -57,7 +58,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
 
   if (loading) {
     return (
-      <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="llm-budget-utilization-loading">
+      <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-loading">
         Loading LLM budget utilization…
       </p>
     );
@@ -65,7 +66,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
 
   if (loadError) {
     return (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="llm-budget-utilization-unavailable">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-unavailable">
         LLM monthly budget status is unavailable right now.
       </p>
     );
@@ -73,7 +74,7 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
 
   if (status === null || !status.monthlyBudgetMonitoringActive) {
     return (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="llm-budget-utilization-inactive">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} data-testid="llm-budget-utilization-inactive">
         Monthly LLM dollar budget monitoring is not enabled for this environment.
       </p>
     );
@@ -98,12 +99,11 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
   return (
     <div data-testid="llm-budget-utilization-meter">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p id={labelId} className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+        <p id={labelId} className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           LLM budget utilization (UTC month {status.utcMonth})
         </p>
         <p
-          className={cn(
-            "m-0 text-sm font-semibold tabular-nums",
+          className={cn("m-0 font-semibold tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle,
             tone === "critical"
               ? "text-rose-700 dark:text-rose-300"
               : tone === "warn"
@@ -124,10 +124,10 @@ export function LlmBudgetUtilizationMeter(props: LlmBudgetUtilizationMeterProps)
         indicatorClassName={indicatorClassName}
         className="mt-2"
       />
-      <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400" role="status">
+      <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
         {statusText}
         {status.effectiveHardCapUsd !== null ? (
-          <span className="block font-mono text-[11px] text-neutral-500 dark:text-neutral-500">
+          <span className={cn("block font-mono text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             Estimated pressure {formatUsd(status.estimatedUsdPressure)} / cap {formatUsd(status.effectiveHardCapUsd)}
             {status.purchasedCapBumpUsd !== null && status.purchasedCapBumpUsd > 0
               ? ` (includes +${formatUsd(status.purchasedCapBumpUsd)} purchased bump)`

@@ -16,8 +16,7 @@ const CONFIDENCE_COPY: Record<ExecutiveConfidenceLabelProps["confidenceLevel"], 
 export function ExecutiveConfidenceLabel(props: ExecutiveConfidenceLabelProps) {
   return (
     <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
+      className={cn("inline-flex items-center rounded-full border px-2 py-0.5 font-medium", OPERATOR_TYPOGRAPHY.helper,
         props.confidenceLevel === "high"
           ? "border-teal-300 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950 dark:text-teal-200"
           : props.confidenceLevel === "medium"

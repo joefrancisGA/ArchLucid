@@ -1,3 +1,5 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import {
@@ -14,10 +16,10 @@ export function WelcomeMarketingUseCasesSection() {
       className="mb-12"
       data-testid="welcome-use-cases"
     >
-      <h2 id="welcome-use-cases-heading" className="text-xl font-semibold tracking-tight text-al-text-primary">
+      <h2 id="welcome-use-cases-heading" className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
         Use cases — bundled policy packs
       </h2>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <p className={cn("mt-2 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Every net-new tenant ships curated governance packs — including Azure WAF and CAF/landing-zone themes — so
         pilots start with review-ready rules instead of an empty library.
       </p>
@@ -28,13 +30,13 @@ export function WelcomeMarketingUseCasesSection() {
             className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             data-testid={`welcome-use-case-${useCase.id}`}
           >
-            <h3 className="text-sm font-semibold text-al-text-primary">{useCase.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{useCase.body}</p>
+            <h3 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{useCase.title}</h3>
+            <p className={cn("mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{useCase.body}</p>
           </li>
         ))}
       </ul>
       <p
-        className="mt-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400"
+        className={cn("mt-4 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="welcome-policy-pack-disclaimer"
       >
         {WELCOME_POLICY_PACK_DISCLAIMER}{" "}
