@@ -146,6 +146,7 @@ describe("QuickDecisionSummary", () => {
     expect(screen.getByTestId("quick-decision-policy-violations")).toBeInTheDocument();
     expect(screen.getByTestId("quick-decision-advisory-notes")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Custom policy breach/i })).toBeInTheDocument();
+    expect(screen.getAllByTestId("ai-output-governance-label-governed").length).toBeGreaterThan(0);
     expect(screen.queryByRole("link", { name: /Enable MFA for all users/i })).not.toBeInTheDocument();
   });
 

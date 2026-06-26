@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.45%`
+`ArchLucid Assessment – (A) Headline Readiness: 90.93%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -34,17 +34,17 @@
 
 | # | Quality | Score (1–100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
-| 1 | Decision-Changing Insight Density | 84 | 13 | 10.92 | 2.08 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 91 | 13 | 11.83 | 1.17 |
+| 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 1.95 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
 | 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
-| 4 | Correctness & Evidence Integrity | 92 | 12 | 11.04 | 0.96 |
-| 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
+| 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
+| 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
 | 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 94 | 8 | 7.52 | 0.48 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
 | 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
-| **Total** | | | **100** | **90.45%** | **9.55%** |
+| **Total** | | | **100** | **90.93%** | **9.07%** |
 
 *(A) Headline Readiness: 90.45%*
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **90.45%** (+0.29 from **#13** — Correctness 92, Proof-of-ROI 94, Executive/Operator Comprehension 94; cumulative +1.53 from **#11** + **#9** + **#12** + help sweep + **#13**). Diagnostic 30-day usage unchanged; executive purchase probability slightly improved when ROI proof posture is visible on first dashboard screen.
+**Reconciliation:** Headline **90.93%** (+0.48 from **Tier 1 #2** + **#10** — Decision 85, Differentiability 92, Correctness 93, AI Readiness 87; cumulative +2.01 from prior shipped batches). Diagnostic 30-day usage unchanged; trust in Ask/holistic critic paths improved via explicit advisory labeling.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 90.45%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation. **#9 shipped (2026-06-26):** structured pre-commit block panel on finalize 409. **#12 shipped (2026-06-26):** one-click run-scoped audit CSV export on review detail. **Help product-language sweep shipped (2026-06-26).** **#13 shipped (2026-06-26):** `ExecutiveRoiProofStatusStrip` on portfolio ROI summary — cost-evidence freshness StatusTag, headline scope code, non-summing row guidance, and `/help/pilot-roi-model` link. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 90.93%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11–#13 and help sweep shipped (2026-06-26).** **Tier 1 #2 shipped (2026-06-26):** governed vs advisory `AiOutputGovernanceLabel` on findings, holistic critic, and Ask. **#10 shipped (2026-06-26):** policy rule key deep links on explainability table (`FindingPolicyRuleBadge`). Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -391,25 +391,8 @@ Non-goals: Mutating committed manifests; V1.1 ITSM bidirectional sync; new polic
 Tests: extend live-api-policy-pack-lifecycle.spec.ts or unit tests for diff formatter.
 ```
 
-**2. Governed vs advisory labeling on AI outputs**  
-- **Tier:** 1 · **Classification:** V1  
-- **Why:** Prevents dismissal on soft-cited LLM text.  
-- **Impact:** Correctness, decision insight. **Design:** 8 · **Market:** 6.
-
-**Cursor prompt:**
-```
-Problem: Operators cannot distinguish persisted governed findings from advisory LLM narratives (holistic critic, chat intake suggestions).
-
-Desired behavior: StatusTag or inline label on every AI-generated block in run detail and Ask: "Governed finding" (persisted FindingId) vs "Advisory — not in manifest".
-
-Scope: archlucid-ui run detail finding rows, Ask message thread, holistic critic panel. Use existing OpenAPI fields (findingId presence).
-
-Acceptance criteria: axe-clean; stable data-testid; no API changes unless finding payload lacks flag — prefer client-side rule: FindingId present => Governed.
-
-Non-goals: Changing LLM prompts; citation enforcement backend.
-
-Tests: Vitest for label logic; one Playwright mock journey assertion.
-```
+**2. Governed vs advisory labeling on AI outputs** — **✅ Done (2026-06-26)**  
+- **Shipped:** `AiOutputGovernanceLabel` + `deriveAiOutputGovernanceLabel` — persisted FindingId ⇒ **Governed finding**; holistic critic, Ask assistant, and streaming replies ⇒ **Advisory — not in review package**. Wired on `QuickDecisionSummary`, `RunFindingExplainabilityTable`, `RunDetailHolisticCriticPanel`, and `AskMessageThreadPanel`. Vitest in `ai-output-governance-label.test.ts`, `AiOutputGovernanceLabel.test.tsx`, `RunDetailHolisticCriticPanel.test.tsx`, `QuickDecisionSummary.test.tsx`.
 
 **3. First-review 90-minute pilot playbook (in-app + doc)**  
 - **Tier:** 1 · **Classification:** V1 validation  
@@ -441,27 +424,8 @@ Tests: Help topic render test; link href unit test.
 **9. Pre-commit block explainer on failed commit** — **✅ Done (2026-06-26)**  
 - **Shipped:** `tryParseApiProblemDetails` reads `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity`; API `GovernancePreCommitBlockedProblem` emits severity ordinal; `PreCommitGovernanceBlockPanel` on `CommitRunButton` surfaces finding deep links, policy-pack inspect, troubleshooting (`/help/troubleshooting#7-commit-409-governance-pre-commit-blocked`), and governance bypass audit (`/governance/dashboard`). Vitest in `pre-commit-governance-block-problem.test.ts`, `PreCommitGovernanceBlockPanel.test.tsx`, `CommitRunButton.test.tsx`.
 
-**10. Finding row → policy rule key deep links**  
-- **Tier:** 2 · **Classification:** V1  
-- **Why:** Makes policy-aware moat visible on every review, not only in pack admin.  
-- **Impact:** Decision insight, defensibility. **Qualities:** 1, 2, 3.  
-- **Evidence:** Compliance findings carry rule IDs in payload; `/governance/findings` links to inspect per DEFAULT_POLICY_PACKS_V1.md §3.  
-- **Actionability:** High. **Design:** 7 · **Market:** 5.
-
-**Cursor prompt:**
-```
-Problem: Run detail findings table shows titles/severity but does not link compliance rule keys to the effective policy pack inspect surface.
-
-Desired behavior: Each finding row with a compliance rule key (payload or trace.rulesApplied) renders a compact link "Rule {key}" → /policy-packs?highlightRuleKey={key} (or expand Inspect accordion via query param).
-
-Scope: archlucid-ui run detail findings table + governance findings page. Client-only if keys already in OpenAPI run detail DTO.
-
-Acceptance criteria: Stable data-testid per rule link; Vitest for key extraction from mock finding payload; no new API unless keys missing from wire shape.
-
-Non-goals: New policy pack API; editing rules inline.
-
-Tests: Vitest key extractor; snapshot for link href pattern.
-```
+**10. Finding row → policy rule key deep links** — **✅ Done (2026-06-26)**  
+- **Shipped:** `FindingPolicyRuleBadge` on `RunFindingExplainabilityTable` rule column; `QuickDecisionSummary` and governance findings queue already surface `FindingPolicyCitationProminentStrip` / `FindingPolicyTraceabilityBadges` linking to `/policy-packs?ruleId=…`. Vitest coverage in existing `FindingPolicyRuleBadge.test.tsx` and citation link tests.
 
 **11. Extractor ZIP pre-upload validator (client-side)** — **✅ Done (2026-06-26)**  
 - **Shipped:** `readArchLucidAzurePackageZipFromBytes` enforces `manifest.json` (schemaVersion 1) + `resources.json` (parity with `AzureExtractorPackageZipValidator`); `uploadAzureExtractorPackage` validates before `fetch`; Vitest coverage in `read-arch-lucid-azure-package-zip.test.ts` and `upload-azure-extractor-package.test.ts`. Wizard/settings paths already validated at drop — upload helper now defense-in-depth.
@@ -576,7 +540,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 ## 18. Prompt Batching Guidance
 
 **First batch (reliability + demo)** — safe for **Composer** / **Sonnet**  
-1. Governed vs advisory labeling (Tier 1 #2)  
+1. Governed vs advisory labeling (Tier 1 #2) — **done**  
 2. First-review checklist UI (Tier 1 #3)  
 3. Board-pack illustrative banner (Tier 2 #4)  
 4. Extractor ZIP pre-upload validator (#11) — **done**

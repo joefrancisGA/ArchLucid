@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
+import { FindingPolicyRuleBadge } from "@/components/FindingPolicyRuleBadge";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -227,9 +229,14 @@ export function RunFindingExplainabilityTable({
                   >
                     {truncateForList(titleFull, 120)}
                   </div>
+                  <AiOutputGovernanceLabel findingId={row.findingId} className="mt-1" />
                 </div>
                 <div className={cn("min-w-0 break-words text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                  {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "—"}
+                  {row.ruleId && row.ruleId.trim().length > 0 ? (
+                    <FindingPolicyRuleBadge policyRuleId={row.ruleId} />
+                  ) : (
+                    "—"
+                  )}
                 </div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   {explainGraphHref !== null ? (

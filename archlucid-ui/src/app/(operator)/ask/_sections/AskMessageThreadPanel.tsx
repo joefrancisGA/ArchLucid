@@ -1,5 +1,6 @@
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
+import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -72,8 +73,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             )}
           >
             <CardContent className="space-y-1 p-3">
-              <div className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {askMessageRoleLabel(message.role, buyerPolishedShell)}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {askMessageRoleLabel(message.role, buyerPolishedShell)}
+                </div>
+                {message.role.toLowerCase() === "assistant" ? <AiOutputGovernanceLabel forceAdvisory /> : null}
               </div>
               {message.role.toLowerCase() === "assistant" ? (
                 <AskAssistantMessageBody
@@ -96,8 +100,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             aria-busy="true"
           >
             <CardContent className="space-y-1 p-3">
-              <div className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {askMessageRoleLabel("assistant", buyerPolishedShell)}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                  {askMessageRoleLabel("assistant", buyerPolishedShell)}
+                </div>
+                <AiOutputGovernanceLabel forceAdvisory />
               </div>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}

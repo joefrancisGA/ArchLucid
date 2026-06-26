@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog";
+import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { FindingsItsmExportToolbar } from "@/components/FindingsItsmExportToolbar";
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -221,6 +222,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           {f.confidenceLevel === "High" || f.confidenceLevel === "Medium" || f.confidenceLevel === "Low" ? (
             <FindingConfidenceBadge level={f.confidenceLevel} />
           ) : null}
+          <AiOutputGovernanceLabel findingId={f.findingId} />
           <FindingTrustChip finding={f} />
           {f.isMuted ? (
             <span className={`${badgeBase} border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200`}>

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateHolisticCritique } from "@/lib/api/holistic-critic-api";
@@ -91,7 +92,10 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
         ) : null}
         {disclaimer !== null && critiqueMarkdown !== null ? (
           <div className="space-y-2">
-            <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>{disclaimer}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <AiOutputGovernanceLabel forceAdvisory />
+              <p className={cn("m-0 text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>{disclaimer}</p>
+            </div>
             <pre className={cn("max-h-96 overflow-auto whitespace-pre-wrap rounded-md border border-neutral-200 bg-white p-3 leading-relaxed text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}>
               {critiqueMarkdown}
             </pre>
