@@ -20,13 +20,19 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => true,
 }));
 
+vi.mock("@/lib/toast", () => ({
+  showSuccess: vi.fn(),
+  showError: vi.fn(),
+}));
+
 vi.mock("@/lib/api", () => ({
   listAlertRoutingSubscriptions: apiMocks.list,
   createAlertRoutingSubscription: apiMocks.create,
   testWebhookSubscription: apiMocks.test,
-  testIntegrationWebhook: apiMocks.test,
   toggleAlertRoutingSubscription: apiMocks.toggle,
 }));
+
+import { showError, showSuccess } from "@/lib/toast";
 
 import WebhooksIntegrationPage from "./page";
 
@@ -78,7 +84,7 @@ describe("WebhooksIntegrationPage", () => {
     );
   });
 
-  it("shows HTTP status and response body after Test Webhook", async () => {
+  it("shows HTTP status and response body after Test Connection", async () => {
     const subscriptionId = "11111111-1111-1111-1111-111111111111";
     apiMocks.list.mockResolvedValue([
       {
@@ -117,5 +123,46 @@ describe("WebhooksIntegrationPage", () => {
 
     expect(await screen.findByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent("HTTP 202");
     expect(screen.getByTestId(`webhook-test-result-${subscriptionId}`)).toHaveTextContent('{"ok":true}');
+    expect(showSuccess).toHaveBeenCalledWith(expect.stringContaining("Connection test succeeded"));
+  });
+
+  it("shows failure toast when connection test transport fails", async () => {
+    const subscriptionId = "22222222-2222-2222-2222-222222222222";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "SlackWebhook",
+        destination: "https://hooks.slack.example/services",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+    apiMocks.test.mockResolvedValue({
+      transportSucceeded: false,
+      statusCode: 0,
+      error: "Connection refused",
+      responseBodyTruncated: false,
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId(`webhook-test-${subscriptionId}`));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith(
+        "Connection test failed — could not reach destination",
+        "Connection refused",
+      );
+    });
   });
 });

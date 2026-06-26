@@ -43,10 +43,13 @@ import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
   listAlertRoutingSubscriptions,
-  testIntegrationWebhook,
+  testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { showError, showSuccess } from "@/lib/toast";
+import {
+  presentWebhookConnectionTestRequestFailure,
+  presentWebhookConnectionTestToasts,
+} from "@/lib/webhook-subscription-connection-test";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 /** Returns true for channel types that use an outbound HTTP webhook destination. */
@@ -140,20 +143,11 @@ export function AlertRoutingContent() {
 
     setTestingId(routingSubscriptionId);
     try {
-      const result = await testIntegrationWebhook(routingSubscriptionId);
+      const result = await testWebhookSubscription(routingSubscriptionId);
 
-      if (result.transportSucceeded && result.statusCode >= 200 && result.statusCode < 300) {
-        showSuccess(`Webhook ping succeeded — HTTP ${result.statusCode} ${result.reasonPhrase ?? ""}`.trimEnd());
-      } else if (result.transportSucceeded) {
-        showError(
-          `Webhook ping returned HTTP ${result.statusCode}`,
-          result.reasonPhrase ?? result.responseBodyPreview ?? undefined,
-        );
-      } else {
-        showError("Webhook ping failed — could not reach destination", result.error ?? undefined);
-      }
+      presentWebhookConnectionTestToasts(result);
     } catch (e) {
-      showError("Webhook test request failed", e instanceof Error ? e.message : String(e));
+      presentWebhookConnectionTestRequestFailure(e);
     } finally {
       setTestingId(null);
     }
@@ -263,6 +257,7 @@ export function AlertRoutingContent() {
                         onClick={() => void onTest(item.routingSubscriptionId)}
                         disabled={testingId !== null}
                         title="Send a synthetic ping event to the configured destination URL and verify connectivity."
+                        data-testid={`webhook-test-${item.routingSubscriptionId}`}
                       >
                         {testingId === item.routingSubscriptionId ? "Testing…" : "Test Connection"}
                       </button>

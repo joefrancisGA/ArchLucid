@@ -33,6 +33,10 @@ import {
   type WebhookSettingsFormValues,
 } from "@/lib/webhook-settings-form-schema";
 import { summarizeMaskedWebhookSubscription, buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
+import {
+  presentWebhookConnectionTestRequestFailure,
+  presentWebhookConnectionTestToasts,
+} from "@/lib/webhook-subscription-connection-test";
 import { showError, showSuccess } from "@/lib/toast";
 
 import type { AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
@@ -108,16 +112,7 @@ export function WebhooksSettingsClient() {
 
       setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
 
-      if (result.transportSucceeded && result.statusCode >= 200 && result.statusCode < 300) {
-        showSuccess(`Test webhook ping succeeded — HTTP ${result.statusCode} ${result.reasonPhrase ?? ""}`.trimEnd());
-      } else if (result.transportSucceeded) {
-        showError(
-          `Test webhook ping returned HTTP ${result.statusCode}`,
-          result.reasonPhrase ?? result.responseBodyPreview ?? undefined,
-        );
-      } else {
-        showError("Test webhook ping failed — could not reach destination", result.error ?? undefined);
-      }
+      presentWebhookConnectionTestToasts(result);
     } catch (e) {
       setTestResults((prev) => {
         const next = { ...prev };
@@ -126,7 +121,7 @@ export function WebhooksSettingsClient() {
 
         return next;
       });
-      showError("Webhook test failed", e instanceof Error ? e.message : String(e));
+      presentWebhookConnectionTestRequestFailure(e);
     } finally {
       setTestingId(null);
     }
@@ -220,7 +215,7 @@ export function WebhooksSettingsClient() {
                 New webhook subscription
               </h2>
               <p className={cn("mt-1 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                After saving, use <strong className="font-medium">Test Webhook</strong> to send a synthetic ping through
+                After saving, use <strong className="font-medium">Test Connection</strong> to send a synthetic ping through
                 ArchLucid.
               </p>
             </div>
@@ -460,7 +455,7 @@ export function WebhooksSettingsClient() {
                             onClick={() => void onTestWebhook(row.routingSubscriptionId)}
                             data-testid={`webhook-test-${row.routingSubscriptionId}`}
                           >
-                            {testingId === row.routingSubscriptionId ? "Testing…" : "Test Webhook"}
+                            {testingId === row.routingSubscriptionId ? "Testing…" : "Test Connection"}
                           </Button>
                           <Button
                             type="button"
