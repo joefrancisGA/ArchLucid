@@ -8,6 +8,8 @@ import { SimulationRunDiffCard } from "@/components/evolution/SimulationRunDiffC
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 
@@ -35,22 +37,23 @@ export function EvolutionReviewPageView(props: Props) {
   return (
     <div className="max-w-5xl">
       <OperatorPageHeader title="Change simulation" />
-      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
+      <p className={cn("max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Preview the expected impact of a proposed architecture change before implementation. Each proposed change
         carries its expected impact and a side-by-side <strong>before-and-after comparison</strong> against the review
         baseline. Create a proposed change from{" "}
-        <Link href="/planning" className="text-blue-700 dark:text-blue-400">
+        <Link href="/planning" className={OPERATOR_LINK.inline}>
           Planning
         </Link>
         ; use <strong>Simulate change impact</strong> when your account has permission to refresh outcomes and scores.
       </p>
 
       <div className="flex flex-wrap gap-3 items-center mt-4 mb-5">
-        <button type="button" onClick={() => void m.loadList()} disabled={m.listLoading}>
+        <button type="button" className={OPERATOR_TYPOGRAPHY.button} onClick={() => void m.loadList()} disabled={m.listLoading}>
           Refresh list
         </button>
         <button
           type="button"
+          className={OPERATOR_TYPOGRAPHY.button}
           onClick={() => void m.onSimulate()}
           disabled={m.simulateBusy || m.selectedId === null || m.detailLoading}
         >
@@ -61,7 +64,7 @@ export function EvolutionReviewPageView(props: Props) {
       {m.listLoading && m.candidates.length === 0 ? (
         <OperatorLoadingNotice>
           <strong>Loading proposed changes.</strong>
-          <p className="mt-2 text-sm">Fetching proposed architecture changes…</p>
+          <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>Fetching proposed architecture changes…</p>
         </OperatorLoadingNotice>
       ) : null}
 
@@ -87,23 +90,24 @@ export function EvolutionReviewPageView(props: Props) {
 
       {m.selectedId !== null && m.selectedId !== "" ? (
         <section className="mb-[22px]" aria-labelledby="evolution-export-heading">
-          <h3 id="evolution-export-heading" className="text-[15px] mb-1.5 text-neutral-700 dark:text-neutral-300">
+          <h3 id="evolution-export-heading" className={cn("mb-1.5", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Export simulation summary
           </h3>
-          <p className="m-0 text-[13px] text-neutral-500 dark:text-neutral-400 max-w-3xl">
+          <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Markdown or JSON bundle for the selected proposed change: description, expected impact, saved simulation
             outcomes, evaluation scores, and before-and-after comparison lines.
           </p>
-          <p className="mt-2.5 text-sm">
-            <a href={buildEvolutionSimulationReportFileUrl(m.selectedId, "markdown")} download>
+          <p className={cn("mt-2.5", OPERATOR_TYPOGRAPHY.body)}>
+            <a className={OPERATOR_LINK.inline} href={buildEvolutionSimulationReportFileUrl(m.selectedId, "markdown")} download>
               Download Markdown
             </a>
             {" · "}
-            <a href={buildEvolutionSimulationReportFileUrl(m.selectedId, "json")} download>
+            <a className={OPERATOR_LINK.inline} href={buildEvolutionSimulationReportFileUrl(m.selectedId, "json")} download>
               Download JSON
             </a>
             {" · "}
             <a
+              className={OPERATOR_LINK.inline}
               href={buildEvolutionSimulationReportFileUrl(m.selectedId, "json")}
               target="_blank"
               rel="noopener noreferrer"
@@ -116,23 +120,23 @@ export function EvolutionReviewPageView(props: Props) {
 
       {emptyList ? (
         <OperatorEmptyState title="No proposed changes available">
-          <p className="m-0 text-sm">
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             Create a proposed change from{" "}
-            <Link href="/planning" className="text-blue-700 dark:text-blue-400">
+            <Link href="/planning" className={OPERATOR_LINK.inline}>
               Planning
             </Link>{" "}
             before running a simulation.
           </p>
-          <p className="mt-3 m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-3 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             A simulation compares the current review package with a proposed change and estimates likely impact on
             findings, risk, cost, and governance posture.
           </p>
-          <p className="mt-3 text-sm">
-            <Link href="/planning" className="text-blue-700 dark:text-blue-400">
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
+            <Link href="/planning" className={OPERATOR_LINK.inline}>
               Open Planning
             </Link>
             {" · "}
-            <Link href="/reviews?projectId=default" className="text-blue-700 dark:text-blue-400">
+            <Link href="/reviews?projectId=default" className={OPERATOR_LINK.inline}>
               Open review packages
             </Link>
           </p>
@@ -141,7 +145,7 @@ export function EvolutionReviewPageView(props: Props) {
 
       {m.candidates.length > 0 ? (
         <section aria-labelledby="evolution-candidates-heading">
-          <h3 id="evolution-candidates-heading" className="text-[17px] mb-2">
+          <h3 id="evolution-candidates-heading" className={cn("mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             Proposed changes
           </h3>
           <div className="flex flex-col gap-2 mb-5">
@@ -152,15 +156,17 @@ export function EvolutionReviewPageView(props: Props) {
                 <button
                   key={c.candidateChangeSetId}
                   type="button"
-                  className={
+                  className={cn(
+                    "text-left px-3 py-2.5 rounded-lg border cursor-pointer",
+                    OPERATOR_TYPOGRAPHY.body,
                     sel
-                      ? "text-left px-3 py-2.5 rounded-lg border border-blue-600 bg-white cursor-pointer text-sm shadow-[0_0_0_1px_#2563eb] dark:border-blue-500 dark:bg-neutral-950"
-                      : "text-left px-3 py-2.5 rounded-lg border border-neutral-200 bg-white cursor-pointer text-sm dark:border-neutral-700 dark:bg-neutral-950"
-                  }
+                      ? "border-blue-600 bg-white shadow-[0_0_0_1px_#2563eb] dark:border-blue-500 dark:bg-neutral-950"
+                      : "border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
+                  )}
                   onClick={() => m.setSelectedId(c.candidateChangeSetId)}
                 >
                   <div className="font-semibold">{c.title}</div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                  <div className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {c.status} · {new Date(c.createdUtc).toLocaleString()}
                   </div>
                 </button>
@@ -188,26 +194,33 @@ export function EvolutionReviewPageView(props: Props) {
 
       {m.detail !== null ? (
         <section aria-labelledby="evolution-detail-heading">
-          <h3 id="evolution-detail-heading" className="text-[17px] mb-2">
+          <h3 id="evolution-detail-heading" className={cn("mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             Description
           </h3>
-          <p className="mb-1.5 text-sm leading-relaxed">
+          <p className={cn("mb-1.5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
             <strong>{m.detail.candidate.title}</strong>
           </p>
-          <p className="mb-4 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{m.detail.candidate.summary}</p>
-          <p className="mb-5 text-[13px] text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mb-4 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {m.detail.candidate.summary}
+          </p>
+          <p className={cn("mb-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Status: <strong>{m.detail.candidate.status}</strong> · Source plan{" "}
             <Link
               href={`/planning/plans/${encodeURIComponent(m.detail.candidate.sourcePlanId)}`}
-              className="text-blue-700 dark:text-blue-400"
+              className={OPERATOR_LINK.inline}
             >
               {m.detail.candidate.sourcePlanId}
             </Link>
           </p>
 
-          <h3 className="text-[17px] mb-2">Expected impact</h3>
+          <h3 className={cn("mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Expected impact</h3>
           {m.planSnapshot !== null ? (
-            <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3.5 py-3 mb-[18px] text-sm leading-relaxed">
+            <div
+              className={cn(
+                "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3.5 py-3 mb-[18px] leading-relaxed",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
+            >
               <p className="mb-2">
                 <strong>Priority score:</strong> {m.planSnapshot.priorityScore}
               </p>
@@ -218,33 +231,35 @@ export function EvolutionReviewPageView(props: Props) {
                   <strong>Priority explanation:</strong> {m.planSnapshot.priorityExplanation}
                 </p>
               ) : (
-                <p className="mb-2 text-neutral-500 dark:text-neutral-400">No priority explanation recorded.</p>
+                <p className={cn("mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No priority explanation recorded.</p>
               )}
               <p className="mb-2">
                 <strong>Action steps (count):</strong> {m.planSnapshot.actionStepCount}
               </p>
-              <p className="m-0 text-[13px] text-indigo-700 dark:text-indigo-400">
+              <p className={cn("m-0 text-indigo-700 dark:text-indigo-400", OPERATOR_TYPOGRAPHY.body)}>
                 Summary: {m.planSnapshot.summary}
               </p>
             </div>
           ) : (
-            <p className="text-amber-700 dark:text-amber-400 text-sm">Expected impact details could not be loaded.</p>
+            <p className={cn("text-amber-700 dark:text-amber-400", OPERATOR_TYPOGRAPHY.body)}>
+              Expected impact details could not be loaded.
+            </p>
           )}
 
-          <h3 className="text-[17px] mb-2">Simulation results</h3>
-          <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mb-3 max-w-3xl">
+          <h3 className={cn("mb-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>Simulation results</h3>
+          <p className={cn("mb-3 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Each row is a <strong>before-and-after comparison</strong>:{" "}
             <span className="bg-al-surface-raised dark:bg-neutral-800/80 px-1.5 py-px">before</span> reflects the current
             review baseline; <span className="bg-al-surface-raised dark:bg-neutral-900/50 px-1.5 py-px">after</span>{" "}
             shows the estimated impact of the proposed change, including evaluation scores where available.
           </p>
           {m.detailLoading ? (
-            <p className="text-neutral-500 dark:text-neutral-400 text-[13px]" role="status">
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
               Updating…
             </p>
           ) : null}
           {(m.detail.simulationRuns ?? []).length === 0 ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               No saved simulations yet. Select a proposed change and use <strong>Simulate change impact</strong> above.
             </p>
           ) : (
