@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 93.04%`
+`ArchLucid Assessment – (A) Headline Readiness: 93.19%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -30,14 +30,14 @@
 | 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
-| 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
+| 6 | Time-to-Value | 92 | 10 | 9.20 | 0.80 |
 | 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
 | 8 | Executive / Operator Comprehension | 96 | 8 | 7.68 | 0.32 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 93 | 5 | 4.65 | 0.35 |
-| **Total** | | | **100** | **93.04%** | **6.96%** |
+| 10 | Adoption Friction | 94 | 5 | 4.70 | 0.30 |
+| **Total** | | | **100** | **93.19%** | **6.81%** |
 
-*(A) Headline Readiness: 93.04%*
+*(A) Headline Readiness: 93.19%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 93.04%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). Finding detail exposes a gated **Create issue** dialog (`POST /v1/integrations/itsm/outbound/issues`) when `Integrations:Itsm:NativeEnabled` is true. Governance dashboard now surfaces a dedicated **Pre-commit governance bypass audit** panel for recent `GovernanceBypassInvoked` events (actor, justification, review package). Webhook subscriptions UI exposes **Test Connection** (`POST /v1/webhooks/subscriptions/{subscriptionId}/test`) with success/failure toasts and inline last-response panel on `/integrations/webhooks`; alert routing uses the same helper for webhook channel types. Policy pack authoring JSON editors debounce `POST /v1/policy-packs/validate` while typing, surfacing structural errors and unknown rule-key warnings inline below the textarea. Trial upgrade nudge (`TrialUsageUpgradeNudge`) fires `POST /v1/diagnostics/trial-upgrade-nudge/shown` on render and `/clicked` when operators activate the upgrade CTA, with trigger context (`runs` / `seats` / `expiry`). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
+- **(A) Overall headline readiness:** 93.19%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). Finding detail exposes a gated **Create issue** dialog (`POST /v1/integrations/itsm/outbound/issues`) when `Integrations:Itsm:NativeEnabled` is true. Governance dashboard now surfaces a dedicated **Pre-commit governance bypass audit** panel for recent `GovernanceBypassInvoked` events (actor, justification, review package). Webhook subscriptions UI exposes **Test Connection** (`POST /v1/webhooks/subscriptions/{subscriptionId}/test`) with success/failure toasts and inline last-response panel on `/integrations/webhooks`; alert routing uses the same helper for webhook channel types. Policy pack authoring JSON editors debounce `POST /v1/policy-packs/validate` while typing, surfacing structural errors and unknown rule-key warnings inline below the textarea. Trial upgrade nudge (`TrialUsageUpgradeNudge`) fires `POST /v1/diagnostics/trial-upgrade-nudge/shown` on render and `/clicked` when operators activate the upgrade CTA, with trigger context (`runs` / `seats` / `expiry`). Identity providers admin settings now include a **SAML 2.0 SP configuration** form (IdP metadata URL, issuer, claim mappings) that saves tenant SSO via `POST /v1/admin/identity/activate` without mutating host `ArchLucidAuth` wiring. CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 93 · **Weight:** 5 · **Contribution:** 4.65 · **Deficiency:** 0.35
-- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion. Finding detail **Create issue** dialog gates on native ITSM and routes to Jira/ServiceNow outbound create without leaving the review workflow. Webhook subscription **Test Connection** verifies outbound HTTPS routing without waiting for a real alert. Policy pack JSON editors debounce `POST /v1/policy-packs/validate` while typing, showing structural errors and unknown rule-key warnings before create or publish. Trial upgrade nudge telemetry posts shown/clicked events with trigger context for conversion funnel analysis.
+- **Score:** 94 · **Weight:** 5 · **Contribution:** 4.70 · **Deficiency:** 0.30
+- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion. Finding detail **Create issue** dialog gates on native ITSM and routes to Jira/ServiceNow outbound create without leaving the review workflow. Webhook subscription **Test Connection** verifies outbound HTTPS routing without waiting for a real alert. Policy pack JSON editors debounce `POST /v1/policy-packs/validate` while typing, showing structural errors and unknown rule-key warnings before create or publish. Trial upgrade nudge telemetry posts shown/clicked events with trigger context for conversion funnel analysis. SAML 2.0 SP configuration form on identity providers settings saves issuer, IdP metadata discovery, and claim mappings via tenant activate API.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -109,8 +109,8 @@
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
-- **Score:** 91 · **Weight:** 10 · **Contribution:** 9.10 · **Deficiency:** 0.90
-- **Justification:** Operators copy Azure/AWS/GCP inventory commands in-wizard, pass local manifest/resources checks, and upload on first review without a failed API round-trip. Tier 2 Azure Extractor UI streamlines automated polling setup. One-click ITSM issue creation from finding detail accelerates remediation handoff during pilots.
+- **Score:** 92 · **Weight:** 10 · **Contribution:** 9.20 · **Deficiency:** 0.80
+- **Justification:** Operators copy Azure/AWS/GCP inventory commands in-wizard, pass local manifest/resources checks, and upload on first review without a failed API round-trip. Tier 2 Azure Extractor UI streamlines automated polling setup. One-click ITSM issue creation from finding detail accelerates remediation handoff during pilots. SAML SP admin form reduces manual JSON/SQL configuration for enterprise IdP onboarding.
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
@@ -256,14 +256,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Cursor Prompt:** Scaffold the UI in the operator shell for configuring the Tier 2 hosted automated polling. Add a form to input the Azure Service Principal credentials (to be stored in Key Vault) and subscription scope. Ensure the UI clearly communicates that Tier 1 (manual ZIP upload) is the default and Tier 2 is opt-in.
 
 **Tier 2 – High Leverage**
-
-- **Title:** SAML 2.0 SP Configuration Form
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** SAML SP is supported in V1 GA but requires manual configuration, slowing down enterprise pilots.
-- **Expected impact:** Faster identity integration for enterprise customers.
-- **Affected qualities:** Adoption Friction, Time-to-Value.
-- **Classification:** V1
-- **Cursor Prompt:** Build a form in the Admin Settings for SAML SP configuration (Issuer, IdP Metadata URL, Claim Mappings). Admins should be able to input and save SAML configuration details via the UI. Do not implement the backend SAML protocol handling, as it already exists.
 
 **Tier 3 – Hold For Reassessment**
 
