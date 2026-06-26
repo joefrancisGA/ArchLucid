@@ -7,7 +7,12 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import {
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+  operatorSemanticSurface,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { pricingQuoteAgingRowTone } from "@/lib/pricing-quote-aging";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
@@ -45,7 +50,7 @@ export function PricingQuoteAgingPageView(props: Props) {
   if (m.surface === "authority_loading") {
     return (
       <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
-        <p className="m-0 text-sm text-neutral-500">Loading…</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
       </div>
     );
   }
@@ -53,11 +58,15 @@ export function PricingQuoteAgingPageView(props: Props) {
   if (m.surface === "forbidden") {
     return (
       <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
-        <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="pricing-quote-aging-forbidden">
+        <p
+          className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}
+          role="alert"
+          data-testid="pricing-quote-aging-forbidden"
+        >
           This page requires tenant administrator access (AdminAuthority).
         </p>
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <Link className={OPERATOR_LINK.inline} href="/">
             Return to home
           </Link>
         </p>
@@ -70,8 +79,8 @@ export function PricingQuoteAgingPageView(props: Props) {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="pricing-quote-aging-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Pricing quote follow-up</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Pricing quote follow-up</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Track open pricing quote requests and follow-up SLA status. Sales follow-up is manual — no automated buyer
           replies.
         </p>
@@ -85,7 +94,7 @@ export function PricingQuoteAgingPageView(props: Props) {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Open requests</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Open requests</CardTitle>
           </CardHeader>
           <CardContent>
             <p className={`m-0 ${OPERATOR_TYPOGRAPHY.kpiValue}`} data-testid="pricing-quote-aging-open-count">
@@ -95,7 +104,7 @@ export function PricingQuoteAgingPageView(props: Props) {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Warn threshold</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Warn threshold</CardTitle>
           </CardHeader>
           <CardContent>
             <p
@@ -103,13 +112,13 @@ export function PricingQuoteAgingPageView(props: Props) {
               data-testid="pricing-quote-aging-warn-count"
             >
               {data?.warnCount ?? "—"}
-              <span className="ml-1 text-sm font-normal text-neutral-600 dark:text-neutral-400">(18 hours)</span>
+              <span className={cn("ml-1 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(18 hours)</span>
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Breach threshold</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Breach threshold</CardTitle>
           </CardHeader>
           <CardContent>
             <p
@@ -117,7 +126,7 @@ export function PricingQuoteAgingPageView(props: Props) {
               data-testid="pricing-quote-aging-breach-count"
             >
               {data?.breachCount ?? "—"}
-              <span className="ml-1 text-sm font-normal text-neutral-600 dark:text-neutral-400">(24 hours)</span>
+              <span className={cn("ml-1 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>(24 hours)</span>
             </p>
           </CardContent>
         </Card>
@@ -125,33 +134,33 @@ export function PricingQuoteAgingPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Open requests</CardTitle>
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+          <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Open requests</CardTitle>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Sorted by SLA severity, then age.
           </p>
         </CardHeader>
         <CardContent>
           {m.error !== null ? (
-            <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert">
+            <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {m.error}
             </p>
           ) : null}
-          {m.loading ? <p className="m-0 text-sm text-neutral-500">Loading…</p> : null}
+          {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
           {!m.loading && data !== null && data.rows.length === 0 ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No open quote requests.</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No open quote requests.</p>
           ) : null}
           {!m.loading && data !== null && data.rows.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+              <table className={cn("w-full min-w-[720px] border-collapse text-left", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
-                  <tr className="border-b border-neutral-200 dark:border-neutral-800">
-                    <th className="px-2 py-2 font-medium">Status</th>
-                    <th className="px-2 py-2 font-medium">Age (h)</th>
-                    <th className="px-2 py-2 font-medium">Created (UTC)</th>
-                    <th className="px-2 py-2 font-medium">Company</th>
-                    <th className="px-2 py-2 font-medium">Work email</th>
-                    <th className="px-2 py-2 font-medium">Tier</th>
-                    <th className="px-2 py-2 font-medium">Follow-up</th>
+                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
+                    <th className="px-2 py-2">Status</th>
+                    <th className="px-2 py-2">Age (h)</th>
+                    <th className="px-2 py-2">Created (UTC)</th>
+                    <th className="px-2 py-2">Company</th>
+                    <th className="px-2 py-2">Work email</th>
+                    <th className="px-2 py-2">Tier</th>
+                    <th className="px-2 py-2">Follow-up</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -167,7 +176,9 @@ export function PricingQuoteAgingPageView(props: Props) {
                       >
                         <td className="px-2 py-2 font-medium">{row.breachStatus}</td>
                         <td className="px-2 py-2">{row.ageHours.toFixed(1)}</td>
-                        <td className="px-2 py-2 font-mono text-xs">{row.createdUtc}</td>
+                        <td className={cn("px-2 py-2 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                          {row.createdUtc}
+                        </td>
                         <td className="px-2 py-2">{row.companyName}</td>
                         <td className="px-2 py-2">{row.workEmail}</td>
                         <td className="px-2 py-2">{row.tierInterest}</td>
@@ -202,14 +213,14 @@ export function PricingQuoteAgingPageView(props: Props) {
       </Card>
 
       <CollapsibleSection title="Technical details" sectionTestId="pricing-quote-aging-technical-details">
-        <dl className="m-0 space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+        <dl className={cn("m-0 space-y-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           <div>
-            <dt className="font-medium text-neutral-800 dark:text-neutral-200">Source</dt>
-            <dd className="m-0 font-mono text-xs">GET /v1/admin/marketing/pricing-quote-aging</dd>
+            <dt className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Source</dt>
+            <dd className={cn("m-0 font-mono", OPERATOR_TYPOGRAPHY.micro)}>GET /v1/admin/marketing/pricing-quote-aging</dd>
           </div>
           <div>
-            <dt className="font-medium text-neutral-800 dark:text-neutral-200">Runbook</dt>
-            <dd className="m-0 font-mono text-xs">MARKETING_PRICING_QUOTE_NOTIFICATIONS.md</dd>
+            <dt className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Runbook</dt>
+            <dd className={cn("m-0 font-mono", OPERATOR_TYPOGRAPHY.micro)}>MARKETING_PRICING_QUOTE_NOTIFICATIONS.md</dd>
           </div>
         </dl>
       </CollapsibleSection>
