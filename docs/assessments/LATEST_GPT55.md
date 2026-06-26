@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.03%`
+`ArchLucid Assessment – (A) Headline Readiness: 90.16%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -41,12 +41,12 @@
 | 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
 | 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
+| 8 | Executive / Operator Comprehension | 93 | 8 | 7.44 | 0.56 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
-| 10 | Adoption Friction | 86 | 5 | 4.30 | 0.70 |
-| **Total** | | | **100** | **90.03%** | **9.97%** |
+| 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
+| **Total** | | | **100** | **90.16%** | **9.84%** |
 
-*(A) Headline Readiness: 90.03%*
+*(A) Headline Readiness: 90.16%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **90.03%** (+0.34 from **#12** — Differentiability 91, Governed Review Integrity 95, Executive/Operator Comprehension 92; cumulative +1.11 from **#11** + **#9** + **#12**). Diagnostic 30-day usage unchanged; executive purchase friction slightly reduced for proof-packet assembly.
+**Reconciliation:** Headline **90.16%** (+0.13 from **help copy sweep** — Executive/Operator Comprehension 93, Adoption Friction 87; cumulative +1.24 from **#11** + **#9** + **#12** + help sweep). Diagnostic 30-day usage unchanged; executive purchase friction slightly reduced for proof-packet assembly and consistent in-app help vocabulary.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 90.03%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation. **#9 shipped (2026-06-26):** structured pre-commit block panel on finalize 409. **#12 shipped (2026-06-26):** one-click run-scoped audit CSV export on review detail (`RunScopedAuditExportButton` → `GET /v1/audit/export?runId=…`). Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 90.16%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation. **#9 shipped (2026-06-26):** structured pre-commit block panel on finalize 409. **#12 shipped (2026-06-26):** one-click run-scoped audit CSV export on review detail (`RunScopedAuditExportButton` → `GET /v1/audit/export?runId=…`). **Help product-language sweep shipped (2026-06-26):** `applyHelpTopicProductLanguage` normalizes manifest/run-primary copy in rendered help and regenerated search excerpts; legacy `/runs/` operator links rewrite to `/reviews/`; drift guards in `help-markdown-presentation.test.tsx`, `help-product-language.test.ts`, and `help-index.test.ts`. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -161,7 +161,7 @@
 - **Outcomes affected:** 1, 2, 4.
 
 ### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 86 · 5 · 4.30 · **0.70**
+- **Score · Weight · Contribution · Deficiency:** 87 · 5 · 4.35 · **0.65** *(was 86 — **help copy sweep done**)*
 - **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. Friction: `Integrations:Itsm:NativeEnabled=false` hides one-click ticket create; Operate surfaces hidden behind sidebar disclosure; enterprise SSO setup still admin-heavy.
 - **Tradeoffs:** Enabling ITSM native by default increases support burden for half-configured tenants.
 - **Recommendations:** Pilot checklist: enable native ITSM only when tenant settings validated; keep copy-as-work-item as default fallback.
@@ -169,8 +169,8 @@
 - **Outcomes affected:** 3, 4.
 
 ### 8. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 92 · 8 · 7.36 · **0.64** *(was 91 / 90 — **#9** + **#12 done**)*
-- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. Residual legacy “run/manifest” URLs (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
+- **Score · Weight · Contribution · Deficiency:** 93 · 8 · 7.44 · **0.56** *(was 92 — **#9** + **#12** + **help copy sweep done**)*
+- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. **Help product-language sweep (2026-06-26)** normalizes manifest/run-primary copy in rendered topics and search excerpts (`applyHelpTopicProductLanguage`, `HELP_TOPIC_BANNED_COPY_PATTERNS` drift guards). Residual legacy route aliases (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
 - **Tradeoffs:** Aggressive simplification risks hiding Operate differentiators from power users.
 - **Recommendations:** Executive mode: Home + ROI + board-pack export only; hide graph/compare until second session.
 - **Classification:** V1 / V1.1 (route aliases)
@@ -469,6 +469,9 @@ Tests: Vitest key extractor; snapshot for link href pattern.
 **12. Run-scoped audit export one-click from review detail** — **✅ Done (2026-06-26)**  
 - **Shipped:** `RunScopedAuditExportButton` on review detail Artifacts & exports calls `downloadAuditExportCsv` with `runId` + `maxRows=10000`; hidden for Reader-only principals; Auditor/Admin enabled; Operator sees disabled control + role hint; 403 surfaces RequireAuditor guidance. Vitest in `RunScopedAuditExportButton.test.tsx`, `run-scoped-audit-export.test.ts`, `RunDetailArtifactsExportsSection.test.tsx`.
 
+**14. Help topic manifest/run product-language sweep** — **✅ Done (2026-06-26)**  
+- **Shipped:** `applyHelpTopicProductLanguage` in `help-markdown-presentation.ts` and `build-help-search-index.mjs`; `HELP_TOPIC_BANNED_COPY_PATTERNS` drift guards in `help-markdown-presentation.test.tsx`, `help-product-language.test.ts`, and `help-index.test.ts`; legacy `/runs/` operator links rewrite to `/reviews/`; regenerated `help-index.generated.ts` excerpts free of manifest/run-primary jargon.
+
 **13. Executive Home "evidence & ROI proof status" strip**  
 - **Tier:** 2 · **Classification:** V1  
 - **Why:** Executives misread simulator savings as contractual; freshness labels reduce trust incidents.  
@@ -607,7 +610,8 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 9. Pilot nav profile (Tier 2 #5)  
 10. ITSM wizard enablement polish (Tier 2 #6)  
 11. Run-scoped audit CSV one-click (#12) — **done**  
-12. Executive ROI proof status strip (#13)
+12. Help topic product-language sweep (#14) — **done**  
+13. Executive ROI proof status strip (#13)
 
 **Fourth batch (validation + scale)** — mix of docs-only and CLI  
 13. Reference CI pre-commit starter (#15) — docs/scripts, Composer-safe  
