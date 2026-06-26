@@ -1,5 +1,7 @@
 import type { DemoProvenanceGraph, DemoProvenanceGraphEdge } from "@/types/demo-explain";
 import { provenanceGraphNodeTypeBuyerLabel } from "@/lib/citation-kind-buyer-label";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type Props = {
   readonly graph: DemoProvenanceGraph;
@@ -26,21 +28,21 @@ export function DemoExplainProvenanceGraphPanel(props: Props) {
       <header className="space-y-1">
         <h2
           id="demo-explain-graph-heading"
-          className="text-sm font-semibold text-al-text-primary"
+          className={OPERATOR_TYPOGRAPHY.cardTitle}
         >
           Provenance graph
         </h2>
-        <p className="text-xs text-neutral-500">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {graph.nodeCount} nodes · {graph.edgeCount} edges
         </p>
       </header>
 
       {graph.isEmpty ? (
-        <p className="text-sm text-neutral-500">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           The demo review produced no provenance nodes — re-seed the demo to refresh.
         </p>
       ) : (
-        <ol className="space-y-2 text-sm" data-testid="demo-explain-provenance-graph-nodes">
+        <ol className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)} data-testid="demo-explain-provenance-graph-nodes">
           {graph.nodes.map((node) => {
             const outgoing = adjacencyByNode[node.id] ?? [];
 
@@ -49,18 +51,18 @@ export function DemoExplainProvenanceGraphPanel(props: Props) {
                 key={node.id}
                 className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
               >
-                <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                   {node.label}{" "}
-                  <span className="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                  <span className={cn("rounded bg-neutral-200 px-1 py-0.5 font-normal text-al-text-primary dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge)}>
                     {provenanceGraphNodeTypeBuyerLabel(node.type)}
                   </span>
                 </p>
-                <p className="mt-0.5 font-mono text-[11px] text-neutral-500">{node.id}</p>
+                <p className={cn("mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{node.id}</p>
                 {outgoing.length > 0 ? (
-                  <ul className="mt-1 list-disc pl-5 text-xs text-neutral-600 dark:text-neutral-400">
+                  <ul className={cn("mt-1 list-disc pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {outgoing.map((edge) => (
                       <li key={`${edge.source}->${edge.target}:${edge.type}`}>
-                        <span className="text-neutral-500">{edge.type} →</span>{" "}
+                        <span className="text-al-text-secondary">{edge.type} →</span>{" "}
                         <code>{edge.target}</code>
                       </li>
                     ))}

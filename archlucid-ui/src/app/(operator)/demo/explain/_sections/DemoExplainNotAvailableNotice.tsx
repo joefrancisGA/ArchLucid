@@ -1,11 +1,17 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 export function DemoExplainNotAvailableNotice() {
   return (
     <div
       data-testid="demo-explain-not-available"
       role="status"
-      className="rounded border border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+      className={cn(
+        "rounded border border-neutral-300 bg-neutral-50 p-4 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
     >
-      <p className="m-0 font-medium">The example analysis is not available in this environment.</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>The example analysis is not available in this environment.</p>
     </div>
   );
 }

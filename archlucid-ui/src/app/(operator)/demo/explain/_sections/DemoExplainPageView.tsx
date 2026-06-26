@@ -3,6 +3,8 @@
 import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversionCtaCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { DemoExplainExplanationPanel } from "./DemoExplainExplanationPanel";
 import { DemoExplainNotAvailableNotice } from "./DemoExplainNotAvailableNotice";
@@ -25,10 +27,10 @@ export function DemoExplainPageView(props: Props) {
         aria-busy={state.loading}
       >
       <header className="space-y-2">
-        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
           Example analysis — provenance and explanation
         </h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Provenance graph and citations-bound explanation for the example architecture review.
         </p>
         {state.payload ? <DemoExplainStatusBanner payload={state.payload} /> : null}
@@ -52,7 +54,7 @@ export function DemoExplainPageView(props: Props) {
       ) : !state.error && !state.notFound && state.loading ? (
         <OperatorLoadingNotice>Loading example analysis…</OperatorLoadingNotice>
       ) : !state.error && !state.notFound && !state.loading && state.payload ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400" role="status">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
           The demo response was incomplete — provenance or explanation is missing. Try again after the API is ready.
         </p>
       ) : null}

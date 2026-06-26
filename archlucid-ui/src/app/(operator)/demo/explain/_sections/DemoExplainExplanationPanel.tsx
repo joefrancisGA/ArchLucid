@@ -2,6 +2,8 @@ import type { CitationReference, RunExplanationSummary } from "@/types/explanati
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type Props = {
   readonly summary: RunExplanationSummary;
@@ -21,11 +23,11 @@ export function DemoExplainExplanationPanel(props: Props) {
       <header className="space-y-1">
         <h2
           id="demo-explain-explanation-heading"
-          className="text-sm font-semibold text-al-text-primary"
+          className={OPERATOR_TYPOGRAPHY.cardTitle}
         >
           Aggregate explanation &amp; citations
         </h2>
-        <p className="text-xs text-neutral-500">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {summary.findingCount} findings · {summary.decisionCount} decisions ·{" "}
           {citations.length} citations
         </p>
@@ -38,11 +40,11 @@ export function DemoExplainExplanationPanel(props: Props) {
       </header>
 
       <div className="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
-        <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Overall assessment</h3>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+        <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Overall assessment</h3>
+        <p className={cn("mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {summary.overallAssessment || "(no overall assessment recorded)"}
         </p>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Risk posture: <code>{summary.riskPosture || "unknown"}</code>
           {isDeterministicExplanationFallback(summary) ? " · deterministic fallback in use" : ""}
         </p>
@@ -50,8 +52,8 @@ export function DemoExplainExplanationPanel(props: Props) {
 
       {themes.length > 0 ? (
         <div>
-          <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Themes</h3>
-          <ul className="mt-1 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+          <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Themes</h3>
+          <ul className={cn("mt-1 list-disc pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {themes.map((t) => (
               <li key={t}>{t}</li>
             ))}
@@ -60,21 +62,21 @@ export function DemoExplainExplanationPanel(props: Props) {
       ) : null}
 
       <div data-testid="demo-explain-citations">
-        <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <h3 className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Citations ({citations.length})
         </h3>
         {citations.length === 0 ? (
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             No citations were emitted for this review — explanations on this page are unsupported.
           </p>
         ) : (
-          <ul className="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
+          <ul className={cn("mt-1 space-y-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {citations.map((c) => (
-              <li key={`${c.kind}:${c.id}`} className="font-mono text-xs">
-                <span className="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+              <li key={`${c.kind}:${c.id}`} className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
+                <span className={cn("rounded bg-neutral-100 px-1 py-0.5 text-al-text-primary dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge)}>
                   {citationKindBuyerLabel(c.kind)}
                 </span>{" "}
-                <span>{c.label}</span> <span className="text-neutral-500">({c.id})</span>
+                <span>{c.label}</span> <span className="text-al-text-secondary">({c.id})</span>
               </li>
             ))}
           </ul>
