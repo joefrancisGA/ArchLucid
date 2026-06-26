@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/enterprise-table";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   fetchAdminTenantHealthList,
@@ -70,12 +72,12 @@ export function TenantHealthAdminPageClient() {
   }, [isAdmin, isAuthorityLoading, refresh]);
 
   if (isAuthorityLoading) {
-    return <p className="text-sm text-neutral-500">Loading…</p>;
+    return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>;
   }
 
   if (!isAdmin) {
     return (
-      <p className="text-sm text-rose-800 dark:text-rose-200" role="alert">
+      <p className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
         This page requires tenant administrator access (AdminAuthority).
       </p>
     );
@@ -84,8 +86,8 @@ export function TenantHealthAdminPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="tenant-health-admin-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Tenant health</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Tenant health</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope.
         </p>
         <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
@@ -94,7 +96,7 @@ export function TenantHealthAdminPageClient() {
       </div>
 
       {error ? (
-        <p className="text-sm text-rose-700 dark:text-rose-300" role="alert">
+        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
         </p>
       ) : null}
@@ -113,7 +115,9 @@ export function TenantHealthAdminPageClient() {
         <EnterpriseTableBody>
           {sortedItems.map((row) => (
             <EnterpriseTableRow key={`${row.tenantId}-${row.workspaceId}-${row.projectId}`}>
-              <EnterpriseTableCell className="font-mono text-xs">{row.tenantId}</EnterpriseTableCell>
+              <EnterpriseTableCell className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                {row.tenantId}
+              </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <SeverityTag
                   severity={String(row.engagementScore)}

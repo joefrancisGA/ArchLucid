@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type EvidenceProposalRow = {
   resultId: string;
@@ -72,22 +74,28 @@ export function AdminEvidenceProposalsPageClient() {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-evidence-proposals-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Evidence proposals</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Evidence proposals</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Review agent-suggested catalog entries from recent reviews and promote approved items into the tenant curated evidence catalog.
         </p>
       </div>
 
       {error !== null ? (
-        <p role="alert" className="rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-sm text-al-text-primary dark:border-rose-800/50">
+        <p
+          role="alert"
+          className={cn(
+            "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary dark:border-rose-800/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
           {error}
         </p>
       ) : null}
 
-      {loading ? <p className="text-sm text-neutral-600">Loading proposals…</p> : null}
+      {loading ? <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading proposals…</p> : null}
 
       {!loading && rows.length === 0 ? (
-        <p className="text-sm text-neutral-600">No pending evidence proposals.</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No pending evidence proposals.</p>
       ) : null}
 
       <ul className="m-0 list-none space-y-3 p-0">
@@ -95,12 +103,17 @@ export function AdminEvidenceProposalsPageClient() {
           <li key={row.resultId}>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">
+                <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                   {row.agentType} · run {row.runId}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 pt-0">
-                <pre className="max-h-48 overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-2 text-xs dark:border-neutral-700 dark:bg-neutral-900">
+                <pre
+                  className={cn(
+                    "max-h-48 overflow-auto rounded-md border border-neutral-200 bg-neutral-50 p-2 dark:border-neutral-700 dark:bg-neutral-900",
+                    OPERATOR_TYPOGRAPHY.micro,
+                  )}
+                >
                   {row.proposedEvidenceJson}
                 </pre>
                 <Button
