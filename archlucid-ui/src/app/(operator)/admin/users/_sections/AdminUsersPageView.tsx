@@ -6,6 +6,8 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { adminUsersEmptyStateDescription, adminUsersEmptyStateTitle } from "./admin-users-page-empty-copy";
 import type { AdminUsersPageViewModel } from "./admin-users-page-view-model";
@@ -29,8 +31,8 @@ export function AdminUsersPageView(props: Props) {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-users-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Users & roles</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Users & roles</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Principals in this tenant and their effective authority rank. The API is authoritative; role changes require the
           admin user management endpoints when available on your environment.
         </p>
@@ -38,10 +40,10 @@ export function AdminUsersPageView(props: Props) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Users</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Users</CardTitle>
         </CardHeader>
         <CardContent>
-          {m.loading ? <p className="m-0 text-sm text-neutral-500">Loading…</p> : null}
+          {m.loading ? <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
           {!m.loading && m.note !== null ? (
             <div data-testid="admin-users-api-note">
               <OperatorEmptyState title={adminUsersEmptyStateTitle(m.note)} description={adminUsersEmptyStateDescription(m.note)} />
@@ -60,9 +62,9 @@ export function AdminUsersPageView(props: Props) {
           ) : null}
           {!m.loading && m.rows.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
-                  <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
                     <th className="py-2 pr-3">Display name</th>
                     <th className="py-2 pr-3">Email</th>
                     <th className="py-2 pr-3">Access tier</th>
@@ -72,9 +74,9 @@ export function AdminUsersPageView(props: Props) {
                   {m.rows.map((r) => {
                     return (
                       <tr key={r.userId} className="border-b border-neutral-100 dark:border-neutral-800">
-                        <td className="py-2 pr-3 font-medium text-neutral-900 dark:text-neutral-100">{r.displayName}</td>
-                        <td className="py-2 pr-3 text-neutral-600 dark:text-neutral-300">{r.email}</td>
-                        <td className="py-2 pr-3 text-neutral-600 dark:text-neutral-300">{r.authorityLabel}</td>
+                        <td className={cn("py-2 pr-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{r.displayName}</td>
+                        <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{r.email}</td>
+                        <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{r.authorityLabel}</td>
                       </tr>
                     );
                   })}
