@@ -12,7 +12,7 @@ function inventoryZipBuffer(manifest: Record<string, unknown>): Buffer {
 
 test.describe("Wizard Tier-1 inventory evidence upload", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/reviews/new", { waitUntil: "domcontentloaded" });
+    await page.goto("/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
   });
 
