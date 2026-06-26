@@ -4,6 +4,8 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-t
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/audit/audit-ui-helpers";
 import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
 type AuditTimelineEventCardProps = {
@@ -34,15 +36,16 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
       {buyerPolishedShell ? (
         <>
           <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-            <p className="m-0 text-[13px] font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+            <p className={cn("m-0 font-semibold leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {pipelineEventTypeBuyerMilestoneSubtitle(ev.eventType)}
             </p>
             <span
-              className={
+              className={cn(
                 systemRecorded
-                  ? "rounded-full border border-neutral-300 bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300"
-                  : "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-[11px] font-medium text-al-text-primary dark:border-neutral-600"
-              }
+                  ? "rounded-full border border-neutral-300 bg-neutral-100 px-2 py-0.5 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300"
+                  : "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-al-text-primary dark:border-neutral-600",
+                OPERATOR_TYPOGRAPHY.badge,
+              )}
             >
               {systemRecorded ? "Automatic" : "Human"}
             </span>
@@ -50,11 +53,16 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
             <time
               dateTime={ev.occurredUtc}
-              className="text-xs tabular-nums text-neutral-500 dark:text-neutral-400"
+              className={cn("tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}
             >
               {formatUtc(ev.occurredUtc)}
             </time>
-            <span className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-[11px] font-medium text-al-text-primary dark:border-neutral-600">
+            <span
+              className={cn(
+                "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-al-text-primary dark:border-neutral-600",
+                OPERATOR_TYPOGRAPHY.badge,
+              )}
+            >
               {pipelineEventTypeFriendlyLabel(ev.eventType)}
             </span>
           </div>
@@ -63,22 +71,27 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
           <time
             dateTime={ev.occurredUtc}
-            className="text-sm font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+            className={cn("font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
           >
             {formatUtc(ev.occurredUtc)}
           </time>
-          <span className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary dark:border-neutral-600">
+          <span
+            className={cn(
+              "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-al-text-primary dark:border-neutral-600",
+              OPERATOR_TYPOGRAPHY.badge,
+            )}
+          >
             {pipelineEventTypeFriendlyLabel(ev.eventType)}
           </span>
         </div>
       )}
-      <div className="mt-2 text-sm">
+      <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
         {buyerPolishedShell ? (
           <div>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">
+            <span className="font-medium text-al-text-primary">
               {buyerSafeActorDisplayName(ev.actorUserName, ev.eventType)}
             </span>
-            <span className="text-neutral-600 dark:text-neutral-400">
+            <span className="text-al-text-secondary">
               {" "}
               · {auditBuyerActorRoleLine(ev.actorUserName, ev.eventType)}
             </span>
@@ -90,13 +103,13 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         )}
       </div>
       {buyerPolishedShell && !hideBuyerReviewLine ? (
-        <div className="mt-1.5 text-sm text-neutral-700 dark:text-neutral-300">
+        <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           Review:{" "}
           {ev.runId ? (
             <Link
               href={`/reviews/${ev.runId}`}
               title="Open review"
-              className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_LINK.nav}
             >
               {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
             </Link>
@@ -107,22 +120,22 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
       ) : null}
       {!buyerPolishedShell ? (
         <>
-          <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
+          <div className={OPERATOR_TYPOGRAPHY.body}>Correlation: {ev.correlationId ?? "—"}</div>
           {ev.otelTraceId ? (
-            <div className="text-sm">
+            <div className={OPERATOR_TYPOGRAPHY.body}>
               Trace:{" "}
-              <code title={ev.otelTraceId} className="text-xs">
+              <code title={ev.otelTraceId} className={OPERATOR_TYPOGRAPHY.micro}>
                 {ev.otelTraceId.slice(0, 16)}…
               </code>
             </div>
           ) : null}
-          <div className="text-sm">
+          <div className={OPERATOR_TYPOGRAPHY.body}>
             Review:{" "}
             {ev.runId ? (
               <Link
                 href={`/reviews/${ev.runId}`}
                 title="Open review"
-                className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                className={OPERATOR_LINK.nav}
               >
                 {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
               </Link>
@@ -134,10 +147,10 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
       ) : null}
       {ev.runId ? (
         buyerPolishedShell ? null : (
-          <div className="mt-1.5 text-[13px]">
+          <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               href={`/reviews/${ev.runId}#agent-traces`}
-              className="text-xs font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className={OPERATOR_LINK.nav}
             >
               View agent traces →
             </Link>
@@ -146,8 +159,13 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
       ) : null}
       {!buyerPolishedShell ? (
         <details className="mt-2.5">
-          <summary className="cursor-pointer">Data JSON</summary>
-          <pre className="mt-2 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
+          <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Data JSON</summary>
+          <pre
+            className={cn(
+              "mt-2 overflow-auto rounded-md bg-neutral-50/90 p-2 dark:bg-neutral-900/50",
+              OPERATOR_TYPOGRAPHY.micro,
+            )}
+          >
             {tryFormatDataJson(ev.dataJson)}
           </pre>
         </details>
