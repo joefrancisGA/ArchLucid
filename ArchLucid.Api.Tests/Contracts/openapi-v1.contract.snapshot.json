@@ -20696,6 +20696,29 @@
           "documentMetadataMalformed": {
             "type": "boolean"
           },
+          "graphRagExpansionLatencyMs": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "graphRagNeighborsAdded": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "graphRagSeedHits": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "retrievedChunkCount": {
             "format": "int32",
             "type": "integer"
@@ -20784,11 +20807,34 @@
             },
             "type": "array"
           },
+          "graphRagNeighborHitRate": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "graphRagPilotFloorDisposition": {
+            "type": "string"
+          },
           "operatorDetail": {
             "type": [
               "null",
               "string"
             ]
+          },
+          "totalGraphRagNeighborsAdded": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalGraphRagSeedHits": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRetrievalTokensIn": {
+            "format": "int32",
+            "type": "integer"
           },
           "totalRetrievedChunks": {
             "format": "int32",
