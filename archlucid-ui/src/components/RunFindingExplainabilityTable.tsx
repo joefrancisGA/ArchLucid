@@ -20,8 +20,10 @@ import {
   runDetailSectionHref,
 } from "@/lib/finding-source-evidence-links";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
+import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel, traceCompletenessPercent } from "@/types/explanation";
 
@@ -79,8 +81,12 @@ function compareFindingConfidenceRows(
   return a.findingId.localeCompare(b.findingId);
 }
 
-const rowGridClass =
-  "grid w-full min-w-[46rem] grid-cols-[minmax(10rem,1.4fr)_minmax(6rem,1fr)_4.5rem_minmax(5rem,0.9fr)_4.5rem_minmax(9rem,1fr)_minmax(7rem,1fr)_minmax(11rem,auto)] gap-x-2 border-b border-neutral-100 px-1 py-2 text-sm last:border-b-0 dark:border-neutral-800";
+const rowGridLayout =
+  "grid w-full min-w-[46rem] grid-cols-[minmax(10rem,1.4fr)_minmax(6rem,1fr)_4.5rem_minmax(5rem,0.9fr)_4.5rem_minmax(9rem,1fr)_minmax(7rem,1fr)_minmax(11rem,auto)] gap-x-2 border-b border-neutral-100 px-1 py-2 last:border-b-0 dark:border-neutral-800";
+
+function rowGridClassName(extra?: string): string {
+  return cn(rowGridLayout, OPERATOR_TYPOGRAPHY.body, extra);
+}
 
 /**
  * Lists findings with trace completeness from the aggregate explanation payload; opens per-finding explainability.
@@ -120,10 +126,10 @@ export function RunFindingExplainabilityTable({
 
   return (
     <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <h3 className="m-0 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h3 className={cn("m-0 mb-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Per-finding explainability
       </h3>
-      <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Open the trace captured for each finding (structured evidence, rules, graph nodes, narrative). Long lists are
         virtualized for smoother scrolling.
       </p>
@@ -131,7 +137,7 @@ export function RunFindingExplainabilityTable({
         ref={parentRef}
         className="max-h-[min(28rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-700"
       >
-        <div className={`${rowGridClass} sticky top-0 z-[1] bg-neutral-100 font-semibold text-neutral-800 dark:bg-neutral-900/95 dark:text-neutral-200`}>
+        <div className={rowGridClassName("sticky top-0 z-[1] bg-neutral-100 font-semibold text-neutral-800 dark:bg-neutral-900/95 dark:text-neutral-200")}>
           <div>Finding</div>
           <div>Rule id</div>
           <div>Refs</div>
@@ -149,7 +155,7 @@ export function RunFindingExplainabilityTable({
               onClick={() => setConfidenceSortReversed((v) => !v)}
             >
               Confidence
-              <span aria-hidden className="ml-0.5 text-[0.65rem] font-normal text-neutral-500 dark:text-neutral-400">
+              <span aria-hidden className={cn("ml-0.5 font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
                 {confidenceSortReversed ? "↓" : "↑"}
               </span>
             </button>
@@ -205,27 +211,27 @@ export function RunFindingExplainabilityTable({
             return (
               <div
                 key={row.findingId}
-                className={`${rowGridClass} absolute left-0 top-0 items-start bg-neutral-50/80 dark:bg-neutral-900/30`}
+                className={rowGridClassName("absolute left-0 top-0 items-start bg-neutral-50/80 dark:bg-neutral-900/30")}
                 style={{
                   transform: `translateY(${vi.start}px)`,
                   height: `${vi.size}px`,
                 }}
               >
                 <div className="min-w-0">
-                  <div className="break-all font-mono text-[0.65rem] text-neutral-500 dark:text-neutral-400">
+                  <div className={cn("break-all font-mono text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
                     {row.findingId}
                   </div>
                   <div
-                    className="mt-0.5 text-xs leading-snug text-neutral-800 dark:text-neutral-200"
+                    className={cn("mt-0.5 leading-snug text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}
                     title={titleFull}
                   >
                     {truncateForList(titleFull, 120)}
                   </div>
                 </div>
-                <div className="min-w-0 break-words text-xs text-neutral-700 dark:text-neutral-300">
+                <div className={cn("min-w-0 break-words text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "—"}
                 </div>
-                <div className="tabular-nums text-xs text-neutral-700 dark:text-neutral-300">
+                <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                   {explainGraphHref !== null ? (
                     <FindingEvidenceLinkChip
                       href={explainGraphHref}
@@ -235,11 +241,11 @@ export function RunFindingExplainabilityTable({
                     "—"
                   )}
                 </div>
-                <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">{row.traceConfidenceLabel}</div>
-                <div className="tabular-nums text-xs text-neutral-700 dark:text-neutral-300">{pct}</div>
-                <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">{confidenceSlot}</div>
+                <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>
+                <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{pct}</div>
+                <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{confidenceSlot}</div>
                 <div
-                  className="min-w-0 text-xs text-neutral-600 dark:text-neutral-400"
+                  className={cn("min-w-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   title={
                     row.missingTraceFields && row.missingTraceFields.length > 0
                       ? row.missingTraceFields.join(", ")
@@ -254,7 +260,7 @@ export function RunFindingExplainabilityTable({
                       type="button"
                       size="sm"
                       variant="outline"
-                      className="h-7 px-2 text-xs"
+                      className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                       onClick={() => {
                         setActiveFindingId(row.findingId);
                         setOpen(true);
@@ -266,7 +272,7 @@ export function RunFindingExplainabilityTable({
                       type="button"
                       size="sm"
                       variant="outline"
-                      className="h-7 px-2 text-xs"
+                      className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                       onClick={() => {
                         setReasoningFindingId(row.findingId);
                         setReasoningTitle(titleFull === "(no title)" ? "" : titleFull);
@@ -275,14 +281,14 @@ export function RunFindingExplainabilityTable({
                     >
                       View AI reasoning
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
+                    <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link
                         href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}/inspect`}
                       >
                         Why?
                       </Link>
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
+                    <Button type="button" size="sm" variant="ghost" className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)} asChild>
                       <Link href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(row.findingId)}`}>
                         Explain
                       </Link>

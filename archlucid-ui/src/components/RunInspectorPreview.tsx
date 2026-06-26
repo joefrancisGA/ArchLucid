@@ -27,6 +27,12 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
@@ -119,14 +125,14 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const timelineQuickLabel = showcaseStory && !showcaseUseWorkspaceQuickLinks ? "Timeline (walkthrough)" : "Timeline";
 
   return (
-    <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
+    <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} data-testid="run-inspector-preview">
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 break-words text-sm font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+          <p className={cn("m-0 break-words font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             {headline}
           </p>
           {showcaseStory && demoChrome ? (
-            <span className="inline-flex shrink-0 rounded border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-al-text-primary dark:border-neutral-600">
+            <span className={cn("inline-flex shrink-0 rounded border border-neutral-300 bg-al-surface-raised px-2 py-0.5 font-semibold uppercase tracking-wide text-al-text-primary dark:border-neutral-600", OPERATOR_TYPOGRAPHY.badge)}>
               Sample
             </span>
           ) : null}
@@ -134,7 +140,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         {buyerPolished ? null : (
         <button
           type="button"
-          className="mt-1 text-xs font-medium text-teal-800 underline dark:text-teal-300"
+          className={cn(OPERATOR_LINK.optional, "mt-1")}
           onClick={() => setTechnicalOpen((v) => !v)}
           aria-expanded={technicalOpen ? "true" : "false"}
         >
@@ -143,20 +149,20 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         )}
         {!buyerPolished && technicalOpen ? (
           <dl className="m-0 mt-2 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
               Review ID
             </dt>
             <dd className="m-0 flex min-w-0 items-center gap-1">
-              <code className="truncate font-mono text-[11px] text-neutral-900 dark:text-neutral-100">{run.runId}</code>
+              <code className={cn("truncate font-mono text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.navHelper)}>{run.runId}</code>
               <CopyIdButton value={run.runId} aria-label="Copy review ID" />
             </dd>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
               {buyerPolished ? "Project" : "Workspace"}
             </dt>
-            <dd className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+            <dd className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
               {formatOperatorProjectIdDisplay(run.projectId)}
             </dd>
-            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Created</dt>
+            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>Created</dt>
             <dd className="m-0">{createdLabel}</dd>
           </dl>
         ) : null}
@@ -171,13 +177,13 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           aria-label="Review package outcome summary"
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-2 p-3"
         >
-          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
-          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
-          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Decision: Package finalized</p>
+          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Governance approval: Approved with monitoring</p>
+          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             Remaining monitored risk: {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized signed review record)
           </p>
-          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Evidence trail: Ready</p>
-          <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Audit trail: Complete</p>
+          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Evidence trail: Ready</p>
+          <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Audit trail: Complete</p>
           <Button variant="primary" size="sm" className="mt-1 w-full" asChild>
             <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
           </Button>
@@ -194,8 +200,8 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             aria-label="Review package decision summary"
             className="space-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
           >
-            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{meta.decisionSummary}</p>
-            <dl className="m-0 grid gap-y-1 text-xs">
+            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{meta.decisionSummary}</p>
+            <dl className={cn("m-0 grid gap-y-1", OPERATOR_TYPOGRAPHY.helper)}>
               <div className="flex gap-x-2">
                 <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Authority</dt>
                 <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.approvalAuthority}</dd>
@@ -217,11 +223,11 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       })() : null}
 
       <div>
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>
           {buyerPolished ? "Evidence status" : "Pipeline output"}
         </p>
-        <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-200">{artifactNote}</p>
-        <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
+        <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>{artifactNote}</p>
+        <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
           <li className="flex justify-between gap-2">
             <span>Source context captured</span>
             <span aria-label={run.hasContextSnapshot ? "Context snapshot present" : "Context snapshot missing"}>
@@ -263,7 +269,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               </Button>
             ) : null}
             <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
-              <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Related actions
               </summary>
               <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
@@ -287,7 +293,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               </div>
             </details>
             <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
-              <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Open specific artifact
               </summary>
               <div className="flex flex-col gap-2 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
@@ -373,7 +379,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             ) : null}
             {!(buyerSafePrimary && showcaseStory && !buyerPolished) ? (
               <div>
-                <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>
                   Quick links
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -406,7 +412,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         <div>
           <button
             type="button"
-            className="text-xs text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+            className={cn(OPERATOR_LINK.optional, "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200")}
             onClick={() => setMoreOpen((v) => !v)}
             aria-expanded={moreOpen ? "true" : "false"}
           >

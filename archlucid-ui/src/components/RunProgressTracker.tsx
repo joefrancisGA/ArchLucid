@@ -8,7 +8,9 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
@@ -144,26 +146,26 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       className="mb-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       aria-labelledby="run-progress-tracker-title"
     >
-      <h3 id="run-progress-tracker-title" className="mt-0 text-sm font-semibold text-al-text-primary">
+      <h3 id="run-progress-tracker-title" className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Pipeline progress
       </h3>
       {buyerPolished ? null : (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <strong>Review ID:</strong>{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
+          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{runId}</code>
         </p>
       )}
 
       {clientPhase === "polling" ? (
         <p
-          className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100"
+          className={cn("mt-3 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
           data-testid="run-progress-current-stage"
         >
           Currently: {currentStageLabel}
         </p>
       ) : null}
 
-      <div aria-live="polite" aria-atomic="true" className="mt-3 text-sm text-neutral-800 dark:text-neutral-200">
+      <div aria-live="polite" aria-atomic="true" className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
         {liveStatus}
       </div>
 
@@ -184,7 +186,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       ) : null}
 
       <div className="mt-4 space-y-2">
-        <div className="flex justify-between text-xs text-neutral-500">
+        <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
           <span>Pipeline progress</span>
           <span>{completedStages} / 4 stages</span>
         </div>
@@ -199,25 +201,25 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">Source context captured</span>
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
           <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">Evidence graph ready</span>
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
           <Badge variant={graph ? "default" : "secondary"}>{graph ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">Findings complete</span>
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
           <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">Signed review record ready</span>
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Signed review record ready</span>
           <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
         </li>
       </ul>
 
       {summary?.description ? (
-        <p className="mt-4 text-sm text-neutral-700 dark:text-neutral-300">{summary.description}</p>
+        <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{summary.description}</p>
       ) : null}
     </section>
   );
