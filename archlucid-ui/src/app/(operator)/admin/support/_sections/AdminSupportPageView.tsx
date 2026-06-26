@@ -4,7 +4,9 @@ import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 import type { UseAdminSupportPageModel } from "./use-admin-support-page";
 
@@ -43,16 +45,16 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
   return (
     <div className="w-full max-w-3xl space-y-8">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Support</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Support</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Get help, download diagnostics, and review troubleshooting resources.
         </p>
       </div>
 
       <Section title="Contact support">
-        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           For questions before sharing diagnostics, contact{" "}
-          <a className="text-teal-800 underline dark:text-teal-300" href="mailto:support@archlucid.net">
+          <a className={OPERATOR_LINK.nav} href="mailto:support@archlucid.net">
             support@archlucid.net
           </a>
           .
@@ -60,7 +62,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
       </Section>
 
       <Section title="Support bundle">
-        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           Download a redacted diagnostics bundle to attach to a support ticket. The bundle contains redacted diagnostic
           context that an administrator may choose to share with support.
         </p>
@@ -75,7 +77,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
             {downloading ? "Preparing bundle…" : "Download support bundle"}
           </Button>
 
-          <p className="text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Download requires appropriate API permissions for your tenant. Review the bundle before sharing outside your
             organization.
           </p>
@@ -83,7 +85,10 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
           {error !== null ? (
             <p
               role="alert"
-              className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50"
+              className={cn(
+                "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="admin-support-download-error"
             >
               {error}
@@ -116,7 +121,7 @@ type SectionProps = {
 function Section({ title, children }: SectionProps) {
   return (
     <section className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-      <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{title}</h2>
+      <h2 className={cn("mb-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>{title}</h2>
       {children}
     </section>
   );
@@ -130,13 +135,13 @@ type BundleDisclosureProps = {
 function BundleDisclosure({ summary, items }: BundleDisclosureProps) {
   return (
     <details className="group rounded border border-neutral-200 dark:border-neutral-800">
-      <summary className="cursor-pointer select-none list-none px-3 py-2 text-xs font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100">
+      <summary className={cn("cursor-pointer select-none list-none px-3 py-2 text-al-text-primary hover:text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {summary}
       </summary>
       <ul className="space-y-1 px-3 pb-3 pt-1">
         {items.map((item) => (
-          <li key={item} className="flex items-start gap-2 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="mt-0.5 shrink-0 text-neutral-400 dark:text-neutral-600" aria-hidden>
+          <li key={item} className={cn("flex items-start gap-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="mt-0.5 shrink-0 text-al-text-secondary" aria-hidden>
               –
             </span>
             {item}
@@ -156,7 +161,10 @@ function ResourceLink({ href, label }: ResourceLinkProps) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+      className={cn(
+        "inline-flex items-center rounded border border-neutral-200 bg-neutral-50 px-3 py-1.5 font-medium text-al-text-primary hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+        OPERATOR_TYPOGRAPHY.tab,
+      )}
     >
       {label}
     </Link>
