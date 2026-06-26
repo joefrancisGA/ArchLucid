@@ -7,6 +7,12 @@ import {
   formatUnsupportedAzureExtractorSchemaVersionMessage,
 } from "@/lib/arch-lucid-azure-extractor-schema-version";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
+import { findZipEntryName } from "@/lib/zip-entry-names";
+
+/** Mirrors `AzureExtractorPackageZipValidator` entry names in ArchLucid.Core. */
+export const AZURE_EXTRACTOR_PACKAGE_MANIFEST_ENTRY = "manifest.json";
+
+export const AZURE_EXTRACTOR_PACKAGE_RESOURCES_ENTRY = "resources.json";
 
 export type ReadArchLucidAzurePackageZipOk = {
   ok: true;
@@ -20,29 +26,30 @@ export type ReadArchLucidAzurePackageZipErr = {
 
 export type ReadArchLucidAzurePackageZipResult = ReadArchLucidAzurePackageZipOk | ReadArchLucidAzurePackageZipErr;
 
-function findManifestEntryName(entries: Record<string, Uint8Array>): string | null {
-  for (const key of Object.keys(entries)) {
-    const normalized = key.replace(/\\/g, "/");
-    const base = normalized.split("/").pop() ?? "";
+function ensureResourcesJsonPresent(entries: Record<string, Uint8Array>): ReadArchLucidAzurePackageZipErr | null {
+  const resourcesEntry = findZipEntryName(entries, AZURE_EXTRACTOR_PACKAGE_RESOURCES_ENTRY);
 
-    if (base.toLowerCase() === "manifest.json") {
-      return key;
-    }
+  if (resourcesEntry === null) {
+    return {
+      ok: false,
+      message: "ZIP does not contain resources.json (required extractor output).",
+    };
+  }
+
+  const raw = entries[resourcesEntry];
+
+  if (raw === undefined || raw.length === 0) {
+    return {
+      ok: false,
+      message: "ZIP does not contain resources.json (required extractor output).",
+    };
   }
 
   return null;
 }
 
-export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadArchLucidAzurePackageZipResult {
-  let entries: Record<string, Uint8Array>;
-
-  try {
-    entries = unzipSync(bytes);
-  } catch {
-    return { ok: false, message: "Uploaded payload is not a valid ZIP archive." };
-  }
-
-  const entryName = findManifestEntryName(entries);
+function readManifestJson(entries: Record<string, Uint8Array>): { ok: true; json: unknown } | ReadArchLucidAzurePackageZipErr {
+  const entryName = findZipEntryName(entries, AZURE_EXTRACTOR_PACKAGE_MANIFEST_ENTRY);
 
   if (entryName === null) {
     return {
@@ -68,15 +75,35 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
     return { ok: false, message: "manifest.json is not valid JSON." };
   }
 
-  let json: unknown;
-
   try {
-    json = JSON.parse(text) as unknown;
+    return { ok: true, json: JSON.parse(text) as unknown };
   } catch {
     return { ok: false, message: "manifest.json is not valid JSON." };
   }
+}
 
-  const parsed = archLucidAzurePackageManifestSchema.safeParse(json);
+export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadArchLucidAzurePackageZipResult {
+  let entries: Record<string, Uint8Array>;
+
+  try {
+    entries = unzipSync(bytes);
+  } catch {
+    return { ok: false, message: "Uploaded payload is not a valid ZIP archive." };
+  }
+
+  const manifestResult = readManifestJson(entries);
+
+  if (!manifestResult.ok) {
+    return manifestResult;
+  }
+
+  const resourcesError = ensureResourcesJsonPresent(entries);
+
+  if (resourcesError !== null) {
+    return resourcesError;
+  }
+
+  const parsed = archLucidAzurePackageManifestSchema.safeParse(manifestResult.json);
 
   if (!parsed.success) {
     return {

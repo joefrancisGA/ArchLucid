@@ -1,6 +1,7 @@
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 
 export type UploadAzureExtractorPackageSuccess = {
   ok: true;
@@ -109,6 +110,17 @@ export async function uploadAzureExtractorPackage(
   file: File,
   options?: UploadAzureExtractorPackageOptions,
 ): Promise<UploadAzureExtractorPackageResult> {
+  const validation = await readArchLucidAzurePackageZipFromFile(file);
+
+  if (!validation.ok) {
+    return {
+      ok: false,
+      message: validation.message,
+      problem: null,
+      correlationId: null,
+    };
+  }
+
   const formData = new FormData();
   formData.append("file", file);
 
