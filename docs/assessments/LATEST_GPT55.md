@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.96%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.30%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -31,13 +31,13 @@
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
-| 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 93 | 8 | 7.44 | 0.56 |
+| 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
+| 8 | Executive / Operator Comprehension | 95 | 8 | 7.60 | 0.40 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
-| **Total** | | | **100** | **91.96%** | **8.04%** |
+| **Total** | | | **100** | **92.30%** | **7.70%** |
 
-*(A) Headline Readiness: 91.96%*
+*(A) Headline Readiness: 92.30%*
 
 ---
 
@@ -48,7 +48,7 @@
 - **Decision Advantage Score:** 82. The system surfaces highly relevant findings backed by policy and evidence, consistently altering architectural or financial decisions that a manual AI prompt might miss due to context limits or lack of explicit policy awareness.
 - **Frontier-AI Survival Probability (12-month):** 85% (Range: 75%–90%). *Calibration:* Most generic wrappers fall to <20% survival as frontier context windows and reasoning improve. ArchLucid survives because its value is in the *governed workflow, audit trails, policy pack configuration, and ITSM integration*, not merely the raw architectural critique. Better models make ArchLucid more accurate, not obsolete.
 - **30-Day Voluntary Usage Probability:** 69% (Range: 53%–79%). *Calibration:* Tier-1 inventory wizard path, `pilot init`, and zero-GitHub product UI reduce first-review and procurement friction; principal-architect bypass remains the ceiling.
-- **Executive Purchase Probability:** 80% (Range: 70%–88%). *Calibration:* Strong due to the explicitly defensible ROI summary (`GET /v1/roi/executive-summary`), database-per-tenant isolation, and explicit focus on audit trails which procurement teams demand. 
+- **Executive Purchase Probability:** 82% (Range: 72%–90%). *Calibration:* Strong due to the explicitly defensible ROI summary (`GET /v1/roi/executive-summary`), database-per-tenant isolation, and explicit focus on audit trails which procurement teams demand. In-app ROI math tooltips now explain disposition-aware headline totals and FindingId deduplication vs per-system rows.
 
 *Reconciliation:* No sharp contradictions. Adoption friction remains the primary drag on voluntary 30-day usage, but the executive purchase probability is high due to the governed review integrity and ROI packaging.
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.96%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 92.30%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -119,13 +119,13 @@
 - **Class:** V1 ready.
 
 ### 7. Proof-of-ROI Readiness
-- **Score:** 93 · **Weight:** 9 · **Contribution:** 8.37 · **Deficiency:** 0.63
-- **Justification:** Cost-summary artifacts distinguish live public API `PriceSource` from illustrative fallbacks for AWS/GCP rows; summary text never claims Azure Retail for non-Azure targets.
+- **Score:** 95 · **Weight:** 9 · **Contribution:** 8.55 · **Deficiency:** 0.45
+- **Justification:** Cost-summary artifacts distinguish live public API `PriceSource` from illustrative fallbacks for AWS/GCP rows; summary text never claims Azure Retail for non-Azure targets. Executive ROI panel tooltips and per-system rows explain disposition-aware headline totals and FindingId deduplication so sponsors can trust why rows do not sum to the headline.
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
-- **Score:** 93 · **Weight:** 8 · **Contribution:** 7.44 · **Deficiency:** 0.56
-- **Justification:** Help presentation pipeline rewrites legacy `/runs/` and manifest jargon to TB-399 product language; catalog + generated search index drift guards block regression.
+- **Score:** 95 · **Weight:** 8 · **Contribution:** 7.60 · **Deficiency:** 0.40
+- **Justification:** Help presentation pipeline rewrites legacy `/runs/` and manifest jargon to TB-399 product language; catalog + generated search index drift guards block regression. Portfolio ROI summary exposes accessible info-icons on headline savings and per-system estimated savings rows clarifying disposition-aware math.
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
@@ -254,14 +254,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Affected qualities:** Time-to-Value, Adoption Friction.
 - **Classification:** V1.x
 - **Cursor Prompt:** Scaffold the UI in the operator shell for configuring the Tier 2 hosted automated polling. Add a form to input the Azure Service Principal credentials (to be stored in Key Vault) and subscription scope. Ensure the UI clearly communicates that Tier 1 (manual ZIP upload) is the default and Tier 2 is opt-in.
-
-- **Title:** Clarify ROI Math in UI
-- **Tier:** Tier 1 – Must Fix
-- **Why it matters:** Executives must trust the numbers. Disposition-aware totals vs. per-system rows can confuse.
-- **Expected impact:** Higher Executive Purchase Probability.
-- **Affected qualities:** Executive Comprehension, Proof-of-ROI.
-- **Classification:** V1
-- **Cursor Prompt:** Add clear, accessible tooltips and info-icons next to the ROI headline and per-system rows in the `ExecutiveRoiSummarySection` component. The tooltips should explain that the headline is disposition-aware and deduplicated by `FindingId`, clarifying why rows don't sum to the total. Do not alter the underlying ROI calculation logic.
 
 **Tier 2 – High Leverage**
 
