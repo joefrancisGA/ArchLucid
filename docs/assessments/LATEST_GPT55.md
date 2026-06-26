@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.60%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.94%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -25,19 +25,19 @@
 
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
-| 1 | Decision-Changing Insight Density | 88 | 13 | 11.44 | 1.56 |
+| 1 | Decision-Changing Insight Density | 89 | 13 | 11.57 | 1.43 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
-| 3 | Governed Review Integrity | 94 | 13 | 12.22 | 0.78 |
+| 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
+| 8 | Executive / Operator Comprehension | 93 | 8 | 7.44 | 0.56 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 84 | 5 | 4.20 | 0.80 |
-| **Total** | | | **100** | **91.60%** | **8.40%** |
+| **Total** | | | **100** | **91.94%** | **8.06%** |
 
-*(A) Headline Readiness: 91.60%*
+*(A) Headline Readiness: 91.94%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.60%. CI/CD governance gate reference pipelines ship (`examples/ci/archlucid-governance-gate.sh`, GitHub Actions + ADO YAML, `docs/runbooks/CI_GOVERNANCE_GATE.md`) — fail on pre-commit 409 and PilotStrict HOLD. **Help product-language sweep shipped (2026-06-26):** `applyHelpProductLanguage` normalizes manifest/run-primary copy in rendered help and regenerated search excerpts; legacy `/runs/` operator links rewrite to `/reviews/`; drift guards in `help-markdown-presentation.test.tsx` and `help-index.test.ts`. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 91.94%. CI/CD governance gate reference pipelines ship (`examples/ci/archlucid-governance-gate.sh`, GitHub Actions + ADO YAML, `docs/runbooks/CI_GOVERNANCE_GATE.md`) — fail on pre-commit 409 and PilotStrict HOLD. **Decision delta panel shipped (2026-06-26):** `RunDetailDecisionDeltaPanel` on committed review detail surfaces top 3 material findings with severity, compliance rule keys (`FindingPolicyRuleBadge`), and evidence anchor hints via `run-detail-decision-delta.ts`. **Help product-language sweep shipped (2026-06-26):** `applyHelpProductLanguage` normalizes manifest/run-primary copy in rendered help and regenerated search excerpts; legacy `/runs/` operator links rewrite to `/reviews/`; drift guards in `help-markdown-presentation.test.tsx` and `help-index.test.ts`. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -89,8 +89,8 @@
 # 7. Weighted Quality Assessment (detail)
 
 ### 1. Decision-Changing Insight Density
-- **Score:** 88 · **Weight:** 13 · **Contribution:** 11.44 · **Deficiency:** 1.56
-- **Justification:** Findings table and inspect panel expose one-click navigation from each evidence row to manifest sections or graph nodes — architects can verify citations without leaving the review workflow.
+- **Score:** 89 · **Weight:** 13 · **Contribution:** 11.57 · **Deficiency:** 1.43 *(was 88 — decision delta panel done 2026-06-26)*
+- **Justification:** Findings table and inspect panel expose one-click navigation from each evidence row to manifest sections or graph nodes. **`RunDetailDecisionDeltaPanel`** on committed review detail gives a 60-second “what changed?” summary — top 3 non-muted findings by severity with policy rule keys and evidence anchors before opening the full findings collapsible.
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
@@ -124,13 +124,13 @@
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
-- **Score:** 92 · **Weight:** 8 · **Contribution:** 7.36 · **Deficiency:** 0.64 *(was 91 — help product-language sweep done 2026-06-26)*
-- **Justification:** Privacy, trust, security-trust, wizard help, and assurance engagement rows route to in-app `/help` — `customer-facing-github-blob-guard.test.ts` passes with zero allowlist. Help markdown presentation and search index excerpts normalize legacy manifest/run copy to review-package vocabulary at render time.
+- **Score:** 93 · **Weight:** 8 · **Contribution:** 7.44 · **Deficiency:** 0.56 *(was 92 — decision delta panel done 2026-06-26)*
+- **Justification:** Privacy, trust, security-trust, wizard help, and assurance engagement rows route to in-app `/help` — `customer-facing-github-blob-guard.test.ts` passes with zero allowlist. **`RunDetailDecisionDeltaPanel`** scannable block on committed reviews reduces time-to-understand for sponsors and operators. Help markdown presentation and search index excerpts normalize legacy manifest/run copy to review-package vocabulary at render time.
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
-- **Score:** 94 · **Weight:** 13 · **Contribution:** 12.22 · **Deficiency:** 0.78
-- **Justification:** Pre-commit gate is enforceable in CI via copy-paste reference pipelines documented in `docs/runbooks/CI_GOVERNANCE_GATE.md`; 78 typed append-only audit events and segregation of duties remain the core moat.
+- **Score:** 95 · **Weight:** 13 · **Contribution:** 12.35 · **Deficiency:** 0.65 *(was 94 — decision delta panel done 2026-06-26)*
+- **Justification:** Pre-commit gate is enforceable in CI via copy-paste reference pipelines documented in `docs/runbooks/CI_GOVERNANCE_GATE.md`; 78 typed append-only audit events and segregation of duties remain the core moat. Decision delta panel ties committed findings to compliance rule keys via `FindingPolicyRuleBadge` deep links.
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
@@ -251,6 +251,9 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Title:** Residual "Manifest" / Technical Copy Sweep in Help Topics — **✅ Done (2026-06-26)**
 - **Shipped:** `help-product-language.ts` applies review-package vocabulary + `/runs/` → `/reviews/` rewrites in `prepareHelpMarkdownForPresentation`; `build-help-search-index.mjs` normalizes excerpts; drift guards in `help-markdown-presentation.test.tsx`, `help-product-language.test.ts`, and `help-index.test.ts`.
 
+- **Title:** Decision delta panel on run detail (top 3 material findings + rule keys) — **✅ Done (2026-06-26)**
+- **Shipped:** `RunDetailDecisionDeltaPanel` + `RunDetailDecisionDeltaDeferred` on committed review detail — top 3 non-muted findings by severity with `SeverityTag`, `FindingPolicyRuleBadge` links, evidence anchor hints, and finding deep links; client derivation in `run-detail-decision-delta.ts` mirrors `SponsorDecisionDeltaNoveltyResolver.CollectMaterialFindings`. Vitest in `run-detail-decision-delta.test.ts`, `RunDetailDecisionDeltaPanel.test.tsx`, `run-detail-decision-delta-alignment.test.ts`.
+
 - **Title:** ITSM Tenant Connector Onboarding Wizard (TB-404 slice)
 - **Tier:** Tier 2 – High Leverage
 - **Why it matters:** Outbound ITSM create works, but per-tenant connector setup still requires admin/API knowledge — friction for Jira-heavy pilots.
@@ -280,7 +283,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** TB-404 ITSM connector wizard (remaining). Help-topic manifest copy sweep — **done 2026-06-26**.
+1. **Batch 1:** TB-404 ITSM connector wizard (remaining). Help-topic manifest copy sweep — **done 2026-06-26**. Decision delta panel on run detail — **done 2026-06-26**.
 2. **Batch 2:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance

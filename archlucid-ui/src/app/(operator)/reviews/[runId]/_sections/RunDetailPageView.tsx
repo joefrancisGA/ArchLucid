@@ -61,6 +61,8 @@ import {
   RunDetailExplanationSkeleton,
   RunDetailMidDeferredSkeleton,
 } from "./RunDetailDeferredSkeleton";
+import { RunDetailDecisionDeltaDeferred } from "./RunDetailDecisionDeltaDeferred";
+import { RunDetailDecisionDeltaSkeleton } from "./RunDetailDecisionDeltaSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
 
@@ -261,6 +263,17 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           )}
           overallRiskLabel={m.explanationSummary?.riskPosture ?? m.governanceGateLabel ?? "Moderate"}
         />
+      ) : null}
+
+      {m.buyerPolishedArtifactTable && m.manifestId ? (
+        <Suspense fallback={<RunDetailDecisionDeltaSkeleton />}>
+          <RunDetailDecisionDeltaDeferred
+            runId={m.routeRunId}
+            resolvedDetail={m.resolvedDetail}
+            explanationSummary={m.explanationSummary}
+            isCommitted
+          />
+        </Suspense>
       ) : null}
 
       {m.manifestId ? (
