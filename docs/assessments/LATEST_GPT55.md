@@ -37,7 +37,7 @@
 | 10 | Adoption Friction | 93 | 5 | 4.65 | 0.35 |
 | **Total** | | | **100** | **93.04%** | **6.96%** |
 
-*(A) Headline Readiness: 92.99%*
+*(A) Headline Readiness: 93.04%*
 
 ---
 
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 92 · **Weight:** 5 · **Contribution:** 4.60 · **Deficiency:** 0.40
-- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion. Finding detail **Create issue** dialog gates on native ITSM and routes to Jira/ServiceNow outbound create without leaving the review workflow. Webhook subscription **Test Connection** verifies outbound HTTPS routing without waiting for a real alert. Policy pack JSON editors debounce `POST /v1/policy-packs/validate` while typing, showing structural errors and unknown rule-key warnings before create or publish.
+- **Score:** 93 · **Weight:** 5 · **Contribution:** 4.65 · **Deficiency:** 0.35
+- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion. Finding detail **Create issue** dialog gates on native ITSM and routes to Jira/ServiceNow outbound create without leaving the review workflow. Webhook subscription **Test Connection** verifies outbound HTTPS routing without waiting for a real alert. Policy pack JSON editors debounce `POST /v1/policy-packs/validate` while typing, showing structural errors and unknown rule-key warnings before create or publish. Trial upgrade nudge telemetry posts shown/clicked events with trigger context for conversion funnel analysis.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -256,14 +256,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Cursor Prompt:** Scaffold the UI in the operator shell for configuring the Tier 2 hosted automated polling. Add a form to input the Azure Service Principal credentials (to be stored in Key Vault) and subscription scope. Ensure the UI clearly communicates that Tier 1 (manual ZIP upload) is the default and Tier 2 is opt-in.
 
 **Tier 2 – High Leverage**
-
-- **Title:** Trial Upgrade Nudge Telemetry Wiring
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** The backend supports telemetry for trial nudges, but the UI might not be fully wired to send the signals.
-- **Expected impact:** Better data on trial conversion funnel performance.
-- **Affected qualities:** Adoption Friction.
-- **Classification:** V1
-- **Cursor Prompt:** Wire the `TrialUsageUpgradeNudge` and related components to call `POST /v1/diagnostics/trial-upgrade-nudge/clicked` when interacted with. Ensure clicking the upgrade CTA successfully fires the telemetry endpoint with the correct trigger context.
 
 - **Title:** SAML 2.0 SP Configuration Form
 - **Tier:** Tier 2 – High Leverage
