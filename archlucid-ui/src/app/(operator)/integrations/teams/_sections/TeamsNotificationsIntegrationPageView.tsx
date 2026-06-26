@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 
 import { describeTeamsNotificationTrigger } from "./teams-integration-trigger-descriptions";
 import type { TeamsNotificationsIntegrationPageViewModel } from "./teams-notifications-integration-view-model";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type Props = {
   readonly model: TeamsNotificationsIntegrationPageViewModel;
@@ -34,20 +36,17 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
       <LayerHeader pageKey="teams-notifications" />
 
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Microsoft Teams</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Microsoft Teams</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Register the{" "}
           <strong>Key Vault secret name</strong> that holds your Teams incoming webhook URL. ArchLucid never stores the
           webhook URL in SQL — Logic Apps or workers resolve the secret at delivery time. For custom HTTPS webhook routes,
           use{" "}
-          <Link className="text-blue-700 underline dark:text-blue-300" href="/integrations/webhooks">
+          <Link className={OPERATOR_LINK.nav} href="/integrations/webhooks">
             Webhook subscriptions
           </Link>
           . See{" "}
-          <Link
-            className="text-blue-700 underline dark:text-blue-300"
-            href="/help/troubleshooting"
-          >
+          <Link className={OPERATOR_LINK.nav} href="/help/troubleshooting">
             Teams notifications help
           </Link>
           .
@@ -68,11 +67,11 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
         <OperatorLoadingNotice>Loading Teams configuration…</OperatorLoadingNotice>
       ) : m.conn !== null ? (
         <div className="space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-          <p className="text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             Status:{" "}
             <span className="font-medium">{m.conn.isConfigured ? "Configured (Key Vault reference)" : "Not configured"}</span>
             {m.conn.isConfigured ? (
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-al-text-secondary">
                 {" "}
                 — updated {new Date(m.conn.updatedUtc).toLocaleString()}
               </span>
@@ -90,7 +89,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
               autoComplete="off"
               placeholder="e.g. teams-incoming-webhook-prod"
             />
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Must not be a raw URL (entries containing :// are rejected by the API).
             </p>
           </div>
@@ -109,10 +108,10 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
           </div>
 
           <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <legend className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Notification triggers
             </legend>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Select which integration events fan out to this Teams channel. The Logic Apps workflow filters server-side
               before delivery, so disabled triggers cannot reach the channel even if upstream routing misbehaves.
             </p>
@@ -138,10 +137,10 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
                       <Label htmlFor={checkboxId} className="font-medium">
                         {description.label}
                       </Label>
-                      <p id={`${checkboxId}-help`} className="text-xs text-neutral-500 dark:text-neutral-400">
+                      <p id={`${checkboxId}-help`} className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         {description.helpText}
                       </p>
-                      <p className="font-mono text-[10px] text-neutral-400 dark:text-neutral-500">{eventType}</p>
+                      <p className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{eventType}</p>
                     </div>
                   </li>
                 );
@@ -168,7 +167,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
           </div>
 
           {!m.canMutate ? (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Your role can view this page; saving requires elevated permissions (same as other Enterprise configuration
               surfaces).
             </p>
