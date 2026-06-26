@@ -16,6 +16,7 @@ import {
 } from "@/lib/alerts-hub-tab";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const TAB_PARAM = "tab";
 
@@ -97,13 +98,16 @@ export function AlertsHubClient() {
     <div className="px-0">
       {hubOrientVisible && !buyerPolishedShell ? (
         <div
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 flex flex-col gap-2 p-3 text-sm sm:flex-row sm:items-start sm:justify-between"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 flex flex-col gap-2 p-3 sm:flex-row sm:items-start sm:justify-between",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           role="region"
           aria-label="Alerts hub quick start"
         >
           <div className="min-w-0 space-y-1">
-            <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-50">Alerts — where to start</p>
-            <ol className="m-0 list-decimal space-y-1 pl-5 text-neutral-700 dark:text-neutral-200">
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Alerts — where to start</p>
+            <ol className={cn("m-0 list-decimal space-y-1 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <li>
                 Triage in <strong>Inbox</strong> (what is open now).
               </li>
@@ -117,7 +121,10 @@ export function AlertsHubClient() {
           </div>
           <button
             type="button"
-            className="shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className={cn(
+              "shrink-0 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-al-text-primary hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+              OPERATOR_TYPOGRAPHY.button,
+            )}
             onClick={dismissHubOrient}
           >
             Dismiss
@@ -143,10 +150,12 @@ export function AlertsHubClient() {
                 data-testid={`alert-hub-tab-${id}`}
                 onClick={() => onSelectTab(id)}
                 className={cn(
-                  "rounded-t-md border border-b-0 px-3 py-2 text-sm font-medium",
+                  "rounded-t-md border border-b-0 px-3 py-2",
+                  OPERATOR_TYPOGRAPHY.body,
+                  "font-medium",
                   selected
-                    ? "border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-50"
-                    : "border-transparent bg-transparent text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900",
+                    ? "border-neutral-200 bg-white text-al-text-primary dark:border-neutral-700 dark:bg-neutral-950"
+                    : "border-transparent bg-transparent text-al-text-secondary hover:bg-neutral-100 dark:hover:bg-neutral-900",
                 )}
               >
                 {TAB_LABEL[id]}
@@ -157,7 +166,7 @@ export function AlertsHubClient() {
       </nav>
       ) : null}
 
-      <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {buyerPolishedShell
           ? "Open items tie risk signals to findings in this workspace so reviewers can triage and close the loop."
           : (
