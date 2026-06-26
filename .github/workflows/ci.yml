@@ -915,6 +915,14 @@ jobs:
           cd scripts/ci
           python -m unittest test_golden_cohort_budget_probe
 
+      - name: Real-mode staging smoke wiring guard (Tier 2 #7)
+        continue-on-error: true
+        run: python scripts/ci/assert_real_mode_staging_smoke_wired.py
+
+      - name: Real-mode staging smoke wiring guard self-test
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_real_mode_staging_smoke_wired.py"
+
       - name: "Brand-category seam â€” rebrand guard (FAIL if legacy phrases hardcoded)"
         continue-on-error: true
         run: python scripts/ci/assert_brand_category_seam.py --fail

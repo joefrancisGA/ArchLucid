@@ -117,7 +117,15 @@ public static class Program
 
                     Console.WriteLine(
                         "Usage: archlucid trial smoke --org <name> --email <email> [--display-name <name>] " +
-                        "[--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]");
+                        "[--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas] [--staging] [--one-line]");
+
+                    return CliExitCode.UsageError;
+
+                case "real-mode":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "smoke", StringComparison.OrdinalIgnoreCase))
+                        return await RealModeSmokeCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    RealModeSmokeCommand.WriteUsage();
 
                     return CliExitCode.UsageError;
 

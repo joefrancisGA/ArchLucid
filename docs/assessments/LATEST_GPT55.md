@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 93.19%`
+`ArchLucid Assessment – (A) Headline Readiness: 93.33%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -42,11 +42,11 @@
 | 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
 | 7 | Proof-of-ROI Readiness | 96 | 9 | 8.64 | 0.36 |
 | 8 | Executive / Operator Comprehension | 97 | 8 | 7.76 | 0.24 |
-| 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
+| 9 | Runtime & First-Review Reliability | 96 | 7 | 6.72 | 0.28 |
 | 10 | Adoption Friction | 92 | 5 | 4.60 | 0.40 |
-| **Total** | | | **100** | **93.19%** | **6.81%** |
+| **Total** | | | **100** | **93.33%** | **6.67%** |
 
-*(A) Headline Readiness: 93.19%*
+*(A) Headline Readiness: 93.33%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **56%** (range **42%–66%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **+1** for ITSM native create default path when tenant probes validate (**#6 done 2026-06-26**); **−19** for shell complexity, deployment-gated ITSM when unconfigured, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **93.19%** (+0.21 from **#16 CLI proof-packet export** — Proof-of-ROI 96, Correctness & Evidence Integrity 94; cumulative +4.27 from prior shipped batches). **`archlucid proof-packet --runId … --out packet.zip`** reuses `PilotProofPacketCommand.WriteFolderAsync`, emits `SOURCE-LABELS.txt`, and fails closed on buyer-safe commit gate.
+**Reconciliation:** Headline **93.33%** (+0.14 from **#7 real-mode staging smoke** — Runtime & First-Review Reliability 96; cumulative prior batches through **#16**). Nightly **`archlucid real-mode smoke --staging`** + budget-capped workflow closes the last in-contract Tier 2 ops gap.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 93.19%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#6–#16, help sweep, Tier 1 #2/#3/#1, #10, #13, Tier 2 #4/#5/#8). **#16 shipped (2026-06-26):** **`archlucid proof-packet`** — buyer-safe ZIP via shared proof-packet assembler + `SOURCE-LABELS.txt` data policy. Remaining in-contract gap: **real-mode nightly smoke (Tier 2 #7)**.
+- **(A) Overall headline readiness: 93.33%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **Tier 2 #1–#16 shipped (2026-06-26)** including **`archlucid proof-packet`** buyer-safe ZIP export and **budget-capped real-mode staging smoke** (`real-mode-staging-smoke-nightly.yml`). Remaining §17 items are **held** (#17 V1.1, #18–21 Tier 3) — no open in-contract engineering batches.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -185,10 +185,10 @@
 - **Outcomes affected:** 4.
 
 ### 10. Runtime & First-Review Reliability
-- **Score · Weight · Contribution · Deficiency:** 94 · 7 · 6.58 · **0.42** *(was 93 / 92 — **#11** + **#9 done**)*
-- **Justification:** Merge-blocking live E2E, release smoke, health probes, coordinator durable audit retry on critical paths. Pre-upload validation removes a class of predictable 422 upload failures after long local extractor runs. Structured commit-block UI reduces false “broken tool” abandonment when governance correctly rejects finalize.
-- **Tradeoffs:** More E2E in real-mode would increase CI cost and flake.
-- **Recommendations:** Nightly real-mode smoke (optional) on staging with budget cap.
+- **Score · Weight · Contribution · Deficiency:** 96 · 7 · 6.72 · **0.28** *(was 94 — **#7 done**)*
+- **Justification:** Merge-blocking live E2E, release smoke, health probes, coordinator durable audit retry on critical paths. Pre-upload validation removes a class of predictable 422 upload failures after long local extractor runs. Structured commit-block UI reduces false “broken tool” abandonment when governance correctly rejects finalize. **Nightly real-mode staging smoke** (`archlucid real-mode smoke --staging`) exercises hosted Azure OpenAI execution under the golden-cohort budget kill-switch.
+- **Tradeoffs:** More E2E in real-mode would increase CI cost and flake; nightly staging probe is opt-in and budget-capped.
+- **Recommendations:** Enable `ARCHLUCID_REAL_MODE_STAGING_SMOKE_ENABLED` after one green manual dispatch; monitor WARN/KILL budget issues.
 - **Classification:** V1
 - **Outcomes affected:** 3.
 
@@ -383,7 +383,8 @@ ArchLucid is **becoming more valuable faster than frontier AI on workflow and re
 - **Shipped:** Three-phase Operate unlock (`operate-nav-progressive-unlock.ts`) wired through `nav-shell-visibility.ts`, `useOperateNavUnlockPhase` (auto-advance to analysis after `hasCommittedArchitectureReview`), `OperateFeaturesUnlockPanel`, `OperateUnlockAutoHint`, committed-review nav gate; `/help/pilot-nav-profile` + drift guards in `pilot-nav-profile-alignment.test.ts`; E2E in `pilot-nav-profile.spec.ts`.
 **6. Enable ITSM native create wizard default path when settings valid** — **✅ Done (2026-06-26)**  
 - **Shipped:** `itsm-native-create-readiness.ts` — `isItsmNativeCreateDefaultPathReady` (deployment flag + reachable vendor probe), `resolveItsmOnboardingWizardInitialStep` for admin wizard auto-landing; `FindingItsmExportPanel` promotes `ItsmOutboundCreateIssueDialog` when valid with copy-as-work-item fallback; `useItsmNativeCreateReadiness` hook; drift guards in `itsm-native-create-readiness-alignment.test.ts`. Vitest in `itsm-native-create-readiness.test.ts`, `FindingItsmExportPanel.test.tsx`, updated `AdminItsmConnectorsPageClient.test.tsx`.
-**7. Real-mode nightly smoke (staging, budget-capped)** — V1 ops; quality 9.  
+**7. Real-mode nightly smoke (staging, budget-capped)** — **✅ Done (2026-06-26)**  
+- **Shipped:** `archlucid real-mode smoke --staging` CLI (health → create → pilot real-mode execute → poll → token verification); `.github/workflows/real-mode-staging-smoke-nightly.yml` with golden-cohort budget probe + opt-in `ARCHLUCID_REAL_MODE_STAGING_SMOKE_ENABLED`; `docs/runbooks/REAL_MODE_STAGING_SMOKE.md`; drift guard `assert_real_mode_staging_smoke_wired.py`. Vitest in `RealModeSmokeRunnerTests.cs`, `RealModeSmokeCommandOptionsTests.cs`.
 **8. Decision delta panel on run detail (top 3 material findings + rule keys)** — **✅ Done (2026-06-26)**  
 - **Shipped:** `RunDetailDecisionDeltaPanel` + `RunDetailDecisionDeltaDeferred` on committed review detail — top 3 non-muted findings by severity with `SeverityTag`, `FindingPolicyRuleBadge` links, evidence anchor hints, and finding deep links; client derivation in `run-detail-decision-delta.ts` mirrors `SponsorDecisionDeltaNoveltyResolver.CollectMaterialFindings`. Vitest in `run-detail-decision-delta.test.ts`, `RunDetailDecisionDeltaPanel.test.tsx`, `run-detail-decision-delta-alignment.test.ts`.
 
