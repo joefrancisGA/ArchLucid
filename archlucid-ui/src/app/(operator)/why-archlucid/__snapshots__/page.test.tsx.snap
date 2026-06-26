@@ -10,12 +10,12 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     class="space-y-2"
   >
     <h1
-      class="text-xl font-semibold tracking-tight text-al-text-primary"
+      class="text-xl font-semibold leading-7 tracking-tight text-al-text-primary"
     >
       Why ArchLucid
     </h1>
     <p
-      class="text-sm text-neutral-600 dark:text-neutral-400"
+      class="text-[13px] font-normal leading-5 text-al-text-primary"
     >
       See how ArchLucid turns architecture review into a governed decision package — executive summary, signed review record, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.
     </p>
@@ -26,13 +26,13 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     data-testid="why-archlucid-counters"
   >
     <h2
-      class="text-sm font-semibold text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-archlucid-counters-heading"
     >
       Process counters
     </h2>
     <p
-      class="text-sm text-neutral-600 dark:text-neutral-400"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
       Cumulative 
       <code>
@@ -49,7 +49,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         role="group"
       >
         <p
-          class="text-xs uppercase tracking-wide text-neutral-500"
+          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
         >
           Architecture reviews created
         </p>
@@ -59,7 +59,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           7
         </p>
         <p
-          class="mt-1 text-xs text-neutral-500"
+          class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           <code>
             archlucid_runs_created_total
@@ -72,7 +72,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         role="group"
       >
         <p
-          class="text-xs uppercase tracking-wide text-neutral-500"
+          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
         >
           Est. manual hours saved
         </p>
@@ -82,7 +82,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           0.00
         </p>
         <p
-          class="mt-1 text-xs text-neutral-500"
+          class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           <code>
             planning heuristic — see methodology footnote
@@ -95,7 +95,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         role="group"
       >
         <p
-          class="text-xs uppercase tracking-wide text-neutral-500"
+          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
         >
           Audit rows (demo scope)
         </p>
@@ -105,7 +105,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           12
         </p>
         <p
-          class="mt-1 text-xs text-neutral-500"
+          class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           <code>
             IAuditRepository.GetByScopeAsync
@@ -118,7 +118,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         role="group"
       >
         <p
-          class="text-xs uppercase tracking-wide text-neutral-500"
+          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
         >
           Findings (all severities)
         </p>
@@ -128,7 +128,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           6
         </p>
         <p
-          class="mt-1 text-xs text-neutral-500"
+          class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           <code>
             sum of archlucid_findings_produced_total
@@ -139,7 +139,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="sm:col-span-3"
       >
         <h3
-          class="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          class="mb-2 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
           By severity
         </h3>
@@ -147,48 +147,48 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           class="grid grid-cols-2 gap-2 sm:grid-cols-4"
         >
           <li
-            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 dark:border-neutral-800 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <span
-              class="font-medium text-neutral-700 dark:text-neutral-300"
+              class="font-medium text-al-text-primary"
             >
               Critical
             </span>
              
             <span
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               — 
               1
             </span>
           </li>
           <li
-            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 dark:border-neutral-800 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <span
-              class="font-medium text-neutral-700 dark:text-neutral-300"
+              class="font-medium text-al-text-primary"
             >
               High
             </span>
              
             <span
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               — 
               2
             </span>
           </li>
           <li
-            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 dark:border-neutral-800 dark:bg-neutral-900 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <span
-              class="font-medium text-neutral-700 dark:text-neutral-300"
+              class="font-medium text-al-text-primary"
             >
               Medium
             </span>
              
             <span
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               — 
               3
@@ -197,7 +197,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         </ul>
       </div>
       <p
-        class="sm:col-span-3 text-xs text-neutral-500"
+        class="sm:col-span-3 text-xs font-normal leading-[18px] text-al-text-secondary"
       >
         Snapshot generated 
         2026-04-20T12:00:00.000Z
@@ -215,13 +215,13 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   >
     <div>
       <h2
-        class="text-sm font-semibold text-al-text-primary"
+        class="text-lg font-semibold leading-[26px] text-al-text-primary"
         id="why-archlucid-sponsor-pack-heading"
       >
         Sponsor KPI evidence pack
       </h2>
       <p
-        class="text-sm text-neutral-600 dark:text-neutral-400"
+        class="text-xs font-normal leading-[18px] text-al-text-secondary"
       >
         Aggregated sponsor-facing proof from the sponsor evidence pack service — complements the seeded Claims Intake review below.
       </p>
@@ -230,7 +230,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       class="space-y-4"
     >
       <p
-        class="text-xs text-neutral-500"
+        class="text-xs font-normal leading-[18px] text-al-text-secondary"
       >
         Generated 
         2026-04-28T01:02:03.456Z
@@ -247,10 +247,10 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="grid grid-cols-1 gap-3 sm:grid-cols-2"
       >
         <div
-          class="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60"
+          class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60 text-[13px] font-normal leading-5 text-al-text-primary"
         >
           <p
-            class="text-xs font-medium uppercase tracking-wide text-neutral-500"
+            class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
           >
             Explainability trace
           </p>
@@ -260,33 +260,33 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             42.0%
           </p>
           <p
-            class="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+            class="mt-1 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             2
              findings in persisted snapshot
           </p>
         </div>
         <div
-          class="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60"
+          class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/60 text-[13px] font-normal leading-5 text-al-text-primary"
         >
           <p
-            class="text-xs font-medium uppercase tracking-wide text-neutral-500"
+            class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
           >
             Governance outcomes
           </p>
           <dl
-            class="mt-2 space-y-1 text-xs"
+            class="mt-2 space-y-1 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <div
               class="flex justify-between gap-2"
             >
               <dt
-                class="text-neutral-500"
+                class="text-al-text-secondary"
               >
                 Pending approvals
               </dt>
               <dd
-                class="tabular-nums font-medium"
+                class="font-medium tabular-nums text-al-text-primary"
               >
                 0
               </dd>
@@ -295,12 +295,12 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               class="flex justify-between gap-2"
             >
               <dt
-                class="text-neutral-500"
+                class="text-al-text-secondary"
               >
                 Recent decisions
               </dt>
               <dd
-                class="tabular-nums font-medium"
+                class="font-medium tabular-nums text-al-text-primary"
               >
                 1
               </dd>
@@ -309,12 +309,12 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               class="flex justify-between gap-2"
             >
               <dt
-                class="text-neutral-500"
+                class="text-al-text-secondary"
               >
                 Policy pack rows
               </dt>
               <dd
-                class="tabular-nums font-medium"
+                class="font-medium tabular-nums text-al-text-primary"
               >
                 0
               </dd>
@@ -326,21 +326,21 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
         <p
-          class="text-xs font-medium uppercase tracking-wide text-neutral-500"
+          class="text-xs font-semibold leading-4 text-al-text-primary uppercase tracking-wide text-al-text-secondary"
         >
           Value-report delta
         </p>
         <dl
-          class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4"
+          class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4 text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           <div>
             <dt
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               Wall to commit
             </dt>
             <dd
-              class="font-mono tabular-nums"
+              class="font-mono tabular-nums text-al-text-primary"
             >
               812.3
                
@@ -349,36 +349,36 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           </div>
           <div>
             <dt
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               LLM calls
             </dt>
             <dd
-              class="tabular-nums"
+              class="tabular-nums text-al-text-primary"
             >
               3
             </dd>
           </div>
           <div>
             <dt
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               Audit rows
             </dt>
             <dd
-              class="tabular-nums"
+              class="tabular-nums text-al-text-primary"
             >
               5
             </dd>
           </div>
           <div>
             <dt
-              class="text-neutral-500"
+              class="text-al-text-secondary"
             >
               Demo watermark
             </dt>
             <dd
-              class="text-neutral-700 dark:text-neutral-300"
+              class="text-al-text-primary"
             >
               Contoso seeded
             </dd>
@@ -388,18 +388,18 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           class="mt-3"
         >
           <p
-            class="text-xs font-medium text-neutral-600 dark:text-neutral-400"
+            class="text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             Demo review histogram
           </p>
           <ul
-            class="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4"
+            class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 text-xs font-normal leading-[18px] text-al-text-secondary"
           >
             <li
               class="rounded border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-800 dark:bg-neutral-950"
             >
               <span
-                class="font-medium"
+                class="font-medium text-al-text-primary"
               >
                 High
               </span>
@@ -410,7 +410,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
               class="rounded border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-800 dark:bg-neutral-950"
             >
               <span
-                class="font-medium"
+                class="font-medium text-al-text-primary"
               >
                 Medium
               </span>
@@ -428,41 +428,41 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     data-testid="why-archlucid-measured-context"
   >
     <h2
-      class="text-sm font-semibold text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-archlucid-measured-context-heading"
     >
       Measured context (cost + disclaimers)
     </h2>
     <p
-      class="text-sm text-neutral-600 dark:text-neutral-400"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
       Same process counters as above, bundled with the tenant's configured monthly spend band (when available). This is planning guidance — not an invoice.
     </p>
     <dl
-      class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2"
+      class="grid grid-cols-1 gap-2 sm:grid-cols-2 text-[13px] font-normal leading-5 text-al-text-primary"
     >
       <div>
         <dt
-          class="text-neutral-500"
+          class="text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Tier
         </dt>
         <dd
-          class="font-medium text-neutral-900 dark:text-neutral-100"
+          class="font-medium text-al-text-primary"
         >
           Standard
         </dd>
       </div>
       <div>
         <dt
-          class="text-neutral-500"
+          class="text-xs font-normal leading-[18px] text-al-text-secondary"
         >
           Monthly band (
           USD
           )
         </dt>
         <dd
-          class="font-medium tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="font-medium tabular-nums text-al-text-primary"
         >
           10
            — 
@@ -471,7 +471,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
       </div>
     </dl>
     <p
-      class="text-xs text-neutral-600 dark:text-neutral-400"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
       Process counters are cumulative since this API replica started.
     </p>
@@ -482,13 +482,13 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     data-testid="why-archlucid-first-value-report"
   >
     <h2
-      class="text-sm font-semibold text-al-text-primary"
+      class="text-lg font-semibold leading-[26px] text-al-text-primary"
       id="why-archlucid-report-heading"
     >
       Sponsor first-value report
     </h2>
     <p
-      class="text-sm text-neutral-600 dark:text-neutral-400"
+      class="text-xs font-normal leading-[18px] text-al-text-secondary"
     >
       Markdown generated by 
       <code>
@@ -497,7 +497,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
        from the committed Contoso Retail demo review.
     </p>
     <pre
-      class="max-h-[480px] overflow-auto rounded border border-neutral-200 bg-neutral-50 p-3 text-xs leading-relaxed text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 whitespace-pre-wrap"
+      class="max-h-[480px] overflow-auto whitespace-pre-wrap rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900 text-[11px] font-normal leading-[15px] text-al-text-secondary"
       data-testid="why-archlucid-first-value-report-body"
     >
       # ArchLucid — first value report (pilot)
@@ -683,7 +683,7 @@ Demo body.
     </div>
   </section>
   <footer
-    class="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
+    class="border-t border-neutral-200 pt-3 dark:border-neutral-800 text-xs font-normal leading-[18px] text-al-text-secondary"
   >
     Aggregated sponsor-facing proof from measured ROI, sponsor evidence pack, value report, and aggregate explanation services.
      See repo 

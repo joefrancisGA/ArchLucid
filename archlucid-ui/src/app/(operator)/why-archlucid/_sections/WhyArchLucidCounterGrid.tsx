@@ -1,6 +1,8 @@
 import type { WhyArchLucidSnapshot } from "@/lib/api";
 import { formatWhyPageInstant } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-helpers";
 import { WhyArchLucidCounter } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidCounter";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type WhyArchLucidCounterGridProps = {
   readonly snapshot: WhyArchLucidSnapshot;
@@ -38,21 +40,24 @@ export function WhyArchLucidCounterGrid(props: WhyArchLucidCounterGridProps) {
       />
       {severityRows.length > 0 ? (
         <div className="sm:col-span-3">
-          <h3 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">By severity</h3>
+          <h3 className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>By severity</h3>
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {severityRows.map(([severity, count]) => (
               <li
                 key={severity}
-                className="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+                className={cn(
+                  "rounded border border-neutral-200 bg-neutral-50 px-2 py-1 dark:border-neutral-800 dark:bg-neutral-900",
+                  OPERATOR_TYPOGRAPHY.helper,
+                )}
               >
-                <span className="font-medium text-neutral-700 dark:text-neutral-300">{severity}</span>{" "}
-                <span className="text-neutral-500">— {count}</span>
+                <span className="font-medium text-al-text-primary">{severity}</span>{" "}
+                <span className="text-al-text-secondary">— {count}</span>
               </li>
             ))}
           </ul>
         </div>
       ) : null}
-      <p className="sm:col-span-3 text-xs text-neutral-500">
+      <p className={cn("sm:col-span-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Snapshot generated {formatWhyPageInstant(snapshot.generatedUtc)} · demo review <code>{snapshot.demoRunId}</code>
         {typeof snapshot.estimatedManualWorkHoursSavedMethodology === "string" &&
         snapshot.estimatedManualWorkHoursSavedMethodology.trim().length > 0 ? (

@@ -1,3 +1,6 @@
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 export type WhyArchLucidCounterProps = {
   readonly label: string;
   readonly value: number;
@@ -15,9 +18,9 @@ export function WhyArchLucidCounter(props: WhyArchLucidCounterProps) {
       role="group"
       aria-label={label}
     >
-      <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
-      <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{shown}</p>
-      <p className="mt-1 text-xs text-neutral-500">
+      <p className={OPERATOR_NAV_GROUP_LABEL}>{label}</p>
+      <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.kpiValue)}>{shown}</p>
+      <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         <code>{hint}</code>
       </p>
     </div>

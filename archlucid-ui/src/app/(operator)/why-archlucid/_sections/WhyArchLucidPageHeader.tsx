@@ -1,8 +1,11 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 export function WhyArchLucidPageHeader() {
   return (
     <header className="space-y-2">
-      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Why ArchLucid</h1>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Why ArchLucid</h1>
+      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         See how ArchLucid turns architecture review into a governed decision package — executive summary, signed
         review record, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a
         walkthrough.

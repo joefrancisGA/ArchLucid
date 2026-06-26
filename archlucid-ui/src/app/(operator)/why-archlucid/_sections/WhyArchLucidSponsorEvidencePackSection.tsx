@@ -2,6 +2,8 @@ import { BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE } from "@/lib/buyer-polish
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidSponsorPackBody } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidSponsorPackBody";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type WhyArchLucidSponsorEvidencePackSectionProps = {
   readonly state: WhyArchLucidPageState;
@@ -19,13 +21,10 @@ export function WhyArchLucidSponsorEvidencePackSection(props: WhyArchLucidSponso
       className="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40"
     >
       <div>
-        <h2
-          id="why-archlucid-sponsor-pack-heading"
-          className="text-sm font-semibold text-al-text-primary"
-        >
+        <h2 id="why-archlucid-sponsor-pack-heading" className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           Sponsor KPI evidence pack
         </h2>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE}
         </p>
       </div>
@@ -46,7 +45,7 @@ export function WhyArchLucidSponsorEvidencePackSection(props: WhyArchLucidSponso
           <div className="h-28 animate-pulse rounded border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950/70" />
         </div>
       ) : (
-        <p className="text-sm text-neutral-500">Evidence pack unavailable.</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Evidence pack unavailable.</p>
       )}
     </section>
   );
