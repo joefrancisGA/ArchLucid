@@ -247,6 +247,72 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
+- **Title:** Improve Azure Extractor UX
+- **Tier:** Tier 1 – Must Fix
+- **Why it matters:** Manual PowerShell execution is the biggest friction point for Time-to-Value.
+- **Expected impact:** Higher pilot completion rates.
+- **Affected qualities:** Time-to-Value, Adoption Friction.
+- **Classification:** V1.x
+- **Cursor Prompt:** Scaffold the UI in the operator shell for configuring the Tier 2 hosted automated polling. Add a form to input the Azure Service Principal credentials (to be stored in Key Vault) and subscription scope. Ensure the UI clearly communicates that Tier 1 (manual ZIP upload) is the default and Tier 2 is opt-in.
+
+- **Title:** Clarify ROI Math in UI
+- **Tier:** Tier 1 – Must Fix
+- **Why it matters:** Executives must trust the numbers. Disposition-aware totals vs. per-system rows can confuse.
+- **Expected impact:** Higher Executive Purchase Probability.
+- **Affected qualities:** Executive Comprehension, Proof-of-ROI.
+- **Classification:** V1
+- **Cursor Prompt:** Add clear, accessible tooltips and info-icons next to the ROI headline and per-system rows in the `ExecutiveRoiSummarySection` component. The tooltips should explain that the headline is disposition-aware and deduplicated by `FindingId`, clarifying why rows don't sum to the total. Do not alter the underlying ROI calculation logic.
+
+**Tier 2 – High Leverage**
+
+- **Title:** ITSM Outbound Create UI
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** The backend supports creating Jira/ServiceNow tickets (`POST /v1/integrations/itsm/outbound/issues`), but operators lack a one-click button in the UI.
+- **Expected impact:** Faster remediation and better ITSM adoption during pilots.
+- **Affected qualities:** Adoption Friction, Time-to-Value.
+- **Classification:** V1
+- **Cursor Prompt:** Add a "Create Issue" button to the Finding detail panel that calls `POST /v1/integrations/itsm/outbound/issues`. The button should only be visible when `Integrations:Itsm:NativeEnabled` is true. Clicking it should open a modal to select the provider (Jira/ServiceNow) and create the ticket.
+
+- **Title:** Pre-commit Gate Bypass Audit Panel
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Admins might overuse the governance bypass, undermining the system's integrity.
+- **Expected impact:** Increased visibility into governance overrides.
+- **Affected qualities:** Governed Review Integrity.
+- **Classification:** V1
+- **Cursor Prompt:** Create a dedicated view or filter in the Governance Dashboard specifically highlighting `GovernanceBypassInvoked` audit events. The panel should show recent bypass events, the actor, and the justification provided.
+
+- **Title:** Test Connection Button for Webhooks
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Operators cannot easily verify if their alert routing webhook is configured correctly without triggering a real alert.
+- **Expected impact:** Reduced support tickets and faster webhook setup.
+- **Affected qualities:** Adoption Friction, Executive / Operator Comprehension.
+- **Classification:** V1
+- **Cursor Prompt:** Add a "Test Connection" button to the webhook subscription UI that calls `POST /v1/webhooks/subscriptions/{subscriptionId}/test`. Clicking the button should trigger the test endpoint and display a success/failure toast based on the response.
+
+- **Title:** Policy Pack JSON Validator UI Integration
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** Authoring custom policy packs via JSON is error-prone.
+- **Expected impact:** Fewer syntax errors and faster custom policy creation.
+- **Affected qualities:** Adoption Friction.
+- **Classification:** V1
+- **Cursor Prompt:** Integrate the `POST /v1/policy-packs/validate` endpoint into the policy pack authoring text area in the operator shell. As the user types (debounced), the UI should display validation errors and structural warnings inline or below the editor.
+
+- **Title:** Trial Upgrade Nudge Telemetry Wiring
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** The backend supports telemetry for trial nudges, but the UI might not be fully wired to send the signals.
+- **Expected impact:** Better data on trial conversion funnel performance.
+- **Affected qualities:** Adoption Friction.
+- **Classification:** V1
+- **Cursor Prompt:** Wire the `TrialUsageUpgradeNudge` and related components to call `POST /v1/diagnostics/trial-upgrade-nudge/clicked` when interacted with. Ensure clicking the upgrade CTA successfully fires the telemetry endpoint with the correct trigger context.
+
+- **Title:** SAML 2.0 SP Configuration Form
+- **Tier:** Tier 2 – High Leverage
+- **Why it matters:** SAML SP is supported in V1 GA but requires manual configuration, slowing down enterprise pilots.
+- **Expected impact:** Faster identity integration for enterprise customers.
+- **Affected qualities:** Adoption Friction, Time-to-Value.
+- **Classification:** V1
+- **Cursor Prompt:** Build a form in the Admin Settings for SAML SP configuration (Issuer, IdP Metadata URL, Claim Mappings). Admins should be able to input and save SAML configuration details via the UI. Do not implement the backend SAML protocol handling, as it already exists.
+
 **Tier 3 – Hold For Reassessment**
 
 - **Title:** MCP Membrane

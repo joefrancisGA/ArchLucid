@@ -63,6 +63,20 @@ export function CloudConnectionsPageClient() {
         </p>
       </div>
 
+      <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900">
+        <CardHeader>
+          <CardTitle className="text-blue-800 dark:text-blue-300">Tier 1 vs Tier 2 Evidence Collection</CardTitle>
+        </CardHeader>
+        <CardContent className="text-blue-900 dark:text-blue-200 space-y-2 text-sm">
+          <p>
+            <strong>Tier 1 (Manual ZIP Upload) is the default.</strong> It requires zero vendor access to your cloud environment. You run an open-source PowerShell script locally and upload the resulting ZIP file during the architecture review creation process.
+          </p>
+          <p>
+            <strong>Tier 2 (Hosted Automated Polling) is strictly opt-in.</strong> It allows ArchLucid to automatically pull architecture and cost data on a schedule. This requires you to provision a read-only Service Principal in your Azure tenant and establish a federated trust relationship. ArchLucid will never ask for or store client secrets.
+          </p>
+        </CardContent>
+      </Card>
+
       <section className="space-y-4" aria-labelledby="cloud-connections-available-heading">
         <h2
           id="cloud-connections-available-heading"
