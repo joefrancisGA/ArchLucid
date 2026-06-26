@@ -7,6 +7,8 @@ import {
   formatReviewEngineProviderLabel,
   formatReviewEngineRunTimestamp,
 } from "@/lib/review-engine-provenance-display";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type RunDetailEngineProvenanceRowProps = {
   readonly provenance: ReviewRunEngineProvenance;
@@ -31,7 +33,7 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
 
   return (
     <CollapsibleSection title="Engine & model" defaultOpen={false}>
-      <dl className="m-0 grid gap-3 text-sm sm:grid-cols-2">
+      <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <ProvenanceField label="Engine" value={engineLabel} />
         {provenance.promptPackVersion ? (
           <ProvenanceField label="Prompt pack" value={provenance.promptPackVersion} />

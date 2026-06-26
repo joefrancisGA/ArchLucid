@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildMadrMarkdownFromRun, type AdrGeneratorRunInput } from "@/lib/adr-from-run";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type GenerateAdrFromRunModalProps = {
   input: AdrGeneratorRunInput;
@@ -85,7 +87,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-800 dark:text-neutral-200" htmlFor="adr-markdown-editor">
+            <label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} htmlFor="adr-markdown-editor">
               Markdown
             </label>
             <Textarea
@@ -95,7 +97,7 @@ export function GenerateAdrFromRunModal({ input, buyerPolished = false }: Genera
                 setMarkdown(e.target.value);
               }}
               spellCheck={false}
-              className="min-h-[14rem] font-mono text-xs leading-relaxed md:min-h-[18rem] md:text-sm"
+              className={cn("min-h-[14rem] font-mono leading-relaxed md:min-h-[18rem]", OPERATOR_TYPOGRAPHY.micro, "md:font-normal md:leading-5 md:text-[13px]")}
               aria-label="Architecture decision record markdown"
             />
           </div>

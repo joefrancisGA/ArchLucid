@@ -10,6 +10,8 @@ import {
   readCompareBaselineRunId,
 } from "@/lib/compare-baseline-run";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /**
  * When a baseline run id is stored for this browser, surfaces a one-click navigation to `/compare`
@@ -50,7 +52,10 @@ export function CompareToBaselineCta(props: { currentRunId: string }) {
 
   return (
     <div
-      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 flex flex-wrap items-center gap-2 px-3 py-2 text-sm"
+      className={cn(
+        "flex flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       data-testid="compare-to-baseline-banner"
     >
       <span className="text-neutral-700 dark:text-neutral-200">

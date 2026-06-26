@@ -4,6 +4,8 @@ import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunAgentExecutionLlmCostEstimate } from "@/types/authority";
 
 function formatUsd(amount: number): string {
@@ -64,9 +66,9 @@ export function RunEstimatedLlmCostCard(props: {
       data-testid="run-cost-telemetry-card"
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">Cost &amp; telemetry</CardTitle>
+        <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Cost &amp; telemetry</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+      <CardContent className={cn("space-y-3 pt-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         {showPrimaryUnavailable ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400">Token telemetry unavailable</p>
         ) : (
