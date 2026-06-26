@@ -44,6 +44,7 @@ import {
   OPERATOR_CARD,
   OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPOGRAPHY,
   OPERATOR_TYPE_SCALE,
@@ -457,7 +458,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                     }}
                     data-testid="runs-dashboard-governance-warnings-only"
                   />
-                  <Label htmlFor="runs-dashboard-governance-warnings-only" className="text-xs font-medium">
+                  <Label htmlFor="runs-dashboard-governance-warnings-only" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
                     {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
                   </Label>
                 </div>
@@ -472,7 +473,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                     }}
                     data-testid="runs-dashboard-show-archived"
                   />
-                  <Label htmlFor="runs-dashboard-show-archived" className="text-xs font-medium">
+                  <Label htmlFor="runs-dashboard-show-archived" className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}>
                     {RUNS_DASHBOARD_LABELS.showArchived}
                   </Label>
                 </div>
@@ -483,11 +484,11 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
           {tab === "recent" ? (
             <div data-testid="runs-dashboard-tab-recent">
               {phase === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">{RUNS_DASHBOARD_LABELS.loadingReviews}</p>
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{RUNS_DASHBOARD_LABELS.loadingReviews}</p>
               ) : null}
 
               {runListError ? (
-                <div className="text-xs [&_strong]:text-sm" data-testid="runs-dashboard-recent-error">
+                <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:text-[13px] [&_strong]:font-semibold")} data-testid="runs-dashboard-recent-error">
                   <OperatorApiProblem
                     problem={failure.problem}
                     fallbackMessage={failure.message}
@@ -561,7 +562,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
 
               {showArchived && !archivedFieldSupported && (phase === "ready" || phase === "error") ? (
                 <p
-                  className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
+                  className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="runs-dashboard-archived-unsupported"
                 >
                   {RUNS_DASHBOARD_LABELS.archivedListUnsupported}
@@ -579,15 +580,15 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   data-testid="runs-dashboard-buyer-proof-summary"
                 >
                   <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Decision: Package finalized</p>
-                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
-                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+                  <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Governance approval: Approved with monitoring</p>
+                  <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
                     {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
                       SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount,
                       SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount,
                     )}
                   </p>
-                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Evidence trail: Ready</p>
-                  <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Audit trail: Complete</p>
+                  <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Evidence trail: Ready</p>
+                  <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>Audit trail: Complete</p>
                   {showcasePrimaryCta ? (
                     <Button asChild variant="primary" size="sm" className="mt-1 h-8">
                       <Link href={showcasePrimaryCta.href}>{showcasePrimaryCta.label}</Link>
@@ -620,7 +621,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                           <RunListRowBadges run={run} className="text-[0.6rem]" />
                         </div>
                         {isShowcaseStaticDemoRunId(run.runId ?? "") ? (
-                          <p className="m-0 text-[11px] text-neutral-600 dark:text-neutral-400">
+                          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
                             Completed example review · Approved with monitoring
                           </p>
                         ) : null}
@@ -634,7 +635,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
 
                           return (
                             <p
-                              className="m-0 text-[11px] text-neutral-600 dark:text-neutral-400"
+                              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
                               data-testid={`run-home-list-insight-${run.runId}`}
                             >
                               {[insightLine, updatedLabel].filter((part) => part !== null).join(" · ")}
@@ -647,7 +648,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-7 text-xs"
+                          className={cn("h-7", OPERATOR_TYPOGRAPHY.button)}
                           disabled={restoreBusyRequestId === requestId}
                           data-testid={`runs-dashboard-restore-${run.runId}`}
                           onClick={() => {
@@ -670,11 +671,11 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
           {tab === "attention" ? (
             <div data-testid="runs-dashboard-tab-attention">
               {phase === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">{RUNS_DASHBOARD_LABELS.loadingReviews}</p>
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{RUNS_DASHBOARD_LABELS.loadingReviews}</p>
               ) : null}
 
               {runListError ? (
-                <div className="text-xs [&_strong]:text-sm">
+                <div className={cn(OPERATOR_TYPOGRAPHY.helper, "[&_strong]:text-[13px] [&_strong]:font-semibold")}>
                   <OperatorApiProblem
                     problem={failure.problem}
                     fallbackMessage={failure.message}
@@ -686,12 +687,12 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               {(phase === "ready" || (phase === "error" && filteredItems.length > 0)) ? (
                 <>
                   {attentionRuns.length === 0 ? (
-                    <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       {RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
                     </p>
                   ) : (
                     <>
-                      <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                      <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                         {attentionRuns.length === 1
                           ? RUNS_DASHBOARD_LABELS.oneReviewNeedsAttention
                           : RUNS_DASHBOARD_LABELS.reviewsNeedAttentionCount(attentionRuns.length)}
@@ -702,7 +703,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                             key={run.runId}
                             className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
                           >
-                            <span className="min-w-0 flex-1 text-xs font-medium text-neutral-900 dark:text-neutral-100">
+                            <span className={cn("min-w-0 flex-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
                               {runListPrimaryTitle(run)}
                             </span>
                             {(() => {
@@ -713,7 +714,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                               }
 
                               return (
-                                <p className="m-0 w-full basis-full text-[11px] text-neutral-600 dark:text-neutral-400">
+                                <p className={cn("m-0 w-full basis-full text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
                                   {insightLine}
                                 </p>
                               );
@@ -762,7 +763,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               ) : (
                 <>
                   {deltaStatus === "loading" ? (
-                    <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading review outcomes…</p>
+                    <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Loading review outcomes…</p>
                   ) : null}
 
                   {deltaStatus === "error" ? (
@@ -772,16 +773,16 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   ) : null}
 
                   {deltaStatus === "ready" && deltaData !== null && outcomesWindow !== null && outcomesWindow > 0 ? (
-                    <dl className="m-0 grid grid-cols-2 gap-2 text-xs">
+                    <dl className={cn("m-0 grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.helper)}>
                       <div>
                         <dt className={OPERATOR_TYPOGRAPHY.label}>Findings</dt>
-                        <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                        <dd className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                           {formatFindings(deltaData.medianTotalFindings)}
                         </dd>
                       </div>
                       <div>
                         <dt className={OPERATOR_TYPOGRAPHY.label}>Time to finalize</dt>
-                        <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                        <dd className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                           {formatHours(deltaData.medianTimeToCommittedManifestTotalSeconds)}
                         </dd>
                       </div>
@@ -808,7 +809,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
           {!onlyShowcaseRunInBuyerPolishedWorkspace ? (
             <Link
               href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
-              className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
+              className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
             >
               {RUNS_DASHBOARD_LABELS.openFullReviewsList}
             </Link>
