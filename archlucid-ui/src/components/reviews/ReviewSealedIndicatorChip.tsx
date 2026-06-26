@@ -1,6 +1,9 @@
 import { Lock } from "lucide-react";
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 export type ReviewSealedIndicatorChipProps = {
   /** ISO-8601 UTC timestamp of when the package was sealed (golden manifest committed). */
   readonly sealedUtc: string;
@@ -23,7 +26,11 @@ export function ReviewSealedIndicatorChip({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded border border-neutral-300 bg-neutral-50 px-2 py-0.5 font-mono text-[11px] text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 ${className ?? ""}`}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded border border-neutral-300 bg-neutral-50 px-2 py-0.5 font-mono text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400",
+        OPERATOR_TYPOGRAPHY.navHelper,
+        className,
+      )}
       title={`Package sealed at ${formatted} — immutable`}
       aria-label={`Package sealed at ${formatted}`}
     >

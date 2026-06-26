@@ -38,6 +38,7 @@ import {
   parseAlertRoutingCriteriaFromMetadata,
 } from "@/lib/alert-routing-criteria";
 import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AlertRoutingCriteriaFields } from "./AlertRoutingCriteriaFields";
 import {
   createAlertRoutingSubscription,
@@ -156,8 +157,8 @@ export function AlertRoutingContent() {
   return (
     <div className="max-w-3xl">
       <LayerHeader pageKey="alert-routing" />
-      <h2 className="mt-0">Alert routing</h2>
-      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <h2 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Alert routing</h2>
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateRouting ? alertRoutingPageLeadOperator : alertRoutingPageLeadReader}
       </p>
       <AlertOperatorToolingRankCue />
@@ -177,7 +178,7 @@ export function AlertRoutingContent() {
           className={cn("min-w-0", !canMutateRouting && "opacity-95")}
           aria-labelledby="alert-routing-current-heading"
         >
-          <h3 id="alert-routing-current-heading" className="mb-2 mt-1 text-base">
+          <h3 id="alert-routing-current-heading" className={cn("mb-2 mt-1", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {canMutateRouting ? alertRoutingCurrentRoutingHeadingOperator : alertRoutingCurrentRoutingHeadingReader}
           </h3>
           <button
@@ -194,7 +195,7 @@ export function AlertRoutingContent() {
           <div className="grid gap-3">
             {items.length === 0 ? (
               <div className="grid max-w-xl gap-3">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {canMutateRouting ? alertRoutingSubscriptionsEmptyOperatorLine : alertRoutingSubscriptionsEmptyReaderLine}
                 </p>
                 <GettingStartedSteps
@@ -208,7 +209,7 @@ export function AlertRoutingContent() {
                   className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{item.name}</strong>
-                  <div className="mt-2 text-sm">
+                  <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                     <div>Channel: {item.channelType}</div>
                     <div className="break-all">Destination: {item.destination}</div>
                     <div>Minimum severity: {item.minimumSeverity}</div>
@@ -264,7 +265,7 @@ export function AlertRoutingContent() {
                     ) : null}
                   </div>
                   {attemptsBySub[item.routingSubscriptionId]?.length ? (
-                    <ul className="mt-3 pl-5 text-[13px]">
+                    <ul className={cn("mt-3 pl-5", OPERATOR_TYPOGRAPHY.body)}>
                       {attemptsBySub[item.routingSubscriptionId].map((a) => (
                         <li key={a.alertDeliveryAttemptId}>
                           {a.status} — alert {a.alertId.slice(0, 8)}… — {new Date(a.attemptedUtc).toLocaleString()}
@@ -284,12 +285,12 @@ export function AlertRoutingContent() {
           className={cn("min-w-0", !canMutateRouting && "opacity-90")}
           aria-labelledby="alert-routing-change-heading"
         >
-          <h3 id="alert-routing-change-heading" className="mb-2 mt-1 text-base">
+          <h3 id="alert-routing-change-heading" className={cn("mb-2 mt-1", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {canMutateRouting
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p className="mb-2.5 mt-0 max-w-xl text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mb-2.5 mt-0 max-w-xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
           <div className="mb-4 grid max-w-2xl gap-3">

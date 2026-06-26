@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 const DEFERRED_ITEMS = [
   {
     id: "soc2-cpa",
@@ -47,7 +50,10 @@ export function RunDetailDeferredScopeNotice(
 
   return (
     <aside
-      className="rounded-md border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100"
+      className={cn(
+        "rounded-md border border-neutral-300 bg-neutral-50 px-4 py-3 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       data-testid="run-detail-deferred-scope-notice"
       aria-label="Deferred buyer requirements"
     >
@@ -60,7 +66,7 @@ export function RunDetailDeferredScopeNotice(
         {DEFERRED_ITEMS.map((item) => (
           <li key={item.id} data-testid={`deferred-scope-item-${item.id}`}>
             <span className="font-medium">{item.label}:</span> {item.safeWording}{" "}
-            <Link href={item.docPath} className="underline underline-offset-2">
+            <Link href={item.docPath} className={OPERATOR_LINK.nav}>
               Scope doc
             </Link>
           </li>

@@ -66,6 +66,7 @@ import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
 import { policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { AlertActionLoopDto } from "@/types/operate-rhythm";
 import type { AlertRecord } from "@/types/alerts";
@@ -90,7 +91,7 @@ function severityBadgeClass(severity: string): string {
   }
 
   if (key === "high") {
-    // White on orange-600 (~3.5:1) fails WCAG AA at text-xs; orange-800 stays clearly “warning/high” with enough contrast.
+    // White on orange-600 (~3.5:1) fails WCAG AA at badge scale; orange-800 stays clearly “warning/high” with enough contrast.
     return "border-transparent bg-orange-800 text-white hover:bg-orange-800/90 dark:bg-orange-800 dark:hover:bg-orange-800/90";
   }
 
@@ -349,12 +350,12 @@ export function AlertsInboxContent() {
     <div className="w-full max-w-3xl">
       <LayerHeader pageKey="alerts" />
       <div className="mb-0 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Alerts</h2>
+        <h2 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>Alerts</h2>
       </div>
-      <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
       </p>
-      <p className="mt-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Deduplicated architecture-risk alerts in this workspace. Acknowledge or resolve items tied to findings in scope.
         Each card links a risk signal to a <GlossaryTooltip termKey="findings">finding</GlossaryTooltip> in scope so
         you can triage, acknowledge, or resolve.
@@ -363,7 +364,10 @@ export function AlertsInboxContent() {
 
       {buyerPolishedShell && shouldMergeOperatorDemoAlertSample() ? (
         <div
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 max-w-prose px-3 py-2 text-sm"
+          className={cn(
+            "mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           role="status"
         >
           <strong className="font-semibold">Sample inbox.</strong> This alert ties drift detection to the PHI minimization
@@ -381,7 +385,7 @@ export function AlertsInboxContent() {
           <OperatorTryNext>
             Confirm the API and proxy are up, then click <strong>Refresh</strong>. Alerts come from scheduled scans—if
             the list should not be empty, check worker schedules and{" "}
-            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/">
+            <Link className={OPERATOR_LINK.nav} href="/">
               {OPERATOR_NAV_LINK_LABELS.home}
             </Link>{" "}
             for environment guidance.
@@ -441,7 +445,10 @@ export function AlertsInboxContent() {
 
       {failure === null ? (
         <div
-          className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+          className={cn(
+            "mb-4 max-w-prose rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           data-testid="alerts-inbox-operational-summary"
         >
           {loading ? (
@@ -453,7 +460,7 @@ export function AlertsInboxContent() {
                 {status === ALL_STATUSES_VALUE ? "for the current filter." : `with status “${status}”.`}
               </p>
               {pageMixSummary !== null && status === ALL_STATUSES_VALUE ? (
-                <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Page {page} of {totalPages}: {pageMixSummary}.
                 </p>
               ) : null}
@@ -480,7 +487,7 @@ export function AlertsInboxContent() {
 
       <div className="grid gap-3">
         {canMutateAlertInbox && visibleAlerts.length > 0 ? (
-          <div className="flex items-center gap-2 text-sm" data-testid="alerts-inbox-bulk-select">
+          <div className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)} data-testid="alerts-inbox-bulk-select">
             <input
               id="alerts-select-all-visible"
               type="checkbox"
@@ -491,7 +498,7 @@ export function AlertsInboxContent() {
                 toggleSelectAllVisible(e.target.checked);
               }}
             />
-            <Label htmlFor="alerts-select-all-visible" className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <Label htmlFor="alerts-select-all-visible" className={cn("font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               {ALERTS_INBOX_LABELS.selectAllOnPage}
             </Label>
           </div>
@@ -499,7 +506,7 @@ export function AlertsInboxContent() {
 
         {loading && failure === null && visibleAlerts.length === 0 && alerts.length === 0 ? (
           buyerPolishedShell === true ? (
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-6 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+            <div className={cn("rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-6 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               <p className="m-0 font-medium text-neutral-900 dark:text-neutral-50">
                 Alerts surface for tenant-backed workspaces
               </p>
@@ -511,7 +518,7 @@ export function AlertsInboxContent() {
           ) : (
             <OperatorLoadingNotice>
               <strong>Loading alerts.</strong>
-              <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <p className={cn("mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                 {ALERTS_PAGE_SIZE} per page; empty means no rows for this filter.
               </p>
             </OperatorLoadingNotice>
@@ -551,22 +558,22 @@ export function AlertsInboxContent() {
                           }}
                         />
                       ) : null}
-                      <strong className="min-w-0 text-base text-neutral-900 dark:text-neutral-100">{alert.title}</strong>
+                      <strong className={cn("min-w-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{alert.title}</strong>
                     </div>
-                    <Badge className={cn("text-xs font-semibold", severityBadgeClass(alert.severity))} variant="outline">
+                    <Badge className={cn("font-semibold", OPERATOR_TYPOGRAPHY.badge, severityBadgeClass(alert.severity))} variant="outline">
                       {alert.severity}
                     </Badge>
                   </div>
-                  <div className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
+                  <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                     <span className="text-neutral-500 dark:text-neutral-500">Category:</span> {alert.category}
                   </div>
-                  <div className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
+                  <div className={cn("mb-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                     <span className="text-neutral-500 dark:text-neutral-500">Status:</span> {alert.status}
                   </div>
-                  <div className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">
+                  <div className={cn("mb-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                     <span className="text-neutral-500 dark:text-neutral-500">Trigger:</span> {alert.triggerValue}
                   </div>
-                  <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{alert.description}</p>
+                  <p className={cn("leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{alert.description}</p>
                   {findingDetailHref !== null ? (
                     <div className="mt-3">
                       <Button asChild variant="default" size="sm" className="h-9">
@@ -613,7 +620,10 @@ export function AlertsInboxContent() {
 
                 {hideDemoTriageActions ? (
                   <section
-                    className="mt-4 border-t border-neutral-200 pt-3 text-sm text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+                    className={cn(
+                      "mt-4 border-t border-neutral-200 pt-3 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400",
+                      OPERATOR_TYPOGRAPHY.body,
+                    )}
                     aria-label="Sample alert"
                   >
                     Triage, suppress, and routing rules stay available in live tenants — not exercised in this read-only
@@ -627,11 +637,11 @@ export function AlertsInboxContent() {
                     )}
                     aria-label="Triage actions"
                   >
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                    <h3 className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
                       Triage actions
                     </h3>
                     {canMutateAlertInbox ? (
-                      <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                      <p className={cn("mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                         Use triage actions when this signal needs follow-up.
                       </p>
                     ) : null}
@@ -678,7 +688,10 @@ export function AlertsInboxContent() {
                       ) : null}
                       {buyerPolishedShell ? null : (
                       <details className="group relative">
-                        <summary className="cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 text-sm font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden">
+                        <summary className={cn(
+                          "cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden",
+                          OPERATOR_TYPOGRAPHY.body,
+                        )}>
                           More triage actions
                         </summary>
                         <div className="absolute end-0 z-20 mt-1 min-w-[11rem] rounded-md border border-neutral-200 bg-white p-2 shadow-md dark:border-neutral-700 dark:bg-neutral-950">
@@ -708,7 +721,7 @@ export function AlertsInboxContent() {
 
         {!loading && failure === null && totalCount > 0 ? (
           <nav
-            className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400"
+            className={cn("mt-4 flex flex-wrap items-center gap-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
             aria-label="Alerts pagination"
             title={canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
           >
@@ -760,7 +773,7 @@ export function AlertsInboxContent() {
                 ? ""
                 : `Optional comment is sent with the ${pendingAction.action} request for alert ${pendingAction.alertId}.`}
               {pendingAction !== null && !canMutateAlertInbox ? (
-                <span className="mt-2 block text-xs text-neutral-600 dark:text-neutral-400">
+                <span className={cn("mt-2 block text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {alertsTriageDialogReaderNote}
                 </span>
               ) : null}
@@ -826,14 +839,14 @@ export function AlertsInboxContent() {
                 : `Alert ${actionLoopAlertId} — destinations are redacted; use this to confirm channels attempted.`}
             </DialogDescription>
           </DialogHeader>
-          {actionLoopLoading ? <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p> : null}
+          {actionLoopLoading ? <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
           {actionLoopError !== null ? (
-            <p className="text-sm text-red-700 dark:text-red-300" role="alert">
+            <p className={cn("text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
               {actionLoopError}
             </p>
           ) : null}
           {actionLoopData !== null ? (
-            <div className="space-y-3 text-sm">
+            <div className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
               <p className="m-0">
                 Status: <strong>{actionLoopData.status}</strong>
                 {actionLoopData.runId ? (
@@ -841,7 +854,7 @@ export function AlertsInboxContent() {
                     {" "}
                     · Review:{" "}
                     <Link
-                      className="font-medium text-teal-800 underline dark:text-teal-300"
+                      className={OPERATOR_LINK.nav}
                       href={
                         actionLoopFindingHref ??
                         `/reviews/${encodeURIComponent(actionLoopData.runId)}`
@@ -864,9 +877,9 @@ export function AlertsInboxContent() {
                       <div className="font-medium text-neutral-900 dark:text-neutral-100">
                         {a.channelType} · {a.status}
                       </div>
-                      <div className="text-xs text-neutral-500 dark:text-neutral-400">{a.attemptedUtc}</div>
-                      <div className="text-xs">Destination: {a.destinationRedacted}</div>
-                      {a.errorMessage ? <div className="text-xs text-red-700 dark:text-red-300">{a.errorMessage}</div> : null}
+                      <div className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{a.attemptedUtc}</div>
+                      <div className={OPERATOR_TYPOGRAPHY.helper}>Destination: {a.destinationRedacted}</div>
+                      {a.errorMessage ? <div className={cn("text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}>{a.errorMessage}</div> : null}
                     </li>
                   ))}
                 </ul>
