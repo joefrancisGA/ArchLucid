@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_COMPARE_SECONDARY_PAGE_LEAD } from "@/lib/buyer-polish-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type CompareBuyerScopedGateProps = {
   readonly onLoadSampleComparison: () => void;
@@ -18,10 +20,10 @@ export function CompareBuyerScopedGate(props: CompareBuyerScopedGateProps) {
       data-testid="compare-buyer-scoped-gate"
       aria-labelledby="compare-buyer-scoped-gate-heading"
     >
-      <h2 id="compare-buyer-scoped-gate-heading" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="compare-buyer-scoped-gate-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Comparison is optional on the golden path
       </h2>
-      <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{BUYER_COMPARE_SECONDARY_PAGE_LEAD}</p>
+      <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{BUYER_COMPARE_SECONDARY_PAGE_LEAD}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" asChild>
           <Link href={getShowcaseManifestHref()}>Back to review package</Link>

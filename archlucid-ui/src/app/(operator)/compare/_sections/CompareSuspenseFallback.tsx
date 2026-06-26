@@ -1,5 +1,7 @@
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Suspense fallback shown while the Compare form client component is initializing (reading URL params). */
 export function CompareSuspenseFallback() {
@@ -9,15 +11,15 @@ export function CompareSuspenseFallback() {
     <div>
       <OperatorLoadingNotice>
         <strong>Loading compare.</strong>
-        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolished ? (
             <>Preparing the review comparison…</>
           ) : (
             <>
-              Reading <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">fromRunId</code> /{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">priorRunId</code> — and{" "}
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">rightRunId</code> / sibling keys — from
+              Reading <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>leftRunId</code> /{" "}
+              <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>fromRunId</code> /{" "}
+              <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>priorRunId</code> — and{" "}
+              <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>rightRunId</code> / sibling keys — from
               the URL so shared compare links open with fields prefilled…
             </>
           )}

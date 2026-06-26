@@ -1,3 +1,6 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 export type CompareDemoQuickPickProps = {
   onPickClaimsIntake: () => void;
 };
@@ -7,30 +10,38 @@ export function CompareDemoQuickPick(props: CompareDemoQuickPickProps) {
 
   return (
     <>
-      <p className="mb-4 mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-4 mt-4 max-w-3xl leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         <strong>Demo — Claims Intake comparison:</strong> pick a baseline and target in one tap, then click{" "}
         <strong>Compare</strong>. You can still change reviews from the lists below.
       </p>
       <div className="mb-4 grid max-w-3xl gap-3 sm:grid-cols-2">
         <button
           type="button"
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-left text-sm shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-600"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised p-4 text-left shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:border-neutral-800 dark:hover:border-neutral-600",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           onClick={onPickClaimsIntake}
         >
-          <span className="block font-semibold text-neutral-900 dark:text-neutral-100">
+          <span className={cn("block font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Baseline: Current Claims Intake
           </span>
-          <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
+          <span className={cn("mt-1 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Represents the as-is flow before hardening PHI boundaries.
           </span>
         </button>
         <button
           type="button"
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-left text-sm shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-600"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised p-4 text-left shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:border-neutral-800 dark:hover:border-neutral-600",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           onClick={onPickClaimsIntake}
         >
-          <span className="block font-semibold text-neutral-900 dark:text-neutral-100">Updated: Hardened PHI flow</span>
-          <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
+          <span className={cn("block font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            Updated: Hardened PHI flow
+          </span>
+          <span className={cn("mt-1 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Pair with baseline for sponsor-ready before/after narrative.
           </span>
         </button>
