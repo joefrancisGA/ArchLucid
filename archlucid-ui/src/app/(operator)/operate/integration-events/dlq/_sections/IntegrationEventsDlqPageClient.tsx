@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { components } from "@/lib/api-types.generated";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type IntegrationEventOutboxDeadLetterRow = components["schemas"]["IntegrationEventOutboxDeadLetterRow"];
 
@@ -219,8 +221,8 @@ export function IntegrationEventsDlqPageClient() {
   return (
     <div className="w-full max-w-[1200px] space-y-6" data-testid="integration-events-dlq-page">
       <header>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Integration event dead letters</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Integration event dead letters</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Inspect outbound integration events that exceeded publish retries and requeue them after fixing the root cause.
         </p>
       </header>
@@ -228,7 +230,7 @@ export function IntegrationEventsDlqPageClient() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-base">Dead-letter queue</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Dead-letter queue</CardTitle>
             <CardDescription>
               Rows are tenant-scoped; retry clears dead-letter state for the worker to publish again. Suppress marks a
               row processed without republishing.
@@ -251,39 +253,47 @@ export function IntegrationEventsDlqPageClient() {
         </CardHeader>
         <CardContent>
           {state.status === "loading" || state.status === "idle" ? (
-            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading dead letters…</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading dead letters…</p>
           ) : null}
           {state.status === "blocked" ? (
             <OperatorApiProblem fallbackMessage={state.message} problem={null} />
           ) : null}
           {state.status === "ready" && state.rows.length === 0 ? (
-            <p className="m-0 text-sm text-emerald-800 dark:text-emerald-300">No dead-lettered integration events.</p>
+            <p className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}>
+              No dead-lettered integration events.
+            </p>
           ) : null}
           {state.status === "ready" && state.rows.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
+              <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
                 <thead>
-                  <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                    <th className="py-2 pr-3 font-medium">Tenant</th>
-                    <th className="py-2 pr-3 font-medium">Event</th>
-                    <th className="py-2 pr-3 font-medium">Review</th>
-                    <th className="py-2 pr-3 font-medium">Age</th>
-                    <th className="py-2 pr-3 font-medium">Dead-lettered (UTC)</th>
-                    <th className="py-2 pr-3 font-medium">Retries</th>
-                    <th className="py-2 pr-3 font-medium">Last error</th>
-                    <th className="py-2 font-medium">Action</th>
+                  <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
+                    <th className="py-2 pr-3">Tenant</th>
+                    <th className="py-2 pr-3">Event</th>
+                    <th className="py-2 pr-3">Review</th>
+                    <th className="py-2 pr-3">Age</th>
+                    <th className="py-2 pr-3">Dead-lettered (UTC)</th>
+                    <th className="py-2 pr-3">Retries</th>
+                    <th className="py-2 pr-3">Last error</th>
+                    <th className="py-2">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {state.rows.map((row) => (
                     <tr key={row.outboxId} className="border-b border-neutral-100 dark:border-neutral-800">
-                      <td className="py-2 pr-3 align-top font-mono text-xs">{row.tenantId ?? "—"}</td>
-                      <td className="py-2 pr-3 align-top font-mono text-xs">{row.eventType}</td>
-                      <td className="py-2 pr-3 align-top font-mono text-xs">{row.runId ?? "—"}</td>
-                      <td className="py-2 pr-3 align-top text-xs">{formatAgeUtc(row.deadLetteredUtc)}</td>
-                      <td className="py-2 pr-3 align-top text-xs">{row.deadLetteredUtc}</td>
-                      <td className="py-2 pr-3 align-top text-xs">{row.retryCount}</td>
-                      <td className="max-w-md py-2 pr-3 align-top text-xs text-neutral-700 dark:text-neutral-300">
+                      <td className={cn("py-2 pr-3 align-top font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                        {row.tenantId ?? "—"}
+                      </td>
+                      <td className={cn("py-2 pr-3 align-top font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                        {row.eventType}
+                      </td>
+                      <td className={cn("py-2 pr-3 align-top font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                        {row.runId ?? "—"}
+                      </td>
+                      <td className={cn("py-2 pr-3 align-top", OPERATOR_TYPOGRAPHY.helper)}>{formatAgeUtc(row.deadLetteredUtc)}</td>
+                      <td className={cn("py-2 pr-3 align-top", OPERATOR_TYPOGRAPHY.helper)}>{row.deadLetteredUtc}</td>
+                      <td className={cn("py-2 pr-3 align-top", OPERATOR_TYPOGRAPHY.helper)}>{row.retryCount}</td>
+                      <td className={cn("max-w-md py-2 pr-3 align-top text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                         {row.lastErrorMessage ?? "—"}
                       </td>
                       <td className="py-2 align-top">
