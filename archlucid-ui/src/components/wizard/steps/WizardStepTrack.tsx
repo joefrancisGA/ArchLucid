@@ -8,7 +8,9 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordReviewGenerationHandoff, reviewDetailHrefAfterGeneration } from "@/lib/review-generation-handoff";
+import { cn } from "@/lib/utils";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { RunSummary } from "@/types/authority";
 
@@ -38,13 +40,13 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
       title="Track pipeline"
       description="Snapshot stages execute asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
     >
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <strong>Review ID:</strong>{" "}
-        <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
+        <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{runId}</code>
       </p>
 
       <div className="mt-4 space-y-2">
-        <div className="flex justify-between text-xs text-neutral-500">
+        <div className={cn("flex justify-between text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
           <span>Pipeline progress</span>
           <span>{completedStages} / 4 stages</span>
         </div>
@@ -55,25 +57,25 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="context_snapshot">Source context captured</GlossaryTooltip>
           </span>
           <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="knowledge_graph">Evidence graph ready</GlossaryTooltip>
           </span>
           <Badge variant={graph ? "default" : "secondary"}>{graph ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="findings">Findings complete</GlossaryTooltip>
           </span>
           <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-36 text-sm font-medium">
+          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>
             <GlossaryTooltip termKey="golden_manifest">{SIGNED_MANIFEST_LABEL} ready</GlossaryTooltip>
           </span>
           <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
@@ -81,15 +83,15 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
       </ul>
 
       {pollSummary?.description ? (
-        <p className="mt-4 text-sm text-neutral-700 dark:text-neutral-300">{pollSummary.description}</p>
+        <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pollSummary.description}</p>
       ) : null}
 
       {manifest ? (
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
-          <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">{SIGNED_MANIFEST_LABEL} is available.</p>
-          <nav className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-sm">
+          <p className={cn("m-0 font-semibold text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_MANIFEST_LABEL} is available.</p>
+          <nav className={cn("mt-3 flex flex-wrap gap-x-3 gap-y-2", OPERATOR_TYPOGRAPHY.body)}>
             <Link
-              className="text-teal-800 underline dark:text-teal-200"
+              className={OPERATOR_LINK.nav}
               href={reviewDetailHrefAfterGeneration(runId)}
               onClick={() => {
                 recordReviewGenerationHandoff(runId, "wizard-track");
@@ -98,18 +100,18 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
               Open review detail
             </Link>
             <Link
-              className="text-teal-800 underline dark:text-teal-200"
+              className={OPERATOR_LINK.nav}
               href={comparePageHrefAdaptive(runId)}
             >
               Compare reviews
             </Link>
-            <Link className="text-teal-800 underline dark:text-teal-200" href={`/reviews/${runId}/provenance`}>
+            <Link className={OPERATOR_LINK.nav} href={`/reviews/${runId}/provenance`}>
               View provenance
             </Link>
           </nav>
         </div>
       ) : (
-        <p className="mt-4 text-xs text-neutral-500">
+        <p className={cn("mt-4 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
           Waiting for {SIGNED_MANIFEST_LABEL.toLowerCase()}… (updates stream for up to several minutes; you can open review detail anytime.)
         </p>
       )}

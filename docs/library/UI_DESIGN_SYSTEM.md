@@ -172,21 +172,21 @@ Do not use `text-2xl` / `text-3xl` on operator page titles. Hierarchy must use *
 
 ### Typography normalization progress (token sweep)
 
-**Last rescored:** 2026-06-26 (EST, after waves 82–83).
+**Last rescored:** 2026-06-26 (EST, after wave 84).
 
 Grep target: ad-hoc Tailwind sizes (`text-xs`, `text-sm`, `text-base`, `text-xl`, `text-[10–19px]`) under `archlucid-ui/src/app/(operator)/` and `archlucid-ui/src/components/`. Prefer `OPERATOR_TYPOGRAPHY`, `OPERATOR_NAV_GROUP_LABEL`, `OPERATOR_LINK`, and `cn()` from `@/lib/utils`.
 
 | Layer | Status | Files with ad-hoc sizes | Ad-hoc matches |
 |-------|--------|-------------------------|----------------|
 | `(operator)/` routes | **Complete** | **0** | **0** |
-| `src/components/` | In progress | **~172** | **~680** |
-| **Headline score** | | **46.2%** | |
+| `src/components/` | In progress | **~171** | **~645** |
+| **Headline score** | | **47.4%** | |
 
 **Score math (headline):** `25%` weight for operator routes (100% complete) + `75%` weight for components match reduction vs components-phase baseline (`920` matches at sweep start):
 
-`(0.25 × 1.00) + (0.25 × 0) + (0.75 × (920 − 680) / 920) = 0.462` → **46.2%**
+`(0.25 × 1.00) + (0.75 × (920 − 645) / 920) = 0.474` → **47.4%**
 
-**Prior headline (pre–wave 82):** `(0.25 × 1.00) + (0.75 × (920 − 722) / 920) = **41.1%**` → **+5.1 pp** after waves 82–83.
+**Prior headline (pre–wave 84):** `(0.25 × 1.00) + (0.75 × (920 − 678) / 920) = **44.7%**` → **+2.7 pp** after wave 84.
 
 **Completed buckets (components phase, do not regress):**
 
@@ -196,10 +196,12 @@ Grep target: ad-hoc Tailwind sizes (`text-xs`, `text-sm`, `text-base`, `text-xl`
 | `src/components/reviews/` | Complete (0 ad-hoc matches) |
 | Run detail core (progress, inspector, explainability, decision summary, outcomes, trust evidence) | Complete |
 | Wizard preset + evidence upload steps | Complete |
+| Wizard track step + Azure extractor ZIP field | Complete |
+| `ManifestDetailSummaryPanel` | Complete |
 | Alerts inbox + alert routing | Complete |
 | Operator-home strips (prior waves 69–77) | Complete |
 
-**Next priority buckets:** `ManifestDetailSummaryPanel`, wizard stragglers (`WizardStepTrack`, `AzureExtractorPackageZipField`), remaining `src/components/alerts/*`, explainability dialogs, executive/help panels.
+**Next priority buckets:** remaining `src/components/alerts/*`, `FindingExplainabilityDialog`, `HelpPanel`, `ExecutiveWorkspaceHealthDashboard`, wizard stragglers (identity, Azure context, inventory ZIP panels).
 
 Regenerate metrics: `rg "text-(xs|sm|base|xl|\[1[0-9]px\])" archlucid-ui/src/components --count` (exclude intentional token-aligned exceptions documented in component comments).
 

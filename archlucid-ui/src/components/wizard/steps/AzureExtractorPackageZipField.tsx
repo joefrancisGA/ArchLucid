@@ -27,6 +27,8 @@ import {
   ZERO_CONFIG_DEMO_TRY_DEMO_LABEL,
 } from "@/lib/zero-config-demo-mode";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type AzureExtractorPackageZipFieldProps = {
   variant: "baseline" | "ingest";
@@ -37,10 +39,10 @@ export type AzureExtractorPackageZipFieldProps = {
 function BaselineStepHeading(props: { step: number; title: string; description: string }) {
   return (
     <div className="space-y-1" data-testid={`wizard-baseline-step-${props.step}-heading`}>
-      <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+      <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
         Step {props.step} — {props.title}
       </p>
-      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">{props.description}</p>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</p>
     </div>
   );
 }
@@ -127,7 +129,7 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Label className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <Label className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           Azure packager ZIP
         </Label>
         <InAppHelpLink helpSlug="pilot-guide" label="Open pilot guide" className="h-5 w-5" />
@@ -181,13 +183,13 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         }}
         hint={
           variant === "ingest" ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Same artifact as{" "}
-              <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
+              <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
                 Get-ArchLucidAzurePackage.ps1
               </code>{" "}
               (read-only inventory). Maximum size {maxMb} MB (matches server upload limit). Only{" "}
-              <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
+              <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
                 manifest.json
               </code>{" "}
               is parsed in the browser; upload the full ZIP to ingestion when your review is configured.
@@ -225,9 +227,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
       {variant === "ingest" ? (
         <>
           <AzureExtractorQuickStartCommandPanel testIdPrefix="wizard-ingest-extractor" />
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Or use the{" "}
-            <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new?baseline=1">
+            <Link className={OPERATOR_LINK.nav} href="/reviews/new?baseline=1">
               baseline-first wizard
             </Link>{" "}
             to lead with ZIP upload.
@@ -246,11 +248,14 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
       {acceptedFileLabel !== null ? (
         <div
-          className="rounded-md border border-teal-700/30 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-teal-800/40 dark:bg-neutral-900/60 dark:text-neutral-100"
+          className={cn(
+            "rounded-md border border-teal-700/30 bg-neutral-50 px-3 py-2 text-neutral-800 dark:border-teal-800/40 dark:bg-neutral-900/60 dark:text-neutral-100",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           data-testid="wizard-azure-zip-ready"
         >
           <p className="m-0 font-medium">Package ready</p>
-          <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {acceptedFileLabel} — uploads automatically when you start the architecture review.
           </p>
         </div>
@@ -265,9 +270,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
       ) : null}
 
       {variant === "ingest" ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Need the command?{" "}
-          <span className="font-mono text-[11px]">
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.navHelper)}>
             {buildGetArchLucidAzurePackageCommandLine().split(/\s+/).slice(0, 3).join(" ")}…
           </span>{" "}
           (full line copied from the block above).
