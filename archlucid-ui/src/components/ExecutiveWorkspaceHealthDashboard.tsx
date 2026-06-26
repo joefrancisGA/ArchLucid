@@ -28,6 +28,8 @@ import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import type { PilotValueReportJson } from "@/types/pilot-value-report";
 
@@ -171,7 +173,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     return (
       <div className="w-full max-w-[1440px] space-y-4">
         <LayerHeader pageKey="governance-dashboard" />
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? "Loading workspace overview…" : "Loading executive workspace health…"}
         </p>
       </div>
@@ -188,9 +190,9 @@ export function ExecutiveWorkspaceHealthDashboard() {
           correlationId={state.correlationId}
         />
         {buyerPolishedShell ? (
-          <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Evaluation workspaces may not expose full KPI telemetry yet. Continue from{" "}
-            <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/governance">
+            <Link className={OPERATOR_LINK.nav} href="/governance">
               Governance workflow
             </Link>{" "}
             for approvals and promotions.
@@ -244,12 +246,12 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
       <header className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
+          <h1 className={cn("m-0 tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>
             {buyerPolishedShell ? "Workspace overview" : "Executive Workspace Health"}
           </h1>
           <InAppHelpLink helpSlug="governance-approval" label="Governance workflows documentation" />
         </div>
-        <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? "Governance posture at a glance for your current workspace scope — counts and trends only (no cross-tenant rollup)."
             : "Single page for operators and sponsors: pre-commit posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope."}
@@ -257,7 +259,10 @@ export function ExecutiveWorkspaceHealthDashboard() {
       </header>
 
       <div
-        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 text-sm shadow-sm"
+        className={cn(
+          "rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 shadow-sm dark:border-neutral-800",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         role="status"
       >
         <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Session scope</p>
@@ -273,10 +278,10 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-sm font-semibold text-al-text-primary">
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               1. Pre-commit outcomes (30 days)
             </h2>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
                   Rolling 30-day counts from audit-backed governance checkpoints — hard blocks vs monitored-risk signals
@@ -289,10 +294,10 @@ export function ExecutiveWorkspaceHealthDashboard() {
                 </>
               )}
             </p>
-            <ul className="m-0 mt-2 list-none space-y-1 p-0 text-sm">
+            <ul className={cn("m-0 mt-2 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
               <li>
                 Blocked: <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">{blockCountLabel}</span>{" "}
-                <Link className="text-blue-700 underline dark:text-blue-400" href="/audit">
+                <Link className={OPERATOR_LINK.nav} href="/audit">
                   Audit log
                 </Link>
               </li>
@@ -309,18 +314,21 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-sm font-semibold text-al-text-primary">
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               2. High / Critical finding exposure (90 days)
             </h2>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
               aging inventory.
             </p>
-            <p className={buyerPolishedShell ? "m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary" : "m-0 mt-2 font-mono text-2xl font-semibold tabular-nums dark:text-neutral-100"}>
+            <p className={cn(
+              "m-0 mt-2",
+              buyerPolishedShell ? OPERATOR_TYPOGRAPHY.kpiValue : OPERATOR_TYPOGRAPHY.executiveDashboardMetric,
+            )}>
               {finiteIntegerCountDisplay(highCritical90)}
             </p>
-            <p className="m-0 text-sm">
-              <Link href="/governance/findings" className="font-medium text-blue-700 underline dark:text-blue-400">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              <Link href="/governance/findings" className={OPERATOR_LINK.nav}>
                 {buyerPolishedShell ? "Open risk register" : "Architecture risk register"}
               </Link>
             </p>
@@ -330,25 +338,25 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800 md:col-span-2">
           <CardContent className="space-y-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="m-0 text-sm font-semibold text-al-text-primary">
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 3. Compliance drift trend (30 days)
               </h2>
-              <Link href="/governance" className="text-sm font-medium text-blue-700 underline dark:text-blue-400">
+              <Link href="/governance" className={OPERATOR_LINK.nav}>
                 Governance workflow
               </Link>
             </div>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Daily buckets (1440-minute) from compliance drift API.</p>
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>
             <ComplianceDriftChartPdfExport points={driftPoints} />
           </CardContent>
         </Card>
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-sm font-semibold text-al-text-primary">4. Approval SLA posture</h2>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>4. Approval SLA posture</h2>
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Derived from governance dashboard pending approvals and recent terminal decisions.
             </p>
-            <ul className="m-0 mt-2 list-none space-y-1 p-0 text-sm text-neutral-800 dark:text-neutral-200">
+            <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               <li>Pending (sample cap): {dashboard.pendingCount}</li>
               <li>Overdue pending (with SLA deadline): {sla.overduePendingCount}</li>
               <li>On-track pending (with SLA deadline): {sla.onTrackPendingWithSlaCount}</li>
@@ -362,7 +370,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
             <div className="flex items-start gap-2">
-              <h2 className="m-0 flex-1 text-sm font-semibold text-al-text-primary">
+              <h2 className={cn("m-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 5. Pre-commit blocks as value proxy
               </h2>
               <FieldHelpTooltip
@@ -384,21 +392,21 @@ export function ExecutiveWorkspaceHealthDashboard() {
                 }
               />
             </div>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Blocks in 30d:{" "}
               <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">
                 {blocked30d.exact ? blocked30d.count : `${blocked30d.count} (sampled)`}
               </span>
               . Full hours formula includes findings severities in the same window.
             </p>
-            <p className="m-0 mt-2 font-mono text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>
               {formatHours(hoursFull30)}
-              <span className="ml-2 text-sm font-normal text-neutral-500 dark:text-neutral-400">
+              <span className={cn("ml-2 font-normal text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                 (blocks alone: {formatHours(hoursFromBlocks)})
               </span>
             </p>
-            <p className="m-0 text-sm">
-              <Link href="/value-report/roi" className="font-medium text-blue-700 underline dark:text-blue-400">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              <Link href="/value-report/roi" className={OPERATOR_LINK.nav}>
                 See ROI report
               </Link>
             </p>
@@ -406,7 +414,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         </Card>
       </div>
 
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+      <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Full USD modeling lives on the ROI report
         {callerRank >= AUTHORITY_RANK.AdminAuthority ? "" : " (Admin-only loaded $/hour line)"}.
       </p>

@@ -172,21 +172,21 @@ Do not use `text-2xl` / `text-3xl` on operator page titles. Hierarchy must use *
 
 ### Typography normalization progress (token sweep)
 
-**Last rescored:** 2026-06-26 (EST, after wave 86).
+**Last rescored:** 2026-06-26 (EST, after wave 87).
 
 Grep target: ad-hoc Tailwind sizes (`text-xs`, `text-sm`, `text-base`, `text-xl`, `text-[10–19px]`) under `archlucid-ui/src/app/(operator)/` and `archlucid-ui/src/components/`. Prefer `OPERATOR_TYPOGRAPHY`, `OPERATOR_NAV_GROUP_LABEL`, `OPERATOR_LINK`, and `cn()` from `@/lib/utils`.
 
 | Layer | Status | Files with ad-hoc sizes | Ad-hoc matches |
 |-------|--------|-------------------------|----------------|
 | `(operator)/` routes | **Complete** | **0** | **0** |
-| `src/components/` | In progress | **~163** | **~547** |
-| **Headline score** | | **55.4%** | |
+| `src/components/` | In progress | **~162** | **~524** |
+| **Headline score** | | **57.3%** | |
 
 **Score math (headline):** `25%` weight for operator routes (100% complete) + `75%` weight for components match reduction vs components-phase baseline (`920` matches at sweep start):
 
-`(0.25 × 1.00) + (0.75 × (920 − 547) / 920) = 0.554` → **55.4%**
+`(0.25 × 1.00) + (0.75 × (920 − 524) / 920) = 0.573` → **57.3%**
 
-**Prior headline (pre–wave 86):** `(0.25 × 1.00) + (0.75 × (920 − 594) / 920) = **51.6%**` → **+3.8 pp** after wave 86.
+**Prior headline (pre–wave 87):** `(0.25 × 1.00) + (0.75 × (920 − 547) / 920) = **55.4%**` → **+1.9 pp** after wave 87.
 
 **Completed buckets (components phase, do not regress):**
 
@@ -200,9 +200,10 @@ Grep target: ad-hoc Tailwind sizes (`text-xs`, `text-sm`, `text-base`, `text-xl`
 | `ManifestDetailSummaryPanel` | Complete |
 | Alerts inbox + alert routing + alert tooling pages | Complete |
 | `FindingExplainabilityDialog` + `HelpPanel` | Complete |
+| `ExecutiveWorkspaceHealthDashboard` | Complete |
 | Operator-home strips (prior waves 69–77) | Complete |
 
-**Next priority buckets:** `ExecutiveWorkspaceHealthDashboard`, `GraphViewer`, `HelpSearchPanel`, wizard stragglers (identity, Azure context, inventory ZIP panels).
+**Next priority buckets:** `GraphViewer`, `HelpSearchPanel`, wizard stragglers (identity, Azure context, inventory ZIP panels), `FindingExplainPanel`.
 
 Regenerate metrics: `rg "text-(xs|sm|base|xl|\[1[0-9]px\])" archlucid-ui/src/components --count` (exclude intentional token-aligned exceptions documented in component comments).
 
