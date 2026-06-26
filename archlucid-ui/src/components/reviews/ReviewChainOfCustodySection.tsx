@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { RunDetail } from "@/types/authority";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/reviews/[runId]/_sections/run-detail-section-heading";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type ReviewChainOfCustodySectionProps = {
   readonly run: RunDetail["run"];
@@ -65,26 +67,26 @@ export function ReviewChainOfCustodySection({
         </CardHeader>
         <CardContent className="space-y-4">
           <CollapsibleSection title="Who and when" defaultOpen>
-            <dl className="m-0 grid gap-3 text-sm sm:grid-cols-2">
+            <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Analysis triggered via</dt>
+                <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Analysis triggered via</dt>
                 <dd className="mt-0.5 text-neutral-900 dark:text-neutral-100">
                   {triggerSourceLabel(triggerSource)}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Analysis started</dt>
-                <dd className="mt-0.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">{createdLabel}</dd>
+                <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Analysis started</dt>
+                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{createdLabel}</dd>
               </div>
               {completedLabel !== null ? (
                 <div>
-                  <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Analysis completed</dt>
-                  <dd className="mt-0.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">{completedLabel}</dd>
+                  <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Analysis completed</dt>
+                  <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{completedLabel}</dd>
                 </div>
               ) : null}
               <div>
-                <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Package sealed</dt>
-                <dd className="mt-0.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+                <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Package sealed</dt>
+                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
                   {manifestId !== null ? completedLabel ?? "Yes" : "Not yet sealed"}
                 </dd>
               </div>
@@ -92,31 +94,31 @@ export function ReviewChainOfCustodySection({
           </CollapsibleSection>
 
           <CollapsibleSection title="What ran" defaultOpen>
-            <dl className="m-0 grid gap-3 text-sm sm:grid-cols-2">
+            <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Policy pack applied</dt>
-                <dd className="mt-0.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">{policyPackLabel}</dd>
+                <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Policy pack applied</dt>
+                <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>{policyPackLabel}</dd>
               </div>
               {architectureRequestId !== null ? (
                 <div>
-                  <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Architecture request</dt>
-                  <dd className="mt-0.5 flex items-center gap-1.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+                  <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Architecture request</dt>
+                  <dd className={cn("mt-0.5 flex items-center gap-1.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
                     <span className="truncate">{architectureRequestId.slice(0, 16)}…</span>
                     <CopyIdButton value={architectureRequestId} aria-label="Copy architecture request ID" />
                   </dd>
                 </div>
               ) : null}
               <div>
-                <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Review ID</dt>
-                <dd className="mt-0.5 flex items-center gap-1.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+                <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Review ID</dt>
+                <dd className={cn("mt-0.5 flex items-center gap-1.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
                   <span className="truncate">{run.runId.slice(0, 16)}…</span>
                   <CopyIdButton value={run.runId} aria-label="Copy review ID" />
                 </dd>
               </div>
               {run.contextSnapshotId ? (
                 <div>
-                  <dt className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Context snapshot</dt>
-                  <dd className="mt-0.5 flex items-center gap-1.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+                  <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Context snapshot</dt>
+                  <dd className={cn("mt-0.5 flex items-center gap-1.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
                     <span className="truncate">{run.contextSnapshotId.slice(0, 16)}…</span>
                     <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
                   </dd>

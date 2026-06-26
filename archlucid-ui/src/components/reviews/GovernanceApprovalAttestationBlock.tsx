@@ -2,6 +2,8 @@ import { Lock } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type GovernanceApprovalAttestationBlockProps = {
   /** The governance decision value (e.g. "Approved", "ApprovedWithMonitoring", "Rejected"). */
@@ -50,13 +52,13 @@ export function GovernanceApprovalAttestationBlock({
     >
       <div className="flex items-center gap-2 border-b border-neutral-200 px-4 py-2 dark:border-neutral-700">
         <Lock className="h-3.5 w-3.5 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
-        <span className="text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        <span className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-600 dark:text-neutral-400")}>
           Governance attestation — {formatDecisionLabel(decision)}
         </span>
       </div>
-      <dl className="m-0 grid gap-3 px-4 py-3 text-sm sm:grid-cols-2">
+      <dl className={cn("m-0 grid gap-3 px-4 py-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
-          <dt className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
             Decision
           </dt>
           <dd className="mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
@@ -64,35 +66,35 @@ export function GovernanceApprovalAttestationBlock({
           </dd>
         </div>
         <div>
-          <dt className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
             Recorded at
           </dt>
-          <dd className="mt-0.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+          <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
             {formatUtc(decisionUtc)}
           </dd>
         </div>
         {approvedByUserId ? (
           <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
               Approver
             </dt>
-            <dd className="mt-0.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+            <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
               {approvedByUserId}
             </dd>
           </div>
         ) : null}
         <div>
-          <dt className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
             Approval hash
           </dt>
-          <dd className="mt-0.5 flex items-center gap-1.5 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+          <dd className={cn("mt-0.5 flex items-center gap-1.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
             <span>{approvalHash}</span>
             <CopyIdButton value={runId} aria-label="Copy full review ID used as approval hash source" />
           </dd>
         </div>
         {rationale ? (
           <div className="sm:col-span-2">
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
               Rationale
             </dt>
             <dd className="mt-0.5 leading-relaxed text-neutral-700 dark:text-neutral-300">{rationale}</dd>

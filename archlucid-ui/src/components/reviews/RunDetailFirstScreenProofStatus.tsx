@@ -1,6 +1,8 @@
 import type { RunDetailFirstScreenProofSummary } from "@/lib/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/run-detail-first-screen-proof-status";
 import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type RunDetailFirstScreenProofStatusProps = {
   readonly summary: RunDetailFirstScreenProofSummary;
@@ -17,19 +19,19 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
       aria-label={summary.cardTitle}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-semibold">{summary.cardTitle}</span>
-        <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+        <span className={cn("font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{summary.cardTitle}</span>
+        <span className={cn("rounded-full border border-current/25 px-2 py-0.5 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.badge)}>
           {summary.disposition}
         </span>
       </div>
 
-      <ul className="m-0 mt-3 list-disc space-y-1 pl-5 text-sm">
+      <ul className={cn("m-0 mt-3 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
         {summary.whySafeToSendBullets.map((bullet) => (
           <li key={bullet}>{bullet}</li>
         ))}
       </ul>
 
-      <dl className="m-0 mt-3 grid gap-2 text-sm sm:grid-cols-2">
+      <dl className={cn("m-0 mt-3 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className="font-semibold">{PROOF_CONFIDENCE_FIELD_LABEL}</dt>
           <dd className="m-0">{summary.proofConfidenceLabel}</dd>
@@ -52,12 +54,12 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
         </div>
       </dl>
 
-      <p className="m-0 mt-3 text-sm">
+      <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-semibold">Next action:</span> {summary.nextAction}
       </p>
 
       {summary.detail ? (
-        <p className="m-0 mt-2 text-xs opacity-90">{summary.detail}</p>
+        <p className={cn("m-0 mt-2 opacity-90", OPERATOR_TYPOGRAPHY.helper)}>{summary.detail}</p>
       ) : null}
     </section>
   );
