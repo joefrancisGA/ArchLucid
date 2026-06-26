@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 89.41%`
+`ArchLucid Assessment – (A) Headline Readiness: 89.69%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -36,17 +36,17 @@
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 84 | 13 | 10.92 | 2.08 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 90 | 13 | 11.70 | 1.30 |
-| 3 | Governed Review Integrity | 93 | 13 | 12.09 | 0.91 |
+| 3 | Governed Review Integrity | 94 | 13 | 12.22 | 0.78 |
 | 4 | Correctness & Evidence Integrity | 91 | 12 | 10.92 | 1.08 |
 | 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
 | 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 90 | 8 | 7.20 | 0.80 |
-| 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
+| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
+| 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
 | 10 | Adoption Friction | 86 | 5 | 4.30 | 0.70 |
-| **Total** | | | **100** | **89.41%** | **10.59%** |
+| **Total** | | | **100** | **89.69%** | **10.31%** |
 
-*(A) Headline Readiness: 89.41%*
+*(A) Headline Readiness: 89.69%*
 
 ---
 
@@ -58,10 +58,10 @@
 |------------|---------------|-------------|
 | **Decision Advantage Score** | **76** (1–100) | Base rate: skilled principal architects using frontier AI change ~1–2 material decisions per major review when prompted well (~40% of reviews). ArchLucid adds policy-filtered compliance findings, extractor-grounded cost lines, pre-commit gate outcomes, and disposition-aware ROI — but much LLM narrative remains architecturally familiar. Adjust **+15** for governed packaging; **−12** because pack-change→finding-change is proven for deterministic compliance rules more than for all agent findings. |
 | **Frontier-AI Survival Probability (12-month)** | **72%** (range **60%–80%**, confidence **medium**) | Reference class: vertical AI SaaS wrappers without durable workflow state lose >50% relevance within 12 months as base models improve. ArchLucid’s audit trail, tenant policy state, ROI disposition model, and commit gate resist that curve. Adjust **+25** for infrastructure moat; **−18** because generic critique and Ask paths remain prompt-replicable. |
-| **30-Day Voluntary Usage Probability** (10 principal architects) | **54%** (range **40%–64%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
+| **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **89.41%** (+0.49 from **#11** — Time-to-Value 88, Correctness 91, Runtime 93). Diagnostic 30-day usage **+2%** for reduced failed-upload drop-off; market validation gap unchanged.
+**Reconciliation:** Headline **89.69%** (+0.28 from **#9** — Governed Review Integrity 94, Executive/Operator Comprehension 91, Runtime 94; cumulative +0.77 from **#11** + **#9**). Diagnostic 30-day usage **+1%** for clearer commit-block recovery path; market validation gap unchanged.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 89.41%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation now mirrors server rules (`manifest.json` schemaVersion 1 + `resources.json`) in `readArchLucidAzurePackageZipFromBytes` and blocks `uploadAzureExtractorPackage` before any API call. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 89.69%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation now mirrors server rules (`manifest.json` schemaVersion 1 + `resources.json`) in `readArchLucidAzurePackageZipFromBytes` and blocks `uploadAzureExtractorPackage` before any API call. **#9 shipped (2026-06-26):** finalize 409 responses surface structured pre-commit block payload (blocking finding IDs, policy pack, severity threshold, AI narrative) with links to policy packs, troubleshooting, and governance bypass audit. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -153,8 +153,8 @@
 - **Outcomes affected:** 2, 4.
 
 ### 6. Governed Review Integrity
-- **Score · Weight · Contribution · Deficiency:** 93 · 13 · 12.09 · **0.91**
-- **Justification:** Policy packs are **not inert** — effective governance filters compliance rules and drives intake questions (`QuestionSelectionEngine`). Pre-commit gate consults persisted findings and assignments. Governance workflow dual-writes audit. Trace chain: intake draft audit → run audit → findings snapshot sealed → manifest → disposition → export audit.
+- **Score · Weight · Contribution · Deficiency:** 94 · 13 · 12.22 · **0.78** *(was 93 — **#9 done**)*
+- **Justification:** Policy packs are **not inert** — effective governance filters compliance rules and drives intake questions (`QuestionSelectionEngine`). Pre-commit gate consults persisted findings and assignments. **Finalize 409** now maps Problem Details extensions (`blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity`, `blockExplanation`) into `PreCommitGovernanceBlockPanel` with deep links to findings inspect, `/policy-packs`, troubleshooting, and governance bypass audit — the moat moment is actionable, not opaque.
 - **Tradeoffs:** Full pack-content edit → immediate re-evaluation on committed runs is not automatic (requires new run) — correct for audit integrity, slower for experimentation.
 - **Recommendations:** `POST /v1/governance/pre-commit/simulate` already exists — expose in UI as “what-if pack change” without mutating committed state.
 - **Classification:** V1
@@ -169,8 +169,8 @@
 - **Outcomes affected:** 3, 4.
 
 ### 8. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 90 · 8 · 7.20 · **0.80**
-- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Residual legacy “run/manifest” URLs (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
+- **Score · Weight · Contribution · Deficiency:** 91 · 8 · 7.28 · **0.72** *(was 90 — **#9 done**)*
+- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. Residual legacy “run/manifest” URLs (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
 - **Tradeoffs:** Aggressive simplification risks hiding Operate differentiators from power users.
 - **Recommendations:** Executive mode: Home + ROI + board-pack export only; hide graph/compare until second session.
 - **Classification:** V1 / V1.1 (route aliases)
@@ -185,8 +185,8 @@
 - **Outcomes affected:** 4.
 
 ### 10. Runtime & First-Review Reliability
-- **Score · Weight · Contribution · Deficiency:** 93 · 7 · 6.51 · **0.49** *(was 92 — **#11 done**)*
-- **Justification:** Merge-blocking live E2E, release smoke, health probes, coordinator durable audit retry on critical paths. Pre-upload validation removes a class of predictable 422 upload failures after long local extractor runs.
+- **Score · Weight · Contribution · Deficiency:** 94 · 7 · 6.58 · **0.42** *(was 93 / 92 — **#11** + **#9 done**)*
+- **Justification:** Merge-blocking live E2E, release smoke, health probes, coordinator durable audit retry on critical paths. Pre-upload validation removes a class of predictable 422 upload failures after long local extractor runs. Structured commit-block UI reduces false “broken tool” abandonment when governance correctly rejects finalize.
 - **Tradeoffs:** More E2E in real-mode would increase CI cost and flake.
 - **Recommendations:** Nightly real-mode smoke (optional) on staging with budget cap.
 - **Classification:** V1
@@ -438,27 +438,8 @@ Tests: Help topic render test; link href unit test.
 **7. Real-mode nightly smoke (staging, budget-capped)** — V1 ops; quality 9.  
 **8. Decision delta panel on run detail (top 3 material findings + rule keys)** — V1; reuse `SponsorDecisionDeltaNoveltyResolver` patterns if exposed via API or compute client-side from run detail.
 
-**9. Pre-commit block explainer on failed commit**  
-- **Tier:** 2 · **Classification:** V1  
-- **Why:** Commit failures are the moat moment; opaque 400 responses trigger “broken tool” dismissal.  
-- **Impact:** Governed review integrity, comprehension, voluntary usage. **Qualities:** 3, 8, 9.  
-- **Evidence:** `PreCommitGovernanceBlockedException` in `RunsController`; `PreCommitGovernanceBlockExplainer` registered in host composition.  
-- **Actionability:** High. **Design uncertainty reduced:** 8. **Market uncertainty reduced:** 6.
-
-**Cursor prompt:**
-```
-Problem: When POST /v1/architecture/run/{runId}/commit returns a pre-commit governance block, operators see a generic error without which findings/rule keys blocked commit or how to override legitimately.
-
-Desired behavior: Run detail Commit action surfaces structured block payload (severity threshold, finding IDs, linked policy assignment IDs) with links to /policy-packs inspect and governance bypass audit docs. Use existing problem response body from PreCommitGovernanceBlockedException if present; otherwise map from API client error type.
-
-Scope: archlucid-ui run detail commit handler + error panel component. Backend changes only if problem+json lacks rule keys — extend explainer DTO, do not change gate logic.
-
-Acceptance criteria: Vitest for error mapper; mock E2E or live-api journey soft-assert on simulate endpoint; axe-clean alert region.
-
-Non-goals: Changing PreCommitGovernanceGate thresholds; auto-bypass.
-
-Tests: Unit test maps sample ProblemDetails to UI model; extend live-api-negative-paths if synthetic simulate exists.
-```
+**9. Pre-commit block explainer on failed commit** — **✅ Done (2026-06-26)**  
+- **Shipped:** `tryParseApiProblemDetails` reads `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity`; API `GovernancePreCommitBlockedProblem` emits severity ordinal; `PreCommitGovernanceBlockPanel` on `CommitRunButton` surfaces finding deep links, policy-pack inspect, troubleshooting (`/help/troubleshooting#7-commit-409-governance-pre-commit-blocked`), and governance bypass audit (`/governance/dashboard`). Vitest in `pre-commit-governance-block-problem.test.ts`, `PreCommitGovernanceBlockPanel.test.tsx`, `CommitRunButton.test.tsx`.
 
 **10. Finding row → policy rule key deep links**  
 - **Tier:** 2 · **Classification:** V1  
@@ -639,7 +620,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 5. Policy-pack delta preview (Tier 1 #1)  
 6. Decision delta panel (Tier 2 #8)  
 7. Finding → rule key deep links (#10)  
-8. Pre-commit block explainer (#9)
+8. Pre-commit block explainer (#9) — **done**
 
 **Third batch (proof packet + polish)** — **Composer-safe** / **Sonnet-safe**  
 9. Pilot nav profile (Tier 2 #5)  

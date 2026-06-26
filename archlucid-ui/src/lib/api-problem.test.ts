@@ -184,4 +184,25 @@ describe("tryParseApiProblemDetails", () => {
       blockExplanation: "Add subnet delegation.",
     });
   });
+
+  it("reads pre-commit governance block extensions from root", () => {
+    const problem = tryParseApiProblemDetails(
+      JSON.stringify({
+        title: "Conflict",
+        detail: "Commit blocked by governance policy.",
+        errorCode: "GOVERNANCE_PRE_COMMIT_BLOCKED",
+        blockingFindingIds: ["finding-a"],
+        policyPackId: "pack-default",
+        minimumBlockingSeverity: 3,
+      }),
+      "application/problem+json",
+    );
+
+    expect(problem).toMatchObject({
+      errorCode: "GOVERNANCE_PRE_COMMIT_BLOCKED",
+      blockingFindingIds: ["finding-a"],
+      policyPackId: "pack-default",
+      minimumBlockingSeverity: 3,
+    });
+  });
 });

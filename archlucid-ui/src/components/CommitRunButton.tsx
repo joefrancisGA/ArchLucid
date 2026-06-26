@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { PreCommitGovernanceBlockPanel } from "@/components/PreCommitGovernanceBlockPanel";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -23,6 +24,7 @@ import {
   recordFirstFinalizationAttemptedOnce,
   recordFirstTenantFunnelEvent,
 } from "@/lib/first-tenant-funnel-telemetry";
+import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
 
 /** Nav and review-detail copy — replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = "Replay and comparison remain available after finalizing.";
@@ -89,6 +91,9 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
     }
   }
 
+  const preCommitGovernanceBlock =
+    error === null ? null : resolvePreCommitGovernanceBlockView(error.problem);
+
   if (disabled) {
     return (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
@@ -136,8 +141,10 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
 
       {error !== null ? (
         <>
-          {error.problem?.blockExplanation !== undefined &&
-          error.problem.blockExplanation.trim().length > 0 ? (
+          {preCommitGovernanceBlock !== null ? (
+            <PreCommitGovernanceBlockPanel runId={runId} block={preCommitGovernanceBlock} />
+          ) : error.problem?.blockExplanation !== undefined &&
+            error.problem.blockExplanation.trim().length > 0 ? (
             <div
               className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 text-sm"
               data-testid="commit-governance-block-explanation"

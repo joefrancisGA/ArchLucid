@@ -25,6 +25,12 @@ export type ApiProblemDetails = {
   fieldErrors?: readonly ApiValidationFieldError[];
   /** Governance pre-commit block narrative when commit is rejected (HTTP 409). */
   blockExplanation?: string;
+  /** Finding identifiers that triggered the pre-commit governance gate (Problem Details extension). */
+  blockingFindingIds?: readonly string[];
+  /** Policy pack that enforced the pre-commit gate when applicable. */
+  policyPackId?: string;
+  /** Minimum severity ordinal (`FindingSeverity`) that triggered the block when applicable. */
+  minimumBlockingSeverity?: number;
 };
 
 function readTrimmedString(obj: Record<string, unknown>, key: string): string | undefined {
@@ -46,6 +52,9 @@ function readExtensions(obj: Record<string, unknown>): {
   blockExplanation?: string;
   failureKind?: string;
   errors?: readonly string[];
+  blockingFindingIds?: readonly string[];
+  policyPackId?: string;
+  minimumBlockingSeverity?: number;
 } {
   const extensions = obj.extensions;
 
@@ -66,6 +75,9 @@ function readExtensions(obj: Record<string, unknown>): {
     blockExplanation: readTrimmedString(ext, "blockExplanation"),
     failureKind: readTrimmedString(ext, "failureKind"),
     errors: readStringArray(ext.errors),
+    blockingFindingIds: readStringArray(ext.blockingFindingIds),
+    policyPackId: readTrimmedString(ext, "policyPackId"),
+    minimumBlockingSeverity: readOptionalNumber(ext, "minimumBlockingSeverity"),
   };
 }
 
@@ -138,6 +150,11 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
     readTrimmedString(record, "correlationId") ?? fromExt.correlationId;
   const blockExplanation =
     readTrimmedString(record, "blockExplanation") ?? fromExt.blockExplanation;
+  const blockingFindingIds =
+    readStringArray(record.blockingFindingIds) ?? fromExt.blockingFindingIds;
+  const policyPackId = readTrimmedString(record, "policyPackId") ?? fromExt.policyPackId;
+  const minimumBlockingSeverity =
+    readOptionalNumber(record, "minimumBlockingSeverity") ?? fromExt.minimumBlockingSeverity;
   const failureKind = readTrimmedString(record, "failureKind") ?? fromExt.failureKind;
   const fieldErrorsFromBody = parseAspNetValidationFieldErrors(record.errors);
   const flatFieldErrors = flattenValidationFieldErrors(fieldErrorsFromBody);
@@ -184,6 +201,18 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (blockExplanation) {
     problem.blockExplanation = blockExplanation;
+  }
+
+  if (blockingFindingIds) {
+    problem.blockingFindingIds = blockingFindingIds;
+  }
+
+  if (policyPackId) {
+    problem.policyPackId = policyPackId;
+  }
+
+  if (minimumBlockingSeverity !== undefined) {
+    problem.minimumBlockingSeverity = minimumBlockingSeverity;
   }
 
   if (failureKind) {

@@ -171,6 +171,9 @@ public static class ProblemDetailsExtensions
 
             problem.Extensions["policyPackId"] = result.PolicyPackId;
 
+        if (result.MinimumBlockingSeverity is int minimumBlockingSeverity)
+            problem.Extensions["minimumBlockingSeverity"] = minimumBlockingSeverity;
+
         if (!string.IsNullOrWhiteSpace(result.BlockExplanation))
             problem.Extensions["blockExplanation"] = result.BlockExplanation;
 

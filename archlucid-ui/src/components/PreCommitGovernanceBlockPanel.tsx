@@ -1,0 +1,123 @@
+"use client";
+
+import Link from "next/link";
+
+import { StatusTag } from "@/components/ui/status-tag";
+import type { PreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { policyPacksEditHref } from "@/lib/policy-packs-deep-link";
+
+export type PreCommitGovernanceBlockPanelProps = {
+  readonly runId: string;
+  readonly block: PreCommitGovernanceBlockView;
+};
+
+function findingInspectHref(runId: string, findingId: string): string {
+  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+}
+
+/** Structured pre-commit governance block surfaced after finalize returns HTTP 409. */
+export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPanelProps): React.JSX.Element {
+  const { runId, block } = props;
+
+  const troubleshootingHref = inAppHelpHref(
+    "troubleshooting",
+    "7-commit-409-governance-pre-commit-blocked",
+  );
+
+  return (
+    <div
+      className="rounded-md border border-amber-600/35 bg-neutral-50 px-3 py-2 text-sm dark:border-amber-700/45 dark:bg-neutral-900"
+      data-testid="pre-commit-governance-block-panel"
+      role="alert"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusTag kind="blocked" label="Blocked" />
+        <span className="font-medium text-neutral-900 dark:text-neutral-100">Pre-commit governance gate</span>
+      </div>
+
+      <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">{block.reason}</p>
+
+      {block.minimumBlockingSeverityLabel !== null ? (
+        <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          Minimum blocking severity:{" "}
+          <span className="font-medium text-neutral-900 dark:text-neutral-100">
+            {block.minimumBlockingSeverityLabel}
+          </span>
+        </p>
+      ) : null}
+
+      {block.policyPackId !== null ? (
+        <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          Enforcing policy pack:{" "}
+          <Link
+            href={policyPacksEditHref(block.policyPackId)}
+            className="font-mono font-medium text-teal-800 underline dark:text-teal-300"
+            data-testid="pre-commit-governance-block-policy-pack-link"
+          >
+            {block.policyPackId}
+          </Link>
+        </p>
+      ) : null}
+
+      {block.blockingFindingIds.length > 0 ? (
+        <div className="mt-2">
+          <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            Blocking findings ({block.blockingFindingIds.length})
+          </p>
+          <ul className="m-0 mt-1 list-none space-y-1 p-0">
+            {block.blockingFindingIds.map((findingId) => (
+              <li key={findingId}>
+                <Link
+                  href={findingInspectHref(runId, findingId)}
+                  className="font-mono text-xs font-medium text-teal-800 underline dark:text-teal-300"
+                  data-testid={`pre-commit-governance-block-finding-link-${findingId}`}
+                >
+                  {findingId}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {block.blockExplanation !== null ? (
+        <div
+          className="mt-3 rounded border border-neutral-200 bg-white px-2 py-2 dark:border-neutral-700 dark:bg-neutral-950"
+          data-testid="pre-commit-governance-block-explanation"
+        >
+          <p className="m-0 text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+            AI-assisted: why governance blocked finalization
+          </p>
+          <p className="m-0 mt-1 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
+            {block.blockExplanation}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="mt-3 flex flex-col gap-1">
+        <Link
+          href={policyPacksEditHref(block.policyPackId ?? "")}
+          className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+          data-testid="pre-commit-governance-block-review-policy-link"
+        >
+          Review effective policy →
+        </Link>
+        <Link
+          href={troubleshootingHref}
+          className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+          data-testid="pre-commit-governance-block-troubleshooting-link"
+        >
+          Governance bypass and override guidance →
+        </Link>
+        <Link
+          href="/governance/dashboard"
+          className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
+          data-testid="pre-commit-governance-block-audit-link"
+        >
+          View governance bypass audit →
+        </Link>
+      </div>
+    </div>
+  );
+}

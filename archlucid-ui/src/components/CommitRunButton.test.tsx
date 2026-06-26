@@ -81,6 +81,41 @@ describe("CommitRunButton", () => {
     });
   });
 
+  it("surfaces structured pre-commit governance block when finalize returns 409", async () => {
+    mockCommit.mockRejectedValue(
+      new ApiRequestError("Commit blocked by governance policy.", {
+        httpStatus: 409,
+        correlationId: "cid-409-structured",
+        problem: {
+          title: "Conflict",
+          detail: "Commit blocked by governance policy.",
+          errorCode: "GOVERNANCE_PRE_COMMIT_BLOCKED",
+          blockingFindingIds: ["finding-blocked"],
+          policyPackId: "sec-baseline",
+          minimumBlockingSeverity: 3,
+          blockExplanation: "Add a private endpoint before finalizing.",
+        },
+      }),
+    );
+
+    render(<CommitRunButton runId="run-blocked-structured" disabled={false} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
+
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
+
+    const panel = await screen.findByTestId("pre-commit-governance-block-panel");
+    expect(panel).toHaveTextContent(/pre-commit governance gate/i);
+    expect(screen.getByTestId("pre-commit-governance-block-finding-link-finding-blocked")).toHaveAttribute(
+      "href",
+      "/reviews/run-blocked-structured/findings/finding-blocked",
+    );
+    expect(screen.getByTestId("pre-commit-governance-block-explanation")).toHaveTextContent(
+      "Add a private endpoint before finalizing.",
+    );
+  });
+
   it("surfaces governance blockExplanation when finalize returns 409", async () => {
     mockCommit.mockRejectedValue(
       new ApiRequestError("Commit blocked by governance policy.", {
