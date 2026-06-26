@@ -248,18 +248,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
-- **Title:** Residual "Manifest" / Technical Copy Sweep in Help Topics
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** TB-399 redirects ship, but help catalog and generated index may still use legacy "manifest" / "run" language — inconsistent with product vocabulary.
-- **Expected impact:** Help topics align with product language (*review package*, *signed record*, *evidence trail*) and TB-399 route posture.
-- **Affected qualities:** Executive / Operator Comprehension, Adoption Friction.
-- **Evidence:** Assessment weakness #9; `help-index.generated.ts`; `help-markdown-presentation.test.tsx`.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 1
-- **Market Uncertainty Reduced:** 3
-- **Classification:** V1
-- **Cursor Prompt:** Grep help catalog + generated index for "manifest", "run/job", and legacy URL paths; align with product language and TB-399 redirects. Extend `help-markdown-presentation.test.tsx` drift guards.
-
 **Tier 3 – Hold For Reassessment**
 
 - **Title:** MCP Membrane
@@ -277,8 +265,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 2 copy — help-topic manifest copy sweep.
-2. **Batch 2:** V1.1 membrane — MCP façade scaffold (design-only until approved).
+1. **Batch 1:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance
 
