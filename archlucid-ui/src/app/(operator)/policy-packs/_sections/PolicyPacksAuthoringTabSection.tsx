@@ -1,7 +1,6 @@
 "use client";
 
 import { PolicyRuleAuthoringWizard } from "./PolicyRuleAuthoringWizard";
-import { PolicyPackJsonValidatorPanel } from "./PolicyPackJsonValidatorPanel";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -29,8 +28,6 @@ export function PolicyPacksAuthoringTabSection(props: PolicyPacksAuthoringTabSec
         selectedPackId={m.selectedPackId}
         onSelectedPackIdChange={m.setSelectedPackId}
       />
-
-      <PolicyPackJsonValidatorPanel />
 
       <PolicyRuleAuthoringWizard
         canMutatePacks={m.canMutatePacks}
