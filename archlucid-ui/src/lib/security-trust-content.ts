@@ -1,3 +1,5 @@
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+
 /**
  * Engagement-metadata content for the public `/security-trust` marketing page.
  *
@@ -38,7 +40,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     summaryAccess: {
       kind: "public",
       description: "SOC\u00A02 readiness summary (public excerpt)",
-      href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/security/SOC2_SELF_ASSESSMENT_2026.md",
+      href: resolveInAppDocHref("docs/security/SOC2_SELF_ASSESSMENT_2026.md"),
     },
   },
   {
@@ -78,7 +80,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     summaryAccess: {
       kind: "public",
       description: "Resilience exercise summary",
-      href: "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/quality/game-day-log/README.md",
+      href: resolveInAppDocHref("docs/quality/game-day-log/README.md"),
     },
   },
   {
@@ -118,8 +120,5 @@ export const SECURITY_TRUST_MATURITY_SECTION_HEADINGS: Readonly<
 
 export const SECURITY_TRUST_NDA_NOTICE =
   "Detailed third-party test reports and quantitative findings are shared under NDA when available. This page records status and how to request material during diligence.";
-
-export const SECURITY_TRUST_REPO_TRUST_CENTER_URL =
-  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/TRUST_CENTER.md";
 
 export const SECURITY_TRUST_SOC2_READINESS_FOOTNOTE = "Not a SOC 2 attestation report.";

@@ -6,8 +6,6 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import {
   parsePrivacyPolicyLastReviewedUtc,
   readPrivacyPolicyMarkdown,
-  PRIVACY_POLICY_BLOB_GITHUB_URL,
-  PRIVACY_POLICY_RAW_GITHUB_URL,
 } from "@/lib/privacy-policy-marketing";
 
 export const metadata: Metadata = {
@@ -74,8 +72,8 @@ export default function MarketingPrivacyPolicyPage(): ReactNode {
       <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Privacy Policy</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         {lastReviewed
-          ? `Last reviewed (UTC): ${lastReviewed} — source markdown is maintained in the ArchLucid repository.`
-          : "How ArchLucid handles personal information — source markdown is maintained in the ArchLucid repository."}
+          ? `Last reviewed (UTC): ${lastReviewed}.`
+          : "How ArchLucid handles personal information."}
       </p>
       <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
         This policy covers GDPR and CCPA. For operator-facing processing activity records, see the{" "}
@@ -105,32 +103,6 @@ export default function MarketingPrivacyPolicyPage(): ReactNode {
       ) : (
         <PrivacyPolicyFallback />
       )}
-
-      <footer className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
-        <p className="m-0 font-semibold text-neutral-800 dark:text-neutral-200">Source documents</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>
-            <Link
-              className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
-              href={PRIVACY_POLICY_BLOB_GITHUB_URL}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Privacy policy on GitHub (browse)
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
-              href={PRIVACY_POLICY_RAW_GITHUB_URL}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Raw markdown (download / diff-friendly)
-            </Link>
-          </li>
-        </ul>
-      </footer>
     </main>
   );
 }
@@ -139,8 +111,7 @@ function PrivacyPolicyFallback(): ReactNode {
   return (
     <div className="mt-8 rounded-lg border border-neutral-200 p-6 dark:border-neutral-800">
       <p className="text-sm text-neutral-700 dark:text-neutral-300">
-        The privacy policy markdown was not found at build time. Please refer to the source documents
-        linked in the footer below, or contact{" "}
+        The privacy policy content was not found at build time. Contact{" "}
         <a
           className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
           href="mailto:privacy@archlucid.net"

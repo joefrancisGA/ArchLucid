@@ -1,10 +1,10 @@
 "use client";
 
 import { BookOpen } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "@/components/ui/external-link";
 import {
   Dialog,
   DialogContent,
@@ -66,7 +66,7 @@ export function ArchitectureRequestWizardHelpDrawer() {
       >
         <DialogHeader className="space-y-1 border-b border-neutral-200 px-6 pb-4 pt-6 text-left dark:border-neutral-800">
           <DialogTitle>Documentation</DialogTitle>
-          <DialogDescription>Open links in a new tab to read the full guides on GitHub or your docs base URL.</DialogDescription>
+          <DialogDescription>Open in-app help topics for the full architecture request wizard guides.</DialogDescription>
         </DialogHeader>
         <nav className="flex-1 overflow-y-auto px-6 py-4" aria-label="Architecture request documentation links">
           <ul className="m-0 list-none space-y-5 p-0">
@@ -81,12 +81,12 @@ export function ArchitectureRequestWizardHelpDrawer() {
                 <li key={item.docPath}>
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{item.title}</p>
                   <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{item.blurb}</p>
-                  <ExternalLink
+                  <Link
                     className="mt-2 inline-block text-sm font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-400"
                     href={href}
                   >
-                    View doc
-                  </ExternalLink>
+                    View in Help
+                  </Link>
                 </li>
               );
             })}

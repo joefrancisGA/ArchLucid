@@ -136,9 +136,7 @@ export function SamlOperationalHealthStrip(props: SamlOperationalHealthStripProp
               <Link
                 className={cn("inline-flex", OPERATOR_TYPOGRAPHY.badge, OPERATOR_LINK.nav, "text-amber-950 dark:text-amber-50")}
                 href={SAML_ROTATION_RUNBOOK_URL}
-                rel="noopener noreferrer"
-                target="_blank"
-                aria-label="SAML SP certificate rotation runbook opens on GitHub"
+                aria-label="SAML SP certificate rotation runbook in Help"
               >
                 Rotation runbook
               </Link>

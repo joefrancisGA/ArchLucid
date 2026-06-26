@@ -98,7 +98,7 @@ public static class WhyArchLucidPackBuilder
                 "CI **locks golden-cohort expected manifest fingerprints** via `GoldenCohortBaselineConstants` and `scripts/ci/assert_golden_cohort_baseline_locked.py`, and the **golden-cohort nightly workflow** exercises the cohort on a schedule separate from product unit tests.",
                 "`ArchLucid.Application/GoldenCohort/GoldenCohortBaselineConstants.cs` · `scripts/ci/assert_golden_cohort_baseline_locked.py` · `.github/workflows/golden-cohort-nightly.yml` · `tests/golden-cohort/cohort.json`",
                 "Manual **prompt regression review** for each model or policy change is a common substitute when no locked cohort exists (**illustrative, not benchmarked** — unstructured diff review, not a cited release cadence study).",
-                "https://github.com/joefrancisGA/ArchLucid/blob/master/.github/workflows/golden-cohort-nightly.yml",
+                "first-party assertion (no external citation yet)",
                 "**(baseline lock pending)** The placeholder SHA constant exists so CI can fail loudly until an owner-approved baseline lock run replaces zeros with real fingerprints. The assert script is the merge-blocking guardrail; the nightly workflow is where longer cohort work runs. Together they document **deterministic drift detection** instead of vibes-based \"the model feels fine.\""),
             (
                 "After commit, **`IFindingEvidenceChainService`** reconstructs explainability links for findings, and **`GET /v1/authority/runs/{runId}/provenance`** returns a **decision provenance graph** tying manifest, graph snapshot, findings snapshot, authority trace, and artifacts when the authority pipeline is complete.",

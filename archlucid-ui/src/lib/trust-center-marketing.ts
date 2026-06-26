@@ -1,14 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-/** Raw markdown on GitHub (buyer source of record). */
-export const TRUST_CENTER_RAW_GITHUB_URL =
-  "https://raw.githubusercontent.com/joefrancisGA/ArchLucid/main/docs/go-to-market/trust-center.md";
-
-/** Blob view (same repo path as procurement deep links). */
-export const TRUST_CENTER_BLOB_GITHUB_URL =
-  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/trust-center.md";
-
 const LAST_REVIEWED_PATTERN = /<!--\s*TRUST_CENTER_LAST_REVIEWED_UTC:([^>]+)\s*-->/;
 
 /**

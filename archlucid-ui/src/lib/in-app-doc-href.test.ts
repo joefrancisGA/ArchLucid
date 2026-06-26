@@ -24,6 +24,15 @@ describe("resolveInAppDocHref", () => {
     expect(resolveInAppDocHref("docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md")).toBe("/help/troubleshooting");
   });
 
+  it("maps procurement and assurance docs to in-app help", () => {
+    expect(resolveInAppDocHref("docs/go-to-market/PRIVACY_POLICY.md")).toBe("/help/privacy-policy");
+    expect(resolveInAppDocHref("docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md")).toBe(
+      "/help/example-roi-bulletin",
+    );
+    expect(resolveInAppDocHref("docs/quality/game-day-log/README.md")).toBe("/help/resilience-exercises");
+    expect(resolveInAppDocHref("docs/library/SECOND_RUN.md")).toBe("/help/repeat-review-loop");
+  });
+
   it("returns null from tryResolve for unmapped contributor docs", () => {
     expect(tryResolveInAppDocHref("docs/BUILD.md")).toBeNull();
     expect(tryResolveInAppDocHref("docs/library/OPERATOR_ATLAS.md")).toBe("/help/operator-shell");

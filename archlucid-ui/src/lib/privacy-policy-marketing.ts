@@ -1,12 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export const PRIVACY_POLICY_RAW_GITHUB_URL =
-  "https://raw.githubusercontent.com/joefrancisGA/ArchLucid/main/docs/go-to-market/PRIVACY_POLICY.md";
-
-export const PRIVACY_POLICY_BLOB_GITHUB_URL =
-  "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/PRIVACY_POLICY.md";
-
 const LAST_REVIEWED_PATTERN = /<!--\s*PRIVACY_POLICY_LAST_REVIEWED_UTC:([^>]+)\s*-->/;
 
 /**

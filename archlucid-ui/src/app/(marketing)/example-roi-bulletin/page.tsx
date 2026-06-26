@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { loadSampleAggregateRoiBulletinSyntheticMarkdown } from "@/marketing/load-sample-aggregate-roi-bulletin-synthetic";
 
@@ -53,14 +52,7 @@ export default function ExampleRoiBulletinMarketingPage() {
           Checked-in sample Markdown
         </h2>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Source of truth:{" "}
-          <Link
-            className="text-sky-700 underline underline-offset-2 dark:text-sky-400"
-            href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"
-          >
-            docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md
-          </Link>{" "}
-          (repository file; rendered below for convenience).
+          Checked-in sample Markdown (rendered below for convenience).
         </p>
         <pre className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-xs leading-relaxed text-neutral-800 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-200">
           {markdown}

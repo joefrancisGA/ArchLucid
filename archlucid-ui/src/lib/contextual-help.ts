@@ -31,8 +31,7 @@ function splitDocRef(docRef: string): { path: string; fragment: string | null } 
 }
 
 /**
- * Resolves contextual documentation URL for an operator page key.
- * Base URL: `NEXT_PUBLIC_DOCS_BASE_URL`, or public GitHub `main` blob base when unset (see {@link getDocHref}).
+ * Resolves contextual documentation URL for an operator page key (in-app `/help` routes via {@link getDocHref}).
  */
 export function getHelpUrl(pageKey: string): string | null {
   const docRef = PAGE_KEY_TO_DOC_REF[pageKey];

@@ -360,6 +360,28 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/GLOSSARY.md"],
   },
   {
+    slug: "privacy-policy",
+    title: "Privacy policy",
+    summary: "How ArchLucid collects, uses, and protects personal information — GDPR and CCPA coverage.",
+    audience: "buyer",
+    sourcePaths: ["docs/go-to-market/PRIVACY_POLICY.md"],
+  },
+  {
+    slug: "example-roi-bulletin",
+    title: "Example aggregate ROI bulletin (synthetic)",
+    summary:
+      "Illustrative aggregate baseline bulletin shape for procurement — not production data; real publication gates on admin preview with minTenants.",
+    audience: "marketing",
+    sourcePaths: ["docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"],
+  },
+  {
+    slug: "resilience-exercises",
+    title: "Resilience exercise log",
+    summary: "Staging fault-injection exercise summaries and operational resilience practices.",
+    audience: "buyer",
+    sourcePaths: ["docs/quality/game-day-log/README.md"],
+  },
+  {
     slug: "pilot-feedback",
     title: "Pilot feedback",
     summary: "Human judgments captured separately from recommendation learning.",

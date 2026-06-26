@@ -1,9 +1,9 @@
 ﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
-> **Generated:** 2026-06-25 14:00 UTC (GPT-5.5)
+> **Generated:** 2026-06-25 16:00 UTC (GPT-5.5)
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.04%`
+`ArchLucid Assessment – (A) Headline Readiness: 90.38%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -27,17 +27,17 @@
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 1.69 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 93 | 13 | 12.09 | 0.91 |
-| 3 | Governed Review Integrity | 92 | 13 | 11.96 | 1.04 |
+| 3 | Governed Review Integrity | 93 | 13 | 12.09 | 0.91 |
 | 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
 | 5 | AI / Agent Readiness | 88 | 10 | 8.80 | 1.20 |
 | 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 89 | 8 | 7.12 | 0.88 |
+| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 92 | 7 | 6.44 | 0.56 |
-| 10 | Adoption Friction | 78 | 5 | 3.90 | 1.10 |
-| **Total** | | | **100** | **90.04%** | **9.96%** |
+| 10 | Adoption Friction | 79 | 5 | 3.95 | 1.05 |
+| **Total** | | | **100** | **90.38%** | **9.62%** |
 
-*(A) Headline Readiness: 90.04%*
+*(A) Headline Readiness: 90.38%*
 
 ---
 
@@ -47,7 +47,7 @@
 
 - **Decision Advantage Score:** 82. The system surfaces highly relevant findings backed by policy and evidence, consistently altering architectural or financial decisions that a manual AI prompt might miss due to context limits or lack of explicit policy awareness.
 - **Frontier-AI Survival Probability (12-month):** 85% (Range: 75%–90%). *Calibration:* Most generic wrappers fall to <20% survival as frontier context windows and reasoning improve. ArchLucid survives because its value is in the *governed workflow, audit trails, policy pack configuration, and ITSM integration*, not merely the raw architectural critique. Better models make ArchLucid more accurate, not obsolete.
-- **30-Day Voluntary Usage Probability:** 68% (Range: 52%–78%). *Calibration:* Tier-1 inventory wizard path and `pilot init` reduce first-review setup friction; principal-architect bypass remains the ceiling.
+- **30-Day Voluntary Usage Probability:** 69% (Range: 53%–79%). *Calibration:* Tier-1 inventory wizard path, `pilot init`, and zero-GitHub product UI reduce first-review and procurement friction; principal-architect bypass remains the ceiling.
 - **Executive Purchase Probability:** 80% (Range: 70%–88%). *Calibration:* Strong due to the explicitly defensible ROI summary (`GET /v1/roi/executive-summary`), database-per-tenant isolation, and explicit focus on audit trails which procurement teams demand. 
 
 *Reconciliation:* No sharp contradictions. Adoption friction remains the primary drag on voluntary 30-day usage, but the executive purchase probability is high due to the governed review integrity and ROI packaging.
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 90.04%. Tier-1 extractor first-review path ships: wizard evidence step exposes Azure/AWS/GCP inventory scripts, client-side manifest + resources.json validation, structured errors linking to `/help/cloud-connections`, and readiness-cockpit command disclosure.
+- **(A) Overall headline readiness:** 90.38%. TB-402 ships: all curated docs route through in-app `/help/{topic}` or marketing pages — zero GitHub blob links in operator/marketing UI; drift guard passes with empty allowlist; wizard and SAML runbook copy no longer sends buyers to github.com.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,9 +94,9 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 78 · **Weight:** 5 · **Contribution:** 3.90 · **Deficiency:** 1.10
+- **Score:** 79 · **Weight:** 5 · **Contribution:** 3.95 · **Deficiency:** 1.05
 - **Justification:** `WizardStepEvidenceUpload` and home readiness cockpit expose platform-specific Tier-1 inventory scripts with client-side ZIP validation before upload — operators see fix steps without SE hand-holding.
-- **Recommendations:** TB-402 zero GitHub seams and CI/CD governance gate reference pipeline remain adoption polish items.
+- **Recommendations:** CI/CD governance gate reference pipeline remains an adoption polish item.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -125,12 +125,12 @@
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
-- **Score:** 89 · **Weight:** 8 · **Contribution:** 7.12 · **Deficiency:** 0.88
-- **Justification:** Readiness cockpit surfaces Tier-1 inventory script lines and links to in-app cloud-connections help — no GitHub blob dependency for first-review guidance.
+- **Score:** 91 · **Weight:** 8 · **Contribution:** 7.28 · **Deficiency:** 0.72
+- **Justification:** Privacy, trust, security-trust, wizard help, and assurance engagement rows route to in-app `/help` — `customer-facing-github-blob-guard.test.ts` passes with zero allowlist.
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
-- **Score:** 92 · **Weight:** 13 · **Contribution:** 11.96 · **Deficiency:** 1.04
+- **Score:** 93 · **Weight:** 13 · **Contribution:** 12.09 · **Deficiency:** 0.91
 - **Justification:** 78 typed append-only audit events, a pre-commit governance gate, and strong segregation of duties make this exceptionally robust. 
 - **Class:** V1 ready.
 
@@ -144,15 +144,15 @@
 # 8. Top 10 Weaknesses (ranked)
 
 1. **Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Integrate review workflow into CI/CD so architects are not double-taxed.
-2. **Zero GitHub Seams (TB-402):** Residual GitHub blob links in marketing/trust surfaces undermine hosted-SaaS posture. *Fix:* Migrate to in-app `/help` routes.
-3. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology.
-4. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
-5. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
-6. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
-7. **GCP Billing Catalog API Key:** Live GCP pricing requires optional `GcpBillingCatalog:ApiKey` configuration — not zero-config like Azure Retail. *Fix:* Document wizard/API-key path and fall back honestly when unset.
-8. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
-9. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
-10. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
+2. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology.
+3. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
+4. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
+5. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
+6. **GCP Billing Catalog API Key:** Live GCP pricing requires optional `GcpBillingCatalog:ApiKey` configuration — not zero-config like Azure Retail. *Fix:* Document wizard/API-key path and fall back honestly when unset.
+7. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
+8. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
+9. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
+10. **CI/CD Governance Gate Reference:** Principal architects bypass formal review when CI does not enforce pre-commit governance. *Fix:* Ship reference GitHub Actions / ADO pipeline examples.
 
 ---
 
@@ -249,20 +249,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
-- **Title:** Zero GitHub Seams in Product UI (TB-402)
-- **Tier:** Tier 1 – Must Fix
-- **Why it matters:** Buyers on procurement review still hit GitHub blob links and "on GitHub" copy in operator/marketing surfaces — undermines hosted-SaaS trust posture.
-- **Expected impact:** All curated docs route through in-app `/help/{topic}`; drift guard allowlist shrinks to zero.
-- **Affected qualities:** Executive / Operator Comprehension, Governed Review Integrity (procurement realism).
-- **Evidence:** `TECH_BACKLOG.md` TB-402; deleted `HelpTopicSourceFooter`; `customer-facing-github-blob-guard.test.ts` allowlist.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 1
-- **Market Uncertainty Reduced:** 5
-- **Classification:** V1
-- **Cursor Prompt:** Migrate remaining allowlisted GitHub blob surfaces (`privacy-policy-marketing.ts`, `trust-center-marketing.ts`, `security-trust-content.ts`, wizard/help copy) to in-app `/help` routes. Remove allowlist entries until `customer-facing-github-blob-guard.test.ts` passes with zero exceptions. Retire `buildGithubBlobHref` from rendered UI paths.
-
-**Tier 2 – High Leverage**
-
 - **Title:** Finding-Level Evidence Traceability Deep-Links
 - **Tier:** Tier 2 – High Leverage
 - **Why it matters:** Principal architects dismiss the product if they cannot click from a finding to the manifest section or artifact line that proves it — the primary hallucination dismissal trigger.
@@ -340,11 +326,10 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 1 trust — TB-402 zero GitHub seams in product UI.
-2. **Batch 2:** Tier 2 trust + traceability — TB-402 zero GitHub seams, then finding-level evidence deep-links.
-3. **Batch 3:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
-4. **Batch 4:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
-5. **Batch 5:** V1.1 membrane — MCP façade scaffold (design-only until approved).
+1. **Batch 1:** Tier 1 traceability — finding-level evidence deep-links.
+2. **Batch 2:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
+3. **Batch 3:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+4. **Batch 4:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance
 

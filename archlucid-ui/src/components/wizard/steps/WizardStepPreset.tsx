@@ -331,8 +331,8 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           {architectureTemplatesDocHref !== null ? (
             <>
               {" "}
-              <Link className="text-teal-700 underline" href={architectureTemplatesDocHref} target="_blank" rel="noreferrer">
-                Open template index on GitHub
+              <Link className="text-teal-700 underline" href={architectureTemplatesDocHref}>
+                Open template index in Help
               </Link>
               .
             </>

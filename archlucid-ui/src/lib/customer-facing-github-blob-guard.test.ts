@@ -19,15 +19,7 @@ const CUSTOMER_SURFACE_DIRS = [
   "src/lib/in-app-doc-href.ts",
 ] as const;
 
-const ALLOWLIST_SUBSTRINGS = [
-  "operator-security-trust-docs-repo-base.ts",
-  "docs-public-base.ts",
-  "privacy-policy-marketing.ts",
-  "trust-center-marketing.ts",
-  "security-trust-content.ts",
-  "example-roi-bulletin",
-  "why-archlucid-comparison.ts",
-] as const;
+const ALLOWLIST_SUBSTRINGS = [] as const;
 
 function collectSourceFiles(relativeDir: string): string[] {
   const root = path.join(process.cwd(), relativeDir);
