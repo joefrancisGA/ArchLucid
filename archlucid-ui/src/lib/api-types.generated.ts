@@ -37250,6 +37250,12 @@ export interface components {
             createdUtc?: string;
             documentIds?: string[];
             documentMetadataMalformed?: boolean;
+            /** Format: double */
+            graphRagExpansionLatencyMs?: null | number | string;
+            /** Format: int32 */
+            graphRagNeighborsAdded?: null | number;
+            /** Format: int32 */
+            graphRagSeedHits?: null | number;
             /** Format: int32 */
             retrievedChunkCount?: number;
             retrievedChunkIds?: string[];
@@ -37274,7 +37280,16 @@ export interface components {
             averageCitationCoverage?: number | string;
             disposition?: string;
             expectedAgentsMissingTraces?: string[];
+            /** Format: double */
+            graphRagNeighborHitRate?: number | string;
+            graphRagPilotFloorDisposition?: string;
             operatorDetail?: null | string;
+            /** Format: int32 */
+            totalGraphRagNeighborsAdded?: number;
+            /** Format: int32 */
+            totalGraphRagSeedHits?: number;
+            /** Format: int32 */
+            totalRetrievalTokensIn?: number;
             /** Format: int32 */
             totalRetrievedChunks?: number;
             /** Format: int32 */
