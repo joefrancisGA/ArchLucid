@@ -30,6 +30,8 @@ const ExecutiveRoiSystemicIssueTrendChart = dynamic(
   },
 );
 import { ExecutiveRoiIdentifiedVsRealizedPanel } from "./ExecutiveRoiIdentifiedVsRealizedPanel";
+import { ExecutiveRoiSystemsIncludedSection } from "./ExecutiveRoiSystemsIncludedSection";
+import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive-roi-identified-vs-realized";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { showError } from "@/lib/toast";
@@ -264,7 +266,12 @@ export function ExecutiveRoiSummarySection({
     <Card>
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{executiveRoiSummaryCardTitle()}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            <span className="inline-flex items-center gap-1">
+              {executiveRoiSummaryCardTitle()}
+              <RoiHeadlineMathTooltip />
+            </span>
+          </CardTitle>
           <Button
             type="button"
             size="sm"
@@ -327,6 +334,7 @@ export function ExecutiveRoiSummarySection({
           summary={displayData}
           buckets={resolveExecutiveRoiIdentifiedVsRealized(displayData)}
         />
+        <ExecutiveRoiSystemsIncludedSection summary={displayData} />
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className={OPERATOR_KPI_CARD_TITLE}>Systems reviewed</div>

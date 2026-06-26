@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { RoiDispositionTrainingTooltip } from "@/components/roi/RoiDispositionTrainingTooltip";
+import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import {
   EXECUTIVE_ROI_IDENTIFIED_PENDING_DESCRIPTION,
   EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL,
@@ -64,7 +65,10 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           data-testid="exec-roi-identified-pending-card"
         >
           <div className={cn("font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
-            {EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL}
+            <span className="inline-flex items-center gap-1">
+              {EXECUTIVE_ROI_IDENTIFIED_PENDING_LABEL}
+              <RoiHeadlineMathTooltip />
+            </span>
           </div>
           <p
             className={cn("mt-1 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.navHelper)}
@@ -102,7 +106,10 @@ export function ExecutiveRoiIdentifiedVsRealizedPanel(
           data-testid="exec-roi-realized-committed-card"
         >
           <div className={cn("font-medium text-teal-800 dark:text-teal-200", OPERATOR_TYPOGRAPHY.helper)}>
-            {EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL}
+            <span className="inline-flex items-center gap-1">
+              {EXECUTIVE_ROI_REALIZED_COMMITTED_LABEL}
+              <RoiHeadlineMathTooltip />
+            </span>
           </div>
           <div
             className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
