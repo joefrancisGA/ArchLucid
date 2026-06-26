@@ -76,6 +76,15 @@ export function buyerPolishedRouteOrientation(
     };
   }
 
+  const friendlyArchitecturePath = `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}/architecture`.replace(/\/$/, "");
+
+  if (path.replace(/\/$/, "") === friendlyArchitecturePath) {
+    return {
+      label: SIGNED_MANIFEST_LABEL,
+      line: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} — decisions, monitored risks, and deliverables.`,
+    };
+  }
+
   if (path.startsWith("/manifests/")) {
     return {
       label: SIGNED_MANIFEST_LABEL,

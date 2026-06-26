@@ -85,12 +85,18 @@ export function resolveBuyerGoldenJourneyNav(pathname: string): ResolvedBuyerGol
   const execBase = normalizedPath(getShowcaseExecutiveHref());
   const manifestBase = normalizedPath(getShowcaseManifestHref());
   const manifestRecord = `/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`;
+  const manifestArchitecturePath = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}/architecture`;
 
   let stepIdx: number | null = null;
 
   if (path === execBase || path.startsWith(`${execBase}/`)) {
     stepIdx = 0;
-  } else if (path === manifestBase || path.startsWith(`${manifestBase}/`) || path === manifestRecord) {
+  } else if (
+    path === manifestBase
+    || path.startsWith(`${manifestBase}/`)
+    || path === manifestRecord
+    || path === manifestArchitecturePath
+  ) {
     stepIdx = 1;
   } else if (path.startsWith("/graph")) {
     stepIdx = 2;

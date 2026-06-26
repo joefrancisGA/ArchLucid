@@ -77,7 +77,7 @@ const REVIEW_WORK_HREFS: ReadonlyArray<string> = [
 const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   {
     toggleTestId: "sidebar-group-toggle-operate-analysis",
-    hrefs: ["/compare", "/ask"],
+    hrefs: ["/ask", "/compare"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-governance",
@@ -89,7 +89,7 @@ const COLLAPSED_GROUPS: ReadonlyArray<RequestedGroup> = [
   },
   {
     toggleTestId: "sidebar-group-toggle-operate-integrations",
-    hrefs: ["/integrations/operations", "/integrations/teams"],
+    hrefs: ["/integrations/teams"],
   },
   {
     toggleTestId: "sidebar-group-toggle-operator-admin",
