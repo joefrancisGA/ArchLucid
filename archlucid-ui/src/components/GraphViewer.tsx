@@ -39,6 +39,14 @@ import {
   graphBuyerTrailMetadataLines,
   graphBuyerTrailRecordTypeLine,
 } from "@/lib/graph-buyer-node-detail";
+import {
+  OPERATOR_CALLOUT_WARN_CLASS,
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
 import Link from "next/link";
 
@@ -320,8 +328,11 @@ export function GraphViewer({
         }
       >
         {buyerTrailPanel && interactiveSurfaceReady ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50/90 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Legend</p>
+          <div className={cn(
+            "rounded-md border border-slate-200 bg-slate-50/90 p-3 dark:border-slate-700 dark:bg-slate-900/40",
+            OPERATOR_TYPOGRAPHY.body,
+          )}>
+            <p className={cn("m-0 font-semibold text-slate-600 dark:text-slate-400", OPERATOR_NAV_GROUP_LABEL)}>Legend</p>
             <p className="m-0 mt-1 leading-snug text-slate-800 dark:text-slate-200">
               Evidence-to-decision trail: each item in the graph represents source context, analysis, findings, decisions,
               or deliverable evidence; the highlighted finding anchors the signed review record and deliverables bundle.
@@ -337,7 +348,7 @@ export function GraphViewer({
                   type="button"
                   variant={isAdvanced ? "outline" : "default"}
                   size="sm"
-                  className="h-7 px-2 text-xs"
+                  className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                   onClick={() => {
                     if (isAdvanced) toggle();
                   }}
@@ -348,7 +359,7 @@ export function GraphViewer({
                   type="button"
                   variant={isAdvanced ? "default" : "outline"}
                   size="sm"
-                  className="h-7 px-2 text-xs"
+                  className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                   onClick={() => {
                     if (!isAdvanced) toggle();
                   }}
@@ -360,7 +371,7 @@ export function GraphViewer({
 
             {isAdvanced ? (
               <div className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50">
-                <Label htmlFor="edge-inference-threshold" className="text-xs">
+                <Label htmlFor="edge-inference-threshold" className={OPERATOR_TYPOGRAPHY.helper}>
                   Edge Inference Threshold
                 </Label>
                 <Input
@@ -371,9 +382,9 @@ export function GraphViewer({
                   max="1"
                   value={edgeInferenceThreshold}
                   onChange={(e) => setEdgeInferenceThreshold(e.target.value)}
-                  className="h-8 text-sm"
+                  className={cn("h-8", OPERATOR_TYPOGRAPHY.body)}
                 />
-                <p className="text-[11px] text-neutral-500">
+                <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                   Minimum confidence score required to render inferred edges between nodes.
                 </p>
               </div>
@@ -383,7 +394,7 @@ export function GraphViewer({
 
         <div className="flex-1">
           {!selectedEdge && !selectedNode && !interactiveSurfaceReady ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">Rendering graph…</p>
+            <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Rendering graph…</p>
           ) : null}
 
           {!selectedEdge && !selectedNode && interactiveSurfaceReady && !buyerTrailPanel ? (
@@ -391,7 +402,7 @@ export function GraphViewer({
           ) : null}
 
           {!selectedEdge && !selectedNode && interactiveSurfaceReady && buyerTrailPanel ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Select a node or edge on the canvas to see technical details.
             </p>
           ) : null}
@@ -433,7 +444,7 @@ export function GraphViewer({
                   ) : null}
                 </>
               ) : (
-                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                <p className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   <strong>Edge:</strong> {selectedEdge.source} → {selectedEdge.target} ({selectedEdge.type})
                 </p>
               )}
@@ -445,7 +456,7 @@ export function GraphViewer({
                 </div>
               ) : (
                 !buyerTrailPanel && (
-                  <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     No reasoning narration was persisted for this edge.
                   </p>
                 )
@@ -461,11 +472,11 @@ export function GraphViewer({
 
                   return (
                     <div className="space-y-0.5">
-                      <p className="m-0 text-sm font-semibold text-al-text-primary leading-snug text-neutral-900 dark:text-neutral-100">
+                      <p className={cn("m-0 font-semibold leading-snug text-al-text-primary text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                         {recordType.primary}
                       </p>
                       {recordType.secondary !== null ? (
-                        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{recordType.secondary}</p>
+                        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{recordType.secondary}</p>
                       ) : null}
                     </div>
                   );
@@ -500,7 +511,7 @@ export function GraphViewer({
                     }
 
                     return (
-                      <p className="m-0 mt-2 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-2.5 py-2 text-sm leading-snug">
+                      <p className={cn("m-0 mt-2 rounded-md border leading-snug", OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY.body)}>
                         <span className="font-semibold text-neutral-900 dark:text-neutral-100">Decision:</span>{" "}
                         {dispositionLine}
                       </p>
@@ -537,7 +548,7 @@ export function GraphViewer({
 
                     if (fid === null) {
                       return (
-                        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                           Finding-level pages need a persisted finding reference on this node.
                         </p>
                       );
@@ -582,16 +593,16 @@ export function GraphViewer({
                     <>
                       {summaryLines.length > 0 ? (
                         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
-                          <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-400">
+                          <p className={cn("m-0 font-semibold text-teal-700 dark:text-teal-400", OPERATOR_NAV_GROUP_LABEL)}>
                             At a glance
                           </p>
                           <dl className="m-0 mt-2 grid gap-y-1.5">
                             {summaryLines.map((row) => (
                               <div key={`${row.label}-${row.value}`} className="flex gap-x-2">
-                                <dt className="shrink-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                                <dt className={cn("shrink-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                                   {row.label}
                                 </dt>
-                                <dd className="m-0 min-w-0 text-xs text-neutral-800 dark:text-neutral-200">
+                                <dd className={cn("m-0 min-w-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
                                   {row.value}
                                 </dd>
                               </div>
@@ -601,10 +612,13 @@ export function GraphViewer({
                       ) : null}
                       {technicalLines.length > 0 ? (
                         <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/50">
-                          <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                          <summary className={cn(
+                            "cursor-pointer select-none px-3 py-2 font-semibold text-neutral-800 dark:text-neutral-200",
+                            OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+                          )}>
                             Technical appendix
                           </summary>
-                          <ul className="m-0 list-none space-y-1 px-3 pb-3 pt-0 text-xs">
+                          <ul className={cn("m-0 list-none space-y-1 px-3 pb-3 pt-0", OPERATOR_TYPOGRAPHY.helper)}>
                             {technicalLines.map((row) => (
                               <li key={`${row.label}-${row.value}`}>
                                 <span className="font-medium text-neutral-700 dark:text-neutral-300">{row.label}:</span>{" "}
@@ -630,7 +644,7 @@ export function GraphViewer({
               {runId.trim().length > 0 && selectedNode !== null && !buyerTrailPanel && !compactChrome ? (
                 <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
                   <h4 className="mt-0">Explain this node</h4>
-                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Per-node summaries are not supported. The API returns guidance and a link to the run-level aggregate
                     explanation (Standard tier).
                   </p>
@@ -648,14 +662,14 @@ export function GraphViewer({
                     Request explanation
                   </Button>
                   {explainStatusLine ? (
-                    <p className="mt-2 text-[11px] text-neutral-600 dark:text-neutral-400" aria-live="polite">
+                    <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} aria-live="polite">
                       {explainStatusLine}
                     </p>
                   ) : null}
                   {explainAggregateHref ? (
-                    <p className="mt-1 text-[11px]">
+                    <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
                       <a
-                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        className={OPERATOR_LINK.nav}
                         href={explainAggregateHref}
                         target="_blank"
                         rel="noreferrer"
