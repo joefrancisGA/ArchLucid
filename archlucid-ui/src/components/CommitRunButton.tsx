@@ -25,6 +25,8 @@ import {
   recordFirstTenantFunnelEvent,
 } from "@/lib/first-tenant-funnel-telemetry";
 import { resolvePreCommitGovernanceBlockView } from "@/lib/pre-commit-governance-block-problem";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Nav and review-detail copy — replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = "Replay and comparison remain available after finalizing.";
@@ -96,7 +98,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
 
   if (disabled) {
     return (
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         This review is already finalized (reviewed architecture snapshot present).
       </p>
     );
@@ -105,13 +107,16 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
   if (commitBlockedReason !== null && commitBlockedReason.trim().length > 0) {
     return (
       <div
-        className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-4 text-sm"
+        className={cn(
+          "rounded-md border border-rose-600/40 bg-al-surface-raised p-4 text-al-text-primary dark:border-rose-700/50",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         data-testid="commit-blocked-finding-coverage"
         role="alert"
       >
         <p className="m-0 font-semibold">Finalize is blocked by finding coverage</p>
         <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason.trim()}</p>
-        <p className="m-0 mt-2 text-xs leading-relaxed">
+        <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
           Resolve the blocking engine failure or regenerate coverage before finalizing this architecture review.
         </p>
       </div>
@@ -133,7 +138,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
         >
           Finalize review
         </Button>
-        <p className="mt-1.5 max-w-xl text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-1.5 max-w-xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Finalizes the reviewed architecture snapshot and decision traces when the pipeline snapshots are ready. Requires
           permission to finalize.
         </p>
@@ -146,7 +151,10 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
           ) : error.problem?.blockExplanation !== undefined &&
             error.problem.blockExplanation.trim().length > 0 ? (
             <div
-              className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 text-sm"
+              className={cn(
+                "rounded-md border border-amber-600/40 bg-al-surface-raised p-4 text-al-text-primary dark:border-amber-700/50",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="commit-governance-block-explanation"
             >
               <p className="m-0 font-semibold">AI-assisted: why governance blocked finalization</p>
@@ -184,10 +192,10 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
               }}
             />
             <div className="min-w-0">
-              <Label htmlFor="commit-notify-sponsor" className="font-medium text-neutral-900 dark:text-neutral-100">
+              <Label htmlFor="commit-notify-sponsor" className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                 Email tenant admin contact
               </Label>
-              <p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <p className={cn("mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Sends a short heads-up with a link to this review when the tenant admin mailbox is on file and outbound
                 email is configured.
               </p>
@@ -210,7 +218,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-4">
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Continue your analysis with advanced tools:
             </p>
             <div className="flex flex-col gap-2">
