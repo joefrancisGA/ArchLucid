@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchAdminFleetLlmCogsDashboard, type AdminFleetLlmCogsDashboard } from "@/lib/trial-funnel-ops";
 
@@ -38,12 +40,12 @@ export function FleetLlmCogsPageClient() {
   }, [isAdmin, isAuthorityLoading, refresh]);
 
   if (isAuthorityLoading) {
-    return <p className="text-sm text-neutral-500">Loading…</p>;
+    return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>;
   }
 
   if (!isAdmin) {
     return (
-      <p className="text-sm text-rose-800 dark:text-rose-200" role="alert">
+      <p className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
         This page requires tenant administrator access (AdminAuthority).
       </p>
     );
@@ -52,8 +54,8 @@ export function FleetLlmCogsPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="fleet-llm-cogs-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Fleet LLM COGS</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Fleet LLM COGS</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Per-tenant estimated UTC-month LLM pressure, budget cap utilization, and gross-margin risk labels. Values are
           internal COGS estimates — not Azure invoice totals or customer charges.
         </p>
@@ -63,47 +65,47 @@ export function FleetLlmCogsPageClient() {
       </div>
 
       {error ? (
-        <p className="text-sm text-rose-700 dark:text-rose-300" role="alert">
+        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
         </p>
       ) : null}
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">UTC month {data?.utcMonth ?? "—"}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>UTC month {data?.utcMonth ?? "—"}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 overflow-x-auto">
-          <div className="grid gap-3 text-sm sm:grid-cols-4">
+        <CardContent className={cn("space-y-4 overflow-x-auto", OPERATOR_TYPOGRAPHY.body)}>
+          <div className={cn("grid gap-3 sm:grid-cols-4", OPERATOR_TYPOGRAPHY.body)}>
             <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Monitoring</p>
-              <p className="m-0 mt-1 font-semibold">
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Monitoring</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {data?.monthlyBudgetMonitoringActive ? "Active" : "Disabled"}
               </p>
             </div>
             <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Cost rates</p>
-              <p className="m-0 mt-1 font-semibold">
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Cost rates</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {data?.costRatesConfigured ? "Configured" : "Missing"}
               </p>
             </div>
             <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Near threshold</p>
-              <p className="m-0 mt-1 font-semibold tabular-nums">{data?.budgetWarningTenantCount ?? 0}</p>
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Near threshold</p>
+              <p className={cn("m-0 mt-1 tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle)}>{data?.budgetWarningTenantCount ?? 0}</p>
             </div>
             <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Hard stops</p>
-              <p className="m-0 mt-1 font-semibold tabular-nums">{data?.hardStopTenantCount ?? 0}</p>
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>Hard stops</p>
+              <p className={cn("m-0 mt-1 tabular-nums", OPERATOR_TYPOGRAPHY.cardTitle)}>{data?.hardStopTenantCount ?? 0}</p>
             </div>
           </div>
-          <table className="min-w-full text-left text-sm">
+          <table className={cn("min-w-full text-left", OPERATOR_TYPOGRAPHY.body)}>
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-800">
-                <th className="py-2 pr-4 font-medium">Tenant</th>
-                <th className="py-2 pr-4 font-medium">Est. pressure</th>
-                <th className="py-2 pr-4 font-medium">Hard cap</th>
-                <th className="py-2 pr-4 font-medium">Utilization</th>
-                <th className="py-2 pr-4 font-medium">Risk</th>
-                <th className="py-2 pr-4 font-medium">Budget completeness</th>
+              <tr className={cn("border-b border-neutral-200 dark:border-neutral-800", OPERATOR_NAV_GROUP_LABEL)}>
+                <th className="py-2 pr-4">Tenant</th>
+                <th className="py-2 pr-4">Est. pressure</th>
+                <th className="py-2 pr-4">Hard cap</th>
+                <th className="py-2 pr-4">Utilization</th>
+                <th className="py-2 pr-4">Risk</th>
+                <th className="py-2 pr-4">Budget completeness</th>
               </tr>
             </thead>
             <tbody>
