@@ -42,7 +42,7 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.evidence).toHaveLength(1);
     expect(model.evidence[0]?.label).toContain("Request schema");
     expect(model.evidence[0]?.detail).toBe("Lines 42-48 · claims-intake-schema");
-    expect(model.evidence[0]?.href).toContain("/graph?runId=run-1");
+    expect(model.evidence[0]?.href).toContain("/reviews/run-1#artifacts-exports");
   });
 
   it("buildFindingPolicyEvidenceCitationsFromInspect resolves policy pack metadata from typed payload", () => {
@@ -110,7 +110,7 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.policy?.ruleId).toBe("sec-base-010");
     expect(model.pack?.packName).toBe("Security Architecture Baseline");
     expect(model.evidence[0]?.label).toContain("terraform/network.bicep");
-    expect(model.evidence[0]?.href).toContain("/graph?runId=run-9");
+    expect(model.evidence[0]?.href).toContain("/reviews/run-9#artifacts-exports");
   });
 
   it("coercePolicyRuleIdFromFindingWire reads policyRuleId from wire JSON", () => {

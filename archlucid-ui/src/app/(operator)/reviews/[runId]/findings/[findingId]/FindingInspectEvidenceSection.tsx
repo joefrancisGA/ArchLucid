@@ -89,8 +89,9 @@ function EvidenceCitationList(props: {
   readonly reviewContextHref: string;
   readonly reviewContextLabel: string;
   readonly buyerPolishedShell: boolean;
+  readonly citationEvidence?: readonly { readonly label: string; readonly href: string }[];
 }): ReactElement {
-  const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell } = props;
+  const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell, citationEvidence } = props;
 
   if (evidence.length === 0) {
     return (
@@ -103,7 +104,9 @@ function EvidenceCitationList(props: {
       {evidence.map((row, idx) => {
         const excerpt = row.excerpt?.trim() ?? "";
         const title = evidenceCitationTitle(row);
-        const linkLabel = evidenceLinkLabel(row, reviewContextLabel);
+        const citationRow = props.citationEvidence?.[idx];
+        const href = citationRow?.href ?? reviewContextHref;
+        const linkLabel = citationRow?.label ?? evidenceLinkLabel(row, reviewContextLabel);
 
         return (
           <li
@@ -135,7 +138,7 @@ function EvidenceCitationList(props: {
               </>
             )}
             <div className="mt-2">
-              <Link href={reviewContextHref} className={OPERATOR_LINK.optional}>
+              <Link href={href} className={OPERATOR_LINK.optional} data-testid="finding-source-evidence-link">
                 {linkLabel}
               </Link>
             </div>
@@ -188,6 +191,7 @@ export function FindingInspectEvidenceSection({
             reviewContextHref={reviewContextHref}
             reviewContextLabel={reviewContextLabel}
             buyerPolishedShell={buyerPolishedShell}
+            citationEvidence={citationModel?.evidence}
           />
         )
       ) : (
@@ -196,6 +200,7 @@ export function FindingInspectEvidenceSection({
           reviewContextHref={reviewContextHref}
           reviewContextLabel={reviewContextLabel}
           buyerPolishedShell={buyerPolishedShell}
+          citationEvidence={citationModel?.evidence}
         />
       )}
     </section>

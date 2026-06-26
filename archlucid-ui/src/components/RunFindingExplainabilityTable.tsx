@@ -14,6 +14,11 @@ import { ProductLearningFeedbackControls } from "@/components/ProductLearningFee
 import { Button } from "@/components/ui/button";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import {
+  defaultManifestIdForShowcaseFinding,
+  primaryFindingEvidenceNavigationHref,
+  runDetailSectionHref,
+} from "@/lib/finding-source-evidence-links";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
@@ -178,13 +183,24 @@ export function RunFindingExplainabilityTable({
               );
 
             const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, row.findingId);
-            const explainGraphHref =
+            const manifestId = defaultManifestIdForShowcaseFinding(runId, row.findingId);
+            const manifestHref =
+              manifestId !== null ? runDetailSectionHref(runId, "manifest-summary") : null;
+            const graphHref =
               (typeof row.evidenceRefCount === "number" &&
                 Number.isFinite(row.evidenceRefCount) &&
                 row.evidenceRefCount > 0) ||
               graphFocusId !== null
                 ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
                 : null;
+            const explainGraphHref =
+              primaryFindingEvidenceNavigationHref(
+                manifestHref !== null
+                  ? [{ kind: "manifestSection", label: "Manifest", detail: null, href: manifestHref }]
+                  : graphHref !== null
+                    ? [{ kind: "graphNode", label: "Graph", detail: null, href: graphHref }]
+                    : [],
+              ) ?? graphHref;
 
             return (
               <div

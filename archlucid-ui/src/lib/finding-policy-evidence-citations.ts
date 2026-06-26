@@ -1,7 +1,15 @@
 import { typedPayloadLookupString } from "@/lib/finding-display-from-inspect";
-import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
-import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 import { normalizeEvidenceRefSnippet } from "@/lib/finding-evidence-ref-snippet";
+import {
+  buildSourceEvidenceLinksFromEvidenceRefs,
+  buildSourceEvidenceLinksFromInspectEvidence,
+  defaultManifestIdForShowcaseFinding,
+  parseEvidenceRefToSourceLink,
+  primaryFindingEvidenceNavigationHref,
+  runDetailSectionHref,
+} from "@/lib/finding-source-evidence-links";
+import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy-pack-rule-key-prefix-catalog";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy-packs-deep-link";
@@ -140,14 +148,13 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
   runId: string,
   findingId: string,
   payload: FindingInspectPayload,
+  manifestId: string | null = null,
 ): FindingPolicyEvidenceCitationModel {
   const ruleId = resolvePolicyRuleIdFromInspect(payload);
   const ruleLabel = resolvePolicyRuleLabelFromInspect(payload, ruleId);
   const packId = resolvePolicyPackIdFromInspect(payload);
   const packName = resolvePolicyPackNameFromInspect(payload, packId);
-  const inspectHref = findingInspectHref(runId, findingId);
-  const graphHref = graphEvidenceHrefFromInspect(runId, findingId, payload);
-  const defaultEvidenceHref = graphHref ?? inspectHref;
+  const linkContext = { runId, findingId, manifestId };
 
   const pack =
     packId !== null && packName !== null
@@ -168,8 +175,8 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
       : null;
 
   const evidence = payload.evidence
-    .map((row) => {
-      const label = findingInspectEvidenceCitationLabel(row);
+    .map((row, index) => {
+      const sourceLink = buildSourceEvidenceLinksFromInspectEvidence(linkContext, row, index);
       const lineRange = nonEmptyString(row.lineRange);
       const artifactId = nonEmptyString(row.artifactId);
       const detailParts: string[] = [];
@@ -183,9 +190,9 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
       }
 
       return {
-        label,
-        detail: detailParts.length > 0 ? detailParts.join(" · ") : null,
-        href: defaultEvidenceHref,
+        label: findingInspectEvidenceCitationLabel(row),
+        detail: sourceLink.detail ?? (detailParts.length > 0 ? detailParts.join(" · ") : null),
+        href: sourceLink.href,
       };
     })
     .filter((row) => row.label.trim().length > 0);
@@ -230,20 +237,26 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
   const ruleId = nonEmptyString(finding.policyRuleId);
   const ruleLabel = ruleId;
   const { pack, policy } = buildPolicyTraceabilityLinksFromRuleId(ruleId, ruleLabel);
-  const inspectHref = findingInspectHref(runId, finding.findingId);
-  const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, finding.findingId);
-  const graphHref =
-    (finding.evidenceRefCount ?? 0) > 0 || graphFocusId !== null
-      ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
-      : null;
-  const defaultEvidenceHref = graphHref ?? inspectHref;
+  const manifestId = defaultManifestIdForShowcaseFinding(runId, finding.findingId);
+  const linkContext = { runId, findingId: finding.findingId, manifestId };
 
   const evidenceFromSnippets = (finding.evidenceRefSnippets ?? [])
-    .map((snippet) => ({
-      label: snippet,
-      detail: null as string | null,
-      href: defaultEvidenceHref,
-    }))
+    .map((snippet) => {
+      const parsed =
+        parseEvidenceRefToSourceLink(snippet, linkContext) ??
+        ({
+          kind: "artifactSection" as const,
+          label: snippet,
+          detail: null,
+          href: runDetailSectionHref(runId, "artifacts-exports"),
+        });
+
+      return {
+        label: snippet,
+        detail: parsed.detail,
+        href: parsed.href,
+      };
+    })
     .filter((row) => row.label.trim().length > 0);
 
   if (evidenceFromSnippets.length > 0) {
@@ -256,6 +269,14 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
     return { pack, policy, evidence: [] };
   }
 
+  const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, finding.findingId);
+  const fallbackLinks = buildSourceEvidenceLinksFromEvidenceRefs(linkContext, [`evidence:${finding.findingId}`]);
+  const fallbackHref =
+    primaryFindingEvidenceNavigationHref(fallbackLinks) ??
+    (graphFocusId !== null
+      ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
+      : runDetailSectionHref(runId, "manifest-summary"));
+
   return {
     pack,
     policy,
@@ -263,7 +284,7 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
       {
         label: evidenceRefCount === 1 ? "1 linked evidence reference" : `${evidenceRefCount} linked evidence references`,
         detail: null,
-        href: defaultEvidenceHref,
+        href: fallbackHref,
       },
     ],
   };

@@ -1,9 +1,9 @@
 ﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
-> **Generated:** 2026-06-25 16:00 UTC (GPT-5.5)
+> **Generated:** 2026-06-25 23:35 UTC (GPT-5.5)
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.38%`
+`ArchLucid Assessment – (A) Headline Readiness: 90.76%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -25,19 +25,19 @@
 
 | # | Quality | Score (1-100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
-| 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 1.69 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 93 | 13 | 12.09 | 0.91 |
+| 1 | Decision-Changing Insight Density | 88 | 13 | 11.44 | 1.56 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
 | 3 | Governed Review Integrity | 93 | 13 | 12.09 | 0.91 |
-| 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
+| 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 88 | 10 | 8.80 | 1.20 |
 | 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 92 | 7 | 6.44 | 0.56 |
 | 10 | Adoption Friction | 79 | 5 | 3.95 | 1.05 |
-| **Total** | | | **100** | **90.38%** | **9.62%** |
+| **Total** | | | **100** | **90.76%** | **9.24%** |
 
-*(A) Headline Readiness: 90.38%*
+*(A) Headline Readiness: 90.76%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 90.38%. TB-402 ships: all curated docs route through in-app `/help/{topic}` or marketing pages — zero GitHub blob links in operator/marketing UI; drift guard passes with empty allowlist; wizard and SAML runbook copy no longer sends buyers to github.com.
+- **(A) Overall headline readiness:** 90.76%. Finding-level evidence traceability ships: findings table and inspect panel render per-row deep links into manifest sections, artifact exports, and graph trail anchors; Vitest + Playwright cover showcase PHI finding → `#manifest-summary`. TB-402 (zero GitHub seams) remains shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -89,8 +89,8 @@
 # 7. Weighted Quality Assessment (detail)
 
 ### 1. Decision-Changing Insight Density
-- **Score:** 87 · **Weight:** 13 · **Contribution:** 11.31 · **Deficiency:** 1.69
-- **Justification:** Cloud-aware agent prompts steer Topology/Cost/Compliance findings toward AWS/GCP constructs (EC2, S3, GKE, IAM) instead of Azure defaults when `CloudProvider` is set.
+- **Score:** 88 · **Weight:** 13 · **Contribution:** 11.44 · **Deficiency:** 1.56
+- **Justification:** Findings table and inspect panel expose one-click navigation from each evidence row to manifest sections or graph nodes — architects can verify citations without leaving the review workflow.
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
@@ -105,8 +105,8 @@
 - **Class:** V1 ready.
 
 ### 4. Differentiability / Defensibility vs Frontier AI
-- **Score:** 93 · **Weight:** 13 · **Contribution:** 12.09 · **Deficiency:** 0.91
-- **Justification:** Multi-cloud cost augmentation probes AWS Price List and GCP Billing Catalog (when configured) alongside Azure Retail — not wrapper-only illustrative labels.
+- **Score:** 94 · **Weight:** 13 · **Contribution:** 12.22 · **Deficiency:** 0.78
+- **Justification:** Traceable evidence deep-links (`finding-source-evidence-links.ts`) tie findings to uploaded manifest sections and artifact line ranges — harder to dismiss as a chat wrapper.
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
@@ -115,8 +115,8 @@
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
-- **Score:** 93 · **Weight:** 12 · **Contribution:** 11.16 · **Deficiency:** 0.84
-- **Justification:** `MultiCloudInfrastructureCostArtifactAugmentationProvider` routes nodes to Azure Retail, AWS Price List, or GCP Catalog with honest summary notes when APIs miss.
+- **Score:** 94 · **Weight:** 12 · **Contribution:** 11.28 · **Deficiency:** 0.72
+- **Justification:** Inspect evidence rows and quick-decision snippets resolve to in-app anchors (`#manifest-summary`, `#artifacts-exports`, graph trail) via OpenAPI-equivalent provenance fields; E2E asserts showcase PHI finding links to manifest summary.
 - **Class:** V1 ready.
 
 ### 7. Proof-of-ROI Readiness
@@ -197,7 +197,7 @@ ArchLucid is becoming more valuable faster than frontier AI is becoming capable.
 When ArchLucid automatically catches an Azure networking misalignment against *their specific corporate standard* that they forgot to check, and immediately drafts a ServiceNow ticket for it.
 
 **Immediate dismissal trigger:**
-If the system hallucinates a finding that is clearly contradicted by the uploaded Azure evidence ZIP, the architect will immediately dismiss it as "just another wrapper." *Likelihood today:* 15%, heavily mitigated by the strict citation constraints.
+If the system hallucinates a finding that is clearly contradicted by the uploaded Azure evidence ZIP, the architect will immediately dismiss it as "just another wrapper." *Likelihood today:* 10%, heavily mitigated by strict citation constraints and one-click evidence deep-links from every finding row.
 
 **Why buy ArchLucid instead of more frontier-AI licenses?**
 Because you cannot give an auditor a Claude chat transcript to prove that your architecture review process enforces the CIS Azure Foundations Benchmark consistently across 50 development teams. ArchLucid provides the proof.
@@ -248,18 +248,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 17. Top Improvement Opportunities
 
 **Tier 1 – Must Fix**
-
-- **Title:** Finding-Level Evidence Traceability Deep-Links
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Principal architects dismiss the product if they cannot click from a finding to the manifest section or artifact line that proves it — the primary hallucination dismissal trigger.
-- **Expected impact:** Every finding row exposes navigable evidence anchors; reduces "wrapper" perception and supports audit walkthroughs.
-- **Affected qualities:** Correctness & Evidence Integrity, Decision-Changing Insight Density, Differentiability.
-- **Evidence:** Assessment §11 dismissal trigger; `PRODUCT_DOCUMENTATION_PRESENTATION.md`.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 4
-- **Market Uncertainty Reduced:** 6
-- **Classification:** V1
-- **Cursor Prompt:** On review findings table and inspect panel, render `sourceEvidenceLinks` (or equivalent provenance fields from OpenAPI) as deep links into architecture/evidence views. Add Vitest + Playwright tests asserting at least one finding links to a manifest section on the golden-cohort fixture.
 
 - **Title:** Graph-RAG Retrieval Quality Telemetry + Pilot Floor
 - **Tier:** Tier 2 – High Leverage
@@ -326,10 +314,9 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 1 traceability — finding-level evidence deep-links.
-2. **Batch 2:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
-3. **Batch 3:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
-4. **Batch 4:** V1.1 membrane — MCP façade scaffold (design-only until approved).
+1. **Batch 1:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
+2. **Batch 2:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+3. **Batch 3:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance
 

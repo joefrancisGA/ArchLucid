@@ -37,6 +37,11 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { postFindingMute } from "@/lib/api";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
+import {
+  defaultManifestIdForShowcaseFinding,
+  primaryFindingEvidenceNavigationHref,
+  runDetailSectionHref,
+} from "@/lib/finding-source-evidence-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   firstRecommendationSentence,
@@ -167,10 +172,21 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     const badgeLabel = severityBadgeLabel(f.severityValue);
     const graphFocusId = preferredGraphNodeIdForFindingDeepLink(props.runId, f.findingId);
     const evidenceRefCount = f.evidenceRefCount ?? 0;
-    const viewEvidenceHref =
+    const manifestId = defaultManifestIdForShowcaseFinding(props.runId, f.findingId);
+    const manifestHref =
+      manifestId !== null ? runDetailSectionHref(props.runId, "manifest-summary") : null;
+    const graphHref =
       evidenceRefCount > 0 || graphFocusId !== null
         ? graphTrailHrefWithOptionalNode(props.runId, graphFocusId)
         : null;
+    const viewEvidenceHref =
+      primaryFindingEvidenceNavigationHref(
+        manifestHref !== null
+          ? [{ kind: "manifestSection", label: "Manifest", detail: null, href: manifestHref }]
+          : graphHref !== null
+            ? [{ kind: "graphNode", label: "Graph", detail: null, href: graphHref }]
+            : [],
+      ) ?? graphHref;
     const citationModel = buildFindingPolicyEvidenceCitationsFromQuickDecision(props.runId, f);
 
     return (

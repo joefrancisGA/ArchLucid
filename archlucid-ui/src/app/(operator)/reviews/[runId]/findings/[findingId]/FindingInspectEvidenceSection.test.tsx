@@ -38,7 +38,13 @@ describe("FindingInspectEvidenceSection", () => {
             ruleLabel: "Deny public ingress",
             href: "/policy-packs?ruleId=sec-base-001",
           },
-          evidence: [],
+          evidence: [
+            {
+              label: "Open signed record section",
+              detail: "Lines 12-14 · diagram-1",
+              href: "/reviews/run-1#manifest-summary",
+            },
+          ],
         }}
       />,
     );
@@ -46,6 +52,10 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.getByTestId("finding-inspect-policy-rule-callout")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Supporting architecture evidence" })).toBeTruthy();
     expect(screen.getByText("Public ingress on port 443")).toBeTruthy();
+    expect(screen.getByTestId("finding-source-evidence-link")).toHaveAttribute(
+      "href",
+      "/reviews/run-1#manifest-summary",
+    );
   });
 
   it("keeps evidence-only layout when no policy context is available", () => {
