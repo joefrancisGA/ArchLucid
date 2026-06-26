@@ -22192,6 +22192,97 @@
         },
         "type": "object"
       },
+      "TenantItsmDeploymentCredentialSummary": {
+        "properties": {
+          "jiraConfigured": {
+            "type": "boolean"
+          },
+          "jiraServiceAccountEmailMasked": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "serviceNowConfigured": {
+            "type": "boolean"
+          },
+          "serviceNowUsernameMasked": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantItsmOutboundSettingsResponse": {
+        "properties": {
+          "deploymentCredentials": {
+            "$ref": "#/components/schemas/TenantItsmDeploymentCredentialSummary"
+          },
+          "hasTenantOverrides": {
+            "type": "boolean"
+          },
+          "jiraIssueTypeBySeverityJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraProjectKeyOverride": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraSendInfoSeverity": {
+            "type": "boolean"
+          },
+          "nativeEnabled": {
+            "type": "boolean"
+          },
+          "serviceNowAutoCreateCmdbCi": {
+            "type": "boolean"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId"
+        ],
+        "type": "object"
+      },
+      "TenantItsmOutboundSettingsUpsertRequest": {
+        "properties": {
+          "jiraIssueTypeBySeverityJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraProjectKeyOverride": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraSendInfoSeverity": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "serviceNowAutoCreateCmdbCi": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantLinkEntraRequest": {
         "properties": {
           "entraOid": {
@@ -55535,6 +55626,124 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/integrations/itsm/settings": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantItsmOutboundSettingsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantItsmOutboundSettingsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantItsmOutboundSettingsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantItsmOutboundSettings"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantItsmOutboundSettingsUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantItsmOutboundSettingsUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantItsmOutboundSettingsUpsertRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantItsmOutboundSettingsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantItsmOutboundSettingsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantItsmOutboundSettingsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "TenantItsmOutboundSettings"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/integrations/teams/connections": {
       "delete": {
         "responses": {
@@ -67715,6 +67924,9 @@
     },
     {
       "name": "TenantIntegrationsOperations"
+    },
+    {
+      "name": "TenantItsmOutboundSettings"
     },
     {
       "name": "TenantLlmCostReporting"

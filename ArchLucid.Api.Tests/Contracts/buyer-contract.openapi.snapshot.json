@@ -22192,6 +22192,97 @@
         },
         "type": "object"
       },
+      "TenantItsmDeploymentCredentialSummary": {
+        "properties": {
+          "jiraConfigured": {
+            "type": "boolean"
+          },
+          "jiraServiceAccountEmailMasked": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "serviceNowConfigured": {
+            "type": "boolean"
+          },
+          "serviceNowUsernameMasked": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantItsmOutboundSettingsResponse": {
+        "properties": {
+          "deploymentCredentials": {
+            "$ref": "#/components/schemas/TenantItsmDeploymentCredentialSummary"
+          },
+          "hasTenantOverrides": {
+            "type": "boolean"
+          },
+          "jiraIssueTypeBySeverityJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraProjectKeyOverride": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraSendInfoSeverity": {
+            "type": "boolean"
+          },
+          "nativeEnabled": {
+            "type": "boolean"
+          },
+          "serviceNowAutoCreateCmdbCi": {
+            "type": "boolean"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId"
+        ],
+        "type": "object"
+      },
+      "TenantItsmOutboundSettingsUpsertRequest": {
+        "properties": {
+          "jiraIssueTypeBySeverityJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraProjectKeyOverride": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "jiraSendInfoSeverity": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "serviceNowAutoCreateCmdbCi": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantLinkEntraRequest": {
         "properties": {
           "entraOid": {
@@ -26150,6 +26241,9 @@
     },
     {
       "name": "TenantIntegrationsOperations"
+    },
+    {
+      "name": "TenantItsmOutboundSettings"
     },
     {
       "name": "TenantLlmCostReporting"
