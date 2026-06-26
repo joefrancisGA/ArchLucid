@@ -79526,6 +79526,16 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("documentMetadataMalformed")]
         public bool? DocumentMetadataMalformed { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("graphRagExpansionLatencyMs")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? GraphRagExpansionLatencyMs { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphRagNeighborsAdded")]
+        public int? GraphRagNeighborsAdded { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphRagSeedHits")]
+        public int? GraphRagSeedHits { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("retrievedChunkCount")]
         public int? RetrievedChunkCount { get; set; } = default!;
 
@@ -79600,8 +79610,24 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("expectedAgentsMissingTraces")]
         public System.Collections.Generic.ICollection<string>? ExpectedAgentsMissingTraces { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("graphRagNeighborHitRate")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? GraphRagNeighborHitRate { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphRagPilotFloorDisposition")]
+        public string? GraphRagPilotFloorDisposition { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("operatorDetail")]
         public string? OperatorDetail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalGraphRagNeighborsAdded")]
+        public int? TotalGraphRagNeighborsAdded { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalGraphRagSeedHits")]
+        public int? TotalGraphRagSeedHits { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalRetrievalTokensIn")]
+        public int? TotalRetrievalTokensIn { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalRetrievedChunks")]
         public int? TotalRetrievedChunks { get; set; } = default!;
