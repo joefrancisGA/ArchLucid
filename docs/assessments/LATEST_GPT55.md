@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.47%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.60%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -32,12 +32,12 @@
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
+| 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 83 | 5 | 4.15 | 0.85 |
-| **Total** | | | **100** | **91.47%** | **8.53%** |
+| 10 | Adoption Friction | 84 | 5 | 4.20 | 0.80 |
+| **Total** | | | **100** | **91.60%** | **8.40%** |
 
-*(A) Headline Readiness: 91.47%*
+*(A) Headline Readiness: 91.60%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.26%. CI/CD governance gate reference pipelines ship (`examples/ci/archlucid-governance-gate.sh`, GitHub Actions + ADO YAML, `docs/runbooks/CI_GOVERNANCE_GATE.md`) — fail on pre-commit 409 and PilotStrict HOLD. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 91.60%. CI/CD governance gate reference pipelines ship (`examples/ci/archlucid-governance-gate.sh`, GitHub Actions + ADO YAML, `docs/runbooks/CI_GOVERNANCE_GATE.md`) — fail on pre-commit 409 and PilotStrict HOLD. **Help product-language sweep shipped (2026-06-26):** `applyHelpProductLanguage` normalizes manifest/run-primary copy in rendered help and regenerated search excerpts; legacy `/runs/` operator links rewrite to `/reviews/`; drift guards in `help-markdown-presentation.test.tsx` and `help-index.test.ts`. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 83 · **Weight:** 5 · **Contribution:** 4.15 · **Deficiency:** 0.85
-- **Justification:** Reference GitHub Actions and Azure DevOps governance-gate pipelines (`examples/ci/`) create → execute → commit from repo context, fail on `#governance-pre-commit-blocked` and PilotStrict HOLD, and surface review URLs in PR checks — reduces principal-architect bypass vs IDE chat. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion.
+- **Score:** 84 · **Weight:** 5 · **Contribution:** 4.20 · **Deficiency:** 0.80 *(was 83 — help product-language sweep done 2026-06-26)*
+- **Justification:** Reference GitHub Actions and Azure DevOps governance-gate pipelines (`examples/ci/`) create → execute → commit from repo context, fail on `#governance-pre-commit-blocked` and PilotStrict HOLD, and surface review URLs in PR checks — reduces principal-architect bypass vs IDE chat. In-app help and search excerpts now apply review-package vocabulary and TB-399 `/reviews/` route rewrites instead of legacy manifest/run-primary phrasing.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -124,8 +124,8 @@
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
-- **Score:** 91 · **Weight:** 8 · **Contribution:** 7.28 · **Deficiency:** 0.72
-- **Justification:** Privacy, trust, security-trust, wizard help, and assurance engagement rows route to in-app `/help` — `customer-facing-github-blob-guard.test.ts` passes with zero allowlist.
+- **Score:** 92 · **Weight:** 8 · **Contribution:** 7.36 · **Deficiency:** 0.64 *(was 91 — help product-language sweep done 2026-06-26)*
+- **Justification:** Privacy, trust, security-trust, wizard help, and assurance engagement rows route to in-app `/help` — `customer-facing-github-blob-guard.test.ts` passes with zero allowlist. Help markdown presentation and search index excerpts normalize legacy manifest/run copy to review-package vocabulary at render time.
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
@@ -149,7 +149,7 @@
 5. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
 6. **GCP Billing Catalog API Key:** Live GCP pricing requires optional `GcpBillingCatalog:ApiKey` configuration — not zero-config like Azure Retail. *Fix:* Document wizard/API-key path and fall back honestly when unset.
 7. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
-8. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
+8. **UI "Manifest" Nomenclature:** TB-399 redirects ship; **help render + search excerpts normalized (2026-06-26)** — residual contributor doc source may still say manifest for API compatibility.
 9. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
 10. **ITSM Connector Onboarding (TB-404):** Outbound ITSM create works, but per-tenant Jira/ServiceNow setup still requires admin/API knowledge. *Fix:* System Administration connector wizard with connection test and masked credentials.
 
@@ -248,6 +248,9 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
+- **Title:** Residual "Manifest" / Technical Copy Sweep in Help Topics — **✅ Done (2026-06-26)**
+- **Shipped:** `help-product-language.ts` applies review-package vocabulary + `/runs/` → `/reviews/` rewrites in `prepareHelpMarkdownForPresentation`; `build-help-search-index.mjs` normalizes excerpts; drift guards in `help-markdown-presentation.test.tsx`, `help-product-language.test.ts`, and `help-index.test.ts`.
+
 - **Title:** ITSM Tenant Connector Onboarding Wizard (TB-404 slice)
 - **Tier:** Tier 2 – High Leverage
 - **Why it matters:** Outbound ITSM create works, but per-tenant connector setup still requires admin/API knowledge — friction for Jira-heavy pilots.
@@ -259,18 +262,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Market Uncertainty Reduced:** 5
 - **Classification:** V1 GA
 - **Cursor Prompt:** Ship System Administration wizard for Jira/ServiceNow: tenant settings write, connection test, masked credential storage — per `TECH_BACKLOG.md` TB-404. Gate on `Integrations:Itsm:NativeEnabled`.
-
-- **Title:** Residual "Manifest" / Technical Copy Sweep in Help Topics
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** TB-399 redirects ship, but help catalog and generated index may still use legacy "manifest" / "run" language — inconsistent with product vocabulary.
-- **Expected impact:** Help topics align with product language (*review package*, *signed record*, *evidence trail*) and TB-399 route posture.
-- **Affected qualities:** Executive / Operator Comprehension, Adoption Friction.
-- **Evidence:** Assessment weakness #9; `help-index.generated.ts`; `help-markdown-presentation.test.tsx`.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 1
-- **Market Uncertainty Reduced:** 3
-- **Classification:** V1
-- **Cursor Prompt:** Grep help catalog + generated index for "manifest", "run/job", and legacy URL paths; align with product language and TB-399 redirects. Extend `help-markdown-presentation.test.tsx` drift guards.
 
 **Tier 3 – Hold For Reassessment**
 
@@ -289,7 +280,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+1. **Batch 1:** TB-404 ITSM connector wizard (remaining). Help-topic manifest copy sweep — **done 2026-06-26**.
 2. **Batch 2:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance

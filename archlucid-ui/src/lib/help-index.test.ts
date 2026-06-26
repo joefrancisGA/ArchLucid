@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { HELP_PRODUCT_LANGUAGE_BANNED_PATTERNS } from "@/lib/help-product-language";
+import { HELP_DOC_SEARCH_RECORDS } from "@/lib/help-index.generated";
 import { searchHelpDocumentation } from "@/lib/help-index";
 
 describe("searchHelpDocumentation", () => {
@@ -39,5 +41,13 @@ describe("searchHelpDocumentation", () => {
     const hits = searchHelpDocumentation("SOC 2 procurement", 30);
 
     expect(hits.some((h) => h.docPath.includes("PROCUREMENT_FAQ"))).toBe(true);
+  });
+
+  it("keeps generated help search excerpts free of legacy manifest/run-primary phrasing", () => {
+    for (const record of HELP_DOC_SEARCH_RECORDS) {
+      for (const pattern of HELP_PRODUCT_LANGUAGE_BANNED_PATTERNS) {
+        expect(pattern.test(record.excerpt)).toBe(false);
+      }
+    }
   });
 });

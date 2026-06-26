@@ -241,14 +241,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "logs-what-to-search-for",
     "sectionHeading": "Logs — what to search for",
-    "excerpt": "- `RunId=` — ties log lines to a single architecture run. - `X-Correlation-ID` you sent on the request (or the ID the server returned) — ties client attempts to server handling; if you only have a problem JSON body, use `correlationId` there (same value). - `Authority pipeline` / `Architecture run execution failed` …"
+    "excerpt": "- `RunId=` — ties log lines to a single architecture review. - `X-Correlation-ID` you sent on the request (or the ID the server returned) — ties client attempts to server handling; if you only have a problem JSON body, use `correlationId` there (same value). - `Authority pipeline` / `architecture review execution failed` …"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "artifact-list-empty-or-download-404",
     "sectionHeading": "Artifact list empty or download 404",
-    "excerpt": "- An empty artifact list (`[]`) can be valid: manifest exists but no synthesized files yet or none stored for that manifest. - Bundle ZIP 404 can mean “no bundle” vs “manifest not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
+    "excerpt": "- An empty artifact list (`[]`) can be valid: review package exists but no synthesized files yet or none stored for that review package. - Bundle ZIP 404 can mean “no bundle” vs “review package not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",

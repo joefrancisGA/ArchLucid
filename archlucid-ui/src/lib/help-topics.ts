@@ -18,7 +18,7 @@ export type HelpTopic = {
 export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting", "auth", "cli", "support-bundle"]);
 
 /**
- * Guides tab default ordering — buyer golden path first (new review → reviews/manifest → graph → Ask → governance).
+ * Guides tab default ordering — buyer golden path first (new review → reviews → graph → Ask → governance).
  */
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",

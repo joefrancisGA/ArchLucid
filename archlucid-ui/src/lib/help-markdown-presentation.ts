@@ -1,4 +1,5 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { applyHelpProductLanguage } from "@/lib/help-product-language";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
 
@@ -129,7 +130,11 @@ export function rewriteHelpMarkdownDocLinks(markdown: string, sourceDocPath: str
     }
 
     if (trimmedHref.startsWith("/") && !trimmedHref.startsWith("//")) {
-      return `[${humanizeMarkdownLinkLabel(label, trimmedHref)}](${trimmedHref})`;
+      const migratedHref = trimmedHref.startsWith("/runs/")
+        ? trimmedHref.replace(/^\/runs\//, "/reviews/")
+        : trimmedHref;
+
+      return `[${humanizeMarkdownLinkLabel(label, migratedHref)}](${migratedHref})`;
     }
 
     const hashIndex = trimmedHref.indexOf("#");
@@ -248,6 +253,7 @@ export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPa
   const withoutPreamble = stripLeadingContributorScopeBlockquote(markdown);
   const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutPreamble));
   const rewrittenLinks = rewriteHelpMarkdownDocLinks(normalized, sourceDocPath);
+  const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
 
-  return sanitizeBareMarkdownFileReferences(rewrittenLinks);
+  return applyHelpProductLanguage(sanitized);
 }

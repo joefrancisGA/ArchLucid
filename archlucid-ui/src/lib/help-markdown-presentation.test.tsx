@@ -90,20 +90,15 @@ describe("help-markdown-presentation", () => {
     expect(prepared).toMatch(/\[Core Pilot\]\(\/help\/core-pilot\)/);
   });
 
-  it("strips internal change set labels and duplicate titles from help markdown", () => {
-    const source = [
-      "> **Scope:** Contributor-reference — ArchLucid operator shell (Change Set 55R)",
-      "",
-      "# ArchLucid operator shell (Change Set 55R)",
-      "",
-      "## What it is",
-    ].join("\n");
-
+  it("applies review-package product language and migrates legacy /runs/ links", () => {
+    const source =
+      "An empty artifact list can be valid: manifest exists but none stored for that manifest. See [/runs/new](/runs/new).";
     const prepared = prepareHelpMarkdownForPresentation(source, "docs/library/operator-shell.md");
 
-    expect(prepared.includes("Change Set")).toBe(false);
-    expect(prepared.includes("55R")).toBe(false);
-    expect(prepared.startsWith("## What it is")).toBe(true);
+    expect(prepared).toContain("review package exists");
+    expect(prepared).toContain("](/reviews/new)");
+    expect(prepared.includes("manifest exists")).toBe(false);
+    expect(prepared.includes("/runs/")).toBe(false);
   });
 });
 
