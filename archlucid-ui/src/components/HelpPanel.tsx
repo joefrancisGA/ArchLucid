@@ -20,6 +20,7 @@ import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { getDocHref, helpTopicsForGuidesTab, helpTopicsForTroubleshootingTab, type HelpTopic } from "@/lib/help-topics";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Button } from "@/components/ui/button";
@@ -171,13 +172,13 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
 
     return (
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
-        <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+        <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
           Core Pilot — suggested next step
         </h3>
-        <p className="m-0 mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+        <p className={cn("m-0 mt-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           Step {pilotCtx.stepIndex + 1} of {CORE_PILOT_STEPS.length}: {pilotCtx.step.title}
         </p>
-        <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-300">{pilotCtx.step.shortBody}</p>
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{pilotCtx.step.shortBody}</p>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" variant="primary">
@@ -193,7 +194,10 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             type="button"
             variant="ghost"
             size="sm"
-            className="h-8 shrink-0 text-xs text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            className={cn(
+              "h-8 shrink-0 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
+              OPERATOR_TYPOGRAPHY.button,
+            )}
             onClick={dismissCorePilotPinForSession}
           >
             Dismiss for this session
@@ -225,7 +229,7 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
       >
         <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-100 px-5 pb-3 pt-5 dark:border-neutral-800">
           <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">Help</DialogTitle>
-          <DialogDescription className="text-left text-sm text-neutral-600 dark:text-neutral-400">
+          <DialogDescription className={cn("text-left text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Search ArchLucid guidance, docs, and shortcuts.
           </DialogDescription>
         </DialogHeader>
@@ -239,7 +243,10 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             <Input
               id="help-search"
               type="search"
-              className="h-9 border-neutral-200 bg-white pl-8 text-sm font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+              className={cn(
+                "h-9 border-neutral-200 bg-white pl-8 font-normal text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-teal-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               placeholder="Search help, docs, or shortcuts"
               value={query}
               onChange={(e) => {
@@ -263,7 +270,8 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                 size="sm"
                 variant="ghost"
                 className={cn(
-                  "h-8 rounded-full px-3 text-xs font-medium",
+                  "h-8 rounded-full px-3 font-medium",
+                  OPERATOR_TYPOGRAPHY.tab,
                   tab === id
                     ? "bg-teal-100 text-teal-900 dark:bg-teal-900/50 dark:text-teal-100"
                     : "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400",
@@ -284,10 +292,10 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
             <div className="space-y-4">
               {corePilotPinnedHelp}
               <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
-                <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+                <h3 className={cn("m-0 font-semibold text-teal-900 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
                   Key concepts
                 </h3>
-                <ul className="m-0 mt-2 list-none space-y-1.5 p-0 text-sm text-neutral-700 dark:text-neutral-300">
+                <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   {KEY_CONCEPTS.map((row) => (
                     <li key={row.label}>
                       <span className="font-semibold text-neutral-800 dark:text-neutral-200">{row.label}:</span> {row.text}
@@ -295,11 +303,11 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                   ))}
                 </ul>
               </div>
-              <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              <h3 className={cn("m-0 font-semibold text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
                 Topics
               </h3>
               {guidesFiltered.length === 0 ? (
-                <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">No topics match your search.</p>
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No topics match your search.</p>
               ) : (
                 <ul className="m-0 list-none space-y-2 p-0">
                   {guidesFiltered.map((topic) => {
@@ -311,12 +319,12 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                         className="rounded-md border border-neutral-200/90 bg-white p-3 shadow-sm dark:border-neutral-600 dark:bg-neutral-900/50"
                       >
                         <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
-                        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{topic.summary}</p>
+                        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
                         {href ? (
                           <Link
                             href={href}
                             title={topic.docPath}
-                            className="mt-2 inline-block text-sm font-medium text-teal-800 underline dark:text-teal-300"
+                            className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
                           >
                             Open documentation
                           </Link>
@@ -332,14 +340,14 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           {tab === "troubleshooting" ? (
             <div className="space-y-3">
               <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
-                <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Support bundle</p>
-                <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Support bundle</p>
+                <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                   Download a redacted diagnostics ZIP for support tickets (same artefact as Admin → Support).
                 </p>
                 <SupportBundleDownloadButton className="mt-3 space-y-2" />
               </div>
               {troubleshootingFiltered.length === 0 ? (
-                <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">No topics match your search.</p>
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No topics match your search.</p>
               ) : (
                 <ul className="m-0 list-none space-y-2 p-0">
                   {troubleshootingFiltered.map((topic) => {
@@ -351,12 +359,12 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
                         className="rounded-md border border-neutral-200/90 bg-white p-3 shadow-sm dark:border-neutral-600 dark:bg-neutral-900/50"
                       >
                         <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
-                        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{topic.summary}</p>
+                        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{topic.summary}</p>
                         {href ? (
                           <Link
                             href={href}
                             title={topic.docPath}
-                            className="mt-2 inline-block text-sm font-medium text-teal-800 underline dark:text-teal-300"
+                            className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
                           >
                             Open documentation
                           </Link>
@@ -372,16 +380,19 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
           {tab === "shortcuts" ? (
             <div className="space-y-3">
               {query.trim().length > 0 && shortcutsSearchHits.length === 0 ? (
-                <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">No shortcuts match your search.</p>
+                <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>No shortcuts match your search.</p>
               ) : query.trim().length > 0 ? (
                 <div>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  <h3 className={cn("mb-2 font-semibold text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
                     Search results
                   </h3>
                   <div className="space-y-2 rounded-md border border-neutral-200/80 p-2 dark:border-neutral-600">
                     {shortcutsSearchHits.map((row) => (
-                      <div key={row.key} className="text-sm text-neutral-700 dark:text-neutral-300">
-                        <kbd className="mr-2 rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-xs dark:border-neutral-600 dark:bg-neutral-800">
+                      <div key={row.key} className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                        <kbd className={cn(
+                          "mr-2 rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono dark:border-neutral-600 dark:bg-neutral-800",
+                          OPERATOR_TYPOGRAPHY.micro,
+                        )}>
                           {row.key}
                         </kbd>
                         {row.description}
@@ -397,9 +408,9 @@ export function HelpPanel({ open, onOpenChange, initialTab = "guides" }: HelpPan
         </div>
 
         <div className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             In-app:{" "}
-            <Link href="/onboarding" className="font-medium text-teal-800 underline dark:text-teal-300">
+            <Link href="/onboarding" className={OPERATOR_LINK.nav}>
               Getting started
             </Link>{" "}
             (first-review checklist on Overview)

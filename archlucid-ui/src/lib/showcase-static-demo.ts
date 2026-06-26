@@ -293,7 +293,18 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       faithfulnessSupportRatio: null,
       deterministicFallbackUsed: false,
       faithfulnessWarning: null,
-      findingTraceConfidences: null,
+      findingTraceConfidences: [
+        {
+          findingId: "phi-minimization-risk",
+          findingTitle: "PHI Minimization Risk",
+          // Wire enum: 0 = High (see normalizeFindingConfidenceLevel in types/explanation.ts).
+          confidenceLevel: 0,
+          evaluationConfidenceScore: 95,
+          evidenceRefCount: 3,
+          traceConfidenceLabel: "High",
+          traceCompletenessRatio: 0.95,
+        },
+      ],
       citations: [
         { kind: "Manifest", id: SHOWCASE_STATIC_DEMO_MANIFEST_ID, label: SIGNED_MANIFEST_LABEL, runId },
         {
