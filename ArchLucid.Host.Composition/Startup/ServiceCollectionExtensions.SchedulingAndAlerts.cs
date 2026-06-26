@@ -417,7 +417,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
 
         services.AddScoped<PolicyPackResolver>();
-        services.AddScoped<CachingPolicyPackResolver>();
+        services.AddScoped<CachingPolicyPackResolver>(static sp =>
+            new CachingPolicyPackResolver(
+                sp.GetRequiredService<PolicyPackResolver>(),
+                sp.GetRequiredService<IHotPathReadCache>()));
         services.AddScoped<ArchLucid.Core.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>
             sp.GetRequiredService<CachingPolicyPackResolver>());
         services.AddScoped<ArchLucid.Decisioning.Governance.PolicyPacks.IPolicyPackResolver>(static sp =>
