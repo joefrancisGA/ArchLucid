@@ -37,7 +37,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
   if (loading) {
     return (
       <OperatorEmptyState title="Effective governance">
-        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300" data-testid="compare-governance-diff-loading">
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="compare-governance-diff-loading">
           Loading policy pack basis for this comparison…
         </p>
       </OperatorEmptyState>
