@@ -7,7 +7,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OPERATOR_CARD, OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { RecommendationLearningPageViewModel } from "./recommendation-learning-page-view-model";
 import {
@@ -40,8 +41,8 @@ export function RecommendationLearningPageView(props: Props) {
   return (
     <div className={`max-w-4xl ${OPERATOR_LAYOUT.sectionStack}`}>
       <div className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <h2 className="mt-0">Recommendation tuning</h2>
-        <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Recommendation tuning</h2>
+        <p className={cn("leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Tune how ArchLucid ranks advisory recommendations based on accepted, deferred, rejected, and implemented
           outcomes. This is an advanced admin tool for improving advisory ranking from historical outcomes.
         </p>
@@ -49,10 +50,10 @@ export function RecommendationLearningPageView(props: Props) {
 
       <Card className="border-neutral-200 dark:border-neutral-700">
         <CardHeader className={OPERATOR_CARD.header}>
-          <CardTitle className="text-sm font-semibold text-al-text-primary">What this affects</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>What this affects</CardTitle>
         </CardHeader>
         <CardContent className={OPERATOR_CARD.content}>
-          <ul className="m-0 list-disc space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {WHAT_THIS_AFFECTS.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -80,7 +81,7 @@ export function RecommendationLearningPageView(props: Props) {
       ) : null}
 
       {m.loading ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400" role="status">
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
           Loading tuning profile…
         </p>
       ) : null}
@@ -121,26 +122,26 @@ export function RecommendationLearningPageView(props: Props) {
         <>
           <Card className="border-neutral-200 dark:border-neutral-700">
             <CardHeader className={OPERATOR_CARD.header}>
-              <CardTitle className="text-sm font-semibold text-al-text-primary">Current tuning profile</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Current tuning profile</CardTitle>
             </CardHeader>
-            <CardContent className={`${OPERATOR_CARD.content} space-y-3 text-sm text-neutral-600 dark:text-neutral-400`}>
+            <CardContent className={cn(OPERATOR_CARD.content, "space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               <dl className="m-0 grid gap-2 sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Last rebuilt</dt>
+                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Last rebuilt</dt>
                   <dd className="m-0 text-al-text-primary">{formatProfileGeneratedUtc(m.profile.generatedUtc)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Records analyzed</dt>
+                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Records analyzed</dt>
                   <dd className="m-0 text-al-text-primary">{countRecordsAnalyzed(m.profile).toLocaleString()}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Categories tuned</dt>
+                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Categories tuned</dt>
                   <dd className="m-0 text-al-text-primary">
                     {tunedCategories.length > 0 ? tunedCategories.join(", ") : "None yet"}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Mode</dt>
+                  <dt className={OPERATOR_NAV_GROUP_LABEL}>Mode</dt>
                   <dd className="m-0 text-al-text-primary">Advisory ranking only</dd>
                 </div>
               </dl>
@@ -149,10 +150,10 @@ export function RecommendationLearningPageView(props: Props) {
 
           {learnedSignals.length > 0 ? (
             <section aria-labelledby="recommendation-tuning-signals-heading">
-              <h3 id="recommendation-tuning-signals-heading" className="text-sm font-semibold text-al-text-primary">
+              <h3 id="recommendation-tuning-signals-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
                 Top learned signals
               </h3>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
+              <ul className={cn("mt-2 list-disc space-y-1 pl-5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {learnedSignals.map((signal) => (
                   <li key={signal.label}>{signal.label}</li>
                 ))}
@@ -165,9 +166,9 @@ export function RecommendationLearningPageView(props: Props) {
             defaultOpen={false}
             sectionTestId="recommendation-tuning-weight-details"
           >
-            <div className="space-y-4 text-sm text-neutral-600 dark:text-neutral-400">
+            <div className={cn("space-y-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                <h4 className="mb-2 text-sm font-medium text-al-text-primary">Category weights</h4>
+                <h4 className={cn("mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Category weights</h4>
                 <ul className="m-0 list-disc pl-5">
                   {Object.entries(m.profile.categoryWeights).map(([key, value]) => (
                     <li key={key}>
@@ -177,7 +178,7 @@ export function RecommendationLearningPageView(props: Props) {
                 </ul>
               </div>
               <div>
-                <h4 className="mb-2 text-sm font-medium text-al-text-primary">Urgency weights</h4>
+                <h4 className={cn("mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Urgency weights</h4>
                 <ul className="m-0 list-disc pl-5">
                   {Object.entries(m.profile.urgencyWeights).map(([key, value]) => (
                     <li key={key}>
@@ -187,7 +188,7 @@ export function RecommendationLearningPageView(props: Props) {
                 </ul>
               </div>
               <div>
-                <h4 className="mb-2 text-sm font-medium text-al-text-primary">Signal type weights</h4>
+                <h4 className={cn("mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Signal type weights</h4>
                 <ul className="m-0 list-disc pl-5">
                   {Object.entries(m.profile.signalTypeWeights).map(([key, value]) => (
                     <li key={key}>
