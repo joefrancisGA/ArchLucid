@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 89.69%`
+`ArchLucid Assessment – (A) Headline Readiness: 90.03%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -35,18 +35,18 @@
 | # | Quality | Score (1–100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 84 | 13 | 10.92 | 2.08 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 90 | 13 | 11.70 | 1.30 |
-| 3 | Governed Review Integrity | 94 | 13 | 12.22 | 0.78 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 91 | 13 | 11.83 | 1.17 |
+| 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
 | 4 | Correctness & Evidence Integrity | 91 | 12 | 10.92 | 1.08 |
 | 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
 | 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
+| 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
 | 10 | Adoption Friction | 86 | 5 | 4.30 | 0.70 |
-| **Total** | | | **100** | **89.69%** | **10.31%** |
+| **Total** | | | **100** | **90.03%** | **9.97%** |
 
-*(A) Headline Readiness: 89.69%*
+*(A) Headline Readiness: 90.03%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **89.69%** (+0.28 from **#9** — Governed Review Integrity 94, Executive/Operator Comprehension 91, Runtime 94; cumulative +0.77 from **#11** + **#9**). Diagnostic 30-day usage **+1%** for clearer commit-block recovery path; market validation gap unchanged.
+**Reconciliation:** Headline **90.03%** (+0.34 from **#12** — Differentiability 91, Governed Review Integrity 95, Executive/Operator Comprehension 92; cumulative +1.11 from **#11** + **#9** + **#12**). Diagnostic 30-day usage unchanged; executive purchase friction slightly reduced for proof-packet assembly.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 89.69%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation now mirrors server rules (`manifest.json` schemaVersion 1 + `resources.json`) in `readArchLucidAzurePackageZipFromBytes` and blocks `uploadAzureExtractorPackage` before any API call. **#9 shipped (2026-06-26):** finalize 409 responses surface structured pre-commit block payload (blocking finding IDs, policy pack, severity threshold, AI narrative) with links to policy packs, troubleshooting, and governance bypass audit. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 90.03%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation. **#9 shipped (2026-06-26):** structured pre-commit block panel on finalize 409. **#12 shipped (2026-06-26):** one-click run-scoped audit CSV export on review detail (`RunScopedAuditExportButton` → `GET /v1/audit/export?runId=…`). Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -129,8 +129,8 @@
 - **Outcomes affected:** 3 (30-day usage), 4 (executive purchase).
 
 ### 3. Differentiability / Defensibility vs Frontier AI
-- **Score · Weight · Contribution · Deficiency:** 90 · 13 · 11.70 · **1.30**
-- **Justification:** **High** on rubric: policy pack merge changes effective compliance rule set (`PolicyFilteredComplianceRulePackProvider`); pre-commit gate blocks commit; audit reconstructs run lifecycle; ROI uses disposition-aware basis; ITSM correlations persist stable `FindingId`. **Not Excellent** because a skeptical architect can still get 70% of the *narrative* from Claude + pasted standards without the workflow record.
+- **Score · Weight · Contribution · Deficiency:** 91 · 13 · 11.83 · **1.17** *(was 90 — **#12 done**)*
+- **Justification:** **High** on rubric: policy pack merge changes effective compliance rule set (`PolicyFilteredComplianceRulePackProvider`); pre-commit gate blocks commit; audit reconstructs run lifecycle; ROI uses disposition-aware basis; ITSM correlations persist stable `FindingId`. Run detail now offers one-click run-scoped audit CSV export for proof-packet handoff without learning `/audit` filters. **Not Excellent** because a skeptical architect can still get 70% of the *narrative* from Claude + pasted standards without the workflow record.
 - **Tradeoffs:** More governance UI increases “process tool” dismissal risk among architects.
 - **Recommendations:** Demo script: disable a pack → show fewer compliance rule keys in effective merge → show different finding count on re-run.
 - **Classification:** V1
@@ -153,7 +153,7 @@
 - **Outcomes affected:** 2, 4.
 
 ### 6. Governed Review Integrity
-- **Score · Weight · Contribution · Deficiency:** 94 · 13 · 12.22 · **0.78** *(was 93 — **#9 done**)*
+- **Score · Weight · Contribution · Deficiency:** 95 · 13 · 12.35 · **0.65** *(was 94 / 93 — **#9** + **#12 done**)*
 - **Justification:** Policy packs are **not inert** — effective governance filters compliance rules and drives intake questions (`QuestionSelectionEngine`). Pre-commit gate consults persisted findings and assignments. **Finalize 409** now maps Problem Details extensions (`blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity`, `blockExplanation`) into `PreCommitGovernanceBlockPanel` with deep links to findings inspect, `/policy-packs`, troubleshooting, and governance bypass audit — the moat moment is actionable, not opaque.
 - **Tradeoffs:** Full pack-content edit → immediate re-evaluation on committed runs is not automatic (requires new run) — correct for audit integrity, slower for experimentation.
 - **Recommendations:** `POST /v1/governance/pre-commit/simulate` already exists — expose in UI as “what-if pack change” without mutating committed state.
@@ -169,7 +169,7 @@
 - **Outcomes affected:** 3, 4.
 
 ### 8. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 91 · 8 · 7.28 · **0.72** *(was 90 — **#9 done**)*
+- **Score · Weight · Contribution · Deficiency:** 92 · 8 · 7.36 · **0.64** *(was 91 / 90 — **#9** + **#12 done**)*
 - **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. Residual legacy “run/manifest” URLs (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
 - **Tradeoffs:** Aggressive simplification risks hiding Operate differentiators from power users.
 - **Recommendations:** Executive mode: Home + ROI + board-pack export only; hide graph/compare until second session.
@@ -466,27 +466,8 @@ Tests: Vitest key extractor; snapshot for link href pattern.
 **11. Extractor ZIP pre-upload validator (client-side)** — **✅ Done (2026-06-26)**  
 - **Shipped:** `readArchLucidAzurePackageZipFromBytes` enforces `manifest.json` (schemaVersion 1) + `resources.json` (parity with `AzureExtractorPackageZipValidator`); `uploadAzureExtractorPackage` validates before `fetch`; Vitest coverage in `read-arch-lucid-azure-package-zip.test.ts` and `upload-azure-extractor-package.test.ts`. Wizard/settings paths already validated at drop — upload helper now defense-in-depth.
 
-**12. Run-scoped audit export one-click from review detail**  
-- **Tier:** 2 · **Classification:** V1  
-- **Why:** Auditors and platform teams need proof packet assembly without learning /audit filters.  
-- **Impact:** Defensibility, executive comprehension, adoption. **Qualities:** 2, 3, 8.  
-- **Evidence:** `GET /v1/audit/export` and `GET /v1/audit/search?runId=`; live-api-journey asserts audit types.  
-- **Actionability:** High. **Design:** 8 · **Market:** 7.
-
-**Cursor prompt:**
-```
-Problem: Operators must navigate to /audit and manually filter by runId to export CSV for a review package handoff.
-
-Desired behavior: Review detail "Exports & audit" section adds "Download audit trail (CSV)" calling GET /v1/audit/export?runId={runId}&maxRows=10000 with Content-Disposition download; show RequireAuditor role hint if 403.
-
-Scope: archlucid-ui run detail exports panel + existing API proxy. Reuse audit export helper if one exists in e2e live-api-client.ts.
-
-Acceptance criteria: Button hidden for Reader without Auditor role; Vitest mocks fetch; live-api-journey optional assert on Content-Disposition.
-
-Non-goals: New audit event types; warm-tier blob extraction.
-
-Tests: Vitest download handler; extend live-api-replay-export or journey spec.
-```
+**12. Run-scoped audit export one-click from review detail** — **✅ Done (2026-06-26)**  
+- **Shipped:** `RunScopedAuditExportButton` on review detail Artifacts & exports calls `downloadAuditExportCsv` with `runId` + `maxRows=10000`; hidden for Reader-only principals; Auditor/Admin enabled; Operator sees disabled control + role hint; 403 surfaces RequireAuditor guidance. Vitest in `RunScopedAuditExportButton.test.tsx`, `run-scoped-audit-export.test.ts`, `RunDetailArtifactsExportsSection.test.tsx`.
 
 **13. Executive Home "evidence & ROI proof status" strip**  
 - **Tier:** 2 · **Classification:** V1  
@@ -625,7 +606,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 **Third batch (proof packet + polish)** — **Composer-safe** / **Sonnet-safe**  
 9. Pilot nav profile (Tier 2 #5)  
 10. ITSM wizard enablement polish (Tier 2 #6)  
-11. Run-scoped audit CSV one-click (#12)  
+11. Run-scoped audit CSV one-click (#12) — **done**  
 12. Executive ROI proof status strip (#13)
 
 **Fourth batch (validation + scale)** — mix of docs-only and CLI  

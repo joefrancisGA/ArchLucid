@@ -10,6 +10,7 @@ import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvis
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
+import { RunScopedAuditExportButton } from "@/components/RunScopedAuditExportButton";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
@@ -262,6 +263,7 @@ export function RunDetailArtifactsExportsSection(
                     Download review export (ZIP)
                   </FunnelTelemetryExportAnchor>
                 </Button>
+                <RunScopedAuditExportButton runId={runId} />
                 <Button variant="outline" size="sm" asChild>
                   <Link href={comparePageHrefAdaptive(runId)}>Compare with another review</Link>
                 </Button>

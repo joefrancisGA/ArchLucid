@@ -26,6 +26,12 @@ vi.mock("@/components/GoldenManifestExportMenu", () => ({
   GoldenManifestExportMenu: () => <div data-testid="golden-manifest-export-menu" />,
 }));
 
+vi.mock("@/components/RunScopedAuditExportButton", () => ({
+  RunScopedAuditExportButton: ({ runId }: { runId: string }) => (
+    <div data-testid="run-scoped-audit-export" data-run-id={runId} />
+  ),
+}));
+
 const hardInfeasibleVerdict: ManifestFeasibilityVerdict = {
   kind: "HardInfeasible",
   summary: "Required controls cannot be satisfied.",
@@ -94,5 +100,6 @@ describe("RunDetailArtifactsExportsSection", () => {
 
     expect(screen.queryByTestId("decision-receipt-export")).not.toBeInTheDocument();
     expect(screen.getByText(/wait for the review to commit/i)).toBeInTheDocument();
+    expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
   });
 });
