@@ -172,21 +172,15 @@ Do not use `text-2xl` / `text-3xl` on operator page titles. Hierarchy must use *
 
 ### Typography normalization progress (token sweep)
 
-**Last rescored:** 2026-06-26 (EST, after wave 89).
-
-Grep target: ad-hoc Tailwind sizes (`text-xs`, `text-sm`, `text-base`, `text-xl`, `text-[10–19px]`) under `archlucid-ui/src/app/(operator)/` and `archlucid-ui/src/components/`. Prefer `OPERATOR_TYPOGRAPHY`, `OPERATOR_NAV_GROUP_LABEL`, `OPERATOR_LINK`, and `cn()` from `@/lib/utils`.
+**Last rescored:** 2026-06-26 (EST, after wave 90).
 
 | Layer | Status | Files with ad-hoc sizes | Ad-hoc matches |
 |-------|--------|-------------------------|----------------|
 | `(operator)/` routes | **Complete** | **0** | **0** |
-| `src/components/` | In progress | **~160** | **~482** |
-| **Headline score** | | **60.7%** | |
+| `src/components/` | In progress | **~159** | **~462** |
+| **Headline score** | | **62.3%** | |
 
-**Score math (headline):** `25%` weight for operator routes (100% complete) + `75%` weight for components match reduction vs components-phase baseline (`920` matches at sweep start):
-
-`(0.25 × 1.00) + (0.75 × (920 − 482) / 920) = 0.607` → **60.7%**
-
-**Prior headline (pre–wave 89):** `(0.25 × 1.00) + (0.75 × (920 − 505) / 920) = **58.8%**` → **+1.9 pp** after wave 89.
+`(0.25 × 1.00) + (0.75 × (920 − 462) / 920) = 0.623` → **62.3%**
 
 **Completed buckets (components phase, do not regress):**
 
