@@ -13,6 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 import { AdminConfigurationLintFindingList } from "./AdminConfigurationLintFindingList";
 import { formatSources, normalizePath, sectionToTestIdSegment } from "./admin-configuration-helpers";
 import type { AdminConfigurationPageViewModel } from "./admin-configuration-view-model";
@@ -37,9 +40,9 @@ export function AdminConfigurationPageView(props: Props) {
     <div className="w-full max-w-[1200px] space-y-6" data-testid="admin-configuration-page">
       <div>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Configuration summary</h1>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Configuration summary</h1>
         </div>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Effective values for non-sensitive keys; secrets and connection material are masked by the API. With more than
           one API replica, per-process graph caches are not shared — configure Redis before scale-out.
         </p>
@@ -96,49 +99,51 @@ export function AdminConfigurationPageView(props: Props) {
 
       <Card data-testid="admin-configuration-env-health">
         <CardHeader>
-          <CardTitle className="text-base">Environment health (config lint)</CardTitle>
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
-            Parity with <span className="font-mono">archlucid config lint</span> plus hosting advisor warnings (
-            <span className="font-mono">includeAdvisory=true</span>). Blocking issues match fail-fast startup traps; no
+          <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>Environment health (config lint)</CardTitle>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Parity with <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>archlucid config lint</span> plus hosting advisor warnings (
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>includeAdvisory=true</span>). Blocking issues match fail-fast startup traps; no
             secrets appear in this view.
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-neutral-800 dark:text-neutral-200">
+        <CardContent className={cn("space-y-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {m.lintState === "loading" ? (
-            <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="admin-configuration-env-health-loading">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="admin-configuration-env-health-loading">
               Loading lint results…
             </p>
           ) : null}
 
           {m.lintState === "forbidden" ? (
-            <p className="m-0 text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-env-health-forbidden">
+            <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="admin-configuration-env-health-forbidden">
               Config lint requires tenant administrator access (same as the catalog summary above).
             </p>
           ) : null}
 
           {m.lintState === "error" ? (
-            <p className="m-0 text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-env-health-error">
+            <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="admin-configuration-env-health-error">
               Could not load configuration lint. Check connectivity and try Refresh.
             </p>
           ) : null}
 
           {m.lintState === "empty" ? (
-            <p className="m-0 text-neutral-600 dark:text-neutral-400">No structured lint payload was returned.</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No structured lint payload was returned.</p>
           ) : null}
 
           {m.lintState === "ok" && m.lint !== null ? (
             <>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">Hosting environment</span>
-                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs dark:bg-neutral-900">
+                <span className={OPERATOR_TYPOGRAPHY.cardTitle}>Hosting environment</span>
+                <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.badge)}>
                   {normalizePath(m.lint.hostingEnvironmentName ?? "").length > 0 ? m.lint.hostingEnvironmentName : "—"}
                 </span>
                 <span
-                  className={
+                  className={cn(
+                    "rounded-full px-2 py-0.5",
+                    OPERATOR_TYPOGRAPHY.badge,
                     m.lint.ok === true
-                      ? "rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-950 dark:bg-emerald-950 dark:text-emerald-50"
-                      : "rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-950 dark:bg-amber-950 dark:text-amber-50"
-                  }
+                      ? "bg-emerald-100 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-50"
+                      : "bg-amber-100 text-amber-950 dark:bg-amber-950 dark:text-amber-50",
+                  )}
                   data-testid="admin-configuration-env-health-status"
                 >
                   {m.lint.ok === true ? "No blocking findings" : "Blocking findings"}
@@ -146,12 +151,12 @@ export function AdminConfigurationPageView(props: Props) {
               </div>
 
               <div>
-                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Blocking</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Blocking</p>
                 <AdminConfigurationLintFindingList rows={m.lint.blockingFindings} />
               </div>
 
               <div>
-                <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Advisory</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Advisory</p>
                 <AdminConfigurationLintFindingList rows={m.lint.advisoryFindings} />
               </div>
             </>
@@ -160,25 +165,25 @@ export function AdminConfigurationPageView(props: Props) {
       </Card>
 
       {m.loadState === "forbidden" ? (
-        <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-forbidden">
+        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="admin-configuration-forbidden">
           This page requires tenant administrator access (AdminAuthority). Sign in with an admin-ranked account or API key.
         </p>
       ) : null}
 
       {m.loadState === "error" ? (
-        <p className="m-0 text-sm text-rose-800 dark:text-rose-200" role="alert" data-testid="admin-configuration-error">
+        <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="admin-configuration-error">
           Could not load configuration summary. Check connectivity and try refresh.
         </p>
       ) : null}
 
       {m.loadState === "empty" ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="admin-configuration-empty">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="admin-configuration-empty">
           No configuration keys were returned.
         </p>
       ) : null}
 
       {m.loadState === "ok" && m.filteredRows.length === 0 ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="admin-configuration-no-matches">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="admin-configuration-no-matches">
           No keys match the current search and category filters.
         </p>
       ) : null}
@@ -187,17 +192,17 @@ export function AdminConfigurationPageView(props: Props) {
         return (
           <Card key={section}>
             <CardHeader>
-              <CardTitle className="text-base">{section}</CardTitle>
-              <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{items.length} key(s) in this category</p>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{section}</CardTitle>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{items.length} key(s) in this category</p>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <table
-                  className="w-full text-left text-sm"
+                  className={cn("w-full text-left", OPERATOR_TYPOGRAPHY.body)}
                   data-testid={`admin-configuration-table-${sectionToTestIdSegment(section)}`}
                 >
                   <thead>
-                    <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+                    <tr className={cn("border-b border-neutral-200 dark:border-neutral-700", OPERATOR_NAV_GROUP_LABEL)}>
                       <th className="py-2 pr-3">Key path</th>
                       <th className="py-2 pr-3">Set</th>
                       <th className="py-2 pr-3">Sources (catalog)</th>
@@ -215,13 +220,13 @@ export function AdminConfigurationPageView(props: Props) {
 
                       return (
                         <tr key={pathKey} className="border-b border-neutral-100 dark:border-neutral-800">
-                          <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">
+                          <td className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
                             {normalizePath(row.configPath).length > 0 ? row.configPath : "—"}
                           </td>
-                          <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{setLabel}</td>
-                          <td className="py-2 pr-3 text-neutral-600 dark:text-neutral-400">{sources}</td>
-                          <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{ev}</td>
-                          <td className="py-2 pr-3 text-neutral-600 dark:text-neutral-400">{desc}</td>
+                          <td className="py-2 pr-3 text-al-text-primary">{setLabel}</td>
+                          <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{sources}</td>
+                          <td className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{ev}</td>
+                          <td className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{desc}</td>
                         </tr>
                       );
                     })}
