@@ -1,9 +1,10 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { cn } from "@/lib/utils";
 import { ASK_THREAD_HISTORY_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import type { ConversationThread } from "@/types/conversation";
 
@@ -37,17 +38,15 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
   return (
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {buyerPolishedShell ? "Saved review questions" : "Your conversation history"}
         </CardTitle>
         {buyerPolishedShell ? (
-          <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">{scopedPackageLabel}</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{scopedPackageLabel}</p>
         ) : null}
-        <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {buyerPolishedShell ? (
-            <>
-              Pick a thread below to resume, or start a new question once a review is selected.
-            </>
+            <>Pick a thread below to resume, or start a new question once a review is selected.</>
           ) : (
             <>
               Your saved conversations for this account. Start <strong>New conversation</strong> and select a review, or open
@@ -62,8 +61,15 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
           variant={buyerPolishedShell ? "ghost" : "outline"}
           className={
             buyerPolishedShell
-              ? "h-auto w-full justify-center py-1.5 text-sm font-normal text-teal-800 underline-offset-2 hover:bg-transparent hover:text-teal-900 hover:underline dark:text-teal-300 dark:hover:text-teal-200"
-              : "w-full border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              ? cn(
+                  "h-auto w-full justify-center py-1.5 font-normal underline-offset-2 hover:bg-transparent hover:underline",
+                  OPERATOR_TYPOGRAPHY.body,
+                  OPERATOR_LINK.nav,
+                )
+              : cn(
+                  "w-full border-neutral-300 text-al-text-primary hover:bg-neutral-100 dark:border-neutral-600 dark:hover:bg-neutral-800",
+                  OPERATOR_TYPOGRAPHY.body,
+                )
           }
           onClick={onNewConversation}
         >
@@ -77,7 +83,8 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                 type="button"
                 variant="ghost"
                 className={cn(
-                  "h-auto w-full justify-start whitespace-normal py-2 text-left text-sm",
+                  "h-auto w-full justify-start whitespace-normal py-2 text-left",
+                  OPERATOR_TYPOGRAPHY.body,
                   selectedThreadId === thread.threadId &&
                     "border border-neutral-300 bg-[var(--al-layer-hover)] font-semibold dark:border-neutral-600 dark:bg-neutral-800/80",
                   selectedThreadId !== thread.threadId && "font-normal",
@@ -86,7 +93,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
               >
                 <span>
                   {thread.title}
-                  <div className="text-xs font-normal text-neutral-500 dark:text-neutral-500">
+                  <div className={cn("font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {listDateFormatter(thread.lastUpdatedUtc)}
                   </div>
                 </span>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { ASK_BUYER_PROMPT_GROUPS } from "@/app/(operator)/ask/_sections/ask-page-constants";
 import type { ConversationMessage } from "@/types/conversation";
@@ -47,7 +48,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   return (
     <div className="space-y-3 pt-1">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {buyerPolishedShell ? "Evidence Q&A exchange" : "Conversation"}
         </h3>
         {retrievalDegraded ? (
@@ -71,7 +72,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             )}
           >
             <CardContent className="space-y-1 p-3">
-              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              <div className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {askMessageRoleLabel(message.role, buyerPolishedShell)}
               </div>
               {message.role.toLowerCase() === "assistant" ? (
@@ -81,7 +82,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   groundingLinks={askAssistantGroundingLinks ?? undefined}
                 />
               ) : (
-                <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">{message.content}</p>
+                <p className={cn("m-0 whitespace-pre-wrap text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  {message.content}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -93,7 +96,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             aria-busy="true"
           >
             <CardContent className="space-y-1 p-3">
-              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              <div className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {askMessageRoleLabel("assistant", buyerPolishedShell)}
               </div>
               <AskAssistantMessageBody
@@ -106,13 +109,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
       </div>
       {showPostAssistantFollowUps ? (
         <div className="space-y-4 pt-1">
-          <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Suggested follow-ups</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Suggested follow-ups</p>
           <div className="space-y-3" role="region" aria-label="Suggested follow-ups by topic">
             {ASK_BUYER_PROMPT_GROUPS.map((group) => (
               <div key={group.heading} className="space-y-2">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                  {group.heading}
-                </p>
+                <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>{group.heading}</p>
                 <div className="flex flex-wrap gap-2" role="group" aria-label={group.heading}>
                   {group.prompts.map((line) => (
                     <Button
@@ -120,7 +121,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                      className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
                       disabled={runMissing}
                       onClick={() => onMergePromptLine(line)}
                     >

@@ -21,6 +21,7 @@ import { BUYER_ASK_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { AskContextParagraph } from "@/app/(operator)/ask/_sections/AskContextParagraph";
 import { AskMainPanel } from "@/app/(operator)/ask/_sections/AskMainPanel";
@@ -379,7 +380,10 @@ export function AskPageContent() {
       />
       {buyerPolishedShell ? (
         <p
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-2 px-3 py-2 text-sm font-medium"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-2 px-3 py-2",
+            OPERATOR_TYPOGRAPHY.cardTitle,
+          )}
           data-testid="ask-buyer-scope-banner"
         >
           Scoped to {buyerFacingReviewLinkLabelFromRunId(runId.trim())}

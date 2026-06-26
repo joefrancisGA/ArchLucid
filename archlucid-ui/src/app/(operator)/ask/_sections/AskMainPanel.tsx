@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import type { ConversationMessage } from "@/types/conversation";
+import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { AskBuyerRunAnchors } from "@/app/(operator)/ask/_sections/AskBuyerRunAnchors";
 import { AskCompareReviewsCollapsible } from "@/app/(operator)/ask/_sections/AskCompareReviewsCollapsible";
 import { AskMessageThreadPanel } from "@/app/(operator)/ask/_sections/AskMessageThreadPanel";
@@ -96,7 +98,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
           <AskBuyerRunAnchors buyerPolishedShell={buyerPolishedShell} runId={runId} />
           {hideCompareChrome ? null : (
             <div className="space-y-2">
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                 Advanced
               </p>
               <AskCompareReviewsCollapsible

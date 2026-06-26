@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BUYER_ASK_INPUT_PLACEHOLDER } from "@/lib/buyer-polish-copy";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import {
@@ -63,7 +64,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
         >
           {showRunDeepLinkPrompts ? (
             <div className="space-y-1.5">
-              <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">Review context</p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>Review context</p>
               <div className="flex flex-wrap gap-2">
                 {ASK_DEEP_LINK_RUN_PROMPTS.map((line) => (
                   <Button
@@ -71,7 +72,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                    className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
                     disabled={runMissing}
                     onClick={() => onMergePromptLine(line)}
                   >
@@ -84,7 +85,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
           {buyerPolishedShell && !hideBuyerStarterPromptGroups && !showRunDeepLinkPrompts
             ? ASK_BUYER_PROMPT_GROUPS.map((group) => (
                 <div key={group.heading} className="space-y-1.5">
-                  <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">{group.heading}</p>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{group.heading}</p>
                   <div className="flex flex-wrap gap-2">
                     {group.prompts.map((line) => (
                       <Button
@@ -92,7 +93,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                        className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
                         disabled={runMissing}
                         onClick={() => onMergePromptLine(line)}
                       >
@@ -108,7 +109,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                  className={cn("h-auto max-w-full whitespace-normal py-1.5 text-left font-normal", OPERATOR_TYPOGRAPHY.helper)}
                   disabled={runMissing}
                   onClick={() => onMergePromptLine(line)}
                 >
@@ -117,12 +118,9 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
               ))}
         </div>
         {runMissing ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="ask-prompts-sample-callout">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-prompts-sample-callout">
             Load the{" "}
-            <Link
-              className="font-medium text-teal-800 underline dark:text-teal-300"
-              href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
-            >
+            <Link className={OPERATOR_LINK.nav} href={`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
               sample workspace
             </Link>{" "}
             to try these questions.
@@ -134,7 +132,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
         {loading ? "Thinking…" : "Ask this review"}
       </Button>
       {runMissing ? (
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="ask-select-review-helper">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="ask-select-review-helper">
           Select a review package first.
         </p>
       ) : null}

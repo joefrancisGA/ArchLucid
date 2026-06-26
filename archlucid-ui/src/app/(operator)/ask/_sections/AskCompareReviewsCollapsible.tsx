@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type AskCompareReviewsCollapsibleProps = {
@@ -30,7 +31,7 @@ export function AskCompareReviewsCollapsible(props: AskCompareReviewsCollapsible
 
   return (
     <Collapsible open={compareOpen} onOpenChange={onCompareOpenChange}>
-      <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
+      <div className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-al-text-primary dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}>
         <CollapsibleTrigger asChild>
           <Button
             type="button"
