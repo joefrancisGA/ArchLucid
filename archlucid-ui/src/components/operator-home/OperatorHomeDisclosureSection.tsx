@@ -10,7 +10,7 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type OperatorHomeDisclosureSectionProps = {
@@ -95,7 +95,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
               id={titleId}
               className={cn(
                 "m-0 font-semibold text-al-text-primary",
-                slim ? "text-xs" : "text-sm",
+                slim ? OPERATOR_TYPOGRAPHY.helper : OPERATOR_TYPOGRAPHY.cardTitle,
               )}
             >
               {title}
@@ -107,7 +107,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
             <p
               className={cn(
                 "m-0 text-neutral-600 dark:text-neutral-400",
-                slim ? "mt-1 text-xs leading-snug" : "mt-2 text-sm",
+                slim ? cn("mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper) : cn("mt-2", OPERATOR_TYPOGRAPHY.body),
               )}
             >
               {collapsedSummary}
@@ -118,7 +118,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
             <p
               className={cn(
                 "m-0 max-w-3xl text-neutral-600 dark:text-neutral-400",
-                slim ? "mt-1 text-xs leading-snug" : "mt-2 text-sm",
+                slim ? cn("mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper) : cn("mt-2", OPERATOR_TYPOGRAPHY.body),
               )}
             >
               {description}

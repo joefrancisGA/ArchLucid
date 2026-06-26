@@ -12,6 +12,8 @@ import {
   resolveLlmBudgetUtilizationTone,
 } from "@/lib/llm-monthly-budget-status";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const LLM_BUDGET_WARN_POLL_MS = 60_000;
 
@@ -48,7 +50,10 @@ export function LlmBudgetApproachingLimitBanner() {
 
   return (
     <div
-      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-4 py-3 text-sm shadow-sm"
+      className={cn(
+        "mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-4 py-3 text-al-text-primary shadow-sm dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       role="alert"
       data-testid="llm-budget-approaching-limit-banner"
     >
@@ -56,9 +61,9 @@ export function LlmBudgetApproachingLimitBanner() {
         <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">
           Approaching monthly LLM budget limit. Reviews may be paused soon.
         </p>
-        <p className="m-0 mt-1 text-xs leading-snug text-amber-900/90 dark:text-amber-200/90">
+        <p className={cn("m-0 mt-1 leading-snug text-amber-900/90 dark:text-amber-200/90", OPERATOR_TYPOGRAPHY.helper)}>
           Review utilization in{" "}
-          <Link href="/settings/cost-reporting" className="font-medium underline underline-offset-2">
+          <Link href="/settings/cost-reporting" className={OPERATOR_LINK.nav}>
             Settings → Cost reporting
           </Link>
           .

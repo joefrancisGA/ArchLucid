@@ -7,6 +7,8 @@ import { Fragment } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type PipelineStepStatus = "not-started" | "current" | "completed";
 
@@ -107,8 +109,10 @@ type ActionCardProps = PipelineStepConfig & {
 
 function StepIndicator({ step, pipelineStatus }: { step: 1 | 2 | 3 | 4; pipelineStatus?: PipelineStepStatus }) {
   const resolved: PipelineStepStatus = pipelineStatus ?? "current";
-  const base =
-    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold leading-none";
+  const base = cn(
+    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-bold leading-none",
+    OPERATOR_TYPOGRAPHY.micro,
+  );
 
   if (resolved === "completed") {
     return (
@@ -167,26 +171,26 @@ function ActionCard({
       <div className="flex items-start gap-2">
         <StepIndicator step={step} pipelineStatus={pipelineStatus} />
         <div className="min-w-0 flex flex-col gap-0">
-          <span className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+          <span className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-500")}>
             {stage}
           </span>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+          <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             Step {step}
           </p>
         </div>
       </div>
       <div className="flex items-center gap-2">
         <Icon className="h-7 w-7 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
-        <span className="text-base font-bold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300">
+        <span className={cn("font-bold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>
           {label}
         </span>
         {shortcut ? (
-          <kbd className="ml-auto rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[10px] text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
+          <kbd className={cn("ml-auto rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
             {shortcut}
           </kbd>
         ) : null}
       </div>
-      <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-400">{description}</span>
+      <span className={cn("leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{description}</span>
     </Link>
   );
 

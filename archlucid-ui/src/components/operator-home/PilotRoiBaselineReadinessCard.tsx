@@ -22,6 +22,8 @@ import {
   PILOT_BASELINE_WIZARD_OPEN_EVENT,
   PILOT_BASELINE_WIZARD_SAVED_EVENT,
 } from "@/lib/pilot-baseline-wizard-events";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function openPilotBaselineWizard(): void {
   window.dispatchEvent(new Event(PILOT_BASELINE_WIZARD_OPEN_EVENT));
@@ -61,8 +63,10 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
     return null;
   }
 
-  const bannerClass =
-    "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900/50";
+  const bannerClass = cn(
+    "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50",
+    OPERATOR_TYPOGRAPHY.body,
+  );
 
   if (dismissed) {
     return (

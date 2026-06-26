@@ -8,6 +8,8 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   formatTrialExportOnlyPurgeHeadline,
   TRIAL_EXPORT_ONLY_SUPPORTING_LINE,
@@ -42,10 +44,13 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
       role="alert"
       aria-label="Trial export-only — data purge warning"
       data-testid="trial-export-only-banner"
-      className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mb-4 p-3 text-sm shadow-sm"
+      className={cn(
+        "mb-4 rounded-md border border-rose-600/40 bg-al-surface-raised p-3 text-al-text-primary shadow-sm dark:border-rose-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
     >
       <p className="m-0 font-semibold">{formatTrialExportOnlyPurgeHeadline(daysRemaining)}</p>
-      <p className="m-0 mt-1 text-xs text-red-900 dark:text-red-200">{TRIAL_EXPORT_ONLY_SUPPORTING_LINE}</p>
+      <p className={cn("m-0 mt-1 text-red-900 dark:text-red-200", OPERATOR_TYPOGRAPHY.helper)}>{TRIAL_EXPORT_ONLY_SUPPORTING_LINE}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           asChild
@@ -142,7 +147,10 @@ export function TrialBanner() {
     <div
       role="region"
       aria-label="Trial subscription"
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mb-4 flex flex-wrap items-start justify-between gap-3 p-3 text-sm"
+      className={cn(
+        "mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised p-3 text-al-text-primary dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
     >
       <div>
         <strong className="font-semibold">Trial workspace</strong>
