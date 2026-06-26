@@ -1,6 +1,8 @@
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { WhyArchLucidPageState } from "@/app/(operator)/why-archlucid/_sections/why-archlucid-page-state";
 import { WhyArchLucidExplanationPanel } from "@/app/(operator)/why-archlucid/_sections/WhyArchLucidExplanationPanel";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type WhyArchLucidRunExplanationSectionProps = {
   readonly state: WhyArchLucidPageState;
@@ -17,11 +19,11 @@ export function WhyArchLucidRunExplanationSection(props: WhyArchLucidRunExplanat
     >
       <h2
         id="why-archlucid-explanation-heading"
-        className="text-sm font-semibold text-al-text-primary"
+        className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
       >
         Architecture review explanation and citations
       </h2>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Aggregate executive explanation persisted with the architecture review, with citations back to the signed review record, findings,
         decision traces, and evidence bundles that the explainability trace was built from.
       </p>
