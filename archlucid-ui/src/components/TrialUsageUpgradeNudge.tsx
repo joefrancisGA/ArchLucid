@@ -172,6 +172,7 @@ export function TrialUsageUpgradeNudge() {
                 type="button"
                 size="sm"
                 className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700"
+                data-testid="trial-upgrade-nudge-cta"
                 onClick={() => {
                   recordTrialUpgradeNudgeClicked(activeTrigger);
                   void startTrialBillingCheckout();
@@ -183,6 +184,7 @@ export function TrialUsageUpgradeNudge() {
               <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
                 <Link
                   href={pricingHref}
+                  data-testid="trial-upgrade-nudge-cta"
                   onClick={() => {
                     recordTrialUpgradeNudgeClicked(activeTrigger);
                   }}
@@ -239,6 +241,7 @@ export function TrialUsageUpgradeNudge() {
             )}
             <Button
               type="button"
+              data-testid="trial-upgrade-nudge-cta"
               onClick={() => {
                 recordTrialUpgradeNudgeClicked(activeTrigger);
                 void startTrialBillingCheckout();
