@@ -3,7 +3,9 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export type SessionExpiredViewProps = {
   readonly onSignIn: () => void;
@@ -18,23 +20,20 @@ export type SessionExpiredViewProps = {
 export function SessionExpiredView({ onSignIn }: SessionExpiredViewProps) {
   return (
     <div className="max-w-[560px]">
-      <h2
-        className="mt-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100"
-        data-testid="session-expired-heading"
-      >
+      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)} data-testid="session-expired-heading">
         Your session expired
       </h2>
-      <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
+      <p className={cn("mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         You were signed out after a period of inactivity. Sign in again to continue where you left off.
       </p>
-      <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         If you were working on a review, your draft may still be available after signing in.
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button variant="default" size="sm" onClick={onSignIn} data-testid="session-expired-sign-in">
           Sign in
         </Button>
-        <Link href="/" className="text-sm text-teal-800 underline dark:text-teal-300">
+        <Link href="/" className={OPERATOR_LINK.nav}>
           {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
       </div>

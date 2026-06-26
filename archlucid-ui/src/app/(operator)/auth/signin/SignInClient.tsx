@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   assertOidcSignInConfig,
   getOidcAuthority,
@@ -148,8 +150,8 @@ export function SignInClient() {
   if (error) {
     return (
       <div className="max-w-[560px]">
-        <h2 className="mt-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Access request</h2>
-        <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">{error}</p>
+        <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Access request</h2>
+        <p className={cn("mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button asChild variant="default" size="sm">
             <Link href="/auth/signin">Try again</Link>
@@ -157,7 +159,7 @@ export function SignInClient() {
           <Button asChild variant="outline" size="sm">
             <Link href="/help">Help</Link>
           </Button>
-          <Link href="/" className="text-sm text-teal-800 underline dark:text-teal-300">
+          <Link href="/" className={OPERATOR_LINK.nav}>
             Back to home
           </Link>
         </div>
@@ -171,12 +173,12 @@ export function SignInClient() {
 
   return (
     <div className="max-w-[560px]">
-      <h2 className="mt-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Signing in</h2>
-      <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">Redirecting to your identity provider…</p>
+      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>Signing in</h2>
+      <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Redirecting to your identity provider…</p>
       {showSlowHint ? (
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Taking longer than expected?{" "}
-          <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+          <Link className={OPERATOR_LINK.nav} href="/auth/signin">
             Try again
           </Link>{" "}
           or{" "}

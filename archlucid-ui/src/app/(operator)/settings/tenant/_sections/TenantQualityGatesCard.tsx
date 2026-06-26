@@ -287,7 +287,7 @@ export function TenantQualityGatesCard() {
                   <Fragment key={slot.label}>
                     <dt className="m-0 pt-2 text-neutral-500 first:pt-0 dark:text-neutral-400">
                       <span className="font-medium text-neutral-800 dark:text-neutral-100">{slot.label}</span>
-                      <span className="mt-0.5 block break-all text-[10px] leading-snug text-neutral-500 dark:text-neutral-500">
+                      <span className={cn("mt-0.5 block break-all leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                         {pathLabel}
                       </span>
                     </dt>

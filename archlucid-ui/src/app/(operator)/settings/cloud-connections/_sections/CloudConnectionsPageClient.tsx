@@ -67,7 +67,7 @@ export function CloudConnectionsPageClient() {
         <CardHeader>
           <CardTitle className="text-blue-800 dark:text-blue-300">Tier 1 vs Tier 2 Evidence Collection</CardTitle>
         </CardHeader>
-        <CardContent className="text-blue-900 dark:text-blue-200 space-y-2 text-sm">
+        <CardContent className={cn("text-blue-900 dark:text-blue-200 space-y-2", OPERATOR_TYPOGRAPHY.body)}>
           <p>
             <strong>Tier 1 (Manual ZIP Upload) is the default.</strong> It requires zero vendor access to your cloud environment. You run an open-source PowerShell script locally and upload the resulting ZIP file during the architecture review creation process.
           </p>

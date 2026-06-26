@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import {
   assertOidcSignInConfig,
@@ -176,7 +178,7 @@ export function CallbackClient() {
 
   return (
     <div className="max-w-[560px]">
-      <h2 className="mt-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
         {failed ? "Sign-in could not finish" : "Completing sign-in"}
       </h2>
 
@@ -184,18 +186,22 @@ export function CallbackClient() {
         role="status"
         aria-live="polite"
         aria-busy={!failed ? "true" : "false"}
-        className={`mt-3 text-sm ${failed ? "text-rose-800 dark:text-rose-200" : "text-neutral-600 dark:text-neutral-400"}`}
+        className={cn(
+          "mt-3",
+          OPERATOR_TYPOGRAPHY.body,
+          failed ? "text-rose-800 dark:text-rose-200" : "text-al-text-secondary",
+        )}
       >
         <p className="m-0">{message}</p>
 
         {!failed && showSlowHint ? (
           <p className="m-0 mt-3">
             Taking longer than expected?{" "}
-            <Link className="font-medium text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+            <Link className={OPERATOR_LINK.nav} href="/auth/signin">
               Restart sign-in
             </Link>{" "}
             or{" "}
-            <Link className="font-medium text-teal-700 underline dark:text-teal-300" href="/">
+            <Link className={OPERATOR_LINK.nav} href="/">
               return home
             </Link>
             .
@@ -211,7 +217,7 @@ export function CallbackClient() {
           <Button asChild variant="outline" size="sm">
             <Link href="/help">Help</Link>
           </Button>
-          <Link href="/" className="text-sm text-teal-800 underline dark:text-teal-300">
+          <Link href="/" className={OPERATOR_LINK.nav}>
             Back to home
           </Link>
         </div>
