@@ -1,9 +1,9 @@
 ﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
-> **Generated:** 2026-06-26 04:00 UTC (GPT-5.5)
+> **Generated:** 2026-06-26 06:30 UTC (GPT-5.5)
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.54%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.75%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -32,12 +32,12 @@
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
+| 8 | Executive / Operator Comprehension | 93 | 8 | 7.44 | 0.56 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 84 | 5 | 4.20 | 0.80 |
-| **Total** | | | **100** | **91.54%** | **8.46%** |
+| 10 | Adoption Friction | 85 | 5 | 4.25 | 0.75 |
+| **Total** | | | **100** | **91.75%** | **8.25%** |
 
-*(A) Headline Readiness: 91.54%*
+*(A) Headline Readiness: 91.75%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.54%. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 91.75%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 84 · **Weight:** 5 · **Contribution:** 4.20 · **Deficiency:** 0.80
-- **Justification:** System Administration ITSM onboarding wizard saves tenant outbound overrides, surfaces masked deployment credential posture, runs live connection probes, and links smoke runbooks — Jira-heavy pilots no longer require raw API knowledge for baseline connector setup.
+- **Score:** 85 · **Weight:** 5 · **Contribution:** 4.25 · **Deficiency:** 0.75
+- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -124,8 +124,8 @@
 - **Class:** V1 ready.
 
 ### 8. Executive / Operator Comprehension
-- **Score:** 91 · **Weight:** 8 · **Contribution:** 7.28 · **Deficiency:** 0.72
-- **Justification:** Privacy, trust, security-trust, wizard help, and assurance engagement rows route to in-app `/help` — `customer-facing-github-blob-guard.test.ts` passes with zero allowlist.
+- **Score:** 93 · **Weight:** 8 · **Contribution:** 7.44 · **Deficiency:** 0.56
+- **Justification:** Help presentation pipeline rewrites legacy `/runs/` and manifest jargon to TB-399 product language; catalog + generated search index drift guards block regression.
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
@@ -149,9 +149,8 @@
 5. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
 6. **GCP Billing Catalog API Key:** Live GCP pricing requires optional `GcpBillingCatalog:ApiKey` configuration — not zero-config like Azure Retail. *Fix:* Document wizard/API-key path and fall back honestly when unset.
 7. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
-8. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
-9. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
-10. **Help Topic Copy Drift (TB-399 residual):** Help catalog may still use legacy "manifest" / "run" language inconsistent with product vocabulary. *Fix:* Help-topic copy sweep with drift guards.
+8. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
+9. **Enterprise Procurement Assurances (V1.1 backlog):** SOC 2 CPA attestation and third-party pen-test publication remain deferred — strict RFPs may require manual assurance packets.
 
 ---
 

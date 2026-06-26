@@ -29,7 +29,7 @@ Start with the symptom that matches what you see. Each entry lists a first check
 | | |
 |---|---|
 | **What you see** | Selecting a review shows an error or endless loading |
-| **Likely cause** | Wrong run id, scope mismatch, or API error |
+| **Likely cause** | Wrong review id, scope mismatch, or API error |
 | **First check** | Note the error message and any correlation id shown in the UI |
 | **Next step** | Open **Troubleshooting decision tree** (below) for auth and API paths |
 
@@ -40,14 +40,14 @@ Start with the symptom that matches what you see. Each entry lists a first check
 | **What you see** | Findings on Overview or in the package do not match expectations |
 | **Likely cause** | Filters, stale list, or review still in progress |
 | **First check** | Open the review package and confirm pipeline status is complete |
-| **Next step** | Compare with the evidence trail and manifest summary |
+| **Next step** | Compare with the evidence trail and review package summary |
 
 ### Export or deliverable download unavailable
 
 | | |
 |---|---|
 | **What you see** | Export button disabled or download fails |
-| **Likely cause** | Review not finalized, missing manifest, or permission |
+| **Likely cause** | Review not finalized, missing signed review record, or permission |
 | **First check** | Confirm the signed decision record is finalized |
 | **Next step** | See **Governance approval** and **Audit trail** topics in Help |
 
@@ -65,7 +65,7 @@ Start with the symptom that matches what you see. Each entry lists a first check
 | | |
 |---|---|
 | **What you see** | Upload error on new review or extractor path |
-| **Likely cause** | Invalid file, size limit, or extractor manifest issue |
+| **Likely cause** | Invalid file, size limit, or extractor package validation issue |
 | **First check** | Read the inline error; confirm file type and size |
 | **Next step** | **Evidence intake** in Help |
 

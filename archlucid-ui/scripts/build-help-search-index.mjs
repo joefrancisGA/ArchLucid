@@ -10,6 +10,44 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = join(__dirname, "..");
 const REPO_ROOT = join(UI_ROOT, "..");
 
+/**
+ * Keep in sync with `src/lib/help-product-language.ts` — normalizes help search excerpts.
+ * @param {string} text
+ */
+function applyHelpTopicProductLanguage(text) {
+  let result = text;
+
+  const replacements = [
+    [/\bgolden manifests\b/gi, "signed review records"],
+    [/\bgolden manifest\b/gi, "signed review record"],
+    [/\bmanifest summary\b/gi, "review package summary"],
+    [/\bmanifest not found\b/gi, "review package not found"],
+    [/\bmanifest exists\b/gi, "review package exists"],
+    [/\bfor that manifest\b/gi, "for that review package"],
+    [/\bmissing manifest\b/gi, "missing review package"],
+    [/\bmanifest id\b/gi, "review package id"],
+    [/\bRunId=/g, "ReviewId="],
+    [/\brun id\b/gi, "review id"],
+    [/\brun not ready\b/gi, "review not ready"],
+    [/\barchitecture run\b/gi, "architecture review"],
+    [/\bfor this run\b/gi, "for this review"],
+    [/\bthe run\b/gi, "the review"],
+    [/\bmanifests when governance\b/gi, "signed review records when governance"],
+    [/\bcreate runs\b/gi, "create reviews"],
+    [/\barchitecture runs\b/gi, "architecture reviews"],
+  ];
+
+  for (const [pattern, replacement] of replacements) {
+    result = result.replace(pattern, replacement);
+  }
+
+  result = result.replace(/\/runs\//g, "/reviews/");
+  result = result.replace(/\/runs\b/g, "/reviews");
+  result = result.replace(/\/reviews\/([^)/\s]+)\/manifest\b/g, "/reviews/$1/architecture");
+
+  return result;
+}
+
 /** Repo-relative paths; keep small (<500KB index budget). */
 const CURATED_DOC_PATHS = [
   "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
@@ -188,8 +226,8 @@ function parseMarkdownDoc(docPath, raw) {
           docPath,
           docTitle,
           sectionSlug: "",
-          sectionHeading: `${docTitle} — overview`,
-          excerpt,
+          sectionHeading: applyHelpTopicProductLanguage(`${docTitle} — overview`),
+          excerpt: applyHelpTopicProductLanguage(excerpt),
         });
       }
 
@@ -212,8 +250,8 @@ function parseMarkdownDoc(docPath, raw) {
         docPath,
         docTitle,
         sectionSlug,
-        sectionHeading,
-        excerpt: excerpt.length > 0 ? excerpt : sectionHeading,
+        sectionHeading: applyHelpTopicProductLanguage(sectionHeading),
+        excerpt: applyHelpTopicProductLanguage(excerpt.length > 0 ? excerpt : sectionHeading),
       });
 
       i += 1;

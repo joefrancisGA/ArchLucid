@@ -70,11 +70,11 @@ Capture **`X-Correlation-ID`** (or `correlationId` in problem JSON) on every fai
 
 ---
 
-## 6. Execute stalls / run not **Ready for commit**
+## 6. Execute stalls / review not **Ready for commit**
 
 | Step | Action |
 |------|--------|
-| First check | Review detail pipeline timeline + `RunId=` in logs |
+| First check | Review detail pipeline timeline + `ReviewId=` in logs |
 | Likely cause | Worker not running, AOAI circuit open, prior stage failure |
 | Escalation artifact | Correlation id + `support-bundle --zip` |
 
@@ -100,7 +100,7 @@ Capture **`X-Correlation-ID`** (or `correlationId` in problem JSON) on every fai
 |------|--------|
 | First check | Confirm commit returned 2xx; refresh review detail artifacts table |
 | Likely cause | Async synthesis lag, wrong scope, empty synthesis |
-| Escalation artifact | Commit response body + manifest id |
+| Escalation artifact | Commit response body + signed review record id |
 
 → [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4)
 

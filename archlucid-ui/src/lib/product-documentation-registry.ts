@@ -105,7 +105,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "governance-approval",
     title: "Governance workflow",
-    summary: "Submit, review, approve, and promote manifests when governance workflows are enabled.",
+    summary: "Submit, review, approve, and promote signed review records when governance workflows are enabled.",
     audience: "operator",
     sourcePaths: [
       "docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md",

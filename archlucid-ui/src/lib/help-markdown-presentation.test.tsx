@@ -8,6 +8,7 @@ vi.mock("@/components/help/MermaidDiagram", () => ({
 }));
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+import { HELP_DOC_SEARCH_RECORDS } from "@/lib/help-index.generated";
 import {
   humanizeMarkdownFileReference,
   prepareHelpMarkdownForPresentation,
@@ -15,6 +16,8 @@ import {
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
 } from "@/lib/help-markdown-presentation";
+import { HELP_TOPIC_BANNED_COPY_PATTERNS } from "@/lib/help-product-language";
+import { HELP_TOPICS } from "@/lib/help-topics";
 
 describe("help-markdown-presentation", () => {
   it("humanizes repo filenames without extensions", () => {
@@ -104,6 +107,42 @@ describe("help-markdown-presentation", () => {
     expect(prepared.includes("Change Set")).toBe(false);
     expect(prepared.includes("55R")).toBe(false);
     expect(prepared.startsWith("## What it is")).toBe(true);
+  });
+
+  it("rewrites legacy manifest/run jargon during help presentation", () => {
+    const source =
+      "manifest exists for that manifest; golden manifest summary; RunId=abc; run not ready; open /runs/abc.";
+    const prepared = prepareHelpMarkdownForPresentation(source, "docs/runbooks/TROUBLESHOOTING.md").toLowerCase();
+
+    expect(prepared).toContain("reviewid=abc");
+    expect(prepared).toContain("/reviews/abc");
+    for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
+      expect(prepared, `should not contain "${pattern}"`).not.toContain(pattern);
+    }
+  });
+});
+
+describe("help topic product-language drift guards", () => {
+  it("keeps static help topic catalog free of banned manifest/run fragments", () => {
+    for (const topic of HELP_TOPICS) {
+      const corpus = [topic.title, topic.summary, ...topic.keywords].join(" ").toLowerCase();
+
+      for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
+        expect(corpus, `${topic.id} should not contain "${pattern}"`).not.toContain(pattern);
+      }
+    }
+  });
+
+  it("keeps generated help search excerpts free of banned manifest/run fragments", () => {
+    for (const record of HELP_DOC_SEARCH_RECORDS) {
+      const corpus = [record.sectionHeading, record.excerpt].join(" ").toLowerCase();
+
+      for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
+        expect(corpus, `${record.docPath}#${record.sectionSlug} should not contain "${pattern}"`).not.toContain(
+          pattern,
+        );
+      }
+    }
   });
 });
 

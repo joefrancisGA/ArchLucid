@@ -1,4 +1,5 @@
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
+import { applyHelpTopicProductLanguage } from "@/lib/help-product-language";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
 
@@ -241,13 +242,20 @@ export function stripLeadingContributorScopeBlockquote(markdown: string): string
   return lines.slice(index).join("\n").trimStart();
 }
 
+/** Removes HTML comments from markdown before operator-facing help render. */
+export function stripHtmlComments(markdown: string): string {
+  return markdown.replace(/<!--[\s\S]*?-->/g, "");
+}
+
 /**
  * Prepares repo markdown for in-app help rendering — no raw `.md` paths in operator UI.
  */
 export function prepareHelpMarkdownForPresentation(markdown: string, sourceDocPath: string): string {
   const withoutPreamble = stripLeadingContributorScopeBlockquote(markdown);
   const normalized = stripDuplicateMarkdownTitle(stripInternalEngineeringBatchLabels(withoutPreamble));
-  const rewrittenLinks = rewriteHelpMarkdownDocLinks(normalized, sourceDocPath);
+  const withoutHtmlComments = stripHtmlComments(normalized);
+  const rewrittenLinks = rewriteHelpMarkdownDocLinks(withoutHtmlComments, sourceDocPath);
+  const sanitized = sanitizeBareMarkdownFileReferences(rewrittenLinks);
 
-  return sanitizeBareMarkdownFileReferences(rewrittenLinks);
+  return applyHelpTopicProductLanguage(sanitized);
 }

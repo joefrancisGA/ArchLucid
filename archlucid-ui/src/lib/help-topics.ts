@@ -18,7 +18,7 @@ export type HelpTopic = {
 export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting", "auth", "cli", "support-bundle"]);
 
 /**
- * Guides tab default ordering — buyer golden path first (new review → reviews/manifest → graph → Ask → governance).
+ * Guides tab default ordering — buyer golden path first (new review → reviews → evidence trail → Ask → governance).
  */
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",
@@ -41,7 +41,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "first-run",
     title: "Create your first review package",
-    keywords: ["wizard", "create", "pipeline", "run", "request"],
+    keywords: ["wizard", "create", "pipeline", "review", "request"],
     summary:
       "Create a request, track progress, finalize the signed review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
@@ -53,7 +53,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["download", "review package", "bundle", "zip"],
     summary: "Open a review, then review artifact list, previews, and bundle downloads from review detail.",
     docPath: "docs/library/operator-shell.md",
-    routes: ["/reviews", "/manifests"],
+    routes: ["/reviews"],
   },
   {
     id: "compare",
