@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.26%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.47%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -30,14 +30,14 @@
 | 3 | Governed Review Integrity | 94 | 13 | 12.22 | 0.78 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
-| 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
+| 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 81 | 5 | 4.05 | 0.95 |
-| **Total** | | | **100** | **91.26%** | **8.74%** |
+| 10 | Adoption Friction | 83 | 5 | 4.15 | 0.85 |
+| **Total** | | | **100** | **91.47%** | **8.53%** |
 
-*(A) Headline Readiness: 91.26%*
+*(A) Headline Readiness: 91.47%*
 
 ---
 
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 81 · **Weight:** 5 · **Contribution:** 4.05 · **Deficiency:** 0.95
-- **Justification:** Reference GitHub Actions and Azure DevOps governance-gate pipelines (`examples/ci/`) create → execute → commit from repo context, fail on `#governance-pre-commit-blocked` and PilotStrict HOLD, and surface review URLs in PR checks — reduces principal-architect bypass vs IDE chat.
+- **Score:** 83 · **Weight:** 5 · **Contribution:** 4.15 · **Deficiency:** 0.85
+- **Justification:** Reference GitHub Actions and Azure DevOps governance-gate pipelines (`examples/ci/`) create → execute → commit from repo context, fail on `#governance-pre-commit-blocked` and PilotStrict HOLD, and surface review URLs in PR checks — reduces principal-architect bypass vs IDE chat. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -109,8 +109,8 @@
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
-- **Score:** 89 · **Weight:** 10 · **Contribution:** 8.89 · **Deficiency:** 1.11
-- **Justification:** Operators copy Azure/AWS/GCP inventory commands in-wizard, pass local manifest/resources checks, and upload on first review without a failed API round-trip.
+- **Score:** 90 · **Weight:** 10 · **Contribution:** 9.00 · **Deficiency:** 1.00
+- **Justification:** Operators copy Azure/AWS/GCP inventory commands in-wizard, pass local manifest/resources checks, and upload on first review without a failed API round-trip. Tier 2 Azure Extractor UI streamlines automated polling setup.
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
