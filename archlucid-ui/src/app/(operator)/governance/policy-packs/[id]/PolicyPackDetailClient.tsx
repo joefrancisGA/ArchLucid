@@ -7,6 +7,8 @@ import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function isHealthcareClaimsDemonstrationPack(policyPackId: string): boolean {
   const normalized = policyPackId.trim().toLowerCase();
@@ -33,7 +35,7 @@ export function PolicyPackDetailClient(props: { readonly policyPackId: string })
   return (
     <div className="w-full max-w-[1200px] p-6">
       <OperatorEmptyState title={buyerPolishedShell ? "Policy rules for this workspace" : "Policy pack"}>
-        <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell ? (
             <>
               Review published versions, see how rules apply to this scope, and continue governance steps from the main{" "}
@@ -48,18 +50,19 @@ export function PolicyPackDetailClient(props: { readonly policyPackId: string })
         </p>
         {buyerPolishedShell ? (
           <Collapsible className="mt-3">
-            <CollapsibleTrigger className="text-xs font-medium text-teal-800 underline dark:text-teal-300">
+            <CollapsibleTrigger className={cn(OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.optional)}>
               Technical reference
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2">
-              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                Pack id: <span className="font-mono">{policyPackId}</span>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                Pack id: <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{policyPackId}</span>
               </p>
             </CollapsibleContent>
           </Collapsible>
         ) : (
-          <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            Pack reference: <span className="font-mono">{policyPackId}</span>
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+            Pack reference:{" "}
+            <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{policyPackId}</span>
           </p>
         )}
         <div className="mt-5 flex flex-wrap gap-3">
