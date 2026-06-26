@@ -24,6 +24,8 @@ import {
   governancePromotionsEmptyGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { GovernanceEnvironmentActivation, GovernancePromotionRecord } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
 import { formatGovernanceBusinessInstant } from "./governance-workflow-helpers";
@@ -61,17 +63,17 @@ export function GovernanceWorkflowPromotionsActivationsSection(
 
   return (
     <section className="mb-0">
-      <h3 className="mb-4 text-sm font-semibold text-al-text-primary">
+      <h3 className={cn("mb-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {canMutateWorkflow
           ? governanceWorkflowPromotionsActivationsHeadingOperator
           : governanceWorkflowPromotionsActivationsHeadingReader}
       </h3>
-      <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateWorkflow
           ? governanceWorkflowPromotionsActivationsSectionLeadOperator
           : governanceWorkflowPromotionsActivationsSectionLeadReader}
       </p>
-      <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
+      <p className={cn("mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Selected review timeline · promotions newest first; activations follow.
         {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
       </p>
@@ -79,7 +81,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
       {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
         <OperatorEmptyState title="No promotions recorded yet">
           <div className="grid gap-3">
-            <p className="text-sm">
+            <p className={OPERATOR_TYPOGRAPHY.body}>
               {canMutateWorkflow
                 ? governanceWorkflowPromotionsEmptyOperatorHint
                 : governanceWorkflowPromotionsEmptyReaderHint}
@@ -97,13 +99,15 @@ export function GovernanceWorkflowPromotionsActivationsSection(
         {promotions.map((p) => (
           <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}
+              </CardTitle>
               <p className="sr-only">Promotion record id {p.promotionRecordId}</p>
             </CardHeader>
-            <CardContent className="grid gap-1 text-sm">
+            <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 {p.sourceEnvironment} → <strong>{p.targetEnvironment}</strong> · review record{" "}
-                <code className="text-xs">{p.manifestVersion}</code>
+                <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{p.manifestVersion}</code>
               </div>
               <div>By {p.promotedBy}</div>
               {p.notes ? <div>Notes: {p.notes}</div> : null}
@@ -152,7 +156,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
         ))}
       </div>
 
-      <h4 className="mb-3 text-sm font-semibold text-al-text-primary">
+      <h4 className={cn("mb-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {canMutateWorkflow
           ? governanceWorkflowActivationsSubheadingOperator
           : governanceWorkflowActivationsSubheadingReader}
@@ -161,7 +165,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
       {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
         <OperatorEmptyState title="No activations recorded yet">
           <div className="grid gap-3">
-            <p className="text-sm">
+            <p className={OPERATOR_TYPOGRAPHY.body}>
               {canMutateWorkflow
                 ? governanceWorkflowActivationsEmptyOperatorHint
                 : governanceWorkflowActivationsEmptyReaderHint}
@@ -179,12 +183,15 @@ export function GovernanceWorkflowPromotionsActivationsSection(
         {activations.map((a) => (
           <Card key={a.activationId} className="border-l-4 border-l-teal-500">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+                Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}
+              </CardTitle>
               <p className="sr-only">Activation id {a.activationId}</p>
             </CardHeader>
-            <CardContent className="grid gap-1 text-sm">
+            <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                Environment <strong>{a.environment}</strong> · review record <code className="text-xs">{a.manifestVersion}</code>
+                Environment <strong>{a.environment}</strong> · review record{" "}
+                <code className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{a.manifestVersion}</code>
               </div>
               <div>Active: {a.isActive ? "yes" : "no"}</div>
             </CardContent>

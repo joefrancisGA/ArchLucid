@@ -27,6 +27,8 @@ import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer-governance-workf
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   formatGovernanceBusinessInstant,
   governanceApprovalCardTitle,
@@ -84,14 +86,16 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
       {listsLoading && activeRunId !== null && approvals.length === 0 ? (
         <OperatorLoadingNotice>
           <strong>Loading workflow data.</strong>
-          <p className="mt-2 text-sm">Loading approval history and workflow status for this review.</p>
+          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Loading approval history and workflow status for this review.
+          </p>
         </OperatorLoadingNotice>
       ) : null}
 
       {!listsLoading && activeRunId !== null && approvals.length === 0 && listFailure === null ? (
         <OperatorEmptyState title="No approval requests for this review">
           <div className="grid gap-3">
-            <p className="text-sm">
+            <p className={OPERATOR_TYPOGRAPHY.body}>
               {canMutateWorkflow ? governanceWorkflowNoApprovalsOperatorHint : governanceWorkflowNoApprovalsReaderHint}
             </p>
             <GettingStartedSteps
@@ -109,7 +113,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
             <Card key={row.approvalRequestId}>
               <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
                 <div className="min-w-0 flex-1">
-                  <CardTitle className="text-sm font-semibold text-al-text-primary">{governanceApprovalCardTitle(row)}</CardTitle>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{governanceApprovalCardTitle(row)}</CardTitle>
                   <CardDescription>
                     {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)}
                   </CardDescription>
@@ -118,44 +122,45 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                 <StatusPill
                   status={buyerPolishedShell ? buyerGovernanceWorkflowStatusLabel(row.status) : row.status}
                   domain="governance"
-                  className="text-xs"
+                  className={OPERATOR_TYPOGRAPHY.badge}
                   uppercase={!buyerPolishedShell}
                 />
               </CardHeader>
-              <CardContent className="grid gap-2 text-sm">
+              <CardContent className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">Requested by</span>{" "}
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Requested by</span>{" "}
                   {buyerPolishedShell ? buyerSafeGovernanceActorLabel(row.requestedBy) : row.requestedBy}
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">Requested</span>{" "}
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Requested</span>{" "}
                   {formatGovernanceBusinessInstant(row.requestedUtc)}
                 </div>
                 {row.requestComment ? (
                   <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Comment</span> {row.requestComment}
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Comment</span> {row.requestComment}
                   </div>
                 ) : null}
                 {row.reviewedBy ? (
                   <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Reviewed by</span>{" "}
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Reviewed by</span>{" "}
                     {buyerPolishedShell ? buyerSafeGovernanceActorLabel(row.reviewedBy) : row.reviewedBy}
                     {row.reviewedUtc ? ` · ${formatGovernanceBusinessInstant(row.reviewedUtc)}` : null}
                   </div>
                 ) : null}
                 {row.reviewComment ? (
                   <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Review comment</span> {row.reviewComment}
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review comment</span>{" "}
+                    {row.reviewComment}
                   </div>
                 ) : null}
 
                 {pendingReview?.approvalRequestId === row.approvalRequestId ? (
                   <div className="mt-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-                    <p className="mb-3 text-sm font-medium">
+                    <p className={cn("mb-3 font-medium", OPERATOR_TYPOGRAPHY.body)}>
                       {pendingReview.mode === "approve" ? "Approve request" : "Reject request"}
                     </p>
                     {!canMutateWorkflow ? (
-                      <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400" role="note">
+                      <p className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
                         {buyerPolishedShell
                           ? governanceWorkflowPendingReviewReaderNoteBuyerPolished
                           : governanceWorkflowPendingReviewReaderNote}
