@@ -12,6 +12,7 @@ import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
 import { AuthTokenTestMappingCard } from "./AuthTokenTestMappingCard";
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
+import { SamlSpConfigurationForm } from "./SamlSpConfigurationForm";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
 type IdentityProvidersSettingsPageViewProps = {
@@ -97,6 +98,8 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
           ) : null}
         </CardContent>
       </Card>
+
+      <SamlSpConfigurationForm />
 
       {identityProviderDiagnosticsLoaded ? (
         <IdentityProviderHealthStrip

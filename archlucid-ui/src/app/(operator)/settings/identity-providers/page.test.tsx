@@ -88,6 +88,10 @@ function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown):
         });
       }
 
+      if (url.includes("/admin/identity/configuration")) {
+        return new Response(null, { status: 404 });
+      }
+
       return new Response(JSON.stringify({ keys }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
@@ -127,6 +131,8 @@ describe("IdentityProvidersSettingsPage", () => {
     expect(setupChecklist).toHaveTextContent("Identity setup checklist");
     expect(setupChecklist).toHaveTextContent("Core identity setup checks are ready");
     expect(setupChecklist).toHaveTextContent("Role claim mapping");
+
+    expect(await screen.findByTestId("saml-sp-configuration-form")).toBeInTheDocument();
 
     const samlCard = await screen.findByTestId("saml-operational-health-card");
 
