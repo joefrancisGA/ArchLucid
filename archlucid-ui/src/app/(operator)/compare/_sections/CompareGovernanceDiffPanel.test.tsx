@@ -1,0 +1,63 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { CompareGovernanceDiffPanel } from "@/app/(operator)/compare/_sections/CompareGovernanceDiffPanel";
+import {
+  buildCompareEffectiveGovernanceSnapshot,
+  buildCompareGovernanceDiffView,
+  parseCompareManifestGovernanceSnapshot,
+} from "@/lib/compare-effective-governance-diff";
+import type { EffectivePolicyPackSet, PolicyPackContentDocument } from "@/types/policy-packs";
+
+describe("CompareGovernanceDiffPanel", () => {
+  it("renders rule set change and current effective disclaimer", () => {
+    const effective: EffectivePolicyPackSet = {
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      packs: [
+        {
+          policyPackId: "pack-b",
+          name: "Pack B",
+          version: "2.0.0",
+          packType: "PlatformDefault",
+          contentJson: "{}",
+        },
+      ],
+    };
+    const content: PolicyPackContentDocument = {
+      complianceRuleIds: [],
+      complianceRuleKeys: ["sec-base-010"],
+      alertRuleIds: [],
+      compositeAlertRuleIds: [],
+      advisoryDefaults: {},
+      metadata: {},
+    };
+
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "pack-a",
+        ruleSetVersion: "1.0.0",
+      }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "pack-b",
+        ruleSetVersion: "2.0.0",
+      }),
+      currentEffective: buildCompareEffectiveGovernanceSnapshot(effective, content),
+    });
+
+    render(<CompareGovernanceDiffPanel view={view} loading={false} softFailureMessage={null} />);
+
+    expect(screen.getByTestId("compare-governance-diff-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("compare-governance-current-effective-disclaimer")).toBeInTheDocument();
+    expect(screen.getByTestId("compare-governance-rule-set-changes")).toBeInTheDocument();
+    expect(screen.getByText(/pack-a v1.0.0/)).toBeInTheDocument();
+    expect(screen.getByText(/pack-b v2.0.0/)).toBeInTheDocument();
+  });
+
+  it("shows loading state without blocking layout", () => {
+    render(<CompareGovernanceDiffPanel view={null} loading softFailureMessage={null} />);
+
+    expect(screen.getByTestId("compare-governance-diff-loading")).toBeInTheDocument();
+  });
+});

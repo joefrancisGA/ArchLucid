@@ -87,6 +87,8 @@ test.describe("live-api-compare-runs", () => {
     await expect(page.locator("#compare-structured")).toBeVisible({ timeout: 120_000 });
 
     await expect(comparisonRequestOutcomePanel(page)).toBeVisible({ timeout: 60_000 });
+
+    await expect(page.getByTestId("compare-governance-diff-panel")).toBeVisible({ timeout: 60_000 });
   });
 
   test("compare with missing right run returns 404", async ({ request }) => {
