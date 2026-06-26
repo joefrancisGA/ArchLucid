@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.16%`
+`ArchLucid Assessment – (A) Headline Readiness: 90.45%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -37,16 +37,16 @@
 | 1 | Decision-Changing Insight Density | 84 | 13 | 10.92 | 2.08 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 91 | 13 | 11.83 | 1.17 |
 | 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
-| 4 | Correctness & Evidence Integrity | 91 | 12 | 10.92 | 1.08 |
+| 4 | Correctness & Evidence Integrity | 92 | 12 | 11.04 | 0.96 |
 | 5 | AI / Agent Readiness | 86 | 10 | 8.60 | 1.40 |
 | 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
-| 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
-| 8 | Executive / Operator Comprehension | 93 | 8 | 7.44 | 0.56 |
+| 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
+| 8 | Executive / Operator Comprehension | 94 | 8 | 7.52 | 0.48 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
 | 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
-| **Total** | | | **100** | **90.16%** | **9.84%** |
+| **Total** | | | **100** | **90.45%** | **9.55%** |
 
-*(A) Headline Readiness: 90.16%*
+*(A) Headline Readiness: 90.45%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **90.16%** (+0.13 from **help copy sweep** — Executive/Operator Comprehension 93, Adoption Friction 87; cumulative +1.24 from **#11** + **#9** + **#12** + help sweep). Diagnostic 30-day usage unchanged; executive purchase friction slightly reduced for proof-packet assembly and consistent in-app help vocabulary.
+**Reconciliation:** Headline **90.45%** (+0.29 from **#13** — Correctness 92, Proof-of-ROI 94, Executive/Operator Comprehension 94; cumulative +1.53 from **#11** + **#9** + **#12** + help sweep + **#13**). Diagnostic 30-day usage unchanged; executive purchase probability slightly improved when ROI proof posture is visible on first dashboard screen.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 90.16%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation. **#9 shipped (2026-06-26):** structured pre-commit block panel on finalize 409. **#12 shipped (2026-06-26):** one-click run-scoped audit CSV export on review detail (`RunScopedAuditExportButton` → `GET /v1/audit/export?runId=…`). **Help product-language sweep shipped (2026-06-26):** `applyHelpTopicProductLanguage` normalizes manifest/run-primary copy in rendered help and regenerated search excerpts; legacy `/runs/` operator links rewrite to `/reviews/`; drift guards in `help-markdown-presentation.test.tsx`, `help-product-language.test.ts`, and `help-index.test.ts`. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 90.45%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11 shipped (2026-06-26):** Azure extractor ZIP client validation. **#9 shipped (2026-06-26):** structured pre-commit block panel on finalize 409. **#12 shipped (2026-06-26):** one-click run-scoped audit CSV export on review detail. **Help product-language sweep shipped (2026-06-26).** **#13 shipped (2026-06-26):** `ExecutiveRoiProofStatusStrip` on portfolio ROI summary — cost-evidence freshness StatusTag, headline scope code, non-summing row guidance, and `/help/pilot-roi-model` link. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -145,8 +145,8 @@
 - **Outcomes affected:** 1, 5.
 
 ### 5. Correctness & Evidence Integrity
-- **Score · Weight · Contribution · Deficiency:** 91 · 12 · 10.92 · **1.08** *(was 90 — **#11 done**)*
-- **Justification:** Golden manifest + authority chain as run-of-record; extractor citation contract tested; ROI dedup prevents double-counting. Client ZIP validation now enforces **`resources.json` presence** on Azure paths that previously checked manifest only — parity with server ingest rejection.
+- **Score · Weight · Contribution · Deficiency:** 92 · 12 · 11.04 · **0.96** *(was 91 — **#13 done**)*
+- **Justification:** Golden manifest + authority chain as run-of-record; extractor citation contract tested; ROI dedup prevents double-counting. Client ZIP validation enforces **`resources.json` presence**. **Executive ROI proof strip (2026-06-26)** surfaces cost-evidence freshness and scope on first dashboard screen so illustrative vs extractor-backed posture is visible before savings are interpreted.
 - **Tradeoffs:** Hard citation on all LLM text would block useful exploratory surfaces.
 - **Recommendations:** UI badge: **Governed finding** vs **Advisory narrative** on every AI output block.
 - **Classification:** V1
@@ -169,16 +169,16 @@
 - **Outcomes affected:** 3, 4.
 
 ### 8. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 93 · 8 · 7.44 · **0.56** *(was 92 — **#9** + **#12** + **help copy sweep done**)*
-- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. **Help product-language sweep (2026-06-26)** normalizes manifest/run-primary copy in rendered topics and search excerpts (`applyHelpTopicProductLanguage`, `HELP_TOPIC_BANNED_COPY_PATTERNS` drift guards). Residual legacy route aliases (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
+- **Score · Weight · Contribution · Deficiency:** 94 · 8 · 7.52 · **0.48** *(was 93 — **#13 done**)*
+- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. Help product-language sweep normalizes manifest/run-primary copy. **`ExecutiveRoiProofStatusStrip`** puts evidence freshness, headline scope, and ROI methodology link above portfolio savings on `/dashboard`. Residual legacy route aliases (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
 - **Tradeoffs:** Aggressive simplification risks hiding Operate differentiators from power users.
 - **Recommendations:** Executive mode: Home + ROI + board-pack export only; hide graph/compare until second session.
 - **Classification:** V1 / V1.1 (route aliases)
 - **Outcomes affected:** 4.
 
 ### 9. Proof-of-ROI Readiness
-- **Score · Weight · Contribution · Deficiency:** 93 · 9 · 8.37 · **0.63**
-- **Justification:** Layered ROI model is implemented coherently in code and docs; board-pack delegates to same service; cost evidence freshness evaluator exists. Credibility still requires **customer-specific extractor data** — synthetic simulator savings are labeled but easy to misread in exec demos.
+- **Score · Weight · Contribution · Deficiency:** 94 · 9 · 8.46 · **0.54** *(was 93 — **#13 done**)*
+- **Justification:** Layered ROI model is implemented coherently in code and docs; board-pack delegates to same service; cost evidence freshness evaluator exists. **`ExecutiveRoiProofStatusStrip`** makes extractor-backed vs illustrative posture and disposition-aware headline scope visible before executives interpret savings — reducing misread of simulator/demo numbers.
 - **Tradeoffs:** Aggressive savings headlines increase short-term excitement and long-term trust risk.
 - **Recommendations:** Board-pack banner: “Illustrative vs extractor-backed” per finding cluster.
 - **Classification:** V1
@@ -472,27 +472,8 @@ Tests: Vitest key extractor; snapshot for link href pattern.
 **14. Help topic manifest/run product-language sweep** — **✅ Done (2026-06-26)**  
 - **Shipped:** `applyHelpTopicProductLanguage` in `help-markdown-presentation.ts` and `build-help-search-index.mjs`; `HELP_TOPIC_BANNED_COPY_PATTERNS` drift guards in `help-markdown-presentation.test.tsx`, `help-product-language.test.ts`, and `help-index.test.ts`; legacy `/runs/` operator links rewrite to `/reviews/`; regenerated `help-index.generated.ts` excerpts free of manifest/run-primary jargon.
 
-**13. Executive Home "evidence & ROI proof status" strip**  
-- **Tier:** 2 · **Classification:** V1  
-- **Why:** Executives misread simulator savings as contractual; freshness labels reduce trust incidents.  
-- **Impact:** Proof-of-ROI, correctness. **Qualities:** 4, 7, 8.  
-- **Evidence:** `RoiCostEvidenceFreshnessEvaluator`, `ExecutiveRoiSummarySection`, disposition scope labels in V1_SCOPE §2.8.  
-- **Actionability:** Medium-high. **Design:** 7 · **Market:** 8.
-
-**Cursor prompt:**
-```
-Problem: Executive ROI panel shows headline savings without a first-screen indicator of whether numbers are extractor-backed, disposition-scoped, and fresh.
-
-Desired behavior: ExecutiveRoiSummarySection adds compact StatusTag row: evidence freshness (from API field if exposed, else "verify extractor upload"), headlineSavingsScopeCode / portfolio scope description, link to help topic on non-summing per-system rows.
-
-Scope: archlucid-ui dashboard ExecutiveRoiSummarySection only; extend only if GET /v1/roi/executive-summary lacks freshness — prefer existing DTO fields.
-
-Acceptance criteria: Tooltips accessible; Vitest renders three states (fresh/stale/unknown); no misleading "guaranteed savings" copy.
-
-Non-goals: Changing ROI math; cross-tenant portfolio UI.
-
-Tests: Vitest + axe on dashboard section story/fixture.
-```
+**13. Executive Home "evidence & ROI proof status" strip** — **✅ Done (2026-06-26)**  
+- **Shipped:** `ExecutiveRoiProofStatusStrip` on `ExecutiveRoiSummarySection` — `StatusTag` row for cost-evidence freshness (`presentCostEvidenceFreshness`), headline scope code, disposition-aware scope copy, per-system non-summing guidance, `/help/pilot-roi-model` link, and Azure inventory runbook when evidence is stale or missing. Vitest in `ExecutiveRoiProofStatusStrip.test.tsx` and `executive-roi-proof-status-strip.test.ts`.
 
 **14. Compare reviews — effective governance diff between left/right runs**  
 - **Tier:** 2 · **Classification:** V1  
@@ -611,7 +592,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 10. ITSM wizard enablement polish (Tier 2 #6)  
 11. Run-scoped audit CSV one-click (#12) — **done**  
 12. Help topic product-language sweep (#14) — **done**  
-13. Executive ROI proof status strip (#13)
+13. Executive ROI proof status strip (#13) — **done**
 
 **Fourth batch (validation + scale)** — mix of docs-only and CLI  
 13. Reference CI pre-commit starter (#15) — docs/scripts, Composer-safe  

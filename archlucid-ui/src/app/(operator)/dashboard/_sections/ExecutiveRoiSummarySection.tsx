@@ -30,6 +30,7 @@ const ExecutiveRoiSystemicIssueTrendChart = dynamic(
   },
 );
 import { ExecutiveRoiIdentifiedVsRealizedPanel } from "./ExecutiveRoiIdentifiedVsRealizedPanel";
+import { ExecutiveRoiProofStatusStrip } from "./ExecutiveRoiProofStatusStrip";
 import { ExecutiveRoiSystemsIncludedSection } from "./ExecutiveRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
 import { resolveExecutiveRoiIdentifiedVsRealized } from "@/lib/executive-roi-identified-vs-realized";
@@ -330,6 +331,11 @@ export function ExecutiveRoiSummarySection({
           </p>
         ) : null}
         {workspaceHasNoCommittedReviews && !executiveSurface ? <DemoTenantSeedCallout /> : null}
+        <ExecutiveRoiProofStatusStrip
+          summary={displayData}
+          loading={showLoading}
+          executiveSurface={executiveSurface}
+        />
         <ExecutiveRoiIdentifiedVsRealizedPanel
           summary={displayData}
           buckets={resolveExecutiveRoiIdentifiedVsRealized(displayData)}
