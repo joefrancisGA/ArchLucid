@@ -4,6 +4,8 @@ import Link from "next/link";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "First 30 days — governance operating preset",
@@ -21,15 +23,17 @@ export default function FirstThirtyDaysGovernancePage() {
       />
       <LayerHeader pageKey="governance-first-30-days" />
 
-      <ol className="m-0 list-decimal space-y-4 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+      <ol className={cn("m-0 list-decimal space-y-4 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Policy pack baseline</h2>
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Policy pack baseline
+              </h2>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <CardContent className={cn("space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <p className="m-0">Assign a published pack and confirm effective thresholds for your workspace.</p>
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance/policy-packs">
+              <Link className={OPERATOR_LINK.nav} href="/governance/policy-packs">
                 Open policy packs
               </Link>
             </CardContent>
@@ -38,26 +42,32 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Preview threshold impact (read-safe)</h2>
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Preview threshold impact (read-safe)
+              </h2>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <CardContent className={cn("space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <p className="m-0">Run a dry-run from a pack detail page before changing production thresholds.</p>
-              <p className="m-0 text-neutral-500 dark:text-neutral-400">Use Policy packs → select a pack → Dry-run.</p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Use Policy packs → select a pack → Dry-run.
+              </p>
             </CardContent>
           </Card>
         </li>
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Alert route &amp; owner loop</h2>
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Alert route &amp; owner loop
+              </h2>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <CardContent className={cn("space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <p className="m-0">Wire one routing subscription per severity class your team actually answers.</p>
               <div className="flex flex-wrap gap-3">
-                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/alerts">
+                <Link className={OPERATOR_LINK.nav} href="/alerts">
                   Alerts inbox
                 </Link>
-                <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/integrations/operations">
+                <Link className={OPERATOR_LINK.nav} href="/integrations/operations">
                   Connector readiness
                 </Link>
               </div>
@@ -67,11 +77,15 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Approvals &amp; SLA narrative</h2>
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Approvals &amp; SLA narrative
+              </h2>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <p className="m-0">Start with a single promotion path and document expected acknowledgement times for architects.</p>
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance">
+            <CardContent className={cn("space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              <p className="m-0">
+                Start with a single promotion path and document expected acknowledgement times for architects.
+              </p>
+              <Link className={OPERATOR_LINK.nav} href="/governance">
                 Governance workflow
               </Link>
             </CardContent>
@@ -80,14 +94,16 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Workspace overview anchor</h2>
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Workspace overview anchor
+              </h2>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <CardContent className={cn("space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <p className="m-0">
                 One sponsor-facing page for pre-commit posture, severity exposure in reports, drift, approval SLAs, and a
                 hours-first value proxy — scoped to this workspace session.
               </p>
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/governance/dashboard">
+              <Link className={OPERATOR_LINK.nav} href="/governance/dashboard">
                 Open workspace overview
               </Link>
             </CardContent>
