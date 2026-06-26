@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.70%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.87%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -40,13 +40,13 @@
 | 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
-| 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
-| 8 | Executive / Operator Comprehension | 94 | 8 | 7.52 | 0.48 |
+| 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
+| 8 | Executive / Operator Comprehension | 95 | 8 | 7.60 | 0.40 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
 | 10 | Adoption Friction | 88 | 5 | 4.40 | 0.60 |
-| **Total** | | | **100** | **91.70%** | **8.30%** |
+| **Total** | | | **100** | **91.87%** | **8.13%** |
 
-*(A) Headline Readiness: 91.70%*
+*(A) Headline Readiness: 91.87%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **91.70%** (+0.52 from **Tier 1 #1** — Decision-Changing Insight 87, Differentiability 93, Governed Review Integrity 96; cumulative +2.78 from prior shipped batches). Diagnostic Decision Advantage Score may improve when first demo surfaces rule-key diff and gate delta on the same committed review.
+**Reconciliation:** Headline **91.87%** (+0.17 from **Tier 2 #4** — Proof-of-ROI 95, Executive Comprehension 95; cumulative +2.95 from prior shipped batches). Board-pack export now surfaces illustrative vs extractor-backed posture per finding cluster before download.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 91.70%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2, #10, #13, #3). **Tier 1 #1 shipped (2026-06-26):** prominent **Policy impact preview** on `/policy-packs` — compliance rule key diff plus allow vs block-on-critical pre-commit simulate for a selected committed review (`PolicyPackImpactPreviewPanel`, `/help/policy-pack-delta-demo`). Remaining in-contract gap: **pilot nav profile** and **board-pack illustrative banner**.
+- **(A) Overall headline readiness: 91.87%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2/#3/#1, #10, #13). **Tier 2 #4 shipped (2026-06-26):** **Board pack evidence posture banner** on executive ROI — illustrative vs extractor-backed per finding cluster before board-pack download. Remaining in-contract gap: **pilot nav profile**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -169,18 +169,18 @@
 - **Outcomes affected:** 3, 4.
 
 ### 8. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 94 · 8 · 7.52 · **0.48** *(was 93 — **#13 done**)*
-- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. Pre-commit block panel replaces generic finalize errors with structured severity, finding links, and policy-pack remediation paths. Help product-language sweep normalizes manifest/run-primary copy. **`ExecutiveRoiProofStatusStrip`** puts evidence freshness, headline scope, and ROI methodology link above portfolio savings on `/dashboard`. Residual legacy route aliases (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
+- **Score · Weight · Contribution · Deficiency:** 95 · 8 · 7.60 · **0.40** *(was 94 — **Tier 2 #4 done**)*
+- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. **`ExecutiveRoiBoardPackEvidenceBanner`** labels each finding cluster as extractor-backed, illustrative, or review-backed before board-pack export — reducing misread of demo/simulator savings in sponsor handoffs. **`ExecutiveRoiProofStatusStrip`** puts evidence freshness and ROI methodology on first dashboard screen. Residual legacy route aliases (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
 - **Tradeoffs:** Aggressive simplification risks hiding Operate differentiators from power users.
 - **Recommendations:** Executive mode: Home + ROI + board-pack export only; hide graph/compare until second session.
 - **Classification:** V1 / V1.1 (route aliases)
 - **Outcomes affected:** 4.
 
 ### 9. Proof-of-ROI Readiness
-- **Score · Weight · Contribution · Deficiency:** 94 · 9 · 8.46 · **0.54** *(was 93 — **#13 done**)*
-- **Justification:** Layered ROI model is implemented coherently in code and docs; board-pack delegates to same service; cost evidence freshness evaluator exists. **`ExecutiveRoiProofStatusStrip`** makes extractor-backed vs illustrative posture and disposition-aware headline scope visible before executives interpret savings — reducing misread of simulator/demo numbers.
+- **Score · Weight · Contribution · Deficiency:** 95 · 9 · 8.55 · **0.45** *(was 94 — **Tier 2 #4 done**)*
+- **Justification:** Layered ROI model is implemented coherently in code and docs; board-pack delegates to same service; cost evidence freshness evaluator exists. **`ExecutiveRoiBoardPackEvidenceBanner`** surfaces per-cluster illustrative vs extractor-backed posture adjacent to board-pack download — executives see which savings lines are grounded in Azure inventory before sharing the pack.
 - **Tradeoffs:** Aggressive savings headlines increase short-term excitement and long-term trust risk.
-- **Recommendations:** Board-pack banner: “Illustrative vs extractor-backed” per finding cluster.
+- **Recommendations:** Keep board-pack cluster banner aligned with `presentCostEvidenceFreshness`; pilot nav profile for first session.
 - **Classification:** V1
 - **Outcomes affected:** 4.
 
@@ -377,7 +377,8 @@ ArchLucid is **becoming more valuable faster than frontier AI on workflow and re
 
 ### Tier 2 – High Leverage
 
-**4. Board-pack / ROI illustrative vs extractor-backed banner** — V1; qualities 7, 8.  
+**4. Board-pack / ROI illustrative vs extractor-backed banner** — **✅ Done (2026-06-26)**  
+- **Shipped:** `ExecutiveRoiBoardPackEvidenceBanner` on `ExecutiveRoiSummarySection` — per-cluster illustrative vs extractor-backed vs review-backed labels from `topSystemicIssues` / `businessImpactCategoryCounts` and `presentCostEvidenceFreshness`; optional AI narrative advisory note when board-pack narrative toggle is enabled. Drift helpers in `executive-roi-board-pack-evidence-clusters.ts`; Vitest in `ExecutiveRoiBoardPackEvidenceBanner.test.tsx`.
 **5. Pilot nav profile (hide Operate until review #1 committed)** — V1; qualities 6, 8, 10.  
 **6. Enable ITSM native create wizard default path when settings valid** — V1; quality 10; use existing tenant settings + health endpoint.  
 **7. Real-mode nightly smoke (staging, budget-capped)** — V1 ops; quality 9.  
@@ -504,7 +505,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 **First batch (reliability + demo)** — safe for **Composer** / **Sonnet**  
 1. Governed vs advisory labeling (Tier 1 #2) — **done**  
 2. First-review checklist UI (Tier 1 #3) — **done**  
-3. Board-pack illustrative banner (Tier 2 #4)  
+3. Board-pack illustrative banner (Tier 2 #4) — **done**  
 4. Extractor ZIP pre-upload validator (#11) — **done**
 
 **Second batch (moat proof)** — **strong-model-recommended** for API diff design if needed  

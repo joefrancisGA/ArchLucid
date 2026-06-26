@@ -30,6 +30,7 @@ const ExecutiveRoiSystemicIssueTrendChart = dynamic(
   },
 );
 import { ExecutiveRoiIdentifiedVsRealizedPanel } from "./ExecutiveRoiIdentifiedVsRealizedPanel";
+import { ExecutiveRoiBoardPackEvidenceBanner } from "./ExecutiveRoiBoardPackEvidenceBanner";
 import { ExecutiveRoiProofStatusStrip } from "./ExecutiveRoiProofStatusStrip";
 import { ExecutiveRoiSystemsIncludedSection } from "./ExecutiveRoiSystemsIncludedSection";
 import { RoiHeadlineMathTooltip } from "@/components/roi/RoiHeadlineMathTooltip";
@@ -313,6 +314,10 @@ export function ExecutiveRoiSummarySection({
             ? "Include an AI-generated executive summary."
             : "Include AI executive summary (uses 1 fast LLM call when enabled in API config)"}
         </label>
+        <ExecutiveRoiBoardPackEvidenceBanner
+          summary={displayData}
+          includeNarrative={includeBoardPackNarrative}
+        />
         <CardDescription className={OPERATOR_KPI_CARD_DESCRIPTION}>
           {isBuyerPolishedOperatorShellEnv() || executiveSurface ? (
             <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
