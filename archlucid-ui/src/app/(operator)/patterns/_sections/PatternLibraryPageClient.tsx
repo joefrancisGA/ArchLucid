@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 type PatternInsightCard = {
   patternKey: string;
   industryVertical: string;
@@ -49,21 +52,26 @@ export function PatternLibraryPageClient() {
 
   return (
     <main className="w-full max-w-[1200px] px-4 py-8">
-      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Pattern library</h1>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+      <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Pattern library</h1>
+      <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Anonymized aggregates (k ≥ 5 tenants). No tenant-identifying data is shown.
       </p>
 
-      {loading ? <p className="mt-6 text-sm text-neutral-500">Loading…</p> : null}
+      {loading ? <p className={cn("mt-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p> : null}
 
       {error ? (
-        <p className="mt-6 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 px-3 py-2 text-sm">
+        <p
+          className={cn(
+            "mt-6 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+        >
           {error}
         </p>
       ) : null}
 
       {!loading && !error && cards.length === 0 ? (
-        <p className="mt-6 text-sm text-neutral-500">No published patterns yet for your vertical.</p>
+        <p className={cn("mt-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No published patterns yet for your vertical.</p>
       ) : null}
 
       <ul className="mt-6 space-y-4">
@@ -73,12 +81,12 @@ export function PatternLibraryPageClient() {
             className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-medium text-neutral-900 dark:text-neutral-100">{card.patternKey}</span>
-              <span className="text-xs text-neutral-500">
+              <span className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{card.patternKey}</span>
+              <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {card.industryVertical} · {card.contributingTenantCount} tenants
               </span>
             </div>
-            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{card.summary}</p>
+            <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{card.summary}</p>
           </li>
         ))}
       </ul>
