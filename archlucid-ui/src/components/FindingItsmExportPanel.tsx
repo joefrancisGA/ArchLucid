@@ -1,4 +1,13 @@
+"use client";
+
+import Link from "next/link";
+
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { ItsmOutboundCreateIssueDialog } from "@/components/ItsmOutboundCreateIssueDialog";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ITSM_NATIVE_CREATE_ADMIN_HREF } from "@/lib/itsm-native-create-readiness-alignment";
+import { useItsmNativeCreateReadiness } from "@/lib/use-itsm-native-create-enabled";
+import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingItsmExportPanelProps = {
@@ -7,8 +16,42 @@ export type FindingItsmExportPanelProps = {
   payload: FindingInspectPayload;
 };
 
-/** Above-the-fold copy seam for external ticketing on finding detail pages. */
+/** Finding handoff: native Jira/ServiceNow create when probes validate; copy-as-work-item fallback otherwise (Tier 2 #6). */
 export function FindingItsmExportPanel({ runId, findingId, payload }: FindingItsmExportPanelProps) {
+  const { defaultPathReady, deploymentEnabled } = useItsmNativeCreateReadiness();
+
+  if (defaultPathReady) {
+    return (
+      <section
+        className="rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30"
+        aria-labelledby="finding-itsm-native-default-heading"
+        data-testid="finding-itsm-native-default-panel"
+      >
+        <h2
+          id="finding-itsm-native-default-heading"
+          className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Sync to Jira or ServiceNow
+        </h2>
+        <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          Tenant ITSM connectors passed connection validation — create a linked issue in one click. Clipboard export
+          remains available below when you need manual paste.
+        </p>
+        <div className="flex flex-wrap items-center gap-3 pt-3">
+          <ItsmOutboundCreateIssueDialog findingId={findingId} prominent />
+        </div>
+        <div className="mt-4 border-t border-teal-100 pt-3 dark:border-teal-900/60">
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Prefer clipboard export?
+          </p>
+          <div className="pt-2">
+            <CopyFindingAsWorkItemButton findingId={findingId} payload={payload} runId={runId} />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       className="rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30"
@@ -24,6 +67,18 @@ export function FindingItsmExportPanel({ runId, findingId, payload }: FindingIts
       <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
         One click copies Jira wiki markup ready to paste into a ticket. Choose ServiceNow or JSON for other trackers.
       </p>
+      {deploymentEnabled ? (
+        <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          Native one-click create unlocks after ITSM connection validation —{" "}
+          <Link
+            href={ITSM_NATIVE_CREATE_ADMIN_HREF}
+            className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
+          >
+            configure connectors
+          </Link>
+          .
+        </p>
+      ) : null}
       <div className="pt-3">
         <CopyFindingAsWorkItemButton findingId={findingId} payload={payload} runId={runId} prominent />
       </div>

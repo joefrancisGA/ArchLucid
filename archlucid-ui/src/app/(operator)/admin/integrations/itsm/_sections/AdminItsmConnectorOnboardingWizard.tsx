@@ -19,9 +19,12 @@ import {
 } from "@/lib/api/itsm-outbound-api";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { ITSM_CONNECTOR_SMOKE_HELP } from "@/lib/itsm-connectors-admin-scope";
+import {
+  isItsmNativeCreateDefaultPathReady,
+  resolveItsmOnboardingWizardInitialStep,
+  type ItsmOnboardingWizardStep,
+} from "@/lib/itsm-native-create-readiness";
 import { cn } from "@/lib/utils";
-
-type WizardStep = "prerequisites" | "settings" | "verify" | "runbooks";
 
 type Props = {
   readonly initialSettings: TenantItsmOutboundSettingsResponse | null;
@@ -30,7 +33,7 @@ type Props = {
   readonly onHealthUpdated: (health: ItsmIntegrationHealthResponse) => void;
 };
 
-const STEPS: readonly { id: WizardStep; label: string }[] = [
+const STEPS: readonly { id: ItsmOnboardingWizardStep; label: string }[] = [
   { id: "prerequisites", label: "Prerequisites" },
   { id: "settings", label: "Tenant overrides" },
   { id: "verify", label: "Connection test" },
@@ -38,7 +41,9 @@ const STEPS: readonly { id: WizardStep; label: string }[] = [
 ];
 
 export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactElement {
-  const [step, setStep] = useState<WizardStep>("prerequisites");
+  const [step, setStep] = useState<ItsmOnboardingWizardStep>(() =>
+    resolveItsmOnboardingWizardInitialStep(props.initialHealth, props.initialSettings),
+  );
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(props.initialSettings);
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(props.initialHealth);
   const [jiraProjectKey, setJiraProjectKey] = useState(props.initialSettings?.jiraProjectKeyOverride ?? "");
@@ -51,6 +56,7 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
   const [testError, setTestError] = useState<string | null>(null);
 
   const nativeEnabled = settings?.nativeEnabled ?? health?.nativeEnabled ?? false;
+  const defaultPathReady = isItsmNativeCreateDefaultPathReady(health);
 
   const reloadSettings = useCallback(async () => {
     const loaded = await fetchTenantItsmOutboundSettings();
@@ -107,6 +113,15 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Configure tenant overrides, validate live connectivity, and follow smoke runbooks before enabling native outbound create.
         </p>
+        {defaultPathReady ? (
+          <p
+            className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="admin-itsm-default-path-ready"
+          >
+            Native one-click create is validated for this tenant — finding surfaces will offer Jira/ServiceNow sync as the
+            default handoff path.
+          </p>
+        ) : null}
       </div>
 
       <nav aria-label="ITSM onboarding steps" className="flex flex-wrap gap-2">

@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 92.70%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.80%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -43,10 +43,10 @@
 | 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
 | 8 | Executive / Operator Comprehension | 97 | 8 | 7.76 | 0.24 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
-| 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
-| **Total** | | | **100** | **92.70%** | **7.30%** |
+| 10 | Adoption Friction | 91 | 5 | 4.55 | 0.45 |
+| **Total** | | | **100** | **92.80%** | **7.20%** |
 
-*(A) Headline Readiness: 92.70%*
+*(A) Headline Readiness: 92.80%*
 
 ---
 
@@ -58,10 +58,10 @@
 |------------|---------------|-------------|
 | **Decision Advantage Score** | **76** (1–100) | Base rate: skilled principal architects using frontier AI change ~1–2 material decisions per major review when prompted well (~40% of reviews). ArchLucid adds policy-filtered compliance findings, extractor-grounded cost lines, pre-commit gate outcomes, and disposition-aware ROI — but much LLM narrative remains architecturally familiar. Adjust **+15** for governed packaging; **−12** because pack-change→finding-change is proven for deterministic compliance rules more than for all agent findings. |
 | **Frontier-AI Survival Probability (12-month)** | **72%** (range **60%–80%**, confidence **medium**) | Reference class: vertical AI SaaS wrappers without durable workflow state lose >50% relevance within 12 months as base models improve. ArchLucid’s audit trail, tenant policy state, ROI disposition model, and commit gate resist that curve. Adjust **+25** for infrastructure moat; **−18** because generic critique and Ask paths remain prompt-replicable. |
-| **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
+| **30-Day Voluntary Usage Probability** (10 principal architects) | **56%** (range **42%–66%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **+1** for ITSM native create default path when tenant probes validate (**#6 done 2026-06-26**); **−19** for shell complexity, deployment-gated ITSM when unconfigured, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **92.70%** (+0.26 from **#14 compare governance diff** — Decision-Changing Insight Density 89, Governed Review Integrity 98; cumulative +3.78 from prior shipped batches). **`CompareGovernanceDiffPanel`** on `/compare` diffs committed review rule-set basis plus current-scope effective pack assignments with an honest current-effective disclaimer.
+**Reconciliation:** Headline **92.80%** (+0.10 from **#6 ITSM native create default path** — Adoption Friction 91; cumulative +3.88 from prior shipped batches). **`isItsmNativeCreateDefaultPathReady`** promotes one-click Jira/ServiceNow sync on finding detail when deployment flag + health probes validate; admin wizard auto-lands on verify/runbooks instead of always restarting at prerequisites.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 92.70%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2/#3/#1, #10, #13, Tier 2 #4/#5/#8). **#14 shipped (2026-06-26):** **compare governance diff** on `/compare` — manifest rule-set basis delta plus current effective pack assignments via `CompareGovernanceDiffPanel` + `compare-effective-governance-diff.ts`. Remaining in-contract gap: **ITSM wizard default path (Tier 2 #6)**.
+- **(A) Overall headline readiness: 92.80%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#6–#14, help sweep, Tier 1 #2/#3/#1, #10, #13, Tier 2 #4/#5/#8). **#6 shipped (2026-06-26):** **ITSM native create default path** — `itsm-native-create-readiness.ts` gates one-click sync on `nativeEnabled` + reachable vendor probes; `FindingItsmExportPanel` promotes native create when valid; admin wizard auto-advances via `resolveItsmOnboardingWizardInitialStep`. Remaining in-contract gaps: **real-mode nightly smoke (Tier 2 #7)**, **CI pre-commit starter (#15)**, **CLI proof-packet export (#16)**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -161,10 +161,10 @@
 - **Outcomes affected:** 1, 2, 4.
 
 ### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 89 · 5 · 4.45 · **0.55** *(was 88 — **Tier 2 #5 done**)*
-- **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. **Pilot nav profile** narrows first-session sidebar to Core Pilot routes until `hasCommittedArchitectureReview`, with optional manual unlock and auto-advance to analysis phase. Friction: `Integrations:Itsm:NativeEnabled=false` hides one-click ticket create; enterprise SSO setup still admin-heavy.
-- **Tradeoffs:** Enabling ITSM native by default increases support burden for half-configured tenants.
-- **Recommendations:** Pilot checklist: enable native ITSM only when tenant settings validated; keep copy-as-work-item as default fallback.
+- **Score · Weight · Contribution · Deficiency:** 91 · 5 · 4.55 · **0.45** *(was 89 — **Tier 2 #6 done**)*
+- **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. **Pilot nav profile** narrows first-session sidebar to Core Pilot routes until `hasCommittedArchitectureReview`. **`isItsmNativeCreateDefaultPathReady`** promotes one-click Jira/ServiceNow sync on finding detail when deployment flag and vendor health probes validate; clipboard export remains secondary. Admin ITSM wizard auto-lands on verify/runbooks when settings are already valid instead of always restarting at prerequisites. Friction: enterprise SSO setup still admin-heavy; native create remains deployment-gated until ops enable `Integrations:Itsm:NativeEnabled`.
+- **Tradeoffs:** Enabling ITSM native by default increases support burden for half-configured tenants — default path activates only after probe success.
+- **Recommendations:** Pilot checklist: run admin ITSM connection test before first finding handoff demo; keep copy-as-work-item as fallback on unconfigured tenants.
 - **Classification:** V1 validation + V1.1 connectors
 - **Outcomes affected:** 3, 4.
 
@@ -381,7 +381,8 @@ ArchLucid is **becoming more valuable faster than frontier AI on workflow and re
 - **Shipped:** `ExecutiveRoiBoardPackEvidenceBanner` on `ExecutiveRoiSummarySection` — per-cluster illustrative vs extractor-backed vs review-backed labels from `topSystemicIssues` / `businessImpactCategoryCounts` and `presentCostEvidenceFreshness`; optional AI narrative advisory note when board-pack narrative toggle is enabled. Drift helpers in `executive-roi-board-pack-evidence-clusters.ts`; Vitest in `ExecutiveRoiBoardPackEvidenceBanner.test.tsx`.
 **5. Pilot nav profile (hide Operate until review #1 committed)** — **✅ Done (2026-06-26)**  
 - **Shipped:** Three-phase Operate unlock (`operate-nav-progressive-unlock.ts`) wired through `nav-shell-visibility.ts`, `useOperateNavUnlockPhase` (auto-advance to analysis after `hasCommittedArchitectureReview`), `OperateFeaturesUnlockPanel`, `OperateUnlockAutoHint`, committed-review nav gate; `/help/pilot-nav-profile` + drift guards in `pilot-nav-profile-alignment.test.ts`; E2E in `pilot-nav-profile.spec.ts`.
-**6. Enable ITSM native create wizard default path when settings valid** — V1; quality 10; use existing tenant settings + health endpoint.  
+**6. Enable ITSM native create wizard default path when settings valid** — **✅ Done (2026-06-26)**  
+- **Shipped:** `itsm-native-create-readiness.ts` — `isItsmNativeCreateDefaultPathReady` (deployment flag + reachable vendor probe), `resolveItsmOnboardingWizardInitialStep` for admin wizard auto-landing; `FindingItsmExportPanel` promotes `ItsmOutboundCreateIssueDialog` when valid with copy-as-work-item fallback; `useItsmNativeCreateReadiness` hook; drift guards in `itsm-native-create-readiness-alignment.test.ts`. Vitest in `itsm-native-create-readiness.test.ts`, `FindingItsmExportPanel.test.tsx`, updated `AdminItsmConnectorsPageClient.test.tsx`.
 **7. Real-mode nightly smoke (staging, budget-capped)** — V1 ops; quality 9.  
 **8. Decision delta panel on run detail (top 3 material findings + rule keys)** — **✅ Done (2026-06-26)**  
 - **Shipped:** `RunDetailDecisionDeltaPanel` + `RunDetailDecisionDeltaDeferred` on committed review detail — top 3 non-muted findings by severity with `SeverityTag`, `FindingPolicyRuleBadge` links, evidence anchor hints, and finding deep links; client derivation in `run-detail-decision-delta.ts` mirrors `SponsorDecisionDeltaNoveltyResolver.CollectMaterialFindings`. Vitest in `run-detail-decision-delta.test.ts`, `RunDetailDecisionDeltaPanel.test.tsx`, `run-detail-decision-delta-alignment.test.ts`.
@@ -499,7 +500,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 
 **Third batch (proof packet + polish)** — **Composer-safe** / **Sonnet-safe**  
 9. Pilot nav profile (Tier 2 #5) — **done**  
-10. ITSM wizard enablement polish (Tier 2 #6)  
+10. ITSM wizard enablement polish (Tier 2 #6) — **done**
 11. Run-scoped audit CSV one-click (#12) — **done**  
 12. Help topic product-language sweep (#14) — **done**  
 13. Executive ROI proof status strip (#13) — **done**

@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 
-import { resolveItsmNativeCreateEnabled } from "@/lib/itsm-native-integration";
+import {
+  resolveItsmNativeCreateReadiness,
+  type ItsmNativeCreateReadiness,
+} from "@/lib/itsm-native-integration";
 
-/** Client hook for TB-387 native ITSM create gate (defaults false until health resolves). */
-export function useItsmNativeCreateEnabled(): boolean {
-  const [nativeCreateEnabled, setNativeCreateEnabled] = useState(false);
+const INITIAL_READINESS: ItsmNativeCreateReadiness = {
+  deploymentEnabled: false,
+  defaultPathReady: false,
+  health: null,
+};
+
+/** Client hook for TB-387 native ITSM create gate + Tier 2 #6 default-path readiness. */
+export function useItsmNativeCreateReadiness(): ItsmNativeCreateReadiness {
+  const [readiness, setReadiness] = useState<ItsmNativeCreateReadiness>(INITIAL_READINESS);
 
   useEffect(() => {
     let cancelled = false;
 
     void (async () => {
-      const enabled = await resolveItsmNativeCreateEnabled();
+      const resolved = await resolveItsmNativeCreateReadiness();
 
       if (!cancelled) {
-        setNativeCreateEnabled(enabled);
+        setReadiness(resolved);
       }
     })();
 
@@ -22,5 +31,12 @@ export function useItsmNativeCreateEnabled(): boolean {
     };
   }, []);
 
-  return nativeCreateEnabled;
+  return readiness;
+}
+
+/** True when tenant settings + health probes validate native one-click create as the default path. */
+export function useItsmNativeCreateEnabled(): boolean {
+  const { defaultPathReady } = useItsmNativeCreateReadiness();
+
+  return defaultPathReady;
 }

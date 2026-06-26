@@ -52,6 +52,29 @@ describe("AdminItsmConnectorsPageClient", () => {
     });
 
     expect(screen.getByTestId("admin-itsm-servicenow-health")).toHaveTextContent("Add ServiceNow instance URL.");
-    expect(screen.getByTestId("admin-itsm-step-prerequisites")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-step-verify")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-itsm-default-path-ready")).toBeInTheDocument();
+  });
+
+  it("starts wizard on prerequisites when native create is disabled", async () => {
+    fetchItsmIntegrationHealth.mockResolvedValue({
+      nativeEnabled: false,
+      jira: { locallyConfigured: false, summary: "Not configured." },
+      serviceNow: { locallyConfigured: false, summary: "Not configured." },
+    });
+    fetchTenantItsmOutboundSettings.mockResolvedValue({
+      hasTenantOverrides: false,
+      nativeEnabled: false,
+      deploymentCredentials: {
+        jiraConfigured: false,
+        serviceNowConfigured: false,
+      },
+    });
+
+    render(<AdminItsmConnectorsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("admin-itsm-step-panel-prerequisites")).toBeInTheDocument();
+    });
   });
 });
