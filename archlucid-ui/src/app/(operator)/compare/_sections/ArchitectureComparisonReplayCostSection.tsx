@@ -12,6 +12,8 @@ import { fetchArchitectureComparisonReplayCostEstimate } from "@/lib/api/compari
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS } from "@/lib/replay-display";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Warn-only cost band estimate for architecture comparison replay (distinct from review-package validation). */
 
@@ -94,8 +96,8 @@ export function ArchitectureComparisonReplayCostSection() {
 
   return (
     <section className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-3xl p-4">
-      <h3 className="mt-0 text-sm font-semibold text-al-text-primary">Comparison replay cost estimate (warn-only)</h3>
-      <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+      <h3 className={cn("mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Comparison replay cost estimate (warn-only)</h3>
+      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         Estimate relative cost before you replay a saved comparison record. This is separate from validating a single review package on the
         validate page.
       </p>
@@ -128,9 +130,12 @@ export function ArchitectureComparisonReplayCostSection() {
         </div>
 
         <fieldset className="space-y-2 rounded-md border border-amber-200/80 bg-white/40 p-3 dark:border-amber-800 dark:bg-neutral-950/60">
-          <legend className="px-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Validation mode (optional)</legend>
+          <legend className={cn("px-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Validation mode (optional)</legend>
           <select
-            className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900"
+            className={cn(
+              "max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 dark:border-neutral-600 dark:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
             value={replayMode}
             aria-label="Optional validation mode for comparison replay cost estimate"
             onChange={(e) => {
@@ -144,14 +149,14 @@ export function ArchitectureComparisonReplayCostSection() {
               </option>
             ))}
           </select>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {replayMode.trim().length > 0
               ? replayModeLabel(replayMode)
               : "Only set this when you need a cost estimate aligned with a heavier comparison replay."}
           </p>
         </fieldset>
 
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
+        <label className={cn("flex cursor-pointer items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
           <input
             type="checkbox"
             className="size-4 rounded border border-neutral-300 text-teal-800 focus:ring-2 focus:ring-neutral-400 dark:border-neutral-600 dark:bg-neutral-900"
@@ -171,7 +176,7 @@ export function ArchitectureComparisonReplayCostSection() {
           >
             {loading ? "Estimating…" : "Refresh cost estimate"}
           </Button>
-          <p className="m-0 w-full text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 w-full text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Estimates also refresh silently ~450ms after you stop typing.
           </p>
         </div>
@@ -180,30 +185,30 @@ export function ArchitectureComparisonReplayCostSection() {
 
         {estimate !== null ? (
           <div className="rounded-md border border-amber-400/70 bg-white/80 px-3 py-2 dark:border-amber-600 dark:bg-neutral-950">
-            <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               Estimated band: <span className="font-semibold">{estimate.relativeCostBand}</span>{" "}
               {typeof estimate.approximateRelativeScore === "number" ? (
-                <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   ({String(estimate.approximateRelativeScore)} / 100)
                 </span>
               ) : null}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Comparison <span className="font-mono">{estimate.comparisonRecordId}</span> · type{" "}
               <span className="font-mono">{estimate.comparisonType}</span> · format <span className="font-mono">{estimate.format}</span>
             </p>
 
             {(estimate.factors?.length ?? 0) > 0 ? (
               <Fragment>
-                <p className="m-0 mt-2 text-sm font-medium text-neutral-800 dark:text-neutral-100">Signals</p>
-                <ul className="m-0 list-disc space-y-1 pl-6 text-xs text-neutral-700 dark:text-neutral-300">
+                <p className={cn("m-0 mt-2 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Signals</p>
+                <ul className={cn("m-0 list-disc space-y-1 pl-6 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
                   {(estimate.factors ?? []).map((factor, idx) => (
                     <li key={`${estimate.comparisonRecordId}-factor-${String(idx)}`}>{factor}</li>
                   ))}
                 </ul>
               </Fragment>
             ) : null}
-            <p className="m-0 mt-2 text-xs font-medium text-amber-950 dark:text-amber-50">
+            <p className={cn("m-0 mt-2 font-medium text-amber-950 dark:text-amber-50", OPERATOR_TYPOGRAPHY.helper)}>
               Guidance only — not a hard block before any downstream replay or export you trigger elsewhere.
             </p>
           </div>

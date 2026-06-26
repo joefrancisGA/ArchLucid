@@ -3,6 +3,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { RunComparison, RunSummary } from "@/types/authority";
 import { outcomeLabel, type ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type CompareLastRequestOutcomeDetailsProps = {
   pairAligned: boolean;
@@ -45,37 +47,40 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
 
   return (
     <details
-      className="mt-6 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50"
+      className={cn(
+        "mt-6 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       aria-label="Comparison request outcome"
       open={buyerPolished ? false : showStaleInputsWarning}
     >
-      <summary className="cursor-pointer text-sm font-semibold text-al-text-primary">
+      <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         {buyerPolished ? "Comparison details (technical appendix)" : "Last compare request (technical)"}
       </summary>
       <div className="mt-3">
-        <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">
+        <p className={cn("mb-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <span className="font-medium text-al-text-primary">
             {compareRunHeadingLabel(lastComparedPair.left, leftPickedSummary)}
           </span>
-          <span className="mx-1.5 text-neutral-400 dark:text-neutral-500">→</span>
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">
+          <span className="mx-1.5 text-al-text-secondary">→</span>
+          <span className="font-medium text-al-text-primary">
             {compareRunHeadingLabel(lastComparedPair.right, rightPickedSummary)}
           </span>
           <span className="sr-only">
             (technical IDs: {lastComparedPair.left} → {lastComparedPair.right})
           </span>
         </p>
-        <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
-          <dt className="m-0 text-neutral-500 dark:text-neutral-400">Review comparison</dt>
-          <dd className="m-0 text-neutral-800 dark:text-neutral-200">
+        <dl className={cn("m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5", OPERATOR_TYPOGRAPHY.body)}>
+          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review comparison</dt>
+          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {outcomeLabel({
               hasValue: golden !== null,
               failure: goldenFailure,
               malformed: goldenMalformed,
             })}
           </dd>
-          <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary review / review package diff</dt>
-          <dd className="m-0 text-neutral-800 dark:text-neutral-200">
+          <dt className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Supplementary review / review package diff</dt>
+          <dd className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {outcomeLabel({
               hasValue: result !== null,
               failure: legacyFailure,
@@ -83,7 +88,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
             })}
           </dd>
         </dl>
-        <p className="mb-0 mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={cn("mb-0 mt-2.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           AI explanation is not included here—use <strong>{summarizeCue}</strong> for that pair.
         </p>
       </div>

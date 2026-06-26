@@ -1,5 +1,7 @@
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer-polish-copy";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type CompareRunPickersSectionProps = {
@@ -75,8 +77,8 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
         />
         {leftFootnote !== null ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span> {leftFootnote}
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium text-al-text-primary">Showing:</span> {leftFootnote}
           </p>
         ) : null}
         <RunIdPicker
@@ -92,16 +94,21 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           useBuyerFacingRunLabels={useBuyerFacingRunLabels}
         />
         {rightFootnote !== null ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span> {rightFootnote}
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium text-al-text-primary">Showing:</span> {rightFootnote}
           </p>
         ) : null}
         {!useBuyerFacingRunLabels ? (
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs dark:border-neutral-700 dark:bg-neutral-900/40">
-            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+          <details
+            className={cn(
+              "rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               Advanced: enter review IDs manually
             </summary>
-            <p className="mt-2 m-0 text-neutral-600 dark:text-neutral-400">
+            <p className={cn("mt-2 m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Type or paste a review ID in either field above when the review is not in the recent list (for example an
               in-progress or archived review).
             </p>
@@ -110,7 +117,10 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         {sameCanonicalRunIdsBlocked ? (
           <p
             role="alert"
-            className="m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs"
+            className={cn(
+              "m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
           >
             These two selections resolve to the same review. Choose a different prior or later review to compare.
           </p>
@@ -119,7 +129,10 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           <button
             type="button"
             data-testid="compare-submit-button"
-            className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className={cn(
+              "rounded-md border border-neutral-300 bg-white px-4 py-2.5 font-medium text-al-text-primary shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+              OPERATOR_TYPOGRAPHY.button,
+            )}
             onClick={() => void onCompare()}
             disabled={compareActionsDisabled}
           >
@@ -128,7 +141,10 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           {showSummarizeForSponsor ? (
             <button
               type="button"
-              className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              className={cn(
+              "rounded-md border border-neutral-300 bg-white px-4 py-2.5 font-medium text-al-text-primary shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800",
+              OPERATOR_TYPOGRAPHY.button,
+            )}
               onClick={() => void onSummarizeForSponsor()}
               disabled={aiLoading}
             >
@@ -137,7 +153,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
           ) : null}
         </div>
         {showSelectionHelper ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Choose a baseline and updated review to continue.
           </p>
         ) : null}
@@ -148,7 +164,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
   if (collapseBelowResults) {
     return (
       <details className="scroll-mt-8 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
-        <summary className="cursor-pointer text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           {BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY}
         </summary>
         <section className="mt-3 space-y-4" aria-label="Change compared reviews">

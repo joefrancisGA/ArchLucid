@@ -22,6 +22,8 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison, RunSummary } from "@/types/authority";
 import { BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer-polish-copy";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ComparedPair } from "@/app/(operator)/compare/_sections/compare-page-helpers";
 
 export type CompareResultsPanelProps = {
@@ -97,7 +99,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
           <strong>Selections no longer match the comparison shown here.</strong>
-          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             The comparison shown reflects{" "}
             <strong>
               {lastComparedPair ? compareRunHeadingLabel(lastComparedPair.left, leftPickedSummary) : ""}
@@ -109,8 +111,8 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             . Click <strong>Compare</strong> or <strong>{summarizeCue}</strong> again after fixing selections, or
             restore the previous values.
           </p>
-          <details className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+          <details className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               Technical review IDs
             </summary>
             <p className="m-0 mt-1 font-mono">
@@ -123,7 +125,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       {loading && leftTrim && rightTrim && (
         <OperatorLoadingNotice>
           <strong>Comparing reviews.</strong>
-          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             Comparing reviews — this may take a few seconds.
           </p>
         </OperatorLoadingNotice>
@@ -132,19 +134,19 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       {aiLoading && (
         <OperatorLoadingNotice>
           <strong>Requesting AI explanation.</strong>
-          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">This depends on server LLM configuration.</p>
+          <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>This depends on server LLM configuration.</p>
         </OperatorLoadingNotice>
       )}
 
       {legacyFailure && (
         <>
-          <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Supplementary review-level comparison failed.
           </p>
           <OperatorApiProblem failure={legacyFailure} />
           <OperatorTryNext>
             Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
-            <Link href="/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
+            <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
             again. Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
         </>
@@ -165,11 +167,11 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
 
       {goldenFailure && (
         <>
-          <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Review comparison request failed.
           </p>
           <OperatorApiProblem failure={goldenFailure} variant="warning" />
-          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
@@ -194,7 +196,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
 
       {aiFailure && (
         <>
-          <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             AI explanation request failed.
           </p>
           <OperatorApiProblem failure={aiFailure} variant="warning" />
@@ -224,10 +226,13 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           {!buyerPolished && (
             <nav
               aria-label="Comparison results outline"
-              className="w-full max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
+              className={cn(
+                "w-full max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
             >
-              <strong className="mb-2 block text-neutral-900 dark:text-neutral-100">Review order</strong>
-              <ol className="m-0 list-decimal pl-6 leading-relaxed text-neutral-800 dark:text-neutral-200">
+              <strong className={cn("mb-2 block text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Review order</strong>
+              <ol className={cn("m-0 list-decimal pl-6 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {golden !== null && (
                   <li>
                     <a href="#compare-structured">Review comparison summary</a>
@@ -263,7 +268,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
               {pdfDownloading ? "Generating PDF..." : "Download PDF Report"}
             </Button>
             {pdfError && (
-              <p className="text-xs text-red-600 dark:text-red-400">{pdfError}</p>
+              <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{pdfError}</p>
             )}
           </div>
         </div>
@@ -278,11 +283,14 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
 
         {comparisonNarrative !== null ? (
           <div
-            className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm leading-relaxed"
+            className={cn(
+              "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 leading-relaxed",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
             role="status"
             data-testid="compare-ask-narrative-banner"
           >
-            <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">
+            <p className={cn("m-0 mb-1 uppercase tracking-wide text-teal-800 dark:text-teal-200", OPERATOR_NAV_GROUP_LABEL)}>
               ✦ AI narrative
             </p>
             <p className="m-0 whitespace-pre-wrap">{comparisonNarrative}</p>
@@ -313,7 +321,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             id="compare-technical"
             className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
           >
-            <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+            <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               {buyerPolished ? BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL : "Technical details — supplementary review-level comparison"}
             </summary>
             <div className="mt-4">
@@ -327,7 +335,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             id="compare-ai"
             className="mt-6 rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
           >
-            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-neutral-900 outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
+            <summary className={cn("cursor-pointer list-none px-4 py-3 text-al-text-primary outline-none ring-offset-2 marker:content-none focus-visible:ring-2 focus-visible:ring-teal-600 [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               {buyerPolished
                 ? "Executive narrative (AI-generated) — optional; confirm against structured summary before sign-off"
                 : "Sponsor narrative (AI-generated) — optional; confirm against structured diff before sign-off"}
