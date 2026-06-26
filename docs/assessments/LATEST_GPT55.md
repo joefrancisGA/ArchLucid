@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 92.55%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.81%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -27,7 +27,7 @@
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 88 | 13 | 11.44 | 1.56 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
-| 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
+| 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
@@ -35,9 +35,9 @@
 | 8 | Executive / Operator Comprehension | 95 | 8 | 7.60 | 0.40 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 90 | 5 | 4.50 | 0.50 |
-| **Total** | | | **100** | **92.55%** | **7.45%** |
+| **Total** | | | **100** | **92.81%** | **7.19%** |
 
-*(A) Headline Readiness: 92.55%*
+*(A) Headline Readiness: 92.81%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 92.55%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). Finding detail exposes a gated **Create issue** dialog (`POST /v1/integrations/itsm/outbound/issues`) when `Integrations:Itsm:NativeEnabled` is true. CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
+- **(A) Overall headline readiness:** 92.81%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). Finding detail exposes a gated **Create issue** dialog (`POST /v1/integrations/itsm/outbound/issues`) when `Integrations:Itsm:NativeEnabled` is true. Governance dashboard now surfaces a dedicated **Pre-commit governance bypass audit** panel for recent `GovernanceBypassInvoked` events (actor, justification, review package). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -129,8 +129,8 @@
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
-- **Score:** 95 · **Weight:** 13 · **Contribution:** 12.35 · **Deficiency:** 0.65
-- **Justification:** ITSM connector onboarding is admin-gated with audit event `TenantItsmOutboundSettingsUpserted`; pre-commit CI pipelines and append-only audit events keep governed outbound create on the critical path for Jira/ServiceNow pilots.
+- **Score:** 97 · **Weight:** 13 · **Contribution:** 12.61 · **Deficiency:** 0.39
+- **Justification:** ITSM connector onboarding is admin-gated with audit event `TenantItsmOutboundSettingsUpserted`; pre-commit CI pipelines and append-only audit events keep governed outbound create on the critical path for Jira/ServiceNow pilots. Governance dashboard bypass audit panel highlights recent `GovernanceBypassInvoked` events with actor and break-glass justification for admin oversight.
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
@@ -256,14 +256,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Cursor Prompt:** Scaffold the UI in the operator shell for configuring the Tier 2 hosted automated polling. Add a form to input the Azure Service Principal credentials (to be stored in Key Vault) and subscription scope. Ensure the UI clearly communicates that Tier 1 (manual ZIP upload) is the default and Tier 2 is opt-in.
 
 **Tier 2 – High Leverage**
-
-- **Title:** Pre-commit Gate Bypass Audit Panel
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Admins might overuse the governance bypass, undermining the system's integrity.
-- **Expected impact:** Increased visibility into governance overrides.
-- **Affected qualities:** Governed Review Integrity.
-- **Classification:** V1
-- **Cursor Prompt:** Create a dedicated view or filter in the Governance Dashboard specifically highlighting `GovernanceBypassInvoked` audit events. The panel should show recent bypass events, the actor, and the justification provided.
 
 - **Title:** Test Connection Button for Webhooks
 - **Tier:** Tier 2 – High Leverage
