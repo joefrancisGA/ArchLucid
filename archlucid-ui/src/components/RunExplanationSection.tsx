@@ -8,7 +8,8 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
-import { enterpriseStatusTagClass } from "@/lib/design-tokens";
+import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {
@@ -179,7 +180,7 @@ export function RunExplanationSection({
   }
 
   if (error) {
-    return <p role="alert" className="m-0 text-sm text-red-700 dark:text-red-300">{error}</p>;
+    return <p role="alert" className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>{error}</p>;
   }
 
   if (!summary) {
@@ -214,11 +215,11 @@ export function RunExplanationSection({
 
   return (
     <DocumentLayout tocItems={tocItems}>
-      <p id="doc-explanation-assessment" className="m-0 text-xl font-bold leading-snug text-neutral-900 dark:text-neutral-50">
+      <p id="doc-explanation-assessment" className={cn("m-0 leading-snug text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         {overallAssessment}
       </p>
 
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <span className="sr-only">Risk posture:</span>
         <span
           role="status"
@@ -228,7 +229,7 @@ export function RunExplanationSection({
         >
           {riskPostureLabel}
         </span>
-        <span className="ml-3 text-[13px] text-neutral-500 dark:text-neutral-400">
+        <span className={cn("ml-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? `${summary.decisionCount} governance decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
             : `${summary.decisionCount} decisions · ${findingCountForStats} findings · ${summary.unresolvedIssueCount} unresolved · ${summary.complianceGapCount} compliance gaps`}
@@ -245,12 +246,12 @@ export function RunExplanationSection({
       </p>
 
       {faithPct !== null && faithClass !== null ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           <span className="sr-only">Faithfulness vs findings:</span>
           <span role="status" aria-label={`Faithfulness support ratio ${faithPct} percent`} className={faithClass}>
             Faithfulness {faithPct}%
           </span>
-          <span className="ml-2.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <span className={cn("ml-2.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             (token overlap vs finding traces — see docs)
           </span>
         </p>
@@ -259,7 +260,10 @@ export function RunExplanationSection({
       {deterministicFallback && !buyerPolishedShell ? (
         <p
           role="status"
-          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 leading-relaxed"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 leading-relaxed text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
         >
           This explanation was generated from manifest structure because AI-generated text did not sufficiently match
           the underlying findings.
@@ -269,13 +273,16 @@ export function RunExplanationSection({
       {summary.faithfulnessWarning && !deterministicFallback ? (
         <p
           role="status"
-          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 leading-relaxed"
+          className={cn(
+            "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 leading-relaxed text-al-text-primary dark:border-amber-700/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
         >
           {summary.faithfulnessWarning}
           {!buyerPolishedShell ? (
             <>
               {" "}
-              <a className="font-semibold underline" href="#run-retrieval-grounding">
+              <a className={cn("font-semibold", OPERATOR_LINK.nav)} href="#run-retrieval-grounding">
                 View retrieval hits →
               </a>
             </>
@@ -293,16 +300,16 @@ export function RunExplanationSection({
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">
-          <h3 id="doc-explanation-traces" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
+          <h3 id="doc-explanation-traces" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Finding trace confidence
           </h3>
-          <ul className="m-0 list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {summary.findingTraceConfidences.map((row) => {
               const tracePct = traceCompletenessPercent(row.traceCompletenessRatio);
 
               return (
               <li key={row.findingId}>
-                <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{row.findingId}</code> —{" "}
+                <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>{row.findingId}</code> —{" "}
                 {row.traceConfidenceLabel} ({tracePct ?? 0}% trace fields)
                 {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
@@ -325,7 +332,7 @@ export function RunExplanationSection({
 
       {pct !== null ? (
         <div id="doc-explanation-confidence" className="mb-4">
-          <p id="doc-explanation-confidence-label" className="m-0 mb-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <p id="doc-explanation-confidence-label" className={cn("m-0 mb-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Model confidence
           </p>
           <Progress
@@ -335,15 +342,15 @@ export function RunExplanationSection({
             aria-valuenow={pct}
             aria-labelledby="doc-explanation-confidence-label"
           />
-          <p className="m-0 mt-1.5 text-[13px] text-neutral-500 dark:text-neutral-400">{pct}%</p>
+          <p className={cn("m-0 mt-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{pct}%</p>
         </div>
       ) : null}
 
       <div className="mb-4">
-        <h3 id="doc-explanation-themes" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
+        <h3 id="doc-explanation-themes" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Themes
         </h3>
-        <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
+        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           {themeSummaries.map((t) => (
             <li key={t}>{t}</li>
           ))}
@@ -351,10 +358,10 @@ export function RunExplanationSection({
       </div>
 
       <div className="mb-4">
-        <h3 id="doc-explanation-drivers" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
+        <h3 id="doc-explanation-drivers" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Key drivers
         </h3>
-        <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
+        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           {(expl.keyDrivers ?? []).map((d) => (
             <li key={d}>{d}</li>
           ))}
@@ -362,10 +369,10 @@ export function RunExplanationSection({
       </div>
 
       <div className="mb-4">
-        <h3 id="doc-explanation-risks" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
+        <h3 id="doc-explanation-risks" className={cn("m-0 mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Risk implications
         </h3>
-        <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
+        <ul className={cn("m-0 list-disc space-y-1 pl-5 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
           {(expl.riskImplications ?? []).map((r) => (
             <li key={r}>{r}</li>
           ))}
@@ -373,8 +380,8 @@ export function RunExplanationSection({
       </div>
 
       {prov ? (
-        <details id="doc-explanation-provenance" className="text-sm text-neutral-700 dark:text-neutral-300">
-          <summary className="cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100">
+        <details id="doc-explanation-provenance" className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+          <summary className={cn("cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {buyerPolishedShell ? "How this narrative was produced" : "Provenance metadata"}
           </summary>
           <dl className="m-0 mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">

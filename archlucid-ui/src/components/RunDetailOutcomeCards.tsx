@@ -12,6 +12,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
+import {
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { components } from "@/lib/openapi-schemas";
 
@@ -63,12 +68,15 @@ function DegradedFindingCoverageBanner({
 
   return (
     <div
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
+      className={cn(
+        "rounded-md border border-amber-600/40 bg-al-surface-raised p-3 text-al-text-primary dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       data-testid="degraded-finding-coverage-banner"
       role="status"
     >
       <p className="m-0 font-semibold">Degraded finding coverage</p>
-      <p className="m-0 mt-1 text-xs leading-relaxed">
+      <p className={cn("m-0 mt-1 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
         This review completed with incomplete finding-engine coverage ({labelText}). Treat unresolved findings as
         advisory until coverage is restored.
       </p>
@@ -104,7 +112,8 @@ function FindingCoverageDispositionPanel({
   return (
     <section
       className={cn(
-        "rounded-lg border px-3 py-3 text-sm",
+        "rounded-lg border px-3 py-3",
+        OPERATOR_TYPOGRAPHY.body,
         summary.hasCommitBlockingFailures === true
           ? "border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50"
           : "border-neutral-200 bg-neutral-50/80 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-100",
@@ -118,21 +127,21 @@ function FindingCoverageDispositionPanel({
             ? "Commit-blocking finding coverage"
             : "Finding disposition coverage"}
         </p>
-        <p className="m-0 text-xs text-current/80">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-current/80")}>
           Engines {finiteCoverageCount(summary.enginesSucceeded)}/{finiteCoverageCount(summary.enginesAttempted)} succeeded
           {finiteCoverageCount(summary.enginesFailed) > 0 ? ` · ${finiteCoverageCount(summary.enginesFailed)} failed` : ""}
         </p>
       </div>
       {summary.hasCommitBlockingFailures === true ? (
-        <p className="m-0 mt-2 text-xs leading-relaxed">
+        <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
           Finalization should remain blocked until the coverage gap is resolved or explicitly regenerated.
         </p>
       ) : null}
       <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {rows.map(([label, value]) => (
           <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
-            <dt className="text-[0.65rem] font-semibold uppercase tracking-wide opacity-70">{label}</dt>
-            <dd className="m-0 text-sm font-semibold text-al-text-primary tabular-nums">{finiteCoverageCount(value)}</dd>
+            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "opacity-70")}>{label}</dt>
+            <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{finiteCoverageCount(value)}</dd>
           </div>
         ))}
       </dl>
@@ -223,7 +232,7 @@ function buyerFindingSeveritySignal(
 }
 
 function stripSegmentLabelClass(): string {
-  return "m-0 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400";
+  return cn("m-0", OPERATOR_NAV_GROUP_LABEL);
 }
 
 function useStreamlinedPilotOutcomeLabels(): {
@@ -283,8 +292,8 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       : "—";
 
   const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";
-  const valueClass = "m-0 text-sm font-semibold text-al-text-primary tabular-nums text-neutral-900 dark:text-neutral-100";
-  const detailClass = "m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400";
+  const valueClass = cn("m-0 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body);
+  const detailClass = cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper);
 
   const packageBody = (
     <>
@@ -456,29 +465,29 @@ export function RunDetailOutcomeCards({
           data-testid="buyer-review-status-headline"
           role="status"
         >
-          <p className="m-0 whitespace-pre-line text-sm font-semibold leading-snug text-neutral-950 dark:text-neutral-50">
+          <p className={cn("m-0 whitespace-pre-line font-semibold leading-snug text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
             {statusHeadline}
           </p>
-          <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">
+          <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             {BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE}
           </p>
           {hasGoldenManifest ? (
             <dl
-              className="m-0 mt-3 grid gap-2 text-xs sm:grid-cols-2"
+              className={cn("m-0 mt-3 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="buyer-review-decision-summary"
             >
               <div>
-                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Decision</dt>
+                <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Decision</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {(aggregateRiskPosture ?? governanceGateLabel ?? "Package finalized").trim()}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Material finding</dt>
+                <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Material finding</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">PHI minimization risk</dd>
               </div>
               <div>
-                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence basis</dt>
+                <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Evidence basis</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {typeof findingCountDisplay === "number"
                     ? `${findingCountDisplay} citation${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
@@ -486,14 +495,14 @@ export function RunDetailOutcomeCards({
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Exports</dt>
+                <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Exports</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review package, decision record, audit trail</dd>
               </div>
             </dl>
           ) : null}
           {(aggregateRiskPosture ?? "").trim().toLowerCase() === "approved with monitoring" ? (
             <p
-              className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
+              className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="buyer-approved-with-monitoring-definition"
             >
               {BUYER_APPROVED_WITH_MONITORING_DEFINITION}
@@ -502,7 +511,10 @@ export function RunDetailOutcomeCards({
         </div>
       ) : null}
       <p
-        className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm font-medium leading-snug"
+        className={cn(
+          "m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 font-medium leading-snug dark:border-neutral-800",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
         role="status"
         data-testid="buyer-review-disposition-line"
       >
@@ -516,8 +528,8 @@ export function RunDetailOutcomeCards({
         })}
       </p>
       {typeof warningCountDisplay === "number" && warningCountDisplay > 0 ? (
-        <details className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-          <summary className="cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
+        <details className={cn("mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             How monitored risks are counted
           </summary>
           <p className="m-0 mt-2" data-testid="buyer-review-monitored-risk-clarifier">
@@ -536,7 +548,7 @@ export function RunDetailOutcomeCards({
         showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
       />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
-        <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <summary className={cn("cursor-pointer select-none px-3 py-2 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
           {BUYER_DECISION_KEY_SUMMARY}
         </summary>
         <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
@@ -557,7 +569,7 @@ export function RunDetailOutcomeCards({
   const findingsCardEl = (
     <Card className="h-full border-neutral-200 dark:border-neutral-800">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Findings</CardTitle>
+        <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Findings</CardTitle>
         <CardDescription>
           {manifestId ? "From architecture review — click to jump" : "From architecture review"}
         </CardDescription>
@@ -567,7 +579,7 @@ export function RunDetailOutcomeCards({
           {finiteIntegerCountDisplay(findingCountDisplay)}
         </p>
         {unresolvedTrunc !== null && unresolvedTrunc > 0 ? (
-          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {unresolvedTrunc} unresolved in this review record
           </p>
         ) : null}
@@ -578,14 +590,14 @@ export function RunDetailOutcomeCards({
   const artifactsCardEl = (
     <Card className="h-full border-neutral-200 dark:border-neutral-800">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Artifacts</CardTitle>
+        <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Artifacts</CardTitle>
         <CardDescription>{manifestId ? "Generated outputs — click to jump" : "Generated outputs"}</CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
         <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
           {finiteIntegerCountDisplay(artifactCount)}
         </p>
-        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">Attached when the review record is finalized</p>
+        <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Attached when the review record is finalized</p>
       </CardContent>
     </Card>
   );
@@ -597,34 +609,36 @@ export function RunDetailOutcomeCards({
       <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{SIGNED_MANIFEST_LABEL}</CardTitle>
+          <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{SIGNED_MANIFEST_LABEL}</CardTitle>
           <CardDescription>Reviewed architecture record</CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           <p
-            className={`m-0 text-sm font-semibold text-al-text-primary ${
-              hasGoldenManifest ? "text-emerald-700 dark:text-emerald-400" : "text-amber-800 dark:text-amber-200"
-            }`}
+            className={cn(
+              "m-0 font-semibold text-al-text-primary",
+              OPERATOR_TYPOGRAPHY.body,
+              hasGoldenManifest ? "text-emerald-700 dark:text-emerald-400" : "text-amber-800 dark:text-amber-200",
+            )}
           >
             {hasGoldenManifest ? "Finalized" : "Awaiting finalize"}
           </p>
           {warningsLine !== null ? (
-            <p className="m-0 mt-1 text-sm tabular-nums text-neutral-800 dark:text-neutral-200">{warningsLine}</p>
+            <p className={cn("m-0 mt-1 tabular-nums text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>{warningsLine}</p>
           ) : null}
-          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {hasGoldenManifest
               ? "Signed review record is pinned to this review."
               : "Finalize from the finalize control when ready."}
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (
-            <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               <span className="font-medium text-neutral-800 dark:text-neutral-200">{approvalStatusLabel}:</span>{" "}
               {governanceGateLabel}
             </p>
           ) : null}
           {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
             <Link
-              className="mt-2 inline-block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+              className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
               href={`/manifests/${encodeURIComponent(manifestId.trim())}`}
             >
               {BUYER_OPEN_SIGNED_RECORD_CTA}
@@ -651,29 +665,29 @@ export function RunDetailOutcomeCards({
 
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">In-page activity</CardTitle>
+          <CardTitle className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>In-page activity</CardTitle>
           <CardDescription>Shortcuts on this review — the authoritative timeline is the Audit trail.</CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           <Link
-            className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+            className={OPERATOR_LINK.nav}
             href="#authority-chain"
           >
             Jump to activity timeline on this page
           </Link>
           <Link
-            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+            className={cn("mt-2 block", OPERATOR_LINK.nav)}
             href={`/reviews/${encodeURIComponent(runId)}/provenance`}
           >
             Full provenance view
           </Link>
           <Link
-            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+            className={cn("mt-2 block", OPERATOR_LINK.nav)}
             href={`/showcase/${encodeURIComponent(runId)}`}
           >
             Completed output (public showcase)
           </Link>
-          <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Timeline and audit identifiers stay below — start here after the sample review.
           </p>
         </CardContent>

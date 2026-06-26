@@ -4,8 +4,9 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { enterpriseStatusTagClass, operatorSemanticSurface } from "@/lib/design-tokens";
+import { enterpriseStatusTagClass, operatorSemanticSurface, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import {
   formatProofConfidenceLabelFromTrustStatus,
   PROOF_CONFIDENCE_FIELD_LABEL,
@@ -61,11 +62,11 @@ function FieldRow(props: {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="text-sm font-medium text-neutral-800 dark:text-neutral-100">{title}</div>
-        <span className={`rounded px-2 py-0.5 text-xs font-semibold ${statusClass(status)}`}>{status}</span>
+        <div className={cn("font-medium text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{title}</div>
+        <span className={cn("rounded px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.badge, statusClass(status))}>{status}</span>
       </div>
       {detail ? (
-        <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{detail}</p>
+        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{detail}</p>
       ) : null}
     </div>
   );
@@ -103,24 +104,24 @@ function ProofChainStep(props: {
     <li className={`rounded-lg border p-3 ${proofStepTone(field)}`} data-testid={`proof-chain-step-${index}`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>
             Step {index}: {label}
           </p>
-          <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{field.title}</p>
+          <p className={cn("m-0 mt-1 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{field.title}</p>
         </div>
-        <span className={`rounded px-2 py-0.5 text-xs font-semibold ${statusClass(field.status)}`}>{field.status}</span>
+        <span className={cn("rounded px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.badge, statusClass(field.status))}>{field.status}</span>
       </div>
       {field.detail ? (
-        <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">{field.detail}</p>
+        <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{field.detail}</p>
       ) : null}
       {href ? (
-        <p className="m-0 mt-2 text-xs">
-          <Link className="font-medium text-teal-800 underline dark:text-teal-200" href={proxyApiPath(href)}>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link className={OPERATOR_LINK.nav} href={proxyApiPath(href)}>
             {linkLabel ?? "Open supporting evidence"}
           </Link>
         </p>
       ) : unavailable ? (
-        <p className="m-0 mt-2 text-xs font-medium text-amber-900 dark:text-amber-100">
+        <p className={cn("m-0 mt-2 font-medium text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}>
           WARN: supporting link is missing; collect or regenerate proof before sponsor send.
         </p>
       ) : null}
@@ -141,10 +142,10 @@ function ProofChainView(props: { readonly card: RunTrustEvidenceCard; readonly b
       data-testid="evidence-to-manifest-audit-proof-chain"
     >
       <div className="space-y-1">
-        <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        <h4 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
           Evidence → finding → review record → artifact → audit proof chain
         </h4>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           This chain shows why a committed ArchLucid review is stronger than a free-form AI answer: each sponsor-facing
           claim can point back to stored evidence, a finding, a committed review record, an exportable artifact, and durable
           audit or trace metadata. It is not a legal attestation.
@@ -265,10 +266,10 @@ export function RunTrustEvidenceCardSection(props: {
     <section id="trust-evidence" className="scroll-mt-24">
       <Card>
         <CardHeader>
-          <h3 className="m-0 text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+          <h3 className={cn("m-0 tracking-tight text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {buyerPolishedShell ? "Evidence basis" : "Evidence basis (operational)"}
           </h3>
-          <CardDescription className="text-neutral-600 dark:text-neutral-400">
+          <CardDescription className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             {card.selfAttestationNotice}
           </CardDescription>
         </CardHeader>
@@ -282,10 +283,10 @@ export function RunTrustEvidenceCardSection(props: {
               className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
               data-testid="trust-evidence-ask-promotion"
             >
-              <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+              <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
                 Ask evidence-backed questions about this review
               </p>
-              <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Answers reference this review&apos;s persisted summary, signed review record, and cited evidence where your workspace
                 allows.
               </p>
@@ -299,17 +300,17 @@ export function RunTrustEvidenceCardSection(props: {
 
           {card.topFinding ? (
             <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
-              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              <div className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 Top finding evidence (severity-first)
               </div>
-              <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-                <span className="font-mono text-xs">{card.topFinding.findingId}</span>
+              <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{card.topFinding.findingId}</span>
                 {card.topFinding.title ? ` — ${card.topFinding.title}` : ""}
               </p>
-              <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                 Trace completeness: <strong>{card.topFinding.traceCompletenessLabel}</strong>
               </p>
-              <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                 {card.topFinding.evidencePointersSummary}
               </p>
             </div>
@@ -318,7 +319,7 @@ export function RunTrustEvidenceCardSection(props: {
           <div>
             {buyerPolishedShell ? (
               <CollapsibleSection title="Evidence API endpoints (advanced)" defaultOpen={false}>
-                <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
+                <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
                   {card.links.map((l) => (
                     <li key={l.rel}>
                       <Link className="underline" href={proxyApiPath(l.path)}>
@@ -330,8 +331,8 @@ export function RunTrustEvidenceCardSection(props: {
               </CollapsibleSection>
             ) : (
               <>
-                <div className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Evidence routes</div>
-                <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-teal-800 dark:text-teal-300">
+                <div className={cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>Evidence routes</div>
+                <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.body)}>
                   {card.links.map((l) => (
                     <li key={l.rel}>
                       <Link className="underline" href={proxyApiPath(l.path)}>
