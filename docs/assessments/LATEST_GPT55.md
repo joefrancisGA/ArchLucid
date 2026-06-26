@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.03%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.26%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -27,17 +27,17 @@
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 88 | 13 | 11.44 | 1.56 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
-| 3 | Governed Review Integrity | 93 | 13 | 12.09 | 0.91 |
+| 3 | Governed Review Integrity | 94 | 13 | 12.22 | 0.78 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 79 | 5 | 3.95 | 1.05 |
-| **Total** | | | **100** | **91.03%** | **8.97%** |
+| 10 | Adoption Friction | 81 | 5 | 4.05 | 0.95 |
+| **Total** | | | **100** | **91.26%** | **8.74%** |
 
-*(A) Headline Readiness: 91.03%*
+*(A) Headline Readiness: 91.26%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.03%. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 91.26%. CI/CD governance gate reference pipelines ship (`examples/ci/archlucid-governance-gate.sh`, GitHub Actions + ADO YAML, `docs/runbooks/CI_GOVERNANCE_GATE.md`) — fail on pre-commit 409 and PilotStrict HOLD. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,9 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 79 · **Weight:** 5 · **Contribution:** 3.95 · **Deficiency:** 1.05
-- **Justification:** `WizardStepEvidenceUpload` and home readiness cockpit expose platform-specific Tier-1 inventory scripts with client-side ZIP validation before upload — operators see fix steps without SE hand-holding.
-- **Recommendations:** CI/CD governance gate reference pipeline remains an adoption polish item.
+- **Score:** 81 · **Weight:** 5 · **Contribution:** 4.05 · **Deficiency:** 0.95
+- **Justification:** Reference GitHub Actions and Azure DevOps governance-gate pipelines (`examples/ci/`) create → execute → commit from repo context, fail on `#governance-pre-commit-blocked` and PilotStrict HOLD, and surface review URLs in PR checks — reduces principal-architect bypass vs IDE chat.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -130,8 +129,8 @@
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
-- **Score:** 93 · **Weight:** 13 · **Contribution:** 12.09 · **Deficiency:** 0.91
-- **Justification:** 78 typed append-only audit events, a pre-commit governance gate, and strong segregation of duties make this exceptionally robust. 
+- **Score:** 94 · **Weight:** 13 · **Contribution:** 12.22 · **Deficiency:** 0.78
+- **Justification:** Pre-commit gate is enforceable in CI via copy-paste reference pipelines documented in `docs/runbooks/CI_GOVERNANCE_GATE.md`; 78 typed append-only audit events and segregation of duties remain the core moat.
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
@@ -143,7 +142,7 @@
 
 # 8. Top 10 Weaknesses (ranked)
 
-1. **Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Integrate review workflow into CI/CD so architects are not double-taxed.
+1. **Principal Architect Bypass (residual):** Reference CI governance pipelines ship, but teams must opt in — architects on repos without the gate may still prefer raw IDE chat. *Fix:* Promote required-status-check adoption in pilot onboarding.
 2. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology.
 3. **RAG Quality Tuning in Field:** Graph-RAG telemetry and pilot floor reduce silent degradation risk; field volume still needed to tune neighbor caps.
 4. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
@@ -152,7 +151,7 @@
 7. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
 8. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
 9. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
-10. **CI/CD Governance Gate Reference:** Principal architects bypass formal review when CI does not enforce pre-commit governance. *Fix:* Ship reference GitHub Actions / ADO pipeline examples.
+10. **ITSM Connector Onboarding (TB-404):** Outbound ITSM create works, but per-tenant Jira/ServiceNow setup still requires admin/API knowledge. *Fix:* System Administration connector wizard with connection test and masked credentials.
 
 ---
 
@@ -225,7 +224,7 @@ Because you cannot give an auditor a Claude chat transcript to prove that your a
 
 # 14. Adoption & Monetization
 
-- **30-Day Voluntary Usage:** Strongest negative factor is the cognitive overhead of initiating a formal review vs just asking an AI chatbot. 
+- **30-Day Voluntary Usage:** Cognitive overhead of initiating a formal review vs IDE chat remains; reference CI governance pipelines reduce bypass when platform teams wire required checks. 
 - **Executive Purchase:** Strongest driver is the Executive Summary ROI endpoint. Minimum proof is demonstrating cost savings that exceed the pilot fee on day one.
 - **Top Enterprise Adoption Blocker:** Manual Tier-1 Azure Extractor ZIP for first review. Tier-2 hosted continuous polling is hardened (ARM retry, per-subscription locks, pass summaries) but remains opt-in for V1.x pilots.
 
@@ -248,18 +247,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 17. Top Improvement Opportunities
 
 **Tier 1 – Must Fix**
-
-- **Title:** CI/CD Governance Gate Reference Pipeline
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Principal architects bypass formal review when CI does not enforce it — "double tax" vs IDE chat.
-- **Expected impact:** Sample GitHub Actions / Azure DevOps pipeline blocks merge on governance pre-commit failure and surfaces ArchLucid review URL in PR checks.
-- **Affected qualities:** Adoption Friction, Governed Review Integrity, Differentiability.
-- **Evidence:** Assessment weakness #2; `ARCHITECTURE_FLOWS.md` commit gate.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 3
-- **Market Uncertainty Reduced:** 6
-- **Classification:** V1.x
-- **Cursor Prompt:** Add `examples/ci/archlucid-governance-gate.yml` and `examples/ci/archlucid-governance-gate-ado.yml` that: create/submit architecture request from repo context, poll run status, fail on `GovernanceBlockResult` or PilotStrict HOLD. Document in `docs/runbooks/CI_GOVERNANCE_GATE.md` with API key / OIDC auth options. No new API surface required.
 
 - **Title:** ITSM Tenant Connector Onboarding Wizard (TB-404 slice)
 - **Tier:** Tier 2 – High Leverage
@@ -302,9 +289,8 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 2 stickiness — CI/CD governance gate reference pipeline.
-2. **Batch 2:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
-3. **Batch 3:** V1.1 membrane — MCP façade scaffold (design-only until approved).
+1. **Batch 1:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+2. **Batch 2:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance
 

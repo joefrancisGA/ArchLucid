@@ -1,0 +1,22 @@
+{
+  "requestId": "ci-governance-gate-template",
+  "systemName": "Repository architecture governance gate",
+  "description": "Automated CI/CD governance gate review for infrastructure and architecture changes in this repository. Validates pre-commit governance policy and PilotStrict sponsor-safe posture before merge.",
+  "environment": "ci-validation",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Changes must pass ArchLucid pre-commit governance gate before golden manifest commit",
+    "PilotStrict evidence posture must be satisfied for sponsor-safe automation"
+  ],
+  "requiredCapabilities": [],
+  "assumptions": [],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Evaluate architecture deltas introduced by this pull request or build"
+  ],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [],
+  "securityBaselineHints": [],
+  "infrastructureDeclarations": []
+}
