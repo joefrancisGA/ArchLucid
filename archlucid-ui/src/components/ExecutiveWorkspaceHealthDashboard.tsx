@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
 import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
+import { GovernanceBypassAuditPanel } from "@/components/governance/GovernanceBypassAuditPanel";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -266,6 +267,8 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <DataArchivalDegradedBanner />
 
       <DecisionsNeededSummaryCard summary={decisionsNeeded} />
+
+      <GovernanceBypassAuditPanel />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">
