@@ -59,10 +59,13 @@ import {
   formatHiddenLowConfidenceHint,
   partitionQuickDecisionFindingsByConfidence,
 } from "@/lib/finding-confidence-filter";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-const badgeBase =
-  "inline-flex shrink-0 rounded-md border px-2 py-0.5 text-xs font-semibold tabular-nums";
+const badgeBase = cn(
+  "inline-flex shrink-0 rounded-md border px-2 py-0.5 font-semibold tabular-nums",
+  OPERATOR_TYPOGRAPHY.badge,
+);
 
 function severityBadgeClass(severityValue: number): string {
   if (severityValue >= 3) {
@@ -226,7 +229,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : null}
           <Link
             href={href}
-            className="min-w-0 flex-1 font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
+            className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}
           >
             <span className="sr-only">Finding {f.findingId}: </span>
             {f.title}
@@ -242,7 +245,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             type="button"
             size="sm"
             variant="outline"
-            className="h-8 shrink-0 text-xs"
+            className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
             onClick={() => {
               setActiveReasoning(f);
               setReasoningOpen(true);
@@ -254,7 +257,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             type="button"
             size="sm"
             variant="outline"
-            className="h-8 shrink-0 text-xs"
+            className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
             onClick={() => {
               setAskFindingId((current) => (current === f.findingId ? null : f.findingId));
             }}
@@ -274,7 +277,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               type="button"
               size="sm"
               variant="secondary"
-              className="h-8 shrink-0 text-xs"
+              className={cn("h-8 shrink-0", OPERATOR_TYPOGRAPHY.button)}
               title="Hide this finding from the default list for this review"
               onClick={() => {
                 setMuteTarget(f);
@@ -293,7 +296,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         {f.traceConfidenceLabel !== null &&
         f.traceConfidenceLabel !== undefined &&
         f.traceConfidenceLabel.trim().length > 0 ? (
-          <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Evaluation trace: {f.traceConfidenceLabel}
           </p>
         ) : null}
@@ -303,12 +306,12 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         (f.confidenceLevel !== "High" &&
           f.confidenceLevel !== "Medium" &&
           f.confidenceLevel !== "Low") ? (
-          <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             Evaluation score {Math.round(f.evaluationConfidenceScore)}
           </p>
         ) : null}
         {snippet.length > 0 ? (
-          <p className="m-0 mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{snippet}</p>
+          <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{snippet}</p>
         ) : null}
         <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
         {f.evidenceRefSnippets !== undefined && f.evidenceRefSnippets.length > 0 ? (
@@ -326,7 +329,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           className="mt-2 border-t border-neutral-100 pt-2 dark:border-neutral-800"
           data-testid={`finding-itsm-sync-${f.findingId}`}
         >
-          <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+          <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
             Jira / ServiceNow
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -362,11 +365,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
         <CardHeader className="pb-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-sm font-semibold text-al-text-primary">
+              <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
                 {buyerPolishedShell ? "Decision summary" : "Quick decision summary"}
               </CardTitle>
               {hasSourceFindings ? (
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Export CSV or JSON above, or use <strong>Copy for Jira</strong> on each finding for one-click ticket paste.
                   {hiddenLowConfidenceHint !== null ? (
                     <span className="mt-1 block" data-testid="quick-decision-low-confidence-hidden-hint">
@@ -378,7 +381,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             </div>
             {hasSourceFindings ? (
               <div className="flex flex-wrap items-center gap-3">
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                <label className={cn("flex cursor-pointer items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   <input
                     type="checkbox"
                     className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
@@ -390,7 +393,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                   />
                   Show low-confidence findings
                 </label>
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                <label className={cn("flex cursor-pointer items-center gap-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   <input
                     type="checkbox"
                     className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
@@ -405,7 +408,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
             ) : null}
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+        <CardContent className={cn("space-y-3 pt-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {hasSourceFindings ? (
             <FindingsItsmExportToolbar runId={props.runId} findings={props.findings} />
           ) : null}
@@ -419,7 +422,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : null}
           {props.usingExplanationFallback === true ? (
             <p
-              className="m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+              className={cn(
+                "m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
+                OPERATOR_TYPOGRAPHY.helper,
+              )}
               data-testid="quick-decision-explanation-fallback-notice"
               role="status"
             >
@@ -441,7 +447,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           ) : (
             <div className="space-y-4">
               <div>
-                <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                <h3 className={cn("m-0 mb-2", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
                   Policy violations
                 </h3>
                 {policyViolations.length === 0 ? (
@@ -452,7 +458,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                   <div className="space-y-4" data-testid="quick-decision-policy-violations">
                     {topGroups.map((group) => (
                       <div key={group.groupKey}>
-                        <h4 className="m-0 mb-2 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                        <h4 className={cn("m-0 mb-2 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                           {group.packDisplayName}
                           <span className="ml-1 font-normal text-neutral-500 dark:text-neutral-400">
                             ({group.findingCount})
@@ -474,10 +480,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                      <h3 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
                         Advisory notes
                       </h3>
-                      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                         Opt-in baseline guidance from enabled policy packs. These do not block commit.
                       </p>
                     </div>
@@ -506,10 +512,10 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                   className="rounded-md border border-dashed border-neutral-300 bg-neutral-50/50 p-3 dark:border-neutral-600 dark:bg-neutral-900/20"
                   data-testid="quick-decision-low-confidence-section"
                 >
-                  <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                  <h3 className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-neutral-700 dark:text-neutral-300")}>
                     Unverified / low confidence
                   </h3>
-                  <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     These findings had low evaluation confidence or ambiguous evidence. Verify before acting.
                   </p>
                   {lowConfidencePolicyViolations.length > 0 ? (
@@ -576,7 +582,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
               className="resize-y"
               disabled={muteBusy}
             />
-            {muteError ? <p className="m-0 text-sm text-rose-700 dark:text-rose-300">{muteError}</p> : null}
+            {muteError ? <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)}>{muteError}</p> : null}
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button
