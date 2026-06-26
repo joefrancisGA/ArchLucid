@@ -22,6 +22,7 @@ const EXCLUDED_RELATIVE_PATH_FRAGMENTS = [
   "/review-terminology-surfaces.ts",
   "/review-terminology-scanner.ts",
   "/review-terminology-copy.ts",
+  "/help-product-language.ts",
   "/lib/api/",
   "/committed-run-picker.ts",
   "/operator-run-picker-client.ts",

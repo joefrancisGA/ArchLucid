@@ -149,7 +149,7 @@ function inspectRowSourceLink(
       if (manifestId !== null && manifestId.includes("-")) {
         return linkFromKind(
           "manifestRecord",
-          "Open manifest section",
+          "Open signed record section",
           manifestRecordSectionHref(manifestId, "manifest-decisions"),
           detail,
         );
@@ -235,7 +235,7 @@ export function parseEvidenceRefToSourceLink(
     if (manifestId !== null) {
       return linkFromKind(
         "manifestRecord",
-        "Open manifest section",
+        "Open signed record section",
         manifestRecordSectionHref(manifestId, "manifest-decisions"),
         snippet,
       );

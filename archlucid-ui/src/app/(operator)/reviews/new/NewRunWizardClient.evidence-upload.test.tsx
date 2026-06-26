@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { strToU8, zipSync } from "fflate";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchParamsState = {
@@ -72,6 +73,27 @@ import { NewRunWizardClient } from "./NewRunWizardClient";
 import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
+
+function createValidInventoryZip(name: string): File {
+  return new File(
+    [
+      zipSync({
+        "manifest.json": strToU8(
+          JSON.stringify({
+            schemaVersion: 1,
+            scriptVersion: "1.0.0",
+            collectionTimestamp: "2026-06-25T12:00:00.000Z",
+            subscriptionId: "11111111-1111-1111-1111-111111111111",
+            scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Rg",
+          }),
+        ),
+        "resources.json": strToU8("[]"),
+      }),
+    ],
+    name,
+    { type: "application/zip" },
+  );
+}
 
 describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () => {
   afterEach(() => {
@@ -188,7 +210,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   it("uploads evidence after review creation when a file was selected", async () => {
     await advanceToEvidenceStep();
 
-    const zipFile = new File(["zip-bytes"], "evidence.zip", { type: "application/zip" });
+    const zipFile = createValidInventoryZip("evidence.zip");
     const input = screen.getByTestId("wizard-evidence-upload-dropzone-input");
 
     fireEvent.change(input, { target: { files: [zipFile] } });
@@ -235,10 +257,14 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
   it("shows inline upload failure on the tracking step without blocking review creation", async () => {
     await advanceToEvidenceStep();
 
-    const zipFile = new File(["zip-bytes"], "bad-evidence.zip", { type: "application/zip" });
+    const zipFile = createValidInventoryZip("bad-evidence.zip");
     const input = screen.getByTestId("wizard-evidence-upload-dropzone-input");
 
     fireEvent.change(input, { target: { files: [zipFile] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-evidence-upload-selected")).toHaveTextContent("bad-evidence.zip");
+    });
 
     await clickPrimaryForward();
 
