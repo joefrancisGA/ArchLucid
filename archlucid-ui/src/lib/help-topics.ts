@@ -22,6 +22,7 @@ export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting"
  */
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",
+  "first-review",
   "artifacts",
   "graph",
   "ask-archlucid",
@@ -38,6 +39,15 @@ export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
 ];
 
 export const HELP_TOPICS: HelpTopic[] = [
+  {
+    id: "first-review",
+    title: "First review in 90 minutes",
+    keywords: ["checklist", "first run", "pilot", "extractor", "audit", "roi"],
+    summary:
+      "Guided path from demo or new request through finalize, Azure extractor ZIP upload, dashboard ROI, and run-scoped audit export.",
+    docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
+    routes: ["/", "/onboarding", "/reviews/new", "/dashboard"],
+  },
   {
     id: "first-run",
     title: "Create your first review package",

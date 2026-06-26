@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.93%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.18%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -39,14 +39,14 @@
 | 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
 | 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
-| 6 | Time-to-Value | 88 | 10 | 8.80 | 1.20 |
+| 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 94 | 8 | 7.52 | 0.48 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
-| 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
-| **Total** | | | **100** | **90.93%** | **9.07%** |
+| 10 | Adoption Friction | 88 | 5 | 4.40 | 0.60 |
+| **Total** | | | **100** | **91.18%** | **8.82%** |
 
-*(A) Headline Readiness: 90.93%*
+*(A) Headline Readiness: 91.18%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **90.93%** (+0.48 from **Tier 1 #2** + **#10** — Decision 85, Differentiability 92, Correctness 93, AI Readiness 87; cumulative +2.01 from prior shipped batches). Diagnostic 30-day usage unchanged; trust in Ask/holistic critic paths improved via explicit advisory labeling.
+**Reconciliation:** Headline **91.18%** (+0.25 from **Tier 1 #3** — Time-to-Value 90, Adoption Friction 88; cumulative +2.26 from prior shipped batches). Diagnostic 30-day voluntary usage probability may improve slightly when first-review checklist covers ZIP, ROI, and audit proof in one surface.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 90.93%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. **#11–#13 and help sweep shipped (2026-06-26).** **Tier 1 #2 shipped (2026-06-26):** governed vs advisory `AiOutputGovernanceLabel` on findings, holistic critic, and Ask. **#10 shipped (2026-06-26):** policy rule key deep links on explainability table (`FindingPolicyRuleBadge`). Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 91.18%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2, #10, #13). **Tier 1 #3 shipped (2026-06-26):** 7-step 90-minute first-review playbook on Home + `/help/first-review` aligned to `FIRST_RUN_EVIDENCE_CHECKLIST.md`. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -121,8 +121,8 @@
 - **Outcomes affected:** 1 (decision-changing insight), 3 (30-day usage).
 
 ### 2. Time-to-Value
-- **Score · Weight · Contribution · Deficiency:** 88 · 10 · 8.80 · **1.20** *(was 85 / 1.50 — **#11 done**)*
-- **Justification:** Paths exist (`archlucid try`, demo review, socratic intake, CLI `draft new`), but the **contracted happy path** still spans request/draft → execute → poll → commit → governance → export. Tier-1 PowerShell ZIP is security-friendly; **client-side pre-upload validation** (manifest + resources, aligned with `AzureExtractorPackageZipValidator`) now rejects bad ZIPs before network I/O on wizard, settings, and `uploadAzureExtractorPackage` paths.
+- **Score · Weight · Contribution · Deficiency:** 90 · 10 · 9.00 · **1.00** *(was 88 — **Tier 1 #3 done**)*
+- **Justification:** Paths exist (`archlucid try`, demo review, socratic intake, CLI `draft new`), but the **contracted happy path** still spans request/draft → execute → poll → commit → governance → export. **90-minute first-review playbook (2026-06-26)** on Home links demo/new request → finalize → extractor ZIP → dashboard ROI → audit CSV with `/help/first-review` drift-aligned to `FIRST_RUN_EVIDENCE_CHECKLIST.md`. Client-side pre-upload validation rejects bad ZIPs before network I/O.
 - **Tradeoffs:** Shortening intake risks weaker evidence; skipping governance steps speeds demo but weakens moat story.
 - **Recommendations:** Default pilot playbook to **demo review → extractor upload → re-run** in one session; document “minimum credible first review” as ≤90 operator minutes.
 - **Classification:** V1
@@ -161,7 +161,7 @@
 - **Outcomes affected:** 1, 2, 4.
 
 ### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 87 · 5 · 4.35 · **0.65** *(was 86 — **help copy sweep done**)*
+- **Score · Weight · Contribution · Deficiency:** 88 · 5 · 4.40 · **0.60** *(was 87 — **Tier 1 #3 done**)*
 - **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. Friction: `Integrations:Itsm:NativeEnabled=false` hides one-click ticket create; Operate surfaces hidden behind sidebar disclosure; enterprise SSO setup still admin-heavy.
 - **Tradeoffs:** Enabling ITSM native by default increases support burden for half-configured tenants.
 - **Recommendations:** Pilot checklist: enable native ITSM only when tenant settings validated; keep copy-as-work-item as default fallback.
@@ -394,24 +394,8 @@ Tests: extend live-api-policy-pack-lifecycle.spec.ts or unit tests for diff form
 **2. Governed vs advisory labeling on AI outputs** — **✅ Done (2026-06-26)**  
 - **Shipped:** `AiOutputGovernanceLabel` + `deriveAiOutputGovernanceLabel` — persisted FindingId ⇒ **Governed finding**; holistic critic, Ask assistant, and streaming replies ⇒ **Advisory — not in review package**. Wired on `QuickDecisionSummary`, `RunFindingExplainabilityTable`, `RunDetailHolisticCriticPanel`, and `AskMessageThreadPanel`. Vitest in `ai-output-governance-label.test.ts`, `AiOutputGovernanceLabel.test.tsx`, `RunDetailHolisticCriticPanel.test.tsx`, `QuickDecisionSummary.test.tsx`.
 
-**3. First-review 90-minute pilot playbook (in-app + doc)**  
-- **Tier:** 1 · **Classification:** V1 validation  
-- **Why:** Time-to-value. **Impact:** Quality 6, 10.
-
-**Cursor prompt:**
-```
-Problem: New operators lack a single guided checklist from zero to committed review with extractor ZIP.
-
-Desired behavior: /help/first-review or dashboard checklist component linking to: demo review OR draft intake → execute → commit → upload ZIP → view ROI panel → export audit CSV. Track completion in localStorage; no new API.
-
-Scope: archlucid-ui help topic + Home checklist panel reusing existing routes.
-
-Acceptance criteria: All links resolve; checklist items match FIRST_RUN_EVIDENCE_CHECKLIST.md; drift test or snapshot for copy.
-
-Non-goals: New backend workflow; Tier-2 auto-pull setup.
-
-Tests: Help topic render test; link href unit test.
-```
+**3. First-review 90-minute pilot playbook (in-app + doc)** — **✅ Done (2026-06-26)**  
+- **Shipped:** Expanded `CORE_PILOT_STEPS` to 7-step 90-minute playbook (demo/new request → execute → finalize → extractor ZIP → dashboard ROI → audit CSV → sponsor exports) with localStorage tracking in `OperatorFirstRunWorkflowPanel`; `/help/first-review` registry entry for `FIRST_RUN_EVIDENCE_CHECKLIST.md`; drift guards in `first-review-90min-playbook-alignment.test.ts` and updated `core-pilot-steps.test.ts`.
 
 ### Tier 2 – High Leverage
 
@@ -541,7 +525,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 
 **First batch (reliability + demo)** — safe for **Composer** / **Sonnet**  
 1. Governed vs advisory labeling (Tier 1 #2) — **done**  
-2. First-review checklist UI (Tier 1 #3)  
+2. First-review checklist UI (Tier 1 #3) — **done**  
 3. Board-pack illustrative banner (Tier 2 #4)  
 4. Extractor ZIP pre-upload validator (#11) — **done**
 

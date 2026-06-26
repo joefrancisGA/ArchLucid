@@ -5,18 +5,22 @@ import { CORE_PILOT_STEP_COUNT, CORE_PILOT_STEPS } from "@/lib/core-pilot-steps"
 describe("core-pilot-steps", () => {
   it("keeps CORE_PILOT_STEP_COUNT aligned with the checklist array", () => {
     expect(CORE_PILOT_STEPS).toHaveLength(CORE_PILOT_STEP_COUNT);
-    expect(CORE_PILOT_STEP_COUNT).toBe(5);
+    expect(CORE_PILOT_STEP_COUNT).toBe(7);
   });
 
-  it("starts with evidence-first language instead of an Azure prerequisite", () => {
+  it("starts with demo or new-request path on /reviews/new", () => {
     const firstStep = CORE_PILOT_STEPS[0];
 
-    expect(firstStep.title).toBe("Provide architecture evidence");
-    expect(firstStep.primaryLabel).toBe("Start a review");
+    expect(firstStep.title.toLowerCase()).toContain("demo");
     expect(firstStep.primaryHref).toBe("/reviews/new");
-    expect(firstStep.shortBody.toLowerCase()).toContain("brief");
-    expect(firstStep.shortBody.toLowerCase()).toContain("azure");
-    expect(firstStep.title.toLowerCase()).not.toContain("azure");
+  });
+
+  it("includes upload, dashboard ROI, and audit export steps", () => {
+    const hrefs = CORE_PILOT_STEPS.map((step) => step.primaryHref);
+
+    expect(hrefs).toContain("/settings/extract-upload");
+    expect(hrefs).toContain("/dashboard");
+    expect(CORE_PILOT_STEPS.some((step) => step.title.toLowerCase().includes("audit"))).toBe(true);
   });
 
   it("keeps default-visible shortBody lines free of manifest jargon (detail may stay technical)", () => {

@@ -8,56 +8,75 @@ export type CorePilotStepBase = {
 
 /**
  * Core Pilot path titles and links — shared between the first-review checklist and diagnostics summary on operator home.
- * No JSX here; `OperatorFirstRunWorkflowPanel` adds rich optional `secondary` for specific steps locally.
+ * Tier 1 #3: 90-minute pilot playbook aligned with `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`.
  *
  * {@link CORE_PILOT_STEP_COUNT} must match `CORE_PILOT_STEPS.length` (enforced at module load).
  */
-export const CORE_PILOT_STEP_COUNT = 5;
+export const CORE_PILOT_STEP_COUNT = 7;
 
 export const EXTRACT_UPLOAD_SETTINGS_PATH = "/settings/extract-upload";
 
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
-    title: "Provide architecture evidence",
+    title: "Start demo review or new request",
     shortBody:
-      "Add a brief, docs, diagrams, or IaC; connected to Azure, use the read-only extractor for production-faithful evidence.",
+      "Open the sample showcase review or start a new architecture request — capture system identity and constraints in the wizard.",
     detail:
-      "The Extract & Upload settings page keeps the Azure extractor one click away as the accelerated path; the review can still start from architecture materials and guided intake.",
+      "Use New review for a guided intake, or open the curated sample package to explore a committed review package before running your own.",
     primaryHref: "/reviews/new",
-    primaryLabel: "Start a review",
+    primaryLabel: "Start or open review",
   },
   {
-    title: "Create an architecture review request",
-    shortBody: "Capture system identity, requirements, and constraints for your first review package.",
+    title: "Execute the assessment",
+    shortBody: "Run agents until the review reaches ready-to-finalize — watch progress on review detail.",
     detail:
-      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the assessment and tracks progress in real time.",
-    primaryHref: "/reviews/new",
-    primaryLabel: "Start new request",
-  },
-  {
-    title: "Track review progress",
-    shortBody: "Watch assessment progress in the wizard or open the review from the list when it is ready.",
-    detail:
-      "The coordinator fills snapshots and assessment steps. You can use the wizard's last step or open review detail anytime.",
+      "The coordinator fills snapshots and assessment steps. If execution fails, capture the correlation id from troubleshooting before retrying.",
     primaryHref: "/reviews?projectId=default",
-    primaryLabel: "Open reviews list",
+    primaryLabel: "Open review detail",
   },
   {
     title: "Finalize the review package",
-    shortBody: "On review detail, finalize when the assessment is ready — this locks your review package and unlocks exports.",
+    shortBody: "Commit when ready — this locks the signed review record, findings, and export surfaces.",
     detail:
-      "Finalization produces the signed review record and artifacts. Until then, the review record summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
+      "Finalization produces the governed review package. Pre-commit governance may block finalize when blocking findings remain.",
     primaryHref: "/reviews?projectId=default",
-    primaryLabel: "Choose review → open detail",
+    primaryLabel: "Finalize on review detail",
   },
   {
-    title: "Review the review package",
+    title: "Upload Azure extractor ZIP",
     shortBody:
-      "After finalization, read the package summary and findings on review detail; download or share artifacts — that bundle is your review package.",
+      "Attach Tier-1 inventory evidence so cost findings and ROI cite measured Azure spend — upload extractor ZIP after commit.",
     detail:
-      "Open the signed review record link from review detail for the full page; use artifact actions for download and in-shell review.",
+      "Run the read-only Azure extractor locally, then upload `manifest.json` + `resources.json` from Extract & Upload settings or review detail.",
+    primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
+    primaryLabel: "Upload inventory ZIP",
+  },
+  {
+    title: "Review portfolio ROI",
+    shortBody:
+      "Open the executive ROI summary on the dashboard — confirm evidence freshness and disposition-aware headline scope.",
+    detail:
+      "Portfolio ROI uses latest committed review per system. Per-system rows do not sum to the headline — see the proof status strip for scope labels.",
+    primaryHref: "/dashboard",
+    primaryLabel: "Open ROI dashboard",
+  },
+  {
+    title: "Export run-scoped audit CSV",
+    shortBody:
+      "From a committed review, export audit events for proof-packet handoff — one click on Artifacts & exports.",
+    detail:
+      "Run-scoped audit CSV uses GET /v1/audit/export with runId filter. Auditor or Admin role required.",
     primaryHref: "/reviews?projectId=default",
-    primaryLabel: "Open a finalized review",
+    primaryLabel: "Open Artifacts & exports",
+  },
+  {
+    title: "Review findings and sponsor exports",
+    shortBody:
+      "Read governed findings, download sponsor artifacts, and share the proof packet with stakeholders.",
+    detail:
+      "Open the signed review record summary, findings table, and board-pack or markdown exports when your internal review is complete.",
+    primaryHref: "/reviews?projectId=default",
+    primaryLabel: "Inspect review package",
   },
 ];
 

@@ -23,11 +23,12 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT).toContain("checklist");
   });
 
-  it("summarizes the four-step flow with buyer concepts", () => {
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/create architecture review/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/assessment executes/i);
+  it("summarizes the 90-minute playbook flow with buyer concepts", () => {
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/start review/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review package/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/upload zip/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/roi/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/audit/i);
   });
 
   it("labels the minimized first-review control consistently", () => {
@@ -35,8 +36,8 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON.toLowerCase()).toContain("first");
   });
 
-  it("keeps first-session guidance as four plain steps without manifest or Operate jargon", () => {
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS).toHaveLength(4);
+  it("keeps first-session guidance as plain steps without manifest or Operate jargon", () => {
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS).toHaveLength(5);
 
     for (const bullet of CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS) {
       expect(bullet.length).toBeGreaterThan(36);
@@ -46,7 +47,8 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     }
 
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("finalize"))).toBe(true);
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("assessment"))).toBe(true);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("extractor"))).toBe(true);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("audit"))).toBe(true);
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.includes("Proof sendability"))).toBe(false);
   });
 

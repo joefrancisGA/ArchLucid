@@ -37,6 +37,14 @@ export function normalizeHelpTopicSlug(slug: string): string {
 
 export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] = [
   {
+    slug: "first-review",
+    title: "First review in 90 minutes",
+    summary:
+      "Printable first-run evidence checklist — demo or new request through finalize, extractor ZIP upload, ROI proof, and audit export.",
+    audience: "operator",
+    sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
+  },
+  {
     slug: "first-hour-operator-path",
     title: "First-hour architect path",
     summary:

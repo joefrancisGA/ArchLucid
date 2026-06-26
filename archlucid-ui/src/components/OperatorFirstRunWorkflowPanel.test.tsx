@@ -54,6 +54,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
       "#core-pilot-checklist-anchor",
     );
     expect(screen.getByText(`0 of ${CORE_PILOT_STEPS.length} steps complete`)).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-90min-help-link")).toHaveAttribute("href", "/help/first-review");
   });
 
   it("hide guide persists and show restores panel", async () => {
