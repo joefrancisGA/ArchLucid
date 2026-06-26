@@ -37,5 +37,11 @@ public sealed class RetrievalGroundingTraceInsert
     /// <summary>Optional correlation to <c>dbo.AgentExecutionTraces</c> when known at write time.</summary>
     public string? AgentExecutionTraceId { get; set; }
 
+    public int? GraphRagNeighborsAdded { get; set; }
+
+    public int? GraphRagSeedHits { get; set; }
+
+    public double? GraphRagExpansionLatencyMs { get; set; }
+
     public DateTime CreatedUtc { get; set; } = TimeProvider.System.UtcNowDateTime();
 }

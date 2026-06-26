@@ -86,6 +86,9 @@ public sealed class RunRetrievalGroundingService(
             AgentExecutionTraceId = row.AgentExecutionTraceId,
             ScoreMetadataMalformed = scoreMalformed,
             DocumentMetadataMalformed = documentMalformed,
+            GraphRagNeighborsAdded = row.GraphRagNeighborsAdded,
+            GraphRagSeedHits = row.GraphRagSeedHits,
+            GraphRagExpansionLatencyMs = row.GraphRagExpansionLatencyMs,
             CreatedUtc = row.CreatedUtc,
         };
     }

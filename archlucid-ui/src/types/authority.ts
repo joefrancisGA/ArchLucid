@@ -195,6 +195,11 @@ export type RunRetrievalGroundingSummary = {
   readonly expectedAgentsMissingTraces?: readonly string[];
   readonly averageCitationCoverage?: number;
   readonly totalRetrievedChunks?: number;
+  readonly totalGraphRagNeighborsAdded?: number;
+  readonly totalGraphRagSeedHits?: number;
+  readonly graphRagNeighborHitRate?: number;
+  readonly totalRetrievalTokensIn?: number;
+  readonly graphRagPilotFloorDisposition?: string;
   readonly disposition?: string;
   readonly operatorDetail?: string | null;
 };

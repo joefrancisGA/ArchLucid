@@ -68,4 +68,8 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
     /// </summary>
     public const string QualityGatePilotStrictThresholdsTooLooseInProductionLike =
         "quality_gate_pilot_strict_thresholds_too_loose_in_production_like";
+
+    /// <summary>Graph-RAG enabled without Azure AI Search vector index posture.</summary>
+    public const string GraphRagEnabledWithoutAzureSearchPosture =
+        "graph_rag_enabled_without_azure_search_posture";
 }

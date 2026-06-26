@@ -456,6 +456,19 @@ public static class ArchLucidInstrumentation
             "{chunk}",
             "Number of retrieval chunks returned per vector search (label corpus_kind).");
 
+    /// <summary>Graph-RAG 1-hop neighbor hits appended during retrieval expansion (V1 §2.20).</summary>
+    public static readonly Counter<long> GraphRagNeighborsAddedTotal =
+        AppMeter.CreateCounter<long>(
+            "graph_rag_neighbors_added_total",
+            description: "Graph-RAG neighbor chunks appended during retrieval expansion.");
+
+    /// <summary>Wall time for Graph-RAG neighbor expansion per retrieval query.</summary>
+    public static readonly Histogram<double> GraphRagExpansionLatencyMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "graph_rag_expansion_latency_ms",
+            "ms",
+            "Wall time for Graph-RAG 1-hop neighbor expansion.");
+
     /// <summary>Integration outbox Service Bus publish succeeded (label <c>event_type</c> low-cardinality literal).</summary>
     public static readonly Counter<long> IntegrationEventDeliverySuccessTotal =
         AppMeter.CreateCounter<long>(
@@ -1655,6 +1668,20 @@ public static class ArchLucidInstrumentation
 
         TagList tags = new() { { "result_count", Math.Clamp(resultCount, 0, 50).ToString() } };
         RetrievalRerankLatencyMilliseconds.Record(durationMilliseconds, tags);
+    }
+
+    /// <summary>Records Graph-RAG neighbor expansion counters and latency (V1 §2.20).</summary>
+    public static void RecordGraphRagExpansion(int neighborsAdded, double expansionLatencyMilliseconds)
+    {
+        if (neighborsAdded > 0)
+            GraphRagNeighborsAddedTotal.Add(neighborsAdded);
+
+        if (expansionLatencyMilliseconds < 0
+            || double.IsNaN(expansionLatencyMilliseconds)
+            || double.IsInfinity(expansionLatencyMilliseconds))
+            return;
+
+        GraphRagExpansionLatencyMilliseconds.Record(expansionLatencyMilliseconds);
     }
 
     /// <summary>Increments <see cref="IntegrationEventDeliverySuccessTotal" />.</summary>

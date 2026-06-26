@@ -48,4 +48,35 @@ public sealed class RunRetrievalGroundingSummaryDto
         get;
         set;
     }
+
+    public int TotalGraphRagNeighborsAdded
+    {
+        get;
+        set;
+    }
+
+    public int TotalGraphRagSeedHits
+    {
+        get;
+        set;
+    }
+
+    public double GraphRagNeighborHitRate
+    {
+        get;
+        set;
+    }
+
+    public int TotalRetrievalTokensIn
+    {
+        get;
+        set;
+    }
+
+    /// <summary>PASS, WARN, or HOLD — Graph-RAG pilot floor when neighbor share is high with low citation coverage.</summary>
+    public string GraphRagPilotFloorDisposition
+    {
+        get;
+        set;
+    } = "PASS";
 }

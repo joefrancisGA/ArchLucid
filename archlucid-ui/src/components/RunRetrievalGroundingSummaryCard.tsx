@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RunRetrievalGraphRagDiagnosticsStrip } from "@/components/RunRetrievalGraphRagDiagnosticsStrip";
 import { operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
@@ -72,6 +73,8 @@ export function RunRetrievalGroundingSummaryCard(props: {
         {typeof summary.operatorDetail === "string" && summary.operatorDetail.length > 0 ? (
           <p className="m-0">{summary.operatorDetail}</p>
         ) : null}
+
+        <RunRetrievalGraphRagDiagnosticsStrip summary={summary} />
 
         <p className="m-0">
           <a

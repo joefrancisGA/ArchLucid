@@ -35,5 +35,11 @@ public sealed class RetrievalGroundingTraceRecord
 
     public string? AgentExecutionTraceId { get; set; }
 
+    public int? GraphRagNeighborsAdded { get; set; }
+
+    public int? GraphRagSeedHits { get; set; }
+
+    public double? GraphRagExpansionLatencyMs { get; set; }
+
     public DateTime CreatedUtc { get; set; }
 }

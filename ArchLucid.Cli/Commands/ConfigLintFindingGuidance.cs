@@ -83,6 +83,13 @@ internal static class ConfigLintFindingGuidance
                     "Configure the Search service URL and credentials (prefer Key Vault references) before sponsor handoff.",
                     "config-lint-production-like-hosted-pilot.json"),
 
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.GraphRagEnabledWithoutAzureSearchPosture =>
+                new Guidance(
+                    "Graph-RAG neighbor expansion without Azure AI Search cannot validate retrieval quality on hosted pilots.",
+                    "Retrieval:Advanced:EnableGraphRag; Retrieval:Advanced:Enabled; Retrieval:VectorIndex; Retrieval:AzureSearch:Endpoint",
+                    "Provision Azure AI Search (VectorIndex=AzureSearch + endpoint) or disable Retrieval:Advanced:EnableGraphRag until Search is ready.",
+                    "config-lint-production-like-hosted-pilot.json · run retrieval diagnostics on pilot reviews"),
+
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike =>
                 new Guidance(
                     "Real-mode hosted pilots with WarnOnly quality gate can pass low-quality agent output to sponsor proof.",

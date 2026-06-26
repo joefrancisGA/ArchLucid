@@ -74,6 +74,9 @@ public sealed class InMemoryRetrievalGroundingTraceWriter : IRetrievalGroundingT
             ScoresJson = insert.ScoresJson,
             DocumentIdsJson = insert.DocumentIdsJson,
             AgentExecutionTraceId = insert.AgentExecutionTraceId,
+            GraphRagNeighborsAdded = insert.GraphRagNeighborsAdded,
+            GraphRagSeedHits = insert.GraphRagSeedHits,
+            GraphRagExpansionLatencyMs = insert.GraphRagExpansionLatencyMs,
             CreatedUtc = insert.CreatedUtc,
         };
     }

@@ -65,6 +65,12 @@ public static class OperatorConfigurationLintEvaluator
         if (openAiConnectivity is not null)
             advisory.Add(openAiConnectivity.Value);
 
+        HostingMisconfigurationWarning? graphRagPosture =
+            GraphRagProductionLikeConfigurationLint.TryDescribeAdvisoryFinding(configuration);
+
+        if (graphRagPosture is not null)
+            advisory.Add(graphRagPosture.Value);
+
         return new OperatorConfigurationLintSnapshot(trimmedEnv, blocking, advisory);
     }
 

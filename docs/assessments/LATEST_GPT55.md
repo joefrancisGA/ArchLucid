@@ -1,9 +1,9 @@
 ﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
-> **Generated:** 2026-06-25 23:35 UTC (GPT-5.5)
+> **Generated:** 2026-06-26 04:00 UTC (GPT-5.5)
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.76%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.03%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -29,15 +29,15 @@
 | 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
 | 3 | Governed Review Integrity | 93 | 13 | 12.09 | 0.91 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
-| 5 | AI / Agent Readiness | 88 | 10 | 8.80 | 1.20 |
+| 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
-| 9 | Runtime & First-Review Reliability | 92 | 7 | 6.44 | 0.56 |
+| 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 79 | 5 | 3.95 | 1.05 |
-| **Total** | | | **100** | **90.76%** | **9.24%** |
+| **Total** | | | **100** | **91.03%** | **8.97%** |
 
-*(A) Headline Readiness: 90.76%*
+*(A) Headline Readiness: 91.03%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 90.76%. Finding-level evidence traceability ships: findings table and inspect panel render per-row deep links into manifest sections, artifact exports, and graph trail anchors; Vitest + Playwright cover showcase PHI finding → `#manifest-summary`. TB-402 (zero GitHub seams) remains shipped.
+- **(A) Overall headline readiness:** 91.03%. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -100,8 +100,8 @@
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
-- **Score:** 88 · **Weight:** 10 · **Contribution:** 8.80 · **Deficiency:** 1.20
-- **Justification:** `CloudProviderAgentPromptComposer` injects AWS/GCP system-prompt addenda and topology user guidance; Topology template v1.2.0 lists cross-cloud `RuntimePlatform` enum arms.
+- **Score:** 90 · **Weight:** 10 · **Contribution:** 9.00 · **Deficiency:** 1.00
+- **Justification:** Graph-RAG expansion emits OTel counters/histograms; grounding traces persist neighbor counts and expansion latency; operators review Graph-RAG pilot floor on run detail before sponsor send.
 - **Class:** V1 ready.
 
 ### 4. Differentiability / Defensibility vs Frontier AI
@@ -135,8 +135,8 @@
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
-- **Score:** 92 · **Weight:** 7 · **Contribution:** 6.44 · **Deficiency:** 0.56
-- **Justification:** `archlucid pilot init` gates first review on `/health/ready`, production-like config lint, and token role resolution before operators submit evidence — fewer mid-run failures.
+- **Score:** 93 · **Weight:** 7 · **Contribution:** 6.51 · **Deficiency:** 0.49
+- **Justification:** `archlucid config lint` advisory `graph_rag_enabled_without_azure_search_posture` surfaces unvalidated Graph-RAG before production-like pilots; retrieval diagnostics strip flags high neighbor share with low citation coverage.
 - **Class:** V1 ready.
 
 ---
@@ -145,7 +145,7 @@
 
 1. **Principal Architect Bypass:** An architect might prefer a raw IDE chat for speed. *Fix:* Integrate review workflow into CI/CD so architects are not double-taxed.
 2. **Third-Party Pen Test Deferral:** Will block some strict enterprise InfoSec reviews. *Fix:* Proactively share the owner-conducted pen test methodology.
-3. **RAG Quality Tuning in Field:** Complex retrieval mechanisms (Graph-RAG) need real-world volume to validate. *Fix:* Monitor early pilots closely.
+3. **RAG Quality Tuning in Field:** Graph-RAG telemetry and pilot floor reduce silent degradation risk; field volume still needed to tune neighbor caps.
 4. **No Automated Tenant Erasure (V2):** Privacy questionnaires will require manual SE workarounds to explain data deletion.
 5. **ITSM Connector Depth (V1):** The current outbound slice is good, but missing bidirectional sync might frustrate Jira-heavy teams.
 6. **GCP Billing Catalog API Key:** Live GCP pricing requires optional `GcpBillingCatalog:ApiKey` configuration — not zero-config like Azure Retail. *Fix:* Document wizard/API-key path and fall back honestly when unset.
@@ -249,18 +249,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
-- **Title:** Graph-RAG Retrieval Quality Telemetry + Pilot Floor
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Graph-RAG is in V1 scope but field-tuned quality is unproven — pilots may silently degrade when neighbor expansion adds noise.
-- **Expected impact:** Operators see Graph-RAG hit rate, neighbor count, and token contribution; config lint warns when Graph-RAG is enabled without Azure Search on production-like hosts.
-- **Affected qualities:** AI / Agent Readiness, Runtime & First-Review Reliability.
-- **Evidence:** `V1_SCOPE.md` §2.20; `GraphRagNeighborExpander`; assessment weakness #5.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 7
-- **Market Uncertainty Reduced:** 4
-- **Classification:** V1 (validation)
-- **Cursor Prompt:** Instrument `RetrievalQueryService` / `GraphRagNeighborExpander` with counters (`graph_rag_neighbors_added_total`, expansion latency). Surface a retrieval diagnostics strip on run detail (behind disclosure). Add `config lint` advisory when `Retrieval:EnableGraphRag=true` without production-like Search posture. Unit tests for metric emission.
-
 - **Title:** CI/CD Governance Gate Reference Pipeline
 - **Tier:** Tier 2 – High Leverage
 - **Why it matters:** Principal architects bypass formal review when CI does not enforce it — "double tax" vs IDE chat.
@@ -314,7 +302,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 2 stickiness + validation — Graph-RAG telemetry, CI/CD governance gate reference pipeline.
+1. **Batch 1:** Tier 2 stickiness — CI/CD governance gate reference pipeline.
 2. **Batch 2:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
 3. **Batch 3:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 

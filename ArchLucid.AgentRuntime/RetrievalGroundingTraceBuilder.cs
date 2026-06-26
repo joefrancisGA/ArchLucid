@@ -31,6 +31,13 @@ public static class RetrievalGroundingTraceBuilder
 
         AgentCompletionTokenUsage.TryConsume(out int? tokensIn, out int? tokensOut, out _);
 
+        GraphRagHitCounts graphRagCounts = GraphRagRetrievalTelemetry.CountFromHits(safeHits);
+        double? graphRagExpansionLatencyMs = GraphRagExpansionLatencyAmbient.TakeMilliseconds();
+        bool graphRagObserved =
+            graphRagExpansionLatencyMs.HasValue
+            || graphRagCounts.NeighborsAdded > 0
+            || graphRagCounts.SeedHits > 0;
+
         return new RetrievalGroundingTraceInsert
         {
             TenantId = scope.TenantId,
@@ -50,6 +57,9 @@ public static class RetrievalGroundingTraceBuilder
             AgentExecutionTraceId = string.IsNullOrWhiteSpace(agentExecutionTraceId)
                 ? null
                 : agentExecutionTraceId.Trim(),
+            GraphRagNeighborsAdded = graphRagObserved ? graphRagCounts.NeighborsAdded : null,
+            GraphRagSeedHits = graphRagObserved ? graphRagCounts.SeedHits : null,
+            GraphRagExpansionLatencyMs = graphRagExpansionLatencyMs,
         };
     }
 

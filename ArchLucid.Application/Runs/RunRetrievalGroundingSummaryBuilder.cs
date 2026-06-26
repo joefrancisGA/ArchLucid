@@ -33,14 +33,30 @@ public static class RunRetrievalGroundingSummaryBuilder
 
         int traceCount = traces.Count;
         int totalChunks = traces.Sum(static trace => trace.RetrievedChunkIds.Count);
+        int totalGraphRagNeighbors = traces.Sum(static trace => trace.GraphRagNeighborsAdded ?? 0);
+        int totalGraphRagSeeds = traces.Sum(static trace => trace.GraphRagSeedHits ?? 0);
+        int totalRetrievalTokensIn = traces.Sum(static trace => trace.TokensIn ?? 0);
 
         double averageCitationCoverage = traceCount == 0
             ? 0d
             : traces.Average(static trace => trace.CitationCoverage);
 
+        double graphRagNeighborHitRate =
+            GraphRagRetrievalTelemetry.ResolveNeighborHitRate(totalGraphRagNeighbors, totalChunks);
+
+        string graphRagPilotFloorDisposition = ResolveGraphRagPilotFloorDisposition(
+            totalGraphRagNeighbors,
+            graphRagNeighborHitRate,
+            averageCitationCoverage);
+
         List<string> expectedAgentsMissingTraces = ResolveExpectedAgentsMissingTraces(agentResults, agentsWithTraces);
 
-        string disposition = ResolveDisposition(traceCount, totalChunks, averageCitationCoverage, expectedAgentsMissingTraces);
+        string disposition = ResolveDisposition(
+            traceCount,
+            totalChunks,
+            averageCitationCoverage,
+            expectedAgentsMissingTraces,
+            graphRagPilotFloorDisposition);
 
         return new RunRetrievalGroundingSummaryDto
         {
@@ -49,8 +65,20 @@ public static class RunRetrievalGroundingSummaryBuilder
             ExpectedAgentsMissingTraces = expectedAgentsMissingTraces,
             AverageCitationCoverage = averageCitationCoverage,
             TotalRetrievedChunks = totalChunks,
+            TotalGraphRagNeighborsAdded = totalGraphRagNeighbors,
+            TotalGraphRagSeedHits = totalGraphRagSeeds,
+            GraphRagNeighborHitRate = graphRagNeighborHitRate,
+            TotalRetrievalTokensIn = totalRetrievalTokensIn,
+            GraphRagPilotFloorDisposition = graphRagPilotFloorDisposition,
             Disposition = disposition,
-            OperatorDetail = BuildOperatorDetail(disposition, expectedAgentsMissingTraces, traceCount, totalChunks),
+            OperatorDetail = BuildOperatorDetail(
+                disposition,
+                expectedAgentsMissingTraces,
+                traceCount,
+                totalChunks,
+                graphRagPilotFloorDisposition,
+                totalGraphRagNeighbors,
+                graphRagNeighborHitRate),
         };
     }
 
@@ -78,11 +106,26 @@ public static class RunRetrievalGroundingSummaryBuilder
         return missing.OrderBy(static name => name, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
+    private static string ResolveGraphRagPilotFloorDisposition(
+        int totalGraphRagNeighbors,
+        double graphRagNeighborHitRate,
+        double averageCitationCoverage)
+    {
+        if (totalGraphRagNeighbors <= 0)
+            return "PASS";
+
+        if (GraphRagRetrievalTelemetry.ShouldApplyPilotFloorWarn(graphRagNeighborHitRate, averageCitationCoverage))
+            return "WARN";
+
+        return "PASS";
+    }
+
     private static string ResolveDisposition(
         int traceCount,
         int totalChunks,
         double averageCitationCoverage,
-        IReadOnlyList<string> expectedAgentsMissingTraces)
+        IReadOnlyList<string> expectedAgentsMissingTraces,
+        string graphRagPilotFloorDisposition)
     {
         if (expectedAgentsMissingTraces.Count > 0)
             return "HOLD";
@@ -93,6 +136,9 @@ public static class RunRetrievalGroundingSummaryBuilder
         if (totalChunks == 0 || averageCitationCoverage < LowCitationCoverageThreshold)
             return "WARN";
 
+        if (string.Equals(graphRagPilotFloorDisposition, "WARN", StringComparison.OrdinalIgnoreCase))
+            return "WARN";
+
         return "PASS";
     }
 
@@ -100,7 +146,10 @@ public static class RunRetrievalGroundingSummaryBuilder
         string disposition,
         IReadOnlyList<string> expectedAgentsMissingTraces,
         int traceCount,
-        int totalChunks)
+        int totalChunks,
+        string graphRagPilotFloorDisposition,
+        int totalGraphRagNeighbors,
+        double graphRagNeighborHitRate)
     {
         if (expectedAgentsMissingTraces.Count > 0)
         {
@@ -113,6 +162,12 @@ public static class RunRetrievalGroundingSummaryBuilder
 
         if (totalChunks == 0)
             return "Grounding traces exist but no retrieved chunks were recorded.";
+
+        if (string.Equals(graphRagPilotFloorDisposition, "WARN", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+                $"Graph-RAG pilot floor: {totalGraphRagNeighbors} neighbor chunks ({Math.Round(graphRagNeighborHitRate * 100)}% of retrieved chunks) with low citation coverage — review retrieval diagnostics before sponsor send.";
+        }
 
         return disposition switch
         {

@@ -31,5 +31,11 @@ public sealed class RunRetrievalGroundingRow
 
     public bool DocumentMetadataMalformed { get; set; }
 
+    public int? GraphRagNeighborsAdded { get; set; }
+
+    public int? GraphRagSeedHits { get; set; }
+
+    public double? GraphRagExpansionLatencyMs { get; set; }
+
     public DateTime CreatedUtc { get; set; }
 }

@@ -105,6 +105,9 @@ export type RunRetrievalGroundingRow = {
   citationCoverage: number;
   topK?: number | null;
   agentExecutionTraceId?: string | null;
+  graphRagNeighborsAdded?: number | null;
+  graphRagSeedHits?: number | null;
+  graphRagExpansionLatencyMs?: number | null;
   scoreMetadataMalformed: boolean;
   documentMetadataMalformed: boolean;
   createdUtc: string;

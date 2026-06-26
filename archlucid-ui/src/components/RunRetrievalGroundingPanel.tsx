@@ -35,6 +35,30 @@ function shortList(items: readonly string[], limit: number): string {
   return `${visible.join(", ")}${suffix}`;
 }
 
+function graphRagSummary(row: RunRetrievalGroundingRow): string {
+  const neighbors = row.graphRagNeighborsAdded;
+  const seeds = row.graphRagSeedHits;
+  const latency = row.graphRagExpansionLatencyMs;
+
+  if ((neighbors === null || neighbors === undefined || neighbors === 0)
+    && (seeds === null || seeds === undefined || seeds === 0)
+    && (latency === null || latency === undefined))
+    return "-";
+
+  const parts: string[] = [];
+
+  if (typeof neighbors === "number")
+    parts.push(`${neighbors} nbr`);
+
+  if (typeof seeds === "number" && seeds > 0)
+    parts.push(`${seeds} seed`);
+
+  if (typeof latency === "number" && !Number.isNaN(latency))
+    parts.push(`${Math.round(latency)} ms`);
+
+  return parts.length > 0 ? parts.join(" · ") : "-";
+}
+
 function scoreText(row: RunRetrievalGroundingRow): string {
   if (row.scoreMetadataMalformed)
     return "degraded";
@@ -109,6 +133,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   <th className="px-1.5 py-2">Scores</th>
                   <th className="px-1.5 py-2">Coverage</th>
                   <th className="px-1.5 py-2">Tokens</th>
+                  <th className="px-1.5 py-2">Graph-RAG</th>
                   <th className="px-1.5 py-2">Trace</th>
                   <th className="px-1.5 py-2">Recorded</th>
                 </tr>
@@ -129,6 +154,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                     <td className="whitespace-nowrap px-1.5 py-2">
                       {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
                     </td>
+                    <td className="whitespace-nowrap px-1.5 py-2 text-xs">{graphRagSummary(row)}</td>
                     <td className="max-w-[12rem] truncate px-1.5 py-2 font-mono text-xs" title={row.traceId}>
                       {row.agentExecutionTraceId?.trim() || row.traceId}
                     </td>

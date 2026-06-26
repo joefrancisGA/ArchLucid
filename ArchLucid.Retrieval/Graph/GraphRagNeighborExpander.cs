@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
@@ -45,6 +48,7 @@ public sealed class GraphRagNeighborExpander(
         if (graphHits.Count == 0)
             return hits;
 
+        long startTicks = Stopwatch.GetTimestamp();
         int maxNeighbors = options.GetEffectiveMaxGraphNeighborNodes();
         List<RetrievalHit> expanded = hits.ToList();
         HashSet<string> existingChunkIds = expanded
@@ -107,9 +111,17 @@ public sealed class GraphRagNeighborExpander(
             }
         }
 
-        return expanded
+        IReadOnlyList<RetrievalHit> ordered = expanded
             .OrderByDescending(static hit => hit.Score)
             .ToList();
+
+        int neighborsAdded = GraphRagRetrievalTelemetry.CountFromHits(ordered).NeighborsAdded;
+        double expansionLatencyMilliseconds = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
+
+        GraphRagExpansionLatencyAmbient.Set(expansionLatencyMilliseconds);
+        ArchLucidInstrumentation.RecordGraphRagExpansion(neighborsAdded, expansionLatencyMilliseconds);
+
+        return ordered;
     }
 
     internal static IReadOnlyList<GraphNode> CollectOneHopNeighbors(
