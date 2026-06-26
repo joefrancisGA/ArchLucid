@@ -39,6 +39,13 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 
@@ -65,7 +72,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const overviewSummaryCard = (
     <Card id="manifest-overview" className="scroll-mt-24">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold text-al-text-primary">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
         <CardDescription>
           {buyerPolishedLayout
             ? "Status, policy posture, and what is included in this package."
@@ -92,7 +99,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
     >
       <CardHeader>
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
           {buyerPolishedLayout ? "Related monitored risk" : "Related findings"}
         </CardTitle>
         <CardDescription>
@@ -102,40 +109,40 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 max-w-prose text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedLayout
             ? "Use the review summary to open each finding with full context and trace detail when available."
             : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
         </p>
         {buyerPolishedLayout && primaryFindingHref ? (
-          <div className="mt-3 space-y-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3">
-            <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
+          <div className={cn("mt-3 space-y-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 p-3", OPERATOR_TYPOGRAPHY.body)}>
+            <dl className={cn("m-0 grid gap-2 text-al-text-primary sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <dt className={OPERATOR_NAV_GROUP_LABEL}>
                   Severity
                 </dt>
                 <dd className="m-0 mt-0.5">High</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <dt className={OPERATOR_NAV_GROUP_LABEL}>
                   Risk area
                 </dt>
                 <dd className="m-0 mt-0.5">PHI minimization</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <dt className={OPERATOR_NAV_GROUP_LABEL}>
                   Disposition
                 </dt>
                 <dd className="m-0 mt-0.5">Accepted with monitoring</dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                <dt className={OPERATOR_NAV_GROUP_LABEL}>
                   Blocking status
                 </dt>
                 <dd className="m-0 mt-0.5">Non-blocking</dd>
               </div>
             </dl>
-            <ul className="m-0 list-none space-y-2 p-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
+            <ul className={cn("m-0 list-none space-y-2 p-0 leading-snug text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <li>
                 <strong className="text-neutral-900 dark:text-neutral-100">Risk:</strong> expanded breach and audit
                 scope if minimization is understated.
@@ -173,7 +180,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const diligenceAskCard = buyerPolishedLayout ? (
     <Card id="manifest-ask" className="scroll-mt-24 border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">Questions during diligence?</CardTitle>
+        <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Questions during diligence?</CardTitle>
         <CardDescription>
           Two paths: ask the evidence directly in this package, or route procurement and security questionnaires to our
           Trust Center.
@@ -181,7 +188,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       </CardHeader>
       <CardContent className="space-y-3 pt-0">
         <div className="flex flex-col gap-1.5">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
             Product &amp; evidence questions
           </p>
           <Button variant="primary" size="sm" asChild>
@@ -189,7 +196,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           </Button>
         </div>
         <div className="flex flex-col gap-1.5">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
             Procurement &amp; security follow-up
           </p>
           <Button variant="outline" size="sm" asChild>
@@ -203,29 +210,29 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   return (
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
       <CtoDemoBuyerValueStrip stepIndex={1} />
-      <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <Link className={OPERATOR_LINK.nav} href="/">
           {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           Reviews
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
+        <Link className={OPERATOR_LINK.nav} href={`/reviews/${summary.runId}`}>
           {buyerPolishedLayout === true && showcasePackage === true
             ? SHOWCASE_BUYER_REVIEW_TITLE
             : "Open review"}
         </Link>
         {" · "}
-        <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
+        <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} aria-current="page">
           {BUYER_SIGNED_DECISION_RECORD_LABEL}
         </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
           <>
             {" · "}
             <Link
-              className="text-teal-800 underline dark:text-teal-300"
+              className={OPERATOR_LINK.nav}
               href={`/showcase/${encodeURIComponent(summary.runId)}`}
             >
               Public showcase
@@ -240,7 +247,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
+          <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
             {showcaseBuyerManifestHeadline === true
               ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
               : buyerPolishedLayout
@@ -257,7 +264,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         ) : null}
       </div>
 
-      <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {buyerPolishedLayout ? (
           <>
             {showcasePackage === true ? (
@@ -286,10 +293,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
           data-testid="manifest-buyer-authority-summary"
         >
-          <h2 id="manifest-authority-summary-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+          <h2 id="manifest-authority-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             What this signed decision record proves
           </h2>
-          <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_MANIFEST_AUTHORITY_SUMMARY}
           </p>
         </section>
@@ -298,21 +305,21 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       {buyerPolishedLayout ? (
         <nav
           aria-label="On this page"
-          className="flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-sm text-neutral-700 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-200"
+          className={cn(
+            "flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary shadow-sm dark:border-neutral-800 dark:bg-neutral-900/50",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
         >
-          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-decision-group">
+          <a className={OPERATOR_LINK.nav} href="#manifest-decision-group">
             {BUYER_MANIFEST_SECTION_DECISION}
           </a>
-          <a
-            className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300"
-            href="#manifest-deliverables"
-          >
+          <a className={OPERATOR_LINK.nav} href="#manifest-deliverables">
             {BUYER_MANIFEST_SECTION_EVIDENCE}
           </a>
-          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-bundle-zip">
+          <a className={OPERATOR_LINK.nav} href="#manifest-bundle-zip">
             {BUYER_MANIFEST_SECTION_DOWNLOADS}
           </a>
-          <a className="font-medium text-teal-800 underline decoration-teal-700/30 underline-offset-2 dark:text-teal-300" href="#manifest-ask">
+          <a className={OPERATOR_LINK.nav} href="#manifest-ask">
             {BUYER_MANIFEST_SECTION_DILIGENCE}
           </a>
         </nav>
@@ -349,7 +356,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       >
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-1.5">
-            <CardTitle className="text-sm font-semibold text-al-text-primary">
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
               {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
             </CardTitle>
             <CardDescription>
@@ -370,7 +377,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
           {model.artifactsFailure && (
             <>
-              <p className="m-0 text-sm font-semibold">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {buyerPolishedLayout ? "Deliverables list could not be loaded." : "Artifact list could not be loaded."}
               </p>
               <OperatorApiProblem
@@ -379,7 +386,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 correlationId={model.artifactsFailure.correlationId}
                 variant="warning"
               />
-              <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {buyerPolishedLayout ? (
                   <>
                     Try reloading, or return to the review. You can still use Download finalized review package when the
@@ -405,7 +412,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 </strong>
                 <p className="mt-2">{model.artifactsMalformed}</p>
               </OperatorMalformedCallout>
-              <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                 {buyerPolishedLayout
                   ? "Try reloading, or return to the review. ZIP download may still work."
                   : "Try reloading, or return to the review detail page. Bundle download may still work."}
@@ -423,7 +430,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                     The summary loaded, but the artifact descriptor list is empty. Bundle download may be available when
                     there is a bundle.
                   </p>
-                  <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                     This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
                     request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
                   </p>
@@ -434,7 +441,12 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (
             <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
-              <summary className="cursor-pointer select-none text-sm font-medium text-neutral-900 outline-none marker:text-neutral-500 focus-visible:ring-2 focus-visible:ring-teal-500/80 dark:text-neutral-100">
+              <summary
+                className={cn(
+                  "cursor-pointer select-none text-al-text-primary outline-none marker:text-al-text-secondary focus-visible:ring-2 focus-visible:ring-teal-500/80",
+                  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+                )}
+              >
                 Show deliverable artifacts ({artifacts.length})
               </summary>
               <div className="mt-4">

@@ -15,6 +15,8 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type ManifestDetailPageErrorFrameProps = {
   readonly buyerPolishedLayout: boolean;
@@ -25,16 +27,16 @@ type ManifestDetailPageErrorFrameProps = {
 export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrameProps) {
   return (
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
-      <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <Link className={OPERATOR_LINK.nav} href="/">
           {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           Reviews
         </Link>
       </nav>
-      <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
+      <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
         {props.buyerPolishedLayout ? "Architecture review package" : "Finalized architecture review package"}
       </h1>
       {props.children}
@@ -44,10 +46,10 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
 
 function ManifestDetailPageErrorFooterLinks() {
   return (
-    <p className="text-sm">
-      <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
+    <p className={cn(OPERATOR_TYPOGRAPHY.body)}>
+      <Link className={OPERATOR_LINK.inline} href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
       {" · "}
-      <Link href="/reviews?projectId=default">Reviews</Link>
+      <Link className={OPERATOR_LINK.inline} href="/reviews?projectId=default">Reviews</Link>
     </p>
   );
 }
@@ -69,7 +71,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
 
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
-      <p className="m-0 text-sm font-semibold">
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {props.buyerPolishedLayout
           ? BUYER_MANIFEST_SUMMARY_LOAD_ERROR_HEADING
           : "Review record summary could not be loaded."}
@@ -79,7 +81,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
         fallbackMessage={props.summaryFailure.message}
         correlationId={props.summaryFailure.correlationId}
       />
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         Try reloading, or return to the reviews list, open a review, then the signed review record from review detail.
       </p>
       <ManifestDetailPageErrorFooterLinks />
@@ -101,7 +103,7 @@ export function ManifestDetailSummaryMalformedView(props: {
         </strong>
         <p className="mt-2">{props.message}</p>
       </OperatorMalformedCallout>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         The server response was unexpected. If this persists, contact support.
       </p>
       <ManifestDetailPageErrorFooterLinks />
@@ -122,7 +124,7 @@ export function ManifestDetailSummaryMissingView(props: { readonly buyerPolished
         </p>
         <OperatorErrorUiReferenceLine />
       </OperatorErrorCallout>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         If this continues, try reloading, or return to the reviews list and open a review, then the signed review record.
       </p>
       <ManifestDetailPageErrorFooterLinks />
