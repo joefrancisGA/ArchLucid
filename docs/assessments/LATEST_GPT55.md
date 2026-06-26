@@ -46,7 +46,7 @@
 | 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
 | **Total** | | | **100** | **90.93%** | **9.07%** |
 
-*(A) Headline Readiness: 90.45%*
+*(A) Headline Readiness: 90.93%*
 
 ---
 
