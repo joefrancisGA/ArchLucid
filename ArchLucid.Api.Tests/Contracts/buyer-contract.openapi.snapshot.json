@@ -20696,8 +20696,6 @@
           "documentMetadataMalformed": {
             "type": "boolean"
           },
-<<<<<<< Updated upstream
-=======
           "graphRagExpansionLatencyMs": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
@@ -20721,7 +20719,6 @@
               "integer"
             ]
           },
->>>>>>> Stashed changes
           "retrievedChunkCount": {
             "format": "int32",
             "type": "integer"
@@ -20810,8 +20807,6 @@
             },
             "type": "array"
           },
-<<<<<<< Updated upstream
-=======
           "graphRagNeighborHitRate": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
@@ -20823,12 +20818,23 @@
           "graphRagPilotFloorDisposition": {
             "type": "string"
           },
->>>>>>> Stashed changes
           "operatorDetail": {
             "type": [
               "null",
               "string"
             ]
+          },
+          "totalGraphRagNeighborsAdded": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalGraphRagSeedHits": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRetrievalTokensIn": {
+            "format": "int32",
+            "type": "integer"
           },
           "totalRetrievedChunks": {
             "format": "int32",
