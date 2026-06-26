@@ -30,6 +30,7 @@ import {
   compositeRulesEmptyGettingStartedOperator,
   compositeRulesEmptyGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
@@ -132,7 +133,7 @@ export function CompositeAlertRulesContent() {
     <div className="max-w-4xl">
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 className="mt-0">Composite alert rules</h2>
-      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateComposite ? compositeRulesPageLeadOperator : compositeRulesPageLeadReader}
       </p>
       <AlertOperatorToolingRankCue />
@@ -152,7 +153,7 @@ export function CompositeAlertRulesContent() {
           className={cn("min-w-0", !canMutateComposite && "opacity-95")}
           aria-labelledby="composite-rules-current-heading"
         >
-          <h3 id="composite-rules-current-heading" className="mt-2 text-base">
+          <h3 id="composite-rules-current-heading" className={cn("mt-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {canMutateComposite ? compositeRulesCurrentRulesHeadingOperator : compositeRulesCurrentRulesHeadingReader}
           </h3>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
@@ -171,7 +172,7 @@ export function CompositeAlertRulesContent() {
               {loading ? "Loading…" : "Refresh"}
             </Button>
             {!canMutateComposite ? (
-              <span className="max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+              <span className={cn("max-w-prose text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {compositeRulesRefreshAssistReaderLine}
               </span>
             ) : null}
@@ -179,7 +180,7 @@ export function CompositeAlertRulesContent() {
           <div className="grid gap-3.5">
             {items.length === 0 ? (
               <div className="grid max-w-xl gap-3">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
                 </p>
                 <GettingStartedSteps
@@ -195,7 +196,7 @@ export function CompositeAlertRulesContent() {
                   className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{r.name}</strong>
-                  <div className="mt-2 text-sm">
+                  <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                     <div>
                       Join: {r.operator} · Severity: {r.severity} · Enabled: {String(r.isEnabled)}
                     </div>
@@ -221,12 +222,12 @@ export function CompositeAlertRulesContent() {
           className={cn("min-w-0", !canMutateComposite && "opacity-90")}
           aria-labelledby="composite-rules-change-heading"
         >
-          <h3 id="composite-rules-change-heading" className="text-base">
+          <h3 id="composite-rules-change-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
             {canMutateComposite
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p className="mb-2.5 mt-0 max-w-2xl text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mb-2.5 mt-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
       <fieldset

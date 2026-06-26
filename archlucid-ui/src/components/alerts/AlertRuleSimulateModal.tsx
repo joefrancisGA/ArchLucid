@@ -17,6 +17,8 @@ import { buildDefaultSimulationRequestForRule, normalizeSimulateAlertRuleBody } 
 import { simulateAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { OPERATOR_CALLOUT_BLOCKED_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RuleSimulationResult } from "@/types/alert-simulation";
 import type { AlertRule } from "@/types/alerts";
 
@@ -104,9 +106,9 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
         <DialogHeader>
           <DialogTitle>Simulate: {rule.name}</DialogTitle>
           <DialogDescription>
-            Sends <code className="text-xs">POST /v1/alert-simulation/simulate</code> with the envelope below —
-            tweak thresholds, scope fields, <code className="text-xs">recentRunCount</code>, or{" "}
-            <code className="text-xs">runProjectSlug</code>, then preview whether the rule would create alerts against
+            Sends <code className={OPERATOR_TYPOGRAPHY.micro}>POST /v1/alert-simulation/simulate</code> with the envelope below —
+            tweak thresholds, scope fields, <code className={OPERATOR_TYPOGRAPHY.micro}>recentRunCount</code>, or{" "}
+            <code className={OPERATOR_TYPOGRAPHY.micro}>runProjectSlug</code>, then preview whether the rule would create alerts against
             recent reviews.
           </DialogDescription>
         </DialogHeader>
@@ -117,17 +119,20 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
             <textarea
               id="alert-rule-simulate-payload"
               data-testid="alert-rule-simulate-payload"
-              className="min-h-[220px] rounded-md border border-neutral-300 bg-white p-2 font-mono text-xs dark:border-neutral-700 dark:bg-neutral-900"
+              className={cn(
+                "min-h-[220px] rounded-md border border-neutral-300 bg-white p-2 font-mono dark:border-neutral-700 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.micro,
+              )}
               value={payloadText}
               onChange={(e) => setPayloadText(e.target.value)}
               spellCheck={false}
               aria-busy={busy}
               disabled={busy}
             />
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              <code className="text-xs">simpleRule</code> is pre-filled from the saved rule; adjust trigger fields (
-              <code className="text-xs">ruleType</code>, <code className="text-xs">severity</code>,{" "}
-              <code className="text-xs">thresholdValue</code>) to explore “what-if” scenarios.
+            <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              <code className={OPERATOR_TYPOGRAPHY.micro}>simpleRule</code> is pre-filled from the saved rule; adjust trigger fields (
+              <code className={OPERATOR_TYPOGRAPHY.micro}>ruleType</code>, <code className={OPERATOR_TYPOGRAPHY.micro}>severity</code>,{" "}
+              <code className={OPERATOR_TYPOGRAPHY.micro}>thresholdValue</code>) to explore “what-if” scenarios.
             </p>
           </div>
 
@@ -150,7 +155,7 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
           {simulationResult !== null ? (
             <section
               data-testid="alert-rule-simulate-result"
-              className="grid gap-2 rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-700"
+              className={cn("grid gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
             >
               <div className="font-semibold" data-testid="alert-rule-simulate-verdict">
                 {simulationOutcomeHeadline(simulationResult)}
@@ -162,7 +167,7 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
                 <strong>{simulationResult.wouldSuppressCount}</strong>
               </div>
               {simulationResult.summaryNotes.length > 0 ? (
-                <ul className="m-0 max-h-32 overflow-y-auto pl-[18px] text-xs text-neutral-600 dark:text-neutral-400">
+                <ul className={cn("m-0 max-h-32 overflow-y-auto pl-[18px] text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {simulationResult.summaryNotes.map((n, i) => (
                     <li key={i}>{n}</li>
                   ))}
@@ -191,5 +196,4 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
   );
 }
 
-const alertToneClass =
-  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50";
+const alertToneClass = OPERATOR_CALLOUT_BLOCKED_CLASS;

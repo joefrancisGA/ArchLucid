@@ -14,6 +14,8 @@ import {
   alertSimulationRunControlTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-empty-guidance";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type {
@@ -55,7 +57,7 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
   if (outcomes.length === 0) {
     return (
       <div className="grid max-w-xl gap-3">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Run a simulation above — per-review outcomes explain matches, suppression, and dedupe.
         </p>
         <GettingStartedSteps {...alertSimulationOutcomesEmptyGettingStarted} />
@@ -64,7 +66,7 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
   }
   return (
     <div className="overflow-x-auto">
-      <table className="mt-2 w-full border-collapse text-[13px]">
+      <table className={cn("mt-2 w-full border-collapse", DESIGN_TOKENS.table.table)}>
         <thead>
           <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
             <th className="p-1.5">Review ID</th>
@@ -95,7 +97,7 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
                   </ul>
                 ) : null}
               </td>
-              <td className="p-1.5 text-xs">
+              <td className={cn("p-1.5", OPERATOR_TYPOGRAPHY.helper)}>
                 <div>
                   <strong>Reason:</strong> {o.suppressionReason || "—"}
                 </div>
@@ -299,7 +301,7 @@ export function AlertSimulationContent() {
     <div className="max-w-[1100px]">
       <LayerHeader pageKey="alert-simulation" />
       <h2 className="mt-0">Alert rule simulation</h2>
-      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {alertSimulationPageLead}
       </p>
       <AlertOperatorToolingRankCue className="mb-3" />
@@ -443,7 +445,7 @@ export function AlertSimulationContent() {
             {simpleResult ? (
               <SummaryBlock result={simpleResult} />
             ) : (
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Run a simulation to see outcomes here.</p>
+              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a simulation to see outcomes here.</p>
             )}
           </section>
         </>
@@ -596,7 +598,7 @@ export function AlertSimulationContent() {
             {compositeResult ? (
               <SummaryBlock result={compositeResult} />
             ) : (
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Run a simulation to see outcomes here.</p>
+              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a simulation to see outcomes here.</p>
             )}
           </section>
         </>
@@ -608,7 +610,7 @@ export function AlertSimulationContent() {
             <h3 id="sim-compare-inputs-heading" className="mt-0">
               Simulation inputs
             </h3>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
             </p>
             <div className="grid max-w-[640px] gap-3">
@@ -716,7 +718,7 @@ export function AlertSimulationContent() {
                 <SummaryBlock result={compareResult.candidateB} />
               </div>
             ) : (
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Run a comparison to see outcomes here.</p>
+              <p className={cn("mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Run a comparison to see outcomes here.</p>
             )}
           </section>
         </>

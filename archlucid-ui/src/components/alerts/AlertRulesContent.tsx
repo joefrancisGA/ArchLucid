@@ -31,6 +31,7 @@ import {
   alertRulesEmptyGettingStartedOperator,
   alertRulesEmptyGettingStartedReader,
 } from "@/lib/alerts-hub-empty-guidance";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { AlertRule } from "@/types/alerts";
 
@@ -98,10 +99,10 @@ export function AlertRulesContent() {
     <div className="max-w-3xl">
       <LayerHeader pageKey="alert-rules" />
       <h2 className="mt-0">Alert rules</h2>
-      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         {canMutateAlertRules ? alertRulesPageLeadOperator : alertRulesPageLeadReader}
       </p>
-      <p className="mb-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-500">
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
         Thresholds are driven by <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> from the{" "}
         <GlossaryTooltip termKey="finding_engine">finding engine</GlossaryTooltip> for completed architecture reviews in scope.
       </p>
@@ -122,7 +123,7 @@ export function AlertRulesContent() {
           className={cn("min-w-0", !canMutateAlertRules && "opacity-95")}
           aria-labelledby="alert-rules-current-heading"
         >
-          <h3 id="alert-rules-current-heading" className="mb-2 mt-1 text-base">
+          <h3 id="alert-rules-current-heading" className={cn("mb-2 mt-1", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {canMutateAlertRules ? alertRulesCurrentRulesHeadingOperator : alertRulesCurrentRulesHeadingReader}
           </h3>
           <button
@@ -141,7 +142,7 @@ export function AlertRulesContent() {
           <div className="grid gap-3">
             {items.length === 0 ? (
               <div className="grid max-w-xl gap-3">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
                 </p>
                 <GettingStartedSteps
@@ -168,7 +169,7 @@ export function AlertRulesContent() {
                       Simulate
                     </Button>
                   </div>
-                  <div className="mt-2 text-sm">
+                  <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
                     <div>Type: {r.ruleType}</div>
                     <div>Severity: {r.severity}</div>
                     <div>Threshold: {r.thresholdValue}</div>
@@ -185,12 +186,12 @@ export function AlertRulesContent() {
           className={cn("min-w-0", !canMutateAlertRules && "opacity-90")}
           aria-labelledby="alert-rules-change-heading"
         >
-          <h3 id="alert-rules-change-heading" className="mb-2 mt-1 text-base">
+          <h3 id="alert-rules-change-heading" className={cn("mb-2 mt-1", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {canMutateAlertRules
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p className="mb-2.5 mt-0 max-w-xl text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mb-2.5 mt-0 max-w-xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
           <div className="mb-4 grid max-w-2xl gap-3">

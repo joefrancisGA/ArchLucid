@@ -16,6 +16,8 @@ import {
   alertTuningPageLead,
   alertTuningRecommendButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -58,7 +60,7 @@ function CandidateCard({
       className={`rounded-lg p-3 ${highlight ? "border-2 border-neutral-700 bg-neutral-50 dark:border-neutral-300 dark:bg-neutral-900" : "border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"}`}
     >
       <strong>Threshold: {candidate.thresholdValue}</strong> ({candidate.label})
-      <div className="mt-2 text-sm">
+      <div className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>Evaluated reviews: {simulationResult.evaluatedRunCount}</div>
         <div>Matched: {simulationResult.matchedCount}</div>
         <div>Would create: {simulationResult.wouldCreateCount}</div>
@@ -75,7 +77,7 @@ function CandidateCard({
             <strong>Final: {scoreBreakdown.finalScore.toFixed(2)}</strong>
           </li>
         </ul>
-        <ul className="mt-2 pl-5 text-[13px] text-neutral-600 dark:text-neutral-400">
+        <ul className={cn("mt-2 pl-5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {scoreBreakdown.notes.map((note, i) => (
             <li key={i}>{note}</li>
           ))}
@@ -207,7 +209,7 @@ export function AlertTuningContent() {
     <div className="max-w-4xl">
       <LayerHeader pageKey="alert-tuning" />
       <h2 className="mt-0">Alert tuning</h2>
-      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">{alertTuningPageLead}</p>
+      <p className={cn("mb-2 max-w-prose leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>{alertTuningPageLead}</p>
       <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
@@ -222,14 +224,14 @@ export function AlertTuningContent() {
 
       <div className="flex flex-col gap-10">
         <section className="min-w-0" aria-labelledby="alert-tuning-current-heading">
-          <h3 id="alert-tuning-current-heading" className="mb-2 mt-0 text-base">
+          <h3 id="alert-tuning-current-heading" className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {canMutateEnterpriseShell
               ? alertTuningCurrentTuningHeadingOperator
               : alertTuningCurrentTuningHeadingReader}
           </h3>
           {result ? (
             <>
-              <h4 className="mb-2 mt-0 text-base">Summary</h4>
+              <h4 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Summary</h4>
               <ul>
                 {result.summaryNotes.map((note, index) => (
                   <li key={index}>{note}</li>
@@ -238,12 +240,12 @@ export function AlertTuningContent() {
 
               {result.recommendedCandidate ? (
                 <section className="mb-6 mt-4">
-                  <h4 className="mb-2 mt-0 text-base">Recommended candidate</h4>
+                  <h4 className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Recommended candidate</h4>
                   <CandidateCard evaluation={result.recommendedCandidate} highlight />
                 </section>
               ) : null}
 
-              <h4 className="mb-2 mt-2 text-base">All candidates (sorted by final score, highest first)</h4>
+              <h4 className={cn("mb-2 mt-2", OPERATOR_TYPOGRAPHY.sectionTitle)}>All candidates (sorted by final score, highest first)</h4>
               <div className="grid gap-3">
                 {[...result.candidates]
                   .sort((a, b) => b.scoreBreakdown.finalScore - a.scoreBreakdown.finalScore)
@@ -257,17 +259,17 @@ export function AlertTuningContent() {
               </div>
             </>
           ) : (
-            <p className="mt-0 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+            <p className={cn("mt-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               No tuning results yet. Run a recommendation below to compare candidate thresholds against recent reviews.
             </p>
           )}
         </section>
 
         <section className="min-w-0" aria-labelledby="alert-tuning-change-heading">
-          <h3 id="alert-tuning-change-heading" className="mb-2 mt-0 text-base">
+          <h3 id="alert-tuning-change-heading" className={cn("mb-2 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {alertToolingChangeConfigurationHeadingOperator}
           </h3>
-          <p className="mb-2.5 mt-0 max-w-2xl text-xs text-neutral-500 dark:text-neutral-400">
+          <p className={cn("mb-2.5 mt-0 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {alertToolingConfigureSectionSubline}
           </p>
       <div className="mb-6 grid max-w-3xl gap-3">

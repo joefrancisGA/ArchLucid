@@ -7,6 +7,7 @@ import {
   formatTagsInput,
   parseTagsInput,
 } from "@/lib/alert-routing-criteria";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type AlertRoutingCriteriaFieldsProps = {
@@ -35,15 +36,15 @@ export function AlertRoutingCriteriaFields({
 }: AlertRoutingCriteriaFieldsProps) {
   return (
     <fieldset className="space-y-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700" disabled={disabled}>
-      <legend className="px-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Routing filters (optional)</legend>
-      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+      <legend className={cn("px-1 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>Routing filters (optional)</legend>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Leave empty to route on minimum severity only. Finding types match the alert category. Tags match alert tags
         (include <code className="rounded bg-neutral-200 px-1 dark:bg-neutral-800">tags:phi,prod</code> in trigger
         values or the alert category).
       </p>
 
       <div>
-        <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "font-semibold text-neutral-600 dark:text-neutral-400")}>
           Severities
         </p>
         <div className="flex flex-wrap gap-2">
@@ -54,7 +55,8 @@ export function AlertRoutingCriteriaFields({
               <label
                 key={severity}
                 className={cn(
-                  "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1 text-xs",
+                  "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1",
+                  OPERATOR_TYPOGRAPHY.badge,
                   selected
                     ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-300 dark:border-neutral-600",
@@ -81,7 +83,7 @@ export function AlertRoutingCriteriaFields({
       </div>
 
       <div>
-        <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mb-1", OPERATOR_NAV_GROUP_LABEL, "font-semibold text-neutral-600 dark:text-neutral-400")}>
           Finding types / categories
         </p>
         <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
@@ -94,7 +96,8 @@ export function AlertRoutingCriteriaFields({
               <label
                 key={findingType}
                 className={cn(
-                  "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1 text-xs",
+                  "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1",
+                  OPERATOR_TYPOGRAPHY.badge,
                   selected
                     ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-300 dark:border-neutral-600",
@@ -120,7 +123,7 @@ export function AlertRoutingCriteriaFields({
         </div>
       </div>
 
-      <label className="block text-sm text-neutral-700 dark:text-neutral-300">
+      <label className={cn("block text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Tags (comma-separated)
         <input
           value={formatTagsInput(criteria.tags)}
@@ -133,7 +136,7 @@ export function AlertRoutingCriteriaFields({
           disabled={disabled}
           title={disabled ? disabledTitle : undefined}
           placeholder="phi, production, security-review"
-          className="mt-1 block w-full p-2 font-mono text-sm"
+          className={cn("mt-1 block w-full p-2 font-mono", OPERATOR_TYPOGRAPHY.body)}
           data-testid="alert-routing-tags-input"
         />
       </label>
