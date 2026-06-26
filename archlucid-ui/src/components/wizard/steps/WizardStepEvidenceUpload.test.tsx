@@ -1,5 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { strToU8, zipSync } from "fflate";
 
 import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
 
@@ -13,60 +15,82 @@ describe("WizardStepEvidenceUpload", () => {
     onSkipDemoData: vi.fn(),
   };
 
-  it("renders the source picker with honest V1.1 badges", () => {
+  it("renders Tier-1 inventory sources and AWS command panel", () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
 
-    expect(screen.getByTestId("wizard-evidence-upload-step")).toBeInTheDocument();
-    expect(screen.getByTestId("wizard-evidence-source-picker")).toBeInTheDocument();
-    expect(screen.getByTestId("wizard-evidence-source-brief")).toHaveTextContent("Available");
-    expect(screen.getByTestId("wizard-evidence-source-azure-export")).toHaveTextContent("Fastest");
-    expect(screen.getByTestId("wizard-evidence-source-aws-gcp-inventory")).toHaveTextContent("V1.1");
-    expect(screen.getByTestId("wizard-evidence-source-generic-inventory-json")).toHaveTextContent("V1.1");
-    expect(screen.getByTestId("wizard-evidence-source-structurizr-archimate")).toHaveTextContent("V1.1");
-    expect(screen.getByTestId("wizard-evidence-upload-dropzone")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-evidence-source-aws-inventory")).toHaveTextContent("Fastest");
+    expect(screen.getByTestId("wizard-evidence-source-gcp-inventory")).toHaveTextContent("Fastest");
+    expect(screen.getByTestId("wizard-evidence-inventory-panel")).toHaveAttribute("data-platform", "azure");
   });
 
-  it("shows the document upload zone when Documents is selected", () => {
+  it("shows AWS inventory command when AWS source is selected", () => {
     render(<WizardStepEvidenceUpload {...baseProps} />);
 
-    fireEvent.click(screen.getByTestId("wizard-evidence-source-documents"));
+    fireEvent.click(screen.getByTestId("wizard-evidence-source-aws-inventory"));
 
-    expect(screen.getByTestId("wizard-evidence-source-panel-documents")).toBeInTheDocument();
-    expect(screen.getByTestId("wizard-evidence-upload-zone")).toBeInTheDocument();
-    expect(screen.queryByTestId("wizard-evidence-upload-dropzone")).not.toBeInTheDocument();
+    expect(screen.getByTestId("wizard-evidence-inventory-panel")).toHaveAttribute("data-platform", "aws");
+    expect(screen.getByTestId("wizard-evidence-inventory-command")).toHaveTextContent("Get-ArchLucidAwsPackage.ps1");
   });
 
-  it("shows the brief path panel when Brief is selected", () => {
-    render(<WizardStepEvidenceUpload {...baseProps} />);
+  it("validates manifest and resources client-side before accepting ZIP", async () => {
+    function Harness() {
+      const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-    fireEvent.click(screen.getByTestId("wizard-evidence-source-brief"));
+      return (
+        <WizardStepEvidenceUpload
+          {...baseProps}
+          pendingFile={pendingFile}
+          onPendingFileChange={setPendingFile}
+        />
+      );
+    }
 
-    expect(screen.getByTestId("wizard-evidence-source-panel-brief")).toBeInTheDocument();
-    expect(screen.getByTestId("wizard-evidence-brief-quick-review-link")).toHaveAttribute(
-      "href",
-      "/reviews/new?path=quick-review",
+    render(<Harness />);
+
+    const validZip = new File(
+      [
+        zipSync({
+          "manifest.json": strToU8(
+            JSON.stringify({
+              schemaVersion: 1,
+              scriptVersion: "1.0.0",
+              collectionTimestamp: "2026-06-25T12:00:00.000Z",
+              subscriptionId: "11111111-1111-1111-1111-111111111111",
+              scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/Rg",
+            }),
+          ),
+          "resources.json": strToU8("[]"),
+        }),
+      ],
+      "azure-pack.zip",
+      { type: "application/zip" },
     );
+
+    const input = screen.getByTestId("wizard-evidence-upload-dropzone-input");
+    fireEvent.change(input, { target: { files: [validZip] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-evidence-upload-selected")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("wizard-evidence-inventory-zip-error")).not.toBeInTheDocument();
   });
 
-  it("calls try demo handler with selected scenario from the demo panel", () => {
-    const onTryDemoData = vi.fn();
+  it("shows structured validation error with cloud connections help link", async () => {
+    render(<WizardStepEvidenceUpload {...baseProps} />);
 
-    render(<WizardStepEvidenceUpload {...baseProps} onTryDemoData={onTryDemoData} />);
+    const invalidZip = new File(
+      [zipSync({ "readme.txt": strToU8("not an inventory zip") })],
+      "bad.zip",
+      { type: "application/zip" },
+    );
 
-    fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
-    fireEvent.click(screen.getByTestId("wizard-evidence-demo-scenario-finops-optimization-snapshot"));
-    fireEvent.click(screen.getByTestId("wizard-evidence-upload-try-demo"));
+    const input = screen.getByTestId("wizard-evidence-upload-dropzone-input");
+    fireEvent.change(input, { target: { files: [invalidZip] } });
 
-    expect(onTryDemoData).toHaveBeenCalledWith("finops-optimization-snapshot");
-  });
+    await waitFor(() => {
+      expect(screen.getByTestId("wizard-evidence-inventory-zip-error")).toBeInTheDocument();
+    });
 
-  it("calls skip without requiring a file", () => {
-    const onSkipDemoData = vi.fn();
-
-    render(<WizardStepEvidenceUpload {...baseProps} onSkipDemoData={onSkipDemoData} />);
-
-    fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-step"));
-
-    expect(onSkipDemoData).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("tier1-inventory-zip-help-link")).toHaveAttribute("href", "/help/cloud-connections");
   });
 });

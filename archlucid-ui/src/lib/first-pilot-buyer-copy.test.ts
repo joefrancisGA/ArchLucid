@@ -32,7 +32,7 @@ describe("first-pilot-buyer-copy", () => {
     expect(ingest?.shortBody.toLowerCase()).toContain("brief");
   });
 
-  it("readiness cockpit azure row uses evidence-first optional framing", () => {
+  it("readiness cockpit tier-1 inventory row links to cloud connections help", () => {
     const rows = buildFirstPilotReadinessRows({
       healthStatus: "Healthy",
       healthLoadFailed: false,
@@ -44,11 +44,12 @@ describe("first-pilot-buyer-copy", () => {
       configLint: null,
     });
 
-    const azureRow = rows.find((row) => row.id === "azure-extractor");
+    const inventoryRow = rows.find((row) => row.id === "azure-extractor");
 
-    expect(azureRow?.label).toContain("Optional Azure export");
-    expect(azureRow?.cta?.toLowerCase()).toBe("add evidence");
-    expect(azureRow?.summary.toLowerCase()).toContain("brief");
+    expect(inventoryRow?.label).toContain("Tier-1 cloud inventory");
+    expect(inventoryRow?.cta?.toLowerCase()).toBe("cloud inventory guide");
+    expect(inventoryRow?.href).toBe("/help/cloud-connections");
+    expect(inventoryRow?.summary).toContain("Get-ArchLucidAwsPackage.ps1");
   });
 
   it("readiness cockpit proof and second-review rows use buyer-safe vocabulary", () => {

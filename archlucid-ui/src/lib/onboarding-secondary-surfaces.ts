@@ -53,10 +53,10 @@ export const ONBOARDING_TOUR_BANNED_PHRASES: readonly string[] = [
   "wizard",
 ] as const;
 
-/** Readiness cockpit optional Azure row — tertiary accelerator framing (TB-342). */
-export const READINESS_AZURE_EXTRACTOR_LABEL = "Optional Azure export evidence";
+/** Readiness cockpit optional Tier-1 inventory row — Azure/AWS/GCP ZIP accelerators (TB-342). */
+export const READINESS_AZURE_EXTRACTOR_LABEL = "Tier-1 cloud inventory ZIP";
 
-export const READINESS_AZURE_EXTRACTOR_CTA = "Add evidence";
+export const READINESS_AZURE_EXTRACTOR_CTA = "Cloud inventory guide";
 
 export function buildReadinessAzureExtractorSummary(evidenceReady: boolean, runsLoadFailed: boolean): string {
   if (evidenceReady) {
@@ -67,7 +67,7 @@ export function buildReadinessAzureExtractorSummary(evidenceReady: boolean, runs
     return FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload;
   }
 
-  return "Add a brief, documents, or an Azure export — or use the sample package. No customer-tenant write role is required.";
+  return "Run Get-ArchLucidAzurePackage.ps1, Get-ArchLucidAwsPackage.ps1, or Get-ArchLucidGcpPackage.ps1 locally, validate manifest.json + resources.json, then upload from the new-review wizard.";
 }
 
 /** Phrases that imply Azure is required before the first review (TB-342 guard). */

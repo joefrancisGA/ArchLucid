@@ -5,11 +5,12 @@ export type WizardEvidenceSourceId =
   | "diagrams"
   | "iac"
   | "azure-export"
+  | "aws-inventory"
+  | "gcp-inventory"
   | "demo";
 
 /** V1.1-only sources shown disabled with honest badges — not selectable. */
 export type WizardEvidenceSourceDeferredId =
-  | "aws-gcp-inventory"
   | "generic-inventory-json"
   | "structurizr-archimate";
 
@@ -49,8 +50,20 @@ export const WIZARD_EVIDENCE_SOURCE_OPTIONS: readonly WizardEvidenceSourceOption
   },
   {
     id: "azure-export",
-    label: "Azure export",
-    description: "Fastest path to production-faithful evidence in V1.",
+    label: "Azure inventory ZIP",
+    description: "Customer-controlled Azure subscription inventory (Tier-1).",
+    availability: "accelerated",
+  },
+  {
+    id: "aws-inventory",
+    label: "AWS inventory ZIP",
+    description: "Customer-controlled AWS account inventory (Tier-1).",
+    availability: "accelerated",
+  },
+  {
+    id: "gcp-inventory",
+    label: "GCP inventory ZIP",
+    description: "Customer-controlled GCP project inventory (Tier-1).",
     availability: "accelerated",
   },
   {
@@ -58,12 +71,6 @@ export const WIZARD_EVIDENCE_SOURCE_OPTIONS: readonly WizardEvidenceSourceOption
     label: "Demo",
     description: "Use labeled simulator data when your own evidence is not ready.",
     availability: "available",
-  },
-  {
-    id: "aws-gcp-inventory",
-    label: "AWS / GCP inventory",
-    description: "Continuous ingestion connectors for additional clouds.",
-    availability: "v1.1",
   },
   {
     id: "generic-inventory-json",
@@ -82,7 +89,7 @@ export const WIZARD_EVIDENCE_SOURCE_OPTIONS: readonly WizardEvidenceSourceOption
 export function isSelectableWizardEvidenceSourceId(
   id: WizardEvidenceSourceOption["id"],
 ): id is WizardEvidenceSourceId {
-  return id !== "aws-gcp-inventory" && id !== "generic-inventory-json" && id !== "structurizr-archimate";
+  return id !== "generic-inventory-json" && id !== "structurizr-archimate";
 }
 
 export function wizardEvidenceSourceTestId(id: WizardEvidenceSourceOption["id"]): string {

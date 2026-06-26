@@ -14,16 +14,19 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
-import { Button } from "@/components/ui/button";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
+import { Tier1InventoryZipUploadPanel } from "@/components/wizard/Tier1InventoryZipUploadPanel";
 import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
+import { Button } from "@/components/ui/button";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import {
   DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   type AzureExtractorDemoScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
-import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
+import {
+  isTier1InventoryEvidenceSourceId,
+  wizardEvidenceSourceToCloudInventoryPlatform,
+} from "@/lib/cloud-inventory-platform";
 import { ZERO_CONFIG_DEMO_TRY_DEMO_LABEL } from "@/lib/zero-config-demo-mode";
 import {
   isSelectableWizardEvidenceSourceId,
@@ -50,8 +53,9 @@ const SOURCE_ICONS: Record<WizardEvidenceSourceOption["id"], LucideIcon> = {
   diagrams: Image,
   iac: GitBranch,
   "azure-export": CloudUpload,
+  "aws-inventory": CloudUpload,
+  "gcp-inventory": CloudUpload,
   demo: Sparkles,
-  "aws-gcp-inventory": Lock,
   "generic-inventory-json": Lock,
   "structurizr-archimate": Lock,
 };
@@ -163,24 +167,25 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
     DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
-  const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
   const handleSelectSource = (sourceId: WizardEvidenceSourceId) => {
     setSelectedSourceId(sourceId);
 
-    if (sourceId !== "azure-export" && sourceId !== "demo") {
+    if (!isTier1InventoryEvidenceSourceId(sourceId) && sourceId !== "demo") {
       onPendingFileChange(null);
     }
 
-    if (sourceId === "azure-export" || sourceId === "demo" || sourceId === "brief") {
+    if (sourceId === "azure-export" || sourceId === "aws-inventory" || sourceId === "gcp-inventory" || sourceId === "demo" || sourceId === "brief") {
       onPendingDocumentFilesChange([]);
     }
   };
 
+  const inventoryPlatform = wizardEvidenceSourceToCloudInventoryPlatform(selectedSourceId);
+
   return (
     <WizardStepPanel
       title="Add architecture evidence (optional)"
-      description="Choose how you want to start — brief, documents, diagrams, IaC, an Azure export, or labeled demo data. Azure export is the fastest V1 path, not a prerequisite."
+      description="Choose how you want to start — brief, documents, diagrams, IaC, a Tier-1 cloud inventory ZIP (Azure, AWS, or GCP), or labeled demo data."
     >
       <div className="space-y-4" data-testid="wizard-evidence-upload-step">
         <EvidenceSourcePicker selectedSourceId={selectedSourceId} onSelectSource={handleSelectSource} />
@@ -247,38 +252,13 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
           </div>
         ) : null}
 
-        {selectedSourceId === "azure-export" ? (
-          <div data-testid="wizard-evidence-source-panel-azure-export">
-            <AzureExtractorZipDropZone
-              ariaLabel="Azure extractor evidence ZIP"
-              testId="wizard-evidence-upload-dropzone"
-              hint={
-                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  Use the Azure extractor when you want production-faithful subscription inventory. See{" "}
-                  <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/settings/extract-upload">
-                    Extract &amp; upload settings
-                  </Link>{" "}
-                  for the PowerShell command. Maximum size {maxMb} MB.
-                </p>
-              }
-              onZipSelected={(file) => {
-                if (!file.name.toLowerCase().endsWith(".zip")) {
-                  return;
-                }
-
-                onPendingFileChange(file);
-              }}
+        {inventoryPlatform !== null ? (
+          <div data-testid={`wizard-evidence-source-panel-${selectedSourceId}`}>
+            <Tier1InventoryZipUploadPanel
+              platform={inventoryPlatform}
+              pendingFile={pendingFile}
+              onPendingFileChange={onPendingFileChange}
             />
-
-            {pendingFile !== null ? (
-              <p
-                className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300"
-                data-testid="wizard-evidence-upload-selected"
-              >
-                Selected: <span className="font-medium">{pendingFile.name}</span> — uploads automatically after the
-                review is created.
-              </p>
-            ) : null}
           </div>
         ) : null}
 

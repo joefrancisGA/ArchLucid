@@ -172,7 +172,7 @@ export function buildFirstPilotReadinessRows(input: {
       group: "execution" as const,
       status: input.signals.evidenceReady ? "ready" : input.runsLoadFailed ? "unknown" : "attention",
       summary: buildReadinessAzureExtractorSummary(input.signals.evidenceReady, input.runsLoadFailed),
-      href: "/settings/extract-upload",
+      href: inAppHelpHref("cloud-connections"),
       cta: READINESS_AZURE_EXTRACTOR_CTA,
     },
     {

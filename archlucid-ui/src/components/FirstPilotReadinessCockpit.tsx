@@ -8,6 +8,7 @@ import { FirstPilotReadinessCockpitLoadingBody } from "@/components/FirstPilotRe
 import { FirstPilotReadinessGroupTable } from "@/components/FirstPilotReadinessGroupTable";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
+import { buildTier1InventoryExtractorCommandLines } from "@/lib/get-archlucid-cloud-package-command";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -425,6 +426,22 @@ export function FirstPilotReadinessCockpit() {
                 />
               ))}
             </div>
+
+            {!signals.evidenceReady ? (
+              <div
+                className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/30"
+                data-testid="first-pilot-tier1-inventory-commands"
+              >
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.meta)}>
+                  Tier-1 inventory scripts (Azure, AWS, GCP) — run locally, then upload from{" "}
+                  <Link href="/reviews/new" className="font-medium text-teal-800 underline dark:text-teal-300">
+                    New review
+                  </Link>
+                  .
+                </p>
+                <FirstPilotTechnicalCommandDisclosure commands={buildTier1InventoryExtractorCommandLines()} />
+              </div>
+            ) : null}
 
             <OperatorHomeDisclosureSection
               title="Assistant readiness diagnostics"
