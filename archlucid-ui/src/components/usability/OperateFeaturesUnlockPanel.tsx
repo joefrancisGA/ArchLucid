@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/core-pilot-path-vocabulary";
+import { OPERATOR_LINK } from "@/lib/design-tokens";
+import { PILOT_NAV_PROFILE_HELP_HREF } from "@/lib/pilot-nav-profile-alignment";
 import type { OperateNavUnlockPhase } from "@/lib/usability/operate-nav-progressive-unlock";
 
 type OperateFeaturesUnlockPanelProps = {
@@ -46,6 +49,11 @@ export function OperateFeaturesUnlockPanel(props: OperateFeaturesUnlockPanelProp
       >
         Show analysis tools
       </Button>
+      <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <Link href={PILOT_NAV_PROFILE_HELP_HREF} className={OPERATOR_LINK.inline} data-testid="pilot-nav-profile-help-link">
+          How pilot navigation works
+        </Link>
+      </p>
     </div>
   );
 }

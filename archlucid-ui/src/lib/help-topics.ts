@@ -23,6 +23,7 @@ export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting"
 export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
   "first-run",
   "first-review",
+  "pilot-nav-profile",
   "artifacts",
   "graph",
   "ask-archlucid",
@@ -47,6 +48,15 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Guided path from demo or new request through finalize, Azure extractor ZIP upload, dashboard ROI, and run-scoped audit export.",
     docPath: "docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md",
     routes: ["/", "/onboarding", "/reviews/new", "/dashboard"],
+  },
+  {
+    id: "pilot-nav-profile",
+    title: "Pilot navigation profile",
+    keywords: ["sidebar", "nav", "operate", "progressive disclosure", "unlock", "analysis"],
+    summary:
+      "Core Pilot nav stays focused until your first review is committed; Operate analysis and governance groups unlock on demand or automatically after finalize.",
+    docPath: "docs/library/operator-shell.md",
+    routes: ["/", "/reviews", "/onboarding"],
   },
   {
     id: "first-run",

@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.87%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.10%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -39,14 +39,14 @@
 | 3 | Governed Review Integrity | 96 | 13 | 12.48 | 0.52 |
 | 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
-| 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
+| 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
 | 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
-| 8 | Executive / Operator Comprehension | 95 | 8 | 7.60 | 0.40 |
+| 8 | Executive / Operator Comprehension | 96 | 8 | 7.68 | 0.32 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
-| 10 | Adoption Friction | 88 | 5 | 4.40 | 0.60 |
-| **Total** | | | **100** | **91.87%** | **8.13%** |
+| 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
+| **Total** | | | **100** | **92.10%** | **7.90%** |
 
-*(A) Headline Readiness: 91.87%*
+*(A) Headline Readiness: 92.10%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **91.87%** (+0.17 from **Tier 2 #4** — Proof-of-ROI 95, Executive Comprehension 95; cumulative +2.95 from prior shipped batches). Board-pack export now surfaces illustrative vs extractor-backed posture per finding cluster before download.
+**Reconciliation:** Headline **92.10%** (+0.23 from **Tier 2 #5** — Time-to-Value 91, Executive Comprehension 96, Adoption Friction 89; cumulative +3.18 from prior shipped batches). Pilot nav profile hides Operate groups until first commit with auto-unlock to analysis phase and `/help/pilot-nav-profile` drift guards.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 91.87%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2/#3/#1, #10, #13). **Tier 2 #4 shipped (2026-06-26):** **Board pack evidence posture banner** on executive ROI — illustrative vs extractor-backed per finding cluster before board-pack download. Remaining in-contract gap: **pilot nav profile**.
+- **(A) Overall headline readiness: 92.10%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2/#3/#1, #10, #13, Tier 2 #4). **Tier 2 #5 shipped (2026-06-26):** **pilot nav profile** — Operate groups hidden at phase 0, auto-unlock analysis after first committed review, manual unlock panel + `/help/pilot-nav-profile`. Remaining in-contract gap: **decision delta panel on run detail**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -121,8 +121,8 @@
 - **Outcomes affected:** 1 (decision-changing insight), 3 (30-day usage).
 
 ### 2. Time-to-Value
-- **Score · Weight · Contribution · Deficiency:** 90 · 10 · 9.00 · **1.00** *(was 88 — **Tier 1 #3 done**)*
-- **Justification:** Paths exist (`archlucid try`, demo review, socratic intake, CLI `draft new`), but the **contracted happy path** still spans request/draft → execute → poll → commit → governance → export. **90-minute first-review playbook (2026-06-26)** on Home links demo/new request → finalize → extractor ZIP → dashboard ROI → audit CSV with `/help/first-review` drift-aligned to `FIRST_RUN_EVIDENCE_CHECKLIST.md`. Client-side pre-upload validation rejects bad ZIPs before network I/O.
+- **Score · Weight · Contribution · Deficiency:** 91 · 10 · 9.10 · **0.90** *(was 90 — **Tier 2 #5 done**)*
+- **Justification:** Paths exist (`archlucid try`, demo review, socratic intake, CLI `draft new`), but the **contracted happy path** still spans request/draft → execute → poll → commit → governance → export. **90-minute first-review playbook (2026-06-26)** on Home links demo/new request → finalize → extractor ZIP → dashboard ROI → audit CSV with `/help/first-review`. **Pilot nav profile (2026-06-26)** hides Operate analysis/governance groups until first commit (phase 0) and auto-unlocks analysis after finalize — reducing first-session cognitive load.
 - **Tradeoffs:** Shortening intake risks weaker evidence; skipping governance steps speeds demo but weakens moat story.
 - **Recommendations:** Default pilot playbook to **demo review → extractor upload → re-run** in one session; document “minimum credible first review” as ≤90 operator minutes.
 - **Classification:** V1
@@ -161,16 +161,16 @@
 - **Outcomes affected:** 1, 2, 4.
 
 ### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 88 · 5 · 4.40 · **0.60** *(was 87 — **Tier 1 #3 done**)*
-- **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. Friction: `Integrations:Itsm:NativeEnabled=false` hides one-click ticket create; Operate surfaces hidden behind sidebar disclosure; enterprise SSO setup still admin-heavy.
+- **Score · Weight · Contribution · Deficiency:** 89 · 5 · 4.45 · **0.55** *(was 88 — **Tier 2 #5 done**)*
+- **Justification:** Identity (OIDC/SAML/SCIM), database-per-tenant, and extractor Tier-1 are well documented. **Pilot nav profile** narrows first-session sidebar to Core Pilot routes until `hasCommittedArchitectureReview`, with optional manual unlock and auto-advance to analysis phase. Friction: `Integrations:Itsm:NativeEnabled=false` hides one-click ticket create; enterprise SSO setup still admin-heavy.
 - **Tradeoffs:** Enabling ITSM native by default increases support burden for half-configured tenants.
 - **Recommendations:** Pilot checklist: enable native ITSM only when tenant settings validated; keep copy-as-work-item as default fallback.
 - **Classification:** V1 validation + V1.1 connectors
 - **Outcomes affected:** 3, 4.
 
 ### 8. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 95 · 8 · 7.60 · **0.40** *(was 94 — **Tier 2 #4 done**)*
-- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows; product language guidance exists. **`ExecutiveRoiBoardPackEvidenceBanner`** labels each finding cluster as extractor-backed, illustrative, or review-backed before board-pack export — reducing misread of demo/simulator savings in sponsor handoffs. **`ExecutiveRoiProofStatusStrip`** puts evidence freshness and ROI methodology on first dashboard screen. Residual legacy route aliases (TB-399 V1.1) and broad nav still raise cognitive load for first-time executives.
+- **Score · Weight · Contribution · Deficiency:** 96 · 8 · 7.68 · **0.32** *(was 95 — **Tier 2 #5 done**)*
+- **Justification:** Carbon/enterprise typography migration (TB-114–120) improves density; ROI tooltips explain non-summing rows. **`ExecutiveRoiBoardPackEvidenceBanner`** labels finding clusters before board-pack export. **`OperateFeaturesUnlockPanel`** + **`OperateUnlockAutoHint`** explain what unlocks after first commit; `/help/pilot-nav-profile` documents progressive Operate disclosure.
 - **Tradeoffs:** Aggressive simplification risks hiding Operate differentiators from power users.
 - **Recommendations:** Executive mode: Home + ROI + board-pack export only; hide graph/compare until second session.
 - **Classification:** V1 / V1.1 (route aliases)
@@ -201,7 +201,7 @@
 3. **LLM finding citation softness vs extractor hard citations** — Why it matters: one hallucinated policy reference triggers dismissal. Design uncertainty. V1 risk on chat-heavy pilots. Fix: governed/advisory labeling + block cost claims without extractor token.
 4. **Native ITSM disabled by default** — Why it matters: remediation handoff is a top return trigger. Design (intentional TB-387). Not V1 ship blocker; pilot friction. Fix: enable after tenant wizard test connection; do not rebuild V1.1 bidirectional sync early.
 5. **No published customer proof** — Why it matters: executive purchase. Market validation. Deferred V1.1 (TB-141/142). Fix: one sanitized internal pilot packet before external claims.
-6. **Operator shell breadth / progressive disclosure** — Why it matters: architects abandon before Operate value. Design. V1 adoption drag. Fix: pilot nav profile hiding alerts/graph until review #2.
+6. **Operator shell breadth / progressive disclosure** — **Mitigated (2026-06-26):** pilot nav profile hides Operate groups at phase 0; analysis auto-unlocks after first commit; governance stays phase 2 until compare visit or advanced disclosure.
 7. **Procurement assurance gap (CPA SOC 2, external pen test)** — Why it matters: enterprise payment. Market. `(B)` only. Fix: lead with self-assessment + owner pen-test methodology + roadmap dates in deal room.
 8. **RAG/Ask quality not buyer-guaranteed (TB-021)** — Why it matters: Ask feels like commodity chat. Design backlog. Not V1 gate. Fix: scope Ask as secondary to review package in GTM.
 9. **Tier-1 extractor operational burden** — Why it matters: first-review drop-off. Design tradeoff (security). V1 acceptable. Fix: in-wizard copy-paste command + manifest pre-check before upload.
@@ -379,7 +379,8 @@ ArchLucid is **becoming more valuable faster than frontier AI on workflow and re
 
 **4. Board-pack / ROI illustrative vs extractor-backed banner** — **✅ Done (2026-06-26)**  
 - **Shipped:** `ExecutiveRoiBoardPackEvidenceBanner` on `ExecutiveRoiSummarySection` — per-cluster illustrative vs extractor-backed vs review-backed labels from `topSystemicIssues` / `businessImpactCategoryCounts` and `presentCostEvidenceFreshness`; optional AI narrative advisory note when board-pack narrative toggle is enabled. Drift helpers in `executive-roi-board-pack-evidence-clusters.ts`; Vitest in `ExecutiveRoiBoardPackEvidenceBanner.test.tsx`.
-**5. Pilot nav profile (hide Operate until review #1 committed)** — V1; qualities 6, 8, 10.  
+**5. Pilot nav profile (hide Operate until review #1 committed)** — **✅ Done (2026-06-26)**  
+- **Shipped:** Three-phase Operate unlock (`operate-nav-progressive-unlock.ts`) wired through `nav-shell-visibility.ts`, `useOperateNavUnlockPhase` (auto-advance to analysis after `hasCommittedArchitectureReview`), `OperateFeaturesUnlockPanel`, `OperateUnlockAutoHint`, committed-review nav gate; `/help/pilot-nav-profile` + drift guards in `pilot-nav-profile-alignment.test.ts`; E2E in `pilot-nav-profile.spec.ts`.
 **6. Enable ITSM native create wizard default path when settings valid** — V1; quality 10; use existing tenant settings + health endpoint.  
 **7. Real-mode nightly smoke (staging, budget-capped)** — V1 ops; quality 9.  
 **8. Decision delta panel on run detail (top 3 material findings + rule keys)** — V1; reuse `SponsorDecisionDeltaNoveltyResolver` patterns if exposed via API or compute client-side from run detail.
@@ -515,7 +516,7 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 8. Pre-commit block explainer (#9) — **done**
 
 **Third batch (proof packet + polish)** — **Composer-safe** / **Sonnet-safe**  
-9. Pilot nav profile (Tier 2 #5)  
+9. Pilot nav profile (Tier 2 #5) — **done**  
 10. ITSM wizard enablement polish (Tier 2 #6)  
 11. Run-scoped audit CSV one-click (#12) — **done**  
 12. Help topic product-language sweep (#14) — **done**  

@@ -45,6 +45,14 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md"],
   },
   {
+    slug: "pilot-nav-profile",
+    title: "Pilot navigation profile",
+    summary:
+      "How the sidebar hides Operate analysis and governance groups until your first review is committed — and how to unlock them on demand.",
+    audience: "operator",
+    sourcePaths: ["docs/library/operator-shell.md"],
+  },
+  {
     slug: "first-hour-operator-path",
     title: "First-hour architect path",
     summary:
