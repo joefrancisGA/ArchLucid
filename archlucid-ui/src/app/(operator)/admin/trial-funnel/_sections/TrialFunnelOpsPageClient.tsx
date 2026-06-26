@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   fetchTrialFunnelOperationalSummary,
@@ -49,12 +51,12 @@ export function TrialFunnelOpsPageClient() {
   }, [isAdmin, isAuthorityLoading, refresh]);
 
   if (isAuthorityLoading) {
-    return <p className="text-sm text-neutral-500">Loading…</p>;
+    return <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>;
   }
 
   if (!isAdmin) {
     return (
-      <p className="text-sm text-rose-800 dark:text-rose-200" role="alert">
+      <p className={cn("text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert">
         This page requires tenant administrator access (AdminAuthority).
       </p>
     );
@@ -63,8 +65,8 @@ export function TrialFunnelOpsPageClient() {
   return (
     <div className="w-full max-w-[1440px] space-y-6" data-testid="trial-funnel-ops-page">
       <div>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Trial-to-paid funnel</h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Trial-to-paid funnel</h1>
+        <p className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Trailing 30-day signup, first commit, conversion, and estimated first-review LLM COGS bands. Sales-led checkout
           remains deferred — no live Stripe claims here.
         </p>
@@ -74,7 +76,7 @@ export function TrialFunnelOpsPageClient() {
       </div>
 
       {error ? (
-        <p className="text-sm text-rose-700 dark:text-rose-300" role="alert">
+        <p className={cn("text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
           {error}
         </p>
       ) : null}
@@ -82,44 +84,44 @@ export function TrialFunnelOpsPageClient() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active trials</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Active trials</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{data?.activeSelfServiceTrials ?? "—"}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{data?.activeSelfServiceTrials ?? "—"}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">First commits (30d)</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>First commits (30d)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{data?.firstCommittedReviews30Days ?? "—"}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{data?.firstCommittedReviews30Days ?? "—"}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Conversions (30d)</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Conversions (30d)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{data?.trialConversions30Days ?? "—"}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue)}>{data?.trialConversions30Days ?? "—"}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Median signup → first commit</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Median signup → first commit</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-neutral-700 dark:text-neutral-300">
+        <CardContent className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {formatHoursFromSeconds(data?.medianSignupToFirstCommitSeconds ?? null)}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Estimated first-review LLM COGS band</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Estimated first-review LLM COGS band</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-neutral-700 dark:text-neutral-300">
+        <CardContent className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {data?.estimatedFirstReviewCogsUsdMid != null ? (
             <p className="m-0">
               Low ${data.estimatedFirstReviewCogsUsdLow?.toFixed(2) ?? "—"} · Mid $
@@ -127,7 +129,7 @@ export function TrialFunnelOpsPageClient() {
               {data.estimatedFirstReviewCogsUsdHigh?.toFixed(2) ?? "—"} ({data.cogsBasisLabel})
             </p>
           ) : (
-            <p className="m-0 text-neutral-500">No COGS samples yet for recent first commits.</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No COGS samples yet for recent first commits.</p>
           )}
         </CardContent>
       </Card>
