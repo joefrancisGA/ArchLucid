@@ -36,7 +36,7 @@ import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
 import { CtoDemoAuditClosingBeat } from "@/components/cto-demo/CtoDemoAuditClosingBeat";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type AuditEventGroup = { stage: string; events: AuditEvent[] };
 
@@ -82,7 +82,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
   return (
     <section aria-labelledby="audit-results-heading">
       <CtoDemoBuyerValueStrip stepIndex={4} />
-      <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
+      <h3 id="audit-results-heading" className={cn("mt-0 mb-2", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolishedShell && events.length > 0
           ? BUYER_AUDIT_TRAIL_COMPLETE_HEADING
           : buyerPolishedShell
@@ -91,7 +91,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
               ? auditResultsSectionHeadingReader
               : auditResultsSectionHeadingOperator}
       </h3>
-      <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
+      <p className={cn("mb-2 mt-0 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {buyerPolishedShell ? (
           <>{BUYER_AUDIT_TIMELINE_INTRO}</>
         ) : (
@@ -109,18 +109,15 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         aria-live="polite"
         aria-atomic="true"
         data-testid="audit-search-summary"
-        className="text-neutral-600 dark:text-neutral-400 text-sm mt-0"
+        className={cn("mt-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
       >
         {formatAuditSummaryHeading(events.length, hasMoreResults)}.
         {buyerPolishedShell ? null : " Newest first; use Load more for older entries."}
       </p>
       {buyerPolishedShell && uniformRunIdForDisplay !== null ? (
-        <p className="mb-2 mt-1 max-w-2xl text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mb-2 mt-1 max-w-2xl text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           All events in this view belong to{" "}
-          <Link
-            className="font-medium text-teal-800 underline dark:text-teal-300"
-            href={`/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}
-          >
+          <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(uniformRunIdForDisplay)}`}>
             {buyerFacingReviewLinkLabelFromRunId(uniformRunIdForDisplay)}
           </Link>
           .
@@ -130,7 +127,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
 
       <div className="mt-3">
         {events.length === 0 ? (
-          <p className="text-neutral-500 dark:text-neutral-400">{auditSearchEmptyLine}</p>
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{auditSearchEmptyLine}</p>
         ) : (
           <>
             {displayEventGroups !== null ? (
@@ -138,10 +135,15 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 {displayEventGroups.map((group) => (
                   <div key={group.stage} className={cn(DESIGN_TOKENS.surface.card, "p-4 shadow-sm")}>
                     <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b border-neutral-200 pb-2 dark:border-neutral-800">
-                      <h3 className="m-0 border-l-2 border-l-[var(--al-accent-interactive)] pl-2.5 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
+                      <h3
+                        className={cn(
+                          "m-0 border-l-2 border-l-[var(--al-accent-interactive)] pl-2.5",
+                          OPERATOR_NAV_GROUP_LABEL,
+                        )}
+                      >
                         {group.stage}
                       </h3>
-                      <p className="m-0 text-[11px] font-medium tabular-nums text-al-text-secondary">
+                      <p className={cn("m-0 font-medium tabular-nums text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                         {group.events.length} event{group.events.length === 1 ? "" : "s"}
                       </p>
                     </div>
@@ -207,10 +209,10 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 className="mt-4 rounded-md border border-neutral-200 bg-al-surface-raised p-4 shadow-sm dark:border-neutral-800"
                 data-testid="audit-buyer-completion-card"
               >
-                <h3 id="audit-buyer-completion-heading" className="m-0 text-sm font-semibold text-al-text-primary">
+                <h3 id="audit-buyer-completion-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                   {BUYER_AUDIT_TRAIL_COMPLETE_HEADING}
                 </h3>
-                <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+                <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {BUYER_AUDIT_PACKAGE_READY_LEAD} Download the audit trail or open the review package bundle for diligence
                   export.
                 </p>
@@ -229,21 +231,21 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 className="mt-4 border-t border-neutral-200 pt-2 dark:border-neutral-700"
                 data-testid="audit-buyer-utilities-details"
               >
-                <summary className="cursor-pointer pt-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                <summary className={cn("cursor-pointer pt-2 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                   {auditBuyerUtilitiesDetailsSummary}
                 </summary>
                 <div className="mt-4 space-y-3 pb-2">
-                  <p className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {auditExportSectionSupportingLineBuyerPolished}
                   </p>
                   {!exportRoleOk ? (
-                    <p className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                       {auditExportExecuteRankAuditorRoleNote}
                     </p>
                   ) : null}
                   {isNextPublicDemoMode() && !csvExportUiAllowed ? (
                     <p
-                      className="m-0 max-w-prose text-xs text-neutral-600 dark:text-neutral-400"
+                      className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="audit-buyer-sample-csv-hint"
                     >
                       {auditExportSampleWorkspaceCsvHintBuyerPolished}
@@ -281,18 +283,15 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   </Button>
                   {buyerPolishedShell ? null : (
                     <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
-                      <p className="m-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                      <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
                         Next steps for enterprise workspace
                       </p>
-                      <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+                      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         {BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD}{" "}
                         {BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP}
                       </p>
-                      <p className="m-0 mt-3 text-xs">
-                        <Link
-                          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-                          href="/reviews/new"
-                        >
+                      <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                        <Link className={OPERATOR_LINK.nav} href="/reviews/new">
                           Create follow-up review
                         </Link>{" "}
                         when you need another governed package after completing this sample path.

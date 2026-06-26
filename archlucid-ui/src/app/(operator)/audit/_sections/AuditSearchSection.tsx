@@ -19,6 +19,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { BUYER_AUDIT_REFERENCE_ID_LABEL } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { auditRunIdInputDisplayValue, auditRunIdParseInputValue } from "./audit-page-helpers";
 
@@ -107,7 +108,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
           onLoadView={loadAuditSavedView}
         />
       ) : null}
-      <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
+      <h3 id="audit-search-heading" className={cn("mt-0 mb-3", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {buyerPolishedShell
           ? auditSearchEventsSectionHeadingBuyerPolished
           : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
@@ -115,43 +116,47 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             : auditSearchEventsSectionHeadingOperator}
       </h3>
       {buyerPolishedShell && !buyerOmitSearchFiltersChrome ? (
-        <p className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400">
+        <p className={cn("m-0 mb-3 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Open filters if you need to narrow events or switch reviews.
         </p>
       ) : null}
       {buyerPolishedShell && buyerOmitSearchFiltersChrome ? (
         <p
-          className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400"
+          className={cn("m-0 mb-3 max-w-2xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="audit-buyer-short-timeline-filter-omit"
         >
           Open filters if you need to switch reviews or narrow event types.
         </p>
       ) : null}
       {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
-        <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+        <p className={cn("mb-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {auditSearchSectionLeadReaderLine}
         </p>
       ) : null}
       <div className="mb-3 flex flex-wrap gap-2">
         {buyerPolishedShell ? (
           <p
-            className="m-0 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200"
+            className={cn(
+              "m-0 inline-flex flex-wrap items-center gap-x-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 font-medium text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.badge,
+            )}
             data-testid="audit-buyer-sample-timeline-chip"
           >
-            <span className="text-neutral-600 dark:text-neutral-400">Showing:</span>
-            <strong className="font-semibold text-neutral-900 dark:text-neutral-100">
+            <span className="text-al-text-secondary">Showing:</span>
+            <strong className="font-semibold text-al-text-primary">
               {buyerFacingReviewLinkLabelFromRunId(
                 runId.trim().length > 0 ? runId : SHOWCASE_STATIC_DEMO_RUN_ID,
               )}
             </strong>
-            <span className="text-neutral-600 dark:text-neutral-400">— full lifecycle</span>
+            <span className="text-al-text-secondary">— full lifecycle</span>
           </p>
         ) : (
           <>
             <button
               type="button"
               className={cn(
-                "rounded border px-2 py-1 text-xs font-medium transition-colors",
+                "rounded border px-2 py-1 font-medium transition-colors",
+                OPERATOR_TYPOGRAPHY.tab,
                 auditDatePreset === "24h"
                   ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                   : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
@@ -166,7 +171,8 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             <button
               type="button"
               className={cn(
-                "rounded border px-2 py-1 text-xs font-medium transition-colors",
+                "rounded border px-2 py-1 font-medium transition-colors",
+                OPERATOR_TYPOGRAPHY.tab,
                 auditDatePreset === "7d"
                   ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                   : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
@@ -181,7 +187,10 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             {auditDatePreset !== null || fromUtc.length > 0 || toUtc.length > 0 ? (
               <button
                 type="button"
-                className="rounded border border-neutral-300 bg-neutral-50 px-2 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-neutral-900"
+                className={cn(
+                  "rounded border border-neutral-300 bg-neutral-50 px-2 py-1 font-medium text-al-text-primary hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-950 dark:hover:bg-neutral-900",
+                  OPERATOR_TYPOGRAPHY.tab,
+                )}
                 disabled={searching}
                 onClick={() => {
                   void clearDateRangeAndSearch();
@@ -201,7 +210,10 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
         >
           <CollapsibleTrigger
             type="button"
-            className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-sm font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+            className={cn(
+              "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left font-medium text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
           >
             Optional filters — event type, review scope, and search actions
             <ChevronDown
@@ -246,7 +258,10 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
             >
               <CollapsibleTrigger
                 type="button"
-                className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left font-medium text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
+                  OPERATOR_TYPOGRAPHY.tab,
+                )}
               >
                 Advanced filters
                 <ChevronDown
@@ -362,7 +377,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
                 className="mt-1 w-full"
               />
               {runId.trim().length > 0 ? (
-                <span className="mt-1 block text-xs text-neutral-600 dark:text-neutral-400">
+                <span className={cn("mt-1 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Showing events for <strong>{buyerFacingReviewLinkLabelFromRunId(runId)}</strong>.
                 </span>
               ) : null}
@@ -371,7 +386,10 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
           <Collapsible open={advancedAuditFiltersOpen} onOpenChange={setAdvancedAuditFiltersOpen} className="mt-2">
             <CollapsibleTrigger
               type="button"
-              className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+              className={cn(
+                "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left font-medium text-al-text-primary dark:border-neutral-600 dark:bg-neutral-900",
+                OPERATOR_TYPOGRAPHY.tab,
+              )}
             >
               More filters (correlation ID)
               <ChevronDown
