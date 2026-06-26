@@ -1,4 +1,5 @@
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type {
@@ -6,6 +7,7 @@ import type {
   RunRetrievalGroundingRow,
 } from "@/types/agent-forensics";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { cn } from "@/lib/utils";
 
 type RunRetrievalGroundingPanelProps = {
   payload: RunRetrievalGroundingPayload | null;
@@ -88,14 +90,14 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
   return (
     <div id={sectionId} className="scroll-mt-24">
       <CollapsibleSection title={sectionTitle} defaultOpen={false}>
-        <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
+        <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Retrieval traces show which chunks each agent retrieved, the corpus kind, citation coverage, and token counts.
           Raw prompts and retrieved content stay redacted at this edge.
         </p>
 
         {failure ? (
           <>
-            <p className="mb-2 text-sm font-semibold">Retrieval grounding could not be loaded.</p>
+            <p className={cn("mb-2 font-semibold", OPERATOR_TYPOGRAPHY.body)}>Retrieval grounding could not be loaded.</p>
             <OperatorApiProblem
               problem={failure.problem}
               fallbackMessage={failure.message}
@@ -106,7 +108,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
         ) : null}
 
         {!failure && rows.length === 0 ? (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             No retrieval grounding recorded for this review. This is expected for simulator-only reviews or agents that did not
             use retrieval.
           </p>
@@ -115,7 +117,10 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
         {!failure && degraded ? (
           <div
             role="status"
-            className="mb-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2.5 text-sm"
+            className={cn(
+              "mb-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2.5 text-al-text-primary dark:border-amber-700/50",
+              OPERATOR_TYPOGRAPHY.body,
+            )}
           >
             Some persisted retrieval metadata could not be parsed. Chunk ids and coverage remain available where recorded.
           </div>
@@ -123,7 +128,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
 
         {!failure && rows.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
+            <table className={cn("w-full border-collapse", OPERATOR_TYPOGRAPHY.body)}>
               <thead>
                 <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
                   <th className="px-1.5 py-2">Agent</th>
@@ -143,22 +148,22 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
                   <tr key={row.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
                     <td className="whitespace-nowrap px-1.5 py-2">{row.agentName?.trim() || "Unknown"}</td>
                     <td className="whitespace-nowrap px-1.5 py-2">{row.corpusKind?.trim() || "-"}</td>
-                    <td className="max-w-[14rem] px-1.5 py-2 font-mono text-xs" title={row.retrievedChunkIds.join(", ")}>
+                    <td className={cn("max-w-[14rem] px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.retrievedChunkIds.join(", ")}>
                       {shortList(row.retrievedChunkIds, 3)}
                     </td>
-                    <td className="max-w-[12rem] px-1.5 py-2 font-mono text-xs" title={row.documentIds.join(", ")}>
+                    <td className={cn("max-w-[12rem] px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.documentIds.join(", ")}>
                       {row.documentMetadataMalformed ? "degraded" : shortList(row.documentIds, 2)}
                     </td>
-                    <td className="max-w-[12rem] px-1.5 py-2 font-mono text-xs">{scoreText(row)}</td>
+                    <td className={cn("max-w-[12rem] px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)}>{scoreText(row)}</td>
                     <td className="whitespace-nowrap px-1.5 py-2">{pct(row.citationCoverage)}</td>
                     <td className="whitespace-nowrap px-1.5 py-2">
                       {optionalNumber(row.tokensIn)} in / {optionalNumber(row.tokensOut)} out
                     </td>
-                    <td className="whitespace-nowrap px-1.5 py-2 text-xs">{graphRagSummary(row)}</td>
-                    <td className="max-w-[12rem] truncate px-1.5 py-2 font-mono text-xs" title={row.traceId}>
+                    <td className={cn("whitespace-nowrap px-1.5 py-2", OPERATOR_TYPOGRAPHY.helper)}>{graphRagSummary(row)}</td>
+                    <td className={cn("max-w-[12rem] truncate px-1.5 py-2 font-mono", OPERATOR_TYPOGRAPHY.micro)} title={row.traceId}>
                       {row.agentExecutionTraceId?.trim() || row.traceId}
                     </td>
-                    <td className="whitespace-nowrap px-1.5 py-2 text-xs text-neutral-600 dark:text-neutral-400">
+                    <td className={cn("whitespace-nowrap px-1.5 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                       {formatInstantForLocale(row.createdUtc)}
                     </td>
                   </tr>
