@@ -43,7 +43,11 @@ export function PilotStartHereStrip(): React.JSX.Element {
         {STEPS.map((step, index) => (
           <li key={step.testId} className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
             <span
-              className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900"
+              className={cn(
+                "inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900",
+                OPERATOR_TYPOGRAPHY.badge,
+                "font-semibold",
+              )}
               aria-hidden
             >
               {index + 1}

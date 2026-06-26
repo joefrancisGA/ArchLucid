@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import {
   dismissTeamExpansionNudge24h,
   isTeamExpansionNudgeDismissed,
@@ -110,11 +112,14 @@ export function TeamExpansionNudge() {
       aria-label="Team expansion nudge"
       data-testid="team-expansion-nudge"
       data-trigger={activeTrigger}
-      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 flex flex-wrap items-start justify-between gap-3 p-3 text-sm shadow-sm"
+      className={cn(
+        "mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-neutral-200 bg-al-surface-raised p-3 shadow-sm dark:border-neutral-800",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
     >
       <div className="min-w-0">
         <p className="m-0 font-semibold">{copy.title}</p>
-        <p className="mt-1 text-xs text-sky-900 dark:text-sky-200">{copy.detail}</p>
+        <p className={cn("mt-1 text-sky-900 dark:text-sky-200", OPERATOR_TYPOGRAPHY.helper)}>{copy.detail}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
             <Link

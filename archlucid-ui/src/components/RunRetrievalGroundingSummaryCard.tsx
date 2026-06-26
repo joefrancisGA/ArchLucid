@@ -2,7 +2,8 @@ import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RunRetrievalGraphRagDiagnosticsStrip } from "@/components/RunRetrievalGraphRagDiagnosticsStrip";
-import { operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
 function dispositionClass(disposition: string): string {
@@ -42,11 +43,11 @@ export function RunRetrievalGroundingSummaryCard(props: {
   return (
     <Card className={`rounded-lg border shadow-sm ${dispositionClass(disposition)}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-al-text-primary">
+        <CardTitle className={cn(OPERATOR_TYPOGRAPHY.cardTitle, "text-al-text-primary")}>
           Retrieval grounding — {disposition}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 pt-0 text-sm">
+      <CardContent className={cn("space-y-3 pt-0", OPERATOR_TYPOGRAPHY.body)}>
         <dl className="m-0 grid gap-1 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4">
           <dt>Trace rows</dt>
           <dd className="m-0 tabular-nums sm:justify-self-end">{summary.traceCount ?? 0}</dd>

@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Session-only: dismiss hides the banner until the browser tab/session ends. */
 const SESSION_DISMISS_KEY = "archlucid_trial_expiry_banner_dismissed_session";
@@ -54,13 +56,16 @@ export function TrialExpiryBanner() {
       role="region"
       aria-label="Trial ending soon"
       data-testid="trial-expiry-banner"
-      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm shadow-sm"
+      className={cn(
+        "mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised p-3 text-al-text-primary shadow-sm dark:border-amber-700/50",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
     >
       <div className="min-w-0">
         <p className="m-0 font-semibold">
           {days === 0 ? "Your trial ends today" : `${days} day${days === 1 ? "" : "s"} left on your trial`}
         </p>
-        <p className="mt-1 text-xs text-amber-900 dark:text-amber-200">
+        <p className={cn("mt-1 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>
           Upgrade or talk to us before access changes.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">

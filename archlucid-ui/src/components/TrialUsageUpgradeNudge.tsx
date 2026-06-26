@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { startTrialBillingCheckout } from "@/lib/trial-billing-checkout";
 import {
   dismissTrialUpgradeNudge24h,
@@ -161,11 +163,14 @@ export function TrialUsageUpgradeNudge() {
         aria-label="Trial upgrade nudge"
         data-testid="trial-usage-upgrade-nudge"
         data-trigger={activeTrigger}
-        className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm shadow-sm"
+        className={cn(
+          "mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised p-3 text-al-text-primary shadow-sm dark:border-amber-700/50",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
       >
         <div className="min-w-0">
           <p className="m-0 font-semibold">{copy.title}</p>
-          <p className="mt-1 text-xs text-amber-900 dark:text-amber-200">{copy.detail}</p>
+          <p className={cn("mt-1 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}>{copy.detail}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {activeTrigger === "expiry" ? (
               <Button

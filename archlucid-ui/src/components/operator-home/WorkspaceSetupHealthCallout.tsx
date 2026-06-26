@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import type { SetupHealthPresentation } from "@/lib/setup-health-present";
-import { OPERATOR_CALLOUT_WARN_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type WorkspaceSetupHealthCalloutProps = {
@@ -20,7 +20,7 @@ export function WorkspaceSetupHealthCallout(props: WorkspaceSetupHealthCalloutPr
       data-testid="workspace-setup-health-callout"
     >
       <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">{props.presentation.label}</p>
-      <p className="m-0 mt-1 text-sm leading-snug">
+      <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.body)}>
         {props.presentation.tone === "unknown"
           ? "Some workspace services are unavailable."
           : "Resolve readiness checks before starting reviews."}{" "}

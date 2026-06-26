@@ -7,6 +7,7 @@ import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-que
 import { findHealthReadyEntryByName } from "@/lib/health-dashboard-types";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 function healthReadinessDotClass(status: string): string {
@@ -82,7 +83,7 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
   return (
     <div
       data-testid="command-center-health-card"
-      className={cn("mb-2 flex flex-col gap-1 text-xs", className)}
+      className={cn("mb-2 flex flex-col gap-1", OPERATOR_TYPOGRAPHY.helper, className)}
       aria-label="System health"
     >
       <div className="flex flex-wrap items-center gap-2">
@@ -90,13 +91,10 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
           className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(overall))}
           aria-hidden
         />
-        <span className="text-neutral-800 dark:text-neutral-200">
+        <span className="text-al-text-primary">
           Platform services: <span className="font-medium">{overall}</span>
         </span>
-        <Link
-          href="/health"
-          className="ml-auto inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
-        >
+        <Link href="/health" className={cn("ml-auto inline-block font-semibold", OPERATOR_LINK.nav)}>
           Details
         </Link>
       </div>
@@ -110,7 +108,7 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
             className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(archivalStatus))}
             aria-hidden
           />
-          <span className="text-neutral-800 dark:text-neutral-200">
+          <span className="text-al-text-primary">
             Data archival: <span className="font-medium">{archivalStatus}</span>
             {archivalStatus.toLowerCase().includes("degraded") ? (
               <span className="ms-1 text-amber-800 dark:text-amber-200">(warning)</span>

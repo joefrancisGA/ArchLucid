@@ -19,7 +19,7 @@ import {
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
-import { enterpriseStatusTagClass } from "@/lib/design-tokens";
+import { enterpriseStatusTagClass, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 function pillClassForTone(tone: LlmBudgetUtilizationTone): string {
@@ -136,7 +136,8 @@ export function LlmBudgetStatusPill() {
             variant="outline"
             size="sm"
             className={cn(
-              "h-6 shrink-0 border px-1.5 text-[10px] font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
+              "h-6 shrink-0 border px-1.5 font-normal tabular-nums text-neutral-600 dark:text-neutral-300",
+              OPERATOR_TYPOGRAPHY.micro,
               pillClassForTone(tone),
             )}
             data-testid="llm-budget-status-pill"
@@ -149,12 +150,12 @@ export function LlmBudgetStatusPill() {
         </PopoverTrigger>
         <PopoverContent data-testid="llm-budget-status-pill-popover">
           <LlmBudgetUtilizationMeter />
-          <p className="m-0 mt-3 text-xs">
-            <Link href="/settings/billing#billing-usage" className="font-medium text-teal-800 underline dark:text-teal-300">
+          <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+            <Link href="/settings/billing#billing-usage" className={OPERATOR_LINK.nav}>
               View usage on Billing &amp; plans
             </Link>
             {" · "}
-            <Link href="/settings/cost-reporting" className="font-medium text-teal-800 underline dark:text-teal-300">
+            <Link href="/settings/cost-reporting" className={OPERATOR_LINK.nav}>
               Cost reporting
             </Link>
           </p>

@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
 function formatPercent(value: number): string {
@@ -26,7 +28,10 @@ export function RunRetrievalGraphRagDiagnosticsStrip(
 
   return (
     <div
-      className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2.5 text-sm dark:border-neutral-700"
+      className={cn(
+        "rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2.5 dark:border-neutral-700",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       data-testid="run-retrieval-graph-rag-diagnostics"
     >
       <p className="m-0 font-medium text-al-text-primary">Graph-RAG retrieval diagnostics</p>

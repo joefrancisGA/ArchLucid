@@ -246,11 +246,11 @@ export function WelcomeBanner() {
 
           {buyerPolishedShell ? null : (
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
-              <OptInTourLauncher className="h-10 px-4 text-sm" />
+              <OptInTourLauncher className={cn("h-10 px-4", OPERATOR_TYPOGRAPHY.button)} />
               <Button
                 asChild
                 variant="outline"
-                className="h-10 px-5 text-sm font-semibold"
+                className={cn("h-10 px-5 font-semibold", OPERATOR_TYPOGRAPHY.button)}
               >
                 <Link href="/showcase/claims-intake-modernization">See completed example</Link>
               </Button>
@@ -260,12 +260,12 @@ export function WelcomeBanner() {
 
         {!returningUser ? (
           <div
-            className={cn(DESIGN_TOKENS.interactive.asidePanel, "w-full shrink-0 text-sm lg:max-w-[18rem]")}
+            className={cn(DESIGN_TOKENS.interactive.asidePanel, "w-full shrink-0 lg:max-w-[18rem]", OPERATOR_TYPOGRAPHY.body)}
             aria-label={
               returningUser ? "Resume architecture reviews — shortcuts" : "What one completed architecture review delivers"
             }
           >
-            <p className="m-0 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What you&apos;ll get</p>
+            <p className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>What you&apos;ll get</p>
             <ul className="m-0 mb-2.5 list-none space-y-2 p-0">
               {(
                 [
@@ -279,13 +279,13 @@ export function WelcomeBanner() {
                   { id: "review-trail", label: "Review trail" as const, Icon: ClipboardCheck },
                 ] as const
               ).map(({ id, label, Icon }) => (
-                <li key={id} className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                <li key={id} className={cn("flex items-center gap-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                   <Icon className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
                   {label}
                 </li>
               ))}
             </ul>
-            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell
                 ? "Executive view for sponsors; signed review record summary for the finalized decision record; optional read-only walkthrough when you want a guided tour."
                 : "One request produces everything needed for review."}
