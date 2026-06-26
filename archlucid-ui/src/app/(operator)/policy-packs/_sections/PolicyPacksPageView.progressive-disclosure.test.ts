@@ -17,6 +17,13 @@ describe("PolicyPacksPageView progressive disclosure", () => {
     expect(source).not.toContain('data-testid="policy-packs-tab-generator"');
   });
 
+  it("surfaces policy impact preview outside the advanced accordion", () => {
+    expect(source).toContain("PolicyPackImpactPreviewPanel");
+    expect(source.indexOf("PolicyPackImpactPreviewPanel")).toBeLessThan(
+      source.indexOf('data-testid="policy-packs-advanced-options"'),
+    );
+  });
+
   it("folds inspect JSON and impact simulation into default-closed accordion", () => {
     expect(source).toContain('data-testid="policy-packs-advanced-options"');
     expect(source).toContain("PolicyPackImpactSimulationCard");

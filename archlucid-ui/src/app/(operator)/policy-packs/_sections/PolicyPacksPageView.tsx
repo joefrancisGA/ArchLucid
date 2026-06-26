@@ -2,6 +2,7 @@
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
+import { PolicyPackImpactPreviewPanel } from "@/components/PolicyPackImpactPreviewPanel";
 import { PolicyPackImpactSimulationCard } from "@/components/PolicyPackImpactSimulationCard";
 import { PolicyPacksCatalogSection } from "./PolicyPacksCatalogSection";
 import { PolicyPacksBuyerPolishedAdministratorNote } from "./PolicyPacksBuyerPolishedAdministratorNote";
@@ -131,6 +132,14 @@ export function PolicyPacksPageView(props: Props) {
             correlationId={m.failure.correlationId}
           />
         </div>
+      ) : null}
+
+      {surfaceTab === "my-packs" && !m.buyerPolishedShell ? (
+        <PolicyPackImpactPreviewPanel
+          effectiveContent={m.effectiveContent}
+          selectedPackId={m.selectedPackId}
+          packVersions={m.packVersions}
+        />
       ) : null}
 
       {surfaceTab === "my-packs" ? (

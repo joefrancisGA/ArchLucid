@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.18%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.70%`
 
 **State of play:** Headline readiness excludes deferred V1.1/V2 items (SOC 2 CPA attestation, third-party pen test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts) per `Assessment-Scope-V1_1.mdc`. **Reasoning engine:** hosted SaaS uses **platform-provisioned Azure OpenAI** in real mode; CI, merge-blocking live E2E, and local pilots use **simulator mode** (`AgentExecution:Mode=Simulator`) for deterministic authority pipeline execution — both are in-contract V1 postures.
 
@@ -34,9 +34,9 @@
 
 | # | Quality | Score (1–100) | Weight | Weighted Contribution | Weighted Deficiency Signal |
 |---|---------|---------------|--------|-----------------------|----------------------------|
-| 1 | Decision-Changing Insight Density | 85 | 13 | 11.05 | 1.95 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
-| 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
+| 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 1.69 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 93 | 13 | 12.09 | 0.91 |
+| 3 | Governed Review Integrity | 96 | 13 | 12.48 | 0.52 |
 | 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
@@ -44,9 +44,9 @@
 | 8 | Executive / Operator Comprehension | 94 | 8 | 7.52 | 0.48 |
 | 9 | Runtime & First-Review Reliability | 94 | 7 | 6.58 | 0.42 |
 | 10 | Adoption Friction | 88 | 5 | 4.40 | 0.60 |
-| **Total** | | | **100** | **91.18%** | **8.82%** |
+| **Total** | | | **100** | **91.70%** | **8.30%** |
 
-*(A) Headline Readiness: 91.18%*
+*(A) Headline Readiness: 91.70%*
 
 ---
 
@@ -61,7 +61,7 @@
 | **30-Day Voluntary Usage Probability** (10 principal architects) | **55%** (range **41%–65%**, confidence **medium-low**) | Base rate: ~30% voluntary adoption within 30 days. Adjust **+17** for extractor Tier-1 + client-side ZIP pre-upload validation (**#11 done 2026-06-26**); **+1** for structured pre-commit block explainer on finalize (**#9 done 2026-06-26**); **−20** for shell complexity, ITSM native default-off, no published reference customer. |
 | **Executive Purchase Probability** | **68%** (range **58%–78%**, confidence **medium**) | Base rate: ~45% of architecture-governance pilots convert to paid motion when ROI story is plausible but assurance is self-attested. Adjust **+20** for executive-summary API, board-pack parity, database-per-tenant isolation; **−15** for absent CPA SOC 2 and third-party pen test (scored under `(B)` only, but affects purchase conversion). |
 
-**Reconciliation:** Headline **91.18%** (+0.25 from **Tier 1 #3** — Time-to-Value 90, Adoption Friction 88; cumulative +2.26 from prior shipped batches). Diagnostic 30-day voluntary usage probability may improve slightly when first-review checklist covers ZIP, ROI, and audit proof in one surface.
+**Reconciliation:** Headline **91.70%** (+0.52 from **Tier 1 #1** — Decision-Changing Insight 87, Differentiability 93, Governed Review Integrity 96; cumulative +2.78 from prior shipped batches). Diagnostic Decision Advantage Score may improve when first demo surfaces rule-key diff and gate delta on the same committed review.
 
 ---
 
@@ -82,7 +82,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness: 91.18%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2, #10, #13). **Tier 1 #3 shipped (2026-06-26):** 7-step 90-minute first-review playbook on Home + `/help/first-review` aligned to `FIRST_RUN_EVIDENCE_CHECKLIST.md`. Remaining in-contract gap: **demonstrating policy-pack delta in the first demo**.
+- **(A) Overall headline readiness: 91.70%.** ArchLucid is a **credible V1 GA engineering product** for sales-led pilots: the authority pipeline (ingest → graph → findings → decision → manifest → commit), 24 bundled `PlatformDefault` policy packs, pre-commit governance gate, 275+ typed audit constants with SQL append-only enforcement, disposition-aware ROI, and minimal ITSM outbound create are **real and wired**, not roadmap fiction. Prior shipped batches (#9–#14, help sweep, Tier 1 #2, #10, #13, #3). **Tier 1 #1 shipped (2026-06-26):** prominent **Policy impact preview** on `/policy-packs` — compliance rule key diff plus allow vs block-on-critical pre-commit simulate for a selected committed review (`PolicyPackImpactPreviewPanel`, `/help/policy-pack-delta-demo`). Remaining in-contract gap: **pilot nav profile** and **board-pack illustrative banner**.
 
 - **(B) Procurement / market realism (weight 0):** Honest trust-center posture (self-assessed SOC 2, owner-conducted pen test, third-party pen test planned-not-scheduled TB-136, CPA SOC 2 on V1.1 backlog TB-135). Enterprise RFPs requiring CPA attestation or external pen-test summary will **delay or block** deals regardless of product quality. CAIQ/SIG pre-fills, DPA template, database-per-tenant narrative, and Tier-1 extractor (no vendor Azure login) **reduce** but do not eliminate friction.
 
@@ -113,8 +113,8 @@
 *Ordered by weighted deficiency signal (highest first).*
 
 ### 1. Decision-Changing Insight Density
-- **Score · Weight · Contribution · Deficiency:** 84 · 13 · 10.92 · **2.08**
-- **Justification:** Compliance findings from `ComplianceFindingEngine` are deterministic and policy-filtered — they can surface graph coverage gaps a chat session might miss if the architect forgets to model policy. Extractor-backed cost findings change financial decisions when citations bind to `collectionTimestamp`. However, much agent/LLM output still reads as **competent architecture review** available from frontier tools; non-obvious density depends on pilot leading with **policy pack assignment + ZIP evidence**, not chat-only intake.
+- **Score · Weight · Contribution · Deficiency:** 87 · 13 · 11.31 · **1.69** *(was 85 — **Tier 1 #1 done**)*
+- **Justification:** Compliance findings from `ComplianceFindingEngine` are deterministic and policy-filtered — they can surface graph coverage gaps a chat session might miss if the architect forgets to model policy. Extractor-backed cost findings change financial decisions when citations bind to `collectionTimestamp`. **Policy impact preview (2026-06-26)** on `/policy-packs` shows compliance rule key diff and allow vs block-on-critical gate delta for the same committed review — making pack assignment → gate outcome visible in the first demo without mutating state.
 - **Tradeoffs:** Optimizing for “wow critique” would chase commodity LLM quality; optimizing for policy/evidence-linked findings trades flash for audit defensibility.
 - **Recommendations:** Ship a **60-second “decision delta”** panel on first committed review (top 3 findings with rule keys + evidence anchors); run one internal real-mode review with custom pack rule enabled.
 - **Classification:** V1 — **validation first** for insight density claims.
@@ -129,8 +129,8 @@
 - **Outcomes affected:** 3 (30-day usage), 4 (executive purchase).
 
 ### 3. Differentiability / Defensibility vs Frontier AI
-- **Score · Weight · Contribution · Deficiency:** 91 · 13 · 11.83 · **1.17** *(was 90 — **#12 done**)*
-- **Justification:** **High** on rubric: policy pack merge changes effective compliance rule set (`PolicyFilteredComplianceRulePackProvider`); pre-commit gate blocks commit; audit reconstructs run lifecycle; ROI uses disposition-aware basis; ITSM correlations persist stable `FindingId`. Run detail now offers one-click run-scoped audit CSV export for proof-packet handoff without learning `/audit` filters. **Not Excellent** because a skeptical architect can still get 70% of the *narrative* from Claude + pasted standards without the workflow record.
+- **Score · Weight · Contribution · Deficiency:** 93 · 13 · 12.09 · **0.91** *(was 92 — **Tier 1 #1 done**)*
+- **Justification:** **High** on rubric: policy pack merge changes effective compliance rule set (`PolicyFilteredComplianceRulePackProvider`); pre-commit gate blocks commit; audit reconstructs run lifecycle; ROI uses disposition-aware basis; ITSM correlations persist stable `FindingId`. **Policy impact preview (2026-06-26)** demonstrates same review + stricter enforcement → different gate outcome in-product. Run detail offers one-click run-scoped audit CSV export. **Not Excellent** because generic critique and Ask paths remain prompt-replicable.
 - **Tradeoffs:** More governance UI increases “process tool” dismissal risk among architects.
 - **Recommendations:** Demo script: disable a pack → show fewer compliance rule keys in effective merge → show different finding count on re-run.
 - **Classification:** V1
@@ -153,10 +153,10 @@
 - **Outcomes affected:** 2, 4.
 
 ### 6. Governed Review Integrity
-- **Score · Weight · Contribution · Deficiency:** 95 · 13 · 12.35 · **0.65** *(was 94 / 93 — **#9** + **#12 done**)*
-- **Justification:** Policy packs are **not inert** — effective governance filters compliance rules and drives intake questions (`QuestionSelectionEngine`). Pre-commit gate consults persisted findings and assignments. **Finalize 409** now maps Problem Details extensions (`blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity`, `blockExplanation`) into `PreCommitGovernanceBlockPanel` with deep links to findings inspect, `/policy-packs`, troubleshooting, and governance bypass audit — the moat moment is actionable, not opaque.
+- **Score · Weight · Contribution · Deficiency:** 96 · 13 · 12.48 · **0.52** *(was 95 — **Tier 1 #1 done**)*
+- **Justification:** Policy packs are **not inert** — effective governance filters compliance rules and drives intake questions (`QuestionSelectionEngine`). Pre-commit gate consults persisted findings and assignments. **Policy impact preview** exposes `POST /v1/policy-packs/simulate` as read-only allow vs block-on-critical comparison. **Finalize 409** maps Problem Details into `PreCommitGovernanceBlockPanel` with deep links — the moat moment is actionable, not opaque.
 - **Tradeoffs:** Full pack-content edit → immediate re-evaluation on committed runs is not automatic (requires new run) — correct for audit integrity, slower for experimentation.
-- **Recommendations:** `POST /v1/governance/pre-commit/simulate` already exists — expose in UI as “what-if pack change” without mutating committed state.
+- **Recommendations:** Lead first demo with **Policy impact preview** on `/policy-packs`; add decision delta panel on run detail for top 3 material findings.
 - **Classification:** V1
 - **Outcomes affected:** 1, 2, 4.
 
@@ -196,7 +196,7 @@
 
 # 8. Top 10 Weaknesses (ranked)
 
-1. **Policy-pack moat invisible in first demo** — Why it matters: principals dismiss as “ChatGPT + compliance PDF.” Design uncertainty. V1 blocker for *adoption narrative*, not ship gate. Fix: scripted pack toggle A/B on same ZIP with side-by-side finding/rule-key diff.
+1. **Policy-pack moat invisible in first demo** — **Mitigated (2026-06-26):** `/policy-packs` **Policy impact preview** shows rule-key diff and gate allow vs block delta on a selected committed review; links to `/help/policy-pack-delta-demo`. Residual: sales must still lead with this surface in first session.
 2. **Time-to-first credible package** — Why it matters: 30-day voluntary usage. **Partially mitigated (#11 done)** — client validation; pilot playbook still needed. Fix: single-page “first review in 90 minutes” playbook with demo → ZIP → commit.
 3. **LLM finding citation softness vs extractor hard citations** — Why it matters: one hallucinated policy reference triggers dismissal. Design uncertainty. V1 risk on chat-heavy pilots. Fix: governed/advisory labeling + block cost claims without extractor token.
 4. **Native ITSM disabled by default** — Why it matters: remediation handoff is a top return trigger. Design (intentional TB-387). Not V1 ship blocker; pilot friction. Fix: enable after tenant wizard test connection; do not rebuild V1.1 bidirectional sync early.
@@ -366,30 +366,8 @@ ArchLucid is **becoming more valuable faster than frontier AI on workflow and re
 
 ### Tier 1 – Must Fix
 
-**1. Policy-pack delta demo (proof, not content)**  
-- **Why:** Makes moat visible; attacks #1 weakness.  
-- **Impact:** Decision insight + defensibility + voluntary usage.  
-- **Qualities:** 1, 2, 3.  
-- **Evidence:** `PolicyFilteredComplianceRulePackProvider`, pre-commit simulate API.  
-- **Actionability:** High. **Design uncertainty reduced:** 9. **Market uncertainty reduced:** 7.  
-- **Classification:** V1 validation first.
-
-**Cursor prompt:**
-```
-Problem: Pilots cannot quickly see that changing policy pack assignments changes compliance findings and pre-commit outcomes.
-
-Desired behavior: Operator UI "Policy impact preview" on /policy-packs: select two effective-merge snapshots (before/after assignment change) and show diff of complianceRuleKeys + count of compliance findings from last committed run simulation (read-only, uses existing POST /v1/governance/pre-commit/simulate or effective governance GET).
-
-Scope: archlucid-ui policy-packs section + existing governance API clients only. No new backend endpoints unless simulate cannot accept hypothetical assignments — if so, add read-only POST /v1/governance/effective/diff accepting two assignment sets (admin only).
-
-Acceptance criteria:
-- UI shows rule-key diff and simulated gate status change for a selected runId
-- Vitest component test for diff rendering
-- E2E optional behind live-api-policy-pack-lifecycle extension
-
-Non-goals: Mutating committed manifests; V1.1 ITSM bidirectional sync; new policy pack JSON authoring.
-Tests: extend live-api-policy-pack-lifecycle.spec.ts or unit tests for diff formatter.
-```
+**1. Policy-pack delta demo (proof, not content)** — **✅ Done (2026-06-26)**  
+- **Shipped:** `PolicyPackImpactPreviewPanel` on `/policy-packs` (outside advanced accordion) — compliance rule key before/after diff from effective merge vs proposed pack assignment, dual `simulatePolicyPackAgainstRun` for allow path vs block-on-critical on a committed review ID; `PolicyPackComplianceRuleKeyDiffView`; drift helpers in `policy-pack-impact-preview.ts` and Vitest in `PolicyPackImpactPreviewPanel.test.tsx`, `policy-pack-compliance-rule-key-diff.test.ts`. Links to `/help/policy-pack-delta-demo`.
 
 **2. Governed vs advisory labeling on AI outputs** — **✅ Done (2026-06-26)**  
 - **Shipped:** `AiOutputGovernanceLabel` + `deriveAiOutputGovernanceLabel` — persisted FindingId ⇒ **Governed finding**; holistic critic, Ask assistant, and streaming replies ⇒ **Advisory — not in review package**. Wired on `QuickDecisionSummary`, `RunFindingExplainabilityTable`, `RunDetailHolisticCriticPanel`, and `AskMessageThreadPanel`. Vitest in `ai-output-governance-label.test.ts`, `AiOutputGovernanceLabel.test.tsx`, `RunDetailHolisticCriticPanel.test.tsx`, `QuickDecisionSummary.test.tsx`.
@@ -530,9 +508,9 @@ Tests: Application.Tests + live-api-socratic-intake extension.
 4. Extractor ZIP pre-upload validator (#11) — **done**
 
 **Second batch (moat proof)** — **strong-model-recommended** for API diff design if needed  
-5. Policy-pack delta preview (Tier 1 #1)  
+5. Policy-pack delta preview (Tier 1 #1) — **done**  
 6. Decision delta panel (Tier 2 #8)  
-7. Finding → rule key deep links (#10)  
+7. Finding → rule key deep links (#10) — **done**  
 8. Pre-commit block explainer (#9) — **done**
 
 **Third batch (proof packet + polish)** — **Composer-safe** / **Sonnet-safe**  
