@@ -29,6 +29,7 @@ import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-index";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type HelpSearchPanelProps = {
@@ -326,7 +327,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-7 gap-1.5 px-2 text-sm"
+                className={cn("h-7 gap-1.5 px-2", OPERATOR_TYPOGRAPHY.button)}
                 onClick={backToSearch}
               >
                 <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
@@ -335,7 +336,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               {article.status === "loaded" ? (
                 <Link
                   href={inAppHelpHref(article.article.slug)}
-                  className="ml-auto flex items-center gap-1 text-xs text-neutral-500 underline-offset-2 hover:underline dark:text-neutral-400"
+                  className={cn("ml-auto flex items-center gap-1 text-neutral-500 underline-offset-2 hover:underline dark:text-neutral-400", OPERATOR_LINK.optional)}
                   onClick={() => onOpenChange(false)}
                 >
                   Open full page
@@ -346,10 +347,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
             <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
               {article.status === "loading" && (
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
+                <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
               )}
               {article.status === "error" && (
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                   Could not load this topic.{" "}
                   {loadingSlug !== null ? (
                     <Link
@@ -364,10 +365,10 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               )}
               {article.status === "loaded" && (
                 <article>
-                  <h2 className="m-0 mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                  <h2 className={cn("m-0 mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                     {article.article.title}
                   </h2>
-                  <p className="m-0 mb-4 text-xs leading-snug text-neutral-500 dark:text-neutral-400">
+                  <p className={cn("m-0 mb-4 leading-snug text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {article.article.summary}
                   </p>
                   <MarketingAccessibilityMarkdownFragment
@@ -387,7 +388,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               <DialogTitle className="text-left text-lg text-neutral-900 dark:text-neutral-100">
                 Help
               </DialogTitle>
-              <DialogDescription className="text-left text-sm">
+              <DialogDescription className={cn("text-left", OPERATOR_TYPOGRAPHY.body)}>
                 {isSearching
                   ? "Showing matching documentation sections."
                   : "Select a topic or type to search all documentation."}
@@ -414,7 +415,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               <CommandList className="max-h-none flex-1 overflow-y-auto" aria-label="Help topics">
                 {isSearching ? (
                   <>
-                    <CommandEmpty className="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400">
+                    <CommandEmpty className={cn("px-4 py-6 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                       No sections matched. Try different keywords.
                     </CommandEmpty>
                     <CommandGroup heading="Results" className="px-1">
@@ -432,9 +433,9 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                             onPointerEnter={() => setActiveValue(selectionValue)}
                             onSelect={() => openSearchHit(h)}
                           >
-                            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{category}</span>
-                            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{h.sectionHeading}</span>
-                            <span className="line-clamp-2 text-xs leading-snug text-neutral-600 dark:text-neutral-300">
+                            <span className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{category}</span>
+                            <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{h.sectionHeading}</span>
+                            <span className={cn("line-clamp-2 leading-snug text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                               {stripMdLinks(h.excerpt)}
                             </span>
                           </CommandItem>
@@ -454,9 +455,9 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                           onPointerEnter={() => setActiveValue(entry.id)}
                           onSelect={() => openEntry(entry.href, entry.helpSlug)}
                         >
-                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{entry.category}</span>
-                          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{entry.label}</span>
-                          <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-300">{entry.description}</span>
+                          <span className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{entry.category}</span>
+                          <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{entry.label}</span>
+                          <span className={cn("leading-snug text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{entry.description}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -470,9 +471,9 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                           onPointerEnter={() => setActiveValue(entry.id)}
                           onSelect={() => openShellResource(entry)}
                         >
-                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Resources</span>
-                          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{entry.label}</span>
-                          <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-300">{entry.description}</span>
+                          <span className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Resources</span>
+                          <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{entry.label}</span>
+                          <span className={cn("leading-snug text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{entry.description}</span>
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -497,17 +498,17 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                   Guides &amp; troubleshooting
                 </Button>
               ) : null}
-              <p className="m-0 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className={cn("m-0 text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 <Link
                   href="/help/developer-troubleshooting"
-                  className="underline-offset-2 hover:underline hover:text-neutral-600 dark:hover:text-neutral-300"
+                  className={cn("underline-offset-2 hover:underline hover:text-neutral-600 dark:hover:text-neutral-300", OPERATOR_LINK.optional)}
                   onClick={() => onOpenChange(false)}
                 >
                   Engineering runbook
                 </Link>
                 {" — "}CLI, logs, environment variables
               </p>
-              <p className="m-0 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className={cn("m-0 text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 Keyboard: arrows navigate · Enter opens · Escape closes · Shift+?
               </p>
             </div>
