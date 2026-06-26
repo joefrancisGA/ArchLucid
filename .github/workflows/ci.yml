@@ -2168,6 +2168,17 @@ jobs:
           path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/**/*.dmp
           if-no-files-found: warn
 
+      # Human-readable managed thread stacks captured by the chunk watchdog alongside the .dmp.
+      # Uploaded as a separate tiny artifact so a hung-shard root cause is diagnosable without
+      # downloading the 100MB+ hang dump (the watchdog already writes dotnet-stack-*.txt; the
+      # *.dmp-only upload above previously dropped it).
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-hang-stack-api-integration-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}/**/dotnet-stack-*.txt
+          if-no-files-found: ignore
+
       - uses: actions/upload-artifact@v6
         if: always()
         with:
