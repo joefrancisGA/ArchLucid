@@ -12,6 +12,8 @@ import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type PostCommitRetentionRailProps = {
   readonly runId: string;
@@ -40,8 +42,8 @@ export function PostCommitRetentionRail({
   return (
     <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800" data-testid="post-commit-retention-rail">
       <CardHeader className="pb-2">
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Recommended next steps</h2>
-        <CardDescription className="text-neutral-700 dark:text-neutral-300">
+        <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Recommended next steps</h2>
+        <CardDescription className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? showcaseSpine
               ? "After the sample review, continue Executive Summary → signed review record → evidence trail → governance approval → audit trail."

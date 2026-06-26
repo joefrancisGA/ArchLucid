@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { OnboardingStartClient } from "@/components/OnboardingStartClient";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 
 export type GettingStartedTrialSectionProps = {
@@ -27,10 +29,10 @@ export function GettingStartedTrialSection({ fromRegistrationQuery }: GettingSta
   return (
     <div className="mb-8">
       {fromRegistrationQuery ? (
-        <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Onboarding</h2>
+        <h2 className={cn("mb-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>Onboarding</h2>
       ) : null}
       {fromRegistrationQuery ? (
-        <p className="mb-6 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">
+        <p className={cn("mb-6 max-w-3xl text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           Confirm trial limits below, then use the first-review checklist on Overview or open the new-run wizard with the sample
           highlighted on step one.
         </p>

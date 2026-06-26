@@ -163,12 +163,12 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
                     persist(nextSteps);
                   }}
                 />
-                <label htmlFor={checkboxId} className="text-sm text-neutral-800 dark:text-neutral-200">
+                <label htmlFor={checkboxId} className={cn("text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                   Mark complete
                 </label>
                 <button
                   type="button"
-                  className="text-xs font-medium text-neutral-600 underline dark:text-neutral-400"
+                  className={cn("font-medium text-neutral-600 underline dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   onClick={() => {
                     const nextSteps = stepsDone.map((v, i) => (i === index ? false : v));
 
@@ -189,7 +189,7 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
           className="mt-4 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
           data-testid="core-pilot-checklist-complete"
         >
-          <p className="m-0 text-sm font-medium text-teal-950 dark:text-teal-100">
+          <p className={cn("m-0 font-medium text-teal-950 dark:text-teal-100", OPERATOR_TYPOGRAPHY.body)}>
             You have stepped through the Core Pilot path — open a finalized architecture review to explore the full review package.
           </p>
         </div>
