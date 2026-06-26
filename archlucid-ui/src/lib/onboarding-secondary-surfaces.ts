@@ -56,7 +56,7 @@ export const ONBOARDING_TOUR_BANNED_PHRASES: readonly string[] = [
 /** Readiness cockpit optional Tier-1 inventory row — Azure/AWS/GCP ZIP accelerators (TB-342). */
 export const READINESS_AZURE_EXTRACTOR_LABEL = "Tier-1 cloud inventory ZIP";
 
-export const READINESS_AZURE_EXTRACTOR_CTA = "Cloud inventory guide";
+export const READINESS_AZURE_EXTRACTOR_CTA = "Add evidence";
 
 export function buildReadinessAzureExtractorSummary(evidenceReady: boolean, runsLoadFailed: boolean): string {
   if (evidenceReady) {
