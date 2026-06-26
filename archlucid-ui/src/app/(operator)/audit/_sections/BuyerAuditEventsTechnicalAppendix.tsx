@@ -1,5 +1,7 @@
 import type { AuditEvent } from "@/lib/api";
 import { buyerSafeTechnicalIdLabel } from "@/lib/buyer-demo-persona-labels";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 
@@ -12,7 +14,7 @@ export function BuyerAuditEventsTechnicalAppendix(props: BuyerAuditEventsTechnic
 
   return (
     <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+      <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
         Audit verification appendix
       </summary>
       <div className="mt-3 space-y-4">
@@ -21,31 +23,36 @@ export function BuyerAuditEventsTechnicalAppendix(props: BuyerAuditEventsTechnic
             key={ev.eventId}
             className="border-t border-neutral-200 pt-4 first:border-t-0 first:pt-0 dark:border-neutral-700"
           >
-            <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+            <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
               {formatUtc(ev.occurredUtc)} · {pipelineEventTypeFriendlyLabel(ev.eventType)}
             </p>
-            <div className="mt-2 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+            <div className={cn("mt-2 space-y-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               <div>
-                <span className="font-medium text-neutral-600 dark:text-neutral-400">User id</span>{" "}
-                <span className="font-mono text-xs">{buyerSafeTechnicalIdLabel(ev.actorUserId)}</span>
+                <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>User id</span>{" "}
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{buyerSafeTechnicalIdLabel(ev.actorUserId)}</span>
               </div>
               <div>
-                <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation ID</span>{" "}
-                <span className="font-mono text-xs">
+                <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Correlation ID</span>{" "}
+                <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
                   {buyerSafeTechnicalIdLabel(ev.correlationId)}
                 </span>
               </div>
               {ev.otelTraceId ? (
                 <div>
-                  <span className="font-medium text-neutral-600 dark:text-neutral-400">Trace</span>{" "}
-                  <code title={ev.otelTraceId} className="text-xs">
+                  <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Trace</span>{" "}
+                  <code title={ev.otelTraceId} className={OPERATOR_TYPOGRAPHY.micro}>
                     {ev.otelTraceId.slice(0, 16)}…
                   </code>
                 </div>
               ) : null}
               <div>
-                <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Payload</p>
-                <pre className="mt-1 max-h-48 overflow-auto rounded-md bg-neutral-50/90 p-2 text-xs dark:bg-neutral-900/50">
+                <p className={cn("m-0 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Payload</p>
+                <pre
+                  className={cn(
+                    "mt-1 max-h-48 overflow-auto rounded-md bg-neutral-50/90 p-2 dark:bg-neutral-900/50",
+                    OPERATOR_TYPOGRAPHY.micro,
+                  )}
+                >
                   {tryFormatDataJson(ev.dataJson)}
                 </pre>
               </div>
