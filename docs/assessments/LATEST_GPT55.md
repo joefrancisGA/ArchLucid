@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 92.94%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.99%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -34,10 +34,10 @@
 | 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
 | 8 | Executive / Operator Comprehension | 96 | 8 | 7.68 | 0.32 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 91 | 5 | 4.55 | 0.45 |
-| **Total** | | | **100** | **92.94%** | **7.06%** |
+| 10 | Adoption Friction | 92 | 5 | 4.60 | 0.40 |
+| **Total** | | | **100** | **92.99%** | **7.01%** |
 
-*(A) Headline Readiness: 92.94%*
+*(A) Headline Readiness: 92.99%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 92.94%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). Finding detail exposes a gated **Create issue** dialog (`POST /v1/integrations/itsm/outbound/issues`) when `Integrations:Itsm:NativeEnabled` is true. Governance dashboard now surfaces a dedicated **Pre-commit governance bypass audit** panel for recent `GovernanceBypassInvoked` events (actor, justification, review package). Webhook subscriptions UI exposes **Test Connection** (`POST /v1/webhooks/subscriptions/{subscriptionId}/test`) with success/failure toasts and inline last-response panel on `/integrations/webhooks`; alert routing uses the same helper for webhook channel types. CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
+- **(A) Overall headline readiness:** 92.99%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). Finding detail exposes a gated **Create issue** dialog (`POST /v1/integrations/itsm/outbound/issues`) when `Integrations:Itsm:NativeEnabled` is true. Governance dashboard now surfaces a dedicated **Pre-commit governance bypass audit** panel for recent `GovernanceBypassInvoked` events (actor, justification, review package). Webhook subscriptions UI exposes **Test Connection** (`POST /v1/webhooks/subscriptions/{subscriptionId}/test`) with success/failure toasts and inline last-response panel on `/integrations/webhooks`; alert routing uses the same helper for webhook channel types. Policy pack authoring JSON editors debounce `POST /v1/policy-packs/validate` while typing, surfacing structural errors and unknown rule-key warnings inline below the textarea. CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped. Executive ROI summary UI now surfaces per-system savings rows with accessible tooltips explaining disposition-aware headline math and FindingId deduplication.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 91 · **Weight:** 5 · **Contribution:** 4.55 · **Deficiency:** 0.45
-- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion. Finding detail **Create issue** dialog gates on native ITSM and routes to Jira/ServiceNow outbound create without leaving the review workflow. Webhook subscription **Test Connection** verifies outbound HTTPS routing without waiting for a real alert.
+- **Score:** 92 · **Weight:** 5 · **Contribution:** 4.60 · **Deficiency:** 0.40
+- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion. Finding detail **Create issue** dialog gates on native ITSM and routes to Jira/ServiceNow outbound create without leaving the review workflow. Webhook subscription **Test Connection** verifies outbound HTTPS routing without waiting for a real alert. Policy pack JSON editors debounce `POST /v1/policy-packs/validate` while typing, showing structural errors and unknown rule-key warnings before create or publish.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -256,14 +256,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 - **Cursor Prompt:** Scaffold the UI in the operator shell for configuring the Tier 2 hosted automated polling. Add a form to input the Azure Service Principal credentials (to be stored in Key Vault) and subscription scope. Ensure the UI clearly communicates that Tier 1 (manual ZIP upload) is the default and Tier 2 is opt-in.
 
 **Tier 2 – High Leverage**
-
-- **Title:** Policy Pack JSON Validator UI Integration
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Authoring custom policy packs via JSON is error-prone.
-- **Expected impact:** Fewer syntax errors and faster custom policy creation.
-- **Affected qualities:** Adoption Friction.
-- **Classification:** V1
-- **Cursor Prompt:** Integrate the `POST /v1/policy-packs/validate` endpoint into the policy pack authoring text area in the operator shell. As the user types (debounced), the UI should display validation errors and structural warnings inline or below the editor.
 
 - **Title:** Trial Upgrade Nudge Telemetry Wiring
 - **Tier:** Tier 2 – High Leverage
