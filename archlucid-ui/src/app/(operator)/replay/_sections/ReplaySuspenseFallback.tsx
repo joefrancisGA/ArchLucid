@@ -1,6 +1,8 @@
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Shown while the validate form client component is initializing (hydrates review context from the URL). */
 export function ReplaySuspenseFallback() {
@@ -10,7 +12,7 @@ export function ReplaySuspenseFallback() {
       <OperatorPageHeader title="Validate review package" helpKey="replay-run" />
       <OperatorLoadingNotice>
         <strong>Loading validation.</strong>
-        <p className="mt-2 text-sm">
+        <p className={cn("mt-2", OPERATOR_TYPOGRAPHY.body)}>
           Reading review context from the link so validate opens with the review package prefilled…
         </p>
       </OperatorLoadingNotice>
