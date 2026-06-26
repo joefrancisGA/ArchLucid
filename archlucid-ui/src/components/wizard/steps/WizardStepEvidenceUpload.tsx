@@ -36,6 +36,7 @@ import {
   type WizardEvidenceSourceId,
   type WizardEvidenceSourceOption,
 } from "@/lib/wizard-evidence-source-options";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type WizardStepEvidenceUploadProps = {
@@ -63,7 +64,7 @@ const SOURCE_ICONS: Record<WizardEvidenceSourceOption["id"], LucideIcon> = {
 function EvidenceSourceBadge(props: { availability: WizardEvidenceSourceAvailability }) {
   if (props.availability === "accelerated") {
     return (
-      <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-semibold text-teal-800 dark:bg-teal-950 dark:text-teal-200">
+      <span className={cn("rounded-full bg-teal-50 px-2 py-0.5 font-semibold text-teal-800 dark:bg-teal-950 dark:text-teal-200", OPERATOR_TYPOGRAPHY.badge)}>
         Fastest
       </span>
     );
@@ -71,14 +72,14 @@ function EvidenceSourceBadge(props: { availability: WizardEvidenceSourceAvailabi
 
   if (props.availability === "v1.1") {
     return (
-      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+      <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
         V1.1
       </span>
     );
   }
 
   return (
-    <span className="rounded-full bg-neutral-50 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+    <span className={cn("rounded-full bg-neutral-50 px-2 py-0.5 font-semibold text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.badge)}>
       Available
     </span>
   );
@@ -111,11 +112,11 @@ function EvidenceSourcePicker(props: {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <Icon className="h-4 w-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden />
-                  <p className="m-0 text-sm font-semibold">{option.label}</p>
+                  <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{option.label}</p>
                 </div>
                 <EvidenceSourceBadge availability={option.availability} />
               </div>
-              <p className="m-0 mt-1 text-xs leading-snug">{option.description}</p>
+              <p className={cn("m-0 mt-1 leading-snug", OPERATOR_TYPOGRAPHY.helper)}>{option.description}</p>
             </div>
           );
         }
@@ -141,11 +142,11 @@ function EvidenceSourcePicker(props: {
             <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 items-center gap-2">
                 <Icon className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-300" aria-hidden />
-                <p className="m-0 text-sm font-semibold">{option.label}</p>
+                <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{option.label}</p>
               </div>
               <EvidenceSourceBadge availability={option.availability} />
             </div>
-            <p className="m-0 mt-1 text-xs leading-snug text-neutral-600 dark:text-neutral-400">{option.description}</p>
+            <p className={cn("m-0 mt-1 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{option.description}</p>
           </button>
         );
       })}
@@ -195,7 +196,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
             className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/30"
             data-testid="wizard-evidence-source-panel-brief"
           >
-            <p className="m-0 text-sm text-neutral-800 dark:text-neutral-100">
+            <p className={cn("m-0 text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
               Capture the architecture brief on the next wizard steps (identity and description), or switch to quick
               review for a brief-first intake.
             </p>
@@ -242,7 +243,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
             />
             {pendingDocumentFiles.length > 0 ? (
               <p
-                className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300"
+                className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
                 data-testid="wizard-evidence-documents-selected"
               >
                 {pendingDocumentFiles.length} file{pendingDocumentFiles.length === 1 ? "" : "s"} ready — uploads
@@ -267,7 +268,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
             className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/30"
             data-testid="wizard-evidence-source-panel-demo"
           >
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Choose a bundled synthetic Azure extractor package — no PowerShell script required. Demo outputs are
               labeled Simulator.
             </p>

@@ -20,6 +20,7 @@ import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -151,7 +152,10 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </div>
           {baselineFirst === true ? (
             <p
-              className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
+              className={cn(
+                "m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800",
+                OPERATOR_TYPOGRAPHY.body,
+              )}
               data-testid="wizard-baseline-path-active-notice"
             >
               Baseline-first path: upload the Azure extractor ZIP on the next step, then confirm system identity and
@@ -164,7 +168,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       {featuredSampleRunId !== null && featuredSampleRunId !== undefined && featuredSampleRunId.length > 0 ? (
         <Card className="mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader>
-            <CardTitle className="text-base text-teal-950 dark:text-teal-50">
+            <CardTitle className={cn("text-teal-950 dark:text-teal-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Claims Intake Modernization (example)
             </CardTitle>
             <CardDescription className="text-teal-900/90 dark:text-teal-100/90">
@@ -184,7 +188,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
 
       <Card className="mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-base">Start from scratch</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Start from scratch</CardTitle>
           <CardDescription>
             Use validated defaults and enter only the request details you know. You can refine identity, goals, and
             constraints in the following steps.
@@ -203,8 +207,8 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       </Card>
 
       <div className="mb-6">
-        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Industry starters</h3>
-        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <h3 className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Industry starters</h3>
+        <p className={cn("mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Pre-fill regulated-industry context. You can add matching <GlossaryTooltip termKey="policy_pack">policy packs</GlossaryTooltip> later.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -214,7 +218,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               className="flex flex-col border-teal-300/80 shadow-sm dark:border-teal-800/80"
             >
               <CardHeader>
-                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{preset.label}</CardTitle>
                 <CardDescription>{preset.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1" />
@@ -237,14 +241,14 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
 
       {otherVerticals.length > 0 ? (
         <div className="mb-6">
-          <h3 className="mb-1 text-sm font-semibold text-al-text-primary">
+          <h3 className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             More industry templates
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             {otherVerticals.map((preset) => (
               <Card key={preset.id} className="flex flex-col">
                 <CardHeader>
-                  <CardTitle className="text-base">{preset.label}</CardTitle>
+                  <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{preset.label}</CardTitle>
                   <CardDescription>{preset.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1" />
@@ -265,8 +269,8 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       ) : null}
 
       <div className="mb-6">
-        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Reference starters</h3>
-        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <h3 className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Reference starters</h3>
+        <p className={cn("mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Opinionated footprints (API platforms, internal portals, telemetry, payments-adjacent) you can refine in later
           steps.
         </p>
@@ -274,7 +278,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           {starterArchitectureTemplates.map((preset) => (
             <Card key={preset.id} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{preset.label}</CardTitle>
                 <CardDescription>{preset.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1" />
@@ -295,15 +299,15 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       </div>
 
       <div className="mb-6">
-        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Quick shapes</h3>
-        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <h3 className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Quick shapes</h3>
+        <p className={cn("mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Opinionated starters for common delivery patterns (greenfield, modernization, data platform).
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {wizardPresets.map((preset) => (
             <Card key={preset.id} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{preset.label}</CardTitle>
                 <CardDescription>{preset.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1" />
@@ -323,15 +327,15 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       </div>
 
       <div className="mb-6">
-        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Architecture request templates</h3>
-        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Opinionated payloads aligned with <code className="text-xs">POST /v1/architecture/request</code> (
-          <code className="text-xs">ArchitectureRequest</code>). Same JSON bodies live under{" "}
-          <code className="break-all text-xs">docs/templates/architecture-requests/</code> for paste-import.
+        <h3 className={cn("mb-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Architecture request templates</h3>
+        <p className={cn("mb-3 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          Opinionated payloads aligned with <code className={OPERATOR_TYPOGRAPHY.micro}>POST /v1/architecture/request</code> (
+          <code className={OPERATOR_TYPOGRAPHY.micro}>ArchitectureRequest</code>). Same JSON bodies live under{" "}
+          <code className={cn("break-all", OPERATOR_TYPOGRAPHY.micro)}>docs/templates/architecture-requests/</code> for paste-import.
           {architectureTemplatesDocHref !== null ? (
             <>
               {" "}
-              <Link className="text-teal-700 underline" href={architectureTemplatesDocHref}>
+              <Link className={OPERATOR_LINK.nav} href={architectureTemplatesDocHref}>
                 Open template index in Help
               </Link>
               .
@@ -342,7 +346,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           {documentationArchitectureRequestWizardPresets.map((preset, index) => (
             <Card key={preset.id} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{preset.label}</CardTitle>
                 <CardDescription>{preset.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1" />
@@ -377,7 +381,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
         <CollapsibleContent className="pt-3">
           <Card className="border-dashed border-neutral-300 bg-neutral-50/80 dark:border-neutral-600 dark:bg-neutral-950/40">
             <CardHeader>
-              <CardTitle className="text-base">Paste TOML or JSON</CardTitle>
+              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Paste TOML or JSON</CardTitle>
               <CardDescription>
                 Paste a prepared request in TOML or JSON format. ArchLucid validates fields, then pre-fills the wizard so
                 you can review identity and constraints before continuing.
@@ -394,12 +398,12 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 value={secondRunPaste}
                 onChange={(e) => setSecondRunPaste(e.target.value)}
                 placeholder={`name = "My.Service"\ndescription = "At least ten characters describing goals."`}
-                className="min-h-[140px] font-mono text-xs"
+                className={cn("min-h-[140px] font-mono", OPERATOR_TYPOGRAPHY.micro)}
                 spellCheck={false}
               />
-              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 Compatible with the{" "}
-                <Link className="text-teal-700 underline" href="/help/review-packages">
+                <Link className={OPERATOR_LINK.nav} href="/help/review-packages">
                   review package import
                 </Link>{" "}
                 schema.
