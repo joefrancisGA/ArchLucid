@@ -122,7 +122,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
           <ul className="m-0 list-none space-y-1 p-0">
             {view.currentEffective.packAssignments.map((row) => (
               <li key={row.policyPackId} className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <code className="font-mono text-xs">{row.policyPackId}</code> · {row.name} · v{row.version}
+                <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.policyPackId}</code> · {row.name} · v{row.version}
               </li>
             ))}
           </ul>
