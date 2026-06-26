@@ -1,3 +1,6 @@
+import { OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 type BuyerAuditTrailMetrics = {
   eventCount: number;
   humanActorCount: number;
@@ -16,7 +19,10 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
     <>
       {buyerAuditTrailSummaryLine !== null ? (
         <div
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-3 max-w-prose px-3 py-3 text-sm"
+          className={cn(
+            "mb-3 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-3 dark:border-neutral-800",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           data-testid="audit-buyer-proof-narrative"
         >
           {buyerAuditTrailSummaryLine}
@@ -28,26 +34,16 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
           data-testid="audit-buyer-metric-tiles"
         >
           <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Recorded events
-            </p>
-            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
-              {buyerAuditTrailMetrics.eventCount}
-            </p>
+            <p className={cn("m-0 uppercase tracking-wide", OPERATOR_KPI_CARD_TITLE)}>Recorded events</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>{buyerAuditTrailMetrics.eventCount}</p>
           </div>
           <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Named reviewers
-            </p>
-            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
-              {buyerAuditTrailMetrics.humanActorCount}
-            </p>
+            <p className={cn("m-0 uppercase tracking-wide", OPERATOR_KPI_CARD_TITLE)}>Named reviewers</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>{buyerAuditTrailMetrics.humanActorCount}</p>
           </div>
           <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-            <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              System-recorded events
-            </p>
-            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+            <p className={cn("m-0 uppercase tracking-wide", OPERATOR_KPI_CARD_TITLE)}>System-recorded events</p>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
               {buyerAuditTrailMetrics.systemRecordedCount}
             </p>
           </div>

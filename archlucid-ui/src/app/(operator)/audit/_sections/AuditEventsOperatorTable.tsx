@@ -15,7 +15,8 @@ import {
 import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
-import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
@@ -52,14 +53,13 @@ export function AuditEventsOperatorTable(props: AuditEventsOperatorTableProps): 
               <EnterpriseTableCell>{pipelineEventTypeFriendlyLabel(ev.eventType)}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <span className="font-medium text-al-text-primary">{ev.actorUserName}</span>
-                <span className="mt-0.5 block font-mono text-xs text-al-text-secondary">{ev.actorUserId}</span>
+                <span className={cn("mt-0.5 block font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
+                  {ev.actorUserId}
+                </span>
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 {runId.length > 0 ? (
-                  <Link
-                    className="font-medium text-teal-800 underline dark:text-teal-300"
-                    href={`/reviews/${encodeURIComponent(runId)}`}
-                  >
+                  <Link className={OPERATOR_LINK.nav} href={`/reviews/${encodeURIComponent(runId)}`}>
                     {buyerFacingReviewLinkLabelFromRunId(runId)}
                   </Link>
                 ) : (
@@ -68,15 +68,22 @@ export function AuditEventsOperatorTable(props: AuditEventsOperatorTableProps): 
               </EnterpriseTableCell>
               <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
                 {(ev.correlationId ?? "").trim().length > 0 ? (
-                  <span className="font-mono text-xs">{ev.correlationId}</span>
+                  <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{ev.correlationId}</span>
                 ) : (
                   "—"
                 )}
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 <details>
-                  <summary className="cursor-pointer text-xs font-medium text-al-text-primary">View JSON</summary>
-                  <pre className="mt-2 max-h-40 overflow-auto rounded-md border border-neutral-200 bg-al-surface-raised p-2 text-xs dark:border-neutral-800">
+                  <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
+                    View JSON
+                  </summary>
+                  <pre
+                    className={cn(
+                      "mt-2 max-h-40 overflow-auto rounded-md border border-neutral-200 bg-al-surface-raised p-2 dark:border-neutral-800",
+                      OPERATOR_TYPOGRAPHY.micro,
+                    )}
+                  >
                     {tryFormatDataJson(ev.dataJson)}
                   </pre>
                 </details>
