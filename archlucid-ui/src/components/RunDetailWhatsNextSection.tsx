@@ -3,6 +3,8 @@ import type { ReactElement } from "react";
 
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { Button } from "@/components/ui/button";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type RunDetailWhatsNextSectionProps = {
   readonly runId: string;
@@ -22,8 +24,8 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
       className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       data-testid="run-detail-whats-next"
     >
-      <h3 className="m-0 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What&apos;s next?</h3>
-      <p className="m-0 mb-3 text-sm text-neutral-700 dark:text-neutral-300">
+      <h3 className={cn("m-0 mb-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>What&apos;s next?</h3>
+      <p className={cn("m-0 mb-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         This review is committed. Review the findings, then plan your next architecture check.
       </p>
       <div className="flex flex-wrap items-center gap-2">
@@ -35,7 +37,7 @@ export function RunDetailWhatsNextSection(props: RunDetailWhatsNextSectionProps)
         </Button>
         <Link
           href={replayHref}
-          className="text-sm font-medium text-teal-800 underline-offset-2 hover:underline dark:text-teal-300"
+          className={OPERATOR_LINK.nav}
           data-testid="run-detail-replay-review"
         >
           Validate review package

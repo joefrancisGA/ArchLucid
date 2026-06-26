@@ -17,6 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
 import { runExecutiveSummaryExportHref } from "@/lib/api/run-summary-export-api";
+import {
+  MARKETING_TYPOGRAPHY,
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_LINK,
+  OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): string {
@@ -26,7 +34,7 @@ function runPackageExportHref(runId: string, format: "docx" | "pdf" | "html"): s
 function BuyerExecutiveBriefExports({ runId }: { runId: string }) {
   return (
     <details className="text-right">
-      <summary className="cursor-pointer list-none text-sm font-semibold text-teal-800 underline decoration-teal-300 underline-offset-2 marker:content-none dark:text-teal-200">
+      <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
         Download executive brief
       </summary>
       <div className="mt-2">
@@ -126,7 +134,7 @@ export function RunDetailPageHeader({
           <div className="flex flex-wrap items-start gap-2">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl flex items-center">
+                <h1 className={cn("m-0 flex min-w-0 flex-1 items-center text-neutral-900 dark:text-neutral-100", MARKETING_TYPOGRAPHY.heroTitle)}>
                   {headline}
                   {runSummary.idempotencyReplayed && buyerPolishedShell !== true ? (
                     <Badge variant="secondary" className="ml-2 font-normal">Replayed</Badge>
@@ -137,7 +145,7 @@ export function RunDetailPageHeader({
                 ) : null}
               </div>
               {buyerPolishedShell === true && finalizedBuyerChrome === true && buyerHeaderStatusCaption ? (
-                <p className="m-0 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                <p className={cn("m-0 max-w-3xl leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   {buyerHeaderStatusCaption}
                 </p>
               ) : null}
@@ -148,17 +156,17 @@ export function RunDetailPageHeader({
           </div>
           {buyerPolishedShell === true && executionFlavorBuyerSummary ? (
             <>
-              <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 max-w-3xl leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
                 {executionFlavorBuyerSummary}
               </p>
-              <p className="m-0 mt-1 max-w-3xl text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+              <p className={cn("m-0 mt-1 max-w-3xl leading-relaxed text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 In production, workflows and evidence sources follow your tenant configuration.
               </p>
-              <p className="m-0 mt-2 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm font-medium">
+              <p className={cn("m-0 mt-2 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 font-medium dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
                 <span>Traceable evidence and audit-ready history</span>
                 <Link
                   href={`/reviews/${encodeURIComponent(runId)}#trust-evidence`}
-                  className="text-sm font-semibold text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-50"
+                  className={cn("font-semibold", OPERATOR_LINK.nav)}
                 >
                   View evidence basis
                 </Link>
@@ -166,7 +174,7 @@ export function RunDetailPageHeader({
             </>
           ) : null}
           {showExecutionFlavorOperator ? (
-            <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className={cn("m-0 max-w-3xl leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               {executionFlavorBuyerSummary}
             </p>
           ) : null}
@@ -196,7 +204,7 @@ export function RunDetailPageHeader({
           ) : null}
           {showOperatorIdentifiers ? (
             <div
-              className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600 dark:text-neutral-400"
+              className={cn("flex flex-wrap items-center gap-x-4 gap-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="run-detail-header-identifiers"
             >
               <span className="inline-flex min-w-0 items-center gap-1">
@@ -221,24 +229,24 @@ export function RunDetailPageHeader({
               buyerGovernanceApprovalLabel !== undefined &&
               buyerGovernanceApprovalLabel.trim().length > 0 ? (
                 <div className="flex flex-col items-end gap-1">
-                  <p className="m-0 text-[0.65rem] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}>
                     {approvalStatusLabel}
                   </p>
                   <StatusPill
                     status={buyerGovernanceApprovalLabel.trim()}
                     domain="governance"
                     uppercase={false}
-                    className="text-xs font-semibold normal-case tracking-normal"
+                    className={cn("font-semibold normal-case tracking-normal", OPERATOR_TYPOGRAPHY.helper)}
                   />
                 </div>
               ) : (
-                <p className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-50">Finalized package</p>
+                <p className={cn("m-0 font-semibold text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>Finalized package</p>
               )}
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
             </div>
           ) : (
             <div id="finalize-review" className="flex shrink-0 scroll-mt-24 flex-col gap-1.5">
-              <div className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+              <div className={cn("m-0 flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                 Finalize review
                 <ContextualHelp helpKey="commit-manifest" />
               </div>
@@ -253,7 +261,7 @@ export function RunDetailPageHeader({
               ) : null}
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
-              <div className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 <span className="whitespace-nowrap">{approvalStatusLabel}</span>
                 <ContextualHelp helpKey="governance-gate" placement="left" />
               </div>
@@ -261,7 +269,7 @@ export function RunDetailPageHeader({
           )
         ) : (
           <div className="flex shrink-0 flex-col gap-1.5">
-            <div className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <div className={cn("m-0 flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               Finalize
               <ContextualHelp helpKey="commit-manifest" />
             </div>
@@ -276,7 +284,7 @@ export function RunDetailPageHeader({
             ) : null}
             <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
             {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
-            <div className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <div className={cn("m-0 flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <span className="whitespace-nowrap">{approvalCheckLabel}</span>
               <ContextualHelp helpKey="governance-gate" placement="left" />
             </div>

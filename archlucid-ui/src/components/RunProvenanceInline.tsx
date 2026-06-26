@@ -4,6 +4,7 @@ import type { RunSummary } from "@/types/authority";
 
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type StageKey = "context" | "graph" | "findings" | "manifest";
@@ -119,7 +120,7 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
   if (summaryOnly) {
     return (
       <p
-        className="m-0 text-[11px] text-neutral-600 dark:text-neutral-400"
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
         data-testid="run-provenance-inline-summary"
       >
         {summaryLine}
@@ -138,7 +139,8 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
           <li key={stage.key}>
             <span
               className={cn(
-                "inline-flex items-center rounded-full border px-2 py-px text-[10px] font-semibold uppercase tracking-wide",
+                "inline-flex items-center rounded-full border px-2 py-px font-semibold uppercase tracking-wide",
+                OPERATOR_NAV_GROUP_LABEL,
                 stage.present
                   ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                   : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
@@ -150,7 +152,7 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
         ))}
       </ul>
       <span
-        className="text-[11px] text-neutral-600 dark:text-neutral-400"
+        className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}
         data-testid="run-provenance-inline-summary"
       >
         {summaryLine}

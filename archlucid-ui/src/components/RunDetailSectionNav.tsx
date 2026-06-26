@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type RunDetailSection = {
@@ -108,10 +109,10 @@ export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
         buyerStickyChrome ? "top-40 lg:top-44" : "top-16",
       )}
     >
-      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+      <p className={cn("mb-1.5 text-neutral-500 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
         On this page
       </p>
-      <ul className="m-0 flex list-none flex-wrap gap-1 p-0 text-sm">
+      <ul className={cn("m-0 flex list-none flex-wrap gap-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {visible.map((s) => {
           const active = activeId === s.id;
 

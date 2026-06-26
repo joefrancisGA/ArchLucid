@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+
 export type OperatorPageHeaderProps = {
   title: string;
   subtitle?: string;
@@ -42,7 +45,7 @@ export function OperatorPageHeader({
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center gap-2">
         <h2
-          className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50"
+          className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}
           {...(titleTestId !== undefined ? { "data-testid": titleTestId } : {})}
         >
           {title}
@@ -53,13 +56,13 @@ export function OperatorPageHeader({
       </div>
 
       {subtitle != null && (
-        <p className="m-0 mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+        <p className={cn("m-0 mt-2 max-w-2xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {subtitle}
         </p>
       )}
 
       {metadata != null && (
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <div className={cn("mt-2 flex flex-wrap gap-x-4 gap-y-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {metadata}
         </div>
       )}
