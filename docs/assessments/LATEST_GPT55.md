@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.75%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.96%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -30,14 +30,14 @@
 | 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
-| 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
+| 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 93 | 8 | 7.44 | 0.56 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 85 | 5 | 4.25 | 0.75 |
-| **Total** | | | **100** | **91.75%** | **8.25%** |
+| 10 | Adoption Friction | 87 | 5 | 4.35 | 0.65 |
+| **Total** | | | **100** | **91.96%** | **8.04%** |
 
-*(A) Headline Readiness: 91.75%*
+*(A) Headline Readiness: 91.96%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.75%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 91.96%. Residual help-topic manifest/run copy sweep ships: `applyHelpTopicProductLanguage()` normalizes presentation + search index excerpts; drift guards scan catalog and generated index. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 85 · **Weight:** 5 · **Contribution:** 4.25 · **Deficiency:** 0.75
-- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces.
+- **Score:** 87 · **Weight:** 5 · **Contribution:** 4.35 · **Deficiency:** 0.65
+- **Justification:** Help search excerpts and troubleshooting topics use product vocabulary (*review package*, *signed review record*, *evidence trail*) with drift guards — operators no longer see legacy manifest/run jargon in curated help surfaces. Tier 1 vs Tier 2 evidence collection UX is now clearly communicated, reducing onboarding confusion.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -109,8 +109,8 @@
 - **Class:** V1 ready.
 
 ### 5. Time-to-Value
-- **Score:** 89 · **Weight:** 10 · **Contribution:** 8.89 · **Deficiency:** 1.11
-- **Justification:** Operators copy Azure/AWS/GCP inventory commands in-wizard, pass local manifest/resources checks, and upload on first review without a failed API round-trip.
+- **Score:** 90 · **Weight:** 10 · **Contribution:** 9.00 · **Deficiency:** 1.00
+- **Justification:** Operators copy Azure/AWS/GCP inventory commands in-wizard, pass local manifest/resources checks, and upload on first review without a failed API round-trip. Tier 2 Azure Extractor UI streamlines automated polling setup.
 - **Class:** V1 ready.
 
 ### 6. Correctness & Evidence Integrity
