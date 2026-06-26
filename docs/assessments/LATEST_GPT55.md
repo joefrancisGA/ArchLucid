@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.26%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.54%`
 
 **State of play:** This readiness score excludes deferred V1.1/V2 items (SOC 2 CPA, third-party pen test, MCP, live commerce) as required by the grading prompt. **AWS/GCP target analysis Phases 1–4 ship** per owner promotion **2026-06-25** ([V1_SCOPE.md §2.19](../library/V1_SCOPE.md)). The analysis is grounded in the real Azure OpenAI configuration capabilities, not just simulator output.
 
@@ -27,17 +27,17 @@
 |---|---------|---------------|--------|-----------------------|----------------------------|
 | 1 | Decision-Changing Insight Density | 88 | 13 | 11.44 | 1.56 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 94 | 13 | 12.22 | 0.78 |
-| 3 | Governed Review Integrity | 94 | 13 | 12.22 | 0.78 |
+| 3 | Governed Review Integrity | 95 | 13 | 12.35 | 0.65 |
 | 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 90 | 10 | 9.00 | 1.00 |
 | 6 | Time-to-Value | 89 | 10 | 8.89 | 1.11 |
 | 7 | Proof-of-ROI Readiness | 93 | 9 | 8.37 | 0.63 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 81 | 5 | 4.05 | 0.95 |
-| **Total** | | | **100** | **91.26%** | **8.74%** |
+| 10 | Adoption Friction | 84 | 5 | 4.20 | 0.80 |
+| **Total** | | | **100** | **91.54%** | **8.46%** |
 
-*(A) Headline Readiness: 91.26%*
+*(A) Headline Readiness: 91.54%*
 
 ---
 
@@ -67,7 +67,7 @@
 
 # 5. Executive Summary
 
-- **(A) Overall headline readiness:** 91.26%. CI/CD governance gate reference pipelines ship (`examples/ci/archlucid-governance-gate.sh`, GitHub Actions + ADO YAML, `docs/runbooks/CI_GOVERNANCE_GATE.md`) — fail on pre-commit 409 and PilotStrict HOLD. Graph-RAG retrieval quality telemetry ships: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
+- **(A) Overall headline readiness:** 91.54%. ITSM tenant connector onboarding wizard ships (`PUT /v1/integrations/itsm/settings`, System Administration wizard with masked deployment credentials, connection test, smoke runbook links). CI/CD governance gate reference pipelines ship: `graph_rag_neighbors_added_total` and `graph_rag_expansion_latency_ms` OTel metrics, persisted trace fields, run-detail diagnostics strip (technical disclosure), and config-lint advisory when `EnableGraphRag=true` without Azure Search posture. Finding-level evidence deep-links and TB-402 remain shipped.
 - **(B) Procurement / market realism (weight 0):** Enterprise friction will occur due to the missing SOC 2 Type I/II CPA attestation (currently self-assessed only). Rigid RFPs may balk at the lack of third-party pen-test validation. Supportability is strong due to granular observability, but enterprise procurement typically slows down without full third-party assurances. 
 - **Commercial picture:** Compelling today. The sales-led V1 motion (pricing pages + order form + staging TEST mode) provides a viable path to capture early revenue and validate value without waiting for automated self-serve provisioning (`Commerce un-hold`).
 - **Enterprise picture:** High trust potential. The `Database-per-tenant` isolation model and the Tier 1 extractor posture (requiring zero vendor access to the customer cloud) explicitly addresses the biggest enterprise AI adoption fear: data leakage and unauthorized access.
@@ -94,8 +94,8 @@
 - **Class:** V1 ready.
 
 ### 2. Adoption Friction
-- **Score:** 81 · **Weight:** 5 · **Contribution:** 4.05 · **Deficiency:** 0.95
-- **Justification:** Reference GitHub Actions and Azure DevOps governance-gate pipelines (`examples/ci/`) create → execute → commit from repo context, fail on `#governance-pre-commit-blocked` and PilotStrict HOLD, and surface review URLs in PR checks — reduces principal-architect bypass vs IDE chat.
+- **Score:** 84 · **Weight:** 5 · **Contribution:** 4.20 · **Deficiency:** 0.80
+- **Justification:** System Administration ITSM onboarding wizard saves tenant outbound overrides, surfaces masked deployment credential posture, runs live connection probes, and links smoke runbooks — Jira-heavy pilots no longer require raw API knowledge for baseline connector setup.
 - **Class:** V1 ready.
 
 ### 3. AI / Agent Readiness
@@ -129,8 +129,8 @@
 - **Class:** V1 ready.
 
 ### 9. Governed Review Integrity
-- **Score:** 94 · **Weight:** 13 · **Contribution:** 12.22 · **Deficiency:** 0.78
-- **Justification:** Pre-commit gate is enforceable in CI via copy-paste reference pipelines documented in `docs/runbooks/CI_GOVERNANCE_GATE.md`; 78 typed append-only audit events and segregation of duties remain the core moat.
+- **Score:** 95 · **Weight:** 13 · **Contribution:** 12.35 · **Deficiency:** 0.65
+- **Justification:** ITSM connector onboarding is admin-gated with audit event `TenantItsmOutboundSettingsUpserted`; pre-commit CI pipelines and append-only audit events keep governed outbound create on the critical path for Jira/ServiceNow pilots.
 - **Class:** V1 ready.
 
 ### 10. Runtime & First-Review Reliability
@@ -151,7 +151,7 @@
 7. **Cost Extraction Complexity:** Tier-1 PowerShell ZIP remains the first-review default; Tier-2 auto-pull is hardened but still V1.x opt-in.
 8. **UI "Manifest" Nomenclature:** TB-399 redirects ship; residual copy may linger in help topics.
 9. **Custom Agent Handler Discovery:** Advanced teams might struggle to write custom agents without a robust marketplace.
-10. **ITSM Connector Onboarding (TB-404):** Outbound ITSM create works, but per-tenant Jira/ServiceNow setup still requires admin/API knowledge. *Fix:* System Administration connector wizard with connection test and masked credentials.
+10. **Help Topic Copy Drift (TB-399 residual):** Help catalog may still use legacy "manifest" / "run" language inconsistent with product vocabulary. *Fix:* Help-topic copy sweep with drift guards.
 
 ---
 
@@ -248,18 +248,6 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 
 **Tier 1 – Must Fix**
 
-- **Title:** ITSM Tenant Connector Onboarding Wizard (TB-404 slice)
-- **Tier:** Tier 2 – High Leverage
-- **Why it matters:** Outbound ITSM create works, but per-tenant connector setup still requires admin/API knowledge — friction for Jira-heavy pilots.
-- **Expected impact:** System Administration wizard for Jira/ServiceNow: tenant settings write, connection test, masked credential storage.
-- **Affected qualities:** Adoption Friction, Governed Review Integrity.
-- **Evidence:** `TECH_BACKLOG.md` TB-404; assessment weakness #7.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 4
-- **Market Uncertainty Reduced:** 5
-- **Classification:** V1 GA
-- **Cursor Prompt:** Ship System Administration wizard for Jira/ServiceNow: tenant settings write, connection test, masked credential storage — per `TECH_BACKLOG.md` TB-404. Gate on `Integrations:Itsm:NativeEnabled`.
-
 - **Title:** Residual "Manifest" / Technical Copy Sweep in Help Topics
 - **Tier:** Tier 2 – High Leverage
 - **Why it matters:** TB-399 redirects ship, but help catalog and generated index may still use legacy "manifest" / "run" language — inconsistent with product vocabulary.
@@ -289,7 +277,7 @@ ArchLucid's survival depends on being boringly reliable infrastructure for audit
 ## 18. Prompt Batching Guidance
 
 *All prompts safe for Composer / Sonnet 3.5.*
-1. **Batch 1:** Tier 2 ITSM + copy — TB-404 connector wizard, then help-topic manifest copy sweep.
+1. **Batch 1:** Tier 2 copy — help-topic manifest copy sweep.
 2. **Batch 2:** V1.1 membrane — MCP façade scaffold (design-only until approved).
 
 ## 19. Model Usage Guidance

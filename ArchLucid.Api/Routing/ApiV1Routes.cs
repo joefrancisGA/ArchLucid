@@ -63,5 +63,7 @@ public static class ApiV1Routes
 
     public const string TeamsNotificationTriggerCatalog = "v1/integrations/teams/triggers";
 
+    public const string ItsmOutboundSettings = "v1/integrations/itsm/settings";
+
     public const string Evolution = "v1/evolution";
 }

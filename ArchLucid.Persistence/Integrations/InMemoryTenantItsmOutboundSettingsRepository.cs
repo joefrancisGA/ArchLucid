@@ -16,6 +16,20 @@ public sealed class InMemoryTenantItsmOutboundSettingsRepository : ITenantItsmOu
             : Task.FromResult(_byTenant.GetValueOrDefault(tenantId));
     }
 
+    public Task<TenantItsmOutboundSettings> UpsertAsync(Guid tenantId, TenantItsmOutboundSettings settings, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        ArgumentNullException.ThrowIfNull(settings);
+
+        _ = _byTenant.AddOrUpdate(tenantId, settings, (_, _) => settings);
+
+        return Task.FromResult(settings);
+    }
+
     /// <summary>Test / dev helper — not used by production SQL hosts.</summary>
     public void Upsert(Guid tenantId, TenantItsmOutboundSettings settings)
     {

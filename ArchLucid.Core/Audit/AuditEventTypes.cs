@@ -719,6 +719,11 @@ public static class AuditEventTypes
     public const string TenantTeamsIncomingWebhookConnectionUpserted = "TenantTeamsIncomingWebhookConnectionUpserted";
 
     /// <summary>
+    ///     Tenant ITSM outbound settings upserted (<c>PUT /v1/integrations/itsm/settings</c>).
+    /// </summary>
+    public const string TenantItsmOutboundSettingsUpserted = "TenantItsmOutboundSettingsUpserted";
+
+    /// <summary>
     ///     Tenant Microsoft Teams incoming-webhook Key Vault reference removed (
     ///     <c>DELETE /v1/integrations/teams/connections</c>).
     /// </summary>

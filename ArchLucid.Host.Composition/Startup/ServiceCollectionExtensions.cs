@@ -176,6 +176,7 @@ public static partial class ServiceCollectionExtensions
                 static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds))
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
+        services.AddScoped<ITenantItsmOutboundSettingsService, TenantItsmOutboundSettingsService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
         services.AddScoped<ItsmExternalTicketUrlBuilder>();
         services.AddScoped<ItsmFindingCorrelationQueryService>();

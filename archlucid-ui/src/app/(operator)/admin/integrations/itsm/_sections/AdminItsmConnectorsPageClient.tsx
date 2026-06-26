@@ -5,13 +5,20 @@ import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { fetchItsmIntegrationHealth, type ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
+import {
+  fetchItsmIntegrationHealth,
+  fetchTenantItsmOutboundSettings,
+  type ItsmIntegrationHealthResponse,
+  type TenantItsmOutboundSettingsResponse,
+} from "@/lib/api/itsm-outbound-api";
 import {
   ITSM_CONNECTORS_ADMIN_LABEL,
   ITSM_CONNECTORS_ADMIN_SUMMARY,
 } from "@/lib/itsm-connectors-admin-scope";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+
+import { AdminItsmConnectorOnboardingWizard } from "./AdminItsmConnectorOnboardingWizard";
 
 type ConnectorProbeCardProps = {
   title: string;
@@ -50,6 +57,7 @@ function ConnectorProbeCard(props: ConnectorProbeCardProps): React.ReactElement 
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
+  const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -58,11 +66,16 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
     setLoadError(null);
 
     try {
-      const response = await fetchItsmIntegrationHealth();
-      setHealth(response);
+      const [healthResponse, settingsResponse] = await Promise.all([
+        fetchItsmIntegrationHealth(),
+        fetchTenantItsmOutboundSettings(),
+      ]);
+      setHealth(healthResponse);
+      setSettings(settingsResponse);
     } catch (error: unknown) {
       setHealth(null);
-      setLoadError(error instanceof Error ? error.message : "Could not load ITSM connector health.");
+      setSettings(null);
+      setLoadError(error instanceof Error ? error.message : "Could not load ITSM connector configuration.");
     } finally {
       setIsLoading(false);
     }
@@ -97,15 +110,18 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
           </CardDescription>
         </CardHeader>
         <CardContent className={cn("space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <p className="m-0">
-            One-click outbound create is gated by deployment flag{" "}
-            <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled</code>. Tenant credential write UI and onboarding
-            wizard ship under engineering backlog <span className="font-medium">TB-404</span>.
-          </p>
           {health?.nativeEnabled === true ? (
             <p className="m-0">Native outbound create is enabled for this deployment.</p>
           ) : (
-            <p className="m-0">Native outbound create is disabled for this deployment (clipboard export still available).</p>
+            <p className="m-0">
+              Native outbound create is disabled for this deployment (clipboard export still available). Enable{" "}
+              <code className={OPERATOR_TYPOGRAPHY.micro}>Integrations:Itsm:NativeEnabled</code> after smoke validation.
+            </p>
+          )}
+          {settings?.hasTenantOverrides ? (
+            <p className="m-0">Tenant ITSM outbound overrides are saved for this tenant.</p>
+          ) : (
+            <p className="m-0">No tenant overrides saved yet — use the onboarding wizard below.</p>
           )}
         </CardContent>
       </Card>
@@ -117,18 +133,27 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
       ) : null}
 
       {isLoading ? (
-        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading connector health…</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading connector configuration…</p>
       ) : (
-        <section className="space-y-4" aria-labelledby="admin-itsm-connectors-health-heading">
-          <h2
-            id="admin-itsm-connectors-health-heading"
-            className={OPERATOR_TYPOGRAPHY.sectionTitle}
-          >
-            Connector health
-          </h2>
-          <ConnectorProbeCard title="Jira" probe={health?.jira} testId="admin-itsm-jira-health" />
-          <ConnectorProbeCard title="ServiceNow" probe={health?.serviceNow} testId="admin-itsm-servicenow-health" />
-        </section>
+        <>
+          <AdminItsmConnectorOnboardingWizard
+            initialSettings={settings}
+            initialHealth={health}
+            onSettingsSaved={setSettings}
+            onHealthUpdated={setHealth}
+          />
+
+          <section className="space-y-4" aria-labelledby="admin-itsm-connectors-health-heading">
+            <h2
+              id="admin-itsm-connectors-health-heading"
+              className={OPERATOR_TYPOGRAPHY.sectionTitle}
+            >
+              Connector health
+            </h2>
+            <ConnectorProbeCard title="Jira" probe={health?.jira} testId="admin-itsm-jira-health" />
+            <ConnectorProbeCard title="ServiceNow" probe={health?.serviceNow} testId="admin-itsm-servicenow-health" />
+          </section>
+        </>
       )}
     </div>
   );

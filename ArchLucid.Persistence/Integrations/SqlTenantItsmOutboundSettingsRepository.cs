@@ -22,6 +22,55 @@ public sealed class SqlTenantItsmOutboundSettingsRepository(
     public Task<TenantItsmOutboundSettings?> TryGetAsync(Guid tenantId, CancellationToken ct) =>
         _sqlOperations.ExecuteAsync(cancellationToken => TryGetCoreAsync(tenantId, cancellationToken), ct);
 
+    public Task<TenantItsmOutboundSettings> UpsertAsync(Guid tenantId, TenantItsmOutboundSettings settings, CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(cancellationToken => UpsertCoreAsync(tenantId, settings, cancellationToken), ct);
+
+    private async Task<TenantItsmOutboundSettings> UpsertCoreAsync(
+        Guid tenantId,
+        TenantItsmOutboundSettings settings,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        ArgumentNullException.ThrowIfNull(settings);
+
+        const string sql = """
+                           MERGE dbo.TenantItsmOutboundSettings AS target
+                           USING (SELECT @TenantId AS TenantId) AS source
+                           ON target.TenantId = source.TenantId
+                           WHEN MATCHED THEN
+                               UPDATE SET
+                                   JiraProjectKeyOverride = @JiraProjectKeyOverride,
+                                   JiraSendInfoSeverity = @JiraSendInfoSeverity,
+                                   JiraIssueTypeBySeverityJson = @JiraIssueTypeBySeverityJson,
+                                   ServiceNowAutoCreateCmdbCi = @ServiceNowAutoCreateCmdbCi
+                           WHEN NOT MATCHED THEN
+                               INSERT (TenantId, JiraProjectKeyOverride, JiraSendInfoSeverity, JiraIssueTypeBySeverityJson, ServiceNowAutoCreateCmdbCi)
+                               VALUES (@TenantId, @JiraProjectKeyOverride, @JiraSendInfoSeverity, @JiraIssueTypeBySeverityJson, @ServiceNowAutoCreateCmdbCi);
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        _ = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        TenantId = tenantId,
+                        JiraProjectKeyOverride = settings.JiraProjectKeyOverride,
+                        JiraSendInfoSeverity = settings.JiraSendInfoSeverity,
+                        JiraIssueTypeBySeverityJson = settings.JiraIssueTypeBySeverityJson,
+                        ServiceNowAutoCreateCmdbCi = settings.ServiceNowAutoCreateCmdbCi,
+                    },
+                    cancellationToken: ct))
+            .ConfigureAwait(false);
+
+        TenantItsmOutboundSettings? saved = await TryGetCoreAsync(tenantId, ct).ConfigureAwait(false);
+
+        return saved ?? settings;
+    }
+
     private async Task<TenantItsmOutboundSettings?> TryGetCoreAsync(Guid tenantId, CancellationToken ct)
     {
         if (tenantId == Guid.Empty)
