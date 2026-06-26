@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 /**
  * Short-lived navigation state only — structured page chrome (not a generic skeleton) so screenshots and
@@ -21,19 +23,19 @@ export default function ManifestDetailLoading() {
       aria-live="polite"
       aria-busy="true"
     >
-      <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+      <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <Link className={OPERATOR_LINK.nav} href="/">
           {OPERATOR_NAV_LINK_LABELS.home}
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+        <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           Reviews
         </Link>
       </nav>
-      <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
+      <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>
         {buyerPolishedLayout ? "Architecture review package" : "Finalized architecture review package"}
       </h1>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading review record…</p>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading review record…</p>
     </div>
   );
 }
