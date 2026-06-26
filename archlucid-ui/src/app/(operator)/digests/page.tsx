@@ -4,6 +4,8 @@ import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorksp
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export default function DigestsPage() {
   if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
@@ -18,7 +20,10 @@ export default function DigestsPage() {
   return (
     <Suspense
       fallback={
-        <p className="p-4 text-sm text-neutral-500 dark:text-neutral-400" data-testid="digests-hub-suspense-fallback">
+        <p
+          className={cn("p-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="digests-hub-suspense-fallback"
+        >
           Loading digests...
         </p>
       }

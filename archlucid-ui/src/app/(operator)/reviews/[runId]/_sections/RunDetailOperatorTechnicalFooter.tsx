@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { RunDetailTechnicalIdentifiersSection } from "@/components/RunDetailTechnicalIdentifiersSection";
+import { OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 type RunDetailOperatorTechnicalFooterProps = {
   readonly runId: string;
@@ -15,7 +16,7 @@ export function RunDetailOperatorTechnicalFooter(props: RunDetailOperatorTechnic
     <>
       <div className="flex items-center gap-3 pt-2">
         <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+        <span className={OPERATOR_NAV_GROUP_LABEL}>
           Technical reference
         </span>
         <hr className="flex-1 border-neutral-200 dark:border-neutral-700" />

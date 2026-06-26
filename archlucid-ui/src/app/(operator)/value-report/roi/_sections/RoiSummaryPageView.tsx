@@ -12,6 +12,8 @@ import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
 import { Button } from "@/components/ui/button";
 
 import type { RoiSummaryPageViewModel } from "./roi-summary-page-view-model";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 type Props = {
   readonly model: RoiSummaryPageViewModel;
@@ -39,7 +41,7 @@ export function RoiSummaryPageView(props: Props) {
       <OperatorPageContainer variant="dashboard" className="space-y-4">
         <LayerHeader pageKey="value-report-roi" />
         <ValueReportOutcomesNav />
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading ROI summary…</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading ROI summary…</p>
       </OperatorPageContainer>
     );
   }
@@ -68,34 +70,40 @@ export function RoiSummaryPageView(props: Props) {
       <LayerHeader pageKey="value-report-roi" />
       <ValueReportOutcomesNav />
       <DocumentLayout>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">ROI summary</h1>
+        <h1 className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}>ROI summary</h1>
         <div
-          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 text-sm shadow-sm"
+          className={cn(
+            "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 shadow-sm",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
           role="status"
         >
-          <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Scope</p>
+          <p className={cn("m-0 font-semibold text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Scope</p>
           <p className="m-0 mt-1 leading-snug">Figures reflect your current tenant/workspace/project scope only.</p>
         </div>
         <div
-          className="rounded-md border border-neutral-100 bg-neutral-50 px-4 py-2 text-xs text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-400"
+          className={cn(
+            "rounded-md border border-neutral-100 bg-neutral-50 px-4 py-2 text-al-text-secondary dark:border-neutral-800 dark:bg-neutral-900/40",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
           role="note"
           data-testid="roi-evidence-basis-notice"
         >
-          <span className="font-medium text-neutral-700 dark:text-neutral-300">Evidence basis:</span>{" "}
+          <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>Evidence basis:</span>{" "}
           Figures are derived from AI-governed architecture review findings. The execution mode of each contributing
           review (Simulator or Real) is recorded on the review detail page and shown per-period on the{" "}
-          <Link href="/dashboard" className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300">
+          <Link href="/dashboard" className={OPERATOR_LINK.nav}>
             ROI trend chart
           </Link>
           . Simulator-only periods do not represent live Azure OpenAI analysis.
         </div>
-        <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className={cn("doc-meta m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Hours-first estimate from pilot-value-report severities and pre-commit block audit events.{" "}
-          <Link href="/value-report/pilot" className="font-medium text-blue-700 underline dark:text-blue-400">
+          <Link href="/value-report/pilot" className={OPERATOR_LINK.inline}>
             Pilot value report
           </Link>
           {" · "}
-          <Link href="/governance/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
+          <Link href="/governance/dashboard" className={OPERATOR_LINK.inline}>
             Workspace health
           </Link>
         </p>
