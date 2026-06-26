@@ -21,6 +21,8 @@ import {
   formatGovernanceLineageWholeCount,
 } from "@/lib/governance-lineage-metric-format";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-approval-display-title";
 
@@ -36,8 +38,8 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Approval lineage</h1>
-          <p className="text-sm text-muted-foreground">{displayApprovalTitle}</p>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>Approval lineage</h1>
+          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{displayApprovalTitle}</p>
         </div>
         {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
         <Button variant="outline" size="sm" asChild>
@@ -47,24 +49,24 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
 
       <Card>
         <CardHeader>
-          <CardTitle>Approval</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Approval</CardTitle>
           <CardDescription>Status and reviewer context</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-2 text-sm">
+        <CardContent className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground">Status</span>
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Status</span>
             <Badge variant="secondary">{a.status}</Badge>
             {data.riskPosture ? (
               <>
-                <span className="text-muted-foreground">Risk posture</span>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Risk posture</span>
                 <Badge variant="outline">{data.riskPosture}</Badge>
               </>
             ) : null}
           </div>
           <div>
-            <span className="text-muted-foreground">Review package</span>{" "}
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review package</span>{" "}
             <Link
-              className="font-medium underline-offset-4 hover:underline"
+              className={OPERATOR_LINK.inline}
               href={`/reviews/${encodeURIComponent(a.runId)}`}
             >
               Open →
@@ -72,10 +74,10 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <span className="sr-only"> ({a.runId})</span>
           </div>
           <div>
-            <span className="text-muted-foreground">Signed decision record version</span>{" "}
-            <span className="font-mono">{a.manifestVersion}</span>
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Signed decision record version</span>{" "}
+            <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{a.manifestVersion}</span>
           </div>
-          <div className="text-muted-foreground">
+          <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Requested {formatInstantForBuyerGovernance(a.requestedUtc)} by {a.requestedBy}
             {a.reviewedUtc ? (
               <>
@@ -91,10 +93,10 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.run ? (
         <Card>
           <CardHeader>
-          <CardTitle>Architecture review checkpoint</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Architecture review checkpoint</CardTitle>
           <CardDescription>Status and completion record</CardDescription>
           </CardHeader>
-          <CardContent className="text-sm">
+          <CardContent className={OPERATOR_TYPOGRAPHY.body}>
             <div>Status {data.run.status}</div>
             <div>Created {formatInstantForBuyerGovernance(data.run.createdUtc)}</div>
             {data.run.completedUtc ? (
@@ -110,10 +112,10 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.manifest ? (
         <Card>
           <CardHeader>
-            <CardTitle>Signed review record</CardTitle>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Signed review record</CardTitle>
             <CardDescription>Signed decision record associated with this approval</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-1 text-sm">
+          <CardContent className={cn("grid gap-1", OPERATOR_TYPOGRAPHY.body)}>
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>
             <div>Decisions {formatGovernanceLineageWholeCount(data.manifest.decisionCount)}</div>
             <div>Unresolved issues {formatGovernanceLineageWholeCount(data.manifest.unresolvedIssueCount)}</div>
@@ -124,25 +126,25 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
 
       <Card>
         <CardHeader>
-          <CardTitle>Top findings</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Top findings</CardTitle>
           <CardDescription>Findings associated with this approval</CardDescription>
         </CardHeader>
         <CardContent>
           {data.topFindings.length === 0 ? (
             <OperatorEmptyState title="No findings in lineage">
-              <p className="text-sm">
+              <p className={OPERATOR_TYPOGRAPHY.body}>
                 Findings appear when this approval links to a review that has a findings snapshot.
               </p>
             </OperatorEmptyState>
           ) : (
-            <ul className="space-y-2 text-sm">
+            <ul className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
               {data.topFindings.map((f) => (
                 <li key={f.findingId} className="rounded-md border p-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">{f.severity}</Badge>
                     <span className="font-medium">{f.title}</span>
                   </div>
-                  <div className="text-muted-foreground text-xs">
+                  <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                     {f.engineType} · trace completeness {formatGovernanceLineageCompletenessPercent(f.traceCompletenessRatio)}
                   </div>
                 </li>
@@ -154,20 +156,20 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
 
       <Card>
         <CardHeader>
-          <CardTitle>Promotions</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Promotions</CardTitle>
           <CardDescription>Recorded promotion history for this review</CardDescription>
         </CardHeader>
         <CardContent>
           {data.promotions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No promotion records.</p>
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No promotion records.</p>
           ) : (
-            <ul className="space-y-2 text-sm">
+            <ul className={cn("space-y-2", OPERATOR_TYPOGRAPHY.body)}>
               {data.promotions.map((p) => (
                 <li key={p.promotionRecordId} className="rounded-md border p-2">
                   <div className="font-medium">
                     Decision record <span className="font-mono">{p.manifestVersion}</span>
                   </div>
-                  <div className="text-muted-foreground text-xs">
+                  <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                     {formatInstantForBuyerGovernance(p.promotedUtc)} · {p.promotedBy}
                   </div>
                 </li>

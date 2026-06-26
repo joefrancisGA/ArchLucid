@@ -8,6 +8,8 @@ import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRou
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
@@ -88,7 +90,7 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
   if (!data) {
     return (
       <OperatorEmptyState title="No data">
-        <p className="text-sm">Lineage could not be loaded.</p>
+        <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Lineage could not be loaded.</p>
       </OperatorEmptyState>
     );
   }
