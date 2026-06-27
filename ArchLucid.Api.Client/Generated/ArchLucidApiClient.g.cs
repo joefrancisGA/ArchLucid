@@ -70816,6 +70816,43 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class GovernedFindingCoverageMetric
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("advisoryCount")]
+        public int? AdvisoryCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("governedCount")]
+        public int? GovernedCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("governedPercentage")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? GovernedPercentage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("isAvailable")]
+        public bool? IsAvailable { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalDecisionGradeCount")]
+        public int? TotalDecisionGradeCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("withEvidenceRefsCount")]
+        public int? WithEvidenceRefsCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("withPolicyRuleCount")]
+        public int? WithPolicyRuleCount { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class GraphEdge
     {
 
@@ -74674,6 +74711,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsBySeverity")]
         public System.Collections.Generic.ICollection<PilotRunDeltaSeverityCountResponse>? FindingsBySeverity { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("governedFindingCoverage")]
+        public GovernedFindingCoverageMetric? GovernedFindingCoverage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isDemoTenant")]
         public bool? IsDemoTenant { get; set; } = default!;

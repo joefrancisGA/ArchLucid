@@ -11696,6 +11696,43 @@
         },
         "type": "object"
       },
+      "GovernedFindingCoverageMetric": {
+        "properties": {
+          "advisoryCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "governedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "governedPercentage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "totalDecisionGradeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "withEvidenceRefsCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "withPolicyRuleCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "GraphEdge": {
         "properties": {
           "edgeId": {
@@ -15426,6 +15463,16 @@
               "$ref": "#/components/schemas/PilotRunDeltaSeverityCountResponse"
             },
             "type": "array"
+          },
+          "governedFindingCoverage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GovernedFindingCoverageMetric"
+              }
+            ]
           },
           "isDemoTenant": {
             "type": "boolean"
