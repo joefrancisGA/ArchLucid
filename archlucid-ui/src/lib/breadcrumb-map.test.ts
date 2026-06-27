@@ -11,21 +11,18 @@ describe("getBreadcrumbs", () => {
 
   it("maps recommendation tuning breadcrumb to the nav label", () => {
     expect(getBreadcrumbs("/recommendation-learning")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Recommendation tuning" },
     ]);
   });
 
   it("uses New review on the wizard path when buyer-polished breadcrumbs are requested", () => {
     expect(getBreadcrumbs("/reviews/new", { buyerPolishedShell: true })).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "New review" },
     ]);
   });
 
-  it("shortens the new-review path to Overview / New request", () => {
+  it("shortens the new-review path to a single wizard crumb", () => {
     expect(getBreadcrumbs("/reviews/new")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "New request" },
     ]);
   });
@@ -33,7 +30,6 @@ describe("getBreadcrumbs", () => {
   it("labels UUID review segments as Review package", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}`)).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Review packages", href: "/reviews" },
       { label: "Review package" },
     ]);
@@ -42,7 +38,6 @@ describe("getBreadcrumbs", () => {
   it("maps review provenance under the review package crumb", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
     expect(getBreadcrumbs(`/reviews/${id}/provenance`)).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Review packages", href: "/reviews" },
       { label: "Review package", href: `/reviews/${id}` },
       { label: "Evidence provenance" },
@@ -51,7 +46,6 @@ describe("getBreadcrumbs", () => {
 
   it("maps showcase manifest detail trail", () => {
     expect(getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`)).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Signed review records", href: "/manifests" },
       { label: "Claims Intake review package" },
     ]);
@@ -61,7 +55,6 @@ describe("getBreadcrumbs", () => {
     expect(
       getBreadcrumbs(`/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`, { buyerPolishedShell: true }),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Signed review records", href: "/manifests" },
       { label: `${SHOWCASE_BUYER_REVIEW_TITLE} signed record` },
     ]);
@@ -69,7 +62,6 @@ describe("getBreadcrumbs", () => {
 
   it("maps governance approval lineage with demo request title", () => {
     expect(getBreadcrumbs("/governance/approval-requests/e2e-approval-001/lineage")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Governance", href: "/governance" },
       { label: "Approval requests", href: "/governance/approval-requests" },
       { label: "Sample approval record", href: "/governance/approval-requests/e2e-approval-001" },
@@ -79,22 +71,19 @@ describe("getBreadcrumbs", () => {
 
   it("maps governance dashboard segments", () => {
     expect(getBreadcrumbs("/governance/dashboard")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Governance", href: "/governance" },
       { label: "Governance dashboard" },
     ]);
   });
 
-  it("maps operator ROI dashboard as Overview / Portfolio overview", () => {
+  it("maps operator ROI dashboard as portfolio overview", () => {
     expect(getBreadcrumbs("/dashboard")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Portfolio overview" },
     ]);
   });
 
-  it("maps settings billing as Overview / Settings / Billing & plans", () => {
+  it("maps settings billing as Settings / Billing & plans", () => {
     expect(getBreadcrumbs("/settings/billing")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Settings", href: "/settings" },
       { label: "Billing & plans" },
     ]);
@@ -102,7 +91,6 @@ describe("getBreadcrumbs", () => {
 
   it("maps cloud connections under Integrations (not Settings)", () => {
     expect(getBreadcrumbs("/settings/cloud-connections")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Integrations", href: "/integrations/operations" },
       { label: "Cloud connections" },
     ]);
@@ -110,7 +98,6 @@ describe("getBreadcrumbs", () => {
 
   it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
     expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Policy packs", href: "/policy-packs" },
       { label: "Policy pack detail" },
     ]);
@@ -118,14 +105,12 @@ describe("getBreadcrumbs", () => {
 
   it("redirect target path breadcrumb resolves to registry only", () => {
     expect(getBreadcrumbs("/governance/policy-packs")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Policy packs", href: "/policy-packs" },
     ]);
   });
 
   it("labels showcase demo slug before uuid-style titles", () => {
     expect(getBreadcrumbs("/showcase/claims-intake-modernization")).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Showcase", href: "/showcase" },
       { label: "Claims Intake Modernization" },
     ]);
@@ -133,7 +118,6 @@ describe("getBreadcrumbs", () => {
 
   it("buyer-polished: audit crumb reads Audit trail", () => {
     expect(getBreadcrumbs("/audit", { buyerPolishedShell: true })).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Audit trail" },
     ]);
   });
@@ -145,7 +129,6 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Evidence graph" },
     ]);
@@ -157,7 +140,7 @@ describe("getBreadcrumbs", () => {
         buyerPolishedShell: true,
         queryRunId: "other-review",
       }),
-    ).toEqual([{ label: OPERATOR_NAV_LINK_LABELS.home, href: "/" }, { label: "Evidence graph" }]);
+    ).toEqual([{ label: "Evidence graph" }]);
   });
 
   it("buyer-polished: compare demo runId on hub inserts review package title before the hub crumb", () => {
@@ -167,20 +150,18 @@ describe("getBreadcrumbs", () => {
         queryRunId: "claims-intake-run-v1",
       }),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Baseline Claims Intake Review", href: "/reviews/claims-intake-run-v1" },
       { label: "Audit trail" },
     ]);
   });
 
-  it("buyer-polished: showcase runId on governance findings inserts review package title after Overview", () => {
+  it("buyer-polished: showcase runId on governance findings inserts review package title before governance crumbs", () => {
     expect(
       getBreadcrumbs("/governance/findings", {
         buyerPolishedShell: true,
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Governance", href: "/governance" },
       { label: "Findings" },
@@ -194,7 +175,6 @@ describe("getBreadcrumbs", () => {
         queryRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       }),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: `/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}` },
       { label: "Search review evidence" },
     ]);
@@ -207,7 +187,6 @@ describe("getBreadcrumbs", () => {
         { buyerPolishedShell: true },
       ),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Review packages", href: "/reviews" },
       { label: SHOWCASE_BUYER_REVIEW_TITLE, href: "/reviews/claims-intake-modernization" },
       { label: "Findings", href: "/reviews/claims-intake-modernization/findings" },
@@ -223,11 +202,18 @@ describe("getBreadcrumbs", () => {
     expect(
       getBreadcrumbs("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
     ).toEqual([
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: "Review packages", href: "/reviews" },
       { label: "Claims Intake Modernization", href: "/reviews/e2e-fixture-run-001" },
       { label: "Findings", href: "/reviews/e2e-fixture-run-001/findings" },
       { label: "Demonstration finding" },
+    ]);
+  });
+
+  it("capitalizes ITSM acronym in admin integrations breadcrumb", () => {
+    expect(getBreadcrumbs("/admin/integrations/itsm")).toEqual([
+      { label: "Admin", href: "/admin" },
+      { label: "Integrations", href: "/admin/integrations" },
+      { label: "ITSM" },
     ]);
   });
 });

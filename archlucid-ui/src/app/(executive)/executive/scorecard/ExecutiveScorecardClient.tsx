@@ -197,7 +197,7 @@ export function ExecutiveScorecardClient() {
                 <Link href="/auth/signin">Sign in</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/">Open review portal</Link>
+                <Link href="/reviews?projectId=default">Open review packages</Link>
               </Button>
             </div>
           </CardContent>

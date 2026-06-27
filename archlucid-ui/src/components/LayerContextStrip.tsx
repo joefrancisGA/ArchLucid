@@ -60,11 +60,9 @@ export type LayerContextStripProps = {
   buyerGoldenJourneyNav?: ResolvedBuyerGoldenJourneyNav | null;
   /** CTO demo pack: sample/live data indicator on golden-journey spine pages. */
   demoDataSourceBadge?: ReactNode;
-  /** When true, omit the default Operate "Back to home" / contextual return link (breadcrumbs + nav suffice). */
+  /** When true, omit contextual return links on this route (breadcrumbs + sidebar nav suffice). */
   hideOperateBackLink?: boolean;
 };
-
-const DEFAULT_OPERATE_BACK = { label: "Back to home", href: "/" } as const;
 
 /**
  * Persistent one-line product-layer cue under the app header: layer label, guiding question, optional
@@ -82,7 +80,7 @@ export function LayerContextStrip({
 }: LayerContextStripProps) {
   const orientation = buyerRouteOrientation;
 
-  const stripBackForOriented = (isOperateLayer: boolean): { label: string; href: string } | null => {
+  const resolveStripBackLink = (): { label: string; href: string } | null => {
     if (hideOperateBackLink) {
       return null;
     }
@@ -91,13 +89,12 @@ export function LayerContextStrip({
       return buyerOperateBackLink;
     }
 
-    return isOperateLayer ? DEFAULT_OPERATE_BACK : null;
+    return null;
   };
 
   if (orientation !== undefined && orientation.line.trim().length > 0 && orientation.label.trim().length > 0) {
     const baseStrip = LAYER_COPY[layerId];
-    const isOperateOriented = layerId === "operate-analysis" || layerId === "operate-governance";
-    const stripBack = stripBackForOriented(isOperateOriented);
+    const stripBack = resolveStripBackLink();
 
     return (
       <div
@@ -229,8 +226,7 @@ export function LayerContextStrip({
     layerId === "operate-analysis" && polishedOperateAnalysisLabel !== undefined && polishedOperateAnalysisLabel.length > 0
       ? { ...baseCopy, label: polishedOperateAnalysisLabel }
       : baseCopy;
-  const isOperate = layerId === "operate-analysis" || layerId === "operate-governance";
-  const stripBack = stripBackForOriented(isOperate);
+  const stripBack = resolveStripBackLink();
 
   const compactRegionLabel = `${copy.label}. ${copy.question}`;
 

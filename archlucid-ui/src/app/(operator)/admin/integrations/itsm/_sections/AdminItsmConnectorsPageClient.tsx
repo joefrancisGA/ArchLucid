@@ -88,10 +88,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-itsm-connectors-page">
       <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{ITSM_CONNECTORS_ADMIN_LABEL}</h1>
-          <StatusTag kind="neutral" label="System admin only" />
-        </div>
+        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{ITSM_CONNECTORS_ADMIN_LABEL}</h1>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{ITSM_CONNECTORS_ADMIN_SUMMARY}</p>
       </header>
 

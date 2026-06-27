@@ -384,10 +384,7 @@ export function AlertsInboxContent() {
           />
           <OperatorTryNext>
             Confirm the API and proxy are up, then click <strong>Refresh</strong>. Alerts come from scheduled scans—if
-            the list should not be empty, check worker schedules and{" "}
-            <Link className={OPERATOR_LINK.nav} href="/">
-              {OPERATOR_NAV_LINK_LABELS.home}
-            </Link>{" "}
+            the list should not be empty, check worker schedules and open <Link className={OPERATOR_LINK.nav} href="/help">Help</Link>{" "}
             for environment guidance.
           </OperatorTryNext>
         </div>

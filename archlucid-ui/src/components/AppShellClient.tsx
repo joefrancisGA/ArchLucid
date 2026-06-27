@@ -322,12 +322,6 @@ function AppShellInner({ children }: AppShellClientProps) {
                       >
                         Reviews
                       </Link>
-                      <Link
-                        href="/"
-                        className={cn("font-medium text-neutral-700 underline-offset-2 hover:underline dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
-                      >
-                        {OPERATOR_NAV_LINK_LABELS.home}
-                      </Link>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                       <AuthPanel />

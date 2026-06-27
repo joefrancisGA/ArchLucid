@@ -8,7 +8,6 @@ import "./globals.css";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Replaces the entire root layout when layout.tsx fails. Must define html/body.
@@ -34,7 +33,7 @@ export default function GlobalError({
         <div className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mt-4 max-w-lg px-4 py-3">
           <strong className="text-red-950 dark:text-red-100">The app shell could not load</strong>
           <p className="mt-2 text-sm text-red-900 dark:text-red-100/95">
-            {isDev ? error.message : "A critical error occurred. Try reloading, open Help, or return home."}
+            {isDev ? error.message : "A critical error occurred. Try reloading or open Help."}
           </p>
           <OperatorErrorUiReferenceLine paragraphClassName="mt-3 text-red-900/90 dark:text-red-100/85" />
           {digest.length > 0 ? (
@@ -52,9 +51,6 @@ export default function GlobalError({
         <div className="mt-6 flex flex-wrap gap-2">
           <Button type="button" variant="primary" onClick={() => reset()}>
             Retry
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
           </Button>
           <Button type="button" variant="outline" asChild>
             <Link href="/help">Help</Link>

@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import {
-  BUYER_DEMO_CAPABILITY_RETURN_HOME_CTA,
   BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA,
   BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE,
 } from "@/lib/buyer-polish-copy";
@@ -25,7 +24,10 @@ describe("DemoWorkspaceCapabilityUnavailablePanel", () => {
     expect(
       screen.getByText("In a connected tenant, operators configure scheduled governance digests here."),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: BUYER_DEMO_CAPABILITY_RETURN_HOME_CTA })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Open review packages" })).toHaveAttribute(
+      "href",
+      "/reviews?projectId=default",
+    );
     expect(screen.getByRole("link", { name: BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA })).toHaveAttribute(
       "href",
       "/help/troubleshooting",

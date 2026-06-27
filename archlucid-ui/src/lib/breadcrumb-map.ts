@@ -84,6 +84,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   settings: "Settings",
   billing: "Billing & plans",
   integrations: "Integrations",
+  itsm: "ITSM",
   webhooks: "Webhook subscriptions",
 };
 
@@ -99,30 +100,23 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   }
 
   if (normalized === "/dashboard") {
-    return [
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
-      { label: OPERATOR_NAV_LINK_LABELS.portfolioOverview },
-    ];
+    return [{ label: OPERATOR_NAV_LINK_LABELS.portfolioOverview }];
   }
 
-  // Product path: skip the intermediate "Architecture reviews" crumb so first workflow reads Overview / New request.
+  // Product path: wizard crumb only — sidebar nav covers workspace overview.
   if (normalized === "/reviews/new") {
-    return [
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
-      { label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) },
-    ];
+    return [{ label: newReviewWizardCrumbLabel(options?.buyerPolishedShell) }];
   }
 
   // Cloud connections lives under Integrations nav — not Settings admin chrome.
   if (normalized === "/settings/cloud-connections") {
     return [
-      { label: OPERATOR_NAV_LINK_LABELS.home, href: "/" },
       { label: OPERATOR_NAV_GROUP_LABELS.integrations, href: "/integrations/operations" },
       { label: OPERATOR_NAV_LINK_LABELS.cloudConnections },
     ];
   }
 
-  const items: BreadcrumbItem[] = [{ label: OPERATOR_NAV_LINK_LABELS.home, href: "/" }];
+  const items: BreadcrumbItem[] = [];
   const rawSegments = normalized.split("/").filter(Boolean);
 
   if (rawSegments.length === 0) {
@@ -325,16 +319,11 @@ function injectBuyerShowcaseReviewPackageCrumb(
   const rawSegments = normalizedPath.split("/").filter(Boolean);
 
   if (BUYER_GOVERNANCE_RUN_SCOPED_PATHS.has(normalizedNoTrailing)) {
-    if (items.length < 2 || items[0]?.label !== OPERATOR_NAV_LINK_LABELS.home) {
-      return items;
-    }
-
     const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
     return [
-      items[0]!,
       { label: reviewTitle, href: reviewHref },
-      ...items.slice(1),
+      ...items,
     ];
   }
 
@@ -348,16 +337,11 @@ function injectBuyerShowcaseReviewPackageCrumb(
     return items;
   }
 
-  if (items.length < 2 || items[0]?.label !== OPERATOR_NAV_LINK_LABELS.home) {
-    return items;
-  }
-
   const reviewHref = `/reviews/${encodeURIComponent(runId)}`;
 
   return [
-    items[0]!,
     { label: reviewTitle, href: reviewHref },
-    ...items.slice(1),
+    ...items,
   ];
 }
 

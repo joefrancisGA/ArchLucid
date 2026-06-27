@@ -159,9 +159,6 @@ export function SignInClient() {
           <Button asChild variant="outline" size="sm">
             <Link href="/help">Help</Link>
           </Button>
-          <Link href="/" className={OPERATOR_LINK.nav}>
-            Back to home
-          </Link>
         </div>
       </div>
     );
@@ -180,10 +177,6 @@ export function SignInClient() {
           Taking longer than expected?{" "}
           <Link className={OPERATOR_LINK.nav} href="/auth/signin">
             Try again
-          </Link>{" "}
-          or{" "}
-          <Link className="text-teal-700 underline dark:text-teal-300" href="/">
-            return home
           </Link>
           .
         </p>

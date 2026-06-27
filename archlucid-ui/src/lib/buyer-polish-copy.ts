@@ -671,8 +671,6 @@ export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE =
 export const BUYER_DEMO_CAPABILITY_UNAVAILABLE_BODY =
   "In a connected tenant, administrators configure users, support routing, digest subscriptions, and system health here.";
 
-export const BUYER_DEMO_CAPABILITY_RETURN_HOME_CTA = "Return to home";
-
 export const BUYER_DEMO_CAPABILITY_TROUBLESHOOTING_CTA = "Open troubleshooting";
 
 /** @deprecated Prefer {@link BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE} — title is workspace-scoped, not capability-scoped. */

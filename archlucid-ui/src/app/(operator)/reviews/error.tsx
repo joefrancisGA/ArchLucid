@@ -9,7 +9,6 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -37,7 +36,7 @@ export default function RunsSegmentError({
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {isDev
             ? "Development build — technical details appear below."
-            : "This reviews view hit an unexpected error. You can retry, return to reviews, go home, or open Help."}
+            : "This reviews view hit an unexpected error. You can retry, return to reviews, or open Help."}
         </p>
         {isDev ? (
           <pre
@@ -69,9 +68,6 @@ export default function RunsSegmentError({
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/reviews?projectId=default">Back to reviews</Link>
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

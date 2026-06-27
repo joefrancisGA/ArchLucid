@@ -12,7 +12,6 @@ import {
 } from "@/lib/trial-sample-azure-deploy";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 type TenantTrialStatusResponse = {
   status?: string;
@@ -164,9 +163,6 @@ export function OnboardingStartClient() {
             <Button asChild type="button" variant="outline" size="sm">
               <Link href="/onboarding">Open onboarding checklist</Link>
             </Button>
-            <Button asChild type="button" variant="ghost" size="sm">
-              <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
-            </Button>
           </div>
         </section>
       ) : null}
@@ -248,9 +244,6 @@ export function OnboardingStartClient() {
             ) : null}
             <Button asChild variant="outline">
               <Link href="/reviews/new">Open new review wizard</Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
             </Button>
           </div>
         </section>

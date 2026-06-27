@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { StatusTag } from "@/components/ui/status-tag";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -15,10 +14,7 @@ export function AdminAwsCloudConnectionsPageClient(): React.ReactElement {
   return (
     <div className="w-full max-w-3xl space-y-6" data-testid="admin-aws-cloud-connections-page">
       <header className={OPERATOR_LAYOUT.sectionHeadingStack}>
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{AWS_CLOUD_CONNECTIONS_ADMIN_LABEL}</h1>
-          <StatusTag kind="neutral" label="System admin only" />
-        </div>
+        <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{AWS_CLOUD_CONNECTIONS_ADMIN_LABEL}</h1>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{AWS_CLOUD_CONNECTIONS_ADMIN_SUMMARY}</p>
       </header>
 

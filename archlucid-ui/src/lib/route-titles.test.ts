@@ -41,6 +41,10 @@ describe("getRouteTitle — unknown path", () => {
   it("strips trailing slash", () => {
     expect(getRouteTitle("/planning/")).toBe("Planning");
   });
+
+  it("capitalizes ITSM acronym for itsm path segment", () => {
+    expect(getRouteTitle("/admin/integrations/itsm")).toBe("ITSM");
+  });
 });
 
 describe("getRouteTitle — executive shell", () => {

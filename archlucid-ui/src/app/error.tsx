@@ -9,7 +9,6 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { reportClientError } from "@/lib/error-telemetry";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -38,7 +37,7 @@ export default function AppError({
         <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {isDev
             ? "Development build — technical details appear below."
-            : "This page hit an unexpected error. You can try again, return to Overview, or open Help for guidance."}
+            : "This page hit an unexpected error. You can try again or open Help for guidance."}
         </p>
         {isDev ? (
           <pre
@@ -67,9 +66,6 @@ export default function AppError({
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="primary" onClick={() => reset()}>
           Retry
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

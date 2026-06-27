@@ -1,10 +1,7 @@
 "use client";
 
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type SessionExpiredViewProps = {
@@ -33,9 +30,6 @@ export function SessionExpiredView({ onSignIn }: SessionExpiredViewProps) {
         <Button variant="default" size="sm" onClick={onSignIn} data-testid="session-expired-sign-in">
           Sign in
         </Button>
-        <Link href="/" className={OPERATOR_LINK.nav}>
-          {OPERATOR_NAV_LINK_LABELS.home}
-        </Link>
       </div>
     </div>
   );

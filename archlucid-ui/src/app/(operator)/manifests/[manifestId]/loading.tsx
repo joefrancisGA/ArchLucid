@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,10 +23,6 @@ export default function ManifestDetailLoading() {
       aria-busy="true"
     >
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/">
-          {OPERATOR_NAV_LINK_LABELS.home}
-        </Link>
-        {" · "}
         <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           Reviews
         </Link>

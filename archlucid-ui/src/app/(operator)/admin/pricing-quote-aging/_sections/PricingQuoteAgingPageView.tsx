@@ -65,11 +65,6 @@ export function PricingQuoteAgingPageView(props: Props) {
         >
           This page requires tenant administrator access (AdminAuthority).
         </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <Link className={OPERATOR_LINK.inline} href="/">
-            Return to home
-          </Link>
-        </p>
       </div>
     );
   }

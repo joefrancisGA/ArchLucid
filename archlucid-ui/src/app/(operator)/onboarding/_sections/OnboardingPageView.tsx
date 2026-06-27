@@ -6,8 +6,7 @@ import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSect
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
@@ -43,13 +42,6 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
             <Link href={sampleReviewHref}>Open sample review</Link>
           </Button>
         </div>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          For the full workspace overview, go to{" "}
-          <Link className={OPERATOR_LINK.inline} href="/">
-            {OPERATOR_NAV_LINK_LABELS.home}
-          </Link>
-          .
-        </p>
       </header>
 
       {fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} /> : null}

@@ -199,10 +199,6 @@ export function CallbackClient() {
             Taking longer than expected?{" "}
             <Link className={OPERATOR_LINK.nav} href="/auth/signin">
               Restart sign-in
-            </Link>{" "}
-            or{" "}
-            <Link className={OPERATOR_LINK.nav} href="/">
-              return home
             </Link>
             .
           </p>
@@ -217,9 +213,6 @@ export function CallbackClient() {
           <Button asChild variant="outline" size="sm">
             <Link href="/help">Help</Link>
           </Button>
-          <Link href="/" className={OPERATOR_LINK.nav}>
-            Back to home
-          </Link>
         </div>
       ) : null}
     </div>

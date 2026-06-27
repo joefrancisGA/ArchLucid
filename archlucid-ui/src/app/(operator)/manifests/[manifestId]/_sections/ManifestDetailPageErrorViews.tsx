@@ -14,7 +14,6 @@ import {
 } from "@/lib/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +27,6 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
   return (
     <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/">
-          {OPERATOR_NAV_LINK_LABELS.home}
-        </Link>
-        {" · "}
         <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           Reviews
         </Link>
@@ -47,8 +42,6 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
 function ManifestDetailPageErrorFooterLinks() {
   return (
     <p className={cn(OPERATOR_TYPOGRAPHY.body)}>
-      <Link className={OPERATOR_LINK.inline} href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
-      {" · "}
       <Link className={OPERATOR_LINK.inline} href="/reviews?projectId=default">Reviews</Link>
     </p>
   );

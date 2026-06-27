@@ -46,9 +46,6 @@ export function OperatorBrandedNotFound({
       </p>
       <div className={cn("mt-4 flex flex-wrap items-center gap-4 font-medium", OPERATOR_TYPOGRAPHY.body)}>
         <OperatorSectionRetryButton label={retryLabel} />
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/" data-testid="not-found-home">
-          {OPERATOR_NAV_LINK_LABELS.home}
-        </Link>
         <Link
           className="text-teal-800 underline dark:text-teal-300"
           href={REVIEW_PACKAGES_HREF}

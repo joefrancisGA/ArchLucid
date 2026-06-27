@@ -211,10 +211,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     <div className="w-full max-w-[1200px] space-y-6 px-1 py-2 sm:px-0">
       <CtoDemoBuyerValueStrip stepIndex={1} />
       <nav aria-label="Breadcrumb" className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-        <Link className={OPERATOR_LINK.nav} href="/">
-          {OPERATOR_NAV_LINK_LABELS.home}
-        </Link>
-        {" · "}
         <Link className={OPERATOR_LINK.nav} href="/reviews?projectId=default">
           Reviews
         </Link>

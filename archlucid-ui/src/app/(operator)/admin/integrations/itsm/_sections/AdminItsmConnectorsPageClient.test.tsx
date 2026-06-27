@@ -37,7 +37,6 @@ describe("AdminItsmConnectorsPageClient", () => {
 
     expect(screen.getByTestId("admin-itsm-connectors-page")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ITSM connectors" })).toBeInTheDocument();
-    expect(screen.getByText("System admin only")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Integration readiness" })).toHaveAttribute(
       "href",
       "/integrations/operations",

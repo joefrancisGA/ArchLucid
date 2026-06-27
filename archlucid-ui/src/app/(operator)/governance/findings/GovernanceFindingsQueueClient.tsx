@@ -710,10 +710,6 @@ export default function GovernanceFindingsQueueClient() {
       <LayerHeader pageKey="governance-findings" density="compact" />
       {buyerPolishedShell ? (
         <nav aria-label="Breadcrumb" className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          <Link className={OPERATOR_LINK.inline} href="/">
-            {OPERATOR_NAV_LINK_LABELS.home}
-          </Link>
-          {" · "}
           <Link className={OPERATOR_LINK.inline} href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
             Governance approval
           </Link>

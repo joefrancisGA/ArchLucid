@@ -45,11 +45,6 @@ export function CostReportingSettingsPageView(props: Props) {
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="cost-reporting-forbidden">
           This page requires tenant administrator access (AdminAuthority). Sign in with an admin-ranked account or API key.
         </p>
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-          <Link className={OPERATOR_LINK.nav} href="/">
-            Return to home
-          </Link>
-        </p>
       </div>
     );
   }

@@ -21,7 +21,7 @@ describe("Breadcrumbs", () => {
 
     expect(list).not.toBeNull();
     expect(list).toHaveClass("flex-nowrap");
-    expect(screen.getByRole("link", { name: "Overview" })).toHaveAttribute("href", "/");
+    expect(screen.queryByRole("link", { name: "Overview" })).toBeNull();
     expect(screen.getByRole("link", { name: "Help" })).toHaveAttribute("href", "/help");
     expect(screen.getByText("Evidence trail")).toHaveAttribute("aria-current", "page");
   });

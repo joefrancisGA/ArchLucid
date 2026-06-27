@@ -42,5 +42,9 @@ export function getRouteTitle(pathname: string): string {
     return "Page";
   }
 
+  if (last === "itsm") {
+    return "ITSM";
+  }
+
   return last.charAt(0).toUpperCase() + last.slice(1).replaceAll("-", " ");
 }

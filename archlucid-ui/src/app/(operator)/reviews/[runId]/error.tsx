@@ -13,7 +13,6 @@ import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -117,9 +116,6 @@ export default function RunDetailSegmentError({
         </Button>
         <Button type="button" variant="outline" onClick={() => reset()}>
           Retry
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/">{OPERATOR_NAV_LINK_LABELS.home}</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/help">Help</Link>

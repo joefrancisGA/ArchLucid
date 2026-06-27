@@ -36,7 +36,6 @@ describe("not-found", () => {
       screen.getByText(/open Review packages and confirm the workspace selector is set correctly/i),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
-    expect(screen.getByTestId("not-found-home")).toHaveAttribute("href", "/");
     expect(screen.getByTestId("not-found-review-packages")).toHaveAttribute(
       "href",
       "/reviews?projectId=default",
