@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **80.91%**.
+ArchLucid Assessment - (A) Headline Readiness: **81.27%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T18:46:00-04:00.
+- **Assessment timestamp:** 2026-06-27T18:54:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -31,17 +31,17 @@ ArchLucid Assessment - (A) Headline Readiness: **80.91%**.
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 82 | 13 | 10.66 | 234 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 84 | 13 | 10.92 | 208 |
+| 1 | Decision-Changing Insight Density | 83 | 13 | 10.79 | 221 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 85 | 13 | 11.05 | 195 |
 | 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
 | 4 | Correctness & Evidence Integrity | 81 | 12 | 9.72 | 228 |
-| 5 | AI / Agent Readiness | 83 | 10 | 8.30 | 170 |
+| 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
 | 7 | Proof-of-ROI Readiness | 79 | 9 | 7.11 | 189 |
 | 8 | Executive / Operator Comprehension | 75 | 8 | 6.00 | 200 |
 | 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
 | 10 | Adoption Friction | 70 | 5 | 3.50 | 150 |
-|  | **(A) Headline readiness** |  | **100** | **80.91** |  |
+|  | **(A) Headline readiness** |  | **100** | **81.27** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -69,7 +69,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **80.91%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
+- **(A) Overall headline readiness (excludes deferred items):** **81.27%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -93,9 +93,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.2 Decision-Changing Insight Density
-- **Score / Weight / Contribution / Deficiency:** 82 / 13 / 10.66 / 234
+- **Score / Weight / Contribution / Deficiency:** 83 / 13 / 10.79 / 221
 - **Affects outcomes:** 1, 3, 5
-- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; market proof of repeated decision change is still limited.
+- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; the new frontier-AI baseline CLI gives a repeatable counterfactual scoreboard path, but live buyer decision-change proof is still limited.
 - **Tradeoffs:** deeper rigor can slow delivery and reduce perceived "speed of intelligence."
 - **Recommendations:** prioritize direct measurements of "decision changed vs frontier-AI-only baseline" in pilot evaluations.
 - **Classification:** validation first
@@ -109,9 +109,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.4 Differentiability / Defensibility vs Frontier AI
-- **Score / Weight / Contribution / Deficiency:** 84 / 13 / 10.92 / 208
+- **Score / Weight / Contribution / Deficiency:** 85 / 13 / 11.05 / 195
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** this is currently **High** on the rubric, because the moat candidates are governance-stateful and auditable, not just better prose generation.
+- **Justification:** this remains **High** on the rubric because moat candidates are governance-stateful and auditable; the baseline benchmark program now operationalizes honest scoreboard rollups instead of self-referential positioning.
 - **Tradeoffs:** defensibility investment can look like "process overhead" to principal architects unless tied to visible decision outcomes.
 - **Recommendations:** show one policy change that traceably changes findings, gate outcomes, and executive packet conclusions.
 - **Classification:** validation first
@@ -133,9 +133,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.7 AI / Agent Readiness
-- **Score / Weight / Contribution / Deficiency:** 83 / 10 / 8.30 / 170
+- **Score / Weight / Contribution / Deficiency:** 84 / 10 / 8.40 / 160
 - **Affects outcomes:** 1, 2, 5
-- **Justification:** strong split between real Azure OpenAI mode and simulator, plus orchestration and retrieval layering, supports governed AI behavior.
+- **Justification:** strong split between real Azure OpenAI mode and simulator, plus orchestration and retrieval layering, supports governed AI behavior; baseline benchmark checks now enforce anti-claims and cohort guardrails before differentiation messaging expands.
 - **Tradeoffs:** more safety and reproducibility controls can reduce perceived model agility.
 - **Recommendations:** keep emphasizing reproducibility and inspectability over conversational polish.
 - **Classification:** V1
@@ -362,14 +362,12 @@ Non-goals:
 ### Tier 3 - Hold For Reassessment
 
 **5) Frontier-AI baseline benchmark program**
-- **Why it matters:** prevents self-referential moat assumptions.
-- **Expected impact:** differentiation truthfulness and strategy quality.
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `archlucid pilot frontier-ai-baseline` validates the fixture pack, parses the rolling scoreboard, computes cohort guardrails, and emits JSON/Markdown reports with PASS/WARN/FAIL verdicts; `--init-scoreboard` seeds `artifacts/bakeoff/scoreboard/frontier-ai-scoreboard.md` from the template.
+- **Validation evidence:** `ArchLucid.Cli.Tests/FrontierAiBaselineRunnerTests.cs` covers scoreboard parsing, initialization warnings, healthy cohort pass, and anti-claims failure paths.
 - **Affected qualities:** 1, 2, 5.
-- **Evidence:** competitive framing is strong conceptually but sparse in repeated benchmark data.
-- **Actionability:** medium.
-- **Design Uncertainty Reduced:** 2/10
-- **Market Uncertainty Reduced:** 8/10
-- **Classification:** validation first
+- **Classification:** validation first (engineering half shipped; live bakeoff sessions remain GTM **M-43**).
+- **Rescore impact:** Decision-Changing Insight Density +1, Differentiability +1, and AI / Agent Readiness +1; `(A)` headline readiness rises from **80.91%** to **81.27%**.
 
 **6) ITSM pull-forward decision gate**
 - **Why it matters:** avoid over-building or under-serving integration expectations.
