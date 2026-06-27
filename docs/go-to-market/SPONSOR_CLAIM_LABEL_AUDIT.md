@@ -68,4 +68,4 @@ python scripts/ci/validate_first_value_lane.py
 python scripts/ci/run_buyer_surface_strict_guards.py --strict
 ```
 
-**Cross-refs:** [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) G1 · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
+**Cross-refs:** [`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md) G1 · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md) · [`PROOF_LANGUAGE_CLAIM_AUDIT.md`](PROOF_LANGUAGE_CLAIM_AUDIT.md) (buyer-facing proof packets + demo scripts; superlative guard)

@@ -48,4 +48,16 @@ public interface IDraftRequestRepository
         Guid projectId,
         Guid parentDraftId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Lists run-spawned drafts in scope (newest first) for repeat-pilot answer reuse.
+    ///     Excludes <paramref name="excludeDraftId" /> when non-empty.
+    /// </summary>
+    Task<IReadOnlyList<DraftRequestResponse>> ListRunSpawnedInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid excludeDraftId,
+        int maxCount,
+        CancellationToken cancellationToken);
 }

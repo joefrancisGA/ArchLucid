@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 90.91%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.06%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -44,16 +44,16 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 | 3 | Governed Review Integrity | 96 | 13 | 12.48 | 0.52 |
 | 4 | Correctness & Evidence Integrity | 92 | 12 | 11.04 | 0.96 |
 | 5 | AI / Agent Readiness | 87 | 10 | 8.70 | 1.30 |
-| 6 | Time-to-Value | 89 | 10 | 8.90 | 1.10 |
+| 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 88 | 5 | 4.40 | 0.60 |
-| **Total** |  |  | **100** | **90.91%** | **9.09** |
+| 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
+| **Total** |  |  | **100** | **91.06%** | **8.94** |
 
-*(A) Headline Readiness: 90.91%*
+*(A) Headline Readiness: 91.06%*
 
-**Rescore (2026-06-27): unchanged at 90.91%.** Since the prior pass, the **design halves of Improvements #3 and #4** shipped: #3 → `PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md` + capture template; #4 → `EXECUTIVE_PAID_PILOT_PROOF_PACKET.md` (six-element assembly map + mock-procurement-review chaining, reusing the existing sponsor-packet CLI and send gates). Both are **weight-0 market-validation/GTM tooling**, not product code: neither changes any of the ten `(A)` product qualities, so no quality score moves and the headline holds. The diagnostics in §3 are likewise unchanged — instruments that *assemble* or *measure* proof do not by themselves change survival, voluntary-usage, or purchase probabilities; only **running** the cohorts (GTM V1.1 `M-44` for #3, `M-37` for #4) or shipping the §17 engineering candidates (#11–#15) would move scores. See §17 items 3 and 4 for remainder routing.
+**Rescore (2026-06-27): 90.91% → 91.06%.** Improvement **#8 (Repeat-pilot answer reuse)** shipped as product code: at draft admission, unanswered elicitation keys are pre-filled from prior **run-spawned** drafts in the same tenant/workspace/project scope (`DraftPriorAnswerReuseApplicator` + `ListRunSpawnedInScopeAsync`), with reuse provenance on the transparency trail. This reduces repeat-pilot intake friction — **Time-to-Value +1 (89→90)** and **Adoption Friction +1 (88→89)** — for a **+0.15%** headline move. Prior rescore notes (weight-0 GTM tooling for #3/#4/#7 design halves) remain valid for those items.
 
 ---
 
@@ -138,8 +138,8 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Decision-changing insight, survivability against frontier AI.
 
 ### 3. Time-to-Value
-- **Score · Weight · Contribution · Deficiency:** 89 · 10 · 8.90 · **1.10**
-- **Justification:** The first-review path is now shaped by a 90-minute playbook, pilot nav profile, demo review, extractor ZIP validation, decision-delta panel, and proof packet. That is materially better than a sprawling enterprise UI. Still, the actual value path involves configuration, evidence capture, request/draft, execution, commit, review, export, and possibly ITSM. A skilled architect can open Claude faster, so ArchLucid must reach "governed package" value quickly.
+- **Score · Weight · Contribution · Deficiency:** 90 · 10 · 9.00 · **1.00**
+- **Justification:** The first-review path is now shaped by a 90-minute playbook, pilot nav profile, demo review, extractor ZIP validation, decision-delta panel, proof packet, and **repeat-pilot answer reuse** (prior run-spawned elicitation answers pre-fill on the second draft in the same scope). That is materially better than a sprawling enterprise UI. Still, the actual value path involves configuration, evidence capture, request/draft, execution, commit, review, export, and possibly ITSM. A skilled architect can open Claude faster, so ArchLucid must reach "governed package" value quickly.
 - **Tradeoffs:** Reducing intake too far weakens evidence quality and policy fit; asking too much makes architects abandon.
 - **Recommendations:** Validate the 90-minute claim with three dry runs: one internal operator, one engineer not familiar with the codebase, one target-user proxy.
 - **Classification:** V1, market validation required.
@@ -170,8 +170,8 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Executive purchase, voluntary usage.
 
 ### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 88 · 5 · 4.40 · **0.60**
-- **Justification:** Tier-1 extractor avoids vendor credentials, which is a major trust win, but shifts work to the customer. Identity, Key Vault, Azure AI Search for production-like profiles, SQL, and optional ITSM setup remain real friction. Native ITSM create exists but is intentionally default-off in configuration, so remediation handoff may require admin work before it becomes magical.
+- **Score · Weight · Contribution · Deficiency:** 89 · 5 · 4.45 · **0.55**
+- **Justification:** Tier-1 extractor avoids vendor credentials, which is a major trust win, but shifts work to the customer. Identity, Key Vault, Azure AI Search for production-like profiles, SQL, and optional ITSM setup remain real friction. Native ITSM create exists but is intentionally default-off in configuration, so remediation handoff may require admin work before it becomes magical. Repeat-pilot answer reuse now removes re-typing of prior MUST answers on subsequent drafts in the same scope.
 - **Tradeoffs:** Low-friction vendor access would speed onboarding but violate the trust posture. The secure path is slower and more credible.
 - **Recommendations:** Treat pre-pilot readiness as a checklist with named owner/time estimates, not an open-ended setup call.
 - **Classification:** V1, validation required; V1.1 for deeper connectors.
@@ -420,7 +420,7 @@ All six ship gates are PASS and the shipped ledger shows the prior engineering i
 
 ### Tier 2 – High Leverage
 
-**7. Proof-language claim audit**
+**7. Proof-language claim audit — design half shipped (DONE 2026-06-27)**
 - **Tier:** 2
 - **Why it matters:** One unsupported claim can damage trust more than a missing feature.
 - **Expected impact:** Moves Correctness & Evidence Integrity and Executive Purchase.
@@ -430,6 +430,9 @@ All six ship gates are PASS and the shipped ledger shows the prior engineering i
 - **Market Uncertainty Reduced:** 5/10
 - **Classification:** Validation first.
 - **Plan:** Review every buyer-facing proof packet and demo script. Mark each claim as extractor-backed, review-backed, illustrative, self-assessed, or roadmap. Remove unsupported superlatives.
+- **Design half (DONE 2026-06-27):** `docs/go-to-market/PROOF_LANGUAGE_CLAIM_AUDIT.md` defines the canonical five-type taxonomy, classifies every buyer-facing proof packet + demo script by dominant claim type, and records a PASS. A new tight superlative regression guard `scripts/ci/check_proof_language_superlatives.py` (scope/terms in `scripts/ci/data/proof_language_audit_scope.v1.json`, tests in `scripts/ci/tests/test_check_proof_language_superlatives.py`) is wired into `run_buyer_surface_strict_guards.py`; it normalizes markdown emphasis and skips caveated lines, so honest "do not promise" rows pass while new unsupported superlatives fail CI. Reuses the existing `WHAT_NOT_TO_PROMISE.md`, sponsor-output audit, and buyer-surface guard bundle; restates none of them. The corpus was already clean (no copy changes needed).
+- **Remainder (GTM half):** line-level sign-off on borderline comparative/ROI claims and live buyer reaction pair with the procurement objection rehearsal (**M-91**). 
+- **(A) scoring impact:** none on the headline by itself; the guard hardens Correctness & Evidence Integrity against regression. Headline stays 90.91% (see §2 rescore note).
 
 ### Tier 3 – Hold For Reassessment
 
@@ -454,15 +457,17 @@ All six ship gates are PASS and the shipped ledger shows the prior engineering i
 - **(A) scoring impact:** none. Weight-0 market-validation work; the headline stays 90.91% (see §2 rescore note). The score moves only when the live cohort runs.
 - **Classification:** **GTM V1.1 backlog** — tracked as `GTM_BACKLOG.md` **M-44**.
 
-**8. Repeat-pilot answer reuse**
-- **Tier:** 3
+**8. Repeat-pilot answer reuse — DONE (2026-06-27)**
+- **Tier:** 3 (closed for V1)
 - **Why it matters:** Could reduce second-review friction, but only matters if pilots return.
 - **Expected impact:** Time-to-Value, Adoption Friction.
-- **Evidence:** Current draft question engine already skips answered questions within a draft; cross-draft reuse is not yet validated as a blocker.
+- **Evidence:** Draft question engine skipped answered questions within a draft; cross-draft reuse now ships at admission.
 - **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 6/10
+- **Design Uncertainty Reduced:** 6/10 → **shipped**
 - **Market Uncertainty Reduced:** 3/10
-- **Classification:** V1.1 candidate, hold.
+- **Classification:** V1 engineering — **shipped**.
+- **Shipped:** `DraftPriorAnswerReuseApplicator` pre-fills unanswered elicitation keys from up to five prior **RunSpawned** drafts in the same tenant/workspace/project scope at `RequestAdmissionAsync`, records `reused.answer.{questionKey}` provenance on the transparency trail, and lets the existing question-selection engine skip already-answered MUST keys. Repository: `ListRunSpawnedInScopeAsync` (uses existing `IX_DraftRequests_Scope_Status_UpdatedUtc`). Tests: `DraftPriorAnswerReuseApplicatorTests`, `DraftRequestServiceQuestionTests.RequestAdmissionAsync_ReusesAnswersFromPriorRunSpawnedDraft`. Cross-tenant reuse forbidden (ADR 0031).
+- **(A) scoring impact:** Time-to-Value +1, Adoption Friction +1 → headline **91.06%** (see §2 rescore note).
 
 **9. MCP membrane**
 - **Tier:** 3
@@ -621,7 +626,7 @@ Non-goals: New policy authoring UX, broad policy replay, buyer-facing benchmark 
 
 **Second batch — buyer proof:** proof-language claim audit (#7). Safe for Sonnet/Composer for copy cleanup after strategic framing is decided.
 
-**Third batch — GTM V1.1 / only if validation window opens:** 90-minute first-review dry-run cohort, principal architect dismissal interviews, repeat-pilot answer reuse, RAG quality hardening. (Procurement objection rehearsal and ITSM pilot-readiness are **GTM V1.1 backlog only** — **M-91** / **M-92** — not assessment §17 items.) Strong-model-recommended for evidence semantics or governance changes; Sonnet-safe for isolated UI copy or tests.
+**Third batch — GTM V1.1 / only if validation window opens:** 90-minute first-review dry-run cohort, principal architect dismissal interviews, RAG quality hardening. (Procurement objection rehearsal and ITSM pilot-readiness are **GTM V1.1 backlog only** — **M-91** / **M-92** — not assessment §17 items.) Strong-model-recommended for evidence semantics or governance changes; Sonnet-safe for isolated UI copy or tests.
 
 Priorities remain: first-review reliability, guided intake clarity, evidence/policy traceability, package credibility, demo reliability, and executive/operator comprehension. Because the current ship gates pass, validation work should precede new engineering.
 
@@ -650,7 +655,7 @@ Do not use cheaper models to make product strategy calls from pilot evidence; do
 | Which ITSM system, if any, must be configured before payment? | Requires customer validation |
 | When should TB-135 / TB-136 receive budget and owner direction? | Founder decision |
 | When should live commerce / Marketplace un-hold happen? | Founder decision, V1.1 |
-| Should repeat-pilot answer reuse be promoted? | Blocks V1.1 only if pilots prove second-review friction |
+| Should repeat-pilot answer reuse be promoted? | **Shipped (2026-06-27)** — scope-level reuse at draft admission; market validation remains whether pilots actually return |
 
 ---
 

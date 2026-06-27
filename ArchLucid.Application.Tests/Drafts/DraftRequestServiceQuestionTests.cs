@@ -191,6 +191,70 @@ public sealed class DraftRequestServiceQuestionTests
         answered.Document.QuestionAnswers.Should().ContainKey(mustKey);
     }
 
+    [Fact]
+    public async Task RequestAdmissionAsync_ReusesAnswersFromPriorRunSpawnedDraft()
+    {
+        DraftRequestResponse first = await CreateAdmissibleDraftAsync();
+
+        DraftAdmissionResponse? firstAdmission = await _service.RequestAdmissionAsync(
+            _scope,
+            first.DraftId,
+            CancellationToken.None);
+
+        foreach (string mustKey in firstAdmission!.RequiredMustQuestionKeys)
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                first.DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = mustKey, Answer = "First pilot answer." },
+                CancellationToken.None);
+        }
+
+        await _service.SubmitAsync(_scope, first.DraftId, CancellationToken.None);
+
+        DraftRequestResponse second = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest
+            {
+                FreeTextIntent = "Second pilot review for the same regulated workload.",
+            },
+            CancellationToken.None);
+
+        await _service.PatchAsync(
+            _scope,
+            second.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit prep",
+                ActorSet = new ActorSet
+                {
+                    Actors =
+                    [
+                        new ActorDescriptor
+                        {
+                            Kind = ActorKind.Human,
+                            TrustOrigin = TrustOrigin.Internal,
+                            Contract = InteractionContract.Sync,
+                            Origin = ActorOrigin.Asserted,
+                        },
+                    ],
+                },
+            },
+            CancellationToken.None);
+
+        DraftAdmissionResponse? secondAdmission = await _service.RequestAdmissionAsync(
+            _scope,
+            second.DraftId,
+            CancellationToken.None);
+
+        secondAdmission!.Admitted.Should().BeTrue();
+        secondAdmission.PendingMustQuestions.Should().BeEmpty();
+        secondAdmission.Draft.Document.QuestionAnswers.Should().HaveCount(UniversalIntakeQuestions.MustQuestions.Count);
+        secondAdmission.Draft.Document.TransparencyTrail.Asserted.Should().Contain(entry =>
+            entry.Key.StartsWith("reused.answer.", StringComparison.OrdinalIgnoreCase));
+    }
+
     private async Task<DraftRequestResponse> CreateAdmissibleDraftAsync()
     {
         DraftRequestResponse created = await _service.CreateAsync(

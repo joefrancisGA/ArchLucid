@@ -53,6 +53,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         ("python", "scripts/ci/check_sponsor_evidence_label_consistency.py"),
         None,
     ),
+    GuardCommand(
+        "proof-language superlatives",
+        ("python", "scripts/ci/check_proof_language_superlatives.py"),
+        "--advisory",
+    ),
 )
 
 

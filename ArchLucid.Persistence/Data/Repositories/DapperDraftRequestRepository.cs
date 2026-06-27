@@ -259,6 +259,57 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         return count;
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<DraftRequestResponse>> ListRunSpawnedInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid excludeDraftId,
+        int maxCount,
+        CancellationToken cancellationToken)
+    {
+        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+
+        int effectiveMax = Math.Clamp(maxCount, 1, 25);
+
+        const string sql = """
+                           SELECT TOP (@MaxCount)
+                               DraftId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               Status,
+                               DocumentJson,
+                               RedirectReason,
+                               SpawnedRunId,
+                               CreatedUtc,
+                               UpdatedUtc
+                           FROM dbo.DraftRequests
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status = N'RunSpawned'
+                             AND DraftId <> @ExcludeDraftId
+                           ORDER BY UpdatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<DraftRequestRow> rows = await connection.QueryAsync<DraftRequestRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    ExcludeDraftId = excludeDraftId,
+                    MaxCount = effectiveMax,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapRow).ToList();
+    }
+
     private static DraftRequestResponse MapRow(DraftRequestRow row)
     {
         DraftRequestDocument? document =

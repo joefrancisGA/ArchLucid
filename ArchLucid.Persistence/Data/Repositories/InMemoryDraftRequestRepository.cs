@@ -136,6 +136,33 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult(count);
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<DraftRequestResponse>> ListRunSpawnedInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid excludeDraftId,
+        int maxCount,
+        CancellationToken cancellationToken)
+    {
+        int effectiveMax = Math.Clamp(maxCount, 1, MaxPriorDraftsCap);
+        List<DraftRequestResponse> matches = _drafts.Values
+            .Where(stored =>
+                stored.TenantId == tenantId
+                && stored.WorkspaceId == workspaceId
+                && stored.ProjectId == projectId
+                && stored.Status == DraftRequestStatus.RunSpawned
+                && stored.DraftId != excludeDraftId)
+            .OrderByDescending(stored => stored.UpdatedUtc)
+            .Take(effectiveMax)
+            .Select(Map)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<DraftRequestResponse>>(matches);
+    }
+
+    private const int MaxPriorDraftsCap = 25;
+
     private static DraftRequestResponse Map(StoredDraft stored) =>
         new()
         {

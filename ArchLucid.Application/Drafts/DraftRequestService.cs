@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Drafts.PriorAnswerReuse;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Architecture;
@@ -290,6 +291,8 @@ public sealed class DraftRequestService(
 
             return BuildAdmissionResponse(redirected!, admitted: false, semanticRedirect.RedirectReason);
         }
+
+        await ApplyPriorAnswerReuseAsync(scope, draftId, existing.Document, cancellationToken);
 
         QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
             scope.TenantId,
@@ -707,6 +710,23 @@ public sealed class DraftRequestService(
 
         existing.Value = value;
         existing.Confidence = confidence;
+    }
+
+    private async Task ApplyPriorAnswerReuseAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DraftRequestDocument document,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<DraftRequestResponse> priorRunSpawned = await _draftRepository.ListRunSpawnedInScopeAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftPriorAnswerReuseApplicator.MaxPriorDrafts,
+            cancellationToken);
+
+        DraftPriorAnswerReuseApplicator.Apply(document, priorRunSpawned);
     }
 
     private async Task<DraftAdmissionEvaluation?> TrySemanticRedirectAsync(
