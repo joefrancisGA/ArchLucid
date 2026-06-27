@@ -52,6 +52,10 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
           <dt className="font-semibold">Proof disposition</dt>
           <dd className="m-0">{summary.proofPacketLabel}</dd>
         </div>
+        <div>
+          <dt className="font-semibold">Governed coverage</dt>
+          <dd className="m-0">{summary.governedCoverageLabel}</dd>
+        </div>
       </dl>
 
       <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>

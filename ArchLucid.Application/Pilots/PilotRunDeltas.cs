@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -164,4 +165,15 @@ public sealed record PilotRunDeltas
         get;
         init;
     }
+
+    /// <summary>
+    ///     Governed-finding coverage computed from the run's decision-grade findings.
+    ///     <see cref="GovernedFindingCoverageMetric.IsAvailable" /> is <see langword="false" /> when the run
+    ///     has no findings.
+    /// </summary>
+    public GovernedFindingCoverageMetric GovernedFindingCoverage
+    {
+        get;
+        init;
+    } = GovernedFindingCoverageMetric.NotAvailable();
 }

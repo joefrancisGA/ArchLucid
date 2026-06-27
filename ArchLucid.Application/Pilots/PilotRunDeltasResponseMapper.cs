@@ -76,6 +76,7 @@ public static class PilotRunDeltasResponseMapper
             ProofPackageCompleteness = proofPackage,
             RoiMetricSources = roiMetricSources ?? [],
             RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? "PASS",
+            GovernedFindingCoverage = deltas.GovernedFindingCoverage,
         };
     }
 }

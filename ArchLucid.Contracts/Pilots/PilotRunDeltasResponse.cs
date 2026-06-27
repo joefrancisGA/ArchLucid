@@ -121,6 +121,17 @@ public sealed class PilotRunDeltasResponse
         get;
         init;
     } = "PASS";
+
+    /// <summary>
+    ///     Governed-finding coverage metric computed from decision-grade findings in this run.
+    ///     <see cref="GovernedFindingCoverageMetric.IsAvailable" /> is <see langword="false" /> when
+    ///     the run has no findings — surface as "not available" rather than "0 of 0".
+    /// </summary>
+    public GovernedFindingCoverageMetric? GovernedFindingCoverage
+    {
+        get;
+        init;
+    }
 }
 
 /// <summary>One severity bucket from <see cref="PilotRunDeltasResponse.FindingsBySeverity" />.</summary>

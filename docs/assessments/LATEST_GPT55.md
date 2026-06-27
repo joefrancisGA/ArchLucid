@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.90%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.07%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -45,15 +45,17 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 | 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 0.60 |
 | 5 | AI / Agent Readiness | 89 | 10 | 8.90 | 1.10 |
 | 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
-| 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
-| 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
+| 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
+| 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 90 | 5 | 4.50 | 0.50 |
-| **Total** |  |  | **100** | **91.90%** | **8.10** |
+| **Total** |  |  | **100** | **92.07%** | **7.93** |
 
-*(A) Headline Readiness: 91.90%*
+*(A) Headline Readiness: 92.07%*
 
-**Rescore (2026-06-27): 91.75% → 91.90%.** One-command pilot readiness preflight (#13) — `archlucid pilot preflight` extended with `--no-api` offline mode, `--include-itsm` optional ITSM health probe, `--md`/`--markdown-out` markdown report with owner-friendly next steps, dedicated execution-mode step, Azure AI Search extractor docs pointer, and proof-packet claim-lint rules prerequisite check. JSON schema stable for CI; FIRST_PILOT_OPERATOR_PATH.md updated. **Time-to-Value +1 (90→91)** and **Adoption Friction +1 (89→90)** — **+0.15%** headline move.
+**Rescore (2026-06-27): 91.90% → 92.07%.** Governed-finding coverage metric (#14) — `GovernedFindingCoverageMetric` computed from `FindingEnforcementTier` (PolicyViolation vs Advisory) across all decision-grade findings; surfaced in `PilotRunDeltasResponse.GovernedFindingCoverage`, `governance-outcome-summary.json` with explanation text, and run-detail first-screen proof status strip as "Governed coverage" field. **Proof-of-ROI Readiness +1 (94→95)** and **Executive / Operator Comprehension +1 (91→92)** — **+0.17%** headline move.
+
+**Prior rescore (2026-06-27): 91.75% → 91.90%.** One-command pilot readiness preflight (#13) — `archlucid pilot preflight` extended with `--no-api` offline mode, `--include-itsm` optional ITSM health probe, `--md`/`--markdown-out` markdown report with owner-friendly next steps, dedicated execution-mode step, Azure AI Search extractor docs pointer, and proof-packet claim-lint rules prerequisite check. JSON schema stable for CI; FIRST_PILOT_OPERATOR_PATH.md updated. **Time-to-Value +1 (90→91)** and **Adoption Friction +1 (89→90)** — **+0.15%** headline move.
 
 **Prior rescore (2026-06-27): 91.63% → 91.75%.** Proof-packet claim lint (#12) — `ProofPacketClaimLinter` scans buyer-safe proof-packet markdown/text before ZIP/folder write; forbidden assurance/ROI/execution-mode phrases fail with file, phrase, reason, and suggested safe wording; `--skip-claim-lint` for internal-only bypass. **Correctness & Evidence Integrity +1 (94→95)** — **+0.12%** headline move.
 
@@ -584,7 +586,7 @@ Tests to add/update: CLI command option parsing tests; mocked API client tests f
 Non-goals: Deploying infrastructure, running a full release smoke, creating a review.
 ```
 
-**14. Add governed-finding coverage metric to executive/proof surfaces**
+**14. Add governed-finding coverage metric to executive/proof surfaces — SHIPPED 2026-06-27**
 - **Tier:** 3
 - **Why it matters:** The product's moat is strongest when findings are governed and traceable; executives should know whether a package is mostly governed findings or advisory narrative.
 - **Expected impact:** Proof-of-ROI Readiness, Executive / Operator Comprehension, Differentiability.
@@ -593,6 +595,7 @@ Non-goals: Deploying infrastructure, running a full release smoke, creating a re
 - **Design Uncertainty Reduced:** 5/10
 - **Market Uncertainty Reduced:** 4/10
 - **Classification:** V1/V1.1 engineering candidate.
+- **Implementation:** `GovernedFindingCoverageMetric` contract (total, governed, advisory, withPolicyRule, withEvidenceRefs counts + governedPercentage + isAvailable) added to `ArchLucid.Contracts.Pilots`; `PilotRunDeltaComputer.AggregateGovernedFindingCoverage` computes from `FindingEnforcementTier` on all decision-grade findings; exposed via `PilotRunDeltasResponse.GovernedFindingCoverage` (mapper updated); `PilotProofPacketGovernanceArtifacts` reads field from deltasJson and embeds formatted explanation in `governance-outcome-summary.json`; `RunDetailFirstScreenProofSummary.governedCoverageLabel` added to lib and rendered as "Governed coverage" dt/dd in `RunDetailFirstScreenProofStatus`; four backend unit tests + four UI lib tests covering not-available, 100%, mixed, and 0% cases. **Proof-of-ROI Readiness +1, Executive / Operator Comprehension +1.**
 
 **Cursor prompt:**
 ```text

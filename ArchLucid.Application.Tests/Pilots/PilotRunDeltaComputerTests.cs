@@ -8,8 +8,10 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -536,6 +538,105 @@ public sealed class PilotRunDeltaComputerTests
         {
             Run = run,
             Manifest = manifest,
+            Results = [result],
+            DecisionTraces = [],
+        };
+    }
+
+    [Fact]
+    public void AggregateGovernedFindingCoverage_NoFindings_ReturnsNotAvailable()
+    {
+        ArchitectureRunDetail detail = BuildDetailWithFindings([]);
+
+        GovernedFindingCoverageMetric metric = PilotRunDeltaComputer.AggregateGovernedFindingCoverage(detail);
+
+        metric.IsAvailable.Should().BeFalse();
+        metric.TotalDecisionGradeCount.Should().Be(0);
+        metric.GovernedPercentage.Should().BeNull();
+    }
+
+    [Fact]
+    public void AggregateGovernedFindingCoverage_AllPolicyViolation_Returns100Percent()
+    {
+        List<ArchitectureFinding> findings =
+        [
+            new ArchitectureFinding { FindingId = "f1", EnforcementTier = FindingEnforcementTier.PolicyViolation, PolicyRuleId = "rule-1", EvidenceRefs = ["ref-a"] },
+            new ArchitectureFinding { FindingId = "f2", EnforcementTier = FindingEnforcementTier.PolicyViolation, PolicyRuleId = "rule-2" },
+        ];
+
+        ArchitectureRunDetail detail = BuildDetailWithFindings(findings);
+        GovernedFindingCoverageMetric metric = PilotRunDeltaComputer.AggregateGovernedFindingCoverage(detail);
+
+        metric.IsAvailable.Should().BeTrue();
+        metric.TotalDecisionGradeCount.Should().Be(2);
+        metric.GovernedCount.Should().Be(2);
+        metric.AdvisoryCount.Should().Be(0);
+        metric.GovernedPercentage.Should().Be(100.0);
+        metric.WithPolicyRuleCount.Should().Be(2);
+        metric.WithEvidenceRefsCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void AggregateGovernedFindingCoverage_MixedTiers_ComputesCorrectRatio()
+    {
+        List<ArchitectureFinding> findings =
+        [
+            new ArchitectureFinding { FindingId = "g1", EnforcementTier = FindingEnforcementTier.PolicyViolation },
+            new ArchitectureFinding { FindingId = "g2", EnforcementTier = FindingEnforcementTier.PolicyViolation },
+            new ArchitectureFinding { FindingId = "a1", EnforcementTier = FindingEnforcementTier.Advisory },
+        ];
+
+        ArchitectureRunDetail detail = BuildDetailWithFindings(findings);
+        GovernedFindingCoverageMetric metric = PilotRunDeltaComputer.AggregateGovernedFindingCoverage(detail);
+
+        metric.IsAvailable.Should().BeTrue();
+        metric.TotalDecisionGradeCount.Should().Be(3);
+        metric.GovernedCount.Should().Be(2);
+        metric.AdvisoryCount.Should().Be(1);
+        metric.GovernedPercentage.Should().BeApproximately(66.7, 0.05);
+    }
+
+    [Fact]
+    public void AggregateGovernedFindingCoverage_AllAdvisory_Returns0PercentGoverned()
+    {
+        List<ArchitectureFinding> findings =
+        [
+            new ArchitectureFinding { FindingId = "a1", EnforcementTier = FindingEnforcementTier.Advisory },
+            new ArchitectureFinding { FindingId = "a2", EnforcementTier = FindingEnforcementTier.Advisory },
+        ];
+
+        ArchitectureRunDetail detail = BuildDetailWithFindings(findings);
+        GovernedFindingCoverageMetric metric = PilotRunDeltaComputer.AggregateGovernedFindingCoverage(detail);
+
+        metric.IsAvailable.Should().BeTrue();
+        metric.GovernedCount.Should().Be(0);
+        metric.AdvisoryCount.Should().Be(2);
+        metric.GovernedPercentage.Should().Be(0.0);
+    }
+
+    private static ArchitectureRunDetail BuildDetailWithFindings(List<ArchitectureFinding> findings)
+    {
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        ArchitectureRun run = new()
+        {
+            RunId = Guid.NewGuid().ToString("N"),
+            RequestId = "req-coverage-test",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+        };
+
+        AgentResult result = new()
+        {
+            TaskId = "t-coverage",
+            RunId = run.RunId,
+            AgentType = AgentType.Topology,
+            Findings = findings,
+        };
+
+        return new ArchitectureRunDetail
+        {
+            Run = run,
+            Manifest = null,
             Results = [result],
             DecisionTraces = [],
         };

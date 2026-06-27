@@ -67,4 +67,46 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     expect(summary.whySafeToSendBullets.join(" ").toLowerCase()).toContain("this review");
     expect(summary.detail?.toLowerCase()).toContain("this review");
   });
+
+  it("returns 'Not available' for governed coverage when field is absent", () => {
+    const summary = buildRunDetailFirstScreenProofSummary(null);
+
+    expect(summary.governedCoverageLabel).toBe("Not available");
+  });
+
+  it("returns 'Not available' when isAvailable is false", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      governedFindingCoverage: { isAvailable: false },
+    });
+
+    expect(summary.governedCoverageLabel).toBe("Not available");
+  });
+
+  it("formats governed coverage correctly when metric is present", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      governedFindingCoverage: {
+        isAvailable: true,
+        governedCount: 8,
+        totalDecisionGradeCount: 10,
+        governedPercentage: 80.0,
+        advisoryCount: 2,
+      },
+    });
+
+    expect(summary.governedCoverageLabel).toBe("8 of 10 governed (80.0%)");
+  });
+
+  it("handles null governedPercentage gracefully", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      governedFindingCoverage: {
+        isAvailable: true,
+        governedCount: 0,
+        totalDecisionGradeCount: 5,
+        governedPercentage: null,
+        advisoryCount: 5,
+      },
+    });
+
+    expect(summary.governedCoverageLabel).toBe("0 of 5 governed (n/a)");
+  });
 });

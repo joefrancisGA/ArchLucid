@@ -13,6 +13,7 @@ export type RunDetailFirstScreenProofSummary = {
   readonly pilotStrictLabel: string;
   readonly roiBasisLabel: string;
   readonly proofPacketLabel: string;
+  readonly governedCoverageLabel: string;
   readonly nextAction: string;
   readonly detail: string;
 };
@@ -67,6 +68,30 @@ function proofPacketLabel(readiness: ReturnType<typeof describeSponsorProofReadi
   }
 
   return `${readiness.title}`;
+}
+
+type GovernedCoveragePayload = {
+  readonly isAvailable?: boolean;
+  readonly governedCount?: number;
+  readonly totalDecisionGradeCount?: number;
+  readonly governedPercentage?: number | null;
+  readonly advisoryCount?: number;
+};
+
+function governedCoverageLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
+  const coverage = (payload as { governedFindingCoverage?: GovernedCoveragePayload } | null)
+    ?.governedFindingCoverage;
+
+  if (!coverage || !coverage.isAvailable) {
+    return "Not available";
+  }
+
+  const governed = coverage.governedCount ?? 0;
+  const total = coverage.totalDecisionGradeCount ?? 0;
+  const pct = coverage.governedPercentage;
+  const pctLabel = typeof pct === "number" ? `${pct.toFixed(1)}%` : "n/a";
+
+  return `${governed} of ${total} governed (${pctLabel})`;
 }
 
 function buildWhySafeToSendBullets(
@@ -185,6 +210,7 @@ export function buildRunDetailFirstScreenProofSummary(
     pilotStrictLabel: pilotStrictLabel(payload),
     roiBasisLabel: roiLabel,
     proofPacketLabel: proofPacketLabel(readiness),
+    governedCoverageLabel: governedCoverageLabel(payload),
     nextAction,
     detail: detailParts.join(" "),
   };

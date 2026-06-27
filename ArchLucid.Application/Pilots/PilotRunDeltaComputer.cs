@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -73,6 +74,7 @@ public sealed class PilotRunDeltaComputer(
         DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
+        GovernedFindingCoverageMetric governedCoverage = AggregateGovernedFindingCoverage(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
         (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) = await TryListExecutionTracesAsync(runId, cancellationToken);
         AgentOutputQualityGateOptions gateOpts = _gateOptionsResolver.Resolve(cancellationToken);
@@ -103,6 +105,7 @@ public sealed class PilotRunDeltaComputer(
             ManifestCommittedUtc = committedUtc,
             TimeToCommittedManifest = wall,
             FindingsBySeverity = findings,
+            GovernedFindingCoverage = governedCoverage,
             AuditRowCount = auditCount,
             AuditRowCountTruncated = auditTruncated,
             LlmCallCount = llmCallCount,
@@ -163,6 +166,30 @@ public sealed class PilotRunDeltaComputer(
         return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true)
             .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase).Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
             .OrderByDescending(static p => p.Value).ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    /// <summary>
+    ///     Computes the governed-finding coverage metric from all decision-grade findings across all agent results.
+    ///     Advisory-only findings (<see cref="FindingEnforcementTier.Advisory" />) are counted separately
+    ///     so consumers can distinguish governance-blocking coverage from optional guidance.
+    /// </summary>
+    internal static GovernedFindingCoverageMetric AggregateGovernedFindingCoverage(ArchitectureRunDetail detail)
+    {
+        IReadOnlyList<ArchitectureFinding> allFindings = detail.Results
+            .SelectMany(static r => r.Findings)
+            .ToList();
+
+        int total = allFindings.Count;
+
+        if (total == 0)
+            return GovernedFindingCoverageMetric.NotAvailable();
+
+        int governed = allFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.PolicyViolation);
+        int advisory = allFindings.Count(static f => f.EnforcementTier == FindingEnforcementTier.Advisory);
+        int withPolicyRule = allFindings.Count(static f => !string.IsNullOrWhiteSpace(f.PolicyRuleId));
+        int withEvidenceRefs = allFindings.Count(static f => f.EvidenceRefs.Count > 0);
+
+        return GovernedFindingCoverageMetric.Compute(total, governed, advisory, withPolicyRule, withEvidenceRefs);
     }
 
     /// <summary>Picks the single highest-severity finding; ties broken by first-seen order to keep output deterministic.</summary>
