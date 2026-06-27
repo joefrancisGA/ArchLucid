@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.38%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.63%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -41,19 +41,21 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 |---|---------|------:|-------:|----------------------:|---------------------------:|
 | 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
-| 3 | Governed Review Integrity | 96 | 13 | 12.48 | 0.52 |
-| 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
+| 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
+| 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
 | 5 | AI / Agent Readiness | 89 | 10 | 8.90 | 1.10 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
-| **Total** |  |  | **100** | **91.38%** | **8.62** |
+| **Total** |  |  | **100** | **91.63%** | **8.37** |
 
-*(A) Headline Readiness: 91.38%*
+*(A) Headline Readiness: 91.63%*
 
-**Rescore (2026-06-27): 91.16% → 91.38%.** RAG quality follow-on shipped: (**1**) live-model faithfulness nightly signal (`run_rag_live_model_faithfulness_signal.py` + golden-cohort job) closes Phase B on committed real-mode exemplars; (**3**) golden datasets expanded to **47** retrieval IR cases (all major corpus kinds + tenant isolation) and **33** faithfulness cases (Ask-shaped citations). **AI / Agent Readiness +1 (88→89)** and **Correctness & Evidence Integrity +1 (92→93)** — **+0.22%** headline move.
+**Rescore (2026-06-27): 91.38% → 91.63%.** Effective governance snapshot at commit (#11) — `CommittedEffectiveGovernanceSnapshotCapturer` persists pack assignments, rule-set hash, compliance key count, and conflict count on golden manifests; run detail, compare governance diff, and export README distinguish **policy at commit** from current effective assignments. **Governed Review Integrity +1 (96→97)** and **Correctness & Evidence Integrity +1 (93→94)** — **+0.25%** headline move.
+
+**Prior rescore (2026-06-27): 91.16% → 91.38%.** RAG quality follow-on shipped: (**1**) live-model faithfulness nightly signal (`run_rag_live_model_faithfulness_signal.py` + golden-cohort job) closes Phase B on committed real-mode exemplars; (**3**) golden datasets expanded to **47** retrieval IR cases (all major corpus kinds + tenant isolation) and **33** faithfulness cases (Ask-shaped citations). **AI / Agent Readiness +1 (88→89)** and **Correctness & Evidence Integrity +1 (92→93)** — **+0.22%** headline move.
 
 **Prior rescore (2026-06-27): 91.06% → 91.16%.** Deeper RAG offline program (#10) — **AI / Agent Readiness +1 (87→88)**. Earlier: #8 repeat-pilot reuse (+0.15%); weight-0 GTM tooling for #3/#4/#7 design halves remains valid.
 
@@ -156,8 +158,8 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Governed repeatability, long-term survivability.
 
 ### 5. Correctness & Evidence Integrity
-- **Score · Weight · Contribution · Deficiency:** 93 · 12 · 11.16 · **0.84**
-- **Justification:** Golden manifest, findings snapshots, decision traces, audit events, OpenAPI contracts, extractor citation requirements, and disposition-aware ROI all point in the right direction. The shipped governed/advisory labeling is important because it prevents exploratory LLM prose from being mistaken for evidence-backed review-package material. The main correctness risk is mixed-mode user interpretation: advisory Ask/critic output must not be allowed to look as authoritative as governed findings.
+- **Score · Weight · Contribution · Deficiency:** 94 · 12 · 11.28 · **0.72**
+- **Justification:** Golden manifest, findings snapshots, decision traces, audit events, OpenAPI contracts, extractor citation requirements, and disposition-aware ROI all point in the right direction. Committed packages now carry **`EffectiveGovernanceAtCommit`** metadata so audit/export/compare surfaces can cite **policy at commit** without inferring from current assignments. The shipped governed/advisory labeling is important because it prevents exploratory LLM prose from being mistaken for evidence-backed review-package material. The main correctness risk is mixed-mode user interpretation: advisory Ask/critic output must not be allowed to look as authoritative as governed findings.
 - **Tradeoffs:** Hard proof labels can make the product feel conservative, but that conservatism is necessary for enterprise trust.
 - **Recommendations:** Keep all buyer-facing outputs visually explicit: governed finding, advisory narrative, illustrative ROI, extractor-backed ROI, disposition-aware headline.
 - **Classification:** V1.
@@ -188,8 +190,8 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Executive purchase.
 
 ### 9. Governed Review Integrity
-- **Score · Weight · Contribution · Deficiency:** 96 · 13 · 12.48 · **0.52**
-- **Justification:** Policy packs are first-class enough to matter: they are seeded, scoped, assigned, merged, validated, simulated, and used to filter compliance. `PreCommitGovernanceGate` evaluates persisted findings against enabled assignments and thresholds. Audit coverage is broad and has no current catalogued core gaps. The gap between excellent and perfect is historical reconstruction depth: current effective assignment diff and committed manifest rule-set basis are strong, but buyers may eventually want richer "effective policy at commit time" replay for every review.
+- **Score · Weight · Contribution · Deficiency:** 97 · 13 · 12.61 · **0.39**
+- **Justification:** Policy packs are first-class enough to matter: they are seeded, scoped, assigned, merged, validated, simulated, and used to filter compliance. `PreCommitGovernanceGate` evaluates persisted findings against enabled assignments and thresholds. Committed golden manifests now persist **`EffectiveGovernanceAtCommit`** (pack ids/versions/scope levels, rule-set hash, compliance key count, conflict count, generated UTC) via `CommittedEffectiveGovernanceSnapshotCapturer` at finalize — run detail, compare governance diff, and export README label **policy at commit** separately from current effective assignments. Audit coverage is broad and has no current catalogued core gaps.
 - **Tradeoffs:** Re-evaluating old commits under new policies would be useful but must not mutate historical truth.
 - **Recommendations:** Validate policy replay as a demo narrative first; build deeper historical replay only after a buyer asks for audit reconstruction beyond current artifacts.
 - **Classification:** V1; possible V1.1 hardening only if demanded.
@@ -500,17 +502,18 @@ All six ship gates are PASS and the shipped ledger shows the prior engineering i
 
 These five are deliberately smaller than new product surfaces. They are Cursor-suitable because they tighten proof, traceability, or first-review reliability without reopening deferred GTM, assurance, MCP, or connector programs.
 
-**11. Persist effective governance snapshot metadata at commit**
+**11. Persist effective governance snapshot metadata at commit — SHIPPED 2026-06-27**
 - **Tier:** 2
 - **Why it matters:** Buyers need to know which policy state governed a committed review, not only what the current effective assignment says later.
 - **Expected impact:** Governed Review Integrity, Correctness & Evidence Integrity, Differentiability.
-- **Evidence:** `CompareGovernanceDiffPanel` currently uses committed manifest `ruleSetId`/`ruleSetVersion` plus current effective assignments with a disclaimer; `GET /v1/governance-resolution` can explain current resolution.
+- **Evidence:** `CommittedEffectiveGovernanceSnapshotCapturer` + `ManifestDocument.EffectiveGovernanceAtCommit`; `CompareGovernanceDiffPanel` policy-at-commit rows; `RunDetailManifestSummarySection` policy-at-commit; export README **Policy at commit** line.
 - **Actionability:** Medium.
 - **Design Uncertainty Reduced:** 7/10
 - **Market Uncertainty Reduced:** 4/10
-- **Classification:** V1.1 engineering candidate.
+- **Classification:** V1.1 engineering candidate — **shipped**.
+- **(A) scoring impact:** **91.38% → 91.63%** (Governed Review Integrity +1, Correctness & Evidence Integrity +1).
 
-**Cursor prompt:**
+**Cursor prompt (archived — shipped):**
 ```text
 Problem: Committed review packages expose ruleSetId/ruleSetVersion, but compare/audit UX still has to disclaim that current effective policy assignments may differ from the policy state at commit time.
 

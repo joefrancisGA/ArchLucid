@@ -10,6 +10,46 @@ import {
 import type { EffectivePolicyPackSet, PolicyPackContentDocument } from "@/types/policy-packs";
 
 describe("CompareGovernanceDiffPanel", () => {
+  it("renders policy-at-commit sections when manifest snapshots exist", () => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "pack-a",
+        ruleSetVersion: "1.0.0",
+        effectiveGovernanceAtCommit: {
+          complianceRuleKeyCount: 1,
+          complianceRuleKeys: ["sec-base-010"],
+          conflictCount: 0,
+          packAssignments: [
+            {
+              policyPackId: "pack-a",
+              policyPackVersion: "1.0.0",
+              scopeLevel: "Project",
+            },
+          ],
+          hasEffectivePolicy: true,
+        },
+      }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({
+        ruleSetId: "pack-b",
+        ruleSetVersion: "2.0.0",
+        effectiveGovernanceAtCommit: {
+          complianceRuleKeyCount: 1,
+          complianceRuleKeys: ["sec-base-010"],
+          conflictCount: 0,
+          packAssignments: [],
+          hasEffectivePolicy: true,
+        },
+      }),
+      currentEffective: null,
+    });
+
+    render(<CompareGovernanceDiffPanel view={view} loading={false} softFailureMessage={null} />);
+
+    expect(screen.getByTestId("compare-governance-at-commit-section")).toBeInTheDocument();
+    expect(screen.getByTestId("compare-governance-baseline-at-commit")).toBeInTheDocument();
+    expect(screen.queryByTestId("compare-governance-current-effective-disclaimer")).not.toBeInTheDocument();
+  });
+
   it("renders rule set change and current effective disclaimer", () => {
     const effective: EffectivePolicyPackSet = {
       tenantId: "t",

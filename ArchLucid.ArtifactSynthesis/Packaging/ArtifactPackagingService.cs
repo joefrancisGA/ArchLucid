@@ -133,6 +133,10 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
                     readme.AppendLine($"Rule set: {readmeContext.RuleSetLabel}");
 
+                if (!string.IsNullOrWhiteSpace(readmeContext.PolicyAtCommitSummary))
+
+                    readme.AppendLine($"Policy at commit: {readmeContext.PolicyAtCommitSummary}");
+
                 if (!string.IsNullOrWhiteSpace(readmeContext.ManifestHash))
 
                     readme.AppendLine($"Manifest hash: {readmeContext.ManifestHash}");

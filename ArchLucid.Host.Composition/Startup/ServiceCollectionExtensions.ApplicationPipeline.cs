@@ -194,6 +194,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
+        services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
         services.AddSingleton<DefaultRequestContentSafetyPrecheck>();
         services.AddSingleton<LlmSemanticAdmissionGate>();

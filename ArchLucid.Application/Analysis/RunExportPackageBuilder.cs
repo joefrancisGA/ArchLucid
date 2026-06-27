@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
@@ -64,6 +65,7 @@ public sealed class RunExportPackageBuilder(
 
         ManifestDocument golden = runDetail.GoldenManifest;
         string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
+        string? policyAtCommitSummary = BuildPolicyAtCommitSummary(golden.EffectiveGovernanceAtCommit);
         RunExportReadmeContext readmeContext = new()
         {
             ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
@@ -71,6 +73,7 @@ public sealed class RunExportPackageBuilder(
             RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
             RuleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? null : golden.RuleSetId,
             RuleSetHash = string.IsNullOrWhiteSpace(golden.RuleSetHash) ? null : golden.RuleSetHash,
+            PolicyAtCommitSummary = policyAtCommitSummary,
             OperatorShellReviewRelativePath = $"/reviews/{runId:D}"
         };
 
@@ -88,5 +91,16 @@ public sealed class RunExportPackageBuilder(
             package.ContentType,
             package.PackageFileName,
             golden.ManifestId);
+    }
+
+    private static string? BuildPolicyAtCommitSummary(CommittedEffectiveGovernanceSnapshotDescriptor? snapshot)
+    {
+        if (snapshot is null)
+            return null;
+
+        if (!snapshot.HasEffectivePolicy)
+            return "no effective policy assignments or compliance rule keys";
+
+        return $"{snapshot.PackAssignments.Count} pack assignment(s), {snapshot.ComplianceRuleKeyCount} compliance rule key(s)";
     }
 }

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance.Resolution;
 
 namespace ArchLucid.Api.Contracts;
 
@@ -112,6 +113,13 @@ public class ManifestSummaryResponse
 
     /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.FeasibilityVerdict" />
     public FeasibilityVerdict? FeasibilityVerdict
+    {
+        get;
+        set;
+    }
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.EffectiveGovernanceAtCommit" />
+    public CommittedEffectiveGovernanceSnapshotDescriptor? EffectiveGovernanceAtCommit
     {
         get;
         set;

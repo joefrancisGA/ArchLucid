@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance.Resolution;
 
 namespace ArchLucid.Persistence.Queries;
 
@@ -82,6 +83,13 @@ public class ManifestSummaryDto
 
     /// <summary>Authority-pipeline feasibility classification when present on the manifest (ADR 0050).</summary>
     public FeasibilityVerdict? FeasibilityVerdict
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Effective governance snapshot captured when the review was committed.</summary>
+    public CommittedEffectiveGovernanceSnapshotDescriptor? EffectiveGovernanceAtCommit
     {
         get;
         set;

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Manifest.Sections;
 
 namespace ArchLucid.Core.Manifest;
@@ -183,6 +184,15 @@ public class ManifestDocument
     ///     Authority-pipeline feasibility classification with mandatory transparency trail (ADR 0050).
     /// </summary>
     public FeasibilityVerdict? FeasibilityVerdict
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Effective governance snapshot captured at commit time (policy pack assignments, rule-set hash, compliance keys).
+    /// </summary>
+    public CommittedEffectiveGovernanceSnapshotDescriptor? EffectiveGovernanceAtCommit
     {
         get;
         set;

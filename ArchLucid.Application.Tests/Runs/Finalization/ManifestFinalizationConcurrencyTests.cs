@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
@@ -187,7 +188,8 @@ public sealed class ManifestFinalizationConcurrencyTests
             audit ?? Mock.Of<IAuditService>(),
             outbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IManifestFinalizationSqlRepository>(),
-            new RunStateTransitionService());
+            new RunStateTransitionService(),
+            Mock.Of<ICommittedEffectiveGovernanceSnapshotCapturer>());
     }
 
     private static IFindingsSnapshotRepository CreateDefaultFindingsSnapshotRepository()

@@ -44,4 +44,11 @@ public sealed record RunExportReadmeContext
         get;
         init;
     }
+
+    /// <summary>Human-readable policy-at-commit summary for README.txt.</summary>
+    public string? PolicyAtCommitSummary
+    {
+        get;
+        init;
+    }
 }

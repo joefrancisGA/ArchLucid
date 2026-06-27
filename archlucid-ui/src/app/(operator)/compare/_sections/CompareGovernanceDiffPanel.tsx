@@ -4,7 +4,9 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import {
   COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER,
+  type CompareEffectiveGovernanceAtCommitSnapshot,
   type CompareGovernanceDiffView,
+  type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -27,9 +29,71 @@ function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | n
   return ruleSetId;
 }
 
+function renderAtCommitSnapshot(
+  label: string,
+  manifest: CompareManifestGovernanceSnapshot,
+  testIdPrefix: string,
+): ReactElement {
+  const snapshot: CompareEffectiveGovernanceAtCommitSnapshot | null = manifest.atCommit;
+
+  if (snapshot === null) {
+    return (
+      <div
+        className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+        data-testid={`${testIdPrefix}-no-at-commit`}
+      >
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          No policy-at-commit snapshot on this package (committed before snapshot metadata shipped, or no effective policy at commit).
+        </p>
+      </div>
+    );
+  }
+
+  if (!snapshot.hasEffectivePolicy) {
+    return (
+      <div
+        className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+        data-testid={`${testIdPrefix}-empty-at-commit`}
+      >
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Policy at commit: no effective policy pack assignments or compliance rule keys were recorded.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+      data-testid={`${testIdPrefix}-at-commit`}
+    >
+      <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Policy at commit · {snapshot.packAssignments.length} pack assignment(s) · {snapshot.complianceRuleKeyCount} compliance rule key(s)
+        {snapshot.conflictCount > 0 ? ` · ${snapshot.conflictCount} merge conflict(s)` : null}
+      </p>
+      {snapshot.packAssignments.length > 0 ? (
+        <ul className="m-0 mt-2 list-none space-y-1 p-0">
+          {snapshot.packAssignments.map((row) => (
+            <li
+              key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`}
+              className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            >
+              <code className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{row.policyPackId}</code> · v{row.policyPackVersion} ·{" "}
+              {row.scopeLevel}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * Surfaces effective governance delta between compared committed reviews.
- * Historical effective-at-commit is unavailable — manifest rule sets plus current effective scope with disclaimer.
+ * Uses persisted policy-at-commit snapshots when present; current effective scope is labeled separately.
  */
 export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProps): ReactElement | null {
   const { view, loading, softFailureMessage } = props;
@@ -47,6 +111,8 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
   if (view === null) {
     return null;
   }
+
+  const hasAnyAtCommit = view.baselineManifest.atCommit !== null || view.targetManifest.atCommit !== null;
 
   return (
     <aside
@@ -113,6 +179,13 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
           Committed review packages share the same policy pack rule set basis.
         </p>
       )}
+
+      {hasAnyAtCommit ? (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="compare-governance-at-commit-section">
+          {renderAtCommitSnapshot("Baseline policy at commit", view.baselineManifest, "compare-governance-baseline")}
+          {renderAtCommitSnapshot("Updated policy at commit", view.targetManifest, "compare-governance-target")}
+        </div>
+      ) : null}
 
       {view.currentEffective !== null ? (
         <div className="mt-4 space-y-2" data-testid="compare-governance-current-effective">

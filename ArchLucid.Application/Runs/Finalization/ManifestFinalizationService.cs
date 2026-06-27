@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -32,7 +33,8 @@ public sealed class ManifestFinalizationService(
     IAuditService auditService,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IManifestFinalizationSqlRepository manifestFinalizationSqlRepository,
-    IRunStateTransitionService runStateTransitionService) : IManifestFinalizationService
+    IRunStateTransitionService runStateTransitionService,
+    ICommittedEffectiveGovernanceSnapshotCapturer committedEffectiveGovernanceSnapshotCapturer) : IManifestFinalizationService
 {
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -60,6 +62,9 @@ public sealed class ManifestFinalizationService(
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    private readonly ICommittedEffectiveGovernanceSnapshotCapturer _committedEffectiveGovernanceSnapshotCapturer =
+        committedEffectiveGovernanceSnapshotCapturer ?? throw new ArgumentNullException(nameof(committedEffectiveGovernanceSnapshotCapturer));
 
     /// <inheritdoc/>
     public async Task<ManifestFinalizationResult> FinalizeAsync(ManifestFinalizationRequest request, CancellationToken cancellationToken = default)
@@ -117,6 +122,7 @@ public sealed class ManifestFinalizationService(
 
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();
         await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken, connection, transaction);
+        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(request.ManifestModel, cancellationToken);
         ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, connection, transaction, request.ManifestModel);
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
@@ -220,6 +226,7 @@ public sealed class ManifestFinalizationService(
         }
 
         await decisionTraceRepository.SaveAsync(DecisionTraceRecordMapper.ToDto(request.Trace), cancellationToken);
+        await _committedEffectiveGovernanceSnapshotCapturer.ApplyToManifestAsync(request.ManifestModel, cancellationToken);
         ManifestDocument persisted = await goldenManifestRepository.SaveAsync(request.Contract, scope, request.Keying, manifestHashService,
             cancellationToken, authorityPersistBody: request.ManifestModel);
         RuleAuditTracePayload audit = request.Trace.RequireRuleAudit();

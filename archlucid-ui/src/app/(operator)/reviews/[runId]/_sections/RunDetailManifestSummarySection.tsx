@@ -74,6 +74,36 @@ export function RunDetailManifestSummarySection(
             <dd className={cn("m-0", definitionValueClass)}>
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>
+            {manifestSummary.effectiveGovernanceAtCommit !== undefined &&
+            manifestSummary.effectiveGovernanceAtCommit !== null ? (
+              <>
+                <dt className={definitionLabelClass}>Policy at commit</dt>
+                <dd className={cn("m-0 space-y-1", definitionValueClass)} data-testid="run-detail-policy-at-commit">
+                  {manifestSummary.effectiveGovernanceAtCommit.hasEffectivePolicy ? (
+                    <>
+                      <p className="m-0">
+                        {manifestSummary.effectiveGovernanceAtCommit.packAssignments?.length ?? 0} pack assignment(s) ·{" "}
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount ?? 0} compliance rule key(s)
+                        {(manifestSummary.effectiveGovernanceAtCommit.conflictCount ?? 0) > 0
+                          ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
+                          : null}
+                      </p>
+                      {(manifestSummary.effectiveGovernanceAtCommit.packAssignments?.length ?? 0) > 0 ? (
+                        <ul className="m-0 list-none space-y-0.5 p-0">
+                          {(manifestSummary.effectiveGovernanceAtCommit.packAssignments ?? []).map((row) => (
+                            <li key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`} className={monoValueClass}>
+                              {row.policyPackId} · v{row.policyPackVersion} · {row.scopeLevel}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="m-0">No effective policy assignments or compliance rule keys at commit.</p>
+                  )}
+                </dd>
+              </>
+            ) : null}
             <dt className={definitionLabelClass}>Decisions</dt>
             <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
               {finiteIntegerCountDisplay(manifestSummary.decisionCount)}

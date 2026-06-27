@@ -60,7 +60,31 @@ public sealed class ManifestHashService : IManifestHashService
             Warnings = manifest.Warnings.OrderBy(x => x).ToArray(),
             manifest.Policy,
             manifest.Provenance,
-            manifest.FeasibilityVerdict
+            manifest.FeasibilityVerdict,
+            EffectiveGovernanceAtCommit = manifest.EffectiveGovernanceAtCommit is null
+                ? null
+                : new
+                {
+                    manifest.EffectiveGovernanceAtCommit.GeneratedUtc,
+                    manifest.EffectiveGovernanceAtCommit.RuleSetId,
+                    manifest.EffectiveGovernanceAtCommit.RuleSetVersion,
+                    manifest.EffectiveGovernanceAtCommit.RuleSetHash,
+                    manifest.EffectiveGovernanceAtCommit.ComplianceRuleKeyCount,
+                    ComplianceRuleKeys = manifest.EffectiveGovernanceAtCommit.ComplianceRuleKeys.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
+                    manifest.EffectiveGovernanceAtCommit.ConflictCount,
+                    PackAssignments = manifest.EffectiveGovernanceAtCommit.PackAssignments
+                        .OrderBy(row => row.PolicyPackId)
+                        .ThenBy(row => row.PolicyPackVersion, StringComparer.Ordinal)
+                        .ThenBy(row => row.ScopeLevel, StringComparer.Ordinal)
+                        .Select(row => new
+                        {
+                            row.PolicyPackId,
+                            row.PolicyPackVersion,
+                            row.ScopeLevel
+                        })
+                        .ToArray(),
+                    manifest.EffectiveGovernanceAtCommit.HasEffectivePolicy
+                }
         });
 
         using SHA256 sha = SHA256.Create();
