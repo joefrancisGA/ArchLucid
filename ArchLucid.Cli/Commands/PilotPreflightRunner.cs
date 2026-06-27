@@ -17,14 +17,39 @@ internal sealed class PilotPreflightRunner(HttpClient http)
         IReadOnlyList<PilotPreflightStepResult> localSteps,
         CancellationToken cancellationToken = default)
     {
+        return await RunAsync(baseUrl, localSteps, new PilotPreflightOptions(), cancellationToken);
+    }
+
+    public async Task<PilotPreflightReport> RunAsync(
+        string baseUrl,
+        IReadOnlyList<PilotPreflightStepResult> localSteps,
+        PilotPreflightOptions options,
+        CancellationToken cancellationToken = default)
+    {
         ArgumentException.ThrowIfNullOrWhiteSpace(baseUrl);
+        ArgumentNullException.ThrowIfNull(options);
 
         List<PilotPreflightStepResult> steps = [.. localSteps];
 
-        steps.Add(await ProbeAsync("health/live", "/health/live", HttpStatusCode.OK, true, cancellationToken));
-        steps.Add(await ProbeAsync("health/ready", "/health/ready", HttpStatusCode.OK, true, cancellationToken));
-        steps.Add(await ProbeAsync("version", "/version", HttpStatusCode.OK, false, cancellationToken));
-        steps.Add(await ProbeOpenApiAsync(cancellationToken));
+        if (!options.NoApi)
+        {
+            steps.Add(await ProbeAsync("health/live", "/health/live", HttpStatusCode.OK, true, cancellationToken));
+            steps.Add(await ProbeAsync("health/ready", "/health/ready", HttpStatusCode.OK, true, cancellationToken));
+            steps.Add(await ProbeAsync("version", "/version", HttpStatusCode.OK, false, cancellationToken));
+            steps.Add(await ProbeOpenApiAsync(cancellationToken));
+
+            if (options.IncludeItsm)
+                steps.Add(await ProbeItsmHealthAsync(cancellationToken));
+        }
+        else
+        {
+            steps.Add(new PilotPreflightStepResult
+            {
+                Name = "api-probes",
+                Disposition = PilotPreflightDisposition.Pass,
+                Detail = "Skipped (--no-api offline mode).",
+            });
+        }
 
         return new PilotPreflightReport { BaseUrl = baseUrl.Trim().TrimEnd('/'), Steps = steps };
     }
@@ -129,6 +154,45 @@ internal sealed class PilotPreflightRunner(HttpClient http)
                 Name = "openapi/v1.json",
                 Disposition = PilotPreflightDisposition.Block,
                 Detail = ex.Message,
+            };
+        }
+    }
+
+    private async Task<PilotPreflightStepResult> ProbeItsmHealthAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using HttpResponseMessage response = await _http.GetAsync("/v1/integrations/itsm/health", cancellationToken);
+            string bodyPreview = await response.Content.ReadAsStringAsync(cancellationToken);
+            string trimmed = bodyPreview.Length <= 240 ? bodyPreview : bodyPreview[..240] + "…";
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return new PilotPreflightStepResult
+                {
+                    Name = "itsm-health",
+                    Disposition = PilotPreflightDisposition.Pass,
+                    Detail = $"HTTP {(int)response.StatusCode} — {trimmed}",
+                };
+            }
+
+            return new PilotPreflightStepResult
+            {
+                Name = "itsm-health",
+                Disposition = PilotPreflightDisposition.Warn,
+                Detail = $"HTTP {(int)response.StatusCode} — {trimmed}",
+                Remediation = "Check ITSM integration credentials and upstream connectivity. "
+                              + "See docs/library/CONFIGURATION_REFERENCE.md §ITSM.",
+            };
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return new PilotPreflightStepResult
+            {
+                Name = "itsm-health",
+                Disposition = PilotPreflightDisposition.Warn,
+                Detail = ex.Message,
+                Remediation = "Confirm ITSM integration is configured and the API host can reach the ITSM upstream.",
             };
         }
     }

@@ -180,6 +180,188 @@ public sealed class PilotPreflightRunnerTests
             && s.Disposition == PilotPreflightDisposition.Block);
     }
 
+    [Fact]
+    public async Task RunAsync_NoApi_SkipsHttpProbes()
+    {
+        bool httpCalled = false;
+        StubHandler handler = new()
+        {
+            OnRequest = _ =>
+            {
+                httpCalled = true;
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        PilotPreflightRunner runner = new(http);
+        PilotPreflightOptions options = new() { NoApi = true };
+        PilotPreflightReport report = await runner.RunAsync(BaseUrl, [], options);
+
+        httpCalled.Should().BeFalse();
+        report.Steps.Should().Contain(s =>
+            s.Name == "api-probes" && s.Disposition == PilotPreflightDisposition.Pass);
+    }
+
+    [Fact]
+    public async Task RunAsync_IncludeItsm_ProbesItsmHealthEndpoint()
+    {
+        bool itsmCalled = false;
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.Contains("itsm/health", StringComparison.Ordinal))
+                {
+                    itsmCalled = true;
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { status = "Healthy" }));
+                }
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                {
+                    openapi = "3.0.1",
+                    info = new { version = "1.0.0" },
+                }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        PilotPreflightRunner runner = new(http);
+        PilotPreflightOptions options = new() { IncludeItsm = true };
+        PilotPreflightReport report = await runner.RunAsync(BaseUrl, [], options);
+
+        itsmCalled.Should().BeTrue();
+        report.Steps.Should().Contain(s =>
+            s.Name == "itsm-health" && s.Disposition == PilotPreflightDisposition.Pass);
+    }
+
+    [Fact]
+    public async Task RunAsync_IncludeItsm_ItsmUnhealthy_ReturnsWarn()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.Contains("itsm/health", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.ServiceUnavailable, new { status = "Unhealthy" }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                {
+                    openapi = "3.0.1",
+                    info = new { version = "1.0.0" },
+                }));
+            },
+        };
+
+        using HttpClient http = CreateClient(handler);
+        PilotPreflightRunner runner = new(http);
+        PilotPreflightOptions options = new() { IncludeItsm = true };
+        PilotPreflightReport report = await runner.RunAsync(BaseUrl, [], options);
+
+        report.Steps.Should().Contain(s =>
+            s.Name == "itsm-health" && s.Disposition == PilotPreflightDisposition.Warn);
+        report.AllBlockingPassed.Should().BeTrue("ITSM health is advisory, not blocking");
+    }
+
+    [Fact]
+    public void LocalSteps_ExecutionModeUnset_ReturnsWarn()
+    {
+        Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(values!).Build();
+        IReadOnlyList<PilotPreflightStepResult> steps = PilotPreflightLocalSteps.Evaluate(configuration);
+
+        steps.Should().Contain(s =>
+            s.Name == "execution-mode" && s.Disposition == PilotPreflightDisposition.Warn);
+    }
+
+    [Fact]
+    public void LocalSteps_ExecutionModeSimulator_ReturnsPass()
+    {
+        Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+            ["AgentExecution:Mode"] = "Simulator",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(values!).Build();
+        IReadOnlyList<PilotPreflightStepResult> steps = PilotPreflightLocalSteps.Evaluate(configuration);
+
+        steps.Should().Contain(s =>
+            s.Name == "execution-mode" && s.Disposition == PilotPreflightDisposition.Pass
+            && s.Detail.Contains("Simulator", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void LocalSteps_AzureAiSearchNotConfigured_ReturnsWarn()
+    {
+        Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+            ["AgentExecution:Mode"] = "Simulator",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(values!).Build();
+        IReadOnlyList<PilotPreflightStepResult> steps = PilotPreflightLocalSteps.Evaluate(configuration);
+
+        steps.Should().Contain(s =>
+            s.Name == "azure-ai-search" && s.Disposition == PilotPreflightDisposition.Warn);
+    }
+
+    [Fact]
+    public void LocalSteps_AzureAiSearchConfigured_ReturnsPass()
+    {
+        Dictionary<string, string?> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+            ["AgentExecution:Mode"] = "Simulator",
+            ["Retrieval:VectorIndex"] = "AzureSearch",
+            ["Retrieval:AzureSearch:Endpoint"] = "https://search.example.search.windows.net",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(values!).Build();
+        IReadOnlyList<PilotPreflightStepResult> steps = PilotPreflightLocalSteps.Evaluate(configuration);
+
+        steps.Should().Contain(s =>
+            s.Name == "azure-ai-search" && s.Disposition == PilotPreflightDisposition.Pass);
+    }
+
+    [Fact]
+    public void PilotPreflightOptions_Parse_NoApi()
+    {
+        PilotPreflightOptions options = PilotPreflightOptions.Parse(["--no-api"]);
+
+        options.NoApi.Should().BeTrue();
+        options.IncludeItsm.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PilotPreflightOptions_Parse_IncludeItsm()
+    {
+        PilotPreflightOptions options = PilotPreflightOptions.Parse(["--include-itsm"]);
+
+        options.IncludeItsm.Should().BeTrue();
+        options.NoApi.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PilotPreflightOptions_Parse_MarkdownOut()
+    {
+        PilotPreflightOptions options = PilotPreflightOptions.Parse(["--markdown-out", "/tmp/report.md"]);
+
+        options.MarkdownOutput.Should().BeTrue();
+        options.MarkdownOutPath.Should().Be("/tmp/report.md");
+    }
+
     private static HttpClient CreateClient(HttpMessageHandler handler)
     {
         HttpClient http = new(handler) { BaseAddress = new Uri(BaseUrl + "/") };

@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.75%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.90%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -44,16 +44,18 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 | 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
 | 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 0.60 |
 | 5 | AI / Agent Readiness | 89 | 10 | 8.90 | 1.10 |
-| 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
+| 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
-| **Total** |  |  | **100** | **91.75%** | **8.25** |
+| 10 | Adoption Friction | 90 | 5 | 4.50 | 0.50 |
+| **Total** |  |  | **100** | **91.90%** | **8.10** |
 
-*(A) Headline Readiness: 91.75%*
+*(A) Headline Readiness: 91.90%*
 
-**Rescore (2026-06-27): 91.63% → 91.75%.** Proof-packet claim lint (#12) — `ProofPacketClaimLinter` scans buyer-safe proof-packet markdown/text before ZIP/folder write; forbidden assurance/ROI/execution-mode phrases fail with file, phrase, reason, and suggested safe wording; `--skip-claim-lint` for internal-only bypass. **Correctness & Evidence Integrity +1 (94→95)** — **+0.12%** headline move.
+**Rescore (2026-06-27): 91.75% → 91.90%.** One-command pilot readiness preflight (#13) — `archlucid pilot preflight` extended with `--no-api` offline mode, `--include-itsm` optional ITSM health probe, `--md`/`--markdown-out` markdown report with owner-friendly next steps, dedicated execution-mode step, Azure AI Search extractor docs pointer, and proof-packet claim-lint rules prerequisite check. JSON schema stable for CI; FIRST_PILOT_OPERATOR_PATH.md updated. **Time-to-Value +1 (90→91)** and **Adoption Friction +1 (89→90)** — **+0.15%** headline move.
+
+**Prior rescore (2026-06-27): 91.63% → 91.75%.** Proof-packet claim lint (#12) — `ProofPacketClaimLinter` scans buyer-safe proof-packet markdown/text before ZIP/folder write; forbidden assurance/ROI/execution-mode phrases fail with file, phrase, reason, and suggested safe wording; `--skip-claim-lint` for internal-only bypass. **Correctness & Evidence Integrity +1 (94→95)** — **+0.12%** headline move.
 
 **Prior rescore (2026-06-27): 91.38% → 91.63%.** Effective governance snapshot at commit (#11) — `CommittedEffectiveGovernanceSnapshotCapturer` persists pack assignments, rule-set hash, compliance key count, and conflict count on golden manifests; run detail, compare governance diff, and export README distinguish **policy at commit** from current effective assignments. **Governed Review Integrity +1 (96→97)** and **Correctness & Evidence Integrity +1 (93→94)** — **+0.25%** headline move.
 
@@ -556,7 +558,7 @@ Tests to add/update: CLI unit tests for lint pass/fail; proof-packet writer test
 Non-goals: Legal review automation, replacing `WHAT_NOT_TO_PROMISE.md`, changing ROI calculations.
 ```
 
-**13. Create a one-command pilot readiness preflight summary**
+**13. Create a one-command pilot readiness preflight summary — SHIPPED 2026-06-27**
 - **Tier:** 2
 - **Why it matters:** Time-to-value still depends on setup choreography across SQL, auth, LLM mode, Azure AI Search, proof packet, and optional ITSM.
 - **Expected impact:** Time-to-Value, Adoption Friction, Runtime & First-Review Reliability.
@@ -565,6 +567,7 @@ Non-goals: Legal review automation, replacing `WHAT_NOT_TO_PROMISE.md`, changing
 - **Design Uncertainty Reduced:** 6/10
 - **Market Uncertainty Reduced:** 4/10
 - **Classification:** V1 engineering hardening.
+- **Implementation:** `PilotPreflightOptions` parses `--no-api`, `--include-itsm`, `--md`, `--markdown-out`; `PilotPreflightRunner.RunAsync` overload accepts options — `--no-api` skips all HTTP probes, `--include-itsm` probes `GET /v1/integrations/itsm/health`; `PilotPreflightLocalSteps` adds `execution-mode`, `azure-ai-search`, and `proof-packet-prereq:claim-lint-rules` steps; `PilotPreflightCommand` renders structured markdown with owner next-steps table and references block; FIRST_PILOT_OPERATOR_PATH.md step A0 updated; tests added for all new branches. **Time-to-Value +1, Adoption Friction +1.**
 
 **Cursor prompt:**
 ```text

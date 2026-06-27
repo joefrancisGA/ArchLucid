@@ -79,7 +79,7 @@ public static class Program
                             return await PilotProofPacketCommand.RunAsync(normalized.Skip(2).ToArray());
                     }
 
-                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot init | archlucid pilot success-criteria-template | archlucid pilot preflight | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>]");
+                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot init | archlucid pilot success-criteria-template | archlucid pilot preflight [--no-api] [--include-itsm] [--simulate-production] [--md] [--markdown-out <path>] | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>]");
 
                     return CliExitCode.UsageError;
 
