@@ -33,6 +33,9 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         settings["Demo:Enabled"] = "false";
         // appsettings.Development.json enables Demo:SeedOnStartup; integration tests seed explicitly when needed.
         settings["Demo:SeedOnStartup"] = "false";
+        // Agentic query rewrite/HyDE call the LLM completion router. Under CI env leakage the real Azure client can
+        // hang non-cancellably and wedge the shared retrieval-smoke host (CI #2268). Smoke tests assert vector search only.
+        settings["Retrieval:Advanced:Enabled"] = "false";
     }
 
     /// <inheritdoc />
