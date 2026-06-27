@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class AgenticRetrievalCompletionClientTests
 {
     [Fact]
