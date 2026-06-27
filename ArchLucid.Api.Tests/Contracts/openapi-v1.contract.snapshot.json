@@ -4953,6 +4953,62 @@
         },
         "type": "object"
       },
+      "CommittedEffectiveGovernanceSnapshotDescriptor": {
+        "properties": {
+          "complianceRuleKeyCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "complianceRuleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "conflictCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "hasEffectivePolicy": {
+            "type": "boolean"
+          },
+          "packAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/CommittedGovernancePackAssignmentSnapshot"
+            },
+            "type": "array"
+          },
+          "ruleSetHash": {
+            "type": "string"
+          },
+          "ruleSetId": {
+            "type": "string"
+          },
+          "ruleSetVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CommittedGovernancePackAssignmentSnapshot": {
+        "properties": {
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          },
+          "scopeLevel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ComparisonExplanationResult": {
         "properties": {
           "highLevelSummary": {
@@ -13821,6 +13877,16 @@
             },
             "type": "array"
           },
+          "effectiveGovernanceAtCommit": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommittedEffectiveGovernanceSnapshotDescriptor"
+              }
+            ]
+          },
           "feasibilityVerdict": {
             "oneOf": [
               {
@@ -14133,6 +14199,16 @@
           "decisionCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "effectiveGovernanceAtCommit": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommittedEffectiveGovernanceSnapshotDescriptor"
+              }
+            ]
           },
           "feasibilityVerdict": {
             "oneOf": [

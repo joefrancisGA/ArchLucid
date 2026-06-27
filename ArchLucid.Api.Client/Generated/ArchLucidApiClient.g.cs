@@ -63958,6 +63958,72 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CommittedEffectiveGovernanceSnapshotDescriptor
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("complianceRuleKeyCount")]
+        public int? ComplianceRuleKeyCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("complianceRuleKeys")]
+        public System.Collections.Generic.ICollection<string>? ComplianceRuleKeys { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("conflictCount")]
+        public int? ConflictCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasEffectivePolicy")]
+        public bool? HasEffectivePolicy { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("packAssignments")]
+        public System.Collections.Generic.ICollection<CommittedGovernancePackAssignmentSnapshot>? PackAssignments { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetHash")]
+        public string? RuleSetHash { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetId")]
+        public string? RuleSetId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetVersion")]
+        public string? RuleSetVersion { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CommittedGovernancePackAssignmentSnapshot
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
+        public System.Guid? PolicyPackId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("policyPackVersion")]
+        public string? PolicyPackVersion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("scopeLevel")]
+        public string? ScopeLevel { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ComparisonExplanationResult
     {
 
@@ -73070,6 +73136,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("decisions")]
         public System.Collections.Generic.ICollection<ResolvedArchitectureDecision>? Decisions { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("effectiveGovernanceAtCommit")]
+        public CommittedEffectiveGovernanceSnapshotDescriptor? EffectiveGovernanceAtCommit { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("feasibilityVerdict")]
         public FeasibilityVerdict? FeasibilityVerdict { get; set; } = default!;
 
@@ -73399,6 +73468,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
         public int DecisionCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("effectiveGovernanceAtCommit")]
+        public CommittedEffectiveGovernanceSnapshotDescriptor? EffectiveGovernanceAtCommit { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("feasibilityVerdict")]
         public FeasibilityVerdict? FeasibilityVerdict { get; set; } = default!;
