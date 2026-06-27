@@ -92,6 +92,13 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
   },
   {
+    slug: "scope",
+    title: "Workspace guide",
+    summary: "Tenant, workspace, and project scope — how the header switcher works and when sample workspace applies.",
+    audience: "operator",
+    sourcePaths: ["docs/library/customer-facing/WORKSPACE_SCOPE_GUIDE.md"],
+  },
+  {
     slug: "evidence-intake",
     title: "Start a review",
     summary: "Start a review from a brief, diagram, document, or cloud evidence; verify intake before finalize.",

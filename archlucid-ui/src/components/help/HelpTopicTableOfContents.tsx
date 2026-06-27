@@ -1,5 +1,5 @@
 import type { HelpMarkdownHeading } from "@/lib/help-markdown-headings";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type HelpTopicTableOfContentsProps = {
@@ -15,7 +15,7 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
   }
 
   return (
-    <nav aria-label="On this page" className="lg:sticky lg:top-20 lg:self-start">
+    <nav aria-label="On this page" className={cn("lg:sticky lg:self-start", OPERATOR_SHELL_STICKY_TOP_CLASS)}>
       <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         On this page
       </p>

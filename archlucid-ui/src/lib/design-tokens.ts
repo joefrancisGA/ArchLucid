@@ -95,6 +95,12 @@ export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
 /** Primary sidebar column width — top-bar brand rail uses {@link OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS}. */
 export const OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS = "w-[15.5rem]";
 
+/** Scroll offset for in-page anchors below the sticky operator header stack. */
+export const OPERATOR_SHELL_SCROLL_OFFSET_CLASS = "scroll-mt-[var(--app-shell-sticky,6rem)]";
+
+/** Sticky sub-nav offset below the operator header stack (TOC rails, section nav). */
+export const OPERATOR_SHELL_STICKY_TOP_CLASS = "top-[calc(var(--app-shell-sticky,6rem)+0.5rem)]";
+
 /** Sidebar width from the `lg` breakpoint — matches hidden sidebar below `lg`. */
 export const OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS = "lg:w-[15.5rem]";
 

@@ -1,4 +1,4 @@
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -220,11 +220,11 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const isHelp = props.presentation === "help";
   const bodyTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-neutral-800 dark:text-neutral-200";
   const h2Class = isHelp
-    ? cn("scroll-mt-24 mt-8", OPERATOR_TYPOGRAPHY.sectionTitle)
-    : (cn("scroll-mt-24 mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle));
+    ? cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-8", OPERATOR_TYPOGRAPHY.sectionTitle)
+    : (cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-8 font-semibold tracking-tight text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle));
   const h3Class = isHelp
-    ? cn("scroll-mt-24 mt-6", OPERATOR_TYPOGRAPHY.cardTitle)
-    : (cn("scroll-mt-24 mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle));
+    ? cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-6", OPERATOR_TYPOGRAPHY.cardTitle)
+    : (cn(OPERATOR_SHELL_SCROLL_OFFSET_CLASS, "mt-4 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle));
   const tableTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.body;
   const renderOptions: RenderInlineOptions = { linkMode: isHelp ? "help" : "external-only" };
   const markdownBody =

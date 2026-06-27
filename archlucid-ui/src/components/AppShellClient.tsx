@@ -47,6 +47,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { useAppShellStickyOffsetSync } from "@/hooks/useAppShellStickyOffsetSync";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
 
@@ -240,6 +241,8 @@ function AppShellInner({ children }: AppShellClientProps) {
     setHelpGuidesOpen(true);
   }, []);
   const shellRootRef = useRef<HTMLDivElement>(null);
+  const stickyHeaderRef = useRef<HTMLDivElement>(null);
+  useAppShellStickyOffsetSync(stickyHeaderRef);
   useRouteChangeFocus("main-content");
 
   /** Omit platform readiness on operator home — avoids “Healthy” next to an empty or fragile demo workspace story. */
@@ -301,7 +304,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               data-testid="app-shell-minimal-root"
               className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950"
             >
-              <div className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
+              <div ref={stickyHeaderRef} className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
                 <header
                   data-testid="app-shell-minimal-topbar"
                   className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
@@ -405,7 +408,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           Skip to main content
         </a>
         <div ref={shellRootRef} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
-          <div className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
+          <div ref={stickyHeaderRef} className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
             <FrictionlessTrialBanner />
             <OperatorShellTopBar onOpenHelpSearch={openHelpSearch} />
             <LayerContextFromRoute />

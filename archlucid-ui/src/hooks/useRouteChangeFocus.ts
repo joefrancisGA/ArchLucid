@@ -25,7 +25,7 @@ export function useRouteChangeFocus(targetId: string): void {
     const target = document.getElementById(targetId);
 
     if (target !== null) {
-      target.focus();
+      target.focus({ preventScroll: true });
     }
 
     previousPathname.current = pathname;
