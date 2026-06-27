@@ -58,6 +58,9 @@ describe("CorePilotNextStepsCard", () => {
       });
 
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
+
+      await expandNextStepsCardIfMinimized();
+
       expect(screen.getByTestId("first-review-checkpoint-strip")).toBeInTheDocument();
       expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
         /start your first architecture request/i,

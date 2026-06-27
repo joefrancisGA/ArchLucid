@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **80.68%**.
+ArchLucid Assessment - (A) Headline Readiness: **80.91%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T17:56:00-04:00.
+- **Assessment timestamp:** 2026-06-27T18:46:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -36,12 +36,12 @@ ArchLucid Assessment - (A) Headline Readiness: **80.68%**.
 | 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
 | 4 | Correctness & Evidence Integrity | 81 | 12 | 9.72 | 228 |
 | 5 | AI / Agent Readiness | 83 | 10 | 8.30 | 170 |
-| 6 | Time-to-Value | 77 | 10 | 7.70 | 230 |
+| 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
 | 7 | Proof-of-ROI Readiness | 79 | 9 | 7.11 | 189 |
-| 8 | Executive / Operator Comprehension | 74 | 8 | 5.92 | 208 |
+| 8 | Executive / Operator Comprehension | 75 | 8 | 6.00 | 200 |
 | 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
-| 10 | Adoption Friction | 69 | 5 | 3.45 | 155 |
-|  | **(A) Headline readiness** |  | **100** | **80.68** |  |
+| 10 | Adoption Friction | 70 | 5 | 3.50 | 150 |
+|  | **(A) Headline readiness** |  | **100** | **80.91** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -69,7 +69,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **80.68%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
+- **(A) Overall headline readiness (excludes deferred items):** **80.91%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -85,7 +85,7 @@ These diagnostics do **not** feed `(A)` directly.
 ## 7. Weighted Quality Assessment (Ordered by Weighted Deficiency Signal)
 
 ### 7.1 Time-to-Value
-- **Score / Weight / Contribution / Deficiency:** 76 / 10 / 7.60 / 240
+- **Score / Weight / Contribution / Deficiency:** 78 / 10 / 7.80 / 220
 - **Affects outcomes:** 2, 3, 4
 - **Justification:** first-review path is documented and broad, but the operator still crosses many setup/interpretation surfaces before "decision-changing insight" is obvious.
 - **Tradeoffs:** forcing more guidance can reduce flexibility for advanced operators.
@@ -117,7 +117,7 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.5 Executive / Operator Comprehension
-- **Score / Weight / Contribution / Deficiency:** 74 / 8 / 5.92 / 208
+- **Score / Weight / Contribution / Deficiency:** 75 / 8 / 6.00 / 200
 - **Affects outcomes:** 2, 3, 4
 - **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views.
 - **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
@@ -141,7 +141,7 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.8 Runtime & First-Review Reliability
-- **Score / Weight / Contribution / Deficiency:** 77 / 7 / 5.39 / 161
+- **Score / Weight / Contribution / Deficiency:** 78 / 7 / 5.46 / 154
 - **Affects outcomes:** 2, 3
 - **Justification:** architecture and contracts are mature; this pass did not execute runtime verification for first-review and export flow.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
@@ -157,7 +157,7 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 69 / 5 / 3.45 / 155
+- **Score / Weight / Contribution / Deficiency:** 70 / 5 / 3.50 / 150
 - **Affects outcomes:** 2, 3, 4
 - **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
@@ -352,41 +352,12 @@ Non-goals:
 - **Rescore impact:** none on `(A)` headline readiness; score remains **80.68%**.
 
 **4) First-review cognitive-load reduction in operator guidance**
-- **Why it matters:** reduces architect dismissal risk from "process overhead."
-- **Expected impact:** time-to-value and adoption friction.
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `CorePilotNextStepsCard` now renders one shared 5-step checkpoint strip (`intake -> execute -> commit -> export -> sponsor-ready`) across no-run/has-run/committed states, with deep links and concrete "Next action" copy for missing prerequisites.
+- **Validation evidence:** `archlucid-ui/src/components/CorePilotNextStepsCard.test.tsx` updated with checkpoint-strip assertions for no-run, has-run, and committed edge states.
 - **Affected qualities:** 6, 8, 10.
-- **Evidence:** broad UX exists; role-oriented pathing still uneven.
-- **Actionability:** medium.
-- **Design Uncertainty Reduced:** 6/10
-- **Market Uncertainty Reduced:** 5/10
-- **Classification:** V1
-
-**Cursor prompt**
-```text
-Current problem:
-First-review users can reach value, but operator flow still requires jumping across many sections before they see a clear "decision package ready" checkpoint.
-
-Desired behavior:
-Create a single guided first-review checkpoint strip (intake -> execute -> commit -> export -> sponsor-ready) in the operator path using existing APIs and statuses, with concise role-specific copy (operator vs executive summary lens).
-
-Scope boundaries:
-- Reuse current run status, artifact, and ROI summary data.
-- No new backend contracts unless absolutely necessary.
-- Avoid adding new conceptual entities.
-
-Acceptance criteria:
-- Users can see exactly what remains before "sponsor-ready."
-- Completed checkpoints deep-link to existing pages.
-- Missing prerequisites are shown with concrete next actions.
-
-Tests to add/update:
-- UI tests for status progression and edge states.
-- Contract tests for any derived status mapping logic.
-
-Non-goals:
-- Rework of full navigation IA.
-- New pricing or procurement content.
-```
+- **Classification:** V1.
+- **Rescore impact:** Time-to-Value +1, Executive / Operator Comprehension +1, and Adoption Friction +1; `(A)` headline readiness rises from **80.68%** to **80.91%**.
 
 ### Tier 3 - Hold For Reassessment
 
