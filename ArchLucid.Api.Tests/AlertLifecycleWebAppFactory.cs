@@ -36,6 +36,12 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         // Agentic query rewrite/HyDE call the LLM completion router. Under CI env leakage the real Azure client can
         // hang non-cancellably and wedge the shared retrieval-smoke host (CI #2268). Smoke tests assert vector search only.
         settings["Retrieval:Advanced:Enabled"] = "false";
+        // CI #2374: slow-API shard can leak AzureOpenAI:* config, wiring the real completion client whose HTTP call
+        // ignores per-test deadlines (AskThreadIntegrationTests burns 480s). Clear the completion stack so Ask and
+        // agent paths resolve FakeAgentCompletionClient.
+        settings["AzureOpenAI:Endpoint"] = "";
+        settings["AzureOpenAI:DeploymentName"] = "";
+        settings["AzureOpenAI:ApiKey"] = "";
     }
 
     /// <inheritdoc />
