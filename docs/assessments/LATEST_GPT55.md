@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **81.27%**.
+ArchLucid Assessment - (A) Headline Readiness: **81.40%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T18:54:00-04:00.
+- **Assessment timestamp:** 2026-06-27T19:08:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -38,10 +38,10 @@ ArchLucid Assessment - (A) Headline Readiness: **81.27%**.
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
 | 7 | Proof-of-ROI Readiness | 79 | 9 | 7.11 | 189 |
-| 8 | Executive / Operator Comprehension | 75 | 8 | 6.00 | 200 |
+| 8 | Executive / Operator Comprehension | 76 | 8 | 6.08 | 192 |
 | 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
-| 10 | Adoption Friction | 70 | 5 | 3.50 | 150 |
-|  | **(A) Headline readiness** |  | **100** | **81.27** |  |
+| 10 | Adoption Friction | 71 | 5 | 3.55 | 145 |
+|  | **(A) Headline readiness** |  | **100** | **81.40** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -69,7 +69,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **81.27%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
+- **(A) Overall headline readiness (excludes deferred items):** **81.40%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -117,9 +117,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.5 Executive / Operator Comprehension
-- **Score / Weight / Contribution / Deficiency:** 75 / 8 / 6.00 / 200
+- **Score / Weight / Contribution / Deficiency:** 76 / 8 / 6.08 / 192
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views.
+- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; the ITSM pull-forward gate now states HOLD/WATCH/PULL_FORWARD explicitly for connector scope conversations.
 - **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
 - **Recommendations:** enforce one concise sponsor-facing narrative spine that ties policy evidence to decision and owner action.
 - **Classification:** V1
@@ -157,9 +157,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 70 / 5 / 3.50 / 150
+- **Score / Weight / Contribution / Deficiency:** 71 / 5 / 3.55 / 145
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; the ITSM pull-forward gate prevents over-promising V1.1 connectors while confirming the V1 outbound seam is present.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -370,14 +370,12 @@ Non-goals:
 - **Rescore impact:** Decision-Changing Insight Density +1, Differentiability +1, and AI / Agent Readiness +1; `(A)` headline readiness rises from **80.91%** to **81.27%**.
 
 **6) ITSM pull-forward decision gate**
-- **Why it matters:** avoid over-building or under-serving integration expectations.
-- **Expected impact:** adoption friction and enterprise fit.
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `archlucid pilot itsm-pull-forward-gate` evaluates CONNECTOR_PULL_FORWARD_DECISION.md triggers from paid-pilot ledgers and optional evidence JSON, verifies V1 outbound ITSM seams in-repo, optionally probes `GET /v1/integrations/itsm/health`, and emits HOLD/WATCH/PULL_FORWARD with JSON/Markdown reports.
+- **Validation evidence:** `ArchLucid.Cli.Tests/ItsmPullForwardRunnerTests.cs` covers default HOLD, two-trigger PULL_FORWARD, and connector-gap ledger aggregation; template at `fixtures/itsm/connector-pull-forward-evidence.template.json`.
 - **Affected qualities:** 10, 8.
-- **Evidence:** V1 outbound seams are present and auditable.
-- **Actionability:** medium.
-- **Design Uncertainty Reduced:** 4/10
-- **Market Uncertainty Reduced:** 6/10
-- **Classification:** V1.1 / blocked on user input
+- **Classification:** V1 decision gate (V1.1 connector build remains owner-gated).
+- **Rescore impact:** Executive / Operator Comprehension +1 and Adoption Friction +1; `(A)` headline readiness rises from **81.27%** to **81.40%**.
 
 **7) Procurement objection replay drills (non-engineering)**
 - **Why it matters:** explicit conversion bottlenecks are procurement narrative + proof confidence.
