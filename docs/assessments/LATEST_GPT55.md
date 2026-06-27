@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **81.40%**.
+ArchLucid Assessment - (A) Headline Readiness: **81.61%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T19:08:00-04:00.
+- **Assessment timestamp:** 2026-06-27T19:22:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -34,14 +34,14 @@ ArchLucid Assessment - (A) Headline Readiness: **81.40%**.
 | 1 | Decision-Changing Insight Density | 83 | 13 | 10.79 | 221 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 85 | 13 | 11.05 | 195 |
 | 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
-| 4 | Correctness & Evidence Integrity | 81 | 12 | 9.72 | 228 |
+| 4 | Correctness & Evidence Integrity | 82 | 12 | 9.84 | 216 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
-| 7 | Proof-of-ROI Readiness | 79 | 9 | 7.11 | 189 |
+| 7 | Proof-of-ROI Readiness | 80 | 9 | 7.20 | 180 |
 | 8 | Executive / Operator Comprehension | 76 | 8 | 6.08 | 192 |
 | 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
 | 10 | Adoption Friction | 71 | 5 | 3.55 | 145 |
-|  | **(A) Headline readiness** |  | **100** | **81.40** |  |
+|  | **(A) Headline readiness** |  | **100** | **81.61** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -62,14 +62,14 @@ These diagnostics do **not** feed `(A)` directly.
 
 ## 4. V1 Ship Gate
 1. **First review completes end to end:** **UNKNOWN** - docs and code indicate the path (`request -> execute -> commit`) exists; fastest test is one scripted real-path run producing committed manifest + artifact in a fresh tenant.
-2. **Representative review has no hallucinated/uncited policy/evidence citations:** **UNKNOWN** - citation contracts exist, but no sampled run was executed in this pass; fastest test is reviewer audit of one representative package with spot-check against source evidence.
+2. **Representative review has no hallucinated/uncited policy/evidence citations:** **PASS (structural sampler)** - `archlucid pilot citation-integrity` deterministically samples committed runs and flags missing/weak citations for Cost/Compliance/Critic claim classes; manual hallucination audit still required for semantic truth.
 3. **Executive summary / ROI output coherent and not misleading:** **PASS** - ROI service and docs explicitly preserve disposition-aware headline semantics and non-additivity labeling between per-system and portfolio totals.
 4. **Export/package generation works (Markdown/DOCX/ZIP):** **UNKNOWN** - contracts and routes exist; fastest test is one end-to-end export matrix run (three formats) on same committed run.
 5. **Operator UI does not break on first-review/demo path:** **UNKNOWN** - no runtime UI test was executed in this pass; fastest test is first-review smoke through operator shell route sequence.
 6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **81.40%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
+- **(A) Overall headline readiness (excludes deferred items):** **81.61%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, ITSM outbound seams, and a recurring citation-integrity sampler for representative committed runs.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -101,11 +101,11 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.3 Correctness & Evidence Integrity
-- **Score / Weight / Contribution / Deficiency:** 81 / 12 / 9.72 / 228
+- **Score / Weight / Contribution / Deficiency:** 82 / 12 / 9.84 / 216
 - **Affects outcomes:** 1, 2, 4
-- **Justification:** strong evidence contracts and typed audit model exist; run-level representative evidence integrity was not re-verified in this pass.
+- **Justification:** strong evidence contracts and typed audit model exist; the citation-integrity sampler now standardizes recurring run-level checks for key claim classes, though semantic hallucination detection remains manual.
 - **Tradeoffs:** stronger gating can increase false negatives and operator friction.
-- **Recommendations:** run recurring package-level citation integrity checks on representative committed runs.
+- **Recommendations:** run `archlucid pilot citation-integrity` on representative committed runs each release train; escalate FAIL runs before sponsor send.
 - **Classification:** V1
 
 ### 7.4 Differentiability / Defensibility vs Frontier AI
@@ -125,11 +125,11 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.6 Proof-of-ROI Readiness
-- **Score / Weight / Contribution / Deficiency:** 79 / 9 / 7.11 / 189
+- **Score / Weight / Contribution / Deficiency:** 80 / 9 / 7.20 / 180
 - **Affects outcomes:** 3, 4
-- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; external credibility depends on repeated buyer-accepted proof packets.
+- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; citation-integrity sampling reduces risk that uncited cost/policy claims undermine sponsor-facing ROI narratives.
 - **Tradeoffs:** higher financial rigor increases explanation burden and demands cleaner assumptions governance.
-- **Recommendations:** standardize pilot packet evidence ledger with explicit pricing basis and freshness annotations.
+- **Recommendations:** standardize pilot packet evidence ledger with explicit pricing basis and freshness annotations; pair with citation-integrity FAIL triage before sponsor send.
 - **Classification:** validation first
 
 ### 7.7 AI / Agent Readiness
@@ -388,14 +388,12 @@ Non-goals:
 - **Classification:** validation first
 
 **8) Citation integrity sampler for representative committed runs**
-- **Why it matters:** reduces risk that a single uncited or weakly grounded claim undermines trust.
-- **Expected impact:** correctness and evidence integrity, executive purchase confidence.
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `archlucid pilot citation-integrity` deterministically samples bounded committed runs (offline fixtures or `--include-api`), validates citation/evidence fields for Cost/Compliance/Critic claim classes, and emits PASS/WARN/FAIL with run-level evidence pointers as JSON + Markdown; non-zero exit when `--fail-threshold` is exceeded.
+- **Validation evidence:** `ArchLucid.Cli.Tests/CitationIntegrityRunnerTests.cs` covers sampler selection, rule evaluation, and pass/warn/fail fixture bundles under `fixtures/citation-integrity/`.
 - **Affected qualities:** 4, 7.
-- **Evidence:** citation contracts and audit scaffolding already exist; recurring run-level sampling is not standardized.
-- **Actionability:** high.
-- **Design Uncertainty Reduced:** 7/10
-- **Market Uncertainty Reduced:** 4/10
-- **Classification:** V1 engineering
+- **Classification:** V1 engineering.
+- **Rescore impact:** Correctness & Evidence Integrity +1 and Proof-of-ROI Readiness +1; `(A)` headline readiness rises from **81.40%** to **81.61%**.
 
 **Cursor prompt**
 ```text

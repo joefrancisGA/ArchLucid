@@ -43,6 +43,8 @@
              CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Data\proof_packet_claim_lint_rules.v1.json"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Data\citation_integrity_rules.v1.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
