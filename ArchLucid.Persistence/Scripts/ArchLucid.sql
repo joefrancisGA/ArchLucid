@@ -1540,6 +1540,7 @@ BEGIN
 END;
 GO
 
+-- DbUp 261: CloudInventoryExtractorPackages (MULTI_CLOUD_ANALYSIS_V1_1 §5.3).
 IF OBJECT_ID(N'dbo.CloudInventoryExtractorPackages', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CloudInventoryExtractorPackages

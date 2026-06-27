@@ -1587,6 +1587,7 @@ END;
 
 GO
 
+-- DbUp 261: CloudInventoryExtractorPackages (MULTI_CLOUD_ANALYSIS_V1_1 §5.3).
 IF OBJECT_ID(N'dbo.CloudInventoryExtractorPackages', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.CloudInventoryExtractorPackages
@@ -6257,6 +6258,13 @@ BEGIN
     BEGIN
         DELETE x
         FROM dbo.AzureExtractorPackages AS x
+        WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = x.RunId);
+    END;
+
+    IF OBJECT_ID(N'dbo.CloudInventoryExtractorPackages', N'U') IS NOT NULL
+    BEGIN
+        DELETE x
+        FROM dbo.CloudInventoryExtractorPackages AS x
         WHERE EXISTS (SELECT 1 FROM #PurgeRuns p WHERE p.RunId = x.RunId);
     END;
 
