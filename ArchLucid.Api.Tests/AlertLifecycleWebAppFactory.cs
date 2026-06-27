@@ -42,6 +42,7 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         settings["AzureOpenAI:Endpoint"] = "";
         settings["AzureOpenAI:DeploymentName"] = "";
         settings["AzureOpenAI:ApiKey"] = "";
+        settings["AzureOpenAI:AuthenticationMode"] = "ApiKey";
     }
 
     /// <inheritdoc />

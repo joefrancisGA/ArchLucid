@@ -38,6 +38,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(15);
 
     /// <summary>
+    ///     Commit should succeed or return 409/503 quickly; 15-minute per-attempt budgets let thread-pool-starved shards
+    ///     burn CI time when POST hangs (CI #2374).
+    /// </summary>
+    internal static readonly TimeSpan GreenfieldSqlCommitAttemptHttpTimeout = TimeSpan.FromSeconds(90);
+
+    /// <summary>
     ///     DbUp + readiness + optional first create-run on an empty catalog (outside parallel-burst hang guards).
     ///     Must cover <see cref="WarmListRunsPathAsync" /> worst-case warmup (~8 min at max backoff) plus at least two full
     ///     <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> cycles, so a first attempt that times out on a slow
@@ -542,6 +548,25 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     }
 
     /// <summary>
+    ///     Execute then commit under <see cref="GreenfieldSqlHostBootstrapBudget" /> (TB-294/TB-295 slow-shard seeds).
+    /// </summary>
+    internal static Task PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        return RunGreenfieldSqlFactoryBootstrapAsync(
+            async ct =>
+            {
+                await PostExecuteWithGreenfieldTransientRetryAsync(client, runId, ct);
+                await PostCommitWithGreenfieldTransientRetryAsync(client, runId, ct);
+            },
+            cancellationToken);
+    }
+
+    /// <summary>
     ///     Commit can return <c>409 Conflict</c> when manifest materialization races under CI SQL load; retry with backoff
     ///     like execute/create-run helpers (TB-290/TB-291/TB-295 commit flakes on integration shards).
     /// </summary>
@@ -571,7 +596,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
             using CancellationTokenSource attemptBudget =
                 CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+            attemptBudget.CancelAfter(GreenfieldSqlCommitAttemptHttpTimeout);
 
             try
             {

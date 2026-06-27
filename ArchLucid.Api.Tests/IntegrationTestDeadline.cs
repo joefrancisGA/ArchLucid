@@ -50,6 +50,7 @@ internal static class IntegrationTestDeadline
                 $"[IntegrationTestDeadline] TIMEOUT: test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
             ObserveAbandonedRunTask(runTask, testName);
+            GreenfieldSqlIntegrationWarmup.RecordIntegrationTestDeadlineExceeded();
 
             throw new TimeoutException(
                 $"Integration test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s.");
