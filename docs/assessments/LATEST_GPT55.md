@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 92.07%`
+`ArchLucid Assessment – (A) Headline Readiness: 92.20%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -39,7 +39,7 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
+| 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 1.69 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
 | 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
 | 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 0.60 |
@@ -49,11 +49,13 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 | 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 90 | 5 | 4.50 | 0.50 |
-| **Total** |  |  | **100** | **92.07%** | **7.93** |
+| **Total** |  |  | **100** | **92.20%** | **7.80** |
 
-*(A) Headline Readiness: 92.07%*
+*(A) Headline Readiness: 92.20%*
 
-**Rescore (2026-06-27): 91.90% → 92.07%.** Governed-finding coverage metric (#14) — `GovernedFindingCoverageMetric` computed from `FindingEnforcementTier` (PolicyViolation vs Advisory) across all decision-grade findings; surfaced in `PilotRunDeltasResponse.GovernedFindingCoverage`, `governance-outcome-summary.json` with explanation text, and run-detail first-screen proof status strip as "Governed coverage" field. **Proof-of-ROI Readiness +1 (94→95)** and **Executive / Operator Comprehension +1 (91→92)** — **+0.17%** headline move.
+**Rescore (2026-06-27): 92.07% → 92.20%.** Policy A/B demo fixture and regression test (#15) — `PolicyAbDemoFixture` (C#), `policy-ab-demo-fixture.json` (canonical JSON), and `policy-ab-demo-fixture.ts` (UI mirror); `PolicyAbDemoRegressionTests` enforces that the stricter pack selects one additional compliance rule key and flips the pre-commit gate from allow to block on the same findings; `policy-ab-demo-fixture.test.tsx` renders the before/after rule-key delta and gate posture flip; `POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` documents the fixture as synthetic internal demo validation only. **Decision-Changing Insight Density +1 (86→87)** — **+0.13%** headline move.
+
+**Prior rescore (2026-06-27): 91.90% → 92.07%.** Governed-finding coverage metric (#14) — `GovernedFindingCoverageMetric` computed from `FindingEnforcementTier` (PolicyViolation vs Advisory) across all decision-grade findings; surfaced in `PilotRunDeltasResponse.GovernedFindingCoverage`, `governance-outcome-summary.json` with explanation text, and run-detail first-screen proof status strip as "Governed coverage" field. **Proof-of-ROI Readiness +1 (94→95)** and **Executive / Operator Comprehension +1 (91→92)** — **+0.17%** headline move.
 
 **Prior rescore (2026-06-27): 91.75% → 91.90%.** One-command pilot readiness preflight (#13) — `archlucid pilot preflight` extended with `--no-api` offline mode, `--include-itsm` optional ITSM health probe, `--md`/`--markdown-out` markdown report with owner-friendly next steps, dedicated execution-mode step, Azure AI Search extractor docs pointer, and proof-packet claim-lint rules prerequisite check. JSON schema stable for CI; FIRST_PILOT_OPERATOR_PATH.md updated. **Time-to-Value +1 (90→91)** and **Adoption Friction +1 (89→90)** — **+0.15%** headline move.
 
@@ -612,7 +614,7 @@ Tests to add/update: Unit tests for coverage calculation; UI test for metric dis
 Non-goals: Rewriting finding generation, requiring every finding to have a policy citation, changing ROI math.
 ```
 
-**15. Add sample policy A/B demo fixture and regression test**
+**15. Add sample policy A/B demo fixture and regression test — SHIPPED 2026-06-27**
 - **Tier:** 3
 - **Why it matters:** The central demo depends on showing that policy changes behavior; a deterministic fixture protects that story from drift.
 - **Expected impact:** Decision-Changing Insight Density, Differentiability, Demo Reliability.
@@ -620,7 +622,9 @@ Non-goals: Rewriting finding generation, requiring every finding to have a polic
 - **Actionability:** High.
 - **Design Uncertainty Reduced:** 6/10
 - **Market Uncertainty Reduced:** 3/10
-- **Classification:** V1 engineering/demo hardening.
+- **Classification:** V1 engineering/demo hardening — **shipped**.
+- **Implementation:** `PolicyAbDemoFixture.cs` builds `ComplianceRulePack` with four demo rules (three selectable, one deliberately excluded) plus `PolicyPackContentDocument` for default (two rule keys) and strict (three rule keys) arms; `policy-ab-demo-fixture.json` is the canonical JSON mirror with `expected.defaultGateBlocked: false` and `expected.strictGateBlocked: true`; `policy-ab-demo-fixture.ts` exports typed UI constants including `POLICY_AB_DEMO_ALLOW_RESULT` / `POLICY_AB_DEMO_BLOCK_RESULT`; `PolicyAbDemoRegressionTests` (two tests) proves via `ComplianceRulePackGovernanceFilter` that the stricter pack selects the added rule key and via `PolicyPackGovernanceDryRunService` that the gate flips; `policy-ab-demo-fixture.test.tsx` renders `PolicyPackComplianceRuleKeyDiffView` against fixture keys and asserts gate posture flip; `POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` Step 0 documents fixture as "synthetic, internal demo validation only". **Decision-Changing Insight Density +1 (86→87).**
+- **(A) scoring impact:** **92.07% → 92.20%** (Decision-Changing Insight Density +1).
 
 **Cursor prompt:**
 ```text
