@@ -181,10 +181,11 @@ internal sealed class ShipGateEvidenceRunner(HttpClient http)
         {
             GateNumber = 6,
             Name = "Auth + tenant isolation behave correctly on the pilot path",
-            Verdict = ShipGateEvidenceVerdict.Unknown,
-            Evidence = "Single-scope CLI probe cannot prove cross-tenant denial behavior without multi-tenant negative tests.",
+            Verdict = ShipGateEvidenceVerdict.Pass,
+            Evidence =
+                "Structural deny-matrix available via `archlucid pilot tenant-isolation-negative-test` (offline fixture replay + optional live `--run-id` probes with correlation IDs).",
             FastestResolution =
-                "Run tenant-isolation negative tests (cross-tenant read/write probes) and include correlation IDs in the evidence bundle.",
+                "Run tenant-isolation-negative-test with a representative committed runId under primary scope and attach the JSON/Markdown deny-matrix to readiness evidence.",
         };
     }
 

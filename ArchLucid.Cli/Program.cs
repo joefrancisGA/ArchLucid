@@ -89,9 +89,12 @@ public static class Program
 
                         if (normalized[1] == "citation-integrity")
                             return await CitationIntegrityCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                        if (normalized[1] == "tenant-isolation-negative-test")
+                            return await TenantIsolationNegativeTestCommand.RunAsync(normalized.Skip(2).ToArray());
                     }
 
-                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot init | archlucid pilot success-criteria-template | archlucid pilot preflight [--no-api] [--include-itsm] [--simulate-production] [--md] [--markdown-out <path>] | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>] | archlucid pilot ship-gate-evidence --run-id <guid> [--json-out <path>] [--markdown-out <path>] | archlucid pilot frontier-ai-baseline [--scoreboard <path>] [--init-scoreboard] [--json-out <path>] [--markdown-out <path>] | archlucid pilot itsm-pull-forward-gate [--ledger-dir <path>] [--evidence <path>] [--include-api] [--json-out <path>] [--markdown-out <path>] | archlucid pilot citation-integrity [--fixtures-dir <path>] [--manifest <path>] [--sample-size <n>] [--fail-threshold <n>] [--include-api] [--json-out <path>] [--markdown-out <path>]");
+                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot init | archlucid pilot success-criteria-template | archlucid pilot preflight [--no-api] [--include-itsm] [--simulate-production] [--md] [--markdown-out <path>] | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>] | archlucid pilot ship-gate-evidence --run-id <guid> [--json-out <path>] [--markdown-out <path>] | archlucid pilot frontier-ai-baseline [--scoreboard <path>] [--init-scoreboard] [--json-out <path>] [--markdown-out <path>] | archlucid pilot itsm-pull-forward-gate [--ledger-dir <path>] [--evidence <path>] [--include-api] [--json-out <path>] [--markdown-out <path>] | archlucid pilot citation-integrity [--fixtures-dir <path>] [--manifest <path>] [--sample-size <n>] [--fail-threshold <n>] [--include-api] [--json-out <path>] [--markdown-out <path>] | archlucid pilot tenant-isolation-negative-test [--run-id <guid>] [--alternate-tenant-id <guid>] [--alternate-workspace-id <guid>] [--alternate-project-id <guid>] [--manifest <path>] [--json-out <path>] [--markdown-out <path>]");
 
                     return CliExitCode.UsageError;
 

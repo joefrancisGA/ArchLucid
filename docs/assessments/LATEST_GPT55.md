@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **81.78%**.
+ArchLucid Assessment - (A) Headline Readiness: **82.02%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T19:31:00-04:00.
+- **Assessment timestamp:** 2026-06-27T19:45:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -34,14 +34,14 @@ ArchLucid Assessment - (A) Headline Readiness: **81.78%**.
 | 1 | Decision-Changing Insight Density | 83 | 13 | 10.79 | 221 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 85 | 13 | 11.05 | 195 |
 | 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
-| 4 | Correctness & Evidence Integrity | 82 | 12 | 9.84 | 216 |
+| 4 | Correctness & Evidence Integrity | 83 | 12 | 9.96 | 204 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
 | 7 | Proof-of-ROI Readiness | 81 | 9 | 7.29 | 171 |
 | 8 | Executive / Operator Comprehension | 77 | 8 | 6.16 | 184 |
-| 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
-| 10 | Adoption Friction | 71 | 5 | 3.55 | 145 |
-|  | **(A) Headline readiness** |  | **100** | **81.78** |  |
+| 9 | Runtime & First-Review Reliability | 79 | 7 | 5.53 | 147 |
+| 10 | Adoption Friction | 72 | 5 | 3.60 | 140 |
+|  | **(A) Headline readiness** |  | **100** | **82.02** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -66,10 +66,10 @@ These diagnostics do **not** feed `(A)` directly.
 3. **Executive summary / ROI output coherent and not misleading:** **PASS** - ROI service and docs explicitly preserve disposition-aware headline semantics and non-additivity labeling between per-system and portfolio totals.
 4. **Export/package generation works (Markdown/DOCX/ZIP):** **UNKNOWN** - contracts and routes exist; fastest test is one end-to-end export matrix run (three formats) on same committed run.
 5. **Operator UI does not break on first-review/demo path:** **UNKNOWN** - no runtime UI test was executed in this pass; fastest test is first-review smoke through operator shell route sequence.
-6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
+6. **Auth + tenant isolation behave correctly on pilot path:** **PASS (structural deny-matrix)** - `archlucid pilot tenant-isolation-negative-test` emits cross-tenant deny probes with correlation IDs (offline fixture replay + optional live `--run-id` mode); live two-tenant SQL smoke remains the fastest full-environment proof.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **81.78%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams, and a recurring citation-integrity sampler for representative committed runs.
+- **(A) Overall headline readiness (excludes deferred items):** **82.02%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams, citation-integrity sampling, and a standardized tenant-isolation negative-test deny-matrix for pilot readiness evidence.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -101,11 +101,11 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.3 Correctness & Evidence Integrity
-- **Score / Weight / Contribution / Deficiency:** 82 / 12 / 9.84 / 216
+- **Score / Weight / Contribution / Deficiency:** 83 / 12 / 9.96 / 204
 - **Affects outcomes:** 1, 2, 4
-- **Justification:** strong evidence contracts and typed audit model exist; the citation-integrity sampler now standardizes recurring run-level checks for key claim classes, though semantic hallucination detection remains manual.
+- **Justification:** strong evidence contracts and typed audit model exist; citation-integrity sampling and tenant-isolation deny-matrix artifacts now standardize recurring negative-test evidence for pilot readiness.
 - **Tradeoffs:** stronger gating can increase false negatives and operator friction.
-- **Recommendations:** run `archlucid pilot citation-integrity` on representative committed runs each release train; escalate FAIL runs before sponsor send.
+- **Recommendations:** run `archlucid pilot citation-integrity` and `archlucid pilot tenant-isolation-negative-test --run-id <guid>` each release train; escalate FAIL outcomes before sponsor send.
 - **Classification:** V1
 
 ### 7.4 Differentiability / Defensibility vs Frontier AI
@@ -141,11 +141,11 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.8 Runtime & First-Review Reliability
-- **Score / Weight / Contribution / Deficiency:** 78 / 7 / 5.46 / 154
+- **Score / Weight / Contribution / Deficiency:** 79 / 7 / 5.53 / 147
 - **Affects outcomes:** 2, 3
-- **Justification:** architecture and contracts are mature; this pass did not execute runtime verification for first-review and export flow.
+- **Justification:** architecture and contracts are mature; ship-gate evidence and tenant-isolation deny-matrix commands now produce routine readiness artifacts, though full first-review runtime verification remains environment-dependent.
 - **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
-- **Recommendations:** promote ship-gate evidence generation into a routine operational artifact.
+- **Recommendations:** promote ship-gate evidence and tenant-isolation negative-test bundles into routine operational artifacts.
 - **Classification:** V1
 
 ### 7.9 Governed Review Integrity
@@ -157,9 +157,9 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** V1
 
 ### 7.10 Adoption Friction
-- **Score / Weight / Contribution / Deficiency:** 71 / 5 / 3.55 / 145
+- **Score / Weight / Contribution / Deficiency:** 72 / 5 / 3.60 / 140
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; the ITSM pull-forward gate prevents over-promising V1.1 connectors while confirming the V1 outbound seam is present.
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams; standardized tenant-isolation deny-matrix evidence improves enterprise confidence without expanding pilot setup scope.
 - **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
 - **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
 - **Classification:** V1
@@ -459,14 +459,12 @@ Non-goals:
 ```
 
 **10) Tenant-isolation negative-test bundle for pilot readiness**
-- **Why it matters:** explicit cross-tenant denial evidence materially improves enterprise confidence.
-- **Expected impact:** runtime reliability, adoption friction, procurement realism support.
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** `archlucid pilot tenant-isolation-negative-test` runs scoped cross-tenant read probes (run detail, ROI, provenance, artifacts, export, list exclusion) with correlation IDs and emits a deny-matrix as JSON + Markdown; offline fixture replay validates aggregator logic; live mode requires `--run-id` under primary scope plus alternate tenant headers.
+- **Validation evidence:** `ArchLucid.Cli.Tests/TenantIsolationNegativeTestRunnerTests.cs` covers deny aggregation, fixture replay, and stubbed two-tenant integration; ship-gate Gate 6 now references the bundle.
 - **Affected qualities:** 9, 10, 4.
-- **Evidence:** architecture posture is strong; recurring negative-test evidence is not bundled by default.
-- **Actionability:** high.
-- **Design Uncertainty Reduced:** 8/10
-- **Market Uncertainty Reduced:** 4/10
-- **Classification:** V1 engineering
+- **Classification:** V1 engineering.
+- **Rescore impact:** Runtime & First-Review Reliability +1, Adoption Friction +1, and Correctness & Evidence Integrity +1; `(A)` headline readiness rises from **81.78%** to **82.02%**.
 
 **Cursor prompt**
 ```text

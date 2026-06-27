@@ -19,6 +19,13 @@ internal static class CliScopeHeaders
         string? workspaceId = Resolve(config?.Scope?.WorkspaceId, "ARCHLUCID_WORKSPACE_ID", "X_WORKSPACE_ID");
         string? projectId = Resolve(config?.Scope?.ProjectId, "ARCHLUCID_PROJECT_ID", "X_PROJECT_ID");
 
+        ApplyExplicit(http, tenantId, workspaceId, projectId);
+    }
+
+    internal static void ApplyExplicit(HttpClient http, string? tenantId, string? workspaceId, string? projectId)
+    {
+        ArgumentNullException.ThrowIfNull(http);
+
         SetHeader(http, TenantHeader, tenantId);
         SetHeader(http, WorkspaceHeader, workspaceId);
         SetHeader(http, ProjectHeader, projectId);
