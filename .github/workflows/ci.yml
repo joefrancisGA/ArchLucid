@@ -1594,12 +1594,9 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
-    # RC2 diagnostic branch: blocking — failure fails CI and cancels the run so corset/regression spend does not continue.
-    # Other refs: warn-only (deploy gate exclusion); failure surfaces but does not fail the CI run / block CD.
+    # RC2 diagnostic branch: blocking — guard failure fails the workflow (conclusion: failure); jobs that
+    # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
     continue-on-error: ${{ github.ref != 'refs/heads/RC2' }}
-    permissions:
-      actions: write
-      contents: read
     needs:
       - gitleaks
       - doc-markdown-links
@@ -1637,12 +1634,6 @@ jobs:
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
         run: bash scripts/ci/run_guards_pre_corset.sh
-
-      - name: Cancel workflow (RC2 fail-fast)
-        if: failure() && github.ref == 'refs/heads/RC2'
-        run: gh run cancel "${{ github.run_id }}" --repo "${{ github.repository }}"
-        env:
-          GH_TOKEN: ${{ github.token }}
 
   dotnet-fast-core-build:
     name: ".NET: fast core — build"
