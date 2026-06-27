@@ -12,9 +12,9 @@ internal static class GreenfieldSqlIntegrationWarmup
     private static int _shardWarmupTimedOut;
 
     internal static string ShardOverloadSkipReason =>
-        "Slow-API integration shard overloaded (GreenfieldSqlHostBootstrapBudget: "
+        "Greenfield SQL warmup timed out on this shard (GreenfieldSqlHostBootstrapBudget: "
         + ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlHostBootstrapBudget
-        + " or IntegrationTestDeadline timeout). Subsequent tests skip to avoid wall-clock burn.";
+        + "). The CI shard may be overloaded.";
 
     /// <summary>
     ///     Set after the first <see cref="WarmupTimedOutException" /> in the test host process so later tests skip
@@ -31,15 +31,6 @@ internal static class GreenfieldSqlIntegrationWarmup
     internal static void RecordShardWarmupTimedOut()
     {
         Interlocked.Exchange(ref _shardWarmupTimedOut, 1);
-    }
-
-    /// <summary>
-    ///     CI #2374: abandoned integration test bodies after <see cref="IntegrationTestDeadline" /> can starve the
-    ///     thread pool; later greenfield SQL tests skip once any deadline fires in-process.
-    /// </summary>
-    internal static void RecordIntegrationTestDeadlineExceeded()
-    {
-        RecordShardWarmupTimedOut();
     }
 
     internal static async Task WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
