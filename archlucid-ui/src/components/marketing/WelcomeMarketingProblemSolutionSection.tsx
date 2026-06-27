@@ -1,4 +1,5 @@
 import {
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   WELCOME_PROBLEM_BODY,
   WELCOME_PROBLEM_HEADING,
   WELCOME_SOLUTION_BODY,

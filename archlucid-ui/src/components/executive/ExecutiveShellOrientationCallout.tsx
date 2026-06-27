@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_SHELL_MAX_WIDTH_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "archlucid_executive_shell_orientation_dismissed_v1";

@@ -1,8 +1,7 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
-import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import {
   resolveExplanationEvidenceBasisBadges,
   type ResolveExplanationEvidenceBasisInput,

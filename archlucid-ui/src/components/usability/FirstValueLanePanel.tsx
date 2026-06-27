@@ -1,5 +1,5 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ENTERPRISE_STATUS_LABELS, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -20,7 +20,6 @@ import {
 } from "@/lib/first-value-lane";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { ENTERPRISE_STATUS_LABELS, type EnterpriseStatusKind } from "@/lib/design-tokens";
 
 const emptyCommitContext: CorePilotCommitContext = {
   hasCommittedManifest: false,

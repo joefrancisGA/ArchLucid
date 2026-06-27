@@ -1,4 +1,4 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { type LayerId } from "@/lib/getLayerForRoute";
-import { operatorSemanticBadge, OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 
 const layerStripBase =
   "border-b border-neutral-200 bg-al-surface-raised border-l-4 dark:border-neutral-800";

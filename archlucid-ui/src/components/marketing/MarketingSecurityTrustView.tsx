@@ -2,13 +2,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURITY_TRUST_MATURITY_SECTION_HEADINGS,
   SECURITY_TRUST_NDA_NOTICE,

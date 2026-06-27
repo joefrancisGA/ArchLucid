@@ -1,8 +1,7 @@
 import { Shield } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { enterpriseStatusTagClass } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 
 export type FindingConfidenceBadgeProps = {

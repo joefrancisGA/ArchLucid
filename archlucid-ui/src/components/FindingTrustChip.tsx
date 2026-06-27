@@ -1,8 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { enterpriseStatusTagClass } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { enterpriseStatusTagClass, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type FindingTrustChipKind =

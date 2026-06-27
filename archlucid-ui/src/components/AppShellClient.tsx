@@ -21,6 +21,7 @@ import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
 import {
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OperatorChromeModeProvider,
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";

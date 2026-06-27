@@ -1,7 +1,7 @@
 "use client";
 
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ExecutiveDashboardSampleWorkspaceBannerProps = {

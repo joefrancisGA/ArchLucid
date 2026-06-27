@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 type DemoDataBadgeProps = {
   readonly className?: string;
   readonly variant?: "inline" | "banner";

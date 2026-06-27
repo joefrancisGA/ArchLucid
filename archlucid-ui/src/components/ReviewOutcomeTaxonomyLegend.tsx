@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /**
  * Buyer-facing micro-legend so review findings, monitored risks, and approval lines read consistently.
  */

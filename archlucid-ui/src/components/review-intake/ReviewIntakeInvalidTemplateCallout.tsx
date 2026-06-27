@@ -1,3 +1,4 @@
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 type ReviewIntakeInvalidTemplateCalloutProps = {
   readonly templateId: string;
 };

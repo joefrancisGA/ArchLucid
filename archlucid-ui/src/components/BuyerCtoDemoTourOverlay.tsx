@@ -1,5 +1,5 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY, operatorSemanticBadge } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 
@@ -125,7 +125,6 @@ import {
   writeOperatorDemoPanicOffline,
 } from "@/lib/operator-static-demo";
 
-import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
 
 
 

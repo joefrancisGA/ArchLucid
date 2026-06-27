@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 const PROOF_CHAIN_STEPS = [
   "Evidence",
   "Finding",

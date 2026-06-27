@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OPERATOR_CARD,
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,

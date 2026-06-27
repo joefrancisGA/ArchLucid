@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { buyerCtoDemoAudienceCaption } from "@/lib/buyer-cto-demo-orchestration";
 import { readBuyerCtoDemoTourActive, resolveBuyerCtoDemoTourNavigation } from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Top caption bar summarizing the current journey screen for presenters (#15). */

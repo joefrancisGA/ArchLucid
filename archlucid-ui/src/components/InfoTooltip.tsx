@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 interface InfoTooltipProps {
   text: string;
 }

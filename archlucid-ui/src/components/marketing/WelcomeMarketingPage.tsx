@@ -2,39 +2,24 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
 import { HeroEarlyAccessCta } from "@/components/marketing/HeroEarlyAccessCta";
-import { cn } from "@/lib/utils";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
-import { cn } from "@/lib/utils";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
-import { cn } from "@/lib/utils";
 import { SelfDemoRequestCta } from "@/components/marketing/SelfDemoRequestCta";
-import { cn } from "@/lib/utils";
 import { WalkthroughRequestCta } from "@/components/marketing/WalkthroughRequestCta";
-import { cn } from "@/lib/utils";
 import { WelcomeMarketingProblemSolutionSection } from "@/components/marketing/WelcomeMarketingProblemSolutionSection";
-import { cn } from "@/lib/utils";
 import { WelcomeMarketingUseCasesSection } from "@/components/marketing/WelcomeMarketingUseCasesSection";
-import { cn } from "@/lib/utils";
 import { WelcomeMarketingWorkflowSection } from "@/components/marketing/WelcomeMarketingWorkflowSection";
-import { cn } from "@/lib/utils";
 import {
   WELCOME_HERO_CTA_SUBHEADING,
   WELCOME_HERO_PITCH,
 } from "@/components/marketing/welcome-marketing-copy";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
-import { cn } from "@/lib/utils";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
-import { cn } from "@/lib/utils";
-import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 type WelcomeVerifyLink = {

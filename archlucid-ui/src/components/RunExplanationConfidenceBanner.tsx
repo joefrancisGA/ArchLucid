@@ -2,18 +2,13 @@ import type { ReactElement } from "react";
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { operatorConfidenceSurface } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY, operatorConfidenceSurface } from "@/lib/design-tokens";
 import {
   buildExplanationConfidenceSummary,
   type ExplanationConfidenceDisposition,
 } from "@/lib/run-explanation-confidence-disposition";
-import { cn } from "@/lib/utils";
 import { buyerExplanationConfidenceDispositionLabel } from "@/lib/buyer-explanation-confidence-labels";
-import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { cn } from "@/lib/utils";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function dispositionClass(disposition: ExplanationConfidenceDisposition): string {

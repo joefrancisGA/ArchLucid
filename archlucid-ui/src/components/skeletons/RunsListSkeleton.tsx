@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /**
  * Mirrors the reviews list page: heading, controls row, and table-shaped placeholders.
  */

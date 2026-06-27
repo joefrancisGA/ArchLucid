@@ -17,7 +17,7 @@ import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
-import { operatorSemanticSurface } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 function formatUsd(amount: number, currency: string): string {

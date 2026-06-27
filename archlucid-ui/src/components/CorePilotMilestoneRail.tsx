@@ -1,8 +1,7 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import { operatorSemanticSurface } from "@/lib/design-tokens";
 
 const MILESTONE_SHORT: readonly string[] = ["Request", "Review process", "Finalize", "Package"];
 

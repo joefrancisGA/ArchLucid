@@ -1,5 +1,5 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -13,7 +13,6 @@ import {
   BUYER_HOME_SAMPLE_PACKAGE_LEAD,
   BUYER_HOME_SECONDARY_CTA,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 

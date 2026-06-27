@@ -3,20 +3,14 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { StatusTag } from "@/components/ui/status-tag";
-import { cn } from "@/lib/utils";
-import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   dispositionLabel,
   type OperatorAiQualitySnapshot,
   type OperatorAiQualitySnapshotDisposition,
 } from "@/lib/operator-ai-quality-snapshot";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 function formatMetric(value: number | null | undefined, digits: number): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {

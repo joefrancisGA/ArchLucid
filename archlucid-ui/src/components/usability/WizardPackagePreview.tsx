@@ -1,5 +1,6 @@
 "use client";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 type WizardPackagePreviewProps = {
   readonly systemName: string;
   readonly hasEvidence: boolean;

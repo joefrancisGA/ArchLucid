@@ -1,5 +1,5 @@
 "use client";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_HOME_SUBSECTION_LABEL, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import Link from "next/link";
@@ -19,7 +19,6 @@ import {
   CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
 } from "@/lib/core-pilot-first-review-copy";
-import { OPERATOR_HOME_SUBSECTION_LABEL } from "@/lib/design-tokens";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 
 /**

@@ -1,5 +1,6 @@
 import type { FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 type ExtractUploadFileProgressListProps = {
   readonly fileStatuses: readonly FolderPackageFileStatus[];
 };

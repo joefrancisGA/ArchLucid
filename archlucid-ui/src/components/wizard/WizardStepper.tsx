@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export type WizardStepDefinition = {
   label: string;
   description?: string;

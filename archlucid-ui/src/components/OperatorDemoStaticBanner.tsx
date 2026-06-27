@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /**
  * Inline notice when operator run/manifest content is served from the curated showcase bundle
  * because the upstream API returned an error and static demo fallback is enabled (`NEXT_PUBLIC_DEMO_MODE` or `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`).

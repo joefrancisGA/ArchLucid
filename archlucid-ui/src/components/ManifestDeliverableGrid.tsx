@@ -18,7 +18,7 @@ import {
 import { downloadFirstValueReportPdf, getArchitecturePackageDocxUrl, getBundleDownloadUrl } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
-import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
