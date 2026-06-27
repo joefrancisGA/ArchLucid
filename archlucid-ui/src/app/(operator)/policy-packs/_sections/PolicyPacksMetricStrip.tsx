@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_TYPOGRAPHY,

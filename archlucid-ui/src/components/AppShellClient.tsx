@@ -21,7 +21,6 @@ import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
 import { SponsorExecutiveShellRedirect } from "@/components/SponsorExecutiveShellRedirect";
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OperatorChromeModeProvider,
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
@@ -45,6 +44,7 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
   OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
+  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,

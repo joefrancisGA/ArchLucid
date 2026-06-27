@@ -18,7 +18,6 @@ import { Download } from "lucide-react";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
 import { runExecutiveSummaryExportHref } from "@/lib/api/run-summary-export-api";
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   MARKETING_TYPOGRAPHY,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,

@@ -13,7 +13,6 @@ import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,

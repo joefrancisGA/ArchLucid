@@ -1,8 +1,9 @@
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   WELCOME_WORKFLOW_INTRO,
   WELCOME_WORKFLOW_STEPS,
 } from "@/components/marketing/welcome-marketing-copy";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Six-stage marketing workflow strip (Capture → … → Report). */
 export function WelcomeMarketingWorkflowSection() {

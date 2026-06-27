@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer-polish-copy";
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,

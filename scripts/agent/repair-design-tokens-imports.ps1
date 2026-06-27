@@ -61,17 +61,29 @@ foreach ($file in $files) {
             continue
         }
 
-        $insertAt = 0
+        $insertAt = $null
 
         for ($index = 0; $index -lt $lines.Count; $index++) {
             $trimmed = $lines[$index].Trim()
 
-            if ($trimmed -eq '"use client";' -or $trimmed -eq "'use client';" -or $trimmed.StartsWith('import ') -or $trimmed.Length -eq 0) {
-                $insertAt = $index + 1
+            if ($trimmed -eq '"use client";' -or $trimmed -eq "'use client';" -or $trimmed.Length -eq 0) {
                 continue
             }
 
+            if ($trimmed.StartsWith('import ') -and $trimmed -notmatch ';$') {
+                continue
+            }
+
+            if ($trimmed.StartsWith('import ') -or $trimmed.StartsWith('export ')) {
+                continue
+            }
+
+            $insertAt = $index
             break
+        }
+
+        if ($null -eq $insertAt) {
+            continue
         }
 
         $lines.Insert($insertAt, 'import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";')

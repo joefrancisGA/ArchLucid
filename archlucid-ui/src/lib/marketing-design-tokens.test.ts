@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   MARKETING_LAYOUT,
   MARKETING_SURFACES,
   MARKETING_TYPOGRAPHY,

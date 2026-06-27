@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { getBundleDownloadUrl } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
