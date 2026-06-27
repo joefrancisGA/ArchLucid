@@ -2,6 +2,10 @@
 
 # Assessment inputs (canonical read list)
 
+## Canonical assessment prompt
+
+The canonical clean-slate weighted readiness prompt is **[`../assessments/ASSESSMENT_PROMPT_V2.md`](../assessments/ASSESSMENT_PROMPT_V2.md)**. It is **self-contained**: it defines its own weighted quality model and scoring method, so for v2 passes it **supersedes** the standalone [`ASSESSMENT_QUALITY_MODEL.md`](ASSESSMENT_QUALITY_MODEL.md) below (which remains canonical only for legacy / non-v2 passes). Read this file's table for orientation evidence, then execute `ASSESSMENT_PROMPT_V2.md`.
+
 ## One workflow (current score vs history)
 
 Use this sequence so **headline readiness** never mixes with **historical narrative**:
