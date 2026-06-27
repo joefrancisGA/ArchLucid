@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog ? remaining by architectural quality
 
-**Updated:** 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~56 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
+**Updated:** 2026-06-27 (TB-392 and TB-393 promoted to **V1** — per-tenant ITSM credentials + settings write API; automated AWS polling **TB-402** and automated GCP polling **TB-403** — V1.1). Prior: 2026-06-24 (progressive disclosure batches 1–2 **TB-169** Done; run-detail IA refactor **TB-401** — V1.1). Prior: 2026-06-23 (advisory UX – review picker + strip label **TB-400**; buyer-facing route aliases **TB-399** — V1.1; manifest terminology copy sweep shipped under **TB-355** guard). Prior: 2026-06-22 (real-LLM gate metrics **TB-139** Done; Jira/ServiceNow integration-seam cluster **TB-386—398** from integration-readiness assessment). Prior: 2026-06-21 insight-density **TB-382—385** Done; 2026-06-16 operator home **TB-345—353** (all Done). **~58 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), **TB-140** / G-REAL (owner/credentialed), and **TB-340** (owner PQ-DRIFT-01). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -21,13 +21,13 @@
 | Trustworthiness | 1 |
 | Maintainability | 2 |
 | Traceability | 3 |
-| Interoperability | 6 |
+| Interoperability | 8 |
 | Compliance readiness | 2 |
 | Performance | 1 |
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 7 |
-| **Total (unique)** | **~55** |
+| **Total (unique)** | **~57** |
 
 **BDA register:** all **150** buyer-demo defects are **BDA-001?150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276?282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283?288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289?294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295?300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS?5DV**; **0** grandfathered unclassified). **Insight-density:** **TB-382?385** **Done** (Prompts A?F through `5d7af0811`; drift guard **insight-density-tb382-385**). **ITSM integration seams:** **TB-386?398** (2026-06-22 assessment ? V1 seam hardening + V1.1/V2 connector follow-on). **TB-386?391 Done (2026-06-22).** **Next recommended batch:** **TB-392** (per-tenant Jira/ServiceNow credentials — V1.1). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
@@ -136,9 +136,11 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 **TB-345 ? TB-353** were added 2026-06-16 from an external **operator home first-run UX** review (voluntary usage, executive purchase probability, first-time architect adoption). All nine items are **P0** for fast pickup. They tighten the buyer-polished home narrative already improved in recent sessions: remove sidebar **First-hour path** duplication (**TB-345**), compress the **Start your first review** hero (**TB-346**), strengthen the reviews list section (**TB-347**, **TB-352**), promote the **example request** above the fold (**TB-348**), hide **ROI estimate pending** until a committed review exists (**TB-349**), deprioritize **monthly analysis allowance** in shell chrome (**TB-350**), replace **What you'll get** artifact copy with **What ArchLucid discovers** value claims (**TB-351**), and add a substantive **show me value** sample review surface (**TB-353**). **Excluded:** context-aware **Guided review recap** button relabel (reviewer item #7 ? different audience/moment; not backlog-tracked). Does not duplicate **TB-337?339** (evidence-first empty state / Core Pilot), **TB-169** (Operate progressive disclosure), **TB-218** (demo viewer CTA), or **TB-270** (wizard entry-point disambiguation). Cross-ref `PilotCommandCenterCard`, `SidebarNav`, `RunsDashboardPanel`, `PilotRoiBaselineReadinessCard`, `buyer-polish-copy.ts`, [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
-**TB-386 ? TB-398** were added 2026-06-22 from a **Jira / ServiceNow integration-readiness** codebase assessment. **TB-063** already shipped one-click outbound + correlation storage + inbound webhook sync (marked Done 2026-06-01), but owner scope keeps first-party ITSM productization in **V1.1** per [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6. This cluster closes **integration seams** for V1 GA without building full native connectors: **TB-386?388** (P1) extend exports, gate native UI behind a feature flag, and audit correlation lifecycle changes; **TB-389?390** (P0/P1) harden multi-tenant correlation uniqueness and inbound snapshot scoping; **TB-391** (P2) adds ServiceNow copy-as-task and a `trackedExternally` projection; **TB-392?396** (V1.1) cover per-tenant credentials, settings write API/UI, durable async outbound, finding assignee/due-date fields, and disposition-aware inbound sync; **TB-397?398** (V2) introduce a plugin boundary and full enterprise connector scope (OAuth, field mapping UI, bidirectional workflow). Does not duplicate **TB-063** (one-click UI/API ? Done), **TB-016** (operator sandbox provisioning), or **Teams** connector work. Cross-ref [`API_CONTRACTS.md`](API_CONTRACTS.md) ITSM section, [`ITSM_BRIDGE_V1_RECIPES.md`](ITSM_BRIDGE_V1_RECIPES.md), `ItsmFindingCorrelations`, `copy-finding-as-work-item.ts`.
+**TB-386 — TB-398** were added 2026-06-22 from a **Jira / ServiceNow integration-readiness** codebase assessment. **TB-063** already shipped one-click outbound + correlation storage + inbound webhook sync (marked Done 2026-06-01), but owner scope keeps first-party ITSM productization in **V1.1** per [`V1_DEFERRED.md`](V1_DEFERRED.md) §6. This cluster closes **integration seams** for V1 GA without building full native connectors: **TB-386–388** (P1) extend exports, gate native UI behind a feature flag, and audit correlation lifecycle changes; **TB-389–390** (P0/P1) harden multi-tenant correlation uniqueness and inbound snapshot scoping; **TB-391** (P2) adds ServiceNow copy-as-task and a `trackedExternally` projection; **TB-392–393** (P1, promoted to **V1** 2026-06-27) cover per-tenant credentials and settings write API/UI; **TB-394–396** (V1.1) cover durable async outbound, finding assignee/due-date fields, and disposition-aware inbound sync; **TB-397–398** (V2) introduce a plugin boundary and full enterprise connector scope (OAuth, field mapping UI, bidirectional workflow). Does not duplicate **TB-063** (one-click UI/API — Done), **TB-016** (operator sandbox provisioning), or **Teams** connector work. Cross-ref [`API_CONTRACTS.md`](API_CONTRACTS.md) ITSM section, [`ITSM_BRIDGE_V1_RECIPES.md`](ITSM_BRIDGE_V1_RECIPES.md), `ItsmFindingCorrelations`, `copy-finding-as-work-item.ts`.
 
 **TB-400** was added 2026-06-23 as a **V1.1 follow-on** to the architecture advisory UX polish pass (advisory page review picker + strip label shipped in V1). The advisory recommendation cards currently surface `rationale`, `suggestedAction`, and `expectedImpact` from the API. What is missing is a **direct link from a recommendation to the source finding or manifest section** that generated it — clicking "API tier lacks circuit breaker" should deep-link into the finding record or evidence trail where the gap was observed. This requires: (a) a new `sourceEvidenceLinks: { kind: "finding" | "manifestSection", id: string }[]` field on `RecommendationRecord` (API + persistence); (b) rendering those links as navigable links in `AdvisoryScansContent` recommendation cards; (c) an integration test asserting at least one link is populated when a finding-backed recommendation is generated. **Out of scope:** changing the recommendation generation logic or the advisory-scan scheduling surface. **Cross-ref:** `AdvisoryScansContent.tsx`, `advisory-api.ts`, `types/advisory.ts`.
+
+**TB-402 — TB-403** were added 2026-06-27 as the **V1.1 automated cloud polling** cluster. [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) commits to AWS/GCP topology ingestion via Terraform and customer-controlled inventory ZIPs (Phase 1–3); it explicitly defers **Tier 2 live API connectors** (long-lived credentials inside the customer AWS/GCP account). These two items add **hosted automated polling** for AWS (**TB-402**) and GCP (**TB-403**) at **full parity with the Azure Tier 2 extractor** shipped in V1 (see `V1_SCOPE.md §2.16`, `CloudConnectionsPageClient.tsx`, and `Integrations.AzureExtractor`). Tier 2 for Azure wires a hosted poller that holds a minimal read-only credential, runs on a schedule, uploads an inventory ZIP via `/v1/extractor/azure/upload`, and exposes a management UI at `/settings/cloud-connections`. TB-402 and TB-403 replicate that same end-to-end stack for AWS and GCP respectively. They do **not** duplicate `TB-214` (non-Azure JSON upload path, DEFERRED owner-gated), `TB-341` (multi-source evidence picker V1.1 badges), `TB-343` (cloud-connections plural copy reconciliation — Done 2026-06-19), or Phase 1–4 of `MULTI_CLOUD_ANALYSIS_V1_1.md` (topology analysis + pricing — distinct from the polling credential/scheduler/UI cluster). Owner must confirm acceptable credential model (Entra Workload Identity Federation, IAM role-ARN trust, or GCP Workload Identity before implementation begins; items are blocked on that pending question — **PQ-CLOUD-01**).
 
 **TB-399** was added 2026-06-23 as the **V1.1 follow-on** to the manifest terminology copy sweep (global guard **TB-355** / **TB-366**). V1 removed "manifest" from on-page labels, help, compare copy, and error strings; **browser URLs still expose** `/manifests/` and `/reviews/{runId}/manifest`, which buyers see in the address bar, bookmarks, and shared links. **TB-399** adds **buyer-facing route aliases + permanent redirects** (same pattern as `/runs` ? `/reviews` in `next.config.ts`) without renaming API contracts, persistence, or internal `manifestId` fields. **Out of scope:** `/manifest.webmanifest` (PWA platform convention); backend `/v1/authority/manifests/*` paths. Cross-ref [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) ?9, **TB-273** (BDA manifest terminology cluster), `buyer-safe-review-navigation.ts`, `NAV_CONFIG_CONTRACT.md`.
 
@@ -152,6 +154,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-402 | Automated AWS polling (Tier 2) — hosted poller with read-only IAM credential; scheduled inventory collection via AWS Config / Resource Explorer; upload to `/v1/extractor/aws/upload`; `/settings/cloud-connections` AWS connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; blocked on **PQ-CLOUD-01** (credential model owner confirm) | L |
+| TB-403 | Automated GCP polling (Tier 2) — hosted poller with Workload Identity Federation credential; scheduled `gcloud asset list` / GCP Asset Inventory collection; upload to `/v1/extractor/gcp/upload`; `/settings/cloud-connections` GCP connection management UI; parity with Azure Tier 2 extractor | Interoperability P1 — **V1.1**; blocked on **PQ-CLOUD-01** (credential model owner confirm) | L |
 | TB-400 | Architecture advisory — evidence/policy traceability on recommendation cards: `sourceEvidenceLinks` field linking each recommendation to its source finding or manifest section; deep-link navigation in `AdvisoryScansContent` | Governance traceability P2 — **V1.1** | S |
 | TB-399 | Buyer-facing route aliases — remove "manifest" from browser URLs (`/manifests` → `/signed-records`, `/reviews/{id}/manifest` → `/reviews/{id}/signed-record`); permanent redirects + internal link migration; API/persistence unchanged | Adoption friction P2 — **V1.1**; complements **TB-355** copy sweep | M |
 | TB-389 | Tenant-scope `ItsmFindingCorrelations` unique constraint — **Done (2026-06-22)** — `UNIQUE (TenantId, Provider, ExternalKey)`; migration + integration test | Data consistency P0 | XS |
@@ -160,8 +164,8 @@ Items here are **greenlit in principle** ? the decision has been made and contex
 | TB-388 | ITSM correlation lifecycle audit events — **Done (2026-06-22)** — `Integration.ItsmFindingCorrelationUpdated` / `Integration.ItsmFindingCorrelationRemoved`; PATCH/DELETE on `ItsmCorrelationController`; audit catalog + matrix | Traceability P1 | XS |
 | TB-390 | ~~ITSM inbound webhook snapshot scoping~~ **Done (2026-06-22)** — scope inbound `HumanReviewStatus` UPDATE to correlated `FindingRecordId` / latest committed snapshot fallback | Correctness P1 | S |
 | TB-391 | ~~ServiceNow copy-as-task + `trackedExternally` projection~~ **Done (2026-06-22)** — `serviceNowText` clipboard format + `TrackedExternally` on inspect/list | Interoperability P2 | S |
-| TB-392 | Per-tenant Jira/ServiceNow credentials ? mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | Trustworthiness P1 ? **V1.1**; blocks true per-tenant connector setup | M |
-| TB-393 | Tenant ITSM outbound settings write API + admin UI ? upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `/integrations/itsm` settings page; `AdminAuthority` or `ExecuteAuthority` gate | Adoption friction P1 ? **V1.1**; today repository is read-only | M |
+| TB-392 | Per-tenant Jira/ServiceNow credentials — mirror `TenantTeamsIncomingWebhookConnections` + Key Vault secret-name pattern for ITSM outbound/inbound; per-tenant connection rows; replace deployment-wide `Integrations:ItsmOutbound:*` for multi-tenant SaaS | Trustworthiness P1 — **V1**; required for multi-tenant SaaS ITSM | M |
+| TB-393 | Tenant ITSM outbound settings write API + admin UI — upsert `TenantItsmOutboundSettings` (project key override, severity filters, issue-type map); `PUT /v1/integrations/itsm/settings`; `/integrations/itsm` settings page; `AdminAuthority` or `ExecuteAuthority` gate | Adoption friction P1 — **V1**; today repository is read-only | M |
 | TB-394 | Durable async ITSM outbound ticket creation ? enqueue outbound create on existing outbox/background-job infrastructure; retry/DLQ after HTTP Polly exhaustion; operator-visible pending/failed state | Reliability P2 ? **V1.1**; today synchronous in request path | M |
 | TB-395 | Finding assignee + general remediation due date ? add `AssignedToUserId` and `RemediationDueUtc` to `Finding` contract + `FindingRecords` SQL; expose on inspect/risk-register; map in outbound payload builder | Architectural integrity P2 ? **V1.1**; required for Jira assignee / ServiceNow `assigned_to` sync | M |
 | TB-396 | Inbound ITSM disposition sync ? extend inbound webhook mapping beyond `HumanReviewStatus` to update latest `FindingDisposition` where configured; document status?disposition map in inbound options | Interoperability P2 ? **V1.1**; one-way human-review mirror is insufficient for governance workflows | M |
@@ -3499,7 +3503,7 @@ ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issu
 
 **Size estimate:** **M** ? UI productization over existing backend, plus sync-state display and tests.
 
-**Follow-on (integration seams, 2026-06-22):** V1 GA seam hardening and multi-tenant fixes ? **TB-386?391**; V1.1 native connector completion ? **TB-392?396**; V2 enterprise connector ? **TB-397?398**. Native UI remains release-windowed V1.1 per [`V1_DEFERRED.md`](V1_DEFERRED.md) ?6 even though TB-063 backend/UI shipped early.
+**Follow-on (integration seams, 2026-06-22):** V1 GA seam hardening and multi-tenant fixes — **TB-386–391**; V1 per-tenant credentials + settings write API — **TB-392–393** (promoted to V1 2026-06-27); V1.1 durable async, assignee/due-date, disposition sync — **TB-394–396**; V2 enterprise connector — **TB-397–398**.
 
 ---
 
@@ -11330,7 +11334,7 @@ Inbound Jira/ServiceNow webhook sync updates `FindingRecords.HumanReviewStatus` 
 
 ---
 
-## TB-392 — Per-tenant Jira/ServiceNow credentials — **V1.1**
+## TB-392 — Per-tenant Jira/ServiceNow credentials — **V1**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
@@ -11364,7 +11368,7 @@ Jira/ServiceNow outbound and inbound webhook secrets live in deployment-wide `In
 
 ---
 
-## TB-393 — Tenant ITSM outbound settings write API + admin UI — **V1.1**
+## TB-393 — Tenant ITSM outbound settings write API + admin UI — **V1**
 
 **Source:** Jira/ServiceNow integration-readiness assessment (2026-06-22).
 
@@ -11595,3 +11599,125 @@ Buyers and operators still land on paths such as `/manifests/{uuid}` and `/revie
 **Size estimate:** **M**
 
 **Cross-ref:** **TB-355**, **TB-366**, **TB-273** (BDA manifest terminology), [`UI_ARCHITECTURE_V1_1.md`](UI_ARCHITECTURE_V1_1.md) §9, [`V1_DEFERRED.md`](V1_DEFERRED.md) §4.
+
+---
+
+## TB-402 — Automated AWS polling (Tier 2) — hosted poller with IAM credential — **V1.1**
+
+**Source:** Owner direction 2026-06-27 — automated AWS and GCP polling must reach full parity with the Azure Tier 2 extractor shipped in V1 (see `V1_SCOPE.md §2.16`).
+
+**Problem:**
+
+Settings → Cloud connections exposes one Tier 2 managed connection today: Azure. Customers with AWS workloads must either supply a customer-run inventory ZIP (Tier 1) or forgo continuous evidence collection entirely. There is no hosted poller, no AWS credential management surface, and no automatic re-poll schedule for AWS accounts.
+
+**Context — what Azure Tier 2 ships today:**
+
+- `Integrations.AzureExtractor` service: polls Azure subscription via ARM read-only scope on a configurable schedule.
+- Credential stored per-tenant in Key Vault; retrieved at poll time via Managed Identity.
+- On completion: assembles an inventory ZIP and submits to `POST /v1/extractor/azure/upload`.
+- Management UI at `/settings/cloud-connections`: shows connection status, last-polled timestamp, re-poll button, disconnect.
+- Schema: `TenantAzureConnectionRecords` (status, lastPolledUtc, subscriptionId, tenantId).
+
+**V1.1 scope (this item — AWS):**
+
+1. **Credential model** (owner confirms PQ-CLOUD-01): recommended path is **AWS IAM role-ARN + Workload Identity Federation** (trust ArchLucid's Azure Managed Identity as a federated principal, no long-lived access keys stored). Fallback: access-key-id / secret-access-key in Key Vault.
+2. **Per-tenant connection record:** `TenantAwsConnectionRecords` table — mirrors `TenantAzureConnectionRecords` schema (`TenantId`, `AccountId`, `Region`, `RoleArn`, `Status`, `LastPolledUtc`, `CreatedUtc`).
+3. **Poller service** `Integrations.AwsExtractor` (new project):
+   - Calls AWS Config `ListResourcesAsync` or Resource Explorer `Search` (Tier 1 compatible payload shape).
+   - Assembles ZIP following the same `manifest.json` + `resources.json` contract as `Get-ArchLucidAwsPackage.ps1`.
+   - Submits to existing `/v1/extractor/aws/upload` endpoint.
+   - Interval driven by `CloudPolling:Aws:IntervalHours` (default 24 h).
+4. **Management UI:** extend `/settings/cloud-connections` with an AWS section — mirror the Azure connection card: `AccountId`, region, status badge, last-polled timestamp, Re-poll button, Disconnect.
+5. **IaC:** Terraform module for AWS poller ACA Job + Key Vault secret slot in `infra/terraform-hosted-prod/`.
+6. **Audit events:** `CloudConnection.AwsConnected`, `CloudConnection.AwsPolled`, `CloudConnection.AwsDisconnected` — mirror Azure events in audit catalog.
+7. **Trust-center copy:** update trust-center posture to note AWS Tier 2 is an opt-in managed connection; document credential scope (read-only, no write/mutate permissions).
+
+**Explicitly out of scope:**
+
+- Deep AWS architecture analysis prompts or finding rules (covered by `MULTI_CLOUD_ANALYSIS_V1_1.md` Phase 4 agent prompts — separate cluster).
+- AWS-native pricing parity beyond illustrative estimates (MULTI_CLOUD_ANALYSIS_V1_1.md Phase 4).
+- Re-hosting ArchLucid control plane on AWS (ADR 0020, permanent Azure-native mandate).
+
+**Pending question — PQ-CLOUD-01 (owner):** Confirm acceptable credential model for AWS: (a) IAM role-ARN Workload Identity Federation via Azure MI trust (preferred — no long-lived keys), or (b) access-key + secret in Key Vault. Decision gates the Terraform and credential-storage design.
+
+**Acceptance criteria:**
+
+- An operator can connect an AWS account from `/settings/cloud-connections`, supply an IAM role ARN (or key pair), and trigger the first poll.
+- A successful poll uploads an inventory ZIP to `/v1/extractor/aws/upload` and records `LastPolledUtc`.
+- The connection card shows status (Connected / Polling / Error / Disconnected) identically to the Azure card.
+- Scheduled polling runs every 24 h (configurable) without operator intervention.
+- Disconnecting removes the credential reference from Key Vault and stops the poller.
+- `CloudConnection.AwsPolled` appears in the audit log for each poll cycle.
+- Terraform plan in `infra/terraform-hosted-prod/` is clean with no manual Azure Portal steps required.
+
+**Affected files / projects (initial):**
+
+- `ArchLucid.Contracts/` — `CloudProvider.Aws` enum value (already present in V1.1 plan), `CloudConnectionStatus` extension if needed.
+- `ArchLucid.Persistence/` — `TenantAwsConnectionRecords` migration, `ITenantAwsConnectionRepository`.
+- `ArchLucid.Integrations.AwsExtractor/` — new project; `AwsInventoryPoller`, `AwsInventoryPackager`.
+- `ArchLucid.Api/Controllers/CloudInventory/` — extend or sibling to `CloudInventoryExtractorUploadController`.
+- `archlucid-ui/src/app/(operator)/settings/cloud-connections/` — `AwsConnectionCard.tsx`, `CloudConnectionsPageClient.tsx`.
+- `infra/terraform-hosted-prod/modules/aws-extractor/` — new Terraform module.
+- `docs/trust-center/` — AWS Tier 2 posture note.
+
+**Size estimate:** **L** (~4–6 weeks including IaC and trust-center copy; dependent on PQ-CLOUD-01 resolution).
+
+**Cross-ref:** **TB-403** (GCP parity), **TB-343** (cloud-connections plural copy — Done), [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) §5.3, [`V1_SCOPE.md`](V1_SCOPE.md) §2.16, [`V1_DEFERRED.md`](V1_DEFERRED.md) §6n, `CloudConnectionsPageClient.tsx`, `Integrations.AzureExtractor`.
+
+---
+
+## TB-403 — Automated GCP polling (Tier 2) — hosted poller with Workload Identity Federation — **V1.1**
+
+**Source:** Owner direction 2026-06-27 — automated AWS and GCP polling must reach full parity with the Azure Tier 2 extractor shipped in V1 (see `V1_SCOPE.md §2.16`).
+
+**Problem:**
+
+Identical to TB-402 for GCP: no hosted poller, no GCP credential management surface, and no automatic re-poll schedule for GCP projects. Customers with GCP workloads are limited to Tier 1 manual inventory ZIP upload.
+
+**Context — same Azure Tier 2 baseline as TB-402.**
+
+**V1.1 scope (this item — GCP):**
+
+1. **Credential model** (owner confirms PQ-CLOUD-01): recommended path is **GCP Workload Identity Federation** — bind ArchLucid's Azure Managed Identity as a GCP external identity via a Workload Identity Pool; no service-account JSON key stored. Fallback: service-account key in Key Vault.
+2. **Per-tenant connection record:** `TenantGcpConnectionRecords` table — mirrors `TenantAzureConnectionRecords` schema (`TenantId`, `ProjectId`, `WorkloadIdentityPoolProvider`, `ServiceAccountEmail`, `Status`, `LastPolledUtc`, `CreatedUtc`).
+3. **Poller service** `Integrations.GcpExtractor` (new project):
+   - Calls `gcloud asset list --project={project} --asset-types=...` (or Cloud Asset Inventory REST API).
+   - Assembles ZIP following the same `manifest.json` + `resources.json` contract as `Get-ArchLucidGcpPackage.ps1`.
+   - Submits to existing `/v1/extractor/gcp/upload` endpoint.
+   - Interval driven by `CloudPolling:Gcp:IntervalHours` (default 24 h).
+4. **Management UI:** extend `/settings/cloud-connections` with a GCP section — mirror the Azure connection card: `ProjectId`, status badge, last-polled timestamp, Re-poll button, Disconnect.
+5. **IaC:** Terraform module for GCP poller ACA Job + Key Vault credential slot and GCP Workload Identity Pool binding in `infra/terraform-hosted-prod/`.
+6. **Audit events:** `CloudConnection.GcpConnected`, `CloudConnection.GcpPolled`, `CloudConnection.GcpDisconnected` — mirror Azure events in audit catalog.
+7. **Trust-center copy:** update trust-center posture to note GCP Tier 2 is an opt-in managed connection; document credential scope (Cloud Asset Viewer or equivalent, read-only, no write/mutate permissions).
+
+**Explicitly out of scope:**
+
+- Deep GCP architecture analysis prompts or finding rules (covered by `MULTI_CLOUD_ANALYSIS_V1_1.md` Phase 4 agent prompts).
+- GCP-native pricing parity beyond illustrative estimates (MULTI_CLOUD_ANALYSIS_V1_1.md Phase 4).
+- Re-hosting ArchLucid on GCP (ADR 0020).
+
+**Pending question — PQ-CLOUD-01 (owner, shared with TB-402):** Confirm acceptable credential model for GCP: (a) Workload Identity Federation via GCP external identity pool bound to Azure MI (preferred — no service-account JSON key), or (b) service-account JSON key in Key Vault.
+
+**Acceptance criteria:**
+
+- An operator can connect a GCP project from `/settings/cloud-connections`, supply a Workload Identity Pool provider or service-account identity, and trigger the first poll.
+- A successful poll uploads an inventory ZIP to `/v1/extractor/gcp/upload` and records `LastPolledUtc`.
+- The connection card shows status identically to the Azure and AWS cards (Connected / Polling / Error / Disconnected).
+- Scheduled polling runs every 24 h (configurable) without operator intervention.
+- Disconnecting removes the credential reference from Key Vault and stops the poller.
+- `CloudConnection.GcpPolled` appears in the audit log for each poll cycle.
+- Terraform plan in `infra/terraform-hosted-prod/` is clean with no manual GCP Console steps required beyond the initial Workload Identity Pool setup.
+
+**Affected files / projects (initial):**
+
+- `ArchLucid.Contracts/` — `CloudProvider.Gcp` enum value (already present in V1.1 plan).
+- `ArchLucid.Persistence/` — `TenantGcpConnectionRecords` migration, `ITenantGcpConnectionRepository`.
+- `ArchLucid.Integrations.GcpExtractor/` — new project; `GcpInventoryPoller`, `GcpInventoryPackager`.
+- `ArchLucid.Api/Controllers/CloudInventory/` — extend or sibling to `CloudInventoryExtractorUploadController`.
+- `archlucid-ui/src/app/(operator)/settings/cloud-connections/` — `GcpConnectionCard.tsx`, `CloudConnectionsPageClient.tsx`.
+- `infra/terraform-hosted-prod/modules/gcp-extractor/` — new Terraform module including Workload Identity Pool binding.
+- `docs/trust-center/` — GCP Tier 2 posture note.
+
+**Size estimate:** **L** (~4–6 weeks including IaC and trust-center copy; dependent on PQ-CLOUD-01 resolution; roughly equivalent effort to TB-402).
+
+**Cross-ref:** **TB-402** (AWS parity), **TB-343** (cloud-connections plural copy — Done), [`MULTI_CLOUD_ANALYSIS_V1_1.md`](MULTI_CLOUD_ANALYSIS_V1_1.md) §5.3, [`V1_SCOPE.md`](V1_SCOPE.md) §2.16, [`V1_DEFERRED.md`](V1_DEFERRED.md) §6n, `CloudConnectionsPageClient.tsx`, `Integrations.AzureExtractor`.

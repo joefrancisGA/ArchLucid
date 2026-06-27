@@ -1,10 +1,11 @@
 import {
-  AlertCircle,
+  AlertTriangle,
   Bell,
   FileSearch,
-  FileText,
+  Gavel,
   GitBranch,
   Shield,
+  ShieldX,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -34,7 +35,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.findings,
           title: this.shortcutTitle("Track owned architecture risks", "alt+f"),
           keyShortcut: "alt+f",
-          icon: AlertCircle,
+          icon: AlertTriangle,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
@@ -42,7 +43,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           href: "/governance/risk-exceptions",
           label: OPERATOR_NAV_LINK_LABELS.riskExceptions,
           title: "Track active waivers and expirations",
-          icon: AlertCircle,
+          icon: ShieldX,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
@@ -58,7 +59,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           href: "/governance/decision-register",
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
           title: "Review signed decisions and dispositions",
-          icon: FileText,
+          icon: Gavel,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

@@ -190,7 +190,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
         </div>
 
         <div className="px-6 py-4">
-          <DialogDescription className={cn("text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          <DialogDescription className={cn("text-center leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {description}
           </DialogDescription>
         </div>

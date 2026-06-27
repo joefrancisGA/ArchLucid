@@ -43,6 +43,9 @@ describe("CorePilotNextStepsCard", () => {
       hasCommittedManifest: false,
       latestRunId: null,
       firstCommittedRunId: null,
+      latestRunReadyToFinalize: false,
+      committedReviewCount: 0,
+      secondCommittedRunId: null,
     });
   });
 
@@ -55,6 +58,10 @@ describe("CorePilotNextStepsCard", () => {
       });
 
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
+      expect(screen.getByTestId("first-review-checkpoint-strip")).toBeInTheDocument();
+      expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
+        /start your first architecture request/i,
+      );
     });
 
     it("marks Start review as the active step CTA when expanded", async () => {
@@ -131,6 +138,9 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: false,
         latestRunId: "run-abc-123",
         firstCommittedRunId: null,
+        latestRunReadyToFinalize: false,
+        committedReviewCount: 0,
+        secondCommittedRunId: null,
       });
     });
 
@@ -190,6 +200,18 @@ describe("CorePilotNextStepsCard", () => {
       });
     });
 
+    it("shows execute as the concrete next action when prerequisites are missing", async () => {
+      render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
+          /run execute to generate findings/i,
+        );
+      });
+    });
+
     it("does not show operate links before commit", async () => {
       render(<CorePilotNextStepsCard />);
 
@@ -210,6 +232,9 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: true,
         latestRunId: "r1",
         firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
       });
 
       render(<CorePilotNextStepsCard />);
@@ -231,6 +256,9 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: true,
         latestRunId: "r1",
         firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
       });
 
       render(<CorePilotNextStepsCard />);
@@ -252,6 +280,9 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: true,
         latestRunId: "r1",
         firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
       });
 
       render(<CorePilotNextStepsCard />);
@@ -268,6 +299,9 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: true,
         latestRunId: "r1",
         firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
       });
 
       render(<CorePilotNextStepsCard />);
@@ -287,6 +321,9 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: true,
         latestRunId: "r2",
         firstCommittedRunId: null,
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
       });
 
       render(<CorePilotNextStepsCard />);
@@ -306,12 +343,34 @@ describe("CorePilotNextStepsCard", () => {
         hasCommittedManifest: true,
         latestRunId: "r1",
         firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
       });
 
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
         expect(screen.getAllByText(/run-support-packet/i).length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
+    it("shows sponsor-ready as the final guided next action", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      render(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
+          /open report and use the executive summary/i,
+        );
       });
     });
   });

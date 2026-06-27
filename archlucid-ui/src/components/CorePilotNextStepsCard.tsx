@@ -17,10 +17,169 @@ import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_START_REVIEW_QUICK_ACTION_LABEL } from "@/lib/operator-nav-labels";
+import { StatusTag } from "@/components/ui/status-tag";
 
 const NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
 type Phase = "loading" | "ready";
+type FirstReviewCheckpointStatus = "complete" | "active" | "pending";
+type FirstReviewCheckpointId = "intake" | "execute" | "commit" | "export" | "sponsor-ready";
+
+type FirstReviewCheckpoint = {
+  readonly id: FirstReviewCheckpointId;
+  readonly label: string;
+  readonly href: string;
+  readonly status: FirstReviewCheckpointStatus;
+};
+
+const FIRST_REVIEW_CHECKPOINT_ORDER: readonly FirstReviewCheckpointId[] = [
+  "intake",
+  "execute",
+  "commit",
+  "export",
+  "sponsor-ready",
+];
+
+function buildFirstReviewCheckpointStrip(
+  pilotState: CorePilotCommitProgressState,
+  latestRunId: string | null,
+  firstCommittedRunId: string | null,
+  latestRunReadyToFinalize: boolean,
+): readonly FirstReviewCheckpoint[] {
+  const reviewHref = latestRunId !== null ? `/reviews/${latestRunId}` : "/reviews?projectId=default";
+  const committedReviewHref =
+    firstCommittedRunId !== null ? `/reviews/${firstCommittedRunId}` : "/reviews?projectId=default";
+
+  const statusById: Record<FirstReviewCheckpointId, FirstReviewCheckpointStatus> = {
+    intake: "pending",
+    execute: "pending",
+    commit: "pending",
+    export: "pending",
+    "sponsor-ready": "pending",
+  };
+
+  if (pilotState === "no-run") {
+    statusById.intake = "active";
+  } else if (pilotState === "has-run") {
+    statusById.intake = "complete";
+
+    if (latestRunReadyToFinalize) {
+      statusById.execute = "complete";
+      statusById.commit = "active";
+    } else {
+      statusById.execute = "active";
+    }
+  } else {
+    statusById.intake = "complete";
+    statusById.execute = "complete";
+    statusById.commit = "complete";
+    statusById.export = "complete";
+    statusById["sponsor-ready"] = "active";
+  }
+
+  return [
+    { id: "intake", label: "Intake", href: "/reviews/new", status: statusById.intake },
+    { id: "execute", label: "Execute", href: reviewHref, status: statusById.execute },
+    { id: "commit", label: "Commit", href: reviewHref, status: statusById.commit },
+    { id: "export", label: "Export", href: committedReviewHref, status: statusById.export },
+    { id: "sponsor-ready", label: "Sponsor-ready", href: "/dashboard", status: statusById["sponsor-ready"] },
+  ] as const;
+}
+
+function checkpointNextAction(
+  activeCheckpointId: FirstReviewCheckpointId,
+  latestRunId: string | null,
+): string {
+  switch (activeCheckpointId) {
+    case "intake":
+      return "Next action: start your first architecture request so execution can begin.";
+    case "execute":
+      return latestRunId === null
+        ? "Next action: open Reviews and run Execute to generate findings."
+        : "Next action: open this review and run Execute to generate findings.";
+    case "commit":
+      return "Next action: open review detail and commit the signed review package.";
+    case "export":
+      return "Next action: export sponsor-facing markdown or PDF from review detail.";
+    case "sponsor-ready":
+      return "Next action: open Report and use the executive summary for sponsor readout.";
+  }
+}
+
+function statusChipLabel(status: FirstReviewCheckpointStatus): string {
+  switch (status) {
+    case "complete":
+      return "Ready";
+    case "active":
+      return "In progress";
+    case "pending":
+      return "Needs attention";
+  }
+}
+
+function statusChipKind(status: FirstReviewCheckpointStatus): "positive" | "warning" | "neutral" {
+  switch (status) {
+    case "complete":
+      return "positive";
+    case "active":
+      return "warning";
+    case "pending":
+      return "neutral";
+  }
+}
+
+function FirstReviewCheckpointStrip(props: {
+  readonly pilotState: CorePilotCommitProgressState;
+  readonly latestRunId: string | null;
+  readonly firstCommittedRunId: string | null;
+  readonly latestRunReadyToFinalize: boolean;
+}): React.JSX.Element {
+  const checkpoints = buildFirstReviewCheckpointStrip(
+    props.pilotState,
+    props.latestRunId,
+    props.firstCommittedRunId,
+    props.latestRunReadyToFinalize,
+  );
+  const activeCheckpoint =
+    checkpoints.find((checkpoint) => checkpoint.status === "active") ?? checkpoints[checkpoints.length - 1]!;
+
+  return (
+    <section
+      className="mb-3 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2.5 dark:border-neutral-700"
+      data-testid="first-review-checkpoint-strip"
+      aria-label="First review checkpoints"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+          First-review checkpoints
+        </p>
+        <StatusTag kind="neutral" label={`Step ${FIRST_REVIEW_CHECKPOINT_ORDER.indexOf(activeCheckpoint.id) + 1} of 5`} />
+      </div>
+      <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        Operator lens: finish the highlighted checkpoint. Executive lens: sponsor-ready starts once the review package is committed and exported.
+      </p>
+      <ol className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
+        {checkpoints.map((checkpoint, index) => (
+          <li
+            key={checkpoint.id}
+            className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-900"
+          >
+            <span className={cn("tabular-nums text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.meta)}>
+              {index + 1}.
+            </span>
+            <Link href={checkpoint.href} className={cn("font-medium text-al-text-primary underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}>
+              {checkpoint.label}
+            </Link>
+            <StatusTag kind={statusChipKind(checkpoint.status)} label={statusChipLabel(checkpoint.status)} />
+          </li>
+        ))}
+      </ol>
+      <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-checkpoint-next-action">
+        {checkpointNextAction(activeCheckpoint.id, props.latestRunId)}
+      </p>
+    </section>
+  );
+}
 
 /** Step badge shown in the panel header. */
 function StepBadge({ label }: { label: string }) {
@@ -95,6 +254,7 @@ export function CorePilotNextStepsCard() {
   const [hasCommit, setHasCommit] = useState(false);
   const [latestRunId, setLatestRunId] = useState<string | null>(null);
   const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(null);
+  const [latestRunReadyToFinalize, setLatestRunReadyToFinalize] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +272,7 @@ export function CorePilotNextStepsCard() {
         setHasCommit(ctx.hasCommittedManifest);
         setLatestRunId(ctx.latestRunId);
         setFirstCommittedRunId(ctx.firstCommittedRunId);
+        setLatestRunReadyToFinalize(ctx.latestRunReadyToFinalize);
         setPhase("ready");
       } catch {
         if (cancelled) {
@@ -121,6 +282,7 @@ export function CorePilotNextStepsCard() {
         setHasCommit(false);
         setLatestRunId(null);
         setFirstCommittedRunId(null);
+        setLatestRunReadyToFinalize(false);
         setPhase("ready");
       }
     }
@@ -153,6 +315,12 @@ export function CorePilotNextStepsCard() {
         collapsedSummary="First review package finalized — open detail, CLI shortcuts, and optional Operate links."
         headerAside={<StepBadge label={corePilotStepBadgeLabel("committed")} />}
       >
+        <FirstReviewCheckpointStrip
+          pilotState={pilotState}
+          latestRunId={latestRunId}
+          firstCommittedRunId={firstCommittedRunId}
+          latestRunReadyToFinalize={latestRunReadyToFinalize}
+        />
         <p className={cn("mb-3 mt-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           First review package is finalized. Open the architecture package and findings — export sponsor-ready
           Markdown/PDF from review detail when needed; CLI shortcuts below speed support tickets.
@@ -213,6 +381,12 @@ export function CorePilotNextStepsCard() {
         collapsedSummary={`${corePilotStepBadgeLabel("has-run")} — evidence and finalize steps for your in-progress review.`}
         headerAside={<StepBadge label={corePilotStepBadgeLabel("has-run")} />}
       >
+        <FirstReviewCheckpointStrip
+          pilotState={pilotState}
+          latestRunId={latestRunId}
+          firstCommittedRunId={firstCommittedRunId}
+          latestRunReadyToFinalize={latestRunReadyToFinalize}
+        />
         <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-2 inline-block" />
 
         {latestRunId !== null ? <RunIdNote runId={latestRunId} /> : null}
@@ -271,6 +445,12 @@ export function CorePilotNextStepsCard() {
       collapsedSummary={`${corePilotStepBadgeLabel("no-run")} — create your first architecture request and follow the four-step path.`}
       headerAside={<StepBadge label={corePilotStepBadgeLabel("no-run")} />}
     >
+      <FirstReviewCheckpointStrip
+        pilotState={pilotState}
+        latestRunId={latestRunId}
+        firstCommittedRunId={firstCommittedRunId}
+        latestRunReadyToFinalize={latestRunReadyToFinalize}
+      />
       <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-2 inline-block" />
 
       <ol className={cn("m-0 mt-0 list-none space-y-2 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>

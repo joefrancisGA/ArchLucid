@@ -336,26 +336,20 @@ Non-goals:
 ```
 
 **2) Policy-to-decision validation cohort (market execution)**
-- **Why it matters:** core moat proof.
-- **Expected impact:** decision advantage, voluntary usage, survivability confidence.
-- **Affected qualities:** 1, 2, 3.
-- **Evidence:** policy/gate/audit surfaces exist; market proof remains limited.
-- **Actionability:** medium (human-run).
-- **Design Uncertainty Reduced:** 3/10
-- **Market Uncertainty Reduced:** 9/10
-- **Classification:** validation first
+- **Status:** moved to **GTM V1.1 backlog** (market execution stream), not a V1 assessment implementation item.
+- **Assessment handling rule:** **do not surface this again in V1 assessments (§17)** unless explicitly requested as GTM-backlog review work.
+- **Rationale:** this is predominantly market-uncertainty reduction (human cohort execution), not an in-contract V1 engineering gate.
+- **Classification:** GTM V1.1 backlog / validation first.
+- **Rescore impact:** none on `(A)` headline readiness; score remains **80.68%**.
 
 ### Tier 2 - High Leverage
 
 **3) Executive proof-packet acceptance testing with real buyers**
-- **Why it matters:** purchase probability is currently lower than `(A)` readiness.
-- **Expected impact:** executive purchase and proof-of-ROI credibility.
-- **Affected qualities:** 7, 8, 4.
-- **Evidence:** strong ROI and board-pack surfaces already ship.
-- **Actionability:** medium (human-run).
-- **Design Uncertainty Reduced:** 2/10
-- **Market Uncertainty Reduced:** 9/10
-- **Classification:** validation first
+- **Status:** moved to **GTM V1.1 backlog** (market execution stream), not a V1 assessment implementation item.
+- **Assessment handling rule:** **do not surface this again in V1 assessments (§17)** unless explicitly requested as GTM-backlog review work.
+- **Rationale:** this is primarily market-validation execution with human buyers, not an in-contract V1 engineering readiness gate.
+- **Classification:** GTM V1.1 backlog / validation first.
+- **Rescore impact:** none on `(A)` headline readiness; score remains **80.68%**.
 
 **4) First-review cognitive-load reduction in operator guidance**
 - **Why it matters:** reduces architect dismissal risk from "process overhead."

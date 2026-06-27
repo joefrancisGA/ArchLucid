@@ -1,4 +1,4 @@
-import { MessageSquare, Plug, Webhook } from "lucide-react";
+import { CloudCog, MessageSquare, Plug, Ticket, Webhook } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -26,9 +26,17 @@ export class OperateIntegrationsNavGroupBuilder extends NavGroupBuilderBase {
           href: "/settings/cloud-connections",
           label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
           title: "Connect Azure for production evidence",
-          icon: Webhook,
+          icon: CloudCog,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
+        },
+        {
+          href: "/admin/integrations/itsm",
+          label: OPERATOR_NAV_LINK_LABELS.itsmConnectors,
+          title: "Configure Jira and ServiceNow connectors for finding handoff",
+          icon: Ticket,
+          tier: "extended",
+          requiredAuthority: "AdminAuthority",
         },
         {
           href: "/integrations/webhooks",

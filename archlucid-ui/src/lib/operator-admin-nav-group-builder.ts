@@ -4,7 +4,7 @@ import {
   CalendarClock,
   CreditCard,
   LifeBuoy,
-  Shield,
+  UserCog,
   Users,
 } from "lucide-react";
 
@@ -42,7 +42,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           href: "/settings/roles",
           label: "Role management",
           title: "Role management — assign Admin, Operator, Reader, and Auditor",
-          icon: Shield,
+          icon: UserCog,
           tier: "extended",
           requiredAuthority: "AdminAuthority",
         },

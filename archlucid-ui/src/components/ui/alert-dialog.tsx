@@ -94,7 +94,7 @@ const AlertDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
-    className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body,
+    className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper,
       className
     )}
     {...props}
@@ -109,7 +109,7 @@ const AlertDialogAction = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 font-medium text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-red-500 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.body,
+    className={cn("inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-transparent px-4 py-2 text-white shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-red-500 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
       "bg-red-600 hover:bg-red-600/80 dark:bg-red-900 dark:hover:bg-red-900/80",
       className
     )}
@@ -124,7 +124,7 @@ const AlertDialogCancel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
-    className={cn("mt-2 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-neutral-200 bg-transparent px-4 py-2 font-medium transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:focus-visible:ring-neutral-600 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.body,
+    className={cn("mt-2 inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md border border-neutral-200 bg-transparent px-4 py-2 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:focus-visible:ring-neutral-600 dark:ring-offset-neutral-950", OPERATOR_TYPOGRAPHY.button,
       "sm:mt-0",
       className
     )}

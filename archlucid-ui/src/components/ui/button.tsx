@@ -6,7 +6,7 @@ import * as React from "react";
 
 
 const buttonVariants = cva(
-  (cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", OPERATOR_TYPOGRAPHY.helper)),
+  (cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50", OPERATOR_TYPOGRAPHY.button)),
   {
     variants: {
       variant: {
@@ -23,8 +23,8 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: (cn("h-7 rounded-md px-3 font-medium", OPERATOR_TYPOGRAPHY.helper)),
-        lg: (cn("h-10 rounded-md px-6", OPERATOR_TYPOGRAPHY.helper)),
+        sm: "h-7 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-6 text-[15px]",
         icon: "h-9 w-9",
       },
     },

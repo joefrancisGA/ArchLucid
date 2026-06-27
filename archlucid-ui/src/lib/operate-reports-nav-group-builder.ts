@@ -1,4 +1,4 @@
-import { BarChart3, FileText, ShieldCheck } from "lucide-react";
+import { BarChart3, CalendarCheck, FileText } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { BUYER_TERMINOLOGY } from "@/lib/buyer-surface-vocabulary";
@@ -35,7 +35,7 @@ export class OperateReportsNavGroupBuilder extends NavGroupBuilderBase {
           href: "/governance/first-30-days",
           label: OPERATOR_NAV_LINK_LABELS.first30DaysGovernance,
           title: "First 30 days — minimal governance operating preset after evaluation",
-          icon: ShieldCheck,
+          icon: CalendarCheck,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

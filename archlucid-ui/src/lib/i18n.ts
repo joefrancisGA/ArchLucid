@@ -152,6 +152,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   roiReport: "ROI report",
   connectorOperations: "Connector operations",
   cloudConnections: "Cloud connections",
+  itsmConnectors: "Jira / ServiceNow",
   webhookSubscriptions: "Webhook subscriptions",
   systemHealth: "System health",
   digests: "Digests",
