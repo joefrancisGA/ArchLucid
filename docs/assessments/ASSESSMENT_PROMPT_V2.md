@@ -61,6 +61,8 @@ Source of truth: `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `doc
 
 **Already-shipped ledger (do not re-propose).** The lists above are illustrative, not exhaustive — they drift as work ships. Before proposing any §17 improvement, consult the **"Done" / "Shipped" entries in `docs/assessments/LATEST_GPT55.md §17`** to confirm the capability does not already exist, and do not recommend recreating shipped work. Use that ledger **only** to avoid duplicate proposals — not as a source of scores or prior conclusions (the clean-slate rule below still governs scoring).
 
+**GTM V1.1 backlog — do not list in §17.** Assessment improvements **#2**, **#3**, **#5**, and **#6** are routed to `docs/go-to-market/GTM_BACKLOG.md` (**M-90**, **M-44**, **M-91**, **M-92**). They are market-execution / cohort work, not V1 engineering or assessment prescription. **Do not** surface them as Tier 1–3 improvement opportunities, Cursor prompts, or "still open" assessment gaps in future passes. See **`.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`**.
+
 ---
 
 # Operating Rules

@@ -66,6 +66,7 @@ Use when the buyer needs a labeled path from sample request → committed manife
 
 ## Related
 
+- [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) — six-element executive packet assembly + mock procurement review
 - [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)
 - [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
 - [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)

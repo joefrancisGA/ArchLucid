@@ -137,4 +137,5 @@ Select **at most two** recurring triggers to act on this week:
 | [`fixtures/first-session/dismissal-trigger.template.json`](../../../fixtures/first-session/dismissal-trigger.template.json) | Lighter first-session JSON (hesitation codes, no confidence/contradiction fields) |
 | [`templates/pilot-dismissal-trigger.template.json`](../templates/pilot-dismissal-trigger.template.json) | Paid-pilot adjunct |
 | [`FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md`](../FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md) | Timestamped hesitation observation protocol |
+| [`PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md`](../PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md) | Head-to-head dismissal interview (`protocol: blind-bakeoff` feeds this log) |
 | [`GTM_BACKLOG.md`](../GTM_BACKLOG.md) **M-44** | Live cohort execution (V1.1) |

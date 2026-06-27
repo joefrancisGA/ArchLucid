@@ -6,6 +6,8 @@
 
 **Use this when:** A buyer asks, "What can I give my CIO, security team, architecture review board, or procurement committee so they can evaluate ArchLucid without reading the whole repository?"
 
+**Assembling + rehearsing a paid executive packet?** See [`EXECUTIVE_PAID_PILOT_PROOF_PACKET.md`](EXECUTIVE_PAID_PILOT_PROOF_PACKET.md) (six-element assembly → mock procurement review).
+
 **Buyer-safe rule:** This packet only points to existing evidence. It does **not** claim SOC 2 Type II, a third-party penetration test, a published public reference customer, live Stripe production transactability, or a published Marketplace offer unless a linked source explicitly says that status has changed.
 
 ---

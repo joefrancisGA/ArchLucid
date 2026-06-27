@@ -219,4 +219,5 @@ gate as **Justified now** may proceed to the engineering batch gate below.
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) — GTM tracking
 - [`templates/pilot-dismissal-trigger.template.json`](templates/pilot-dismissal-trigger.template.json) — JSON capture (optional adjunct)
 - [`validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md`](validation/PRINCIPAL_ARCHITECT_DISMISSAL_LOG.md) — per-session dismissal assessment + weekly top-2 triage runbook (assessment Improvement #2)
+- [`PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md`](PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md) — head-to-head dismissal interview (randomized chat-style vs governed package; assessment Improvement #3)
 - [`FIRST_VALUE_20_MINUTES.md`](../runbooks/FIRST_VALUE_20_MINUTES.md)

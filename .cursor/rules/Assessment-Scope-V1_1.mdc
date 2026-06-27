@@ -44,6 +44,8 @@ Per **`.cursor/rules/V1_1-assurance-backlog.mdc`** (owner 2026-05-29): improveme
 
 - **Not V1 assessment defects:** **Real Pilot Proof Packet Cohort** and **Market-Facing Demo Asset Production** are **V1.1 backlog** items tracked as **TB-141** and **TB-142** in `docs/library/TECH_BACKLOG.md` and `docs/library/V1_DEFERRED.md` §6b. They require owner-selected scenarios, data/environment approvals, brand/channel decisions, and publication approval.
 
+- **GTM validation cohorts (assessment #2, #3, #5, #6):** Routed to **`docs/go-to-market/GTM_BACKLOG.md`** (**M-90**, **M-44**, **M-91**, **M-92**). See **`.cursor/rules/GTM-V1_1-assessment-exclusions.mdc`**. **Do not** list in assessment §17.
+
 - **`(A)` must not be reduced** for the absence of these owner-output GTM deliverables. V1 assessment work may score the reusable mechanics that make those later outputs credible: proof-packet correctness, source labels, release rollups, skip semantics, claim-language lint, starter proof packs, and first-screen proof status.
 
 - **Narrative:** Do **not** list these items as current top improvement opportunities, open questions, deferred engineering batches, or headline weaknesses in V1 assessments. If the user explicitly asks for V1.1 GTM planning, discuss them as backlog items, not as V1 defects.

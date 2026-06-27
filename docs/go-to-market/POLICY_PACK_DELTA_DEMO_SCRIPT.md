@@ -210,6 +210,7 @@ Outputs: JSON artifacts for baseline dry-run, strict dry-run, pre-commit simulat
 
 ## Related
 
+- [`POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md`](POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md) — sequences this demo + deterministic fixture + proof-packet into a repeatable pilot (assessment Tier 1 #1)
 - [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) — generic-AI comparison rubric
 - [`DEFAULT_POLICY_PACKS_V1.md`](DEFAULT_POLICY_PACKS_V1.md) — bundled platform packs
 - [`AI_GOVERNANCE_REVIEW.md`](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) — regulated vertical walkthrough
