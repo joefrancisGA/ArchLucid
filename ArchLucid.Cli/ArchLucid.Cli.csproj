@@ -41,6 +41,8 @@
   <ItemGroup>
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Data\proof_packet_claim_lint_rules.v1.json"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

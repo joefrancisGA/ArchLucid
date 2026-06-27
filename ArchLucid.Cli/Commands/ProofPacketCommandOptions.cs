@@ -14,15 +14,29 @@ internal sealed class ProofPacketCommandOptions
         init;
     }
 
+    public bool SkipClaimLint
+    {
+        get;
+        init;
+    }
+
     public static ProofPacketCommandOptions? TryParse(string[] args, out string? error)
     {
         error = null;
         string? runId = null;
         string? outputZip = null;
+        bool skipClaimLint = false;
 
         for (int i = 0; i < args.Length; i++)
         {
             string token = args[i];
+
+            if (string.Equals(token, "--skip-claim-lint", StringComparison.OrdinalIgnoreCase))
+            {
+                skipClaimLint = true;
+
+                continue;
+            }
 
             if (string.Equals(token, "--runId", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(token, "--run-id", StringComparison.OrdinalIgnoreCase))
@@ -77,6 +91,7 @@ internal sealed class ProofPacketCommandOptions
         {
             RunId = runId.Trim(),
             OutputZipPath = outputZip.Trim(),
+            SkipClaimLint = skipClaimLint,
         };
     }
 }

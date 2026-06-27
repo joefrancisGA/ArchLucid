@@ -124,6 +124,74 @@ public sealed class ProofPacketCommandTests : IDisposable
     }
 
     [Fact]
+    public async Task RunAsync_aborts_when_claim_lint_fails()
+    {
+        using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
+        await using ProofPacketLoopbackApi api = await ProofPacketLoopbackApi.StartAsync(listenCts.Token);
+        api.FirstValueReportMarkdown = "# Summary\n\nThis run shows guaranteed savings for the buyer.";
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", api.BaseUrl.TrimEnd('/'));
+
+        StringWriter errWriter = new(CultureInfo.InvariantCulture);
+        TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
+
+        try
+        {
+            Directory.SetCurrentDirectory(_emptyCwd);
+            Console.SetError(errWriter);
+
+            int exit = await ProofPacketCommand.RunAsync(
+                ["--runId", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "--out", Path.Combine(_emptyCwd, "blocked-claims.zip")],
+                listenCts.Token);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            errWriter.ToString().Should().Contain("guaranteed savings");
+            errWriter.ToString().Should().Contain("proof-summary.md");
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+            Console.SetError(prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_skips_claim_lint_when_flag_set()
+    {
+        using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
+        await using ProofPacketLoopbackApi api = await ProofPacketLoopbackApi.StartAsync(listenCts.Token);
+        api.FirstValueReportMarkdown = "# Summary\n\nThis run shows guaranteed savings for the buyer.";
+        Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", api.BaseUrl.TrimEnd('/'));
+
+        string zipPath = Path.Combine(_emptyCwd, "skipped-lint.zip");
+        StringWriter errWriter = new(CultureInfo.InvariantCulture);
+        TextWriter prevErr = Console.Error;
+        string prevCwd = Directory.GetCurrentDirectory();
+
+        try
+        {
+            Directory.SetCurrentDirectory(_emptyCwd);
+            Console.SetError(errWriter);
+
+            int exit = await ProofPacketCommand.RunAsync(
+                [
+                    "--runId", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    "--out", zipPath,
+                    "--skip-claim-lint",
+                ],
+                listenCts.Token);
+
+            exit.Should().Be(CliExitCode.Success, $"stderr: {errWriter}");
+            File.Exists(zipPath).Should().BeTrue();
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+            Console.SetError(prevErr);
+        }
+    }
+
+    [Fact]
     public async Task RunAsync_aborts_when_commit_gate_fails()
     {
         using CancellationTokenSource listenCts = new(TimeSpan.FromSeconds(30));
@@ -178,6 +246,11 @@ public sealed class ProofPacketCommandTests : IDisposable
             """
             {"isDemoTenant":false,"proofPackageCompleteness":{"runInCommittedStatus":true},"findingsBySeverity":[]}
             """;
+
+        public string FirstValueReportMarkdown
+        {
+            get; set;
+        } = "# First value report\n\nstub";
 
         public static async Task<ProofPacketLoopbackApi> StartAsync(CancellationToken ct)
         {
@@ -271,7 +344,7 @@ public sealed class ProofPacketCommandTests : IDisposable
             if (path.Contains("/first-value-report", StringComparison.OrdinalIgnoreCase)
                 && string.Equals(method, "GET", StringComparison.Ordinal))
             {
-                await WriteTextAsync(ctx.Response, 200, "# First value report\n\nstub");
+                await WriteTextAsync(ctx.Response, 200, FirstValueReportMarkdown);
 
                 return;
             }

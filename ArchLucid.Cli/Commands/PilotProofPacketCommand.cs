@@ -21,10 +21,18 @@ internal static class PilotProofPacketCommand
 
         string? runId = null;
         string? outputDirectory = null;
+        bool skipClaimLint = false;
 
         for (int i = 0; i < args.Length; i++)
         {
             string token = args[i];
+
+            if (string.Equals(token, "--skip-claim-lint", StringComparison.OrdinalIgnoreCase))
+            {
+                skipClaimLint = true;
+
+                continue;
+            }
 
             if (string.Equals(token, "--out", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(token, "-o", StringComparison.OrdinalIgnoreCase))
@@ -82,7 +90,8 @@ internal static class PilotProofPacketCommand
             resolvedOutputDirectory,
             config,
             Console.Error,
-            cancellationToken);
+            cancellationToken,
+            skipClaimLint);
 
         if (writeOutcome.ExitCode == CliExitCode.Success)
             await Console.Out.WriteLineAsync($"Wrote buyer proof packet folder: {writeOutcome.OutputDirectory}");
@@ -99,7 +108,8 @@ internal static class PilotProofPacketCommand
         string outputDirectory,
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
         TextWriter errorWriter,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool skipClaimLint = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiBaseUrl);
@@ -324,6 +334,18 @@ internal static class PilotProofPacketCommand
             ProofPacketSourceLabelsBuilder.Build(runId),
             Utf8NoBom,
             cancellationToken);
+
+        if (!skipClaimLint)
+        {
+            IReadOnlyList<ProofPacketClaimLintViolation> violations = ProofPacketClaimLinter.ScanDirectory(dir);
+
+            if (violations.Count > 0)
+            {
+                ProofPacketClaimLinter.WriteViolations(errorWriter, violations);
+
+                return new PilotProofPacketWriteOutcome(CliExitCode.OperationFailed, dir);
+            }
+        }
 
         return new PilotProofPacketWriteOutcome(CliExitCode.Success, dir);
     }

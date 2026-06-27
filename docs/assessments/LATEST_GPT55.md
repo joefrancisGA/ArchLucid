@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.63%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.75%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -42,18 +42,20 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 | 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
 | 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
-| 4 | Correctness & Evidence Integrity | 94 | 12 | 11.28 | 0.72 |
+| 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 0.60 |
 | 5 | AI / Agent Readiness | 89 | 10 | 8.90 | 1.10 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
-| **Total** |  |  | **100** | **91.63%** | **8.37** |
+| **Total** |  |  | **100** | **91.75%** | **8.25** |
 
-*(A) Headline Readiness: 91.63%*
+*(A) Headline Readiness: 91.75%*
 
-**Rescore (2026-06-27): 91.38% → 91.63%.** Effective governance snapshot at commit (#11) — `CommittedEffectiveGovernanceSnapshotCapturer` persists pack assignments, rule-set hash, compliance key count, and conflict count on golden manifests; run detail, compare governance diff, and export README distinguish **policy at commit** from current effective assignments. **Governed Review Integrity +1 (96→97)** and **Correctness & Evidence Integrity +1 (93→94)** — **+0.25%** headline move.
+**Rescore (2026-06-27): 91.63% → 91.75%.** Proof-packet claim lint (#12) — `ProofPacketClaimLinter` scans buyer-safe proof-packet markdown/text before ZIP/folder write; forbidden assurance/ROI/execution-mode phrases fail with file, phrase, reason, and suggested safe wording; `--skip-claim-lint` for internal-only bypass. **Correctness & Evidence Integrity +1 (94→95)** — **+0.12%** headline move.
+
+**Prior rescore (2026-06-27): 91.38% → 91.63%.** Effective governance snapshot at commit (#11) — `CommittedEffectiveGovernanceSnapshotCapturer` persists pack assignments, rule-set hash, compliance key count, and conflict count on golden manifests; run detail, compare governance diff, and export README distinguish **policy at commit** from current effective assignments. **Governed Review Integrity +1 (96→97)** and **Correctness & Evidence Integrity +1 (93→94)** — **+0.25%** headline move.
 
 **Prior rescore (2026-06-27): 91.16% → 91.38%.** RAG quality follow-on shipped: (**1**) live-model faithfulness nightly signal (`run_rag_live_model_faithfulness_signal.py` + golden-cohort job) closes Phase B on committed real-mode exemplars; (**3**) golden datasets expanded to **47** retrieval IR cases (all major corpus kinds + tenant isolation) and **33** faithfulness cases (Ask-shaped citations). **AI / Agent Readiness +1 (88→89)** and **Correctness & Evidence Integrity +1 (92→93)** — **+0.22%** headline move.
 
@@ -158,8 +160,8 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Governed repeatability, long-term survivability.
 
 ### 5. Correctness & Evidence Integrity
-- **Score · Weight · Contribution · Deficiency:** 94 · 12 · 11.28 · **0.72**
-- **Justification:** Golden manifest, findings snapshots, decision traces, audit events, OpenAPI contracts, extractor citation requirements, and disposition-aware ROI all point in the right direction. Committed packages now carry **`EffectiveGovernanceAtCommit`** metadata so audit/export/compare surfaces can cite **policy at commit** without inferring from current assignments. The shipped governed/advisory labeling is important because it prevents exploratory LLM prose from being mistaken for evidence-backed review-package material. The main correctness risk is mixed-mode user interpretation: advisory Ask/critic output must not be allowed to look as authoritative as governed findings.
+- **Score · Weight · Contribution · Deficiency:** 95 · 12 · 11.40 · **0.60**
+- **Justification:** Golden manifest, findings snapshots, decision traces, audit events, OpenAPI contracts, extractor citation requirements, and disposition-aware ROI all point in the right direction. Committed packages carry **`EffectiveGovernanceAtCommit`** metadata; **`archlucid proof-packet`** now runs deterministic **claim lint** on generated markdown/text before writing the buyer-safe ZIP (forbidden assurance/ROI/execution-mode phrases with suggested safe wording). The shipped governed/advisory labeling prevents exploratory LLM prose from being mistaken for evidence-backed review-package material. The main correctness risk is mixed-mode user interpretation: advisory Ask/critic output must not be allowed to look as authoritative as governed findings.
 - **Tradeoffs:** Hard proof labels can make the product feel conservative, but that conservatism is necessary for enterprise trust.
 - **Recommendations:** Keep all buyer-facing outputs visually explicit: governed finding, advisory narrative, illustrative ROI, extractor-backed ROI, disposition-aware headline.
 - **Classification:** V1.
@@ -528,17 +530,18 @@ Tests to add/update: Application tests for snapshot descriptor creation; persist
 Non-goals: Full policy replay engine, policy pack content archival beyond descriptor/hash, changing pre-commit gate semantics.
 ```
 
-**12. Add proof-packet claim lint to prevent unsupported buyer claims**
+**12. Add proof-packet claim lint to prevent unsupported buyer claims — SHIPPED 2026-06-27**
 - **Tier:** 2
 - **Why it matters:** One unsupported ROI, assurance, or AI-mode claim can erase trust faster than a missing feature.
 - **Expected impact:** Correctness & Evidence Integrity, Executive Purchase, Procurement realism.
-- **Evidence:** Proof packets, source labels, governed/advisory labels, and ROI freshness labels exist; claim audit is currently a human validation plan.
+- **Evidence:** `ProofPacketClaimLinter` + `Data/proof_packet_claim_lint_rules.v1.json`; wired into `ProofPacketCommand` and `PilotProofPacketCommand.WriteFolderAsync` before final output; `--skip-claim-lint` internal bypass.
 - **Actionability:** High.
 - **Design Uncertainty Reduced:** 5/10
 - **Market Uncertainty Reduced:** 5/10
-- **Classification:** V1 engineering hardening.
+- **Classification:** V1 engineering hardening — **shipped**.
+- **(A) scoring impact:** **91.63% → 91.75%** (Correctness & Evidence Integrity +1).
 
-**Cursor prompt:**
+**Cursor prompt (archived — shipped):**
 ```text
 Problem: Buyer-facing proof packets can still contain unsupported or over-broad language unless a human manually audits every claim.
 

@@ -51,7 +51,8 @@ internal static class ProofPacketCommand
                 stagingDirectory,
                 config,
                 Console.Error,
-                cancellationToken);
+                cancellationToken,
+                skipClaimLint: options.SkipClaimLint);
 
             if (writeOutcome.ExitCode != CliExitCode.Success)
                 return writeOutcome.ExitCode;
@@ -95,6 +96,7 @@ internal static class ProofPacketCommand
               - Omits audit DataJson payloads, secrets, and full tenant identifiers.
               - Includes SOURCE-LABELS.txt describing each included API source and sponsor-send caveats.
               - Aborts with a clear error when the buyer-safe commit gate fails.
+            - Runs proof-packet claim lint on markdown/text artifacts before writing the ZIP (see --skip-claim-lint).
 
             Requires API connectivity (ARCHLUCID_API_URL or .archlucid/config.json) and optional ARCHLUCID_API_KEY.
 
