@@ -65,7 +65,7 @@ public sealed class AgenticRetrievalCompletionClientTests
             float? temperature = null,
             CancellationToken cancellationToken = default)
         {
-            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(delay, cancellationToken);
 
             return "delayed-llm";
         }
