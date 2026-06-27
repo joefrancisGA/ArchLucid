@@ -23,6 +23,9 @@ public static class RoiSponsorFacingScopeDescriptions
     public const string PilotScorecardUtcWindowGeneric =
         "Pilot scorecard UTC window: run volume and committed-manifest counts for the period. Does not emit disposition-aware USD headline totals.";
 
+    public const string NonAdditivityCaveat =
+        "Per-system rows do not sum to the portfolio headline.";
+
     public static string ForValueReportWindow(DateTimeOffset periodFromUtc, DateTimeOffset periodToUtc)
     {
         return string.Create(

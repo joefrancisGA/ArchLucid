@@ -2,6 +2,7 @@ import {
   resolveExecutiveHeadlineScopeLabel,
   resolveExecutiveSystemRowScopeLabel,
   resolveExecutiveTrailing30DayScopeLabel,
+  ROI_NON_ADDITIVITY_CAVEAT,
 } from "@/lib/roi-sponsor-scope-labels";
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 
@@ -165,6 +166,8 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
   lines.push("## Systems included");
   lines.push("");
   lines.push(`_${resolveExecutiveSystemRowScopeLabel(summary)}_`);
+  lines.push("");
+  lines.push(`_${ROI_NON_ADDITIVITY_CAVEAT}_`);
   lines.push("");
 
   if (summary.systems.length === 0) {

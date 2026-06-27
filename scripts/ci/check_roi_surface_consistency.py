@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -32,14 +33,35 @@ _DOC_TARGETS: tuple[str, ...] = (
     "docs/runbooks/SPONSOR_PACKET.md",
 )
 
+_MANIFEST_RELATIVE = Path("fixtures/roi/roi-sponsor-facing-scope-labels.v1.json")
+_UI_MANIFEST_RELATIVE = Path("archlucid-ui/src/lib/data/roi-sponsor-facing-scope-labels.v1.json")
+
 _OPENAPI_FIELD_RE = re.compile(
     r"headlineSavingsScope(Description|Code)|systemRowSavingsScopeDescription|portfolioScopeDescription",
     re.IGNORECASE,
 )
 
+_DESCRIPTION_FIELD_MAP: tuple[tuple[str, str], ...] = (
+    ("HeadlineDispositionAware", "headlineDispositionAware"),
+    ("SystemRowSnapshotPotential", "systemRowSnapshotPotential"),
+    ("CrossTenantPortfolioHeadline", "crossTenantPortfolioHeadline"),
+    ("Trailing30DayFindingEvents", "trailing30DayFindingEvents"),
+    ("ValueReportActivityWindowGeneric", "valueReportActivityWindowGeneric"),
+    ("PilotScorecardUtcWindowGeneric", "pilotScorecardUtcWindowGeneric"),
+)
+
 
 def repo_root() -> Path:
     return _REPO
+
+
+def load_manifest(root: Path) -> dict:
+    path = root / _MANIFEST_RELATIVE
+
+    if not path.is_file():
+        raise FileNotFoundError(str(path))
+
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def check_docs(root: Path) -> list[str]:
@@ -92,6 +114,7 @@ def check_scope_labeler_source(root: Path) -> list[str]:
     errors: list[str] = []
     labeler = root / "ArchLucid.Application" / "Roi" / "RoiSponsorFacingScopeLabeler.cs"
     descriptions = root / "ArchLucid.Contracts" / "Roi" / "RoiSponsorFacingScopeDescriptions.cs"
+    ui_labels = root / "archlucid-ui" / "src" / "lib" / "roi-sponsor-scope-labels.ts"
 
     for path in (labeler, descriptions):
         if not path.is_file():
@@ -106,6 +129,73 @@ def check_scope_labeler_source(root: Path) -> list[str]:
         if "CrossTenantPortfolioHeadline" not in text and path.name.endswith("ScopeDescriptions.cs"):
             errors.append("RoiSponsorFacingScopeDescriptions.cs: missing cross-tenant scope text")
 
+    if not ui_labels.is_file():
+        errors.append(f"{ui_labels.relative_to(root)}: missing ROI scope label helper")
+    else:
+        ui_text = ui_labels.read_text(encoding="utf-8", errors="replace")
+
+        if "roi-sponsor-facing-scope-labels.v1.json" not in ui_text:
+            errors.append("roi-sponsor-scope-labels.ts: must import canonical ROI scope manifest JSON")
+
+        if "Portfolio headline:" in ui_text or "Per-system rows are pre-disposition" in ui_text:
+            errors.append("roi-sponsor-scope-labels.ts: inline fallback copy detected; use manifest JSON")
+
+    return errors
+
+
+def check_manifest_parity(root: Path) -> list[str]:
+    errors: list[str] = []
+
+    try:
+        manifest = load_manifest(root)
+    except FileNotFoundError as exc:
+        return [f"{_MANIFEST_RELATIVE.as_posix()}: missing canonical ROI scope manifest ({exc})"]
+
+    fixture_path = root / _MANIFEST_RELATIVE
+    ui_path = root / _UI_MANIFEST_RELATIVE
+
+    if not ui_path.is_file():
+        errors.append(f"{_UI_MANIFEST_RELATIVE.as_posix()}: missing UI ROI scope manifest copy")
+    elif fixture_path.read_text(encoding="utf-8").replace("\r\n", "\n").strip() != ui_path.read_text(
+        encoding="utf-8"
+    ).replace("\r\n", "\n").strip():
+        errors.append("ROI scope manifest drift: fixtures/roi and archlucid-ui/src/lib/data copies differ")
+
+    descriptions_cs = root / "ArchLucid.Contracts" / "Roi" / "RoiSponsorFacingScopeDescriptions.cs"
+
+    if not descriptions_cs.is_file():
+        return errors + [f"{descriptions_cs.relative_to(root)}: missing contract descriptions"]
+
+    cs_text = descriptions_cs.read_text(encoding="utf-8", errors="replace")
+    manifest_descriptions = manifest.get("descriptions", {})
+
+    for csharp_field, manifest_key in _DESCRIPTION_FIELD_MAP:
+        expected = manifest_descriptions.get(manifest_key)
+
+        if not expected:
+            errors.append(f"manifest descriptions.{manifest_key}: missing entry")
+            continue
+
+        if expected not in cs_text:
+            errors.append(
+                f"RoiSponsorFacingScopeDescriptions.{csharp_field} drifted from manifest descriptions.{manifest_key}"
+            )
+
+    non_additivity = manifest.get("nonAdditivityCaveat")
+
+    if not non_additivity:
+        errors.append("manifest nonAdditivityCaveat: missing entry")
+    elif non_additivity not in cs_text:
+        errors.append("RoiSponsorFacingScopeDescriptions.NonAdditivityCaveat drifted from manifest")
+
+    export_markdown = root / "archlucid-ui" / "src" / "lib" / "executive-summary-markdown.ts"
+
+    if export_markdown.is_file():
+        export_text = export_markdown.read_text(encoding="utf-8", errors="replace")
+
+        if "ROI_NON_ADDITIVITY_CAVEAT" not in export_text:
+            errors.append("executive-summary-markdown.ts: missing non-additivity caveat export")
+
     return errors
 
 
@@ -118,6 +208,7 @@ def main(argv: list[str] | None = None) -> int:
     errors.extend(check_docs(root))
     errors.extend(check_openapi_snapshot(root))
     errors.extend(check_scope_labeler_source(root))
+    errors.extend(check_manifest_parity(root))
 
     if errors:
         for error in sorted(set(errors)):

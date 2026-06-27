@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Roi;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
@@ -65,7 +67,7 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
     private static ExecutiveSummary ParseExecutiveSummary(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
-            return new ExecutiveSummary(null, null, null);
+            return new ExecutiveSummary(null, null, null, null);
 
         try
         {
@@ -74,14 +76,17 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
             decimal? savings = root.TryGetProperty("totalEstimatedUsdSavings", out JsonElement savEl)
                 && savEl.TryGetDecimal(out decimal d) ? d : null;
             string? scopeDescription = root.TryGetProperty("headlineSavingsScopeDescription", out JsonElement scopeEl) ? scopeEl.GetString() : null;
+            string? systemRowScopeDescription = root.TryGetProperty("systemRowSavingsScopeDescription", out JsonElement systemScopeEl)
+                ? systemScopeEl.GetString()
+                : null;
             int? systemCount = root.TryGetProperty("systemCount", out JsonElement sysEl)
                 && sysEl.TryGetInt32(out int sc) ? sc : null;
 
-            return new ExecutiveSummary(savings, scopeDescription, systemCount);
+            return new ExecutiveSummary(savings, scopeDescription, systemRowScopeDescription, systemCount);
         }
         catch (JsonException)
         {
-            return new ExecutiveSummary(null, null, null);
+            return new ExecutiveSummary(null, null, null, null);
         }
     }
 
@@ -323,11 +328,18 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         {
             string formatted = executive.TotalEstimatedUsdSavings.Value.ToString("C0", CultureInfo.InvariantCulture);
             string scope = string.IsNullOrWhiteSpace(executive.HeadlineSavingsScopeDescription)
-                ? "disposition-aware estimate"
+                ? RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware
                 : executive.HeadlineSavingsScopeDescription;
+            string systemRowScope = string.IsNullOrWhiteSpace(executive.SystemRowSavingsScopeDescription)
+                ? RoiSponsorFacingScopeDescriptions.SystemRowSnapshotPotential
+                : executive.SystemRowSavingsScopeDescription;
 
             sb.AppendLine(CultureInfo.InvariantCulture,
                 $"**Estimated savings:** {formatted} ({scope})");
+            sb.AppendLine();
+            sb.AppendLine(CultureInfo.InvariantCulture, $"**Per-system scope:** {systemRowScope}");
+            sb.AppendLine();
+            sb.AppendLine(RoiSponsorFacingScopeDescriptions.NonAdditivityCaveat);
             sb.AppendLine();
             sb.AppendLine("This is a projected estimate based on architecture findings. It is not a guarantee and depends on the buyer's implementation choices and environment.");
         }
@@ -437,7 +449,11 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
 
     private sealed record PackManifestSummary(string? GeneratedUtc, bool DemoDataWarning);
 
-    private sealed record ExecutiveSummary(decimal? TotalEstimatedUsdSavings, string? HeadlineSavingsScopeDescription, int? SystemCount);
+    private sealed record ExecutiveSummary(
+        decimal? TotalEstimatedUsdSavings,
+        string? HeadlineSavingsScopeDescription,
+        string? SystemRowSavingsScopeDescription,
+        int? SystemCount);
 
     private sealed record LimitationsSummary(List<string> HoldReasons, List<string> WarnReasons);
 }

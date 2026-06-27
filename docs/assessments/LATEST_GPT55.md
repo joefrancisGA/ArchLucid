@@ -1,11 +1,11 @@
 ﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
 ## 1. Title & Headline
-ArchLucid Assessment - (A) Headline Readiness: **81.61%**.
+ArchLucid Assessment - (A) Headline Readiness: **81.78%**.
 
 - **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 - **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
-- **Assessment timestamp:** 2026-06-27T19:22:00-04:00.
+- **Assessment timestamp:** 2026-06-27T19:31:00-04:00.
 - **Source materials inspected (required read list):**
   1. `docs/library/REPO_DIGEST.md`
   2. `docs/library/V1_SCOPE.md`
@@ -37,11 +37,11 @@ ArchLucid Assessment - (A) Headline Readiness: **81.61%**.
 | 4 | Correctness & Evidence Integrity | 82 | 12 | 9.84 | 216 |
 | 5 | AI / Agent Readiness | 84 | 10 | 8.40 | 160 |
 | 6 | Time-to-Value | 78 | 10 | 7.80 | 220 |
-| 7 | Proof-of-ROI Readiness | 80 | 9 | 7.20 | 180 |
-| 8 | Executive / Operator Comprehension | 76 | 8 | 6.08 | 192 |
+| 7 | Proof-of-ROI Readiness | 81 | 9 | 7.29 | 171 |
+| 8 | Executive / Operator Comprehension | 77 | 8 | 6.16 | 184 |
 | 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
 | 10 | Adoption Friction | 71 | 5 | 3.55 | 145 |
-|  | **(A) Headline readiness** |  | **100** | **81.61** |  |
+|  | **(A) Headline readiness** |  | **100** | **81.78** |  |
 
 ## 3. Diagnostic Scores (Non-Headline)
 These diagnostics do **not** feed `(A)` directly.
@@ -69,7 +69,7 @@ These diagnostics do **not** feed `(A)` directly.
 6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
 
 ## 5. Executive Summary
-- **(A) Overall headline readiness (excludes deferred items):** **81.61%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, ITSM outbound seams, and a recurring citation-integrity sampler for representative committed runs.
+- **(A) Overall headline readiness (excludes deferred items):** **81.78%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI with canonical cross-surface scope labels, ITSM outbound seams, and a recurring citation-integrity sampler for representative committed runs.
 - **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
 - **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
 - **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
@@ -117,17 +117,17 @@ These diagnostics do **not** feed `(A)` directly.
 - **Classification:** validation first
 
 ### 7.5 Executive / Operator Comprehension
-- **Score / Weight / Contribution / Deficiency:** 76 / 8 / 6.08 / 192
+- **Score / Weight / Contribution / Deficiency:** 77 / 8 / 6.16 / 184
 - **Affects outcomes:** 2, 3, 4
-- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; the ITSM pull-forward gate now states HOLD/WATCH/PULL_FORWARD explicitly for connector scope conversations.
+- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views; canonical ROI scope manifest now aligns headline, per-system, and export fallbacks across API, UI, and sponsor packet artifacts.
 - **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
 - **Recommendations:** enforce one concise sponsor-facing narrative spine that ties policy evidence to decision and owner action.
 - **Classification:** V1
 
 ### 7.6 Proof-of-ROI Readiness
-- **Score / Weight / Contribution / Deficiency:** 80 / 9 / 7.20 / 180
+- **Score / Weight / Contribution / Deficiency:** 81 / 9 / 7.29 / 171
 - **Affects outcomes:** 3, 4
-- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; citation-integrity sampling reduces risk that uncited cost/policy claims undermine sponsor-facing ROI narratives.
+- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; canonical scope labels and non-additivity caveats now propagate consistently to executive markdown export and buyer-decision brief fallbacks.
 - **Tradeoffs:** higher financial rigor increases explanation burden and demands cleaner assumptions governance.
 - **Recommendations:** standardize pilot packet evidence ledger with explicit pricing basis and freshness annotations; pair with citation-integrity FAIL triage before sponsor send.
 - **Classification:** validation first
@@ -423,14 +423,12 @@ Non-goals:
 ```
 
 **9) ROI headline/per-system explanation hardening**
-- **Why it matters:** prevents buyer confusion around non-additivity and protects executive trust.
-- **Expected impact:** proof-of-ROI readiness and comprehension.
+- **Status:** shipped (2026-06-27).
+- **Implementation summary:** added canonical `fixtures/roi/roi-sponsor-facing-scope-labels.v1.json` mirrored in UI data; `roi-sponsor-scope-labels.ts` and `roi-disposition-training-copy.ts` import manifest fallbacks; executive markdown export and buyer-decision brief use the same scope labels and non-additivity caveat; `check_roi_surface_consistency.py` and `RoiScopeLabelManifestParityTests` guard drift.
+- **Validation evidence:** `ArchLucid.Application.Tests/Roi/RoiScopeLabelManifestParityTests.cs`, `archlucid-ui/src/lib/roi-sponsor-scope-labels.test.ts`, `archlucid-ui/src/lib/executive-summary-markdown.test.ts`, and `ArchLucid.Cli.Tests/SponsorPacketBuyerDecisionBriefBuilderTests.cs`.
 - **Affected qualities:** 7, 8.
-- **Evidence:** service behavior is correct, but explanation consistency across all surfaces can still drift.
-- **Actionability:** medium-high.
-- **Design Uncertainty Reduced:** 6/10
-- **Market Uncertainty Reduced:** 5/10
-- **Classification:** V1 engineering
+- **Classification:** V1 engineering.
+- **Rescore impact:** Proof-of-ROI Readiness +1 and Executive / Operator Comprehension +1; `(A)` headline readiness rises from **81.61%** to **81.78%**.
 
 **Cursor prompt**
 ```text

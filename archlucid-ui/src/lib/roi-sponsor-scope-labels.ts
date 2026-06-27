@@ -1,12 +1,16 @@
+import manifest from "@/lib/data/roi-sponsor-facing-scope-labels.v1.json";
+
 /** Server-authoritative ROI scope codes (mirrors ArchLucid.Contracts.Roi.RoiSponsorFacingScopeCodes). */
 export const ROI_SPONSOR_SCOPE_CODES = {
-  headlineDispositionAware: "headline-disposition-aware-open-needs-evidence",
-  systemRowSnapshotPotential: "per-system-latest-run-snapshot-potential",
-  crossTenantPortfolioHeadline: "cross-tenant-portfolio-headline",
-  valueReportActivityWindow: "tenant-activity-window-hours-roi-model",
-  trailing30DayFindingEvents: "trailing-30d-utc-finding-events",
-  pilotScorecardUtcWindow: "pilot-scorecard-utc-window",
+  headlineDispositionAware: manifest.codes.headlineDispositionAware,
+  systemRowSnapshotPotential: manifest.codes.systemRowSnapshotPotential,
+  crossTenantPortfolioHeadline: manifest.codes.crossTenantPortfolioHeadline,
+  valueReportActivityWindow: manifest.codes.valueReportActivityWindow,
+  trailing30DayFindingEvents: manifest.codes.trailing30DayFindingEvents,
+  pilotScorecardUtcWindow: manifest.codes.pilotScorecardUtcWindow,
 } as const;
+
+export const ROI_NON_ADDITIVITY_CAVEAT = manifest.nonAdditivityCaveat;
 
 export type RoiScopeLabelSource = {
   headlineSavingsScopeDescription?: string | null;
@@ -14,13 +18,13 @@ export type RoiScopeLabelSource = {
   trailing30DayActivityScopeDescription?: string | null;
 };
 
-/** Prefer API scope labels; fall back to stable copy when older payloads omit fields. */
+/** Prefer API scope labels; fall back to canonical manifest copy when older payloads omit fields. */
 export function resolveExecutiveHeadlineScopeLabel(source: RoiScopeLabelSource): string {
   if (source.headlineSavingsScopeDescription?.trim()) {
     return source.headlineSavingsScopeDescription.trim();
   }
 
-  return "Portfolio headline: disposition-aware open + needs-evidence estimated USD from latest committed review per system.";
+  return manifest.descriptions.headlineDispositionAware;
 }
 
 export function resolveExecutiveSystemRowScopeLabel(source: RoiScopeLabelSource): string {
@@ -28,7 +32,7 @@ export function resolveExecutiveSystemRowScopeLabel(source: RoiScopeLabelSource)
     return source.systemRowSavingsScopeDescription.trim();
   }
 
-  return "Per-system rows are pre-disposition snapshot components and do not sum to the portfolio headline.";
+  return manifest.descriptions.systemRowSnapshotPotential;
 }
 
 export function resolveExecutiveTrailing30DayScopeLabel(source: RoiScopeLabelSource): string {
@@ -36,5 +40,5 @@ export function resolveExecutiveTrailing30DayScopeLabel(source: RoiScopeLabelSou
     return source.trailing30DayActivityScopeDescription.trim();
   }
 
-  return "Trailing 30-day UTC finding activity counts (not USD savings).";
+  return manifest.descriptions.trailing30DayFindingEvents;
 }

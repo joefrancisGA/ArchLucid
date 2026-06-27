@@ -120,6 +120,29 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
         // $125,000 in InvariantCulture is $125,000
         brief.Should().Contain("125,000");
         brief.Should().Contain("Open + Needs-Evidence findings");
+        brief.Should().Contain("Per-system rows do not sum to the portfolio headline.");
+    }
+
+    [Fact]
+    public void Build_uses_canonical_scope_labels_when_executive_summary_omits_scope_fields()
+    {
+        SponsorPacketBuyerDecisionBriefBuilder.BriefInputs inputs = new(
+            RunId,
+            ManifestJson(),
+            """
+            {
+              "totalEstimatedUsdSavings": 50000,
+              "systemCount": 2
+            }
+            """,
+            LimitationsMd(),
+            FirstValueReportMd());
+
+        string brief = SponsorPacketBuyerDecisionBriefBuilder.Build(inputs);
+
+        brief.Should().Contain("Single-tenant portfolio headline: disposition-aware");
+        brief.Should().Contain("Per-system component: estimated USD");
+        brief.Should().Contain("Per-system rows do not sum to the portfolio headline.");
     }
 
     [Fact]
