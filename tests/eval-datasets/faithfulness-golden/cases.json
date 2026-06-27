@@ -287,6 +287,79 @@
         { "sourceId": "buyer-roi-baseline-id", "title": "Buyer ROI baseline", "corpusKind": "CustomerProvided" }
       ],
       "agentOutputText": "Executive ROI headline shows 42% review-cycle reduction without citing buyer baseline evidence."
+    },
+    {
+      "id": "ask-policy-pack-kv-cited",
+      "category": "azure-saas-readiness",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "rule-kv-01", "title": "Key Vault", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Ask answer: store secrets in Key Vault per rule-kv-01."
+    },
+    {
+      "id": "ask-platform-adr-cited",
+      "category": "platform-doc",
+      "expectedCorpusKind": "PlatformDoc",
+      "retrievalHits": [
+        { "sourceId": "adr-0004-outbox", "title": "ADR 0004 transactional outbox", "corpusKind": "PlatformDoc" }
+      ],
+      "agentOutputText": "Indexing uses the transactional outbox pattern (adr-0004-outbox) per ADR 0004 transactional outbox."
+    },
+    {
+      "id": "ask-prior-decision-cited",
+      "category": "prior-manifest",
+      "expectedCorpusKind": "PriorManifest",
+      "retrievalHits": [
+        { "sourceId": "decision-2026q1-zone-redundancy", "title": "Zone redundancy decision", "corpusKind": "PriorManifest" }
+      ],
+      "agentOutputText": "Prior review chose zone redundancy (decision-2026q1-zone-redundancy) per Zone redundancy decision."
+    },
+    {
+      "id": "ask-azure-retail-cost-cited",
+      "category": "azure-saas-readiness",
+      "expectedCorpusKind": "AzureRetail",
+      "retrievalHits": [
+        { "sourceId": "azure-app-service-p1v3", "title": "App Service P1v3", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Resize to App Service P1v3 (azure-app-service-p1v3) before quoting monthly cost."
+    },
+    {
+      "id": "ask-demo-derived-cited",
+      "category": "demo-vs-customer",
+      "expectedCorpusKind": "DemoDerived",
+      "retrievalHits": [
+        { "sourceId": "contoso-demo-topology", "title": "Contoso demo topology", "corpusKind": "DemoDerived" }
+      ],
+      "agentOutputText": "Illustrative pattern from Contoso demo topology (contoso-demo-topology); not a customer outcome."
+    },
+    {
+      "id": "ask-customer-network-cited",
+      "category": "demo-vs-customer",
+      "expectedCorpusKind": "CustomerProvided",
+      "retrievalHits": [
+        { "sourceId": "customer-network-diagram-v3", "title": "Customer network diagram v3", "corpusKind": "CustomerProvided" }
+      ],
+      "agentOutputText": "Align subnets per Customer network diagram v3 (customer-network-diagram-v3)."
+    },
+    {
+      "id": "ask-multi-corpus-cited",
+      "category": "azure-saas-readiness",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "entra-conditional-access", "title": "Conditional Access", "corpusKind": "PolicyPack" },
+        { "sourceId": "azure-frontdoor-waf-standard", "title": "Azure Front Door WAF", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Require Conditional Access (entra-conditional-access) and Azure Front Door WAF (azure-frontdoor-waf-standard) at the edge."
+    },
+    {
+      "id": "ask-missing-citation-negative",
+      "category": "missing-citation",
+      "expectedCorpusKind": "PlatformDoc",
+      "retrievalHits": [
+        { "sourceId": "adr-0031-cross-tenant", "title": "ADR 0031 cross-tenant patterns", "corpusKind": "PlatformDoc" }
+      ],
+      "agentOutputText": "Cross-tenant retrieval is forbidden without citing retrieved ADR evidence."
     }
   ]
 }

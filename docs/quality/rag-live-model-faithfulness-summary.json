@@ -1,0 +1,222 @@
+{
+  "formatVersion": "1.0",
+  "generatedUtc": "2026-06-27T16:33:56.090571+00:00",
+  "program": "rag-live-model-faithfulness-signal",
+  "disposition": "PASS",
+  "configuredExemplarCount": 18,
+  "positiveScoredCount": 18,
+  "p50": 0.72,
+  "p50Floor": 0.65,
+  "absoluteFloor": 0.5,
+  "adversarialCeiling": 0.4,
+  "positiveScenarioCount": 18,
+  "adversarialScenarioCount": 6,
+  "llmFaithfulnessSummary": {
+    "rubricVersion": "faithfulness-judge-system.v1.0.0",
+    "p50": 0.72,
+    "p50Floor": 0.65,
+    "absoluteFloor": 0.5,
+    "adversarialCeiling": 0.4,
+    "positiveScenarioCount": 18,
+    "positiveScoredCount": 18,
+    "adversarialScenarioCount": 6,
+    "positiveRows": [
+      {
+        "scenarioId": "corpus-real-mode-smoke",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.72,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-cost",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.74,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-compliance",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.71,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-critic",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.73,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-three-tier",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.7,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-microservices",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.76,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-database-backup",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.69,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-overprovisioned-vm",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.68,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-multi-region",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.75,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-azure-web-app",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.72,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-cloud-migration-lift-shift",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.71,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-greenfield-microservices",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.73,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-healthcare-hipaa",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.77,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-finops-existing-azure",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.7,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-event-driven",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.74,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-multi-region-active-active",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.72,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-data-platform-analytics",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.71,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      },
+      {
+        "scenarioId": "corpus-real-mode-ai-ml-inference",
+        "mode": "real",
+        "llmFaithfulnessScore": 0.73,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "positive-readiness"
+      }
+    ],
+    "adversarialRows": [
+      {
+        "scenarioId": "corpus-adv-hallucination-detection",
+        "mode": "simulator",
+        "llmFaithfulnessScore": 0.22,
+        "supportRatio": 0.0,
+        "gateOutcome": "warned",
+        "cohort": "adversarial"
+      },
+      {
+        "scenarioId": "corpus-adv-citation-mismatch",
+        "mode": "simulator",
+        "llmFaithfulnessScore": 0.33,
+        "supportRatio": 0.0,
+        "gateOutcome": "warned",
+        "cohort": "adversarial"
+      },
+      {
+        "scenarioId": "corpus-adv-contradictory-requirements",
+        "mode": "simulator",
+        "llmFaithfulnessScore": 0.3,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "adversarial"
+      },
+      {
+        "scenarioId": "corpus-adv-oversized-context",
+        "mode": "simulator",
+        "llmFaithfulnessScore": 0.35,
+        "supportRatio": 0.0,
+        "gateOutcome": "accepted",
+        "cohort": "adversarial"
+      },
+      {
+        "scenarioId": "corpus-adv-unsupported-roi-claim",
+        "mode": "simulator",
+        "llmFaithfulnessScore": 0.27,
+        "supportRatio": 0.0,
+        "gateOutcome": "warned",
+        "cohort": "adversarial"
+      },
+      {
+        "scenarioId": "corpus-adv-out-of-domain-request",
+        "mode": "simulator",
+        "llmFaithfulnessScore": 0.38,
+        "supportRatio": 0.0,
+        "gateOutcome": "warned",
+        "cohort": "adversarial"
+      }
+    ]
+  },
+  "failures": [],
+  "interpretation": "Phase B scores come from committed real-mode exemplars with semanticScore.llmFaithfulnessScore \u2014 not a live deployment-model run in this job."
+}

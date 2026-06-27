@@ -2,10 +2,10 @@
 
 # Retrieval IR report
 
-- **Cases evaluated:** 31
-- **Mean recall@5:** 1.0000
-- **Mean MRR:** 0.9247
-- **Mean NDCG@10:** 0.9427
+- **Cases evaluated:** 47
+- **Mean recall@5:** 0.9787
+- **Mean MRR:** 0.9220
+- **Mean NDCG@10:** 0.9399
 - **Floor recall@5:** 0.8500
 - **Floor MRR:** 0.7500
 
@@ -13,9 +13,12 @@
 
 | Corpus | Cases | Mean recall@5 | Mean MRR | Mean NDCG@10 | Ordering-sensitive NDCG@10 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| PlatformDoc | 7 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
-| PolicyPack | 12 | 1.0000 | 0.8056 | 0.8521 | 0.5581 |
-| PriorManifest | 12 | 1.0000 | 1.0000 | 1.0000 | — |
+| AzureRetail | 6 | 1.0000 | 0.8889 | 0.9080 | — |
+| CustomerProvided | 2 | 1.0000 | 1.0000 | 1.0000 | — |
+| DemoDerived | 2 | 1.0000 | 1.0000 | 1.0000 | — |
+| PlatformDoc | 9 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| PolicyPack | 15 | 0.9333 | 0.8000 | 0.8485 | 0.5152 |
+| PriorManifest | 13 | 1.0000 | 1.0000 | 1.0000 | — |
 
 ## Per-case results
 
@@ -27,8 +30,8 @@
 | ir-pp-mi-02 | PolicyPack | 1.0000 | 1.0000 | 0.9197 | no |
 | ir-pp-pe-01 | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
 | ir-pp-pe-02 | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
-| ir-pp-dual-01 | PolicyPack | 1.0000 | 0.3333 | 0.5271 | yes |
-| ir-pp-dual-02 | PolicyPack | 1.0000 | 0.3333 | 0.5271 | yes |
+| ir-pp-dual-01 | PolicyPack | 0.5000 | 0.2500 | 0.4628 | yes |
+| ir-pp-dual-02 | PolicyPack | 0.5000 | 0.2500 | 0.4628 | yes |
 | ir-pp-triple | PolicyPack | 1.0000 | 0.5000 | 0.6199 | yes |
 | ir-pp-noise-guard | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
 | ir-pm-run-01 | PriorManifest | 1.0000 | 1.0000 | 1.0000 | no |
@@ -52,3 +55,19 @@
 | ir-mixed-scope-01 | PlatformDoc | 1.0000 | 1.0000 | 1.0000 | no |
 | ir-mixed-scope-02 | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
 | ir-mixed-scope-03 | PriorManifest | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ar-app-01 | AzureRetail | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ar-app-02 | AzureRetail | 1.0000 | 1.0000 | 0.8772 | no |
+| ir-ar-sql-01 | AzureRetail | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ar-fd-01 | AzureRetail | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ar-noise | AzureRetail | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-demo-01 | DemoDerived | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-demo-02 | DemoDerived | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-cust-01 | CustomerProvided | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-cust-02 | CustomerProvided | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-tenant-b-pp | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-tenant-a-not-b | PolicyPack | 1.0000 | 0.5000 | 0.6309 | no |
+| ir-pd-lib-01 | PlatformDoc | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-ar-pp-mixed | AzureRetail | 1.0000 | 0.3333 | 0.5706 | no |
+| ir-pp-kv-03 | PolicyPack | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-pm-run-05 | PriorManifest | 1.0000 | 1.0000 | 1.0000 | no |
+| ir-pd-arch-04 | PlatformDoc | 1.0000 | 1.0000 | 1.0000 | no |

@@ -7,9 +7,9 @@
 
 ## Key metrics
 
-- Positive readiness support ratio: 0.96875
-- PolicyPack mean MRR: 0.8055555555555555
-- Mean recall@5: 1.0
+- Positive readiness support ratio: 0.9782608695652174
+- PolicyPack mean MRR: 0.8
+- Mean recall@5: 0.9787234042553191
 
-Offline golden-fixture program only — measures citation faithfulness and retrieval IR on committed fixtures, not live customer corpus quality.
+Offline golden fixtures plus optional committed real-mode LLM faithfulness signal — does not invoke live models unless a separate golden-cohort live job runs.
 

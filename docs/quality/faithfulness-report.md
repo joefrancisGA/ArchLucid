@@ -2,12 +2,12 @@
 
 # RAG faithfulness report
 
-- **Cases evaluated:** 28
-- **Positive readiness cases:** 16
-- **Positive readiness support ratio:** 0.9688
-- **Negative-control cases:** 12
-- **Negative-control support ratio:** 0.0417
-- **Combined diagnostic support ratio:** 0.5714
+- **Cases evaluated:** 36
+- **Positive readiness cases:** 23
+- **Positive readiness support ratio:** 0.9783
+- **Negative-control cases:** 13
+- **Negative-control support ratio:** 0.0385
+- **Combined diagnostic support ratio:** 0.6389
 - **Floor (minSupportRatio):** 0.8000
 
 ## Interpretation
@@ -21,11 +21,13 @@
 | Category | Cases | Mean support ratio |
 | --- | ---: | ---: |
 | ai-governance | 3 | 0.8333 |
-| azure-saas-readiness | 5 | 1.0000 |
+| azure-saas-readiness | 8 | 1.0000 |
 | deferred-scope-claim | 2 | 0.0000 |
-| demo-vs-customer | 2 | 1.0000 |
+| demo-vs-customer | 4 | 1.0000 |
 | healthcare-regulatory | 3 | 1.0000 |
-| missing-citation | 4 | 0.0000 |
+| missing-citation | 5 | 0.0000 |
+| platform-doc | 1 | 1.0000 |
+| prior-manifest | 1 | 1.0000 |
 | roi-cost-supported | 3 | 1.0000 |
 | roi-cost-unsupported | 3 | 0.0000 |
 | wrong-corpus | 3 | 0.1667 |
@@ -62,3 +64,11 @@
 | deferred-scope-soc2-cpa-claim | negative-control | deferred-scope-claim | 1 | 0 | 0.0000 | soc2-roadmap-v1 | - | - |
 | deferred-scope-pen-test-claim | negative-control | deferred-scope-claim | 1 | 0 | 0.0000 | owner-pentest-2026q2 | - | - |
 | missing-evidence-ref-roi-headline | negative-control | missing-citation | 1 | 0 | 0.0000 | buyer-roi-baseline-id | - | missing-evidence-ref |
+| ask-policy-pack-kv-cited | positive-readiness | azure-saas-readiness | 1 | 1 | 1.0000 | - | - | - |
+| ask-platform-adr-cited | positive-readiness | platform-doc | 1 | 1 | 1.0000 | - | - | - |
+| ask-prior-decision-cited | positive-readiness | prior-manifest | 1 | 1 | 1.0000 | - | - | - |
+| ask-azure-retail-cost-cited | positive-readiness | azure-saas-readiness | 1 | 1 | 1.0000 | - | - | - |
+| ask-demo-derived-cited | positive-readiness | demo-vs-customer | 1 | 1 | 1.0000 | - | - | - |
+| ask-customer-network-cited | positive-readiness | demo-vs-customer | 1 | 1 | 1.0000 | - | - | - |
+| ask-multi-corpus-cited | positive-readiness | azure-saas-readiness | 2 | 2 | 1.0000 | - | azure-frontdoor-waf-standard | - |
+| ask-missing-citation-negative | negative-control | missing-citation | 1 | 0 | 0.0000 | adr-0031-cross-tenant | - | - |

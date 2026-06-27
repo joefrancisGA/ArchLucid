@@ -13,6 +13,7 @@
 | Agent output quality gate | `python scripts/ci/eval_agent_corpus.py --enforce-quality-gate` | Schema, policy, and corpus checks on simulator outputs |
 | Faithfulness + retrieval trend rollup | `./scripts/ci/Invoke-FaithfulnessTrendReport.ps1` (`-EnforceFaithfulness` optional) | Single Markdown/JSON artifact for assessment and release notes; floor override via `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` |
 | Deeper RAG quality program (offline) | `python scripts/ci/run_rag_quality_program.py` (`--enforce` optional) | Sequences faithfulness eval, retrieval IR, floor ratchet, and optional rollup — see [`DEEPER_RAG_QUALITY_PROGRAM.md`](DEEPER_RAG_QUALITY_PROGRAM.md) |
+| RAG live-model faithfulness signal | `python scripts/ci/run_rag_live_model_faithfulness_signal.py` (`--enforce` optional) | Phase B p50/adversarial floors on committed real-mode exemplars; nightly in golden-cohort workflow |
 
 ## Current live Azure OpenAI evidence
 

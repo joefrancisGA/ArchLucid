@@ -22,14 +22,14 @@ def _load_program_module():
 class RunRagQualityProgramTests(unittest.TestCase):
     def test_build_steps_includes_ratchet_and_rollup(self) -> None:
         mod = _load_program_module()
-        steps = mod._build_steps(enforce=False, skip_rollup=False)
+        steps = mod._build_steps(enforce=False, skip_rollup=False, include_live_model=False)
         labels = [step.label for step in steps]
 
         self.assertEqual(labels, ["faithfulness", "retrieval-ir", "floor-ratchet", "rollup"])
 
     def test_build_steps_enforce_adds_flag_to_eval_harnesses(self) -> None:
         mod = _load_program_module()
-        steps = mod._build_steps(enforce=True, skip_rollup=True)
+        steps = mod._build_steps(enforce=True, skip_rollup=True, include_live_model=False)
         faithfulness = next(step for step in steps if step.label == "faithfulness")
         retrieval = next(step for step in steps if step.label == "retrieval-ir")
 

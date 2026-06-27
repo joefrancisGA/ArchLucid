@@ -83,6 +83,40 @@ jobs:
           path: docs/quality/faithfulness-report.md
           if-no-files-found: warn
 
+  cohort-rag-live-model-faithfulness:
+    needs: cohort-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: RAG live-model faithfulness signal (Phase B committed exemplars)
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.ARCHLUCID_RAG_LIVE_MODEL_FAITHFULNESS_ENFORCE }}" = "true" ]; then
+            python3 scripts/ci/run_rag_live_model_faithfulness_signal.py --enforce
+            ENFORCE_LABEL=", enforce"
+          else
+            python3 scripts/ci/run_rag_live_model_faithfulness_signal.py
+            ENFORCE_LABEL=", warn-only"
+          fi
+          if [ -f docs/quality/rag-live-model-faithfulness-summary.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## RAG live-model faithfulness${ENFORCE_LABEL}" >> "$GITHUB_STEP_SUMMARY"
+            cat docs/quality/rag-live-model-faithfulness-summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rag-live-model-faithfulness-signal
+          path: |
+            docs/quality/rag-live-model-faithfulness-summary.json
+            docs/quality/rag-live-model-faithfulness-summary.md
+          if-no-files-found: warn
+
   cohort-simulator-drift:
     needs: cohort-contract
     if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED == 'true' }}

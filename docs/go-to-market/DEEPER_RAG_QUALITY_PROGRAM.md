@@ -15,7 +15,24 @@ This program answers one question for engineering and release: **are Ask/agent o
 | **3 — Committed floor ratchet** | `scripts/ci/assert_faithfulness_ir_floor_ratchet.py` | Regression guard vs `tests/eval-datasets/faithfulness-ir-floors.json` | CI stderr on breach |
 | **4 — Pilot-proof rollup (optional)** | `scripts/ci/report_retrieval_quality_rollup.py` | Combined IR + faithfulness disposition for first-pilot proof packets | `docs/quality/rag-quality-program-rollup.{md,json}` |
 
-Phase B live-model faithfulness (LLM-graded golden cohort) remains on `scripts/ci/eval_agent_corpus.py --enforce-llm-faithfulness` — outside this offline program by design.
+Phase B live-model faithfulness (LLM-graded golden cohort on committed exemplars) runs via `scripts/ci/run_rag_live_model_faithfulness_signal.py` — wired into golden-cohort nightly and optional `--include-live-model` on `run_rag_quality_program.py`. Live OpenAI invoke remains on `eval_agent_corpus.py` / golden-cohort live jobs when budget allows.
+
+## Phase B — live-model faithfulness signal (new)
+
+| Step | Harness | What it measures | Artifact |
+| --- | --- | --- | --- |
+| **5 — Live-model signal** | `scripts/ci/run_rag_live_model_faithfulness_signal.py` | Phase B p50 / absolute / adversarial LLM faithfulness on committed `*.real.json` exemplars | `docs/quality/rag-live-model-faithfulness-summary.{json,md}` |
+
+Nightly: `.github/workflows/golden-cohort-nightly.yml` job `cohort-rag-live-model-faithfulness` (enforce when repo var `ARCHLUCID_RAG_LIVE_MODEL_FAITHFULNESS_ENFORCE=true`).
+
+## Golden dataset coverage (expanded 2026-06-27)
+
+| Dataset | Cases | Corpus kinds covered |
+| --- | ---: | --- |
+| `tests/eval-datasets/retrieval-golden/cases.json` | **47** | PolicyPack, PriorManifest, PlatformDoc, AzureRetail, DemoDerived, CustomerProvided + tenant-isolation |
+| `tests/eval-datasets/faithfulness-golden/cases.json` | **33** | Ask-shaped positive + negative controls across all major corpus kinds |
+
+Manifest: `scripts/ci/data/rag_golden_dataset_manifest.v1.json`.
 
 ## Unified runner (new)
 
@@ -23,6 +40,8 @@ Phase B live-model faithfulness (LLM-graded golden cohort) remains on `scripts/c
 
 - `docs/quality/rag-quality-program-summary.json`
 - `docs/quality/rag-quality-program-summary.md`
+
+Use `--include-live-model` to append Phase B committed-exemplar faithfulness after offline steps.
 
 Use `--enforce` for merge-blocking runs (same semantics as the underlying harness `--enforce` flags plus ratchet failure).
 
@@ -39,8 +58,9 @@ Retrieval-side golden queries live in `tests/eval-datasets/retrieval-golden/case
 
 ```powershell
 python scripts/ci/run_rag_quality_program.py
-python scripts/ci/run_rag_quality_program.py --enforce
-python -m pytest scripts/ci/tests/test_run_rag_quality_program.py
+python scripts/ci/run_rag_quality_program.py --enforce --include-live-model
+python scripts/ci/run_rag_live_model_faithfulness_signal.py --enforce
+python -m pytest scripts/ci/tests/test_run_rag_quality_program.py scripts/ci/tests/test_run_rag_live_model_faithfulness_signal.py
 python -m pytest scripts/ci/tests/test_eval_agent_faithfulness.py scripts/ci/tests/test_assert_faithfulness_ir_floor_ratchet.py
 ```
 

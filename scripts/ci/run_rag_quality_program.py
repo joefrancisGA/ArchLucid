@@ -34,7 +34,7 @@ def _ci_dir() -> Path:
     return Path(__file__).resolve().parent
 
 
-def _build_steps(*, enforce: bool, skip_rollup: bool) -> tuple[ProgramStep, ...]:
+def _build_steps(*, enforce: bool, skip_rollup: bool, include_live_model: bool) -> tuple[ProgramStep, ...]:
     enforce_flag = ("--enforce",) if enforce else ()
     steps: list[ProgramStep] = [
         ProgramStep(
@@ -53,6 +53,16 @@ def _build_steps(*, enforce: bool, skip_rollup: bool) -> tuple[ProgramStep, ...]
             (),
         ),
     ]
+
+    if include_live_model:
+        live_argv: tuple[str, ...] = ("--enforce",) if enforce else ()
+        steps.append(
+            ProgramStep(
+                "live-model-faithfulness",
+                "run_rag_live_model_faithfulness_signal.py",
+                live_argv,
+            ),
+        )
 
     if not skip_rollup:
         steps.append(
@@ -99,6 +109,7 @@ def _load_json_if_present(path: Path) -> dict[str, object] | None:
 def _build_program_summary(root: Path, *, step_results: list[dict[str, object]], enforce: bool) -> dict[str, object]:
     faithfulness = _load_json_if_present(root / "docs" / "quality" / "faithfulness-summary.json")
     retrieval = _load_json_if_present(root / "docs" / "quality" / "retrieval-ir-summary.json")
+    live_model = _load_json_if_present(root / "docs" / "quality" / "rag-live-model-faithfulness-summary.json")
     rollup = _load_json_if_present(root / "docs" / "quality" / "rag-quality-program-rollup.json")
 
     failed_steps = [row for row in step_results if int(row.get("exitCode") or 0) != 0]
@@ -107,19 +118,24 @@ def _build_program_summary(root: Path, *, step_results: list[dict[str, object]],
     if failed_steps:
         disposition = "FAIL"
 
+    program_name = "deeper-rag-quality-full" if any(
+        row.get("label") == "live-model-faithfulness" for row in step_results
+    ) else "deeper-rag-quality-offline"
+
     return {
         "formatVersion": "1.0",
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
-        "program": "deeper-rag-quality-offline",
+        "program": program_name,
         "enforceMode": enforce,
         "disposition": disposition,
         "steps": step_results,
         "faithfulnessSummary": faithfulness,
         "retrievalIrSummary": retrieval,
+        "liveModelFaithfulnessSummary": live_model,
         "rollupSummary": rollup,
         "interpretation": (
-            "Offline golden-fixture program only — measures citation faithfulness and retrieval IR "
-            "on committed fixtures, not live customer corpus quality."
+            "Offline golden fixtures plus optional committed real-mode LLM faithfulness signal — "
+            "does not invoke live models unless a separate golden-cohort live job runs."
         ),
     }
 
@@ -176,6 +192,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Pass --enforce to faithfulness and retrieval IR harnesses; exit 1 on any step failure.",
     )
     parser.add_argument(
+        "--include-live-model",
+        action="store_true",
+        help="Run committed real-mode LLM faithfulness signal (Phase B) after offline steps.",
+    )
+    parser.add_argument(
         "--skip-rollup",
         action="store_true",
         help="Skip report_retrieval_quality_rollup.py (faster local runs).",
@@ -186,7 +207,11 @@ def main(argv: list[str] | None = None) -> int:
     step_results: list[dict[str, object]] = []
     worst_exit = 0
 
-    for step in _build_steps(enforce=args.enforce, skip_rollup=args.skip_rollup):
+    for step in _build_steps(
+        enforce=args.enforce,
+        skip_rollup=args.skip_rollup,
+        include_live_model=args.include_live_model,
+    ):
         exit_code, output = _run_step(root, step)
         step_results.append(
             {

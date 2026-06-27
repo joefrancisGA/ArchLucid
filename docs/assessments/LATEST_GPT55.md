@@ -3,7 +3,7 @@
 
 # 1. Title & Headline
 
-`ArchLucid Assessment – (A) Headline Readiness: 91.16%`
+`ArchLucid Assessment – (A) Headline Readiness: 91.38%`
 
 Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
 
@@ -42,20 +42,20 @@ Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, ext
 | 1 | Decision-Changing Insight Density | 86 | 13 | 11.18 | 1.82 |
 | 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
 | 3 | Governed Review Integrity | 96 | 13 | 12.48 | 0.52 |
-| 4 | Correctness & Evidence Integrity | 92 | 12 | 11.04 | 0.96 |
-| 5 | AI / Agent Readiness | 88 | 10 | 8.80 | 1.20 |
+| 4 | Correctness & Evidence Integrity | 93 | 12 | 11.16 | 0.84 |
+| 5 | AI / Agent Readiness | 89 | 10 | 8.90 | 1.10 |
 | 6 | Time-to-Value | 90 | 10 | 9.00 | 1.00 |
 | 7 | Proof-of-ROI Readiness | 94 | 9 | 8.46 | 0.54 |
 | 8 | Executive / Operator Comprehension | 91 | 8 | 7.28 | 0.72 |
 | 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
 | 10 | Adoption Friction | 89 | 5 | 4.45 | 0.55 |
-| **Total** |  |  | **100** | **91.16%** | **8.84** |
+| **Total** |  |  | **100** | **91.38%** | **8.62** |
 
-*(A) Headline Readiness: 91.16%*
+*(A) Headline Readiness: 91.38%*
 
-**Rescore (2026-06-27): 91.06% → 91.16%.** Improvement **#10 (Deeper RAG quality program)** shipped as offline CI hardening: `run_rag_quality_program.py` sequences faithfulness eval, retrieval IR, committed floor ratchet, and optional rollup into one enforceable gate (`DEEPER_RAG_QUALITY_PROGRAM.md`). This reduces silent regression risk on Ask/agent citation faithfulness and retrieval IR — **AI / Agent Readiness +1 (87→88)** — for a **+0.10%** headline move.
+**Rescore (2026-06-27): 91.16% → 91.38%.** RAG quality follow-on shipped: (**1**) live-model faithfulness nightly signal (`run_rag_live_model_faithfulness_signal.py` + golden-cohort job) closes Phase B on committed real-mode exemplars; (**3**) golden datasets expanded to **47** retrieval IR cases (all major corpus kinds + tenant isolation) and **33** faithfulness cases (Ask-shaped citations). **AI / Agent Readiness +1 (88→89)** and **Correctness & Evidence Integrity +1 (92→93)** — **+0.22%** headline move.
 
-**Prior rescore (2026-06-27): 90.91% → 91.06%.** Improvement **#8 (Repeat-pilot answer reuse)** shipped as product code — **Time-to-Value +1 (89→90)** and **Adoption Friction +1 (88→89)** — for **+0.15%**. Weight-0 GTM tooling for #3/#4/#7 design halves remains valid for those items.
+**Prior rescore (2026-06-27): 91.06% → 91.16%.** Deeper RAG offline program (#10) — **AI / Agent Readiness +1 (87→88)**. Earlier: #8 repeat-pilot reuse (+0.15%); weight-0 GTM tooling for #3/#4/#7 design halves remains valid.
 
 ---
 
@@ -132,7 +132,7 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Decision-changing insight, 30-day voluntary usage, executive purchase.
 
 ### 2. AI / Agent Readiness
-- **Score · Weight · Contribution · Deficiency:** 88 · 10 · 8.80 · **1.20**
+- **Score · Weight · Contribution · Deficiency:** 89 · 10 · 8.90 · **1.10**
 - **Justification:** Real vs simulator separation is clear; hosted real mode uses platform Azure OpenAI; simulator mode supports deterministic CI. The authority pipeline stages are explicit and inspectable. Agent output quality gates, schema validation, content safety, budget controls, and retrieval configuration are documented. Remaining risk is not "no AI substrate"; it is quality and faithfulness under real-model variability, especially advisory/Ask surfaces.
 - **Tradeoffs:** Stronger gates reduce hallucination risk but may make useful early pilots noisier or slower to configure.
 - **Recommendations:** Keep simulator as merge truth, but treat one budget-capped real-mode staging smoke with a golden cohort as required evidence before any executive demo.
@@ -156,7 +156,7 @@ Ordered by weighted deficiency signal.
 - **Outcomes affected:** Governed repeatability, long-term survivability.
 
 ### 5. Correctness & Evidence Integrity
-- **Score · Weight · Contribution · Deficiency:** 92 · 12 · 11.04 · **0.96**
+- **Score · Weight · Contribution · Deficiency:** 93 · 12 · 11.16 · **0.84**
 - **Justification:** Golden manifest, findings snapshots, decision traces, audit events, OpenAPI contracts, extractor citation requirements, and disposition-aware ROI all point in the right direction. The shipped governed/advisory labeling is important because it prevents exploratory LLM prose from being mistaken for evidence-backed review-package material. The main correctness risk is mixed-mode user interpretation: advisory Ask/critic output must not be allowed to look as authoritative as governed findings.
 - **Tradeoffs:** Hard proof labels can make the product feel conservative, but that conservatism is necessary for enterprise trust.
 - **Recommendations:** Keep all buyer-facing outputs visually explicit: governed finding, advisory narrative, illustrative ROI, extractor-backed ROI, disposition-aware headline.
@@ -481,18 +481,20 @@ All six ship gates are PASS and the shipped ledger shows the prior engineering i
 - **Market Uncertainty Reduced:** 2/10
 - **Classification:** V1.1, hold.
 
-**10. Deeper RAG quality program — design half shipped (DONE 2026-06-27)**
-- **Tier:** 3 (closed for V1 offline program)
+**10. Deeper RAG quality program — shipped (DONE 2026-06-27; expanded same day)**
+- **Tier:** 3 (closed for V1 program)
 - **Why it matters:** Could improve Ask and finding quality, but risks optimizing commodity chat before proving governed workflow.
 - **Expected impact:** AI readiness and insight density.
-- **Evidence:** TB-021/RAG backlog exists; retrieval ships; faithfulness + IR harnesses and floor ratchet already in repo.
+- **Evidence:** TB-021/RAG backlog; offline + live-model faithfulness signals; expanded golden datasets.
 - **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 7/10 → **shipped (offline)**
+- **Design Uncertainty Reduced:** 7/10 → **shipped**
 - **Market Uncertainty Reduced:** 3/10
-- **Classification:** V1 engineering — **offline program shipped**.
-- **Shipped:** `docs/go-to-market/DEEPER_RAG_QUALITY_PROGRAM.md` defines the four-phase offline program (faithfulness → retrieval IR → committed floor ratchet → optional rollup). `scripts/ci/run_rag_quality_program.py` orchestrates existing harnesses with `--enforce` and writes `docs/quality/rag-quality-program-summary.{json,md}`. Tests: `scripts/ci/tests/test_run_rag_quality_program.py`. Reuses `eval_agent_faithfulness.py`, `eval_retrieval_ir.py`, `assert_faithfulness_ir_floor_ratchet.py`, and golden fixtures in `tests/eval-datasets/`; restates none of them.
-- **Remainder:** live-model golden cohort proof under customer deployment, graph RAG / reranker backlog items in `RAG_QUALITY_TECHNICAL_BACKLOG.md` — schedule via **TB-021**, reassess after pilots.
-- **(A) scoring impact:** AI / Agent Readiness +1 → headline **91.16%** (see §2 rescore note).
+- **Classification:** V1 engineering — **shipped**.
+- **Shipped (offline):** `DEEPER_RAG_QUALITY_PROGRAM.md`, `run_rag_quality_program.py` (faithfulness → IR → ratchet → rollup), tests.
+- **Shipped (live-model Phase B):** `run_rag_live_model_faithfulness_signal.py` evaluates committed real-mode exemplars with p50/adversarial floors; golden-cohort nightly job `cohort-rag-live-model-faithfulness`; `--include-live-model` on program runner.
+- **Shipped (golden expansion):** retrieval IR **47** cases (AzureRetail, DemoDerived, CustomerProvided, tenant isolation); faithfulness **33** cases (Ask-shaped citations); manifest `scripts/ci/data/rag_golden_dataset_manifest.v1.json`.
+- **Remainder:** live OpenAI invoke under customer deployment model; graph RAG / reranker via **TB-021**.
+- **(A) scoring impact:** offline program **91.16%**; live-model + golden expansion **91.38%** (see §2 rescore note).
 
 ### Cursor-Actionable Engineering Candidates
 
@@ -631,7 +633,7 @@ Non-goals: New policy authoring UX, broad policy replay, buyer-facing benchmark 
 
 **Second batch — buyer proof:** proof-language claim audit (#7). Safe for Sonnet/Composer for copy cleanup after strategic framing is decided.
 
-**Third batch — GTM V1.1 / only if validation window opens:** 90-minute first-review dry-run cohort, principal architect dismissal interviews, live-model RAG proof under customer deployment. Offline RAG quality program (#10 design half) is **shipped** — use `run_rag_quality_program.py --enforce` for RC. (Procurement objection rehearsal and ITSM pilot-readiness are **GTM V1.1 backlog only** — **M-91** / **M-92** — not assessment §17 items.) Strong-model-recommended for evidence semantics or governance changes; Sonnet-safe for isolated UI copy or tests.
+**Third batch — GTM V1.1 / only if validation window opens:** 90-minute first-review dry-run cohort, principal architect dismissal interviews, live OpenAI invoke under customer deployment. RAG quality program (#10) is **shipped** — use `run_rag_quality_program.py --enforce --include-live-model` for RC. (Procurement objection rehearsal and ITSM pilot-readiness are **GTM V1.1 backlog only** — **M-91** / **M-92** — not assessment §17 items.) Strong-model-recommended for evidence semantics or governance changes; Sonnet-safe for isolated UI copy or tests.
 
 Priorities remain: first-review reliability, guided intake clarity, evidence/policy traceability, package credibility, demo reliability, and executive/operator comprehension. Because the current ship gates pass, validation work should precede new engineering.
 
