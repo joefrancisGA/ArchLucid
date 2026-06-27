@@ -1,367 +1,270 @@
-﻿> **Scope:** Evaluator — canonical strategic release and market readiness assessment prompt (v2).
-> **Generated:** 2026-06-26 22:19 EDT (GPT-5.5) — clean-slate weighted readiness pass; product-state grounding per `V1_SCOPE.md`, `V1_DEFERRED.md`, `TRUST_CENTER.md`, and current code inspection.
+﻿# ArchLucid Strategic Release and Market Readiness Assessment (v2)
 
-# 1. Title & Headline
+## 1. Title & Headline
+ArchLucid Assessment - (A) Headline Readiness: **80.68%**.
 
-`ArchLucid Assessment – (A) Headline Readiness: 92.20%`
+- **Readiness scoring boundary:** `(A)` excludes deferred scope per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and `.cursor/rules/Assessment-Scope-V1_1.mdc`.
+- **Reasoning substrate assessed:** hosted real-mode posture is platform-provisioned Azure OpenAI; simulator path exists for deterministic CI.
+- **Assessment timestamp:** 2026-06-27T17:56:00-04:00.
+- **Source materials inspected (required read list):**
+  1. `docs/library/REPO_DIGEST.md`
+  2. `docs/library/V1_SCOPE.md`
+  3. `docs/library/V1_DEFERRED.md`
+  4. `docs/go-to-market/TRUST_CENTER.md`
+  5. `docs/security/SOC2_SELF_ASSESSMENT_2026.md`
+  6. `docs/go-to-market/SOC2_ROADMAP.md`
+  7. `docs/library/ARCHITECTURE_COMPONENTS.md`
+  8. `docs/library/SYSTEM_MAP.md`
+  9. `docs/library/API_CONTRACTS.md`
+  10. `docs/library/CONFIGURATION_REFERENCE.md`
+  11. `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`
+  12. `docs/library/AUDIT_COVERAGE_MATRIX.md`
+  13. `.cursor/rules/Assessment-Scope-V1_1.mdc`
+- **Shipped-ledger check performed:** `docs/assessments/LATEST_GPT55.md` prior §17 Done/Shipped entries were reviewed before drafting new §17 opportunities.
+- **Code regions inspected (targeted verification):**
+  - `ArchLucid.Application/Runs/Orchestration/AuthorityRunOrchestrator.cs`
+  - `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs`
+  - `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+  - `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`
 
-Readiness excludes deferred items: CPA SOC 2 attestation, ISO certification, external pen-test publication, MCP membrane, live commerce un-hold, signed design partner, owner-output GTM cohorts, public plugin marketplace, multi-region active/active, AWS/GCP target analysis, and other items explicitly outside `(A)`. Hosted real mode uses platform-provisioned Azure OpenAI; simulator mode remains the deterministic CI and local pilot execution substrate.
-
-**Source materials inspected:**
-- `docs/library/REPO_DIGEST.md`
-- `docs/library/V1_SCOPE.md`
-- `docs/library/V1_DEFERRED.md`
-- `docs/go-to-market/TRUST_CENTER.md`
-- `docs/security/SOC2_SELF_ASSESSMENT_2026.md`
-- `docs/go-to-market/SOC2_ROADMAP.md`
-- `docs/library/ARCHITECTURE_COMPONENTS.md`
-- `docs/library/SYSTEM_MAP.md`
-- `docs/library/API_CONTRACTS.md`
-- `docs/library/CONFIGURATION_REFERENCE.md`
-- `docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`
-- `docs/library/AUDIT_COVERAGE_MATRIX.md`
-- `.cursor/rules/Assessment-Scope-V1_1.mdc`
-- `docs/assessments/LATEST_GPT55.md` §17 shipped ledger only, to avoid duplicate improvement proposals
-
-**Code regions inspected:**
-- `ArchLucid.Persistence/Coordination/Compliance/PolicyFilteredComplianceRulePackProvider.cs`
-- `ArchLucid.Decisioning/Services/ComplianceFindingEngine.cs`
-- `ArchLucid.Application/Governance/PreCommitGovernanceGate.cs`
-- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
-- `ArchLucid.Application/Runs/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs`
-- `ArchLucid.Application/Integrations/Itsm/Outbound/ItsmOutboundIssueCreationService.cs`
-- `ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`
-- UI/CLI shipped-ledger surfaces found by symbol search: `PolicyPackImpactPreviewPanel`, `AiOutputGovernanceLabel`, `RunDetailDecisionDeltaPanel`, `CompareGovernanceDiffPanel`, `ExecutiveRoiProofStatusStrip`, `ProofPacketCommand`
-
----
-
-# 2. Scorecard
+## 2. Scorecard
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 87 | 13 | 11.31 | 1.69 |
-| 2 | Differentiability / Defensibility vs Frontier AI | 92 | 13 | 11.96 | 1.04 |
-| 3 | Governed Review Integrity | 97 | 13 | 12.61 | 0.39 |
-| 4 | Correctness & Evidence Integrity | 95 | 12 | 11.40 | 0.60 |
-| 5 | AI / Agent Readiness | 89 | 10 | 8.90 | 1.10 |
-| 6 | Time-to-Value | 91 | 10 | 9.10 | 0.90 |
-| 7 | Proof-of-ROI Readiness | 95 | 9 | 8.55 | 0.45 |
-| 8 | Executive / Operator Comprehension | 92 | 8 | 7.36 | 0.64 |
-| 9 | Runtime & First-Review Reliability | 93 | 7 | 6.51 | 0.49 |
-| 10 | Adoption Friction | 90 | 5 | 4.50 | 0.50 |
-| **Total** |  |  | **100** | **92.20%** | **7.80** |
-
-*(A) Headline Readiness: 92.20%*
-
-**Rescore (2026-06-27): 92.07% → 92.20%.** Policy A/B demo fixture and regression test (#15) — `PolicyAbDemoFixture` (C#), `policy-ab-demo-fixture.json` (canonical JSON), and `policy-ab-demo-fixture.ts` (UI mirror); `PolicyAbDemoRegressionTests` enforces that the stricter pack selects one additional compliance rule key and flips the pre-commit gate from allow to block on the same findings; `policy-ab-demo-fixture.test.tsx` renders the before/after rule-key delta and gate posture flip; `POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` documents the fixture as synthetic internal demo validation only. **Decision-Changing Insight Density +1 (86→87)** — **+0.13%** headline move.
-
-**Prior rescore (2026-06-27): 91.90% → 92.07%.** Governed-finding coverage metric (#14) — `GovernedFindingCoverageMetric` computed from `FindingEnforcementTier` (PolicyViolation vs Advisory) across all decision-grade findings; surfaced in `PilotRunDeltasResponse.GovernedFindingCoverage`, `governance-outcome-summary.json` with explanation text, and run-detail first-screen proof status strip as "Governed coverage" field. **Proof-of-ROI Readiness +1 (94→95)** and **Executive / Operator Comprehension +1 (91→92)** — **+0.17%** headline move.
-
-**Prior rescore (2026-06-27): 91.75% → 91.90%.** One-command pilot readiness preflight (#13) — `archlucid pilot preflight` extended with `--no-api` offline mode, `--include-itsm` optional ITSM health probe, `--md`/`--markdown-out` markdown report with owner-friendly next steps, dedicated execution-mode step, Azure AI Search extractor docs pointer, and proof-packet claim-lint rules prerequisite check. JSON schema stable for CI; FIRST_PILOT_OPERATOR_PATH.md updated. **Time-to-Value +1 (90→91)** and **Adoption Friction +1 (89→90)** — **+0.15%** headline move.
-
-**Prior rescore (2026-06-27): 91.63% → 91.75%.** Proof-packet claim lint (#12) — `ProofPacketClaimLinter` scans buyer-safe proof-packet markdown/text before ZIP/folder write; forbidden assurance/ROI/execution-mode phrases fail with file, phrase, reason, and suggested safe wording; `--skip-claim-lint` for internal-only bypass. **Correctness & Evidence Integrity +1 (94→95)** — **+0.12%** headline move.
-
-**Prior rescore (2026-06-27): 91.38% → 91.63%.** Effective governance snapshot at commit (#11) — `CommittedEffectiveGovernanceSnapshotCapturer` persists pack assignments, rule-set hash, compliance key count, and conflict count on golden manifests; run detail, compare governance diff, and export README distinguish **policy at commit** from current effective assignments. **Governed Review Integrity +1 (96→97)** and **Correctness & Evidence Integrity +1 (93→94)** — **+0.25%** headline move.
-
-**Prior rescore (2026-06-27): 91.16% → 91.38%.** RAG quality follow-on shipped: (**1**) live-model faithfulness nightly signal (`run_rag_live_model_faithfulness_signal.py` + golden-cohort job) closes Phase B on committed real-mode exemplars; (**3**) golden datasets expanded to **47** retrieval IR cases (all major corpus kinds + tenant isolation) and **33** faithfulness cases (Ask-shaped citations). **AI / Agent Readiness +1 (88→89)** and **Correctness & Evidence Integrity +1 (92→93)** — **+0.22%** headline move.
-
-**Prior rescore (2026-06-27): 91.06% → 91.16%.** Deeper RAG offline program (#10) — **AI / Agent Readiness +1 (87→88)**. Earlier: #8 repeat-pilot reuse (+0.15%); weight-0 GTM tooling for #3/#4/#7 design halves remains valid.
-
----
-
-# 3. Diagnostic Scores (non-headline — must be reconciled with §2)
-
-These diagnostics do **not** feed the headline.
-
-| Diagnostic | Result | Calibration |
-|------------|--------|-------------|
-| Decision Advantage Score | **74 / 100** | Reference class: principal architects using frontier AI plus their own standards can produce a useful critique in most serious reviews, but usually lack persistent evidence, policy state, disposition math, and audit packaging. Base rate for "changes a decision AI alone would not" is ~40%. ArchLucid adjusts upward for policy-filtered compliance findings, extractor-backed cost citations, pre-commit block semantics, and ROI disposition. It adjusts downward because generic critic/Ask output remains prompt-replicable and field proof is still thin. |
-| Frontier-AI Survival Probability (12-month) | **65%–78%, confidence medium** | Reference class: thin AI workflow wrappers have poor 12-month survival, often below 40%, as models absorb task skill. ArchLucid is not thin: tenant policy assignments, append-only audit, golden manifests, stable `FindingId`, ITSM correlations, and board-pack ROI are durable workflow state. Downward adjustment: if demos sell "better analysis paragraphs," frontier AI catches up quickly. |
-| 30-Day Voluntary Usage Probability | **43%–62%, confidence medium-low** | Reference class: voluntary adoption by 10 principal architects for a new governance/review tool is often 25%–35% after 30 days. ArchLucid gets upward adjustment for Tier-1 no-vendor-credential extractor, policy impact preview, decision delta panel, proof-packet CLI, and pre-commit block explainer. It gets downward adjustment for intake/deployment friction, default-off native ITSM create, no public reference proof, and strong existing Claude/GPT/Cursor habits. |
-| Executive Purchase Probability | **55%–72%, confidence medium** | Reference class: sales-led architecture governance pilots with plausible ROI and self-attested security convert only when the buyer has governance pain; base rate ~40%–50%. ArchLucid adjusts upward for database-per-tenant isolation, disposition-aware executive ROI, procurement pack, audit trail, SSO/SCIM, and advisory-only Azure ingestion. It adjusts downward for `(B)` procurement friction: no CPA SOC 2, no external pen-test report, and no published reference customer. |
-
-**Reconciliation:** The headline is higher than the diagnostic adoption and purchase probabilities because `(A)` measures in-contract product readiness, not market proof. There is no contradiction: ArchLucid is technically ready for credible pilots while still needing field validation to prove voluntary repeat use and executive purchase.
-
----
-
-# 4. V1 Ship Gate
-
-| # | Gate | Status | One-line evidence | Fastest resolution path |
-|---|------|--------|-------------------|-------------------------|
-| 1 | First review completes end to end: create → execute → commit → golden manifest + artifact | **PASS** | `V1_SCOPE.md` defines the path; `SYSTEM_MAP.md` shows `AuthorityRunOrchestrator`; `AuthorityPipelineStagesExecutor` executes context ingestion, graph, findings, decisioning, and artifacts; release-smoke and live E2E are documented gates. | Not needed for this pass; freshest proof is one `scripts/release-smoke.ps1` run against the intended environment. |
-| 2 | Representative review contains no hallucinated or uncited policy/evidence citations | **PASS with caveat** | Compliance findings carry rule pack/version/rule ID via `ComplianceFindingEngine`; extractor cost/savings must cite package manifest timestamp/schema; UI now labels governed vs advisory outputs. Caveat: advisory LLM surfaces are not as hard-cited as governed findings. | Run one real-mode ZIP-backed review and audit every cost/policy claim before a buyer demo. |
-| 3 | Executive summary / ROI output coherent and not misleading | **PASS** | `ExecutiveRoiSummaryService` uses latest committed run per system, deduped active findings, disposition-aware basis, cost-evidence freshness, and scope labels. | Not needed unless DTO or board-pack copy changes. |
-| 4 | Export/package generation works | **PASS** | `V1_SCOPE.md` includes Markdown/DOCX/ZIP export; audit matrix records `RunExported`, board-pack, traceability bundle, sponsor proof pack, and CLI proof-packet surfaces. | Run export smoke against target environment before external demo. |
-| 5 | Operator UI does not break during first-review/demo path | **PASS** | Current ledger shows pilot nav profile, 90-minute playbook, decision delta, proof status strip, pre-commit explainer, and live-api/Playwright coverage. | Run the operator smoke on the deployed build selected for demo. |
-| 6 | Auth + tenant isolation behave correctly on pilot path | **PASS** | `TRUST_CENTER.md` and `V1_SCOPE.md` document database-per-tenant catalogs, OIDC/SAML/API key/SCIM; API contract documents ambient scope and RBAC. | Run tenant-isolation and auth negative-path smoke on the pilot host. |
-
-**Ship gate verdict:** no FAIL. The score is not capped. This assessment did not rerun the release smoke; the PASS calls are repo-evidenced and should be refreshed before external shipment.
-
----
-
-# 5. Executive Summary
-
-**(A) Overall headline readiness:** ArchLucid is ready for serious sales-led V1 pilots. The product is not merely an AI architecture chatbot: policy packs are scoped and merged, compliance rule evaluation is filtered by effective governance, findings preserve rule identity, pre-commit can block, audit is append-only and broad, ROI has explicit disposition semantics, and remediation can create Jira/ServiceNow tickets with durable correlation.
-
-**(B) Procurement / market realism (weight 0):** Enterprise procurement remains materially harder than product readiness. The trust center is honest: SOC 2 is a self-assessment and roadmap, CPA attestation is not issued, and external pen testing is planned/backlog rather than complete. This should not reduce `(A)`, but it will reduce conversion probability in strict RFPs.
-
-**Commercial picture:** The V1 motion is sales-led: pricing, order form, TEST-mode trial wiring, procurement pack, proof packet, and demo paths exist. The compelling story is strong for pilots; purchase proof is still unvalidated without reference packets from real or sanitized deployments. Live Stripe/Marketplace un-hold is V1.1 owner-only and is not a V1 blocker.
-
-**Enterprise picture:** The enterprise story is credible for a pilot: database-per-tenant isolation, SSO/SCIM, Key Vault posture, advisory-only Terraform, no default vendor Azure access, correlation IDs, audit export, and DPA/procurement documents. Hesitation will concentrate on third-party assurance and operational proof, not core architecture.
-
-**Engineering picture:** The core is robust. The authority pipeline is in Application, SQL remains authoritative, API contracts are documented, default policy packs are seeded, and audit coverage has CI anchors. The fragility risk is breadth: many surfaces exist, so demo discipline matters more than adding features.
-
-**Frontier-AI picture:** ArchLucid becomes more valuable as base models improve only if it captures better model output into governed policy/evidence/audit records; if positioned as smarter prose, frontier AI commoditizes it.
-
----
-
-# 6. Deferred Scope Uncertainty
-
-| Deferred scope | Why deferred | Safe for V1? | Existing V1 seam / placeholder |
-|----------------|--------------|--------------|--------------------------------|
-| First-party Jira/ServiceNow bidirectional sync, Confluence, Slack/Teams, webhooks | Buyer-contract V1.1 sequencing and support surface | Yes | V1 outbound create, `ItsmFindingCorrelations`, ITSM health/inbound contracts, audit events, copy/export fallback |
-| MCP membrane | V1.1 agent integration surface, not V1 pilot contract | Yes | REST, CLI, operator UI, non-GA retrieval HTTP bridge |
-| SOC 2 CPA / ISO / third-party pen test | Organizational budget/vendor program | Yes for `(A)`; material for `(B)` | Self-assessment, roadmap, owner-conducted testing, CAIQ/SIG/DPA, templates |
-| Live commerce un-hold | Owner-only Partner Center/Stripe/DNS activities | Yes | TEST-mode trial, pricing page, order form, production safety rules |
-| AWS/GCP target analysis | V1.1 cloud analysis expansion | Yes for Azure-focused V1 | Terraform/inventory patterns and V1.1 contract |
-| Multi-region active/active | V1.1 / later topology commitment | Yes | Single-region posture, RTO/RPO docs, optional failover IaC |
-| Automated tenant-erasure pipeline | V2 privacy automation | Yes | Tenant deletion/offboarding and platform audit events |
-
----
-
-# 7. Weighted Quality Assessment (detail)
-
-Ordered by weighted deficiency signal.
-
-### 1. Decision-Changing Insight Density
-- **Score · Weight · Contribution · Deficiency:** 86 · 13 · 11.18 · **1.82**
-- **Justification:** The highest-value insight path is not generic LLM critique; it is policy-scoped, evidence-backed findings that survive a governance workflow. `PolicyFilteredComplianceRulePackProvider` loads effective tenant/workspace/project governance content and filters the compliance rule pack; `ComplianceFindingEngine` emits findings with rule pack/version/rule ID and graph-node explainability. Extractor-backed cost/citation contracts and decision-delta UI strengthen "I did not think of that." The limitation is field proof: the repository shows the machinery, but not enough real buyer examples proving non-obvious decisions changed.
-- **Tradeoffs:** More deterministic rules improve repeatability but can feel less magical than frontier AI prose. More LLM freedom may increase surprise but weakens evidence integrity.
-- **Recommendations:** Lead pilots with one policy toggle or stricter pack that changes findings and pre-commit outcome on the same evidence set. Capture before/after decision records as proof, not just screenshots.
-- **Classification:** V1, market validation required.
-- **Outcomes affected:** Decision-changing insight, 30-day voluntary usage, executive purchase.
-
-### 2. AI / Agent Readiness
-- **Score · Weight · Contribution · Deficiency:** 89 · 10 · 8.90 · **1.10**
-- **Justification:** Real vs simulator separation is clear; hosted real mode uses platform Azure OpenAI; simulator mode supports deterministic CI. The authority pipeline stages are explicit and inspectable. Agent output quality gates, schema validation, content safety, budget controls, and retrieval configuration are documented. Remaining risk is not "no AI substrate"; it is quality and faithfulness under real-model variability, especially advisory/Ask surfaces.
-- **Tradeoffs:** Stronger gates reduce hallucination risk but may make useful early pilots noisier or slower to configure.
-- **Recommendations:** Keep simulator as merge truth, but treat one budget-capped real-mode staging smoke with a golden cohort as required evidence before any executive demo.
-- **Classification:** V1 with ongoing TB-021 quality validation.
-- **Outcomes affected:** Decision-changing insight, survivability against frontier AI.
-
-### 3. Time-to-Value
-- **Score · Weight · Contribution · Deficiency:** 90 · 10 · 9.00 · **1.00**
-- **Justification:** The first-review path is now shaped by a 90-minute playbook, pilot nav profile, demo review, extractor ZIP validation, decision-delta panel, proof packet, and **repeat-pilot answer reuse** (prior run-spawned elicitation answers pre-fill on the second draft in the same scope). That is materially better than a sprawling enterprise UI. Still, the actual value path involves configuration, evidence capture, request/draft, execution, commit, review, export, and possibly ITSM. A skilled architect can open Claude faster, so ArchLucid must reach "governed package" value quickly.
-- **Tradeoffs:** Reducing intake too far weakens evidence quality and policy fit; asking too much makes architects abandon.
-- **Recommendations:** Validate the 90-minute claim with three dry runs: one internal operator, one engineer not familiar with the codebase, one target-user proxy.
-- **Classification:** V1, market validation required.
-- **Outcomes affected:** 30-day voluntary usage, executive purchase.
-
-### 4. Differentiability / Defensibility vs Frontier AI
-- **Score · Weight · Contribution · Deficiency:** 92 · 13 · 11.96 · **1.04**
-- **Justification:** Differentiability is high because ArchLucid owns durable workflow state: policy assignments, effective governance resolution, persisted findings, pre-commit gating, audit events, ROI disposition, ITSM correlations, and executive/operator packaging. A prompt can imitate the narrative; it cannot reliably reproduce organization-wide repeatability, scope enforcement, evidence lineage, audit exports, and ticket correlation without rebuilding the product.
-- **Tradeoffs:** Governance workflow increases friction. If users perceive it as process theater, defensibility works against adoption.
-- **Recommendations:** Make the first demo a governed workflow demo: policy impact preview → same evidence → different rule set/finding/gate → audit row/export.
-- **Classification:** V1.
-- **Outcomes affected:** Governed repeatability, long-term survivability.
-
-### 5. Correctness & Evidence Integrity
-- **Score · Weight · Contribution · Deficiency:** 95 · 12 · 11.40 · **0.60**
-- **Justification:** Golden manifest, findings snapshots, decision traces, audit events, OpenAPI contracts, extractor citation requirements, and disposition-aware ROI all point in the right direction. Committed packages carry **`EffectiveGovernanceAtCommit`** metadata; **`archlucid proof-packet`** now runs deterministic **claim lint** on generated markdown/text before writing the buyer-safe ZIP (forbidden assurance/ROI/execution-mode phrases with suggested safe wording). The shipped governed/advisory labeling prevents exploratory LLM prose from being mistaken for evidence-backed review-package material. The main correctness risk is mixed-mode user interpretation: advisory Ask/critic output must not be allowed to look as authoritative as governed findings.
-- **Tradeoffs:** Hard proof labels can make the product feel conservative, but that conservatism is necessary for enterprise trust.
-- **Recommendations:** Keep all buyer-facing outputs visually explicit: governed finding, advisory narrative, illustrative ROI, extractor-backed ROI, disposition-aware headline.
-- **Classification:** V1.
-- **Outcomes affected:** Governed repeatability, executive purchase.
-
-### 6. Executive / Operator Comprehension
-- **Score · Weight · Contribution · Deficiency:** 91 · 8 · 7.28 · **0.72**
-- **Justification:** The product now has better progressive disclosure, proof-status strips, decision delta, board-pack evidence labels, help-language cleanup, and first-review guidance. Executives can see ROI/disposition; operators can see findings/audit/export. Remaining cognitive load is inherent in the breadth of Operate: graph, replay, compare, governance, audit, alerts, Ask, ROI, integrations, and policy packs.
-- **Tradeoffs:** Hiding advanced surfaces helps first value but may under-show the moat to sophisticated buyers.
-- **Recommendations:** Use role-specific demo paths: principal architect gets decision delta + rule trace; executive gets ROI + proof status; governance gets audit + pre-commit.
-- **Classification:** V1.
-- **Outcomes affected:** Executive purchase, voluntary usage.
-
-### 7. Adoption Friction
-- **Score · Weight · Contribution · Deficiency:** 89 · 5 · 4.45 · **0.55**
-- **Justification:** Tier-1 extractor avoids vendor credentials, which is a major trust win, but shifts work to the customer. Identity, Key Vault, Azure AI Search for production-like profiles, SQL, and optional ITSM setup remain real friction. Native ITSM create exists but is intentionally default-off in configuration, so remediation handoff may require admin work before it becomes magical. Repeat-pilot answer reuse now removes re-typing of prior MUST answers on subsequent drafts in the same scope.
-- **Tradeoffs:** Low-friction vendor access would speed onboarding but violate the trust posture. The secure path is slower and more credible.
-- **Recommendations:** Treat pre-pilot readiness as a checklist with named owner/time estimates, not an open-ended setup call.
-- **Classification:** V1, validation required; V1.1 for deeper connectors.
-- **Outcomes affected:** 30-day voluntary usage, executive purchase.
-
-### 8. Proof-of-ROI Readiness
-- **Score · Weight · Contribution · Deficiency:** 94 · 9 · 8.46 · **0.54**
-- **Justification:** The ROI model is unusually credible for V1: latest committed run per system, deduped active findings, disposition-aware headline basis, cost-evidence freshness, board-pack parity, sponsor proof pack, and first-value reports. The risk is not implementation absence; it is evidence quality. Savings claims are only as credible as the uploaded cost/inventory package and the buyer's acceptance of assumptions.
-- **Tradeoffs:** Conservative ROI labels reduce hype but protect trust.
-- **Recommendations:** Do not lead with total dollars unless cost evidence is fresh and extractor-backed. Lead with "decision and remediation basis" when cost evidence is illustrative.
-- **Classification:** V1, market validation required.
-- **Outcomes affected:** Executive purchase.
-
-### 9. Governed Review Integrity
-- **Score · Weight · Contribution · Deficiency:** 97 · 13 · 12.61 · **0.39**
-- **Justification:** Policy packs are first-class enough to matter: they are seeded, scoped, assigned, merged, validated, simulated, and used to filter compliance. `PreCommitGovernanceGate` evaluates persisted findings against enabled assignments and thresholds. Committed golden manifests now persist **`EffectiveGovernanceAtCommit`** (pack ids/versions/scope levels, rule-set hash, compliance key count, conflict count, generated UTC) via `CommittedEffectiveGovernanceSnapshotCapturer` at finalize — run detail, compare governance diff, and export README label **policy at commit** separately from current effective assignments. Audit coverage is broad and has no current catalogued core gaps.
-- **Tradeoffs:** Re-evaluating old commits under new policies would be useful but must not mutate historical truth.
-- **Recommendations:** Validate policy replay as a demo narrative first; build deeper historical replay only after a buyer asks for audit reconstruction beyond current artifacts.
-- **Classification:** V1; possible V1.1 hardening only if demanded.
-- **Outcomes affected:** Governed repeatability, survivability.
-
-### 10. Runtime & First-Review Reliability
-- **Score · Weight · Contribution · Deficiency:** 93 · 7 · 6.51 · **0.49**
-- **Justification:** The pipeline is structured, audit has retry on critical paths, export and proof packet surfaces are documented, and live/API smoke coverage exists. Real-mode staging smoke and budget controls reduce hosted LLM risk. I did not rerun tests during this assessment, so the score reflects repo evidence and code inspection, not fresh runtime proof.
-- **Tradeoffs:** More live E2E would increase cost/flakiness; too little live E2E risks demo-day surprises.
-- **Recommendations:** Before any external demo, run one scoped release smoke plus UI first-review path on the exact deployed environment.
-- **Classification:** V1.
-- **Outcomes affected:** 30-day voluntary usage.
-
----
-
-# 8. Top 10 Weaknesses (ranked, most serious first)
-
-1. **Field proof lags engineering proof.** Why it matters: the product is ready, but purchase and repeat-use probabilities depend on observed pilot outcomes. Uncertainty: market. V1 blocker: no. Fastest path: run a proof-packet cohort using authorized sanitized/internal data and record before/after decisions.
-2. **The moat is easy to demo badly.** If the first session leads with chat or generic critique, a principal architect will dismiss it as Claude with UI. Uncertainty: market/UX. V1 blocker: no. Fastest path: first five minutes must show policy pack impact, pre-commit outcome, audit, and ROI packaging.
-3. **Advisory LLM output can still be mistaken for governed evidence.** Uncertainty: design. V1 blocker: no if labels remain clear. Fastest path: keep governed/advisory labels everywhere and audit buyer packets for unsupported claims.
-4. **Time-to-value remains longer than direct frontier AI.** Uncertainty: market. V1 blocker: no. Fastest path: prove the 90-minute first review with three timed dry runs and remove only obstacles observed in those runs.
-5. **Procurement assurance is honest but not enough for rigid RFPs.** Uncertainty: market/procurement. V1 blocker: no `(A)`, but deal blocker under `(B)`. Fastest path: use trust-center self-assessment and roadmap; do not start CPA/pen-test work unless buyer demand or owner direction triggers TB-135/TB-136.
-6. **Native ITSM create is deployment-gated.** Uncertainty: design and support. V1 blocker: no. Fastest path: test and enable per pilot where Jira/ServiceNow handoff is central; keep copy/export fallback.
-7. **Default policy packs may be perceived as decoration until A/B behavior is shown.** Uncertainty: market. V1 blocker: no. Fastest path: show the same review under different effective governance and capture changed findings/gate.
-8. **Ask/RAG can be a commodity distraction.** Uncertainty: design. V1 blocker: no. Fastest path: position Ask as secondary exploration, not the product's proof of value.
-9. **Enterprise setup requires careful operator choreography.** Uncertainty: implementation/process. V1 blocker: no. Fastest path: pre-pilot checklist with owners for SQL, auth, Key Vault, Azure OpenAI, Azure AI Search, and extractor path.
-10. **Principal architect skepticism is rational.** Uncertainty: market. V1 blocker: no. Fastest path: give them a decision they would actually change, not a dashboard tour.
-
----
-
-# 9. Frontier-AI Analysis
-
-| Major capability | Commodity within 12 months, durable, or more valuable? | Reason | Evidence |
-|------------------|---------------------------------------------------------|--------|----------|
-| Generic architecture critique | Commodity | Frontier models already do this well from good prompts. | Holistic critic / narrative analysis surfaces are advisory. |
-| Architecture Q&A / Ask | Commodity | Retrieval plus chat is widely available. | `AskService`/retrieval exists but is not the moat. |
-| Policy-pack-filtered compliance findings | Durable | Requires persisted effective governance, rule keys, scope, and graph. | `PolicyFilteredComplianceRulePackProvider`, `ComplianceFindingEngine`. |
-| Pre-commit governance gate | Durable | Requires product workflow and persisted findings/assignments, not one-off analysis. | `PreCommitGovernanceGate`, API conflict contract. |
-| Append-only audit and CSV export | More valuable as AI improves | More AI-generated claims increase the need for reconstruction and accountability. | `AUDIT_COVERAGE_MATRIX.md`, `dbo.AuditEvents` append-only posture. |
-| Golden manifest / authority chain | Durable | Review package has run-of-record semantics that chat lacks. | `AuthorityPipelineStagesExecutor`, manifest/artifact audit. |
-| Disposition-aware executive ROI | Durable | Needs cross-run persisted state, dispositions, cost settings, and labels. | `ExecutiveRoiSummaryService`. |
-| ITSM stable finding correlation | Durable | Ticket lifecycle creates organizational memory. | `ItsmOutboundIssueCreationService`, `ItsmFindingCorrelations`. |
-| Default policy pack content | Mixed | Content can be generated by frontier AI; scoped assignment and enforcement are durable. | 24 bundled manifest files plus effective governance APIs. |
-| Proof packets / board packs | Durable if evidence-backed | Packaging, source labels, and audit slices are workflow artifacts. | CLI proof-packet and board-pack surfaces in ledger/API. |
-
-**Hard-to-reproduce via prompting:** customer-specific policy state; effective governance resolution; persisted findings and stable IDs; golden manifest; append-only audit; role-separated approval and pre-commit behavior; disposition-aware ROI; ITSM correlation; repeatable export package with source labels.
-
-**Easy for frontier AI soon:** polished critique, remediation prose, architecture summaries, policy draft text, code-adjacent explanation, "compare these two docs" analysis, and generic best-practice prioritization.
-
-**Leverage / upside:** stronger base models improve ArchLucid's finding quality, mapping accuracy, summarization, and draft policy creation while ArchLucid retains the enterprise wrapper: policy scoping, evidence capture, audit, decision records, and exports. Better AI makes the review engine sharper at near-zero incremental product engineering cost, while the value of governed records rises.
-
-**Displacement timeline:** one major model release can commoditize much of the unstructured analysis. Reproducing ArchLucid's governed workflow, tenant policy state, audit, ROI, and ITSM memory is a software adoption problem, not a prompt-length problem.
-
-**Final verdict:** ArchLucid is becoming more valuable faster than frontier AI only on governed enterprise workflow. It is losing relative value on generic analysis. The central bet is sound if GTM makes policy/evidence/audit the first-class product.
-
----
-
-# 10. Policy-Aware Governance Test
-
-1. **Are policy packs first-class objects whose content drives behavior?** Yes. They are seeded as `PlatformDefault`, assigned by scope, merged, validated, simulated, and used to filter compliance rule evaluation.
-2. **Can each major finding trace input → evidence → policy/standard → recommendation → decision/disposition → audit?** Mostly. Compliance findings can trace to rule IDs and graph nodes; extractor cost findings can trace to package metadata; dispositions and ITSM correlations are durable. Advisory LLM surfaces are intentionally weaker and must remain labeled.
-3. **Would a skilled architect using frontier AI alone reproduce this consistently?** No. They could reproduce the critique, not the repeatable policy state, commit gate, audit export, ROI disposition, and cross-operator workflow.
-4. **What is merely AI-generated analysis vs governed enterprise infrastructure?** Critique/Ask/explanation are analysis. Policy assignment, rule-filtered findings, commit blocking, audit, export, ROI basis, and ITSM correlation are infrastructure.
-5. **What evidence would prove policy packs are a real moat?** Same input evidence, two different effective policy configurations, materially different findings/priorities/gate outcome, with audit rows proving who changed policy and what package was committed.
-6. **Fastest validation path:** run an A/B policy pack pilot on one canonical review: default pack vs stricter customer pack; measure changed findings, changed executive summary, changed pre-commit result, changed remediation owner.
-7. **V1 behavior that makes the moat obvious in a demo:** pick a committed run, simulate stricter policy, show the blocked gate and rule-key delta, export the audit slice, and create one ITSM ticket from the persisted finding.
-
----
-
-# 11. Principal Architect Dismissal Test
-
-**What makes them say "I need this":** seeing a committed review block a risky change because their company's policy pack says so, with a traceable finding, evidence citation, audit row, and remediation ticket they did not have to manually assemble.
-
-**What makes them voluntarily return:** second review comparison that shows a regression or improvement they would not manually track; pre-commit CI starter that prevents architecture drift; sponsor packet that saves a governance meeting.
-
-**What causes immediate dismissal:** a generic AI critique, uncited cost savings, policy claims without rule keys, slow setup with no new decision, or UI that leads with process rather than decision delta.
-
-**Single most likely dismissal trigger and likelihood today:** "This is Claude plus my standards pasted in." Reference class: skeptical principal architects dismiss roughly half of new governance platforms before proof. ArchLucid's governed infrastructure lowers that risk; chat-first demos raise it. Likelihood **32%–45%, confidence medium**.
-
-**Would they believe ArchLucid is materially better than Claude + a good prompt + company standards pasted in?** Individually, not always. Organizationally, yes: Claude can help one architect think; ArchLucid can produce a governed package other operators, auditors, executives, and remediation owners can reuse.
-
----
-
-# 12. Founder Delusion Check
-
-- **Strongest assumptions with weakest evidence:** buyers will maintain customer-specific policy packs; architects will tolerate workflow in exchange for auditability; first pilots will produce measurable decision deltas.
-- **Capabilities that look differentiated but are commodity:** fluent architecture critique, Ask, draft policies, high-level executive summaries.
-- **Capabilities that look ordinary but may be the strongest moat:** stable `FindingId`, audit event catalog, database-per-tenant isolation, pre-commit gate, disposition-aware ROI labels.
-- **Activities that could burn months without improving the five outcomes:** plugin marketplace, MCP before pilot proof, more default policy-pack categories, graph UI polish, broad integration catalog expansion.
-- **If features froze for six months:** run pilots, collect proof packets, refine demo sequencing, prove policy pack A/B decision changes, and validate willingness to pay.
-- **Most dangerous attractive distraction:** chasing ecosystem/platform narratives before repeatable buyer proof.
-- **Most boring thing that may be the real moat:** audit-ready evidence-to-policy-to-decision records that survive procurement and governance meetings.
-
----
-
-# 13. Competitive Reality Check & Moat Assessment
-
-Against a skilled architect using frontier AI:
-
-| Dimension | Frontier AI alone | ArchLucid |
-|-----------|------------------|-----------|
-| Manual critique | Strong and improving | Strong enough, not the main moat |
-| Company standards | Can paste into prompt | Persistent scoped assignments |
-| Evidence | User-managed files/chat | Ingested packages, manifests, graph, snapshots |
-| Repeatability | Depends on operator discipline | Pipeline and package workflow |
-| Audit | Chat logs at best | Typed append-only audit and CSV/export |
-| Decision workflow | Human follow-up | Commit gate, disposition, approval, ITSM |
-| Executive reporting | Prompt-generated deck | ROI service, board pack, proof labels |
-
-**Current moat:** medium-strong workflow moat, medium policy-content moat, weak generic-analysis moat.
-
-**Potential future moat:** strong if buyers adopt policy packs as their architecture control plane and wire pre-commit into CI.
-
-**Weakest moat assumption:** customers will invest enough policy/state configuration to make the product enterprise-specific.
-
-**Most durable moat assumption:** organizations need auditable review packages more than they need smarter one-off advice.
-
-**Probably illusory moat:** "our AI architecture analysis is better."
-
-**Boring-but-durable moat:** scoped policy state plus append-only audit plus stable remediation identity.
-
-**What makes the moat obvious to a buyer:** a before/after policy simulation that changes a commit decision and creates a traceable remediation ticket.
-
----
-
-# 14. Adoption & Monetization
-
-**30-Day Voluntary Usage (10 principal architects):** strongest positive factor is seeing a decision delta tied to their own policy/evidence. Strongest negative factor is the belief they can get 80% of the insight in Claude faster. Most likely return reason: pre-commit/compare catches a drift. Most likely stop reason: first review feels like process without surprise.
-
-**Executive Purchase:** strongest driver is auditable ROI and governance repeatability. Strongest blocker is assurance/proof: no CPA SOC 2, no external pen-test report, no published reference proof. Minimum proof for paid pilot: one buyer-safe proof packet showing committed review, evidence citations, audit slice, policy trace, disposition-aware ROI, and remediation handoff.
-
-**Why buy ArchLucid instead of more frontier-AI licenses?** Because frontier-AI licenses do not enforce policy, produce a golden manifest, preserve audit records, dedupe portfolio ROI, separate operator/executive workflows, or track remediation across systems. ArchLucid sells governed organizational memory, not only intelligence.
-
-**Top 6 monetization blockers:**
-
-| Blocker | Why blocks payment | Who objects | Evidence that overcomes it | Implementation vs validation |
-|---------|-------------------|-------------|-----------------------------|------------------------------|
-| No external buyer proof packet | CFO/executive cannot trust ROI yet | Sponsor / finance | Sanitized pilot packet with before/after decision | Validation |
-| No CPA SOC 2 | Strict RFP hard stop | Procurement / InfoSec | Self-assessment + roadmap, or buyer exception | Procurement validation |
-| No third-party pen-test report | Security diligence friction | CISO / security | Owner-conducted testing + planned TB-136 | Procurement validation |
-| "We already have AI" | Budget substitution | CIO / architects | Governance/audit/pre-commit demo | Validation |
-| Setup effort | Pilot delay | Platform team | 90-minute proof run and readiness checklist | Validation/process |
-| ITSM native create default-off | Remediation handoff friction | Ops / platform | Pre-pilot connector health and fallback export | Process/V1.1 later |
-
-**Top 6 enterprise adoption blockers:**
-
-| Blocker | Pilot vs scale | Affects |
-|---------|----------------|---------|
-| Identity and production-like config | Pilot | Trust, usability |
-| Extractor ZIP execution and upload | Pilot | Time-to-value |
-| Policy pack ownership | Scale | Policy alignment |
-| Assurance gaps | Scale | Procurement |
-| Bidirectional ITSM not V1 | Scale | Process integration |
-| Operator surface breadth | Pilot and scale | Cognitive load |
-
----
-
-# 15. Most Important Truth
-
-**ArchLucid's product is ready enough; the unanswered question is whether buyers value governed architecture records more than faster AI conversations.**
-
-The next decision should not be another broad engineering batch. It should be proof that one customer-like team changes a real decision, repeats the workflow, and can defend the package in front of architecture, security, finance, and procurement.
+| 1 | Decision-Changing Insight Density | 82 | 13 | 10.66 | 234 |
+| 2 | Differentiability / Defensibility vs Frontier AI | 84 | 13 | 10.92 | 208 |
+| 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
+| 4 | Correctness & Evidence Integrity | 81 | 12 | 9.72 | 228 |
+| 5 | AI / Agent Readiness | 83 | 10 | 8.30 | 170 |
+| 6 | Time-to-Value | 77 | 10 | 7.70 | 230 |
+| 7 | Proof-of-ROI Readiness | 79 | 9 | 7.11 | 189 |
+| 8 | Executive / Operator Comprehension | 74 | 8 | 5.92 | 208 |
+| 9 | Runtime & First-Review Reliability | 78 | 7 | 5.46 | 154 |
+| 10 | Adoption Friction | 69 | 5 | 3.45 | 155 |
+|  | **(A) Headline readiness** |  | **100** | **80.68** |  |
+
+## 3. Diagnostic Scores (Non-Headline)
+These diagnostics do **not** feed `(A)` directly.
+
+- **Decision Advantage Score:** **78/100**.
+  - Reconciliation: this is directionally consistent with a high Governed Review Integrity score but moderated by unresolved first-review proof in §4.
+- **Frontier-AI Survival Probability (12-month):** **45-60%** (confidence: medium).
+  - **Reference class / base rate:** governance wrappers around LLM analysis in enterprise software often get copied quickly; sustained advantage tends to come from workflow lock-in + audit traceability.
+  - **ArchLucid-specific adjustment:** upward for policy-pack/evidence/audit structure; downward for still-limited in-repo proof of repeated buyer behavior change.
+- **30-Day Voluntary Usage Probability (principal architect cohort):** **40-55%** (confidence: medium-low).
+  - **Reference class / base rate:** early architecture-governance tools often see low voluntary return unless they produce repeatably better decisions than direct AI chat.
+  - **ArchLucid-specific adjustment:** upward for decision-package and traceability quality; downward for cognitive load/time-to-value friction.
+- **Executive Purchase Probability (near-term paid pilot conversion):** **25-40%** (confidence: medium-low).
+  - **Reference class / base rate:** first-wave enterprise AI architecture products without externally validated proof packets convert inconsistently under procurement pressure.
+  - **ArchLucid-specific adjustment:** upward for ROI endpoint + board-pack + disposition awareness; downward for still-market-validated (not yet market-proven) claims.
+
+**Tension call-out:** headline `(A)` is solid, but purchase/usage probabilities are materially lower. This is not a scoring bug; it is the expected split between **product readiness** and **market validation evidence**.
+
+## 4. V1 Ship Gate
+1. **First review completes end to end:** **UNKNOWN** - docs and code indicate the path (`request -> execute -> commit`) exists; fastest test is one scripted real-path run producing committed manifest + artifact in a fresh tenant.
+2. **Representative review has no hallucinated/uncited policy/evidence citations:** **UNKNOWN** - citation contracts exist, but no sampled run was executed in this pass; fastest test is reviewer audit of one representative package with spot-check against source evidence.
+3. **Executive summary / ROI output coherent and not misleading:** **PASS** - ROI service and docs explicitly preserve disposition-aware headline semantics and non-additivity labeling between per-system and portfolio totals.
+4. **Export/package generation works (Markdown/DOCX/ZIP):** **UNKNOWN** - contracts and routes exist; fastest test is one end-to-end export matrix run (three formats) on same committed run.
+5. **Operator UI does not break on first-review/demo path:** **UNKNOWN** - no runtime UI test was executed in this pass; fastest test is first-review smoke through operator shell route sequence.
+6. **Auth + tenant isolation behave correctly on pilot path:** **UNKNOWN** - architecture and docs specify DB-per-tenant isolation and auth modes; fastest test is two-tenant scope-leak and role-boundary smoke.
+
+## 5. Executive Summary
+- **(A) Overall headline readiness (excludes deferred items):** **80.68%**. ArchLucid has materially non-commodity governed-review infrastructure already present: policy packs, pre-commit gate, audit catalog, disposition-aware ROI, and ITSM outbound seams.
+- **(B) Procurement / market realism (weight 0):** procurement friction remains meaningful around CPA SOC 2 and external pen-test expectations; this is buyer-motion risk, not `(A)` engineering deficiency.
+- **Commercial picture:** compelling for sales-led pilots now; still unproven at repeatable paid conversion rate without broader field evidence packets surviving real buyer scrutiny.
+- **Enterprise picture:** trust posture is honest and operationally structured; likely hesitation persists where procurement requires third-party assurance artifacts now rather than roadmap acceptance.
+- **Engineering picture:** stronger than typical pre-GA architecture AI products on governance/audit seams; weaker on empirically demonstrated first-review reliability under varied tenant conditions.
+- **Frontier-AI picture (one-line verdict):** ArchLucid becomes more valuable **if** it proves that governance state actually changes decisions and audit outcomes in repeatable customer workflows.
+
+## 6. Deferred Scope Uncertainty
+- **V1.1 deferred surfaces:** first-party connector depth, Confluence/Slack/Teams, MCP membrane, AWS/GCP analysis expansion, multi-region, commerce un-hold.
+  - Safe deferral for `(A)` today because V1 seams are present (especially ITSM outbound create + `ItsmFindingCorrelations`).
+- **V2 deferred surfaces:** third-party pen-test program, SOC 2 CPA attestation, automated tenant-erasure pipeline, Redis-default substrate, DTF/Container Apps Jobs.
+  - These should remain procurement/roadmap narratives unless explicit owner pickup occurs.
+
+## 7. Weighted Quality Assessment (Ordered by Weighted Deficiency Signal)
+
+### 7.1 Time-to-Value
+- **Score / Weight / Contribution / Deficiency:** 76 / 10 / 7.60 / 240
+- **Affects outcomes:** 2, 3, 4
+- **Justification:** first-review path is documented and broad, but the operator still crosses many setup/interpretation surfaces before "decision-changing insight" is obvious.
+- **Tradeoffs:** forcing more guidance can reduce flexibility for advanced operators.
+- **Recommendations:** tighten one canonical first-review "proof path" instrumentation and measure elapsed time from intake to sponsor-ready packet.
+- **Classification:** V1
+
+### 7.2 Decision-Changing Insight Density
+- **Score / Weight / Contribution / Deficiency:** 82 / 13 / 10.66 / 234
+- **Affects outcomes:** 1, 3, 5
+- **Justification:** policy/evidence/governance scaffolding can produce insights frontier AI chat alone often fails to package defensibly; market proof of repeated decision change is still limited.
+- **Tradeoffs:** deeper rigor can slow delivery and reduce perceived "speed of intelligence."
+- **Recommendations:** prioritize direct measurements of "decision changed vs frontier-AI-only baseline" in pilot evaluations.
+- **Classification:** validation first
+
+### 7.3 Correctness & Evidence Integrity
+- **Score / Weight / Contribution / Deficiency:** 81 / 12 / 9.72 / 228
+- **Affects outcomes:** 1, 2, 4
+- **Justification:** strong evidence contracts and typed audit model exist; run-level representative evidence integrity was not re-verified in this pass.
+- **Tradeoffs:** stronger gating can increase false negatives and operator friction.
+- **Recommendations:** run recurring package-level citation integrity checks on representative committed runs.
+- **Classification:** V1
+
+### 7.4 Differentiability / Defensibility vs Frontier AI
+- **Score / Weight / Contribution / Deficiency:** 84 / 13 / 10.92 / 208
+- **Affects outcomes:** 1, 2, 5
+- **Justification:** this is currently **High** on the rubric, because the moat candidates are governance-stateful and auditable, not just better prose generation.
+- **Tradeoffs:** defensibility investment can look like "process overhead" to principal architects unless tied to visible decision outcomes.
+- **Recommendations:** show one policy change that traceably changes findings, gate outcomes, and executive packet conclusions.
+- **Classification:** validation first
+
+### 7.5 Executive / Operator Comprehension
+- **Score / Weight / Contribution / Deficiency:** 74 / 8 / 5.92 / 208
+- **Affects outcomes:** 2, 3, 4
+- **Justification:** rich surfaces exist, but buyer-level understanding can still fragment across governance, ROI, and operational views.
+- **Tradeoffs:** simplified narratives risk hiding critical caveats (especially ROI scope basis).
+- **Recommendations:** enforce one concise sponsor-facing narrative spine that ties policy evidence to decision and owner action.
+- **Classification:** V1
+
+### 7.6 Proof-of-ROI Readiness
+- **Score / Weight / Contribution / Deficiency:** 79 / 9 / 7.11 / 189
+- **Affects outcomes:** 3, 4
+- **Justification:** disposition-aware ROI service and board-pack delegation are materially better than naive sums; external credibility depends on repeated buyer-accepted proof packets.
+- **Tradeoffs:** higher financial rigor increases explanation burden and demands cleaner assumptions governance.
+- **Recommendations:** standardize pilot packet evidence ledger with explicit pricing basis and freshness annotations.
+- **Classification:** validation first
+
+### 7.7 AI / Agent Readiness
+- **Score / Weight / Contribution / Deficiency:** 83 / 10 / 8.30 / 170
+- **Affects outcomes:** 1, 2, 5
+- **Justification:** strong split between real Azure OpenAI mode and simulator, plus orchestration and retrieval layering, supports governed AI behavior.
+- **Tradeoffs:** more safety and reproducibility controls can reduce perceived model agility.
+- **Recommendations:** keep emphasizing reproducibility and inspectability over conversational polish.
+- **Classification:** V1
+
+### 7.8 Runtime & First-Review Reliability
+- **Score / Weight / Contribution / Deficiency:** 77 / 7 / 5.39 / 161
+- **Affects outcomes:** 2, 3
+- **Justification:** architecture and contracts are mature; this pass did not execute runtime verification for first-review and export flow.
+- **Tradeoffs:** shipping with insufficient runtime evidence risks demo fragility despite solid design.
+- **Recommendations:** promote ship-gate evidence generation into a routine operational artifact.
+- **Classification:** V1
+
+### 7.9 Governed Review Integrity
+- **Score / Weight / Contribution / Deficiency:** 88 / 13 / 11.44 / 156
+- **Affects outcomes:** 1, 2, 5
+- **Justification:** this is the strongest quality: policy packs, pre-commit gate, approval workflow, governance resolution, and durable audit events are all present and interconnected.
+- **Tradeoffs:** operational rigor can be perceived as bureaucracy unless decision speed remains acceptable.
+- **Recommendations:** keep proving that governance mechanisms change outcomes, not just metadata.
+- **Classification:** V1
+
+### 7.10 Adoption Friction
+- **Score / Weight / Contribution / Deficiency:** 69 / 5 / 3.45 / 155
+- **Affects outcomes:** 2, 3, 4
+- **Justification:** security-conscious deployment posture and multi-surface operation create justified but real friction for first-time teams.
+- **Tradeoffs:** reducing friction too far risks weakening governance and assurance posture.
+- **Recommendations:** bias toward "default safe + guided first proof" instead of broad optionality at pilot start.
+- **Classification:** V1
+
+## 8. Top 10 Weaknesses (Ranked)
+1. **Ship-gate evidence is incomplete in this pass** - matters because readiness confidence is capped by runtime unknowns; **design uncertainty**; V1 blocker only if unknowns resolve negatively; fastest fix: single scripted evidence run for all six gates.
+2. **Time-to-first-obvious-value remains fragile** - matters because voluntary reuse depends on fast cognitive payoff; **market + design uncertainty**; not hard blocker; fix with one constrained pilot path and measured elapsed checkpoints.
+3. **Decision-advantage proof is still mostly inferred, not demonstrated at scale** - matters because frontier-AI substitution risk is high; **market uncertainty**; not blocker; fix with structured A/B pilot evidence.
+4. **Executive narrative coherence still depends on skilled operator mediation** - matters because purchase decisions are executive and cross-functional; **design uncertainty**; not blocker; fix with stricter sponsor packet narrative spine.
+5. **Procurement assurance friction remains externally visible** - matters for conversion timing; **market uncertainty**; not `(A)` blocker; fix via procurement response assets and expectation shaping.
+6. **Adoption complexity across auth/config/evidence paths** - matters for 30-day usage; **design uncertainty**; not blocker; fix with opinionated first-pilot profile and strict preflight.
+7. **Reliability claims are architecture-strong but evidence-light in this specific pass** - matters because demo failure kills trust quickly; **design uncertainty**; potential blocker if unresolved; fix with repeated smoke evidence.
+8. **Frontier-AI comparison is still easier to narrate than to quantify** - matters because displacement can occur on perception; **market uncertainty**; not blocker; fix with explicit baseline-vs-ArchLucid decision deltas.
+9. **Policy-pack moat can be mistaken for taxonomy decoration** - matters because moat credibility drives purchase; **market uncertainty**; not blocker; fix by showing policy changes flipping concrete decisions and owners.
+10. **ITSM depth remains intentionally partial in V1** - matters for some enterprise workflows; **design uncertainty**; not blocker for V1 if pilot scope is explicit; fastest fix is buyer qualification and connector readiness checks.
+
+## 9. Frontier-AI Analysis
+
+### Commodity vs Durable
+| Capability | 12-month trajectory | Why | Evidence base |
+|---|---|---|---|
+| Generic architecture critique prose | Commodity | Frontier models keep improving unsupervised advisory quality | Market baseline + direct model trend |
+| Policy-aware finding filtering by tenant-specific packs | Durable (if used) | Requires persisted policy state and governed resolution, not prompt memory alone | Policy pack APIs, governance resolution, pre-commit gate |
+| Evidence -> finding -> decision -> audit chain | Durable | Depends on append-only system records and reproducible workflow state | Audit matrix + authority commit flows |
+| Executive packet with disposition-aware ROI basis | Semi-durable | Logic is reproducible by competitors, but operational consistency can still differentiate | ROI service behavior + board-pack delegation |
+| Remediation seam to external systems with stable IDs | Semi-durable | Technically reproducible but still operationally sticky in enterprise workflows | ITSM outbound + correlation persistence |
+
+### Hard-to-reproduce-via-prompting
+- **Hard:** tenant policy state resolution, deterministic governance gates, durable audit reconstruction, and cross-role workflow separation.
+- **Easy soon:** high-quality architecture critique text, remediation suggestion drafting, and polished narratives.
+
+### Leverage / Upside (Mandatory)
+As base models improve, ArchLucid can capture upside without proportional product rewrite: better model outputs flow into existing policy/evidence/audit scaffolding, increasing decision quality and governance value at near-zero incremental workflow cost.
+
+### Displacement Timeline
+- **One model release away from commoditization:** generic "architecture advisor" UI, unsupported ROI storytelling, and ungoverned recommendation prose.
+- **Less likely to commoditize quickly:** integrated policy-stateful governance workflow with audit-grade traceability and repeatable package production.
+
+**Final verdict:** ArchLucid can become more valuable faster than frontier AI capabilities expand **only if** it proves repeated, governed decision advantage in real buyer workflows; otherwise it risks being perceived as an expensive wrapper.
+
+## 10. Policy-Aware Governance Test
+1. **Policy packs first-class or inert?** Mostly first-class in architecture and contracts; inertia risk exists if teams run defaults without policy variation.
+2. **Trace path completeness:** Intended end-to-end path is present; empirical completeness remains partially unverified in this specific pass.
+3. **Could frontier AI alone reproduce consistently?** Not reliably at organizational scale without heavy process engineering external to the model.
+4. **AI analysis vs governed infrastructure split:** governed infrastructure is the differentiator; raw analysis quality alone is not.
+5. **Evidence moat proof needed:** repeated cases where policy changes alter findings, decisions, and remediation ownership with auditable trail.
+6. **Fastest validation path:** two-run policy A/B on same evidence with sponsor-visible decision delta and gate delta.
+7. **V1 demo behavior that makes moat obvious:** show a policy-pack change that flips commit gate outcome and executive recommendation ordering while preserving traceability.
+
+## 11. Principal Architect Dismissal Test
+- **What makes them say "I need this":** "You showed me a decision delta with audit-grade backing that my own frontier-AI workflow does not reliably produce under governance pressure."
+- **What makes them return voluntarily:** reduced personal burden in defending architecture decisions to security/compliance/executives.
+- **What triggers immediate dismissal:** product feels like "chat with extra steps" where policy packs do not materially change outputs.
+- **Single most likely dismissal trigger today:** perceived process overhead before obvious decision gain.
+  - **Calibrated likelihood:** **45-60%** (reference class: senior architects reject governance-heavy tools unless decision advantage is immediate and concrete).
+- **Direct answer:** today they may see ArchLucid as better than "Claude + prompt + standards paste-in" only when they observe governed decision delta; absent that evidence, many will not.
+
+## 12. Founder Delusion Check
+- **Strongest assumptions with weakest evidence:** that governance-heavy packaging alone will drive repeat architect usage without hard proof of superior decisions.
+- **Looks differentiated but becoming commodity:** eloquent architecture explanation.
+- **Looks ordinary but may be moat:** boring audit/event/correlation plumbing tied to policy-stateful decisions.
+- **Could burn months with low five-outcome impact:** broad ecosystem/marketplace features pre-validation.
+- **If features froze for six months:** best move is validation cadence proving decision change + repeat use.
+- **Most dangerous attractive distraction:** feature breadth race with frontier AI capabilities.
+- **Most boring real moat:** repeatable, auditable policy-evidence decision workflow adopted by multiple operators.
+
+## 13. Competitive Reality Check & Moat Assessment
+- **What skilled architects already do manually with frontier AI:** critique architectures, draft recommendations, produce narratives quickly.
+- **What ArchLucid does faster/more consistently:** produce governed package artifacts with policy traceability, disposition semantics, and auditable records.
+- **What resists prompting:** persisted governance state, consistent audit chain, repeatable multi-role workflow.
+- **What is commodity within 12 months:** generic advisory depth and phrasing quality.
+- **What gets more valuable as AI improves:** policy-aware package quality under the same governance rails.
+- **Current moat:** moderate, infrastructure-centric, not yet fully market-proven.
+- **Potential future moat:** high if policy-state-driven decision change is repeatedly demonstrated.
+- **Weakest moat assumption:** "enterprise buyers will pay for governance packaging without strong proof of decision advantage."
+- **Most durable moat assumption:** "audit-grade, policy-stateful decision workflows are hard to sustain via ad-hoc prompting."
+- **Probably-illusory moat:** interface polish as primary defense.
+- **Boring-but-durable moat:** traceability and disposition-aware decision records.
+- **What makes moat obvious to buyers:** a before/after decision package where policy changes alter outcomes and ownership in a way plain prompting did not.
+
+## 14. Adoption & Monetization
+- **30-day voluntary usage (10 principal architects):** strongest positive factor is defendable decision packaging; strongest negative factor is upfront workflow overhead; likely return reason is "saved me from governance rework"; likely stop reason is "frontier AI chat is faster."
+- **Executive purchase:** strongest driver is auditable policy-to-decision traceability; strongest blocker is insufficient buyer-validated proof packets; minimum paid-pilot proof is one credible decision change with measurable cost/risk ownership and remediation trail.
+- **Why buy instead of more frontier-AI licenses:** ArchLucid is not primarily a model quality play; it is a governed operating system for architecture decisions with policy-state, evidence lineage, and auditability.
+
+**Top 6 monetization blockers**
+1. Decision delta not yet buyer-visible in repeated pilots - objection owner: architecture leadership - overcome with structured validation.
+2. Procurement assurance expectations (CPA SOC2 / third-party pen-test) - owner: InfoSec/procurement - overcome with transparent roadmap + exceptions.
+3. Time-to-value uncertainty in first pilot execution - owner: delivery sponsor - overcome with measured first-review runbook.
+4. Cognitive load from broad surface area - owner: executive sponsor/operator - overcome with role-specific packets.
+5. ITSM completeness expectations beyond V1 slice - owner: ops leadership - overcome with pilot scoping and connector roadmap clarity.
+6. "AI license substitution" framing - owner: CIO/finance - overcome with governance/traceability ROI evidence.
+
+**Top 6 enterprise adoption blockers**
+1. Initial environment/auth setup complexity (pilot blocker).
+2. Evidence intake discipline requirements (pilot blocker).
+3. Policy-pack governance ownership model (scale blocker).
+4. Cross-functional comprehension burden (pilot + scale blocker).
+5. Procurement assurance friction in conservative orgs (scale blocker).
+6. Workflow fit with incumbent remediation operations (scale blocker).
+
+## 15. Most Important Truth
+**ArchLucid wins only if it proves that policy-aware governance changes real architecture decisions more reliably than frontier AI chat alone.**
+
+Without that proof, the product reads as process overhead around increasingly capable base models.
 
 ---
 
@@ -369,327 +272,325 @@ The next decision should not be another broad engineering batch. It should be pr
 
 ---
 
-# 16. Stop Doing List
+## 16. Stop Doing List
+- **Top 3 improvements not worth doing before V1 validation closes:**
+  1. Plugin marketplace or ecosystem expansion.
+  2. Net-new MCP surface acceleration ahead of buyer decision proof.
+  3. Additional broad policy-pack count expansion without decision-delta evidence.
+- **Top 3 diminishing-returns areas:**
+  1. Incremental export format polish without stronger market proof loops.
+  2. Additional generic AI critique surface features.
+  3. New dashboard breadth before first-review reliability evidence is routine.
+- **Top 3 founder behaviors that delay validation:**
+  1. Treating architecture completeness as a proxy for purchase probability.
+  2. Reopening explicitly deferred assurance backlog as ad hoc engineering work.
+  3. Optimizing demo polish over measurable decision-change outcomes.
+- **Top 3 features that feel enterprise-important but may not improve V1 adoption:**
+  1. Multi-region active/active promises.
+  2. Third-party extension marketplace.
+  3. Non-essential connector expansion beyond pilot-critical seams.
+- **ITSM special attention judgment:** V1 outbound slice is sufficient for pilot-level remediation handoff when configured; V1.1 sequencing (ServiceNow -> Confluence -> Jira) remains directionally sound unless paid pilot evidence says otherwise.
 
-**Top 3 improvements not worth doing before V1:**
-1. Building a public extension/plugin marketplace.
-2. Pulling MCP membrane work forward before pilot proof.
-3. Expanding policy pack count instead of proving policy packs change decisions.
+## 17. Top Improvement Opportunities (Validation-First)
+Confidence drops after these thirteen; list intentionally stops.
 
-**Top 3 diminishing-returns areas:**
-1. More graph visualization polish for first-review demos.
-2. More generic holistic-critic features.
-3. More export variants before validating current proof packets.
+### Tier 1 - Must Fix
 
-**Top 3 founder behaviors that could delay validation:**
-1. Treating a high readiness score as market proof.
-2. Re-opening SOC 2 CPA or third-party pen-test as engineering tasks instead of owner/backlog programs.
-3. Leading demos with chat or feature breadth instead of policy/evidence/commit/audit.
+**1) Ship-gate evidence harness for first-review truth**
+- **Why it matters:** unresolved ship-gate unknowns directly limit confidence in outcomes 1-4.
+- **Expected impact:** Runtime reliability, Time-to-value, Executive purchase confidence.
+- **Affected qualities:** 6, 9, 4.
+- **Evidence:** all required surfaces exist, and a deterministic ship-gate evidence command now generates gate verdict artifacts.
+- **Actionability:** high.
+- **Design Uncertainty Reduced:** 8/10
+- **Market Uncertainty Reduced:** 4/10
+- **Classification:** V1 engineering - **shipped (2026-06-27)**
+- **Implementation summary (shipped):** added `archlucid pilot ship-gate-evidence --run-id <guid>` with deterministic JSON + Markdown evidence output and gate-level PASS/FAIL/UNKNOWN verdicts, including links to the run, export, traceability bundle, and executive ROI routes. Added unit coverage in `ArchLucid.Cli.Tests/ShipGateEvidenceRunnerTests.cs`.
+- **Rescore impact:** Time-to-Value +1 and Runtime & First-Review Reliability +1, lifting `(A)` headline readiness from **80.51%** to **80.68%**.
 
-**Top 3 features that feel enterprise-important but may not improve V1 adoption:**
-1. Multi-region active/active.
-2. Plugin ecosystem.
-3. Broad integration catalog beyond the existing V1 outbound slice.
+**Cursor prompt**
+```text
+Current problem:
+We can describe the first-review path, but we do not consistently generate one machine-readable artifact proving all six ship-gate checks (create, execute, commit, citation sanity, export matrix, UI-safe route sequence, auth/scope sanity) passed in one run.
 
-**ITSM special attention:** The V1 outbound slice is sufficient for pilots if configured: stable `FindingId`, persisted `ItsmFindingCorrelations`, per-tenant settings, health/readiness surfaces, and durable audit events. V1.1 sequencing ServiceNow → Confluence → Jira remains rational. Do not rebuild seams that already exist. Pull forward only if a paying pilot names a specific provider as a purchase blocker.
+Desired behavior:
+Add a deterministic "ship-gate evidence" runner that executes one representative first-review flow and outputs a single evidence bundle (json + markdown) with PASS/FAIL/UNKNOWN for each gate and links to produced artifacts.
 
----
+Scope boundaries:
+- Reuse existing API routes, CLI commands, and smoke helpers.
+- Do not invent new product capabilities.
+- Keep it tenant-scoped and safe for CI/non-prod use.
 
-# 17. Top Improvement Opportunities
+Acceptance criteria:
+- One command generates gate verdicts with per-gate evidence pointers.
+- Bundle includes runId, commit timestamp, artifact IDs, export outcomes, and auth/scope probe results.
+- Any failed gate returns non-zero exit code.
 
-All six ship gates are PASS and the shipped ledger shows the prior engineering improvement batch is done or held. This section therefore leads with market validation. New engineering should be avoided unless validation exposes a concrete blocker against the five ranked outcomes.
+Tests to add/update:
+- Unit tests for verdict aggregation and failure handling.
+- Integration test with a simulated run proving output schema stability.
 
-### Tier 1 – Must Fix
+Non-goals:
+- New UI pages.
+- Procurement reporting logic.
+```
 
-**1. Policy-to-decision proof pilot**
-- **Tier:** 1
-- **Why it matters:** This is the central moat test: does changing policy change findings, decisions, gate outcome, and package narrative?
-- **Expected impact:** Moves Decision-Changing Insight Density, Differentiability, Governed Review Integrity, 30-Day Voluntary Usage.
-- **Evidence:** Policy pack simulation, compliance rule filtering, decision delta, pre-commit gate, audit export exist.
-- **Actionability:** High.
+**2) Policy-to-decision validation cohort (market execution)**
+- **Why it matters:** core moat proof.
+- **Expected impact:** decision advantage, voluntary usage, survivability confidence.
+- **Affected qualities:** 1, 2, 3.
+- **Evidence:** policy/gate/audit surfaces exist; market proof remains limited.
+- **Actionability:** medium (human-run).
 - **Design Uncertainty Reduced:** 3/10
 - **Market Uncertainty Reduced:** 9/10
-- **Classification:** Validation first.
-- **Plan:** Use one canonical architecture review with authorized evidence. Run default pack, then stricter/customer-like pack. Record changed rule keys, finding set, gate outcome, executive summary deltas, and remediation owner. Package the result as a buyer-safe proof packet.
-- **Design half (DONE 2026-06-27):** The A/B mechanism is now repeatable and drift-protected. Reusable run-sheet `docs/go-to-market/POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` sequences the shipped demo script (`scripts/demo-policy-pack-delta.ps1` + `POLICY_PACK_DELTA_DEMO_SCRIPT.md`), a deterministic synthetic fixture (`tests/fixtures/policy-ab-demo/policy-ab-demo-fixture.json`), and the proof-packet assembly into one pilot. New regression tests fail if a stricter pack stops adding a compliance rule key or stops flipping the pre-commit gate: backend `ArchLucid.Application.Tests/Governance/PolicyAbDemoRegressionTests.cs` (+ `PolicyAbDemoFixture.cs`) and UI `archlucid-ui/src/lib/policy-ab-demo-fixture.test.tsx`. Reuses the shipped dry-run/simulation endpoints, filter, and diff view; restates none of them.
-- **Remainder → GTM V1.1 backlog:** running the pilot on a real/sanitized **authorized** committed run and having a buyer judge that the changed decision matters is the market-execution half. A coding agent cannot perform it; do not treat a green offline rehearsal as buyer validation.
-- **(A) scoring impact:** none. The fixture/run-sheet are weight-0 validation tooling and CI drift guards; the headline stays 90.91% (see §2 rescore note). The score moves only when a real policy-to-decision delta changes a real buyer decision.
+- **Classification:** validation first
 
-**Moved out of immediate V1 prescription:** Improvements **2**, **3**, **5**, and **6** are GTM V1.1 backlog work, not current V1 must-fix items — **do not list #5 or #6 in future assessment §17 passes** (track only in `docs/go-to-market/GTM_BACKLOG.md`). **#2** → **M-90**; **#3** → **M-44** (design half shipped 2026-06-27; live cohort remainder under **M-44**); **#5** → **M-91**; **#6** → **M-92**. No V1 engineering or `(A)` headline action remains for #3, #5, or #6.
+### Tier 2 - High Leverage
 
-**4. Executive paid-pilot proof packet — design half shipped; remainder → GTM V1.1 backlog**
-- **Tier:** 1
-- **Why it matters:** Executive purchase probability depends on a proof artifact, not another feature.
-- **Expected impact:** Moves Proof-of-ROI Readiness, Executive Purchase, Comprehension.
-- **Evidence:** ROI summary, board pack, proof-packet CLI, audit slice, source labels exist.
-- **Actionability:** High.
+**3) Executive proof-packet acceptance testing with real buyers**
+- **Why it matters:** purchase probability is currently lower than `(A)` readiness.
+- **Expected impact:** executive purchase and proof-of-ROI credibility.
+- **Affected qualities:** 7, 8, 4.
+- **Evidence:** strong ROI and board-pack surfaces already ship.
+- **Actionability:** medium (human-run).
 - **Design Uncertainty Reduced:** 2/10
 - **Market Uncertainty Reduced:** 9/10
-- **Classification:** Validation first.
-- **Design half (DONE 2026-06-27):** Reusable assembly + mock-review instrument `docs/go-to-market/EXECUTIVE_PAID_PILOT_PROOF_PACKET.md` maps all six required elements (ROI assumptions, freshness labels, cited evidence, disposition basis, audit timeline, and **one remediation ticket** via ITSM correlation — the one element the sponsor-packet CLI did not surface) and chains assembly → send gate → mock procurement review (`CONTROLLED_PILOT_OBJECTION_DRILL` / `PROCUREMENT_OBJECTION_PLAYBOOK`). Reuses the existing sponsor-packet CLI, send gates, evidence templates, and demo exemplars; restates none of them.
-- **Remainder → GTM V1.1 backlog (`M-37`):** assembling a packet from a real/sanitized **authorized** committed run and running the mock review + real procurement call with human reviewers, then filing the outcome in `validation/PAID_PILOT_EVIDENCE_LEDGER.md`. A coding agent cannot perform it.
-- **(A) scoring impact:** none. The assembly/mock-review instrument is weight-0 GTM tooling; the headline stays 90.91% (see §2 rescore note). The score moves only when a real packet survives a real procurement review.
+- **Classification:** validation first
 
-### Tier 2 – High Leverage
-
-**7. Proof-language claim audit — design half shipped (DONE 2026-06-27)**
-- **Tier:** 2
-- **Why it matters:** One unsupported claim can damage trust more than a missing feature.
-- **Expected impact:** Moves Correctness & Evidence Integrity and Executive Purchase.
-- **Evidence:** Governed/advisory labels and proof status strips exist.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 3/10
+**4) First-review cognitive-load reduction in operator guidance**
+- **Why it matters:** reduces architect dismissal risk from "process overhead."
+- **Expected impact:** time-to-value and adoption friction.
+- **Affected qualities:** 6, 8, 10.
+- **Evidence:** broad UX exists; role-oriented pathing still uneven.
+- **Actionability:** medium.
+- **Design Uncertainty Reduced:** 6/10
 - **Market Uncertainty Reduced:** 5/10
-- **Classification:** Validation first.
-- **Plan:** Review every buyer-facing proof packet and demo script. Mark each claim as extractor-backed, review-backed, illustrative, self-assessed, or roadmap. Remove unsupported superlatives.
-- **Design half (DONE 2026-06-27):** `docs/go-to-market/PROOF_LANGUAGE_CLAIM_AUDIT.md` defines the canonical five-type taxonomy, classifies every buyer-facing proof packet + demo script by dominant claim type, and records a PASS. A new tight superlative regression guard `scripts/ci/check_proof_language_superlatives.py` (scope/terms in `scripts/ci/data/proof_language_audit_scope.v1.json`, tests in `scripts/ci/tests/test_check_proof_language_superlatives.py`) is wired into `run_buyer_surface_strict_guards.py`; it normalizes markdown emphasis and skips caveated lines, so honest "do not promise" rows pass while new unsupported superlatives fail CI. Reuses the existing `WHAT_NOT_TO_PROMISE.md`, sponsor-output audit, and buyer-surface guard bundle; restates none of them. The corpus was already clean (no copy changes needed).
-- **Remainder (GTM half):** line-level sign-off on borderline comparative/ROI claims and live buyer reaction pair with the procurement objection rehearsal (**M-91**). 
-- **(A) scoring impact:** none on the headline by itself; the guard hardens Correctness & Evidence Integrity against regression. Headline stays 90.91% (see §2 rescore note).
+- **Classification:** V1
 
-### Tier 3 – Hold For Reassessment
+**Cursor prompt**
+```text
+Current problem:
+First-review users can reach value, but operator flow still requires jumping across many sections before they see a clear "decision package ready" checkpoint.
 
-**2. 90-minute first-review dry-run cohort**
-- **Tier:** 3
-- **Why it matters:** Voluntary usage depends on time-to-first credible package, not feature count.
-- **Expected impact:** Time-to-Value, Adoption Friction, Runtime Reliability.
-- **Evidence:** First-review playbook, pilot nav profile, demo review, ZIP pre-validation, proof packet exist.
-- **Actionability:** High when V1.1 GTM validation starts.
-- **Design Uncertainty Reduced:** 4/10
+Desired behavior:
+Create a single guided first-review checkpoint strip (intake -> execute -> commit -> export -> sponsor-ready) in the operator path using existing APIs and statuses, with concise role-specific copy (operator vs executive summary lens).
+
+Scope boundaries:
+- Reuse current run status, artifact, and ROI summary data.
+- No new backend contracts unless absolutely necessary.
+- Avoid adding new conceptual entities.
+
+Acceptance criteria:
+- Users can see exactly what remains before "sponsor-ready."
+- Completed checkpoints deep-link to existing pages.
+- Missing prerequisites are shown with concrete next actions.
+
+Tests to add/update:
+- UI tests for status progression and edge states.
+- Contract tests for any derived status mapping logic.
+
+Non-goals:
+- Rework of full navigation IA.
+- New pricing or procurement content.
+```
+
+### Tier 3 - Hold For Reassessment
+
+**5) Frontier-AI baseline benchmark program**
+- **Why it matters:** prevents self-referential moat assumptions.
+- **Expected impact:** differentiation truthfulness and strategy quality.
+- **Affected qualities:** 1, 2, 5.
+- **Evidence:** competitive framing is strong conceptually but sparse in repeated benchmark data.
+- **Actionability:** medium.
+- **Design Uncertainty Reduced:** 2/10
 - **Market Uncertainty Reduced:** 8/10
-- **Classification:** **GTM V1.1 backlog** — tracked as `GTM_BACKLOG.md` **M-90**.
+- **Classification:** validation first
 
-**3. Principal architect dismissal interview script — design half shipped; remainder moved to GTM V1.1 backlog**
-- **Tier:** 3 (closed for V1 engineering)
-- **Why it matters:** The principal architect is the most dangerous evaluator because they already use frontier AI well.
-- **Expected impact:** Decision Advantage, Frontier-AI Survival, 30-Day Voluntary Usage.
+**6) ITSM pull-forward decision gate**
+- **Why it matters:** avoid over-building or under-serving integration expectations.
+- **Expected impact:** adoption friction and enterprise fit.
+- **Affected qualities:** 10, 8.
+- **Evidence:** V1 outbound seams are present and auditable.
+- **Actionability:** medium.
+- **Design Uncertainty Reduced:** 4/10
+- **Market Uncertainty Reduced:** 6/10
+- **Classification:** V1.1 / blocked on user input
+
+**7) Procurement objection replay drills (non-engineering)**
+- **Why it matters:** explicit conversion bottlenecks are procurement narrative + proof confidence.
+- **Expected impact:** executive purchase probability.
+- **Affected qualities:** 7, 4.
+- **Evidence:** trust artifacts are strong but need repeated real objection handling evidence.
+- **Actionability:** medium.
 - **Design Uncertainty Reduced:** 1/10
-- **Market Uncertainty Reduced:** 10/10
-- **Design half (DONE 2026-06-27):** Reusable interview instrument `docs/go-to-market/PRINCIPAL_ARCHITECT_DISMISSAL_INTERVIEW_SCRIPT.md` + capture template `docs/go-to-market/templates/principal-architect-dismissal-interview.template.json` (randomized two-arm demo: chat-style frontier AI vs governed package; "what would you reuse in 30 days" + "what would you pay to avoid doing manually").
-- **Remainder → GTM V1.1 backlog (`M-44`):** the market-execution half — recruit daily frontier-AI principal architects and run the live 6–8-session randomized cohort, then file dismissal logs and weekly triage — is moved to the GTM V1.1 backlog. A coding agent cannot perform it.
-- **(A) scoring impact:** none. Weight-0 market-validation work; the headline stays 90.91% (see §2 rescore note). The score moves only when the live cohort runs.
-- **Classification:** **GTM V1.1 backlog** — tracked as `GTM_BACKLOG.md` **M-44**.
+- **Market Uncertainty Reduced:** 8/10
+- **Classification:** validation first
 
-**8. Repeat-pilot answer reuse — DONE (2026-06-27)**
-- **Tier:** 3 (closed for V1)
-- **Why it matters:** Could reduce second-review friction, but only matters if pilots return.
-- **Expected impact:** Time-to-Value, Adoption Friction.
-- **Evidence:** Draft question engine skipped answered questions within a draft; cross-draft reuse now ships at admission.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 6/10 → **shipped**
-- **Market Uncertainty Reduced:** 3/10
-- **Classification:** V1 engineering — **shipped**.
-- **Shipped:** `DraftPriorAnswerReuseApplicator` pre-fills unanswered elicitation keys from up to five prior **RunSpawned** drafts in the same tenant/workspace/project scope at `RequestAdmissionAsync`, records `reused.answer.{questionKey}` provenance on the transparency trail, and lets the existing question-selection engine skip already-answered MUST keys. Repository: `ListRunSpawnedInScopeAsync` (uses existing `IX_DraftRequests_Scope_Status_UpdatedUtc`). Tests: `DraftPriorAnswerReuseApplicatorTests`, `DraftRequestServiceQuestionTests.RequestAdmissionAsync_ReusesAnswersFromPriorRunSpawnedDraft`. Cross-tenant reuse forbidden (ADR 0031).
-- **(A) scoring impact:** Time-to-Value +1, Adoption Friction +1 → headline **91.06%** (see §2 rescore note).
-
-**9. MCP membrane**
-- **Tier:** 3
-- **Why it matters:** Useful for agent ecosystem later, not for V1 proof.
-- **Expected impact:** Long-term survivability only after pilot adoption.
-- **Evidence:** Explicit V1.1 scope.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 5/10
-- **Market Uncertainty Reduced:** 2/10
-- **Classification:** V1.1, hold.
-
-**10. Deeper RAG quality program — shipped (DONE 2026-06-27; expanded same day)**
-- **Tier:** 3 (closed for V1 program)
-- **Why it matters:** Could improve Ask and finding quality, but risks optimizing commodity chat before proving governed workflow.
-- **Expected impact:** AI readiness and insight density.
-- **Evidence:** TB-021/RAG backlog; offline + live-model faithfulness signals; expanded golden datasets.
-- **Actionability:** Medium.
-- **Design Uncertainty Reduced:** 7/10 → **shipped**
-- **Market Uncertainty Reduced:** 3/10
-- **Classification:** V1 engineering — **shipped**.
-- **Shipped (offline):** `DEEPER_RAG_QUALITY_PROGRAM.md`, `run_rag_quality_program.py` (faithfulness → IR → ratchet → rollup), tests.
-- **Shipped (live-model Phase B):** `run_rag_live_model_faithfulness_signal.py` evaluates committed real-mode exemplars with p50/adversarial floors; golden-cohort nightly job `cohort-rag-live-model-faithfulness`; `--include-live-model` on program runner.
-- **Shipped (golden expansion):** retrieval IR **47** cases (AzureRetail, DemoDerived, CustomerProvided, tenant isolation); faithfulness **33** cases (Ask-shaped citations); manifest `scripts/ci/data/rag_golden_dataset_manifest.v1.json`.
-- **Remainder:** live OpenAI invoke under customer deployment model; graph RAG / reranker via **TB-021**.
-- **(A) scoring impact:** offline program **91.16%**; live-model + golden expansion **91.38%** (see §2 rescore note).
-
-### Cursor-Actionable Engineering Candidates
-
-These five are deliberately smaller than new product surfaces. They are Cursor-suitable because they tighten proof, traceability, or first-review reliability without reopening deferred GTM, assurance, MCP, or connector programs.
-
-**11. Persist effective governance snapshot metadata at commit — SHIPPED 2026-06-27**
-- **Tier:** 2
-- **Why it matters:** Buyers need to know which policy state governed a committed review, not only what the current effective assignment says later.
-- **Expected impact:** Governed Review Integrity, Correctness & Evidence Integrity, Differentiability.
-- **Evidence:** `CommittedEffectiveGovernanceSnapshotCapturer` + `ManifestDocument.EffectiveGovernanceAtCommit`; `CompareGovernanceDiffPanel` policy-at-commit rows; `RunDetailManifestSummarySection` policy-at-commit; export README **Policy at commit** line.
-- **Actionability:** Medium.
+**8) Citation integrity sampler for representative committed runs**
+- **Why it matters:** reduces risk that a single uncited or weakly grounded claim undermines trust.
+- **Expected impact:** correctness and evidence integrity, executive purchase confidence.
+- **Affected qualities:** 4, 7.
+- **Evidence:** citation contracts and audit scaffolding already exist; recurring run-level sampling is not standardized.
+- **Actionability:** high.
 - **Design Uncertainty Reduced:** 7/10
 - **Market Uncertainty Reduced:** 4/10
-- **Classification:** V1.1 engineering candidate — **shipped**.
-- **(A) scoring impact:** **91.38% → 91.63%** (Governed Review Integrity +1, Correctness & Evidence Integrity +1).
+- **Classification:** V1 engineering
 
-**Cursor prompt (archived — shipped):**
+**Cursor prompt**
 ```text
-Problem: Committed review packages expose ruleSetId/ruleSetVersion, but compare/audit UX still has to disclaim that current effective policy assignments may differ from the policy state at commit time.
+Current problem:
+Citation rules exist, but we do not have a lightweight recurring sampler that spot-checks representative committed runs for citation completeness and evidence trace consistency.
 
-Desired behavior: When a review is committed, persist a compact effective-governance snapshot descriptor with the committed package: policy pack ids, versions, scope levels, rule-set hash, compliance rule key count, conflict count, and generated UTC. Surface that descriptor on run detail and compare governance diff so operators can distinguish "policy at commit" from "current policy."
+Desired behavior:
+Add a deterministic citation-integrity sampler that selects a bounded set of committed runs, validates citation fields for key claim classes, and emits PASS/WARN/FAIL with run-level evidence pointers.
 
-Scope boundaries: Prefer extending existing manifest metadata / decision trace / run governance metadata patterns over adding a new broad subsystem. Do not re-evaluate old committed runs under new policies. Do not mutate historical manifests after commit.
+Scope boundaries:
+- Reuse existing manifest/finding/evidence read paths and contracts.
+- Keep checks deterministic and offline-capable.
+- Do not add a new policy engine.
 
-Acceptance criteria: A committed review records governance snapshot metadata when effective policy content is available; run detail and compare governance diff show historical snapshot metadata; empty/no-policy cases render clearly; audit/export text says "policy at commit"; current-policy disclaimer remains only where current assignments are shown.
+Acceptance criteria:
+- One command produces machine-readable and markdown outputs.
+- Results identify runId, failing claim category, and missing/weak citation reason.
+- Non-zero exit when fail threshold is exceeded.
 
-Tests to add/update: Application tests for snapshot descriptor creation; persistence/serialization tests for committed metadata; UI tests for compare governance diff historical-vs-current rendering; no cross-tenant scope bleed.
+Tests to add/update:
+- Unit tests for sampler selection and rule evaluation.
+- Integration test with fixtures covering pass/warn/fail outcomes.
 
-Non-goals: Full policy replay engine, policy pack content archival beyond descriptor/hash, changing pre-commit gate semantics.
+Non-goals:
+- LLM-based claim adjudication.
+- Any mutation of committed review artifacts.
 ```
 
-**12. Add proof-packet claim lint to prevent unsupported buyer claims — SHIPPED 2026-06-27**
-- **Tier:** 2
-- **Why it matters:** One unsupported ROI, assurance, or AI-mode claim can erase trust faster than a missing feature.
-- **Expected impact:** Correctness & Evidence Integrity, Executive Purchase, Procurement realism.
-- **Evidence:** `ProofPacketClaimLinter` + `Data/proof_packet_claim_lint_rules.v1.json`; wired into `ProofPacketCommand` and `PilotProofPacketCommand.WriteFolderAsync` before final output; `--skip-claim-lint` internal bypass.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 5/10
+**9) ROI headline/per-system explanation hardening**
+- **Why it matters:** prevents buyer confusion around non-additivity and protects executive trust.
+- **Expected impact:** proof-of-ROI readiness and comprehension.
+- **Affected qualities:** 7, 8.
+- **Evidence:** service behavior is correct, but explanation consistency across all surfaces can still drift.
+- **Actionability:** medium-high.
+- **Design Uncertainty Reduced:** 6/10
 - **Market Uncertainty Reduced:** 5/10
-- **Classification:** V1 engineering hardening — **shipped**.
-- **(A) scoring impact:** **91.63% → 91.75%** (Correctness & Evidence Integrity +1).
+- **Classification:** V1 engineering
 
-**Cursor prompt (archived — shipped):**
+**Cursor prompt**
 ```text
-Problem: Buyer-facing proof packets can still contain unsupported or over-broad language unless a human manually audits every claim.
+Current problem:
+The disposition-aware portfolio headline and per-system rows are intentionally non-additive, but explanatory labels can drift across API, UI, and exported artifacts.
 
-Desired behavior: Add a lightweight proof-packet claim lint that scans generated proof-packet markdown/text artifacts for forbidden or evidence-required phrases (for example: "guaranteed savings", "SOC 2 certified", "third-party tested", "production SLA met", "AI is always real-mode") and fails or warns with actionable messages. The linter should recognize allowed labels such as self-assessed, roadmap, illustrative, extractor-backed, review-backed, and simulator/real-mode.
+Desired behavior:
+Centralize and enforce one canonical explanation string set for ROI scope semantics so every surface consistently labels headline basis, per-system scope, and freshness assumptions.
 
-Scope boundaries: Keep this as deterministic string/rule lint over generated artifacts and docs. Do not introduce an LLM reviewer. Do not block normal internal debug bundles; apply to buyer-safe proof packet paths and any CI script that explicitly opts in.
+Scope boundaries:
+- Reuse existing ROI services and response contracts where possible.
+- Prefer shared constants/helpers over duplicated copy.
+- Do not alter ROI math.
 
-Acceptance criteria: `archlucid proof-packet` can run claim lint before writing the final ZIP; violations list file, phrase, reason, and suggested safe wording; source-label and ROI sections pass; test fixtures cover both fail and pass cases.
+Acceptance criteria:
+- API, UI, and export text all use the same explanation sources.
+- Snapshot/contract tests fail if explanation semantics drift.
+- Existing disposition-aware totals remain unchanged.
 
-Tests to add/update: CLI unit tests for lint pass/fail; proof-packet writer tests with forbidden assurance and ROI claims; documentation sample test if existing script infrastructure supports it.
+Tests to add/update:
+- Service tests for explanation payload fields.
+- UI rendering tests for canonical labels.
+- Export text tests for non-additivity caveat presence.
 
-Non-goals: Legal review automation, replacing `WHAT_NOT_TO_PROMISE.md`, changing ROI calculations.
+Non-goals:
+- New pricing models.
+- New financial metrics.
 ```
 
-**13. Create a one-command pilot readiness preflight summary — SHIPPED 2026-06-27**
-- **Tier:** 2
-- **Why it matters:** Time-to-value still depends on setup choreography across SQL, auth, LLM mode, Azure AI Search, proof packet, and optional ITSM.
-- **Expected impact:** Time-to-Value, Adoption Friction, Runtime & First-Review Reliability.
-- **Evidence:** `CONFIGURATION_REFERENCE.md` defines pilot profiles; config check/lint endpoints and CLI exist; ITSM health exists.
-- **Actionability:** Medium-high.
-- **Design Uncertainty Reduced:** 6/10
+**10) Tenant-isolation negative-test bundle for pilot readiness**
+- **Why it matters:** explicit cross-tenant denial evidence materially improves enterprise confidence.
+- **Expected impact:** runtime reliability, adoption friction, procurement realism support.
+- **Affected qualities:** 9, 10, 4.
+- **Evidence:** architecture posture is strong; recurring negative-test evidence is not bundled by default.
+- **Actionability:** high.
+- **Design Uncertainty Reduced:** 8/10
 - **Market Uncertainty Reduced:** 4/10
-- **Classification:** V1 engineering hardening.
-- **Implementation:** `PilotPreflightOptions` parses `--no-api`, `--include-itsm`, `--md`, `--markdown-out`; `PilotPreflightRunner.RunAsync` overload accepts options — `--no-api` skips all HTTP probes, `--include-itsm` probes `GET /v1/integrations/itsm/health`; `PilotPreflightLocalSteps` adds `execution-mode`, `azure-ai-search`, and `proof-packet-prereq:claim-lint-rules` steps; `PilotPreflightCommand` renders structured markdown with owner next-steps table and references block; FIRST_PILOT_OPERATOR_PATH.md step A0 updated; tests added for all new branches. **Time-to-Value +1, Adoption Friction +1.**
+- **Classification:** V1 engineering
 
-**Cursor prompt:**
+**Cursor prompt**
 ```text
-Problem: Operators need several commands/docs to know whether an environment is ready for a first pilot, which increases first-review friction.
+Current problem:
+Tenant isolation is architecturally clear, but pilot readiness evidence often lacks a standardized negative-test artifact proving cross-tenant access is denied.
 
-Desired behavior: Add `archlucid pilot preflight` that runs the existing config check/lint logic, verifies API health/version when `--api` is provided, reports execution mode, checks proof-packet prerequisites, checks Azure extractor upload limits/docs pointers, and optionally calls ITSM health. Output both human-readable markdown and JSON with PASS/HOLD rows.
+Desired behavior:
+Add a repeatable tenant-isolation negative-test bundle to pilot/readiness flows that runs scoped cross-tenant probes and records expected-deny outcomes with correlation IDs.
 
-Scope boundaries: Reuse existing config check/lint, health, and ITSM health clients. Do not add new server-side validation rules unless an existing API already exposes the data. Do not print secrets.
+Scope boundaries:
+- Reuse existing auth/scope enforcement and diagnostic endpoints.
+- Keep it non-destructive and non-production-invasive.
+- No new authorization model changes.
 
-Acceptance criteria: Command returns non-zero only on blocking HOLD rows; JSON schema is stable enough for CI; markdown includes owner-friendly next steps; `--no-api` supports offline config-only mode; `--include-itsm` probes ITSM health only when requested.
+Acceptance criteria:
+- Command outputs a concise deny-matrix with probe name, expected status, observed status, and correlation IDs.
+- Bundle integrates with readiness evidence output.
+- Fail when any cross-tenant probe unexpectedly succeeds.
 
-Tests to add/update: CLI command option parsing tests; mocked API client tests for PASS/HOLD combinations; redaction test proving secrets are not emitted; docs update in pilot runbook.
+Tests to add/update:
+- Unit tests for probe result aggregation.
+- Integration test with two scoped tenants asserting deny behavior.
 
-Non-goals: Deploying infrastructure, running a full release smoke, creating a review.
+Non-goals:
+- Pen-testing automation suite.
+- Changes to tenant isolation architecture itself.
 ```
 
-**14. Add governed-finding coverage metric to executive/proof surfaces — SHIPPED 2026-06-27**
-- **Tier:** 3
-- **Why it matters:** The product's moat is strongest when findings are governed and traceable; executives should know whether a package is mostly governed findings or advisory narrative.
-- **Expected impact:** Proof-of-ROI Readiness, Executive / Operator Comprehension, Differentiability.
-- **Evidence:** Governed vs advisory labeling exists; findings carry policy/rule traces for compliance; proof status strips exist.
-- **Actionability:** Medium.
+**11) Principal-architect return-trigger telemetry pack**
+- **Why it matters:** 30-day voluntary usage is currently a major uncertainty.
+- **Expected impact:** voluntary usage probability and decision-advantage validation quality.
+- **Affected qualities:** 1, 6, 10.
+- **Evidence:** architect-dismissal framing exists; return-trigger telemetry is still ad hoc.
+- **Actionability:** medium.
+- **Design Uncertainty Reduced:** 3/10
+- **Market Uncertainty Reduced:** 8/10
+- **Classification:** validation first
+
+**12) Buyer-proof evidence ledger normalization**
+- **Why it matters:** inconsistent evidence packaging slows procurement and weakens repeatability.
+- **Expected impact:** governed repeatability and executive purchase confidence.
+- **Affected qualities:** 3, 7, 8.
+- **Evidence:** many artifacts already ship; canonical "what counts as proof completion" still varies by operator.
+- **Actionability:** medium.
+- **Design Uncertainty Reduced:** 4/10
+- **Market Uncertainty Reduced:** 7/10
+- **Classification:** validation first
+
+**13) Decision-owner accountability scoreboard for pilots**
+- **Why it matters:** decision value is stronger when findings map to explicit owners and outcomes.
+- **Expected impact:** decision-changing insight density and survivability.
+- **Affected qualities:** 1, 2, 3.
+- **Evidence:** remediation seams exist; owner-accountability reporting is not yet a default pilot artifact.
+- **Actionability:** medium.
 - **Design Uncertainty Reduced:** 5/10
-- **Market Uncertainty Reduced:** 4/10
-- **Classification:** V1/V1.1 engineering candidate.
-- **Implementation:** `GovernedFindingCoverageMetric` contract (total, governed, advisory, withPolicyRule, withEvidenceRefs counts + governedPercentage + isAvailable) added to `ArchLucid.Contracts.Pilots`; `PilotRunDeltaComputer.AggregateGovernedFindingCoverage` computes from `FindingEnforcementTier` on all decision-grade findings; exposed via `PilotRunDeltasResponse.GovernedFindingCoverage` (mapper updated); `PilotProofPacketGovernanceArtifacts` reads field from deltasJson and embeds formatted explanation in `governance-outcome-summary.json`; `RunDetailFirstScreenProofSummary.governedCoverageLabel` added to lib and rendered as "Governed coverage" dt/dd in `RunDetailFirstScreenProofStatus`; four backend unit tests + four UI lib tests covering not-available, 100%, mixed, and 0% cases. **Proof-of-ROI Readiness +1, Executive / Operator Comprehension +1.**
+- **Market Uncertainty Reduced:** 6/10
+- **Classification:** V1.1 / blocked on user input
 
-**Cursor prompt:**
-```text
-Problem: Buyer-facing summaries show evidence and ROI status, but do not give a compact percentage/count of findings that are governed by policy/rule trace versus advisory-only narrative.
+## 18. Prompt Batching Guidance
+- **First batch (strong-model-recommended):** ship-gate evidence harness, tenant-isolation negative-test bundle, and citation-integrity sampler.
+- **Second batch (safe-for-Sonnet):** operator first-review checkpoint strip plus ROI explanation hardening.
+- **Third batch (safe-for-Composer):** copy/packet consistency and telemetry instrumentation polish after validation findings.
 
-Desired behavior: Compute and display a governed-finding coverage metric for committed review packages: total persisted findings, findings with policy/rule trace, findings with evidence references, and advisory-only outputs excluded from the package. Surface it on run detail proof/decision sections and in proof-packet metadata.
+## 19. Model Usage Guidance
+- **Composer-safe:** copy cleanup, minor UI text alignment, straightforward status rendering.
+- **Sonnet-safe:** contained workflow/UI refinements and small service-layer orchestration updates.
+- **Strong-model-recommended:** strategic assessment updates, policy-aware moat evaluation, cross-surface reliability and traceability refactors.
+- **Opus-or-Gemini-assessment-recommended:** future full strategic clean-slate reassessment and survivability re-rating after new market evidence.
 
-Scope boundaries: Use persisted findings and existing trace/payload fields. Do not invent policy mappings for findings that lack them. Do not count Ask/holistic critic output as governed.
+## 20. Pending Questions For Later
+- **Blocks V1**
+  - None confirmed yet; unresolved ship-gate unknowns must be tested before asserting full PASS.
+- **Blocks V1.1**
+  - None in this pass; connector/MCP/commercial sequencing remains backlog-governed.
+- **Requires customer validation**
+  - Does policy-pack variation change real buyer decisions repeatedly?
+  - Do principal architects voluntarily return after first use?
+  - Does one executive proof packet survive real procurement challenge?
+- **Requires founder decision**
+  - Threshold for pulling forward any V1.1 connector depth based on paid pilot evidence.
+  - Explicit evidence threshold to claim sustained decision advantage vs frontier-AI-only workflow.
 
-Acceptance criteria: Metric is deterministic; empty findings render "not available"; proof packet includes a short explanation; UI uses the existing governed/advisory visual language.
-
-Tests to add/update: Unit tests for coverage calculation; UI test for metric display; proof-packet snapshot/fixture test; no regressions for non-compliance findings.
-
-Non-goals: Rewriting finding generation, requiring every finding to have a policy citation, changing ROI math.
-```
-
-**15. Add sample policy A/B demo fixture and regression test — SHIPPED 2026-06-27**
-- **Tier:** 3
-- **Why it matters:** The central demo depends on showing that policy changes behavior; a deterministic fixture protects that story from drift.
-- **Expected impact:** Decision-Changing Insight Density, Differentiability, Demo Reliability.
-- **Evidence:** Policy pack simulation, compliance filtering, and policy impact preview exist.
-- **Actionability:** High.
-- **Design Uncertainty Reduced:** 6/10
-- **Market Uncertainty Reduced:** 3/10
-- **Classification:** V1 engineering/demo hardening — **shipped**.
-- **Implementation:** `PolicyAbDemoFixture.cs` builds `ComplianceRulePack` with four demo rules (three selectable, one deliberately excluded) plus `PolicyPackContentDocument` for default (two rule keys) and strict (three rule keys) arms; `policy-ab-demo-fixture.json` is the canonical JSON mirror with `expected.defaultGateBlocked: false` and `expected.strictGateBlocked: true`; `policy-ab-demo-fixture.ts` exports typed UI constants including `POLICY_AB_DEMO_ALLOW_RESULT` / `POLICY_AB_DEMO_BLOCK_RESULT`; `PolicyAbDemoRegressionTests` (two tests) proves via `ComplianceRulePackGovernanceFilter` that the stricter pack selects the added rule key and via `PolicyPackGovernanceDryRunService` that the gate flips; `policy-ab-demo-fixture.test.tsx` renders `PolicyPackComplianceRuleKeyDiffView` against fixture keys and asserts gate posture flip; `POLICY_TO_DECISION_PROOF_PILOT_RUNSHEET.md` Step 0 documents fixture as "synthetic, internal demo validation only". **Decision-Changing Insight Density +1 (86→87).**
-- **(A) scoring impact:** **92.07% → 92.20%** (Decision-Changing Insight Density +1).
-
-**Cursor prompt:**
-```text
-Problem: The policy-to-decision demo is strategically important, but there is no small deterministic fixture that proves a policy pack change alters compliance rule selection and gate outcome.
-
-Desired behavior: Add a seeded/demo fixture or test fixture with one committed review and two policy pack contents: default allows or yields fewer findings; stricter pack selects at least one additional compliance rule and makes pre-commit simulation block on critical severity. Use it in tests for policy impact preview helpers and backend simulation where appropriate.
-
-Scope boundaries: Keep the fixture synthetic and clearly demo-labeled. Do not add marketing claims or real customer data. Do not change default PlatformDefault packs solely for this fixture.
-
-Acceptance criteria: A test fails if the stricter policy no longer changes rule-key diff and block outcome; UI helper tests can render the before/after delta; docs mention the fixture as internal demo validation only.
-
-Tests to add/update: Decisioning/Application test for compliance filtering delta; UI test for `PolicyPackImpactPreviewPanel` against fixture-shaped data; optional CLI/demo docs test if demo seed references it.
-
-Non-goals: New policy authoring UX, broad policy replay, buyer-facing benchmark claim.
-```
-
----
-
-# 18. Prompt Batching Guidance
-
-**First batch — validation, no Composer needed:** policy-to-decision proof pilot and executive paid-pilot proof packet. Strong-model-recommended for synthesis of findings after pilot evidence.
-
-**Second batch — buyer proof:** proof-language claim audit (#7). Safe for Sonnet/Composer for copy cleanup after strategic framing is decided.
-
-**Third batch — GTM V1.1 / only if validation window opens:** 90-minute first-review dry-run cohort, principal architect dismissal interviews, live OpenAI invoke under customer deployment. RAG quality program (#10) is **shipped** — use `run_rag_quality_program.py --enforce --include-live-model` for RC. (Procurement objection rehearsal and ITSM pilot-readiness are **GTM V1.1 backlog only** — **M-91** / **M-92** — not assessment §17 items.) Strong-model-recommended for evidence semantics or governance changes; Sonnet-safe for isolated UI copy or tests.
-
-Priorities remain: first-review reliability, guided intake clarity, evidence/policy traceability, package credibility, demo reliability, and executive/operator comprehension. Because the current ship gates pass, validation work should precede new engineering.
-
----
-
-# 19. Model Usage Guidance
-
-| Model tier | Use |
-|------------|-----|
-| Composer-safe | Help copy, proof-packet wording, runbook cleanup, UI label tweaks, snapshot-only copy changes |
-| Sonnet-safe | Small UI wiring, Vitest updates, first-review checklist polish, proof status copy alignment |
-| Strong-model-recommended | Strategic assessment, policy-aware moat evaluation, evidence semantics, review-generation refactors, security/auth/scope changes, ROI basis changes |
-| Opus-or-Gemini-assessment-recommended | Clean-slate market readiness assessments, founder delusion checks, competitive moat analysis, post-pilot synthesis |
-
-Do not use cheaper models to make product strategy calls from pilot evidence; do use them for mechanical docs/tests once strategy is clear.
-
----
-
-# 20. Pending Questions For Later
-
-| Question | Class |
-|----------|-------|
-| Does one policy-pack A/B review change a decision a principal architect would otherwise miss? | Requires customer validation |
-| Will principal architects voluntarily run a second review within 30 days? | Requires customer validation |
-| Which assurance gap blocks the first paid pilot: CPA SOC 2, external pen test, or neither? | Requires customer validation |
-| Which ITSM system, if any, must be configured before payment? | Requires customer validation |
-| When should TB-135 / TB-136 receive budget and owner direction? | Founder decision |
-| When should live commerce / Marketplace un-hold happen? | Founder decision, V1.1 |
-| Should repeat-pilot answer reuse be promoted? | **Shipped (2026-06-27)** — scope-level reuse at draft admission; market validation remains whether pilots actually return |
-
----
-
-# Appendix A — Author Signal (qualitative, NON-HEADLINE)
-
-The product demonstrates serious principal-architect judgment and enterprise realism. The strongest signal is not the amount of software; it is the choice to make policy state, audit, disposition, source labels, and deferrals explicit rather than pretending a chatbot is a governance system. The repo shows practical taste in database-per-tenant isolation, Dapper/SQL-centered persistence, OpenAPI/audit CI gates, advisory-only Terraform, honest trust-center wording, and scope discipline. This author signal is strong, but it is not market readiness by itself.
-
----
-
-# Central Question — Direct Answer
-
-> Does ArchLucid turn frontier AI into a governed, policy-aware, audit-ready enterprise architecture review system that changes decisions and earns repeat use?
-
-**Yes on the system, not yet proven on the market.** ArchLucid has the infrastructure to turn frontier AI output into governed, policy-aware, audit-ready review packages. The remaining proof is whether buyers and principal architects experience that as decision-changing enough to return within 30 days and pay for it.
+## Appendix A - Author Signal (Qualitative, Non-Headline)
+The product demonstrates strong principal-architect judgment in its insistence on policy-aware governance, evidence traceability, and auditability instead of generic AI commentary. The strongest author signal is not feature breadth; it is disciplined emphasis on governed decision infrastructure. The remaining risk is mostly market proof velocity, not conceptual clarity.

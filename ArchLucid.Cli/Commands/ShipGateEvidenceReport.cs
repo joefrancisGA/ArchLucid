@@ -1,0 +1,30 @@
+namespace ArchLucid.Cli.Commands;
+
+internal sealed class ShipGateEvidenceReport
+{
+    public required string BaseUrl
+    {
+        get;
+        init;
+    }
+
+    public required string RunId
+    {
+        get;
+        init;
+    }
+
+    public required DateTime GeneratedUtc
+    {
+        get;
+        init;
+    }
+
+    public required IReadOnlyList<ShipGateEvidenceGateResult> Gates
+    {
+        get;
+        init;
+    }
+
+    public bool AnyFail => Gates.Any(static gate => gate.Verdict == ShipGateEvidenceVerdict.Fail);
+}
